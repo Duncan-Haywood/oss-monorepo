@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1137 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1138 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -88,6 +88,14 @@
     <summary type="text">Free EU Data Act checker: pick your role and size to see whether Regulation (EU) 2023/2854 likely applies, whether the micro and small enterprise exemption covers you, the Article behind it, the dates and the main duties. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>EU E-Invoicing Mandate Checker — Dates by Country (DE, FR, BE, PL, IT, ES)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-einvoicing-mandate-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/eu-einvoicing-mandate-checker</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free EU e-invoicing mandate checker: when your business must receive and issue structured e-invoices in Germany, France, Belgium, Poland, Italy, Croatia, Greece or Spain, in what format, and whether PDF is still enough. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>EU Green Claims Checker — Which Eco Claims Are Banned From 27 Sept 2026</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-green-claims-checker/"/>
     <id>tag:marisstella.dev,2026:tool/eu-green-claims-checker</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free NIS2 scope checker: pick your sector and enter staff, turnover and balance sheet to see whether Directive (EU) 2022/2555 likely applies to you, as an essential or important entity, with the main duties. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>npm Audit Triage — Which npm audit Vulnerabilities Does Your Code Actually Use?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/npm-audit-triage/"/>
-    <id>tag:marisstella.dev,2026:tool/npm-audit-triage</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste npm audit --json and your source imports: see which vulnerable packages your code actually imports, which are only reached through a dependency, and which are test-only noise. Free npm audit triage, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
