@@ -61,6 +61,9 @@ Natural, clean and slightly warm, never "filtered".
 - Music fits the mood of the event: energy matches the footage, the reel starts on a strong
   entrance and ends on a bar line. Natural sound (waves, laughter, a toast) stays under the music.
 - Vary scale: wide, medium, detail. Never two near-identical shots in a row.
+- Wide frames: a 9:16 crop keeps a third of a landscape's width. When the subject or the
+  composition needs the width, show the whole frame over a blurred copy of itself ("fit") or pan
+  slowly across it. Never crop a building, a person or a road curve off the edge.
 - Motion: prefer clips with natural movement; give stills a gentle push-in (zoom 1.00 -> 1.08) or a
   slow pull-out on a reveal. Never zoom on a frame that is already tight on a face.
 - Arc: hook -> place -> moments -> payoff/closer. End on a frame that works as a loop back to the start.

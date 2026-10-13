@@ -135,6 +135,12 @@ class Shot(BaseModel):
     zoom_from: float = Field(1.0, ge=1.0, le=1.6)
     zoom_to: float = Field(1.08, ge=1.0, le=1.6)
     view_yaw_deg: float | None = None
+    layout: Literal["fill", "fit"] = Field(
+        "fill", description="fill: a 9:16 crop around focus; fit: the whole frame at full width over a "
+                            "blurred copy of itself - for wide shots whose composition a crop would cut")
+    focus_to: Point | None = Field(
+        None, description="fill only: the crop centre moves from focus to here over the shot (a slow pan "
+                          "across a wide landscape); null keeps it still")
 
 
 class MusicChoice(BaseModel):

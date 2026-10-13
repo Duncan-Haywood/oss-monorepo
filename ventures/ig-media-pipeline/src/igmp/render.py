@@ -26,6 +26,34 @@ Per kind of shot:
             straddles it.
   photo360  Same v360 reframe of a dual-fisheye .insp (or equirect JPEG) still, then the photo
             Ken Burns move.
+  sequence  Arrives as a video (the rendered timelapse / stop-motion clip) and is treated as one;
+            for the fit layout or a pan the clip must keep its own aspect (not be pre-cut 9:16).
+
+Layouts (shot.layout; photo and video only, 360 shots are always reframed flat views):
+  fill      The above: a 9:16 crop around shot.focus. A wide frame keeps only part of its width
+            (37% of a 3:2 photo).
+  fit       The whole frame at the full 1080 width (a frame narrower than 9:16: the full height),
+            over the same picture scaled to cover 1080x1920, blurred and darkened. The background
+            is made at 1/4 size (cover-scale, gblur sigma 8, so ~32 px at full size; RGB x0.78),
+            then upscaled bicubic: a blurred picture has nothing finer to lose. For a still it is
+            made once and held; for a video every frame (a blurred copy of the moving clip). The
+            foreground's centre sits at 46% of the height (883 px), not 50%: Instagram covers
+            about the top 250 px (header) and the bottom 400+ px (caption, sound, the buttons
+            column), so the clear band is ~250-1500 px with its middle at ~875; the optical centre
+            of a frame is a little above the geometric one too. A 3:2 foreground spans 524-1244 px,
+            16:9 580-1188. A photo foreground gets the Ken Burns move (zoom_from -> zoom_to, the
+            same perspective method on a 2x canvas of the foreground) inside its own frame, so the
+            picture never spills over its edges; a video foreground holds zoom_from (as fill). The
+            still is prepared whole at 2x its size in the reel (2160 px wide).
+Pans (shot.focus_to; fill only): the 9:16 crop centre moves from focus to focus_to over the shot
+  on a smoothstep ease-in-out (zoom, if any, still geometric in time). A photo's still is cut as
+  the union of the 9:16 boxes at both ends (at the 2x scale); a video is cover-scaled as above.
+  Both ends are clamped so the largest window of the shot fits around them, so the eased path
+  never touches the frame edge (a per-frame clamp stays as a guard but never engages: no kink).
+  The motion is sub-pixel: a per-frame crop just bigger than the window (even offsets) follows it
+  and perspective resamples the fraction, so the cost is that of a fill shot however long the
+  pan (perspective on the whole canvas would cost canvas/window times as much). pan_window() is
+  the Python twin. focus_to equal to focus (or None) renders exactly as before.
 
 Yaw convention (shared with media.py's previews): view_yaw_deg is ffmpeg v360's yaw on the
 dual-fisheye frame laid out [rear | front] - the .insp as stored, and for .insv the streams
@@ -109,8 +137,9 @@ HDR_TRANSFERS = {"arib-std-b67", "smpte2084"}
 
 __all__ = [
     "AudioMix", "Levels", "SegmentSource", "build_audio_args", "build_ffmpeg_args", "fit_box",
-    "fit_shots", "frames_for", "gentle_levels", "kenburns_window", "measure_audio", "parse_ebur128",
-    "prepare_sources", "probe_media", "reel_contact_sheet", "render_reel", "steady_levels",
+    "fit_placement", "fit_shots", "frames_for", "gentle_levels", "kenburns_window", "measure_audio",
+    "pan_window", "parse_ebur128", "prepare_sources", "probe_media", "reel_contact_sheet",
+    "render_reel", "steady_levels",
 ]
 
 
@@ -167,6 +196,70 @@ def kenburns_window(n: int, frames: int, width: float, height: float,
     cx = min(max(focus[0] * width, w / 2), width - w / 2)
     cy = min(max(focus[1] * height, h / 2), height - h / 2)
     return cx - w / 2, cy - h / 2, w, h
+
+
+def _pan_moving(frames: int, zoom_from: float, zoom_to: float) -> bool:
+    return frames > 1 and abs(float(zoom_to) - float(zoom_from)) >= 1e-9
+
+
+def _pan_ends(canvas: tuple[float, float], base: tuple[float, float], focus: tuple[float, float],
+              focus_to: tuple[float, float], zoom_from: float, zoom_to: float, moving: bool
+              ) -> tuple[tuple[float, float], tuple[float, float]]:
+    """Start and end centre of a pan (canvas pixels), each clamped so that the LARGEST window of
+    the shot fits around it. The eased path between them then never meets the canvas edge, so
+    the per-frame clamp never engages and the motion has no kink."""
+    zmin = min(float(zoom_from), float(zoom_to))
+    if moving:
+        zmin = max(MIN_MOVING_ZOOM, zmin)
+    hx, hy = base[0] / (2 * zmin), base[1] / (2 * zmin)
+
+    def clamp(f: tuple[float, float]) -> tuple[float, float]:
+        return (min(max(f[0] * canvas[0], hx), canvas[0] - hx),
+                min(max(f[1] * canvas[1], hy), canvas[1] - hy))
+    return clamp(focus), clamp(focus_to)
+
+
+def pan_window(n: int, frames: int, canvas: tuple[float, float], base: tuple[float, float],
+               focus: tuple[float, float], focus_to: tuple[float, float],
+               zoom_from: float = 1.0, zoom_to: float = 1.0) -> tuple[float, float, float, float]:
+    """The source window (x, y, w, h) in frame n of a pan over a canvas larger than the base
+    9:16 window: the window is base / zoom (geometric in time, as kenburns_window, never below
+    MIN_MOVING_ZOOM while moving) and its centre moves from focus to focus_to (fractions of the
+    canvas, ends clamped as _pan_ends) on a smoothstep ease-in-out, clamped inside the canvas at
+    every frame. Python twin of the per-frame expressions in _pan_filter."""
+    zf, zt = float(zoom_from), float(zoom_to)
+    moving = _pan_moving(frames, zf, zt)
+    (c0x, c0y), (c1x, c1y) = _pan_ends(canvas, base, focus, focus_to, zf, zt, moving)
+    p = min(1.0, n / (frames - 1)) if frames > 1 else 0.0
+    z = max(MIN_MOVING_ZOOM, zf * (zt / zf) ** p) if moving else zf
+    e = p * p * (3 - 2 * p)
+    w, h = base[0] / z, base[1] / z
+    cx = min(max(c0x + (c1x - c0x) * e, w / 2), canvas[0] - w / 2)
+    cy = min(max(c0y + (c1y - c0y) * e, h / 2), canvas[1] - h / 2)
+    return cx - w / 2, cy - h / 2, w, h
+
+
+FIT_CENTRE_Y = 0.46     # fit foreground centre, fraction of the frame height (module docstring)
+FIT_BG_DOWN = 4         # the fit background is blurred at 1/4 of the output size, then upscaled
+FIT_BG_SIGMA = 8.0      # its gblur sigma at that size: about 32 px at 1080 wide
+FIT_BG_DIM = 0.78       # and its brightness (an RGB multiply, about -1/3 stop)
+
+
+def _even_round(v: float) -> int:
+    return max(2, 2 * int(round(v / 2)))
+
+
+def fit_placement(out_w: int, out_h: int, aspect: float) -> tuple[int, int, int, int]:
+    """Where the foreground of a fit-layout shot sits in an out_w x out_h frame: (x, y, w, h),
+    even integers. The whole picture at the full width (or, taller than the frame, at the full
+    height, centred), its centre at FIT_CENTRE_Y of the height but kept inside the frame."""
+    if aspect >= out_w / out_h:
+        w, h = out_w, min(out_h, _even_round(out_w / aspect))
+    else:
+        w, h = min(out_w, _even_round(out_h * aspect)), out_h
+    x = 2 * ((out_w - w) // 4)
+    y = min(max(_even_round(FIT_CENTRE_Y * out_h - h / 2), 0), out_h - h)
+    return x, y, w, h
 
 
 @dataclass(frozen=True)
@@ -231,6 +324,9 @@ class SegmentSource:
     levels: Levels | None = None
     extra_inputs: list[str] = field(default_factory=list)  # e.g. ["-hwaccel", "videotoolbox"]
     audio: bool = False                         # video: has a sound track (natural sound)
+    # photo pan: where shot.focus_to sits inside the still (then wider or taller than 9:16, and
+    # width/height its size); None: no pan
+    focus_to: tuple[float, float] | None = None
 
 
 def _settings(cfg: Config) -> dict:
@@ -286,7 +382,9 @@ def _kenburns_filter(n_frames: int, w: int, h: int, focus: tuple[float, float],
             return ""                                   # no move and no crop: skip resampling
         z = f"{zf:.6f}"
     else:
-        z = f"({zf:.6f}*pow({zt / zf:.8f},in/{n_frames - 1}))"
+        # perspective's `in` counts from 1, so frame i is step (in-1); using `in` overshot zoom_to by one
+        # step on the last frame (the root cause of the pull-out EINVAL)
+        z = f"({zf:.6f}*pow({zt / zf:.8f},min(1,(in-1)/{n_frames - 1})))"
         # ffmpeg's perspective (eval=frame, sense=source) fails with EINVAL when the window reaches
         # the full frame on a later frame (a pull-out landing on zoom 1.0). Never quite uncrop:
         # 1.0005 is about one pixel at 2160 px wide.
@@ -303,6 +401,100 @@ def _kenburns_filter(n_frames: int, w: int, h: int, focus: tuple[float, float],
     return f"perspective={opts}:interpolation=cubic:sense=source:eval=frame"
 
 
+PAN_MARGIN = 4          # the per-frame crop in front of a pan's perspective is this much bigger
+
+
+def _pan_filter(n_frames: int, canvas: tuple[int, int], base: tuple[int, int],
+                focus: tuple[float, float], focus_to: tuple[float, float],
+                zoom_from: float = 1.0, zoom_to: float = 1.0) -> str:
+    """crop + perspective + crop showing pan_window() per frame, at the base size (bw x bh).
+
+    perspective's output is as big as its input, so run on the whole canvas a long pan would
+    cost canvas/base times a fill shot. Instead a crop just bigger than the base window (an
+    even pixel offset per frame, so 4:2:0 chroma stays aligned) follows the window, perspective
+    resamples the sub-pixel remainder (and the zoom) at 1/z source pixels per output pixel from
+    the window's corner, and the output's top-left bw x bh is the window. Both filters evaluate
+    the same expression text; crop counts frames from n = 0, perspective from in = 1."""
+    cw, ch = canvas
+    bw, bh = base
+    zf, zt = float(zoom_from), float(zoom_to)
+    moving = _pan_moving(n_frames, zf, zt)
+    (c0x, c0y), (c1x, c1y) = _pan_ends(canvas, base, focus, focus_to, zf, zt, moving)
+    kw, kh = min(cw, bw + PAN_MARGIN), min(ch, bh + PAN_MARGIN)
+
+    def terms(frame: str) -> tuple[str, str, str, str, str]:
+        p = f"min(1,{frame}/{n_frames - 1})" if n_frames > 1 else "0"
+        z = f"max({MIN_MOVING_ZOOM},{zf:.6f}*pow({zt / zf:.8f},{p}))" if moving else f"{zf:.6f}"
+        e = f"({p})*({p})*(3-2*({p}))"
+        hw, hh = f"({bw}/(2*{z}))", f"({bh}/(2*{z}))"
+        left = f"(clip({c0x:.4f}+({c1x - c0x:.4f})*{e},{hw},{cw}-{hw})-{hw})"
+        top = f"(clip({c0y:.4f}+({c1y - c0y:.4f})*{e},{hh},{ch}-{hh})-{hh})"
+        # the crop's corner: 1-3 px before the window, even, inside the canvas
+        ox = f"clip(2*floor(({left}-1)/2),0,{cw - kw})" if kw < cw else ""
+        oy = f"clip(2*floor(({top}-1)/2),0,{ch - kh})" if kh < ch else ""
+        return z, left, top, ox, oy
+
+    parts = []
+    _, _, _, ox, oy = terms("n")
+    if ox or oy:
+        parts.append(f"crop=w={kw}:h={kh}:x='{ox or 0}':y='{oy or 0}'")
+    z, left, top, ox, oy = terms("(in-1)")
+    x0 = f"{left}-{ox}" if ox else left
+    y0 = f"{top}-{oy}" if oy else top
+    x1, y2 = f"{x0}+{kw}/{z}", f"{y0}+{kh}/{z}"
+    corners = {"x0": x0, "y0": y0, "x1": x1, "y1": y0, "x2": x0, "y2": y2, "x3": x1, "y3": y2}
+    opts = ":".join(f"{k}='{v}'" for k, v in corners.items())
+    parts.append(f"perspective={opts}:interpolation=cubic:sense=source:eval=frame")
+    if (kw, kh) != (bw, bh):
+        parts.append(f"crop={bw}:{bh}:0:0")
+    return ",".join(parts)
+
+
+def _fit_background(sw: int, sh: int, out_w: int, out_h: int, rgb: bool) -> str:
+    """Chain (no labels): a sw x sh picture -> its blurred, darkened cover of out_w x out_h.
+    The blur runs at 1/FIT_BG_DOWN size and the result is upscaled (smooth after the blur)."""
+    bw, bh = _even(out_w / FIT_BG_DOWN), _even(out_h / FIT_BG_DOWN)
+    s = max(bw / sw, bh / sh)
+    cw, ch = max(bw, _even(sw * s)), max(bh, _even(sh * s))
+    sigma = FIT_BG_SIGMA * out_w / OUT_W
+    k = f"{FIT_BG_DIM:g}"
+    if rgb:
+        dim = f"colorchannelmixer=rr={k}:gg={k}:bb={k}"
+    else:   # the same RGB multiply in Y'CbCr terms, for any range and bit depth
+        mid = "(minval+maxval)/2"
+        dim = (f"lutyuv=y='minval+(val-minval)*{k}':u='{mid}+(val-{mid})*{k}'"
+               f":v='{mid}+(val-{mid})*{k}'")
+    return (f"scale={cw}:{ch}:flags=bilinear,crop={bw}:{bh},gblur=sigma={sigma:.3g}:steps=2,{dim},"
+            f"scale={out_w}:{out_h}:flags=bicubic")
+
+
+def _fit_tag(label: str) -> str:
+    return "fit" + re.sub(r"[^0-9a-z]", "", label)
+
+
+def _is_fit(kind: str, shot: Shot) -> bool:
+    return kind in ("photo", "video") and shot.layout == "fit"
+
+
+def _pan_target(kind: str, shot: Shot) -> tuple[float, float] | None:
+    """Where a fill shot's crop centre pans to, or None (no pan: today's still crop)."""
+    ft = shot.focus_to
+    if kind not in ("photo", "video") or shot.layout == "fit" or ft is None:
+        return None
+    if abs(ft.x - shot.focus.x) < 1e-6 and abs(ft.y - shot.focus.y) < 1e-6:
+        return None
+    return ft.x, ft.y
+
+
+def _pan_canvas(src: SegmentSource, ww: int, wh: int) -> tuple[int, int]:
+    """A pan still's canvas at the work size: the prepared still scaled so its full axis
+    matches the ww x wh base window, never smaller than it."""
+    w, h = (src.width, src.height) if src.width > 0 and src.height > 0 else (ww, wh)
+    if w * wh >= h * ww:
+        return max(ww, _even_round(w * wh / h)), wh
+    return ww, max(wh, _even_round(h * ww / w))
+
+
 def _to_out(levels: Levels | None, n: int) -> str:
     """Common tail of every segment: BT.709 limited yuv420p, levels, exactly n frames."""
     chain = "scale=out_color_matrix=bt709:out_range=tv,format=yuv420p"
@@ -311,13 +503,74 @@ def _to_out(levels: Levels | None, n: int) -> str:
     return chain + f",tpad=stop_mode=clone:stop={n},trim=end_frame={n},setsar=1"
 
 
-def _geometry(src: SegmentSource, shot: Shot, label: str, n: int, cfg: Config,
-              out_w: int = OUT_W, out_h: int = OUT_H, *, animate: bool = True) -> str:
-    """Spatial part of a segment: from input label(s) to an out_w x out_h picture."""
+def _fit_still(src: SegmentSource, shot: Shot, label: str, n: int, cfg: Config, out_w: int,
+               out_h: int, animate: bool, background: bool) -> str:
+    """Fit layout, photo: the whole still at full width over its blurred cover. The foreground
+    gets the Ken Burns move inside its own frame; the background is made once and held."""
     st = _settings(cfg)
+    w, h = (src.width, src.height) if src.width > 0 and src.height > 0 else (out_w, out_h)
+    x, y, fw, fh = fit_placement(out_w, out_h, w / h)
+    gw, gh = _even_round(fw * st["work_scale"]), _even_round(fh * st["work_scale"])
+    loop = f"loop=loop={n - 1}:size=1:start=0,settb=1/30,setpts=N"
+    kb = _kenburns_filter(n if animate else 1, gw, gh, src.focus, shot.zoom_from,
+                          shot.zoom_to if animate else shot.zoom_from)
+    down = f"scale={fw}:{fh}:flags=lanczos"
+    fg = f"{loop},{kb},{down}" if kb else f"{down},{loop}"      # a still foreground: shrink once
+    head = f"{label}scale={gw}:{gh}:flags=lanczos"
+    if not background:
+        return f"{head},{fg},scale={out_w}:{out_h}"
+    t = _fit_tag(label)
+    return (f"{head},split=2[{t}f][{t}b];"
+            f"[{t}b]{_fit_background(gw, gh, out_w, out_h, rgb=True)},{loop}[{t}bg];"
+            f"[{t}f]{fg}[{t}fg];"
+            f"[{t}bg][{t}fg]overlay=x={x}:y={y}:format=gbrp")
+
+
+def _fit_video(src: SegmentSource, shot: Shot, label: str, out_w: int, out_h: int,
+               background: bool) -> str:
+    """Fit layout, video: the moving clip at full width over a blurred copy of itself."""
+    sw, sh = max(src.width, 2), max(src.height, 2)
+    x, y, fw, fh = fit_placement(out_w, out_h, sw / sh)
+    z = max(1.0, shot.zoom_from)
+    fg = f"scale={fw}:{fh}:flags=lanczos"
+    if z > 1 + 1e-9:                                    # held zoom, inside the foreground's frame
+        tw, th = _even(fw * z), _even(fh * z)
+        cx = int(round(min(max(shot.focus.x * tw - fw / 2, 0), tw - fw)))
+        cy = int(round(min(max(shot.focus.y * th - fh / 2, 0), th - fh)))
+        fg = f"scale={tw}:{th}:flags=lanczos,crop={fw}:{fh}:{cx}:{cy}"
+    head = f"{label}setpts=PTS-STARTPTS,fps={FPS}"
+    if not background:                                  # levels: measure the picture itself
+        return f"{head},{fg},scale={out_w}:{out_h}"
+    t = _fit_tag(label)
+    return (f"{head},split=2[{t}f][{t}b];"
+            f"[{t}b]{_fit_background(sw, sh, out_w, out_h, rgb=False)}[{t}bg];"
+            f"[{t}f]{fg}[{t}fg];"
+            f"[{t}bg][{t}fg]overlay=x={x}:y={y}:format=yuv420")
+
+
+def _geometry(src: SegmentSource, shot: Shot, label: str, n: int, cfg: Config,
+              out_w: int = OUT_W, out_h: int = OUT_H, *, animate: bool = True,
+              background: bool = True) -> str:
+    """Spatial part of a segment: from input label(s) to an out_w x out_h picture. A fit-layout
+    segment is a small graph (split, background, overlay) whose last chain is left open, so
+    callers can append filters as for a plain chain. background=False leaves its blurred
+    background out and squeezes the foreground to out_w x out_h (for levels analysis)."""
+    st = _settings(cfg)
+    if src.kind == "photo" and _is_fit(src.kind, shot):
+        return _fit_still(src, shot, label, n, cfg, out_w, out_h, animate, background)
+    if src.kind == "video" and _is_fit(src.kind, shot):
+        return _fit_video(src, shot, label, out_w, out_h, background)
     if src.kind in ("photo", "photo360"):
         ws = out_w * st["work_scale"] / OUT_W
         ww, wh = _even(out_w * ws), _even(out_h * ws)
+        if src.kind == "photo" and src.focus_to is not None:
+            cw, ch = _pan_canvas(src, ww, wh)
+            zt = shot.zoom_to if animate else shot.zoom_from
+            return ",".join([f"{label}scale={cw}:{ch}:flags=lanczos",
+                             f"loop=loop={n - 1}:size=1:start=0", "settb=1/30", "setpts=N",
+                             _pan_filter(n if animate else 1, (cw, ch), (ww, wh), src.focus,
+                                         src.focus_to, shot.zoom_from, zt),
+                             f"scale={out_w}:{out_h}:flags=lanczos"])
         if src.kind == "photo360":
             yaw = shot.view_yaw_deg or 0.0
             first, focus = _v360(src, yaw, st["vfov"], ww, wh), (0.5, 0.5)
@@ -341,6 +594,10 @@ def _geometry(src: SegmentSource, shot: Shot, label: str, n: int, cfg: Config,
     sw, sh = max(src.width, 2), max(src.height, 2)
     s = max(out_w / sw, out_h / sh) * max(1.0, shot.zoom_from)
     tw, th = _even(sw * s), _even(sh * s)
+    pan_to = _pan_target(src.kind, shot)
+    if pan_to is not None:                              # the crop moves, sub-pixel
+        return (f"{label}setpts=PTS-STARTPTS,fps={FPS},scale={tw}:{th}:flags=lanczos,"
+                + _pan_filter(n, (tw, th), (out_w, out_h), (shot.focus.x, shot.focus.y), pan_to))
     x = int(round(min(max(shot.focus.x * tw - out_w / 2, 0), tw - out_w)))
     y = int(round(min(max(shot.focus.y * th - out_h / 2, 0), th - out_h)))
     return (f"{label}setpts=PTS-STARTPTS,fps={FPS},scale={tw}:{th}:flags=lanczos,"
@@ -741,6 +998,49 @@ def prepare_still(path: str | Path, focus: tuple[float, float], out_path: Path,
     return out_path, (min(max(inside[0], 0.0), 1.0), min(max(inside[1], 0.0), 1.0))
 
 
+def _box_bound(path: str | Path) -> float:
+    """Height of the largest 9:16 box in the photo, whatever its EXIF orientation turns out to be
+    (smallest when the long side is horizontal): bounds how far the JPEG decoder may shrink it."""
+    with Image.open(path) as probe:
+        ow, oh = probe.size
+    return fit_box(max(ow, oh), min(ow, oh), ASPECT, (0.5, 0.5))[3]
+
+
+def prepare_pan_still(path: str | Path, focus: tuple[float, float], focus_to: tuple[float, float],
+                      out_path: Path, size: tuple[int, int]
+                      ) -> tuple[Path, tuple[int, int], tuple[float, float], tuple[float, float]]:
+    """For a pan: cut the union of the 9:16 boxes around focus and focus_to (each clamped inside
+    the photo) at the scale that makes one box `size`. Returns the file, its size (even, at least
+    `size`) and where focus and focus_to land inside it (fractions)."""
+    img = _open_srgb(path, need_scale=size[1] / max(_box_bound(path), 1.0) * 1.05)
+    W, H = img.size
+    ax, ay, bw, bh = fit_box(W, H, ASPECT, focus)
+    ex, ey, _, _ = fit_box(W, H, ASPECT, focus_to)
+    x0, y0, x1, y1 = min(ax, ex), min(ay, ey), max(ax, ex) + bw, max(ay, ey) + bh
+    s = size[1] / bh
+    out = (max(size[0], _even_round((x1 - x0) * s)), max(size[1], _even_round((y1 - y0) * s)))
+    img.resize(out, Image.LANCZOS, box=(x0, y0, x1, y1), reducing_gap=3.0).save(out_path)
+
+    def inside(f: tuple[float, float]) -> tuple[float, float]:
+        return (min(max((f[0] * W - x0) / (x1 - x0), 0.0), 1.0),
+                min(max((f[1] * H - y0) / (y1 - y0), 0.0), 1.0))
+    return out_path, out, inside(focus), inside(focus_to)
+
+
+def prepare_fit_still(path: str | Path, out_path: Path, work_scale: float = 2.0
+                      ) -> tuple[Path, tuple[int, int]]:
+    """For the fit layout: the whole photo, upright and sRGB, at work_scale times its size in the
+    reel (fit_placement), so the foreground needs no further resize. Returns the file and size."""
+    with Image.open(path) as probe:
+        ow, oh = probe.size
+    need = max(min(OUT_W / ow, OUT_H / oh), min(OUT_W / oh, OUT_H / ow)) * work_scale * 1.05
+    img = _open_srgb(path, need_scale=need)
+    _, _, fw, fh = fit_placement(OUT_W, OUT_H, img.width / img.height)
+    out = (_even_round(fw * work_scale), _even_round(fh * work_scale))
+    img.resize(out, Image.LANCZOS, reducing_gap=3.0).save(out_path)
+    return out_path, out
+
+
 def _luma_percentiles(rgb: np.ndarray) -> tuple[float, float]:
     a = rgb.astype(np.float32) / 255.0
     y = 0.2126 * a[..., 0] + 0.7152 * a[..., 1] + 0.0722 * a[..., 2]
@@ -761,7 +1061,7 @@ def _analysis_frame(src: SegmentSource, shot: Shot, cfg: Config) -> np.ndarray:
         if src.duration > 0:
             mid = min(mid, max(0.0, src.duration - 0.1))
         inputs = [*src.extra_inputs, "-ss", f"{mid:.3f}", "-i", src.path]
-        geo = _geometry(src, shot, label, n, cfg, w, h)
+        geo = _geometry(src, shot, label, n, cfg, w, h, background=False)
     out = _run([cfg.ffmpeg, "-hide_banner", "-nostdin", "-v", "error", *inputs,
                 "-filter_complex", geo + ",format=rgb24[o]", "-map", "[o]", "-frames:v", "1",
                 "-f", "rawvideo", "-"], timeout=300).stdout
@@ -793,9 +1093,14 @@ def prepare_sources(plan: ReelPlan, sources: dict[str, dict], workdir: Path, cfg
         if not Path(path).exists():
             raise FileNotFoundError(path)
         if kind == "photo":
-            still, focus = prepare_still(path, (shot.focus.x, shot.focus.y),
-                                         workdir / f"still_{i:02d}.ppm", work)
-            src = SegmentSource(kind, str(still), *work, focus=focus)
+            name, focus, pan_to = workdir / f"still_{i:02d}.ppm", (shot.focus.x, shot.focus.y), None
+            if _is_fit(kind, shot):
+                still, size = prepare_fit_still(path, name, st["work_scale"])
+            elif (pan_to := _pan_target(kind, shot)) is not None:
+                still, size, focus, pan_to = prepare_pan_still(path, focus, pan_to, name, work)
+            else:
+                (still, focus), size = prepare_still(path, focus, name, work), work
+            src = SegmentSource(kind, str(still), *size, focus=focus, focus_to=pan_to)
         elif kind == "photo360":
             with Image.open(path) as im:
                 w, h = im.size
