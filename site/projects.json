@@ -1324,6 +1324,11 @@
      "slug": "robofab-cell-bound",
      "title": "Where is the bottleneck of an arm, printer and inspection cell?",
      "summary": "A hand-written discrete-event twin of one arm that loads and unloads P 3D printers, plus an inspection station with reprints, against a utilisation bound. The bound names the bottleneck (printers up to 10 printers, the arm from 12, about 12.7 good parts/h) and the simulation reaches it within 1&ndash;2% far from the switch but sits 10&ndash;11% below it at 10&ndash;12 printers. A 25% faster arm lifts throughput from 11.34 to 12.68 parts/h at 12 printers while a second inspector does nothing; arm dispatch rules made no measurable gain, and WIP beyond one job per printer plus one only lengthens flow time. <em>Stylised parameters of my choosing, no travel or breakdowns, 20 seeds.</em>"
+    },
+    {
+     "slug": "robofab-selfparts",
+     "title": "Can a parallel-jaw arm assemble its own gripper?",
+     "summary": "Exhaustive search over assembly orders of a seven-part toy gripper (axis-aligned boxes) by a modelled arm with a parallel-jaw grasp check, three approach-direction models and a swept jaw opening. No complete order exists below a 30&nbsp;mm opening, the width of the widest part; above it, 384 of 720 orderings are valid when parts may be slid sideways and 120 when strictly top-down. Jaw-pad thickness from 2 to 10&nbsp;mm changes nothing (a negative result for this geometry). <em>Stylised single design, no reach, force or fasteners; simulation only.</em>"
     }
    ]
   },
