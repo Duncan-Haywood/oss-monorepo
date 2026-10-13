@@ -3400,6 +3400,10 @@ const CATEGORY_RULES = [
         'ugc-creator-rate-calculator',
         // `uk-sole-trader-vs-limited-company-calculator` joined 2026-10-13 on its first commit: one UK freelancer deciding whether to incorporate, the same solo earner.
         'uk-sole-trader-vs-limited-company-calculator',
+        // `uk-mtd-income-tax-checker` joined 2026-10-13 on its first commit: UK sole traders and landlords checking their Making Tax Digital start date, the same solo earner.
+        'uk-mtd-income-tax-checker',
+        // `schengen-90-180-day-calculator` joined 2026-10-13 on its first commit: remote workers and nomads tracking Schengen days, the same solo earner.
+        'schengen-90-180-day-calculator',
         'cat-adjuster-fee-calculator',
         'ad-slot-sell-through-planner',
         'candle-batch-cost-calculator',
