@@ -1366,6 +1366,11 @@
      "summary": "A follow-up to the mean-value-analysis project: a coefficient-of-variation sweep (0&ndash;2, lognormal times, 4&ndash;16 printers, 20 seeds) and a directly measured printer stall share (finished parts waiting for the arm). At 12 printers the MVA error runs from &minus;6.2% to +8.4% and crosses zero near cv&nbsp;1, while the utilisation bound stays 8&ndash;25% high. Stall is small (about 4.6% at 8 printers), but holding the printer through load and unload plus the stall reproduces the saturated rate at 4 and 8 printers (8.59 against 8.56&nbsp;&plusmn;&nbsp;0.09). Stylised, illustrative times, simulation only."
     },
     {
+     "slug": "robofab-cell-held",
+     "title": "Does holding the printer through load and unload fix queueing analysis of a robot-printer cell?",
+     "summary": "A follow-up to the variability-sweep project: mean value analysis with the printer demand increased by the arm&rsquo;s load and unload time, compared with plain MVA and two utilisation bounds against the simulated cell (cv 0.3 and 1.0, 4&ndash;16 printers, four loads, 20 seeds, 32 settings; illustrative times). The repair helps only at saturation (mean absolute error 2.9% against 8.2% for plain MVA) and hurts elsewhere (7.3% against 3.6%), so over all settings plain MVA is better (4.7% against 6.2%). A mixed result: no single demand setting is right across loads. Stylised and simulation-only."
+    },
+    {
      "slug": "robofab-selfparts",
      "title": "Can a parallel-jaw arm assemble its own gripper?",
      "summary": "Exhaustive search over assembly orders of a seven-part toy gripper (axis-aligned boxes) by a modelled arm with a parallel-jaw grasp check, three approach-direction models and a swept jaw opening. No complete order exists below a 30&nbsp;mm opening, the width of the widest part; above it, 384 of 720 orderings are valid when parts may be slid sideways and 120 when strictly top-down. Jaw-pad thickness from 2 to 10&nbsp;mm changes nothing (a negative result for this geometry). <em>Stylised single design, no reach, force or fasteners; simulation only.</em>"
