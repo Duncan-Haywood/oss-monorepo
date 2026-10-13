@@ -1807,6 +1807,8 @@ const CATEGORY_RULES = [
       || slug === 'nz-gst-registration-checker'
       // `uk-trading-allowance-calculator` joined 2026-10-13 on its first commit: UK side-earner tax arithmetic, sibling of the UK VAT and sole-trader tools.
       || slug === 'uk-trading-allowance-calculator'
+      // `uk-payments-on-account-calculator` joined 2026-10-13 on its first commit: UK Self Assessment cash-flow arithmetic, sibling of the trading-allowance and MTD tools.
+      || slug === 'uk-payments-on-account-calculator'
       // `tfsa-over-contribution-checker` joined 2026-10-13 on its first commit: Canadian personal-tax room and penalty arithmetic, a sibling of the Canada GST/HST checker.
       || slug === 'tfsa-over-contribution-checker'
       // `uk-statutory-sick-pay-calculator` joined 2026-10-13 on its first commit: UK employer payroll-compliance arithmetic, same back-office job.

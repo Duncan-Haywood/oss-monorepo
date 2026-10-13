@@ -1,0 +1,39 @@
+name: uk-payments-on-account-calculator
+description: >-
+  Free browser tool for UK self-employed people and landlords: enter your Self Assessment bill and tax already collected at source to see what is due on 31 January and 31 July, whether payments on account apply, the first-year double hit, and whether claiming a reduction keeps cash in your pocket. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; duplicate_check.py closest match was uk-cis-deduction-refund-calculator (0.41), a different UK subcontractor tool; no payments-on-account tool in ventures/.
+#
+# First visitor: first-year UK sole trader or landlord shocked by a January bill, searching "payments on account calculator", "why is my self assessment bill so high", "reduce payments on account".
+# Audience is the millions of UK Self Assessment filers each January; volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a year-round tax-pot tracker with reminders behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (student loan, Class 2, capital gains, child benefit charge, interest and penalty rates). Ethical risk is a wrongly reduced payment on account causing interest; mitigated by the interest and penalty warning on every reduction suggestion.
+hypotheses:
+  - claim: >-
+      UK self-employed filers will use a free calculator to plan their January and July HMRC cash and to decide whether to claim a reduction.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, rate or date differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-payments-on-account-calculator/
+  analytics: null
