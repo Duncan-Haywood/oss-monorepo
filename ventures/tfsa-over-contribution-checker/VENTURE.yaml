@@ -1,0 +1,39 @@
+name: tfsa-over-contribution-checker
+description: >-
+  Free browser tool for Canadians: enter year of birth, past deposits and withdrawals to see TFSA contribution room since 2009, whether a planned deposit puts you over, and what the CRA's 1% per month over-contribution tax would cost. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; duplicate_check.py found no TFSA/RRSP tool in ventures/ (closest unrelated, 0.18).
+#
+# First visitor: Canadian saving through a TFSA searching "TFSA contribution room calculator", "TFSA over-contribution penalty", "can I re-contribute TFSA withdrawal same year" (the same-year withdrawal trap is the common cause of excesses).
+# Audience is a very large share of Canadian adults; volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a multi-account room tracker behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names the CRA as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (non-residency, transfers, relief on small excesses). Ethical risk is false comfort from a "within room" result, mitigated by pointing the user to CRA My Account as the figure that counts.
+hypotheses:
+  - claim: >-
+      Canadians checking whether a deposit would over-contribute to a TFSA will use a free private checker.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a limit or rule differs from CRA guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tfsa-over-contribution-checker/
+  analytics: null

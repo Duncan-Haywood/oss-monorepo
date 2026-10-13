@@ -1805,6 +1805,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-cis-deduction-refund-calculator'
       // `nz-gst-registration-checker` joined 2026-10-13 on its first commit: the New Zealand sibling of the AU/CA registration tests, same compliance-arithmetic job.
       || slug === 'nz-gst-registration-checker'
+      // `tfsa-over-contribution-checker` joined 2026-10-13 on its first commit: Canadian personal-tax room and penalty arithmetic, a sibling of the Canada GST/HST checker.
+      || slug === 'tfsa-over-contribution-checker'
       // `uk-statutory-sick-pay-calculator` joined 2026-10-13 on its first commit: UK employer payroll-compliance arithmetic, same back-office job.
       || slug === 'uk-statutory-sick-pay-calculator'
       // `au-redundancy-pay-calculator` joined 2026-10-13 on its first commit: employer termination-pay compliance arithmetic, same back-office job.
