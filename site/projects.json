@@ -1364,6 +1364,11 @@
      "slug": "robofab-selfparts",
      "title": "Can a parallel-jaw arm assemble its own gripper?",
      "summary": "Exhaustive search over assembly orders of a seven-part toy gripper (axis-aligned boxes) by a modelled arm with a parallel-jaw grasp check, three approach-direction models and a swept jaw opening. No complete order exists below a 30&nbsp;mm opening, the width of the widest part; above it, 384 of 720 orderings are valid when parts may be slid sideways and 120 when strictly top-down. Jaw-pad thickness from 2 to 10&nbsp;mm changes nothing (a negative result for this geometry). <em>Stylised single design, no reach, force or fasteners; simulation only.</em>"
+    },
+    {
+     "slug": "robofab-reach",
+     "title": "How long an arm does it take to assemble its own toy gripper?",
+     "summary": "A planar two-link arm on a turntable must reach a pick, place and lift point for each of the six free parts of the seven-part toy gripper from <code>robofab-selfparts</code>. With equal links and a 100&nbsp;mm shoulder height the shortest arm is 60&ndash;140&nbsp;mm per link as the tray moves from 40 to 400&nbsp;mm away; an elbow limit of 90&deg; raises it from 80 to 180&nbsp;mm and 60&deg; admits none up to 600&nbsp;mm. Stylised: wrist point only, no collisions, payload or wrist orientation; results sit on a 10&nbsp;mm grid."
     }
    ]
   },
