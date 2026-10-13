@@ -1,0 +1,39 @@
+name: uk-child-benefit-charge-calculator
+description: >-
+  Free browser tool for UK parents near or over 60,000 GBP: enter income, pension, Gift Aid and children to see the High Income Child Benefit Charge, what you keep, the contribution that removes it, and Self Assessment dates. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no HICBC tool in ventures/ (child-tax-credit-calculator is the US credit).
+#
+# First visitor: UK parent on 60-80k searching "child benefit charge calculator", "high income child benefit pension contribution", "how much child benefit will I lose".
+# Audience is the roughly half-million+ households in the charge band after the 2024 threshold rise; volume not measured. Peak search before January and April.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a household income planner with pension salary-sacrifice and bonus scenarios behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (which partner is higher earner, annual allowance, Scotland, claim rules). Ethical risk is a pension nudge for someone who cannot lock money away, mitigated by an affordability and annual-allowance caution on the result.
+hypotheses:
+  - claim: >-
+      UK parents over 60,000 GBP will use a free calculator to see the charge and the pension contribution that removes it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, rate or date differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-child-benefit-charge-calculator/
+  analytics: null

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Child Benefit Charge Calculator — HICBC and Pension Fix</title>
+  <meta name="description" content="Free UK High Income Child Benefit Charge calculator: enter your income, pension and Gift Aid to see the clawback, what you keep and how much pension would remove it. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK Child Benefit charge calculator: how much do you lose over £60,000? Free, private">
+  <meta property="og:description" content="See the High Income Child Benefit Charge, the pension contribution that removes it, and your Self Assessment dates.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Child Benefit Charge Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the High Income Child Benefit Charge?", "acceptedAnswer": {"@type": "Answer", "text": "A tax charge on the higher earner in a household when their adjusted net income is over \u00a360,000 and they or their partner receive Child Benefit. It is 1% of the Child Benefit for every \u00a3200 over \u00a360,000, reaching 100% at \u00a380,000."}}, {"@type": "Question", "name": "What counts as adjusted net income?", "acceptedAnswer": {"@type": "Answer", "text": "Your taxable income less gross pension contributions paid under relief at source and gross Gift Aid donations. Salary sacrifice pension is already out of your taxable income."}}, {"@type": "Question", "name": "Can a pension contribution remove the charge?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Contributions or Gift Aid donations that take adjusted net income to \u00a360,000 or less remove the charge for that tax year, subject to your annual allowance and what you can afford to lock away."}}, {"@type": "Question", "name": "Should I stop Child Benefit payments instead?", "acceptedAnswer": {"@type": "Answer", "text": "You can stop the payments but keep the claim. That avoids the charge and still protects National Insurance credits for a parent not working. You give up the cash while you are over the threshold."}}, {"@type": "Question", "name": "Who pays the charge, the claimant or the higher earner?", "acceptedAnswer": {"@type": "Answer", "text": "The partner with the higher adjusted net income pays it, even if the other partner is the one who claims."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK CHILD BENEFIT CHARGE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much Child Benefit do you lose over £60,000, and what stops it?</h1>
+    <p>Enter the higher earner's income, pension and Gift Aid, and how many children get Child Benefit. You get the charge, what you keep, the pension contribution that removes it and your Self Assessment dates.</p>
+    <p class="note">A first read written from HMRC's published rules without a live lookup. Rules change; confirm the current text. The charge applies across the UK. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="year">Tax year</label><select id="year"><option value="2024">2024/25 (6 Apr 2024 – 5 Apr 2025)</option><option value="2025" selected>2025/26 (6 Apr 2025 – 5 Apr 2026)</option><option value="2026">2026/27 (6 Apr 2026 – 5 Apr 2027)</option></select></div>
+      <div><label for="income">Higher earner's total taxable income (£)</label><input id="income" type="number" min="0" step="1"></div>
+      <div><label for="pension">Gross pension contributions (£, optional)</label><input id="pension" type="number" min="0" step="1"></div>
+      <div><label for="giftAid">Gross Gift Aid donations (£, optional)</label><input id="giftAid" type="number" min="0" step="1"></div>
+      <div><label for="children">Children you get Child Benefit for</label><input id="children" type="number" min="1" max="12" step="1"></div>
+      <div><label for="weeks">Weeks of Child Benefit in the year (usually 52)</label><input id="weeks" type="number" min="1" max="53" step="1" value="52"></div>
+      <div><label for="eldestRate">Weekly rate, eldest child (£, optional override)</label><input id="eldestRate" type="number" min="0" step="0.01"></div>
+      <div><label for="otherRate">Weekly rate, each other child (£, optional override)</label><input id="otherRate" type="number" min="0" step="0.01"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out my charge</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out my charge.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>The numbers</h2>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Amount</th></tr></thead><tbody id="tests"></tbody></table></div>
+    <h2>What you must do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the High Income Child Benefit Charge from the £60,000 threshold (rules from 6 April 2024), adjusted net income after pension and Gift Aid, and the registration and payment dates.</li>
+      <li><strong>Gives:</strong> the charge, what you keep, the contribution that removes it, and a checklist.</li>
+      <li><strong>Not decided:</strong> which partner has the higher income, your pension annual allowance, tapered allowances, Scottish tax rates, 2026/27 weekly rates unless you type them, Child Benefit claim rules, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is the High Income Child Benefit Charge?</h3>
+    <p>A tax charge on the higher earner in a household when their adjusted net income is over £60,000 and they or their partner receive Child Benefit. It is 1% of the Child Benefit for every £200 over £60,000, reaching 100% at £80,000.</p>
+    <h3>What counts as adjusted net income?</h3>
+    <p>Your taxable income less gross pension contributions paid under relief at source and gross Gift Aid donations. Salary sacrifice pension is already out of your taxable income.</p>
+    <h3>Can a pension contribution remove the charge?</h3>
+    <p>Yes. Contributions or Gift Aid donations that take adjusted net income to £60,000 or less remove the charge for that tax year, subject to your annual allowance and what you can afford to lock away.</p>
+    <h3>Should I stop Child Benefit payments instead?</h3>
+    <p>You can stop the payments but keep the claim. That avoids the charge and still protects National Insurance credits for a parent not working. You give up the cash while you are over the threshold.</p>
+    <h3>Who pays the charge, the claimant or the higher earner?</h3>
+    <p>The partner with the higher adjusted net income pays it, even if the other partner is the one who claims.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or HMRC before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-payments-on-account-calculator/">UK payments on account calculator</a>, the <a href="../uk-trading-allowance-calculator/">UK trading allowance calculator</a>, the <a href="../uk-sole-trader-vs-limited-company-calculator/">UK sole trader vs limited company calculator</a> and the <a href="../uk-mtd-income-tax-checker/">UK Making Tax Digital checker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { year: "year", income: "income", pension: "pension", giftAid: "giftAid", children: "children", weeks: "weeks", eldestRate: "eldestRate", otherRate: "otherRate" };
+    const IDLE = "Fill in the figures, then click Work out my charge.";
+    const DEFAULTS = { year: "2025", weeks: "52" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.pct === 0 ? "No charge: you keep all your Child Benefit" : `Charge ${gbp(r.charge)} (${r.pct}% of ${gbp(r.received)})`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      const rows = [["Adjusted net income", r.ani], ["Child Benefit received", r.received], ["Charge (" + r.pct + "%)", r.charge], ["Kept after the charge", r.net], ["Pension or Gift Aid to remove the charge", r.toBelow]];
+      $("#tests").innerHTML = rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="n">${gbp(v)}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: £68,000 income, £2,000 pension, two children.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-child-benefit-charge-check.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
