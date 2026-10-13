@@ -1453,6 +1453,11 @@
      "slug": "selfrep-satmarket",
      "title": "When the goods market saturates, does a replicating shop&rsquo;s bang-bang switch turn smooth?",
      "summary": "Builds on the selfrep-reinvest fluid model, with concave goods revenue <em>a c</em>(1 &minus; e<sup>&minus;<em>g</em>/<em>c</em></sup>) and a backward dynamic programme (Bellman) as a check on the local-search policies. With a large market the optimum is still copy-then-switch; once market capacity <em>c</em> is below about 10<sup>4</sup> machine-hours per hour the optimal copy share ramps down over 90&ndash;300 h, bang-bang loses 4.5&ndash;7% of the optimum and a logistic ramp recovers all but 1&ndash;1.5%. Slower growth from failed builds sharpens the switch again. Every input is assumed and the saturation form is a convenient choice; cash never binds. The DP value is the optimum of a discretised problem, within a few tenths of a percent of its simulated policy where it is accurate and several percent in near-linear cases. Stylised."
+    },
+    {
+     "slug": "selfrep-wearout",
+     "title": "What fleet can a replicating printer shop sustain when its machines wear out?",
+     "summary": "Extends the selfrep-growth fleet model with random machine lifetimes (Weibull) and a recovered share of vitamin value at retirement. With assumed inputs and a vitamin budget of 4 units/h, a lone seed machine died out in every run when mean life was 200 h or less (20% of runs at 500 h, 3% at 2000 h), while the fluid model predicted a small stable fleet; survivors held about 10 machines at 500 h. Wear-out lifetimes are safer than constant hazard at the same mean. The fluid equilibrium over-predicts fleet size at high recycling (235 vs 73 simulated at 95% recovery); charging for builds cut short by retirement closes the gap (76), though that correction was added after seeing the discrepancy. Stylised: every input is assumed."
     }
    ]
   },
