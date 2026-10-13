@@ -1,0 +1,39 @@
+name: uk-student-loan-repayment-calculator
+description: >-
+  Free browser tool for UK graduates: enter your plan (1, 2, 4, 5), balance, pay and any Postgraduate Loan to see the monthly deduction, the year the loan clears or is written off, and whether overpaying saves money. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no UK student loan tool in ventures/ (checked by name; student-loan-rap-ibr-standard-calculator is the US federal program).
+#
+# First visitor: UK graduate searching "student loan calculator", "will my student loan be written off", "should I overpay my student loan".
+# Audience is millions of UK borrowers on Plans 1, 2 and 5; volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a household planner behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (real balance, exact variable interest, pre-2006 Plan 1 age-65 rule). Ethical risk is a projection read as a promise to skip or make overpayments; mitigated by editable thresholds and rate and a written-off warning that is an assumption, not a forecast.
+hypotheses:
+  - claim: >-
+      UK graduates will use a free calculator to decide whether to overpay a student loan or leave it to be written off.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, rate or term differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-student-loan-repayment-calculator/
+  analytics: null
