@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from chip_rtl_loop import check, task_names  # noqa: E402
+from chip_repair_baseline import check, task_names  # noqa: E402
 
 
 def rounds(task):

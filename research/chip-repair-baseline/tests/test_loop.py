@@ -5,10 +5,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from chip_rtl_loop import check, mutation_search, task_names  # noqa: E402
-from chip_rtl_loop.check import have_tools  # noqa: E402
-from chip_rtl_loop.llm import llm_proposer, stub_proposer  # noqa: E402
-from chip_rtl_loop.mutate import mutate  # noqa: E402
+from chip_repair_baseline import check, mutation_search, task_names  # noqa: E402
+from chip_repair_baseline.check import have_tools  # noqa: E402
+from chip_repair_baseline.llm import llm_proposer, stub_proposer  # noqa: E402
+from chip_repair_baseline.mutate import mutate  # noqa: E402
 
 
 def rename(task):

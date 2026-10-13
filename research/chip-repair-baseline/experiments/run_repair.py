@@ -13,8 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from chip_rtl_loop import check, mutation_search, task_names  # noqa: E402
-from chip_rtl_loop.mutate import mutate  # noqa: E402
+from chip_repair_baseline import check, mutation_search, task_names  # noqa: E402
+from chip_repair_baseline.mutate import mutate  # noqa: E402
 
 KS = (1, 2, 3)
 SEEDS = (0, 1)
