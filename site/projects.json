@@ -1287,6 +1287,11 @@
      "slug": "chip-ppa-loop",
      "title": "Does a rewrite proposer beat a parameter sweep on area and depth when every rewrite must be proved equivalent?",
      "summary": "A loop in which rewrites of a 16-bit adder and a 6&times;6 multiplier must be proved equivalent to the reference by a Yosys miter before a generic-gate ABC script scores cells and depth. With nine attempts written by the session agent (not an LLM benchmark; two were seeded faults the gate rejected), the best adder is a 4-bit carry-select at 0.85&times; the reference cells&times;depth, the same circuit family as the best config of a no-model parameter sweep, so a random sweep of the same budget never beats it (ties in 63 of 200 seeds). No multiplier rewrite beat <code>a * b</code>. Stylised: gate counts, not layout; one tool version; two designs."
+    },
+    {
+     "slug": "chip-accel",
+     "title": "How do MAC-lane count and bit width trade area against latency in a tiny quantised-MLP accelerator?",
+     "summary": "A generator for an 8-8-4 integer MLP engine with P multiply-accumulate lanes and 4-, 6- or 8-bit weights, simulated in Icarus Verilog and matched bit for bit and cycle for cycle against an integer NumPy reference in all 12 configurations. Synthesised with Yosys to generic gates, latency falls from 110 to 20 cycles as lanes go from 1 to 8 while area grows about 3&times; to 4&times;, so cells&times;cycles is smallest at 4 lanes for every width. 6 bits matched float accuracy on the toy task; 4 bits lost about 3 points. Stylised: one synthetic task and seed, weights baked into logic, gate counts rather than layout, nothing about a real chip."
     }
    ]
   },
