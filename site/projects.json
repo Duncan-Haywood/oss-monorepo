@@ -1580,6 +1580,11 @@
      "slug": "simdesign-patchstress",
      "title": "Does a patch-averaged stress converge under mesh refinement where the peak element stress does not?",
      "summary": "On four L-bracket designs solved on five meshes (h = 2.5 to 0.55&nbsp;mm), the peak von Mises stress rises by 18&ndash;41% while a 3&nbsp;mm patch average moves by 1&ndash;6%. The peak is not monotone along the sequence, so a two-mesh check can mislead. The patch average is not conservative: it reads 0.45&ndash;0.69 of the fine-mesh peak and would need its own calibrated limit. Stylised: 2D plane stress, one load case, a non-nested mesh family, assumed material, nothing made."
+    },
+    {
+     "slug": "simdesign-patchsearch",
+     "title": "Does a patch-averaged stress change what manufacturing rules cost a sized bracket?",
+     "summary": "The minimum-mass bracket search under FDM, CNC-routing, laser-cutting and casting rules is repeated with a 3&nbsp;mm patch-averaged stress in place of the peak element stress, using the same numeric limit, then every design is re-solved on a fine check mesh (h = 0.55&nbsp;mm). The ordering of the mass prices survives (casting 1.35, CNC 1.23&ndash;1.27, laser 1.03&ndash;1.05, FDM 1.0), and the laser-cutting price, which varied from 0.99 to 1.15 across three seeds under the peak measure, varies by under 0.005. Patch-searched designs exceed the limit by 2&ndash;12% on the fine mesh, against 19&ndash;34% for peak-searched designs, but they are lighter only because the same numeric limit is a looser test; the patch limit is uncalibrated. Three seeds, assumed rules and material, stylised 2D."
     }
    ]
   },
