@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1155 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1157 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -48,6 +48,14 @@
     <summary type="text">Free CBAM cost estimator for EU importers of steel, aluminium, cement, fertilisers and hydrogen: embedded emissions, free-allocation phase-out 2026 to 2034, certificates needed, cost per tonne, and the 50-tonne threshold. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Commercial Property Cap Rate Calculator — NOI, Value, DSCR</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/commercial-property-cap-rate-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/commercial-property-cap-rate-calculator</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free commercial real estate calculator: enter rent, vacancy and expenses to get NOI, property value at a cap rate, DSCR, cash-on-cash return, break-even occupancy and a cap-rate sensitivity grid. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Convenience Store and Gas Station Profit Calculator — Fuel Margin After Card Fees</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/convenience-store-gas-station-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/convenience-store-gas-station-profit-calculator</id>
@@ -78,6 +86,14 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free European Accessibility Act checker: pick what you make or sell, your role and your size to see whether Directive (EU) 2019/882 likely applies, whether the microenterprise exemption covers you, and the main duties. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Employer Payroll Tax Calculator — True Cost of a Hire by State</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/employer-payroll-tax-cost-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/employer-payroll-tax-cost-calculator</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free employer payroll tax calculator: enter a salary and state to see Social Security, Medicare, FUTA, state unemployment, workers&#39; comp, match and health cost, and the true cost of a hire. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>EU AI Act Risk Checker — Is My AI System High-Risk?</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free EU green claims checker (Directive 2024/825, Empowering Consumers): tick the eco, climate and durability claims you use and see which are banned for consumer marketing from 27 September 2026 (generic eco-friendly, climate neutral by offsetting, own-made labels, net zero without a plan, fake repairability) and what to say instead. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EU Green Claims Copy Scanner — Greenwashing Scan for Directive 2024/825</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-green-claims-copy-scanner/"/>
-    <id>tag:marisstella.dev,2026:tool/eu-green-claims-copy-scanner</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free greenwashing scanner for product pages, ads and packaging text under the EU Empowering Consumers Directive (2024/825), in force since 27 September 2026: flags carbon-neutral claims, vague words like eco-friendly, home-made badges, future net-zero promises and legal-minimum claims, with the fix for each. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EU Packaging Regulation Checker — PPWR Deadlines and Duties</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-packaging-regulation-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/eu-packaging-regulation-checker</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free EU Packaging and Packaging Waste Regulation (PPWR, 2025/40) checker for brand owners, importers and online sellers: which duties reach your packaging, when each applies (producer registration, PFAS limits, label, recyclability, recycled content, 50 percent empty-space rule), and what is still open. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
