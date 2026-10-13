@@ -79,3 +79,7 @@ test("footer links the EUDR scope checker", () => {
 test("footer links the European Accessibility Act checker", () => {
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/eaa-accessibility-act-checker\/"/);
 });
+
+test("footer links the DORA readiness checker", () => {
+  assert.match(page("index.html"), /href="\.\.\/eu-dora-readiness-checker\/"/);
+});
