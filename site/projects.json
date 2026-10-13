@@ -1373,6 +1373,11 @@
      "slug": "selfrep-nextmachine",
      "title": "Which machine should a seed shop add next, and does a greedy rule find it?",
      "summary": "Builds on the selfrep-closure part model. Choosing among a CNC router, laser cutter and casting setup under a budget, a greedy closure-per-price rule matches exhaustive search at every tested budget on the real three-machine instance (router first, then casting only if brass bushings replace LM8UU). On 500 random synthetic instances greedy is optimal in 72&ndash;94% of cases and loses up to about 38% of the closure gain in the worst case. Stylised: machine prices, masses and costs are assumed placeholders, machines have no bills of materials of their own, and the synthetic instances are random."
+    },
+    {
+     "slug": "selfrep-growth",
+     "title": "How fast does a replicating printer shop grow when its vitamins must be bought?",
+     "summary": "Builds on the selfrep-closure part model. A discrete-event simulation of a fleet of printers that each build copies of themselves, checked against a closed-form fluid model. With a small import budget the doubling time falls almost in proportion to the budget (about 455 h at 4 units/h, 120 h at 16/h); above a crossover fleet size N* = BW/V machine time binds and doubling flattens near the 50 h build time. Failed builds raise the doubling time by about 1/(1&minus;<em>f</em>), and raising closure helps most when imports bind. Every input (print rate, assembly time, costs, budget, failure rate) is assumed and the fleet is homogeneous. Stylised. The comparison with Lackner and Wendt&rsquo;s growth model is not done."
     }
    ]
   },
