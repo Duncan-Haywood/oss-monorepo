@@ -1797,6 +1797,8 @@ const CATEGORY_RULES = [
       || slug === 'eu-vat-oss-calculator'
       // `ca-gst-hst-small-supplier-checker` joined 2026-10-13 on its first commit: when a small seller must register for sales tax, the same compliance-arithmetic job.
       || slug === 'ca-gst-hst-small-supplier-checker'
+      // `au-gst-registration-checker` joined 2026-10-13 on its first commit: the Australian sibling of the GST/HST small-supplier test, same compliance-arithmetic job.
+      || slug === 'au-gst-registration-checker'
       // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
       // export as `invoice-payment-terms-calculator` here and asks how much revenue one client carries.
       || slug === 'client-concentration-risk-analyzer'
