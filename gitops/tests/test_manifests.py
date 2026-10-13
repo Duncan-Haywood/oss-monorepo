@@ -3058,7 +3058,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `pay-transparency-directive-checker` graduated (browser EU Pay Transparency Directive check).
     # +1: `eu-whistleblower-channel-checker` graduated (browser EU Whistleblower Directive channel check and report clocks).
     # +1: `eu-einvoicing-mandate-checker` graduated (browser EU e-invoicing mandate dates by country).
-    total = 1137  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1137 tools" wording.
+    # +1: `eu-product-liability-directive-checker` graduated (browser EU Product Liability Directive scope, liability chain and time limits).
+    # +1: `dac7-seller-reporting-checker` graduated (browser EU DAC7 platform seller reporting check).
+    # +1: `eu-price-reduction-claim-checker` graduated (browser EU 30-day lowest price rule check for sale prices).
+    total = 1141  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1141 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).

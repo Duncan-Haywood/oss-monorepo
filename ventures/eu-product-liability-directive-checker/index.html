@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EU Product Liability Directive Checker — Software, AI and Product Makers (2026)</title>
+  <meta name="description" content="Free EU Product Liability Directive checker: is your software, AI system or product in scope from 9 December 2026, who is liable in the supply chain, what damage is claimable and what to prepare. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="EU Product Liability Directive checker: are you in scope from 9 Dec 2026? Free, private">
+  <meta property="og:description" content="Pick your role and product; get your liability position, time limits and what to prepare.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "EU Product Liability Directive Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does the new EU Product Liability Directive cover software and AI?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Directive (EU) 2024/2853 expressly treats software, including apps, firmware and AI systems, and digital manufacturing files as products, whether installed, embedded or delivered through the cloud. It applies to products placed on the market from 9 December 2026."}}, {"@type": "Question", "name": "Who is liable if my product is defective?", "acceptedAnswer": {"@type": "Answer", "text": "The manufacturer first. Then, in turn, a component maker (jointly), an importer, an authorised representative, a fulfilment provider, and a distributor or online platform in the cases the Directive lists, so that an injured person always has an EU business to claim against."}}, {"@type": "Question", "name": "Is open-source software covered?", "acceptedAnswer": {"@type": "Answer", "text": "Free and open-source software developed or supplied outside the course of a commercial activity is excluded. If it is supplied commercially, or built into a product someone sells, the business that does so carries the liability."}}, {"@type": "Question", "name": "What damage can be claimed and is there a cap?", "acceptedAnswer": {"@type": "Answer", "text": "Death, personal injury including recognised psychological harm, damage to property not used exclusively for professional purposes, and destruction or corruption of data not used for professional purposes. The old EUR 500 threshold and the overall cap are gone."}}, {"@type": "Question", "name": "How long can claims be brought?", "acceptedAnswer": {"@type": "Answer", "text": "Three years from when the claimant knew or should have known, with a 10-year long-stop from placing the product on the market, extended to 25 years for latent personal injury."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PRODUCT LIABILITY DIRECTIVE CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Does the new EU product liability regime reach your software or product?</h1>
+    <p>From 9 December 2026 software, AI systems and digital manufacturing files are <strong>products</strong> and makers face strict liability with no fault needed. Choose your role and what you supply to see whether you are <strong>in scope</strong>, who answers for a defect, the <strong>time limits</strong> and what to prepare.</p>
+    <p class="note">A first read written from the Directive without a live lookup. Member States transpose it differently; each result names the source to verify. It is not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="role">Your role</label><select id="role"><option value="">Choose a role</option></select></div>
+      <div><label for="kind">What you supply</label><select id="kind"><option value="">Choose</option></select></div>
+      <div><label for="licence">Licence of the software</label><select id="licence"></select></div>
+      <div><label for="placed">Placed on the EU market</label><select id="placed"></select></div>
+      <div><label for="base">Where you are established</label><select id="base"></select></div>
+      <div><label for="updates">Do you control updates and patches?</label><select id="updates"><option value="yes">Yes</option><option value="no">No</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check my position</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a role and what you supply, then click Check my position.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> Directive (EU) 2024/2853 for manufacturers, component makers, modifiers, importers, authorised representatives, fulfilment providers, distributors and platforms; hardware, software, AI and digital manufacturing files.</li>
+      <li><strong>Gives:</strong> scope, liability position in the supply chain, harm covered, time limits, update duties and a preparation list.</li>
+      <li><strong>Not decided:</strong> whether a particular product is actually defective, national transposition details, the Cyber Resilience Act and GPSR duties themselves, insurance terms, and anything that changed after this page was written.</li>
+    </ul>
+    <p>Related regimes: the <a href="../gpsr-product-safety-checker/">GPSR product safety checker</a> and the <a href="../cra-evidence-desk/">Cyber Resilience Act evidence desk</a>.</p>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Does the new EU Product Liability Directive cover software and AI?</h3>
+    <p>Yes. Directive (EU) 2024/2853 expressly treats software, including apps, firmware and AI systems, and digital manufacturing files as products, whether installed, embedded or delivered through the cloud. It applies to products placed on the market from 9 December 2026.</p>
+    <h3>Who is liable if my product is defective?</h3>
+    <p>The manufacturer first. Then, in turn, a component maker (jointly), an importer, an authorised representative, a fulfilment provider, and a distributor or online platform in the cases the Directive lists, so that an injured person always has an EU business to claim against.</p>
+    <h3>Is open-source software covered?</h3>
+    <p>Free and open-source software developed or supplied outside the course of a commercial activity is excluded. If it is supplied commercially, or built into a product someone sells, the business that does so carries the liability.</p>
+    <h3>What damage can be claimed and is there a cap?</h3>
+    <p>Death, personal injury including recognised psychological harm, damage to property not used exclusively for professional purposes, and destruction or corruption of data not used for professional purposes. The old EUR 500 threshold and the overall cap are gone.</p>
+    <h3>How long can claims be brought?</h3>
+    <p>Three years from when the claimant knew or should have known, with a 10-year long-stop from placing the product on the market, extended to 25 years for latent personal injury.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your national authority or counsel before relying on it.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../eu-ai-act-risk-checker/">EU AI Act risk checker</a>, the <a href="../nis2-scope-checker/">NIS2 scope checker</a>, the <a href="../eu-data-act-checker/">EU Data Act checker</a> and the <a href="../eu-battery-regulation-checker/">EU Batteries Regulation checker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { ROLES, KINDS, LICENCES, PLACED, BASES, compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { role: "role", kind: "kind", licence: "licence", placed: "placed", base: "base", updates: "updates" };
+    const IDLE = "Choose a role and what you supply, then click Check my position.";
+    const opts = (list) => list.map((x) => `<option value="${x.id}">${esc(x.label)}</option>`).join("");
+    $("#role").innerHTML += opts(ROLES);
+    $("#kind").innerHTML += opts(KINDS);
+    $("#licence").innerHTML = opts(LICENCES);
+    $("#placed").innerHTML = opts(PLACED);
+    $("#base").innerHTML = opts(BASES);
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    const HEAD = { in: "In scope from 9 December 2026", out: "Outside the regime on these facts", old: "Old 1985 regime for units placed earlier" };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = HEAD[r.scope] + " · " + r.status.text;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a non-EU maker of a commercial AI system placed on the EU market after 9 December 2026.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#role").value = ""; $("#kind").value = ""; $("#licence").value = "na"; $("#placed").value = "after"; $("#base").value = "eu"; $("#updates").value = "yes"; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("product-liability-check.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
