@@ -732,6 +732,9 @@ const CATEGORY_RULES = [
       'ghost-kitchen-brand-picker',
       // `cafe-drink-margin-calculator` joined 2026-10-09 on its first commit: per-drink margin for coffee shops after card fees and make-time labor, beside `menu-engineering-calculator`'s dish margins.
       'cafe-drink-margin-calculator',
+      // `boba-tea-shop-profit-calculator` joined 2026-10-13 on its first commit: a leased-store pro forma (break-even cups a day with the
+      // loan, delivery commission, ramp-up reserve) beside `cafe-drink-margin-calculator`'s per-drink margin.
+      'boba-tea-shop-profit-calculator',
       // `ice-cream-shop-seasonal-profit-calculator` joined 2026-10-13 on its first commit: a seasonal frozen-dessert shop's twelve-month P&L and open-or-close decision per month, beside `shaved-ice-stand-profit-calculator`'s event stands and `cafe-drink-margin-calculator`'s per-drink margins.
       'ice-cream-shop-seasonal-profit-calculator',
       // `daily-prep-quantity-optimizer` joined 2026-10-09 on its first commit: how many to make, beside `bakery-production-scheduler`'s when to bake.
