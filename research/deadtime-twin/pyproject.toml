@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deadtime-twin"
+version = "0.1.0"
+description = "Deadtime twin: an ideal linear photon counter twin of a SPAD lidar misses count saturation, a paralyzable-detector ambiguity and first-photon pile-up range bias; the Coates correction removes the bias"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

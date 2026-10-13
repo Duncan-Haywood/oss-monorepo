@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shot-twin"
+version = "0.1.0"
+description = "Shot-noise twin: a constant-variance Gaussian camera twin of Poisson photon counting puts the dark/bright decision threshold at the arithmetic mean instead of the logarithmic mean, mispredicts the error rate, and a sim-trained detector inherits the gap"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
