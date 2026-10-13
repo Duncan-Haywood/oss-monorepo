@@ -3050,7 +3050,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `self-serve-dog-wash-profit-calculator` graduated (browser dog wash pro forma: tub capacity, traffic by weekday and season, break-even washes per day, ramp and payback).
     # +1: `convenience-store-gas-station-profit-calculator` graduated (browser c-store and gas station P&L: fuel margin after card fees, inside sales, labor, loan, break-even gallons and debt coverage).
     # +1: `nis2-scope-checker` graduated (browser EU NIS2 scope check: sector and size to essential, important or out of scope, with the Article).
-    total = 1124  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1124 tools" wording.
+    # +1: `eaa-accessibility-act-checker` graduated (browser European Accessibility Act check: product or service, role and size to in scope, microenterprise-exempt or out, with the Article).
+    total = 1125  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1125 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).

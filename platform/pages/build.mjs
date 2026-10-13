@@ -1530,7 +1530,7 @@ const CATEGORY_RULES = [
     // user of.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
-      || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check|salary-range-posting-check|eu-pay-gap-report-calculator|nis2-scope-checker|eu-ai-act-risk-checker)/.test(slug)
+      || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check|salary-range-posting-check|eu-pay-gap-report-calculator|nis2-scope-checker|eu-ai-act-risk-checker|eaa-accessibility-act-checker)/.test(slug)
       || slug === '1099-k-threshold-checker'
       || slug === 'osha-trir-dart-calculator'
       || slug === 'final-paycheck-deadline-calculator'
