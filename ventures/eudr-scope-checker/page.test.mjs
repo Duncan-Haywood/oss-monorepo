@@ -67,3 +67,7 @@ test("the sample loads through the same path the page uses", async () => {
   const { compute, SAMPLE } = await import("./calc.mjs");
   assert.equal(compute(SAMPLE).errors.length, 0);
 });
+
+test("footer links the NIS2 scope checker", () => {
+  assert.match(page("index.html"), /href="\.\.\/nis2-scope-checker\/"/);
+});
