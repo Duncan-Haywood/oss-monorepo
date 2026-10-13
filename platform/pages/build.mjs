@@ -1542,6 +1542,8 @@ const CATEGORY_RULES = [
       || slug === 'paid-sick-leave-accrual-calculator'
       // `employer-payroll-tax-cost-calculator` joined 2026-10-13: federal payroll-tax arithmetic plus editable state unemployment presets with a not-tax-advice posture; exact slug.
       || slug === 'employer-payroll-tax-cost-calculator'
+      // `retirement-plan-startup-credit-calculator` joined 2026-10-13: SECURE 2.0 credit arithmetic from published Form 8881 rules with a not-tax-advice posture; exact slug.
+      || slug === 'retirement-plan-startup-credit-calculator'
       || slug === 'mechanics-lien-deadline-calculator'
       || slug === 'boi-reporting-exemption-checker'
       // `hubspot-contacts-csv-check` joined 2026-10-04: a list preflight that reports what it found with line numbers and an explicit not-checked list, and
@@ -1797,6 +1799,8 @@ const CATEGORY_RULES = [
       || slug === 'eu-vat-oss-calculator'
       // `ca-gst-hst-small-supplier-checker` joined 2026-10-13 on its first commit: when a small seller must register for sales tax, the same compliance-arithmetic job.
       || slug === 'ca-gst-hst-small-supplier-checker'
+      // `au-gst-registration-checker` joined 2026-10-13 on its first commit: the Australian sibling of the GST/HST small-supplier test, same compliance-arithmetic job.
+      || slug === 'au-gst-registration-checker'
       // `uk-statutory-sick-pay-calculator` joined 2026-10-13 on its first commit: UK employer payroll-compliance arithmetic, same back-office job.
       || slug === 'uk-statutory-sick-pay-calculator'
       // `au-redundancy-pay-calculator` joined 2026-10-13 on its first commit: employer termination-pay compliance arithmetic, same back-office job.
