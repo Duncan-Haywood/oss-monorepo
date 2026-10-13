@@ -1510,6 +1510,11 @@
      "slug": "simdesign-processcover",
      "title": "Which share of a bracket family can each shop process make, and which machine should a shop add next?",
      "summary": "Using the assumed rules of <em>simdesign-dfm</em> (FDM, CNC routing, laser cutting, casting) as feasibility checks on 20&nbsp;000 sampled bracket feature sets, geometry alone gives a degenerate answer: FDM covers 89% and no other process covers anything FDM cannot, so no machine adds coverage (a negative result). With a tip-load requirement of 1&ndash;1000&nbsp;N and closed-form beam checks the processes separate: FDM alone covers 30%, adding casting and a laser cutter 41%, and the best next machine depends on the budget and on the part sizes. Greedy selection from <em>selfrep-nextmachine</em> is sometimes 1&ndash;2 coverage points below exhaustive search. Stylised: all rule values, working stresses and prices are assumed, the beam check ignores fillet stress concentration, and nothing was made."
+    },
+    {
+     "slug": "simdesign-meshmargin",
+     "title": "Does a mesh-aware stress margin change what manufacturing rules cost a sized bracket?",
+     "summary": "The process-rule search of <em>simdesign-dfm</em> is repeated with a coarse mesh, a coarse mesh with the stress limit divided by 1.3, and a finer mesh, and every design is re-solved on a finer check mesh. The ordering of the mass prices survives: casting about 1.4, CNC routing about 1.23, FDM 1.0 by construction. The laser-cutting price does not (1.01 to 1.22 across settings, with only two seeds). A margin of 1.3 leaves the designs at 0.88 to 1.02 of the limit on the check mesh, at a 17at a 20&ndash;35% mass costndash;35% mass cost. Stylised: the peak stress is not converged even on the check mesh, rule values are assumed, and nothing was made."
     }
    ]
   },
