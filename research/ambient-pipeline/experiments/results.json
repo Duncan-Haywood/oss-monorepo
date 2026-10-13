@@ -1,0 +1,301 @@
+{
+ "host": {
+  "python": "3.13.16",
+  "cpus": 4,
+  "machine": "x86_64"
+ },
+ "mem": [
+  {
+   "stage": "python+numpy baseline",
+   "rss_mb": 29
+  },
+  {
+   "stage": "tts piper lessac-low",
+   "load_s": 1.33,
+   "rss_delta_mb": 89.0
+  },
+  {
+   "stage": "vad silero",
+   "load_s": 0.11,
+   "rss_delta_mb": 30.0
+  },
+  {
+   "stage": "asr faster-whisper tiny.en int8",
+   "rss_delta_mb": 53.0
+  },
+  {
+   "stage": "llm qwen2.5-0.5b q4_k_m (ctx 512)",
+   "rss_delta_mb": 570.0
+  }
+ ],
+ "notes": [],
+ "stream_s": 28.9,
+ "utterance_audio_s": [
+  1.87,
+  2.61,
+  5.23,
+  2.11,
+  1.78,
+  3.89
+ ],
+ "vad": {
+  "clean": {
+   "frame_ms_median": 0.145,
+   "frame_ms_p99": 0.457,
+   "rtf": 0.0072,
+   "endpointing": {
+    "200": {
+     "segments": 7,
+     "true": 6,
+     "utterances_found": 6,
+     "splits": 1,
+     "spurious": 0,
+     "median_detect_after_true_end_ms": 255.0,
+     "max_detect_after_true_end_ms": 262.0
+    },
+    "300": {
+     "segments": 6,
+     "true": 6,
+     "utterances_found": 6,
+     "splits": 0,
+     "spurious": 0,
+     "median_detect_after_true_end_ms": 351.0,
+     "max_detect_after_true_end_ms": 358.0
+    },
+    "500": {
+     "segments": 6,
+     "true": 6,
+     "utterances_found": 6,
+     "splits": 0,
+     "spurious": 0,
+     "median_detect_after_true_end_ms": 575.0,
+     "max_detect_after_true_end_ms": 582.0
+    },
+    "800": {
+     "segments": 6,
+     "true": 6,
+     "utterances_found": 6,
+     "splits": 0,
+     "spurious": 0,
+     "median_detect_after_true_end_ms": 863.0,
+     "max_detect_after_true_end_ms": 870.0
+    }
+   }
+  },
+  "noise_20dB": {
+   "frame_ms_median": 0.137,
+   "frame_ms_p99": 0.364,
+   "rtf": 0.005,
+   "endpointing": {
+    "200": {
+     "segments": 7,
+     "true": 6,
+     "utterances_found": 6,
+     "splits": 1,
+     "spurious": 0,
+     "median_detect_after_true_end_ms": 250.0,
+     "max_detect_after_true_end_ms": 262.0
+    },
+    "300": {
+     "segments": 7,
+     "true": 6,
+     "utterances_found": 6,
+     "splits": 1,
+     "spurious": 0,
+     "median_detect_after_true_end_ms": 346.0,
+     "max_detect_after_true_end_ms": 358.0
+    },
+    "500": {
+     "segments": 6,
+     "true": 6,
+     "utterances_found": 6,
+     "splits": 0,
+     "spurious": 0,
+     "median_detect_after_true_end_ms": 570.0,
+     "max_detect_after_true_end_ms": 582.0
+    },
+    "800": {
+     "segments": 6,
+     "true": 6,
+     "utterances_found": 6,
+     "splits": 0,
+     "spurious": 0,
+     "median_detect_after_true_end_ms": 858.0,
+     "max_detect_after_true_end_ms": 870.0
+    }
+   }
+  }
+ },
+ "asr": {
+  "threads1_clean": {
+   "ms_median": 460.0,
+   "rtf_median": 0.16,
+   "mean_wer": 0.01,
+   "per_utt_ms": [
+    445,
+    431,
+    489,
+    443,
+    476,
+    490
+   ],
+   "hyps": null
+  },
+  "threads1_noise_20dB": {
+   "ms_median": 472.0,
+   "rtf_median": 0.17,
+   "mean_wer": 0.01,
+   "per_utt_ms": [
+    458,
+    478,
+    508,
+    454,
+    471,
+    474
+   ],
+   "hyps": null
+  },
+  "threads4_clean": {
+   "ms_median": 306.0,
+   "rtf_median": 0.11,
+   "mean_wer": 0.01,
+   "per_utt_ms": [
+    308,
+    304,
+    348,
+    298,
+    285,
+    373
+   ],
+   "hyps": [
+    "What time is the meeting with Priya tomorrow?",
+    "Remind me to call the dentist after lunch on Thursday.",
+    "I was thinking we could move the launch to the following week, since the testing is not finished and the team is tired.",
+    "Add milk and eggs to the shopping list.",
+    "How long does it take to boil an egg?",
+    "Can you summarize what we decided about the budget in the last few minutes of the call?"
+   ]
+  },
+  "threads4_noise_20dB": {
+   "ms_median": 316.0,
+   "rtf_median": 0.114,
+   "mean_wer": 0.01,
+   "per_utt_ms": [
+    315,
+    305,
+    403,
+    317,
+    315,
+    339
+   ],
+   "hyps": [
+    "What time is the meeting with Priya tomorrow?",
+    "Remind me to call the dentist after lunch on Thursday.",
+    "I was thinking we could move the launch to the following week, since the testing is not finished and the team is tired.",
+    "Add milk and eggs to the shopping list.",
+    "How long does it take to boil an egg?",
+    "Can you summarize what we decided about the budget in the last few minutes of the call?"
+   ]
+  }
+ },
+ "llm": {
+  "threads1": {
+   "ttft_ms_median": 66,
+   "first_sentence_ms_median": 906,
+   "tokens_per_s_median": 14.8,
+   "per_utt_first_sentence_ms": [
+    1234,
+    1079,
+    331,
+    562,
+    1024,
+    788
+   ],
+   "replies": null
+  },
+  "threads4": {
+   "ttft_ms_median": 23,
+   "first_sentence_ms_median": 267,
+   "tokens_per_s_median": 47.6,
+   "per_utt_first_sentence_ms": [
+    375,
+    343,
+    129,
+    162,
+    297,
+    237
+   ],
+   "replies": [
+    "I'm sorry, but I don't have any information about a meeting with Priya tomorrow. Could you provide more context or clarify your question?",
+    "Call the dentist after lunch on Thursday for a check-up and any necessary dental work.",
+    "I understand your concern. Moving the launch to the next week would be a prudent decision to ensure the testing is completed and the team is not exhausted.",
+    "Add milk and eggs to the shopping list.",
+    "It typically takes about 10-15 minutes to boil an egg.",
+    "I'm sorry, but I can't assist with that."
+   ]
+  }
+ },
+ "tts": {
+  "first_chunk_ms_median": 88,
+  "rtf_median": 0.029,
+  "per_utt_first_chunk_ms": [
+   120,
+   121,
+   54,
+   71,
+   106,
+   67
+  ]
+ },
+ "budget": {
+  "200": {
+   "hangover_measured_ms": 255.0,
+   "utterances_split_by_endpointing": 1,
+   "reply_latency_ms_median": 938,
+   "reply_latency_ms_min": 786,
+   "reply_latency_ms_max": 1059,
+   "required_compute_speedup": {
+    "500": 2.7,
+    "1000": 0.89,
+    "2000": 0.38
+   }
+  },
+  "300": {
+   "hangover_measured_ms": 351.0,
+   "utterances_split_by_endpointing": 0,
+   "reply_latency_ms_median": 1034,
+   "reply_latency_ms_min": 882,
+   "reply_latency_ms_max": 1155,
+   "required_compute_speedup": {
+    "500": 4.44,
+    "1000": 1.02,
+    "2000": 0.4
+   }
+  },
+  "500": {
+   "hangover_measured_ms": 575.0,
+   "utterances_split_by_endpointing": 0,
+   "reply_latency_ms_median": 1258,
+   "reply_latency_ms_min": 1106,
+   "reply_latency_ms_max": 1379,
+   "required_compute_speedup": {
+    "500": "inf",
+    "1000": 1.56,
+    "2000": 0.46
+   }
+  },
+  "800": {
+   "hangover_measured_ms": 863.0,
+   "utterances_split_by_endpointing": 0,
+   "reply_latency_ms_median": 1546,
+   "reply_latency_ms_min": 1394,
+   "reply_latency_ms_max": 1667,
+   "required_compute_speedup": {
+    "500": "inf",
+    "1000": 4.83,
+    "2000": 0.58
+   }
+  }
+ },
+ "peak_rss_mb": 1105
+}
