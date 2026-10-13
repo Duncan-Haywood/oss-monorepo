@@ -1483,6 +1483,11 @@
      "summary": "A stylised follow-up to <em>ambient-ips</em>: on the same logged history, a model fitted only on windows where the assistant spoke is compared with an inverse-propensity-weighted fit and with a full-information fit that sees every window&rsquo;s label. The full-information fit reaches the oracle (12.72 against 12.71 utility per hour); the biased fit loses 1.3 to 2.1 per hour with an informed prior and fails with an uninformed one, so the bias is large, contrary to a guess in <em>ambient-ips</em>. Weighting recovers part of the loss only at &epsilon;&nbsp;=&nbsp;0.02 with an informed prior. The comparison also mixes bias with data volume (no label-matched control). Stylised, simulated only."
     },
     {
+     "slug": "ambient-labelmatch",
+     "title": "Is the gap in an assistant that learns only from windows where it spoke caused by selection bias or by too few labels?",
+     "summary": "A stylised follow-up to <em>ambient-fullinfo</em>. A control that fits on a uniformly random sample of windows, of the same size as the biased fit&rsquo;s label set, gets 12.2&ndash;12.5 utility per hour against an oracle of 12.71, while the biased fit gets 10.6&ndash;11.4 with an informed prior and fails with an uninformed one: in this world the gap is mostly selection bias. Capping the inverse-propensity weights at 10 or 50 beats raw weights and the biased fit with the informed prior, but is worse than the biased fit with the uninformed prior; self-normalised weights are noisy. The control uses labels a real assistant never sees, so it locates the loss rather than recovering it. Stylised: chosen distributions, independent windows, noise-free feedback, simulated only."
+    },
+    {
      "slug": "ambient-wearable",
      "title": "What limits the battery life of a pendant-style always-on audio wearable?",
      "summary": "A stylised average-current model for an nRF52840-class pendant with a 150 mAh cell, built from a few vendor figures read on 2026-10-13 plus labelled assumptions. The always-on microphone is the floor (about 170 h alone); gating codec and radio on speech at a 30% speech fraction gives about 105 h against 59 h for always streaming. A 74-byte energy-gate routine compiles for Cortex-M4. Nothing is measured on hardware, the datasheets were not read in full and there is no numeric comparison with Omi."
