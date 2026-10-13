@@ -1,0 +1,13 @@
+[project]
+name = "garment-stackcvar"
+version = "0.1.0"
+description = "Tail-risk (CVaR) and correlated-error objectives for angle-stable thin-film stacks, cross-evaluated under both error models"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../garment-stackrobust/src", "../garment-stackopt/src", "../garment-thincolor/src"]
