@@ -1302,6 +1302,11 @@
      "slug": "chip-systolic",
      "title": "Does an output-stationary systolic array beat a MAC-lane engine for a tiny quantised MLP?",
      "summary": "An R&times;C systolic-array generator for the 8-8-4 integer MLP, simulated in Icarus Verilog and matched bit for bit and cycle for cycle against an integer NumPy reference in all 12 configurations (batch of 4). Against the MAC-lane engine of <em>chip-accel</em> at 4, 6 and 8 bits, synthesised with the same Yosys generic-gate script, the array has 1.6&times; to 1.8&times; more cells&times;cycles at its best shape (a negative result), but lower latency: 40 cycles for 4&times;8 against 80 for 8 MAC lanes, at about 3.9&times; the cells at 4 bits. Stylised: fan-in 8, one network, gate counts rather than area, no clock, power or layout."
+    },
+    {
+     "slug": "chip-systolic-batch",
+     "title": "Does a larger batch let a systolic array catch a MAC-lane engine on a tiny quantised MLP?",
+     "summary": "A batch-size sweep (R = 4, 8, 16, 4-bit weights) of the output-stationary systolic generator from <em>chip-systolic</em>, simulated in Icarus Verilog and matched to an integer NumPy reference and the cycle formula in all 6 configurations, then scored with Yosys against the MAC-lane engine of <em>chip-accel</em>. A negative result: the best array has 1.6&times;, 2.1&times; and 2.9&times; the cells&times;cycles of 4 MAC lanes at R = 4, 8 and 16, because array area grows with the batch while MAC-lane area does not, even though it needs far fewer cycles (83 against 464 at R = 16). Stylised: fan-in 8, one network, an array that grows a row per vector, gate counts rather than area, no clock, power or layout."
     }
    ]
   },

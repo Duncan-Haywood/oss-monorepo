@@ -1,46 +1,44 @@
-# chip-systolic: does a systolic array beat a MAC-lane engine for a tiny quantised MLP? (negative at this size)
+# chip-systolic-batch: does a larger batch let a systolic array catch a MAC-lane engine? (negative, 4-bit, stylised)
 
-Follow-up to `chip-accel` in the LLM chip-design-loop track (`PROJECTS.md`, track 3). A Python generator emits Verilog for an R x C output-stationary systolic array that runs the same 8-8-4 integer MLP on a batch of R = 4 vectors. The RTL is simulated in Icarus Verilog and must match the integer NumPy reference bit for bit and in cycle count; it is then scored with Yosys against `chip-accel`'s MAC-lane engine at 4, 6 and 8 bits. Produced with AI assistance (Claude). Preliminary and small: one toy network, one batch size, one tool version, one generic-gate synthesis script. No LLM is in this loop.
+Follow-up to `chip-systolic` (itself a follow-up to `chip-accel`) in the LLM chip-design-loop track (`PROJECTS.md`, track 3). `chip-systolic` found that an R x C output-stationary systolic array loses to a MAC-lane engine on cells x cycles at batch R = 4 and guessed that a larger batch might favour the array. This project tests that guess by sweeping R = 4, 8, 16 at 4-bit weights. Produced with AI assistance (Claude). Preliminary and small: one toy 8-8-4 network, one tool version, one generic-gate synthesis script, no LLM in the loop.
 
-**Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed. The systolic dataflow is the textbook idea of H. T. Kung, "Why systolic architectures?", *IEEE Computer* 15(1):37-46, 1982, <https://doi.org/10.1109/MC.1982.1653825> (bibliographic details confirmed by web search on 2026-10-13; the paper was not read in full). The output-stationary variant implemented here is generic and not derived from any published accelerator. `model.py` and `baseline_gen.py` are copied from `research/chip-accel` (same author, MIT). Quantisation is plain post-training symmetric rounding (see `chip-accel`).
+**Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed. The dataflow is the textbook systolic idea of H. T. Kung, "Why systolic architectures?", *IEEE Computer* 15(1):37-46, 1982, <https://doi.org/10.1109/MC.1982.1653825> (bibliographic details confirmed by web search on 2026-10-13; the paper was not read in full here). The generator, model and flow code are copied from `research/chip-systolic` (same author, MIT), which in turn copies `model.py` and `baseline_gen.py` from `research/chip-accel`. Only `experiments/run.py` and the tests are new.
 
 ## Method
-- `src/chip_systolic_batch/gen.py`: PE(r,c) multiplies the activation moving right along row r by the weight moving down column c and accumulates in place. Row r's activations enter r cycles late and column c's weights c cycles late, so PE(r,c) sees input k at cycle k + r + c. Weights are baked-in ROM functions (as in `chip-accel`, so ROM logic is in the area). A tile of C neurons takes R + C + 6 compute cycles plus 1 write-back, so `cycles(C, R) = 2 + sum over layers ceil(N/C) * (R + C + 7)`. Bias, ReLU/shift and clipping are applied at write-back, identical to `chip-accel`.
-- `src/chip_systolic_batch/flow.py`: Icarus testbench and the same Yosys script as `chip-accel` (`synth -flatten; abc -g AND,NAND,OR,NOR,XOR,XNOR,ANDNOT,ORNOT,MUX`; cells include flip-flops; depth from `ltp -noff`). Gate counts, not square microns.
-- Baseline: `chip-accel`'s P-lane engine handles one vector at a time, so a batch of 4 costs 4 x `cycles(P)` cycles (formula verified in `chip-accel`; not re-simulated in this project).
+- Same RTL generator and the same Yosys script as `chip-systolic` (`synth -flatten; abc -g AND,NAND,OR,NOR,XOR,XNOR,ANDNOT,ORNOT,MUX`; cells include flip-flops). Gate counts, not square microns.
+- The array has R rows (one per batch vector) and C columns. Cycles per batch of R: `2 + sum over layers ceil(N/C) * (R + C + 7)`, checked in RTL for every configuration.
+- Baseline: `chip-accel`'s P-lane engine handles one vector at a time, so a batch costs R x `cycles(P)`. Its area does not depend on R. These cycle counts follow the formula verified in `chip-accel`; they are not re-simulated here.
+- Metric: cells x cycles per batch (lower is better), and the same divided by R.
 
 ## Reproduce
 ```bash
 sudo apt-get install -y yosys iverilog      # Yosys 0.33, Icarus 12.0 here
 pip install numpy
-cd research/chip-systolic
+cd research/chip-systolic-batch
 PYTHONPATH=src python -m unittest discover -s tests     # about 1 minute
-PYTHONPATH=src python experiments/run.py                # about 15 minutes; rewrites experiments/results.txt
+PYTHONPATH=src python experiments/run.py                # over an hour; rewrites experiments/results.txt
 ```
 
-## Results (from `experiments/results.txt`)
-The RTL matched NumPy on all 40 checked vectors for all 12 systolic configurations, and every measured cycle count equalled `cycles(C, R)`. Tests also cover a ragged tile (C = 3), batch sizes 1 to 4, and extreme inputs.
+## Results (from `experiments/results.txt`, 4-bit weights)
+For all 6 systolic configurations the RTL matched the integer NumPy reference on 32 vectors, and every measured cycle count equalled the formula. The tests also check a ragged tile (C = 3) at R = 8, and R = 16.
 
-cells x cycles per batch of 4 (lower is better; smallest per bit width in bold):
+| R | best systolic (R x 4) cells x cycles | MAC lanes, best (P = 4) | systolic / MAC | cycles per batch: R x 4 array vs P = 4 |
+|---|---|---|---|---|
+| 4 | 310435 | 194184 | 1.6x | 47 vs 116 |
+| 8 | 803698 | 388368 | 2.1x | 59 vs 232 |
+| 16 | 2235356 | 776736 | 2.9x | 83 vs 464 |
 
-| WB | systolic 4x1 / 4x2 / 4x4 / 4x8 | MAC-lane P = 1 / 2 / 4 / 8 |
-|---|---|---|
-| 4 | 423546 / 326160 / 310435 / 439920 | 378840 / 245952 / **194184** / 224000 |
-| 6 | 1004188 / 696640 / 612551 / 856280 | 601040 / 404544 / **336400** / 384160 |
-| 8 | 972506 / 769520 / 770283 / 1169600 | 797280 / 561344 / **475368** / 568320 |
-
-- **Negative result.** At matched MAC count the MAC-lane engine has fewer cells x cycles at every bit width; its best point (P = 4) beats the best systolic point (4x4 at 4 and 6 bits, 4x2 at 8) by about 1.6x at 4 bits, 1.8x at 6 bits and 1.6x at 8 bits. Systolic wins only on latency: 40 cycles for 4x8 against 80 for P = 8, and 47 for 4x4 against 116 for P = 4, at 3.9x the cells in both cases at 4 bits.
-- Likely causes (not isolated by experiment): each PE carries two WB-bit pipeline registers and an accumulator (flip-flops are 450 to 5126 of the cells), the fan-in is only 8 so fill and drain (R + C - 2 cycles of a 15-cycle tile at 4x4) is a large share, and the weight ROM is replicated per column injection point. A larger fan-in or batch would favour the array; this project does not test that.
-- Depth is flat across array shapes (41 to 43 at 4 bits) and similar to the MAC-lane design (36 to 37), as expected for registered neighbour-to-neighbour links.
+- **Negative result.** The gap widens with batch size instead of closing. The array is faster per batch (83 against 464 cycles at R = 16), but its cell count grows almost linearly with R (6605, 13622, 26932 cells for R x 4), while the MAC-lane engine stays at 1674 cells. Cells x cycles per vector rises for the array (77608, 100462, 139709) and is constant for the MAC lanes (48546).
+- Depth stays flat (41 to 49 for the array, 36 to 37 for the MAC lanes).
+- In this design a larger batch costs area in proportion, so it does not favour the array. The sweep does not show that no systolic design wins.
 
 ## Limitations
-- One 8-8-4 network, one training seed, one batch size (R = 4); K = 8 is small for a systolic array. Conclusions do not extend to real accelerators.
-- Gate counts from one generic ABC script; no clock period, power, memory or post-layout numbers (see `chip-pnr`). The ROM weights are constants in logic. Nothing here describes a fabricated chip.
-- 40 vectors per configuration were checked in RTL. MAC-lane figures come from the `chip-accel` generator, scored again here with the identical script.
-- The Kung citation details were checked by search; its content was not read here, so no claim rests on it beyond the name of the dataflow.
+- The array grows a row per batch vector. A fixed-size array fed several batches in turn, which is how real arrays are used, was not built. This probably makes the comparison unfavourable to the array at large R.
+- Fan-in stays at 8; only batch size was swept. Only C = 2 and 4, 4-bit weights, and P = 2 and 4 were run. The 6- and 8-bit rows and C = 8 (which `chip-systolic` covers at R = 4) were dropped to keep the run within budget; a larger grid did not finish in over an hour.
+- One network, one seed, one synthesis script, gate counts only: no clock period, power, memory or layout (see `chip-pnr`). Nothing here describes a fabricated chip.
 
 ## Next steps
-Sweep batch size and fan-in to find where the array overtakes the MAC lanes; a RAM-based weight store; a weight-stationary variant; an `ANTHROPIC_API_KEY`-gated proposer (stubbed) that rewrites the datapath under the equivalence gate of `chip-ppa-loop`.
+A fixed-size array reused across batches; sweep fan-in (needs a generalised model); weight-stationary dataflow; a RAM-based weight store.
 
 ## Outside dependencies
-Yosys and Icarus Verilog (apt), NumPy (pip). No LLM API, OpenROAD or PDK. All code is original or copied from `chip-accel` and MIT-licensed.
+Yosys and Icarus Verilog (apt), NumPy (pip). No LLM API, OpenROAD or PDK. All code is original or copied from `chip-systolic` and `chip-accel` and is MIT-licensed.
