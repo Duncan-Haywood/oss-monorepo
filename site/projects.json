@@ -1282,6 +1282,11 @@
      "slug": "chip-repair-baseline",
      "title": "What does a no-model baseline repair when a scripted RTL checker is the only feedback?",
      "summary": "A companion to <code>chip-rtl-loop</code>: a four-stage checker (compile, lint, simulation, SAT miter) over ten small Verilog tasks, with a random-mutation hill-climbing baseline that uses no model. Given 1, 2 or 3 injected faults and 60 checker evaluations, the baseline repairs 9/20, 4/20 and 4/20 cases. The session agent (Claude) passed all ten tasks on its first attempt, so the feedback rounds were never exercised and no pass-rate-versus-rounds curve is reported. Preliminary: tiny tasks, one attempt, mutation faults unlike a language model's mistakes, and the optional API proposer is untested."
+    },
+    {
+     "slug": "chip-ppa-loop",
+     "title": "Does a rewrite proposer beat a parameter sweep on area and depth when every rewrite must be proved equivalent?",
+     "summary": "A loop in which rewrites of a 16-bit adder and a 6&times;6 multiplier must be proved equivalent to the reference by a Yosys miter before a generic-gate ABC script scores cells and depth. With nine attempts written by the session agent (not an LLM benchmark; two were seeded faults the gate rejected), the best adder is a 4-bit carry-select at 0.85&times; the reference cells&times;depth, the same circuit family as the best config of a no-model parameter sweep, so a random sweep of the same budget never beats it (ties in 63 of 200 seeds). No multiplier rewrite beat <code>a * b</code>. Stylised: gate counts, not layout; one tool version; two designs."
     }
    ]
   },
