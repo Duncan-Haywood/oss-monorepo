@@ -1619,6 +1619,11 @@
      "summary": "A transfer-matrix model of dielectric quarter-wave stacks on a flat nylon-like substrate, with colour computed under an equal-energy illuminant. Six-pair stacks reach 99% reflectance with 2&ndash;3 g/m<sup>2</sup> of oxide and saturated colour, but the peak blue-shifts from 620 to 540 nm by 60&deg; incidence (&Delta;E<sub>76</sub> 48), and 10% layer-thickness error moves hue by &Delta;E&asymp;10 while roughly preserving chroma. Stylised: flat substrate, constant indices, no fibre scattering."
     },
     {
+     "slug": "garment-stackopt",
+     "title": "Can an optimiser cut the angle shift of a structural-colour coating, and what does it give up?",
+     "summary": "Eight-layer thin-film stacks on a flat nylon-like substrate, optimised to minimise the colour shift between 0 and 15&ndash;45&deg; incidence while keeping chroma C* &ge; 40 and hue near a quarter-wave target. At an equal budget of 3000 evaluations (10 seeds), Nelder&ndash;Mead with restarts cuts the median mean &Delta;E<sub>76</sub> shift from 12.4 to 1.4 (red target) and from 25.9 to 5.6 (blue), beating random search and differential evolution, but chroma falls toward the floor and oxide mass rises about 1.8&ndash;2.5&times;. Stylised: flat substrate, three sample angles, recalled indices, no fabrication tolerance; no LLM involved."
+    },
+    {
      "slug": "garment-assist",
      "title": "Does an assistive garment pay for its own mass?",
      "summary": "A one-joint ankle model of an exosuit-style garment: a suit adding a fraction of the biological push-off torque cuts modelled whole-body metabolic cost by 3.1, 8.8 and 14.1% at gains 0.1, 0.3 and 0.5, but a delay of 0.25 of the gait cycle removes the benefit and a stiff passive spring raises ankle cost 17%. Added mass erases the saving at 8.9&nbsp;kg if each kg costs 1% of whole-body power and at 1.8&nbsp;kg if it costs 5%; the break-even scales as 1/sensitivity, a number the project does not supply. Stylised: lumped muscle, prescribed gait, assumed constants; not OpenSim or MyoSuite."
