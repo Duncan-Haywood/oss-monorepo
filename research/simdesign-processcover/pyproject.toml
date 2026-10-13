@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-processcover"
+version = "0.1.0"
+description = "Which share of a family of bracket-like parts can each shop process make? Coverage of geometric DFM rules, fed into machine selection"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
