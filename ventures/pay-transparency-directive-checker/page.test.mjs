@@ -63,3 +63,7 @@ test("footer links the related EU tools", () => {
   assert.match(html, /href="\.\.\/eaa-accessibility-act-checker\/"/);
   assert.match(html, /href="\.\.\/eu-ai-act-risk-checker\/"/);
 });
+
+test("footer links the whistleblower channel checker", () => {
+  assert.match(page("index.html"), /href="\.\.\/eu-whistleblower-channel-checker\/"/);
+});
