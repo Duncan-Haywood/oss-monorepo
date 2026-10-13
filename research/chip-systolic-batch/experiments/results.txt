@@ -3,3 +3,7 @@
 
 WB R   design        MACs cycles  cells    depth  cells*cycles  cells*cycles/R  rtl==numpy(32 vecs)
  4  4  systolic 4x2     8     80   4077    41        326160          81540  True
+ 4  4  systolic 4x4    16     47   6605    42        310435          77608  True
+ 4  4  mac-lane P=2       2    224   1098    37        245952          61488  (r sequential runs; not re-simulated)
+ 4  4  mac-lane P=4       4    116   1674    36        194184          48546  (r sequential runs; not re-simulated)
+
