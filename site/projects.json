@@ -1294,9 +1294,15 @@
      "summary": "A generator for an 8-8-4 integer MLP engine with P multiply-accumulate lanes and 4-, 6- or 8-bit weights, simulated in Icarus Verilog and matched bit for bit and cycle for cycle against an integer NumPy reference in all 12 configurations. Synthesised with Yosys to generic gates, latency falls from 110 to 20 cycles as lanes go from 1 to 8 while area grows about 3&times; to 4&times;, so cells&times;cycles is smallest at 4 lanes for every width. 6 bits matched float accuracy on the toy task; 4 bits lost about 3 points. Stylised: one synthetic task and seed, weights baked into logic, gate counts rather than layout, nothing about a real chip."
     },
     {
+<<<<<<< HEAD
      "slug": "chip-pnr",
      "title": "How far do synthesis-only area and delay sit from placed-and-routed numbers on SKY130?",
      "summary": "Thirteen small designs (adders, multipliers, FIFOs) pushed through generic gate counting, Yosys/ABC mapping onto the SKY130 HD library, and an OpenROAD flow with placement, clock tree, global routing and timing repair. Generic gate count stays within 5.1&ndash;5.8 um&sup2; per gate for combinational logic but is about 3&times; higher per gate for FIFOs, whose flops dominate; mapping makes a ripple and a <code>+</code> adder identical. Layout adds 0&ndash;28% area (most where timing needs repair), and wires add 3&ndash;19% to delay before repair. The ABC clock target did not change the netlist at all. Stylised: tiny designs, one corner, global-route parasitics only, no detailed route or DRC, nothing about a fabricated chip."
+=======
+     "slug": "chip-systolic",
+     "title": "Does an output-stationary systolic array beat a MAC-lane engine for a tiny quantised MLP?",
+     "summary": "An R&times;C systolic-array generator for the 8-8-4 integer MLP, simulated in Icarus Verilog and matched bit for bit and cycle for cycle against an integer NumPy reference in all 12 configurations (batch of 4). Against the MAC-lane engine of <em>chip-accel</em> at 4, 6 and 8 bits, synthesised with the same Yosys generic-gate script, the array has 1.6&times; to 1.8&times; more cells&times;cycles at its best shape (a negative result), but lower latency: 40 cycles for 4&times;8 against 80 for 8 MAC lanes, at about 3.9&times; the cells at 4 bits. Stylised: fan-in 8, one network, gate counts rather than area, no clock, power or layout."
+>>>>>>> origin/main
     }
    ]
   },
@@ -1329,6 +1335,11 @@
      "slug": "robofab-cell-bound",
      "title": "Where is the bottleneck of an arm, printer and inspection cell?",
      "summary": "A hand-written discrete-event twin of one arm that loads and unloads P 3D printers, plus an inspection station with reprints, against a utilisation bound. The bound names the bottleneck (printers up to 10 printers, the arm from 12, about 12.7 good parts/h) and the simulation reaches it within 1&ndash;2% far from the switch but sits 10&ndash;11% below it at 10&ndash;12 printers. A 25% faster arm lifts throughput from 11.34 to 12.68 parts/h at 12 printers while a second inspector does nothing; arm dispatch rules made no measurable gain, and WIP beyond one job per printer plus one only lengthens flow time. <em>Stylised parameters of my choosing, no travel or breakdowns, 20 seeds.</em>"
+    },
+    {
+     "slug": "robofab-cell-mva",
+     "title": "Does exact queueing analysis predict a robot-printer cell's throughput better than a utilisation bound?",
+     "summary": "Mean value analysis of a closed arm, printers and inspection network, checked against a hand-written discrete-event simulation that adds one departure from product form at a time (illustrative times, 20 seeds). The code matches the exact Markov-chain solution on small networks. With exponential times MVA is within &minus;6% to +4% of simulation; with less variable times it is up to 11% low. With printers held while waiting for the arm, MVA beats the utilisation bound at 4, 8 and 12 printers but not at 16, and it overshoots the saturation plateau at high work in process (9.8 against 8.6 parts/h at 8 printers). Stylised, simulation-only; no physical cell."
     },
     {
      "slug": "robofab-selfparts",
@@ -1373,6 +1384,21 @@
      "slug": "selfrep-closure",
      "title": "How much of a RepRap printer can a growing seed shop make itself?",
      "summary": "The RepRap Prusa Mendel (iteration 2) bill of materials (51 part lines, from the RepRap wiki) against three seed shops. A printer alone makes 18 of 51 lines (35%); adding a CNC router and laser cutter reaches 43% of lines and, under assumed masses and costs, about 22% of mass and 16% of cost; casting helps only if brass bushings replace LM8UU bearings (45% of lines, 24% of mass). Motors, electronics, rods, bearings and fasteners stay vitamins. Stylised: the wiki gives no masses or prices, so those inputs are assumed and shown with a sensitivity range, process assignments are judgement, and only the printer is decomposed."
+    },
+    {
+     "slug": "selfrep-nextmachine",
+     "title": "Which machine should a seed shop add next, and does a greedy rule find it?",
+     "summary": "Builds on the selfrep-closure part model. Choosing among a CNC router, laser cutter and casting setup under a budget, a greedy closure-per-price rule matches exhaustive search at every tested budget on the real three-machine instance (router first, then casting only if brass bushings replace LM8UU). On 500 random synthetic instances greedy is optimal in 72&ndash;94% of cases and loses up to about 38% of the closure gain in the worst case. Stylised: machine prices, masses and costs are assumed placeholders, machines have no bills of materials of their own, and the synthetic instances are random."
+    },
+    {
+     "slug": "selfrep-growth",
+     "title": "How fast does a replicating printer shop grow when its vitamins must be bought?",
+     "summary": "Builds on the selfrep-closure part model. A discrete-event simulation of a fleet of printers that each build copies of themselves, checked against a closed-form fluid model. With a small import budget the doubling time falls almost in proportion to the budget (about 455 h at 4 units/h, 120 h at 16/h); above a crossover fleet size N* = BW/V machine time binds and doubling flattens near the 50 h build time. Failed builds raise the doubling time by about 1/(1&minus;<em>f</em>), and raising closure helps most when imports bind. Every input (print rate, assembly time, costs, budget, failure rate) is assumed and the fleet is homogeneous. Stylised. The comparison with Lackner and Wendt&rsquo;s growth model is not done."
+    },
+    {
+     "slug": "selfrep-reinvest",
+     "title": "When should a replicating shop stop copying itself and start making goods?",
+     "summary": "Builds on the selfrep-growth fleet model. A fluid optimal-control model splits machine time between building copies and making goods, scored on the total value of goods over 600 h. Copying flat out and then switching to goods one e-folding time (1/<em>k</em> = <em>W</em>/(1&minus;<em>f</em>), 50 h with no failures) before the horizon matches the closed form; the best constant split earns only 9&ndash;27% of that value, and smooth ramps are no better than the sharp switch. When imports or goods sales fund vitamins, cash binds throughout and the switch lands about 50 h from the end. Every input is assumed, the fleet is a continuous fluid, goods demand is unlimited and the final fleet is worth nothing. Stylised. Piecewise policies are local search, not a proof of optimality."
     }
    ]
   },
@@ -1395,6 +1421,16 @@
      "slug": "simdesign-fidelity",
      "title": "When does a cheaper beam model pick the same design as 3D finite elements?",
      "summary": "A rectangular cantilever is sized for minimum mass under a tip-deflection and a top-fibre stress limit with Euler&ndash;Bernoulli and Timoshenko beam theory, 2D plane-stress and 3D finite elements (scikit-fem), and each design is judged by the 3D model. Stress read away from the clamp agrees across models; deflection does not. Over 12 length&ndash;width cases the cheap models choose a depth within about 5% of the 3D optimum: Euler&ndash;Bernoulli is unsafe for narrow, stubby beams (up to 1.05&times; the deflection limit), while Timoshenko and plane stress are up to about 5% too heavy for wide ones, where plane strain stiffens the beam. Stylised: assumed material, a coarse 3D reference whose deflection still moves about 0.4% under refinement, no stress concentrations, nothing measured."
+    },
+    {
+     "slug": "simdesign-llm",
+     "title": "How do design proposals from a language-model agent compare with CMA-ES, Bayesian optimisation and random search at an equal simulation budget?",
+     "summary": "The finite-element bracket of simdesign-bracket, with tighter limits (15&nbsp;MPa, 2.5&nbsp;mm), is sized for minimum mass with 40 simulator calls per method. The proposer is the session agent itself, writing four rounds of ten designs by hand from the scores (no API key; not a reproducible LLM benchmark). It reaches 23.0&nbsp;g against medians of 32.2&nbsp;g (Bayesian optimisation), 33.3&nbsp;g (CMA-ES) and 39.0&nbsp;g (random) over 20 seeds, with 22.4&nbsp;g best known from 1,845 evaluations; no baseline seed beat it. Stylised and weak evidence: n&nbsp;=&nbsp;1, the agent used mechanics and the sibling project&rsquo;s results as a prior, baselines were untuned, the stress constraint is mesh-sensitive, assumed material."
+    },
+    {
+     "slug": "simdesign-dfm",
+     "title": "What do manufacturing rules cost a sized bracket on FDM, CNC routing, laser cutting and casting?",
+     "summary": "The L-bracket of <em>simdesign-bracket</em> is sized for minimum mass under a stress and a deflection limit with and without each process&rsquo;s rules (tool radius, plate or sheet gauges, minimum walls, draft, an even-section rule), in the same material, so the ratio isolates the rules. Sand casting pays +43% (best of three seeds), driven by its wall-ratio rule rather than draft; CNC routing +24%, from the thinnest plate on the stock list; laser cutting and FDM about nothing, within optimiser noise (three seeds spread over 20%). Re-solved on a fine mesh, every chosen design exceeds its stress limit by 17&ndash;26%. Stylised: rule values and materials are assumed, the model is 2D, nothing was built. Exports an STL and DXF profiles."
     }
    ]
   },
@@ -1407,6 +1443,21 @@
      "slug": "garment-teardown",
      "title": "Where does a designer coat's price go, and what does a $20 to $50 replica keep?",
      "summary": "A bottom-up cost model for a lined woven coat (fabric from pattern area and marker efficiency, trims, sewing minutes times wage, overhead, brand and retail multipliers) applied to two reported designer prices. Under assumed inputs the factory cost is $186&ndash;248 for a $2,850 trench and $469&ndash;551 for a $3,850 coat, under 15% of the price in every wage scenario, and the assumed multipliers do not close the gap. A cheap-cloth replica costs $46&ndash;100 to make; only a very lean case reaches $29&ndash;34. Stylised: every cost input is assumed, prices are from search snippets, and fit and durability are not scored."
+    },
+    {
+     "slug": "garment-pattern-fit",
+     "title": "Can a cheap cloth drape score how well a flat pattern fits a body, and is a fitted pattern body-specific?",
+     "summary": "A flat skirt-tube pattern is draped by position-based-dynamics cloth on two synthetic elliptical-section bodies and scored by circumferential strain and waist ease. The best waist is close to the body&rsquo;s waist perimeter (&times;1.01 and &times;1.03); tighter patterns strain, looser ones leave ease. A pattern optimised for one body costs 2.1&ndash;2.9 on the other against own optima of 0.15&ndash;0.75 (arbitrary cost units). Stylised: the body is a stack of ellipses, the cost weights are assumptions, the hem optimum sits at the edge of the search range, and the optimum cost moves from 0.75 to 1.34 on a finer mesh."
+    },
+    {
+     "slug": "garment-nesting",
+     "title": "How much cloth does marker making waste, and do annealing and exact methods beat greedy nesting?",
+     "summary": "Marker making as strip packing. On 20 random 8-box markers an exact MILP proves optimality on 19; shelf heuristics (NFDH, FFDH) are on average 20% and 17% longer than optimal, bottom-left 7.3%, and simulated annealing over placement order 0.5%. On two stylised garments (a shirt and a four-gore skirt, no seam allowance, one ply) true-polygon nesting with 180&deg; turns beats bounding-box packing at the same annealing budget in every case, by about 5&ndash;9% for the shirt and 9&ndash;43% for the skirt. Stylised: the shapes are invented, polygon results have no exact reference, and the raster is conservative."
+    },
+    {
+     "slug": "garment-thermal",
+     "title": "How much comfort can an infrared-transparent or gating textile buy, and which fabric properties matter?",
+     "summary": "A Fanger/ISO 7730 PMV model and a Gagge-style two-node model extended with fabric infrared emissivity and transmittance, solar absorptance and vapour permeability. The no-optics PMV matches an open-source ISO implementation to 0.006 over 144 cases. Indoors without sun, infrared transmittance (0 to 0.8) is worth about 2.4&nbsp;&deg;C of comfort at 28&nbsp;&deg;C, more than cutting insulation from 0.7 to 0.3&nbsp;clo (1.8&nbsp;&deg;C), but makes a 16&nbsp;&deg;C room feel 7.3&nbsp;&deg;C colder; in sun, solar absorptance (7.7&nbsp;&deg;C span) dominates the infrared properties. Stylised: assumed fabric properties, a parallel-path radiation model with no reference data, and recalled two-node constants."
     }
    ]
   }
