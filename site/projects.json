@@ -1346,6 +1346,11 @@
      "slug": "ambient-memory",
      "title": "Under a storage limit, which transcripts should an on-device assistant keep, and what survives?",
      "summary": "Seven simulated days of 1500 utterances each with 6 planted facts per day. BM25 finds every fact (hit@5 = 1.00) when the key words are rare, which is the easy case. With the store limited to 10% of the week, dropping oldest or random utterances keeps 0.11 and 0.10 of the facts; keeping the highest mean-IDF utterances keeps 0.93, because the facts are rare-word lines by construction. An importance-ranked extractive summary at 5% of a day holds 85% of its facts, against 3% for the first lines. Index build 0.04&nbsp;s, query 1.9&nbsp;ms on one container CPU. Stylised: synthetic words, lexical queries, no paraphrase, no speech errors. Produced with AI assistance."
+    },
+    {
+     "slug": "ambient-android",
+     "title": "Which parts of an always-on Android listening service can be tested without a phone?",
+     "summary": "A plain-Kotlin core (frame re-chunking, an energy-gate voice detector with hangover and pre-roll, an utterance segmenter that never emits silence, and a headset route policy that pauses rather than falling back to the phone mic) with 7 unit tests, which pass when compiled with Kotlin 2.0.21 and run through a test shim. The Android foreground-service shell is <em>unbuilt</em>: no SDK was usable, so no latency, battery or accuracy numbers exist. Synthetic square-wave frames only. Produced with AI assistance."
     }
    ]
   },
