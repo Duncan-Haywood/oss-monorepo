@@ -1292,6 +1292,11 @@
      "slug": "chip-accel",
      "title": "How do MAC-lane count and bit width trade area against latency in a tiny quantised-MLP accelerator?",
      "summary": "A generator for an 8-8-4 integer MLP engine with P multiply-accumulate lanes and 4-, 6- or 8-bit weights, simulated in Icarus Verilog and matched bit for bit and cycle for cycle against an integer NumPy reference in all 12 configurations. Synthesised with Yosys to generic gates, latency falls from 110 to 20 cycles as lanes go from 1 to 8 while area grows about 3&times; to 4&times;, so cells&times;cycles is smallest at 4 lanes for every width. 6 bits matched float accuracy on the toy task; 4 bits lost about 3 points. Stylised: one synthetic task and seed, weights baked into logic, gate counts rather than layout, nothing about a real chip."
+    },
+    {
+     "slug": "chip-pnr",
+     "title": "How far do synthesis-only area and delay sit from placed-and-routed numbers on SKY130?",
+     "summary": "Thirteen small designs (adders, multipliers, FIFOs) pushed through generic gate counting, Yosys/ABC mapping onto the SKY130 HD library, and an OpenROAD flow with placement, clock tree, global routing and timing repair. Generic gate count stays within 5.1&ndash;5.8 um&sup2; per gate for combinational logic but is about 3&times; higher per gate for FIFOs, whose flops dominate; mapping makes a ripple and a <code>+</code> adder identical. Layout adds 0&ndash;28% area (most where timing needs repair), and wires add 3&ndash;19% to delay before repair. The ABC clock target did not change the netlist at all. Stylised: tiny designs, one corner, global-route parasitics only, no detailed route or DRC, nothing about a fabricated chip."
     }
    ]
   },
