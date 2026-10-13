@@ -1538,6 +1538,11 @@
      "slug": "selfrep-extinction-kits",
      "title": "Is the lone-printer die-out an early birth-death accident?",
      "summary": "Tests the extinction explanation left open by selfrep-wearout with an exact continuous-time Markov chain of the same shop (Poisson vitamin kits, exponential builds and lives). With assumed inputs and a budget of 4 units/h, the chain gives a 0.194 chance that a lone seed machine is lost before the fleet reaches 6 machines at 500 h mean life (simulation 0.198 &plusmn; 0.006), of which 0.162 is the seed retiring before its first copy; relaxing the Markov assumptions moves this by at most about 0.03. Wear-out lives (Weibull shape 2 or more) cut it to under 3%. Exact mean extinction times for small equilibrium fleets match simulation (1464 h against 1511 &plusmn; 50 h at 200 h life), but with regular kits and lognormal builds long times roughly double, so the chain is a lower guide there. Stylised: every input is assumed; simulated only."
+    },
+    {
+     "slug": "selfrep-reconcile",
+     "title": "Why do two exact extinction chains of the same printer shop disagree?",
+     "summary": "Two sibling chains of the lone replicating printer shop, one on fleet size and one on machines and vitamin kits, give different mean extinction times for the same inputs. Stylised, with assumed inputs, the fleet-size chain is longer by 1.5 to 7 times because its birth law min(n/W, a) lets machines and kits never wait for each other. A fixed-in-advance repair that adds the two waits matches the kit chain within 5% when the fleet stays at 1 to 3 machines, but falls 24 to 60% below it for larger fleets, where kits pool in stock. No law right in both regimes was derived."
     }
    ]
   },
