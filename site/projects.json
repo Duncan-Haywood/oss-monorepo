@@ -1585,6 +1585,11 @@
      "slug": "simdesign-patchstress",
      "title": "Does a patch-averaged stress converge under mesh refinement where the peak element stress does not?",
      "summary": "On four L-bracket designs solved on five meshes (h = 2.5 to 0.55&nbsp;mm), the peak von Mises stress rises by 18&ndash;41% while a 3&nbsp;mm patch average moves by 1&ndash;6%. The peak is not monotone along the sequence, so a two-mesh check can mislead. The patch average is not conservative: it reads 0.45&ndash;0.69 of the fine-mesh peak and would need its own calibrated limit. Stylised: 2D plane stress, one load case, a non-nested mesh family, assumed material, nothing made."
+    },
+    {
+     "slug": "simdesign-kirsch",
+     "title": "How far below the exact stress concentration does a finite-element peak stress sit, and how fast does it close?",
+     "summary": "A plate with a circular hole under tension has an exact peak stress of 3&times; the remote stress (Kirsch). On a graded quarter-plate mesh with exact-solution tractions (48&nbsp;384 elements at the finest), the usual element-centroid peak sits 27% below it on the coarsest mesh and 1.1% below on the finest, closing only at first order, while the field itself converges at second order: the shortfall is sampling position, not solver error. Reading the stress at the hole-edge vertices instead is within 1% on every mesh. Stylised 2D plane stress, one geometry, regular mesh; the numbers do not transfer to other fillets."
     }
    ]
   },
