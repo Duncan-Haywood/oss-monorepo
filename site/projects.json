@@ -1704,6 +1704,11 @@
      "summary": "A two-layer resistor network of a conductive weave: warp and weft touch only through a contact resistor at each crossing, and yarn segments break at random. On an intact fabric the contacts carry no current, so they have no effect at all. Once yarns break they carry the bypass currents: with 20% of segments broken, the median sheet resistance is 1.74 segment-resistances with perfect contacts, 2.11 with contacts equal to one segment, 4.07 at ten and 16.7 at a hundred. For a stylised stainless weave that is 59.6 dB against 52.3 dB at ten segments (thin-sheet only, aperture limit excluded). Stylised: contact values are a sweep, not measurements; one lattice size, 20 draws, independent breaks."
     },
     {
+     "slug": "garment-flexdamage",
+     "title": "Does it matter where an RF-shielding fabric is damaged, and whether worn contacts go with the breaks?",
+     "summary": "Follow-up to the contact-resistance model, on a 24&times;24 conductive weave with 60 draws per cell and bootstrap intervals. When contacts next to a broken yarn are worn (contact resistance &times;<em>k</em>), the median sheet resistance at 20% broken and a base contact of one segment rises from 2.05 segment-resistances (<em>k</em>&nbsp;=&nbsp;1) to 3.03 (<em>k</em>&nbsp;=&nbsp;10). Clustering matters more: a fold band across the current that holds the mean break fraction fixed but breaks 4&times; as often inside the band leaves the weave open in 57 of 60 draws at 20% broken, while the same band along the current direction lowers the resistance to 1.43. Stylised: square lattice, one lattice size, a rule-of-thumb wear multiplier rather than a measured one, no flexing physics, and no measurement."
+    },
+    {
      "slug": "garment-thincolor",
      "title": "How thin must a coating be to colour a fibre without dye, and how fragile is that colour?",
      "summary": "A transfer-matrix model of dielectric quarter-wave stacks on a flat nylon-like substrate, with colour computed under an equal-energy illuminant. Six-pair stacks reach 99% reflectance with 2&ndash;3 g/m<sup>2</sup> of oxide and saturated colour, but the peak blue-shifts from 620 to 540 nm by 60&deg; incidence (&Delta;E<sub>76</sub> 48), and 10% layer-thickness error moves hue by &Delta;E&asymp;10 while roughly preserving chroma. Stylised: flat substrate, constant indices, no fibre scattering."
@@ -1732,6 +1737,11 @@
      "slug": "garment-assist",
      "title": "Does an assistive garment pay for its own mass?",
      "summary": "A one-joint ankle model of an exosuit-style garment: a suit adding a fraction of the biological push-off torque cuts modelled whole-body metabolic cost by 3.1, 8.8 and 14.1% at gains 0.1, 0.3 and 0.5, but a delay of 0.25 of the gait cycle removes the benefit and a stiff passive spring raises ankle cost 17%. Added mass erases the saving at 8.9&nbsp;kg if each kg costs 1% of whole-body power and at 1.8&nbsp;kg if it costs 5%; the break-even scales as 1/sensitivity, a number the project does not supply. Stylised: lumped muscle, prescribed gait, assumed constants; not OpenSim or MyoSuite."
+    },
+    {
+     "slug": "garment-assistpower",
+     "title": "Is it the motor or the battery that decides whether an exosuit pays for its own mass?",
+     "summary": "Extends the ankle exosuit model with a power train: motor mass from peak torque and a torque density, battery mass from electrical energy and hours of use, and the resulting mass fed back into metabolic cost. With an assumed 8 N m/kg motor the gain-0.3 suit weighs about 9&nbsp;kg, 8.4 of it motor, and raises whole-body cost 0.2&ndash;1.9%; the sign flips between 8 and 20 N m/kg, while eight hours of battery add under 2&nbsp;kg. Stylised: every power-train constant is assumed, not sourced."
     },
     {
      "slug": "garment-protective",
