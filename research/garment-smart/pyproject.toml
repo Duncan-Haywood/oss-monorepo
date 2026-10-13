@@ -1,0 +1,13 @@
+[project]
+name = "garment-smart"
+version = "0.1.0"
+description = "Stylised activity recognition from simulated sensing-garment signals"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

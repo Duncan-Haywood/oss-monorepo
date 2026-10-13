@@ -1507,6 +1507,11 @@
      "slug": "garment-protective",
      "title": "What would a suit-like protective garment weigh and cost, and what limits it?",
      "summary": "A Cunniff-style specific-toughness scaling (U*) for nylon, aramid and UHMWPE with a 0.5&nbsp;m<sup>2</sup> torso-panel mass, cost, thickness and stiffness model. At equal weight UHMWPE gives 1.49&times; aramid's V50 in this scaling, and needs 0.20&ndash;0.67&times; the areal density depending on an unknown exponent. Under a 3&nbsp;mm, 1&nbsp;kg suit-like limit the panel falls short of a 4&nbsp;kg/m<sup>2</sup> aramid reference except for UHMWPE with an optimistic exponent. Stylised: recalled formula, assumed properties and unsourced prices, no ballistic physics and no protection claim."
+    },
+    {
+     "slug": "garment-smart",
+     "title": "Which sensors in a smart garment recognise what you are doing, and how fragile is that to garment slip?",
+     "summary": "Synthetic chest, thigh and wrist accelerometers and knee and elbow strain channels, six activities, a softmax classifier on spectral features and unseen simulated people. Two sensors reach about 99% and all five 99.9%, because the invented classes are easy to separate. A model trained on clean data falls to 81, 61 and 45% when the IMUs rotate by 0.3, 0.6 and 1.0&nbsp;rad (a garment slipping), while training with 0.6&nbsp;rad of slip holds 94&ndash;99%. Strain-only stays at 97% under slip by construction. Stylised: sinusoidal signals, no real dataset, no drift or hysteresis."
     }
    ]
   }
