@@ -1281,6 +1281,18 @@
      "summary": "Exact subset dynamic programming over assembly orders for a twelve-part printed gearbox, checked at three fidelity levels. Collision-only admits 4,227,168 of 39,916,800 orders (10.6%); adding quasi-static support leaves 30,760 (0.077%), and the collision-only optimum is infeasible once support is checked. Greedy disassembly needs 4 insertion-direction changes against an optimum of 1; one order written by the session agent (a single attempt, not a benchmark) passes with 2. Stylised axis-aligned boxes, no physics engine."
     }
    ]
+  },
+  {
+   "id": "ambient",
+   "name": "Ambient AI assistant",
+   "blurb": "An always-on, audio-first assistant: when it should speak, and how fast and cheaply the pipeline runs on a device. Simulation first, no real recordings.",
+   "projects": [
+    {
+     "slug": "ambient-pipeline",
+     "title": "How much latency and memory does an open-model voice pipeline cost on a CPU, and what reply time does it leave?",
+     "summary": "A streaming Silero VAD, Whisper <em>tiny.en</em> (int8), Qwen2.5-0.5B (4-bit) and Piper chain on four CPU cores, on six synthetic sentences. VAD costs 0.15&nbsp;ms per 32&nbsp;ms frame, ASR 306&nbsp;ms per segment (RTF 0.11), the first LLM sentence 267&nbsp;ms, the first TTS chunk 88&nbsp;ms, and the models add about 740&nbsp;MB. End of speech to first audio is 0.94&ndash;1.55&nbsp;s at 200&ndash;800&nbsp;ms endpoint hangover, of which about 0.7&nbsp;s is compute; a 200&nbsp;ms hangover already cut one utterance in two, and a 0.5&nbsp;s target is impossible once the hangover alone exceeds it. Stylised: synthetic clean speech, one server CPU not a phone, batch ASR, LLM answer quality not evaluated."
+    }
+   ]
   }
  ],
  "featured": [
