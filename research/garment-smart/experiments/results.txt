@@ -1,0 +1,51 @@
+# garment-smart results (synthetic data; 5 seeds, 6 classes, chance = 16.7%)
+
+## A. Sensor subsets (noise 0.3, no slip; test on unseen simulated people)
+100.0 +-  0.1  chest_imu+wrist_imu
+100.0 +-  0.1  chest_imu+thigh_imu+wrist_imu
+100.0 +-  0.1  chest_imu+wrist_imu+elbow_strain
+100.0 +-  0.1  chest_imu+thigh_imu+wrist_imu+elbow_strain
+ 99.9 +-  0.2  chest_imu+elbow_strain
+ 99.9 +-  0.1  chest_imu+thigh_imu+elbow_strain
+ 99.9 +-  0.2  chest_imu+thigh_imu+wrist_imu+knee_strain
+ 99.9 +-  0.2  chest_imu+thigh_imu+wrist_imu+knee_strain+elbow_strain
+ 99.8 +-  0.3  chest_imu+wrist_imu+knee_strain
+ 99.8 +-  0.3  chest_imu+thigh_imu+knee_strain+elbow_strain
+ 99.8 +-  0.3  chest_imu+wrist_imu+knee_strain+elbow_strain
+ 99.8 +-  0.5  chest_imu+knee_strain+elbow_strain
+ 99.2 +-  0.7  thigh_imu+wrist_imu+knee_strain+elbow_strain
+ 99.1 +-  0.7  thigh_imu+wrist_imu+knee_strain
+ 99.1 +-  1.0  wrist_imu+knee_strain+elbow_strain
+ 99.1 +-  0.9  wrist_imu+knee_strain
+ 99.0 +-  0.6  thigh_imu+wrist_imu+elbow_strain
+ 98.6 +-  0.9  thigh_imu+wrist_imu
+ 97.6 +-  1.4  thigh_imu+knee_strain+elbow_strain
+ 97.4 +-  2.0  knee_strain+elbow_strain
+ 94.5 +-  0.8  chest_imu+knee_strain
+ 94.5 +-  1.0  chest_imu+thigh_imu+knee_strain
+ 92.6 +-  1.8  thigh_imu+knee_strain
+ 89.1 +-  1.2  thigh_imu+elbow_strain
+ 84.4 +-  5.3  knee_strain
+ 83.1 +-  1.6  chest_imu+thigh_imu
+ 83.0 +-  1.7  chest_imu
+ 76.6 +-  2.3  wrist_imu+elbow_strain
+ 72.0 +-  2.7  wrist_imu
+ 71.6 +-  3.3  thigh_imu
+ 64.2 +-  6.0  elbow_strain
+
+## B. Noise sweep, all sensors (train and test at the same noise)
+noise 0.1:  99.9 +-  0.2
+noise 0.3:  99.9 +-  0.2
+noise 1.0:  99.8 +-  0.2
+noise 2.0:  99.4 +-  0.7
+noise 4.0:  98.5 +-  0.8
+
+## C. Garment slip (sim-to-sim shift): test with slip, train clean vs trained with slip
+test slip 0.0 rad: train-clean  99.9 +-  0.2 | train-slip0.6  99.0 +-  0.9
+test slip 0.3 rad: train-clean  81.0 +-  3.4 | train-slip0.6  98.6 +-  0.8
+test slip 0.6 rad: train-clean  60.5 +-  3.9 | train-slip0.6  97.7 +-  1.3
+test slip 1.0 rad: train-clean  45.2 +-  2.4 | train-slip0.6  94.4 +-  1.4
+
+## D. Slip shift, IMU-only vs strain-only (train clean, test slip 1.0)
+IMU only      40.5 +-  2.1
+strain only   97.4 +-  2.0
