@@ -1282,6 +1282,11 @@
      "slug": "chip-repair-baseline",
      "title": "What does a no-model baseline repair when a scripted RTL checker is the only feedback?",
      "summary": "A companion to <code>chip-rtl-loop</code>: a four-stage checker (compile, lint, simulation, SAT miter) over ten small Verilog tasks, with a random-mutation hill-climbing baseline that uses no model. Given 1, 2 or 3 injected faults and 60 checker evaluations, the baseline repairs 9/20, 4/20 and 4/20 cases. The session agent (Claude) passed all ten tasks on its first attempt, so the feedback rounds were never exercised and no pass-rate-versus-rounds curve is reported. Preliminary: tiny tasks, one attempt, mutation faults unlike a language model's mistakes, and the optional API proposer is untested."
+    },
+    {
+     "slug": "chip-ppa-loop",
+     "title": "Does a rewrite proposer beat a parameter sweep on area and depth when every rewrite must be proved equivalent?",
+     "summary": "A loop in which rewrites of a 16-bit adder and a 6&times;6 multiplier must be proved equivalent to the reference by a Yosys miter before a generic-gate ABC script scores cells and depth. With nine attempts written by the session agent (not an LLM benchmark; two were seeded faults the gate rejected), the best adder is a 4-bit carry-select at 0.85&times; the reference cells&times;depth, the same circuit family as the best config of a no-model parameter sweep, so a random sweep of the same budget never beats it (ties in 63 of 200 seeds). No multiplier rewrite beat <code>a * b</code>. Stylised: gate counts, not layout; one tool version; two designs."
     }
    ]
   },
@@ -1326,6 +1331,11 @@
      "slug": "ambient-pipeline",
      "title": "How much latency and memory does an open-model voice pipeline cost on a CPU, and what reply time does it leave?",
      "summary": "A streaming Silero VAD, Whisper <em>tiny.en</em> (int8), Qwen2.5-0.5B (4-bit) and Piper chain on four CPU cores, on six synthetic sentences. VAD costs 0.15&nbsp;ms per 32&nbsp;ms frame, ASR 306&nbsp;ms per segment (RTF 0.11), the first LLM sentence 267&nbsp;ms, the first TTS chunk 88&nbsp;ms, and the models add about 740&nbsp;MB. End of speech to first audio is 0.94&ndash;1.55&nbsp;s at 200&ndash;800&nbsp;ms endpoint hangover, of which about 0.7&nbsp;s is compute; a 200&nbsp;ms hangover already cut one utterance in two, and a 0.5&nbsp;s target is impossible once the hangover alone exceeds it. Stylised: synthetic clean speech, one server CPU not a phone, batch ASR, LLM answer quality not evaluated."
+    },
+    {
+     "slug": "ambient-interject",
+     "title": "When should an always-on assistant speak, and does a policy tuned in a simulator keep its annoyance budget in a real room?",
+     "summary": "Simulated 10&nbsp;s listening windows (needs at 3%, an intent score with <em>d</em>&prime;&nbsp;=&nbsp;2, wake-phrase and keyword signals) compare interruption policies at equal annoyance. A wake word is precise (0.69) but catches 15% of needs; adding a keyword reaches 53% recall at 28.7 false interruptions per hour (0.72 for the wake word). At a budget of 1 false per hour a score threshold reaches recall 0.26 and a logistic policy that also uses the keyword and wake flag 0.33; recall at that budget climbs from 0.17 to 0.82 as <em>d</em>&prime; goes from 1 to 4. Tuned to 1 false per hour, policies keep the budget when only the need side shifts (weaker detector, rarer needs) but run at 3.6&ndash;3.9 per hour when the no-need background shifts (noisier score, more wake false alarms); 16 labelled hours restore it for the noisier score, and no threshold can for a wake detector that alone causes 3.5 false per hour. Stylised: independent windows, Gaussian scores, chosen costs, no real conversations."
     }
    ]
   },
