@@ -1400,6 +1400,11 @@
      "slug": "simdesign-llm",
      "title": "How do design proposals from a language-model agent compare with CMA-ES, Bayesian optimisation and random search at an equal simulation budget?",
      "summary": "The finite-element bracket of simdesign-bracket, with tighter limits (15&nbsp;MPa, 2.5&nbsp;mm), is sized for minimum mass with 40 simulator calls per method. The proposer is the session agent itself, writing four rounds of ten designs by hand from the scores (no API key; not a reproducible LLM benchmark). It reaches 23.0&nbsp;g against medians of 32.2&nbsp;g (Bayesian optimisation), 33.3&nbsp;g (CMA-ES) and 39.0&nbsp;g (random) over 20 seeds, with 22.4&nbsp;g best known from 1,845 evaluations; no baseline seed beat it. Stylised and weak evidence: n&nbsp;=&nbsp;1, the agent used mechanics and the sibling project&rsquo;s results as a prior, baselines were untuned, the stress constraint is mesh-sensitive, assumed material."
+    },
+    {
+     "slug": "simdesign-dfm",
+     "title": "What do manufacturing rules cost a sized bracket on FDM, CNC routing, laser cutting and casting?",
+     "summary": "The L-bracket of <em>simdesign-bracket</em> is sized for minimum mass under a stress and a deflection limit with and without each process&rsquo;s rules (tool radius, plate or sheet gauges, minimum walls, draft, an even-section rule), in the same material, so the ratio isolates the rules. Sand casting pays +43% (best of three seeds), driven by its wall-ratio rule rather than draft; CNC routing +24%, from the thinnest plate on the stock list; laser cutting and FDM about nothing, within optimiser noise (three seeds spread over 20%). Re-solved on a fine mesh, every chosen design exceeds its stress limit by 17&ndash;26%. Stylised: rule values and materials are assumed, the model is 2D, nothing was built. Exports an STL and DXF profiles."
     }
    ]
   },
