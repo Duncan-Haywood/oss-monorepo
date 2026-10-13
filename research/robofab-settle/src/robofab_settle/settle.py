@@ -70,3 +70,37 @@ class MuJoCoChecker(Checker):
         if state not in self._mj:
             self._mj[state] = settle(self, state, self.mu)[0]
         return self._mj[state]
+
+
+def grounded_stable(ck, state):
+    """L1 variant with acyclic support: a part counts as supported only by parts already grounded.
+
+    The base is grounded. Repeatedly ground any placed part whose centre of mass lies over the
+    bounding rectangle of its support patches from grounded parts. The state is stable if every
+    placed part gets grounded. (The original L1 rule lets two parts support each other.)
+    """
+    placed = [p for p in range(ck.n) if state >> p & 1]
+    grounded = {0}
+    changed = True
+    while changed:
+        changed = False
+        for p in placed:
+            if p in grounded:
+                continue
+            rects = [ck.patch[p][q] for q in grounded if ck.patch[p][q]]
+            if not rects:
+                continue
+            x0 = min(r[0] for r in rects); y0 = min(r[1] for r in rects)
+            x1 = max(r[2] for r in rects); y1 = max(r[3] for r in rects)
+            cx, cy, _ = ck.com[p]
+            if x0 - 1e-9 <= cx <= x1 + 1e-9 and y0 - 1e-9 <= cy <= y1 + 1e-9:
+                grounded.add(p)
+                changed = True
+    return len(grounded) == len(placed)
+
+
+class GroundedChecker(Checker):
+    """Checker using the acyclic-support variant of the L1 rule."""
+
+    def stable(self, state):
+        return grounded_stable(self, state)
