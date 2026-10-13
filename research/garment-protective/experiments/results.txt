@@ -1,0 +1,19 @@
+Fibre U* (m/s) and V50 ratio vs aramid at equal areal density
+  nylon 6,6  U*=   549  V50/V50_aramid=0.94
+  aramid     U*=   582  V50/V50_aramid=1.00
+  UHMWPE     U*=   868  V50/V50_aramid=1.49
+
+Areal density needed to match aramid's V50, as a fraction of aramid's (sensitivity to exponent n)
+  n=0.25: nylon 6,6=1.27  aramid=1.00  UHMWPE=0.20
+  n=0.5: nylon 6,6=1.13  aramid=1.00  UHMWPE=0.45
+  n=1.0: nylon 6,6=1.06  aramid=1.00  UHMWPE=0.67
+
+A 4 kg/m2 aramid-equivalent torso panel (0.5 m2): mass, cost, thickness, bending stiffness
+  nylon 6,6  Ad= 4.51 kg/m2 mass=2.25 kg cost=$18 t=7.2 mm  EI bonded=85.03 free(20 plies)=0.2126 N m
+  aramid     Ad= 4.00 kg/m2 mass=2.00 kg cost=$80 t=5.1 mm  EI bonded=531.41 free(20 plies)=1.3285 N m
+  UHMWPE     Ad= 1.80 kg/m2 mass=0.90 kg cost=$54 t=3.4 mm  EI bonded=194.54 free(20 plies)=0.4863 N m
+
+Suit-like limit: thickness <= 3 mm and mass <= 1 kg for the panel -> max areal density, per fibre
+  nylon 6,6  Ad_max=1.88 kg/m2  V50 ratio vs 4 kg/m2 aramid ~ (Ad/Ad_ref)^n*U*: n=0.25: 0.78, n=0.5: 0.65, n=1.0: 0.44
+  aramid     Ad_max=2.00 kg/m2  V50 ratio vs 4 kg/m2 aramid ~ (Ad/Ad_ref)^n*U*: n=0.25: 0.84, n=0.5: 0.71, n=1.0: 0.50
+  UHMWPE     Ad_max=1.60 kg/m2  V50 ratio vs 4 kg/m2 aramid ~ (Ad/Ad_ref)^n*U*: n=0.25: 1.18, n=0.5: 0.94, n=1.0: 0.60
