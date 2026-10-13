@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'kombucha-brewery-profit-calculator':
+    'the hourly labour cost prices minutes per gallon of kombucha for a production brewery sold by the gallon, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are a monthly dollar total, and the target margin is a share of net brewery revenue.',
   'hydroponic-farm-profit-calculator':
     'the hourly labour cost prices minutes per head of lettuce for a farm sold by the head, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are a monthly dollar total, and the target margin is a share of net farm revenue.',
   'self-serve-dog-wash-profit-calculator':

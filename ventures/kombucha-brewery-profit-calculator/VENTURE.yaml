@@ -1,0 +1,51 @@
+name: kombucha-brewery-profit-calculator
+description: >-
+  Free browser tool for people planning or running a kombucha brewery: enter fermenter capacity, batch fill, brew days, wholesale and
+  taproom prices, packaging, labour, rent, fit-out and a loan, and see gallons a week, monthly profit at full production, break-even
+  gallons, the price change that reaches a target margin, a power-price sensitivity table, a sixty-month ramp-up with the lowest cash
+  point and payback, and loan coverage. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session. Nearest in ventures/ are craft-brewery-batch-margin-calculator, brewery-tank-schedule-optimizer
+# and cafe-drink-margin-calculator (beer batches and cafe drinks, not a kombucha pro forma with tank cycle, wholesale/taproom mix, chilling energy,
+# break-even gallons and ramp-up cash reserve). Not in screened-out.md.
+#
+# First visitor: an aspiring or current kombucha brewer sizing tanks or a loan; search phrases "kombucha brewery business plan calculator",
+# "how much profit does a kombucha business make", "kombucha break-even". Volume not measured with an external tool.
+#
+# Who: small commercial brewers and people raising money for a taproom or production space. Packaging per gallon, lost kegs and the cash
+# the ramp-up eats are the numbers blog-post spreadsheets leave out.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. Saved scenarios and multi-SKU comparison behind an
+# env-var switch is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with every rule visible on the page. No price, yield or market is claimed, sample figures
+# are labelled illustrative, bad input is rejected instead of clamped, and the page carries the no-warranty and not-advice clauses and lists
+# what it does not decide (buyers, batch quality, food-safety licensing, alcohol-content testing and labelling, zoning, power, tax, lender terms).
+
+hypotheses:
+  - claim: >-
+      A prospective or current kombucha brewer will enter tank size, batch days, prices and packaging cost before buying tanks or borrowing, because
+      break-even gallons a week and the ramp-up cash reserve are hard to see in a generic startup spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the output, profit, break-even or payback arithmetic differs from the stated rules on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/kombucha-brewery-profit-calculator/
+  analytics: null
