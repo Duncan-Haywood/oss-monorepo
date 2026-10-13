@@ -99,6 +99,40 @@ export function compute(input) {
 
 export const SAMPLE = { lastYear: 2026, lastQ: 3, q1: 4000, q2: 5200, q3: 6100, q4: 6800, q5: 7400, q6: 8200, q7: 9300, q8: 10400, taxi: "no", quebec: "no", charity: "no" };
 
+// Quick Method vs regular accounting for a year (rates written from memory; confirm on canada.ca).
+// sales: yearly taxable sales before tax. costs: yearly costs carrying GST/HST you could claim as input tax credits.
+export const QM_LIMIT = 400_000;
+export const QM_REGIONS = [
+  { id: "gst5", label: "GST only: AB, NT, NU, YT, BC, SK, MB, QC (5%)", rate: 0.05, services: 0.036, goods: 0.018 },
+  { id: "on13", label: "Ontario HST (13%)", rate: 0.13, services: 0.088, goods: 0.044 },
+  { id: "atl15", label: "NB, NL, PE HST (15%)", rate: 0.15, services: 0.1, goods: 0.05 },
+];
+export function quickCompare(input) {
+  const errors = [];
+  const sales = input.sales === "" || input.sales == null ? NaN : Number(input.sales);
+  const costs = input.costs === "" || input.costs == null ? NaN : Number(input.costs);
+  const region = QM_REGIONS.find((r) => r.id === input.region);
+  const kind = input.kind === "goods" || input.kind === "services" ? input.kind : null;
+  if (!Number.isFinite(sales) || sales < 0) errors.push("Yearly sales must be zero or more.");
+  if (!Number.isFinite(costs) || costs < 0) errors.push("Yearly costs must be zero or more.");
+  if (!region) errors.push("Choose where you sell.");
+  if (!kind) errors.push("Choose services or goods.");
+  if (errors.length) return { ok: false, errors };
+  const collected = sales * region.rate;
+  const itc = costs * region.rate;
+  const regularPay = collected - itc;
+  const gross = sales * (1 + region.rate);
+  const qmRate = region[kind];
+  const credit = 0.01 * Math.min(gross, 30_000);
+  const quickPay = gross * qmRate - credit;
+  const diff = regularPay - quickPay;
+  const findings = [];
+  if (gross > QM_LIMIT) findings.push({ severity: "high", title: "Above the Quick Method limit", detail: `The method is open to businesses with worldwide taxable supplies of CAD ${QM_LIMIT.toLocaleString("en-CA")} or less, tax included. Above that, use regular accounting.` });
+  findings.push({ severity: "info", title: diff > 0 ? "Quick Method remits less" : "Regular accounting remits less", detail: diff > 0 ? `You would remit about CAD ${Math.round(diff).toLocaleString("en-CA")} less a year. You still charge customers the full tax; you cannot claim input tax credits except on capital purchases.` : `Regular accounting leaves you about CAD ${Math.round(-diff).toLocaleString("en-CA")} better off a year because your input tax credits are worth more.` });
+  findings.push({ severity: "info", title: "Not modelled", detail: "Nova Scotia (14%), mixed goods-and-services businesses, and professions the CRA bars from the Quick Method (accounting, legal, bookkeeping, financial consulting) are not modelled." });
+  return { ok: true, sales, gross, collected, itc, regularPay, qmRate, credit, quickPay, diff, findings, errors: [] };
+}
+
 export function summaryText(r) {
   const L = ["Canada GST/HST small supplier check", ""];
   for (const x of r.quarters) L.push(`${x.label}: CAD ${x.amount.toLocaleString("en-CA")}${x.rolling === null ? "" : `  (4-quarter total CAD ${x.rolling.toLocaleString("en-CA")})`}${x.single ? "  ABOVE 30,000 IN ONE QUARTER" : x.rollingOver ? "  ABOVE 30,000 OVER FOUR QUARTERS" : ""}`);
