@@ -1,0 +1,83 @@
+{
+ "slope": -6.999983499511586,
+ "rows": [
+  {
+   "n_theta": 4,
+   "elements": 56,
+   "h_hole": 0.39269908169872414,
+   "exact": 3.0,
+   "peak_centroid": 2.1834528190780156,
+   "peak_vertex": 3.020638359027857,
+   "exact_at_peak_centroid": 2.2455509781780982,
+   "rel_l2_vm": 0.011217102506690285,
+   "err_centroid_pct": -27.218239364066147,
+   "err_vertex_pct": 0.6879453009285719,
+   "bias_over_slope_h": 0.29704576025482515
+  },
+  {
+   "n_theta": 8,
+   "elements": 208,
+   "h_hole": 0.19634954084936207,
+   "exact": 3.0,
+   "peak_centroid": 2.5356900594250766,
+   "peak_vertex": 3.014810131842017,
+   "exact_at_peak_centroid": 2.5497251176447793,
+   "rel_l2_vm": 0.0028733639760751017,
+   "err_centroid_pct": -15.476998019164112,
+   "err_vertex_pct": 0.49367106140056904,
+   "bias_over_slope_h": 0.3378158727735005
+  },
+  {
+   "n_theta": 16,
+   "elements": 800,
+   "h_hole": 0.09817477042468103,
+   "exact": 3.0,
+   "peak_centroid": 2.7494628825667493,
+   "peak_vertex": 3.004787422607776,
+   "exact_at_peak_centroid": 2.7530014256683697,
+   "rel_l2_vm": 0.000725474309738663,
+   "err_centroid_pct": -8.351237247775023,
+   "err_vertex_pct": 0.15958075359254012,
+   "bias_over_slope_h": 0.3645643032456824
+  },
+  {
+   "n_theta": 32,
+   "elements": 3136,
+   "h_hole": 0.04908738521234052,
+   "exact": 3.0,
+   "peak_centroid": 2.8695739235845723,
+   "peak_vertex": 3.0013098907189026,
+   "exact_at_peak_centroid": 2.870494281544046,
+   "rel_l2_vm": 0.000181847236999985,
+   "err_centroid_pct": -4.347535880514257,
+   "err_vertex_pct": 0.04366302396342133,
+   "bias_over_slope_h": 0.3795740300726233
+  },
+  {
+   "n_theta": 64,
+   "elements": 12160,
+   "h_hole": 0.02454369260617026,
+   "exact": 3.0,
+   "peak_centroid": 2.932074461690213,
+   "peak_vertex": 3.000343595120767,
+   "exact_at_peak_centroid": 2.9322818878190997,
+   "rel_l2_vm": 4.5763124038213554e-05,
+   "err_centroid_pct": -2.26418461032624,
+   "err_vertex_pct": 0.011453170692229028,
+   "bias_over_slope_h": 0.39536220102145975
+  },
+  {
+   "n_theta": 128,
+   "elements": 48384,
+   "h_hole": 0.01227184630308513,
+   "exact": 3.0,
+   "peak_centroid": 2.965670214181665,
+   "peak_vertex": 3.0000875062249146,
+   "exact_at_peak_centroid": 2.965722970928099,
+   "rel_l2_vm": 1.1452370351879452e-05,
+   "err_centroid_pct": -1.1443261939444966,
+   "err_vertex_pct": 0.0029168741638200637,
+   "bias_over_slope_h": 0.3996346593480446
+  }
+ ]
+}
