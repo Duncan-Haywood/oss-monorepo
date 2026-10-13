@@ -1613,7 +1613,7 @@ const RELATIVE_SELF = relative(
 // +1: `eu-csrd-scope-checker` graduated.
 // +1: `uk-sole-trader-vs-limited-company-calculator` graduated.
 // +1: `eu-espr-readiness-checker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1130;
+const SWITCHES_IN_THE_CATALOGUE = 1133;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.

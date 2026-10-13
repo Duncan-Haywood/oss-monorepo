@@ -1537,6 +1537,9 @@ const CATEGORY_RULES = [
       || slug === '1099-k-threshold-checker'
       || slug === 'osha-trir-dart-calculator'
       || slug === 'final-paycheck-deadline-calculator'
+      // `paid-sick-leave-accrual-calculator` joined 2026-10-13: a 14-state employment-law reference table (accrual, caps, size thresholds) with the same
+      // not-legal-advice posture as `final-paycheck-deadline-calculator`; added by exact slug beside it.
+      || slug === 'paid-sick-leave-accrual-calculator'
       || slug === 'mechanics-lien-deadline-calculator'
       || slug === 'boi-reporting-exemption-checker'
       // `hubspot-contacts-csv-check` joined 2026-10-04: a list preflight that reports what it found with line numbers and an explicit not-checked list, and
@@ -3401,6 +3404,8 @@ const CATEGORY_RULES = [
         'uk-sole-trader-vs-limited-company-calculator',
         // `uk-mtd-income-tax-checker` joined 2026-10-13 on its first commit: UK sole traders and landlords checking their Making Tax Digital start date, the same solo earner.
         'uk-mtd-income-tax-checker',
+        // `schengen-90-180-day-calculator` joined 2026-10-13 on its first commit: remote workers and nomads tracking Schengen days, the same solo earner.
+        'schengen-90-180-day-calculator',
         'cat-adjuster-fee-calculator',
         'ad-slot-sell-through-planner',
         'candle-batch-cost-calculator',
