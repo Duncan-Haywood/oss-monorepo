@@ -3906,3 +3906,15 @@ entries:
         portfolio/pipeline/duplicate_check.py top score 0.12; no NIS2 tool existed in ventures/. First visitor: EU SME staff asked "are you NIS2
         in scope?" by a customer; volume unmeasured. National transposition is not modelled and the page says so.
     mrr_end: 0
+  - venture: dry-cleaner-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built dry-cleaner-profit-calculator: a browser-only monthly P&L for independent dry cleaner owners and buyers. Dry-clean and
+        laundered pieces, prices, supplies per piece, claims and card fees, labor, fixed costs and loan payments become contribution per piece,
+        operating profit, debt coverage, break-even pieces (closed form, round-trip tested), the average price change per piece that reaches
+        zero profit (round-trip tested), and price and volume sweeps, with text summary and CSV. Hand-computed unit tests plus page and usage
+        tests. portfolio/pipeline/duplicate_check.py top score 0.29; no dry-cleaner tool existed in ventures/. First visitor: people searching
+        dry cleaner break-even; volume unmeasured.
+    mrr_end: 0
