@@ -815,6 +815,9 @@ const CATEGORY_RULES = [
       // `franchise-item-19-reality-check` joined 2026-10-12 on its first commit: the franchisor's earnings claim read before the buyer's own cash plan,
       // beside `franchise-unit-economics-calculator`.
       'franchise-item-19-reality-check',
+      // `convenience-store-gas-station-profit-calculator` joined 2026-10-13 on its first commit: an independent c-store or gas station owner or buyer sizing fuel margin after card fees,
+      // inside sales and debt coverage sits beside `franchise-unit-economics-calculator` and `sba-loan-capacity-calculator`, the same run-or-buy-a-store job.
+      'convenience-store-gas-station-profit-calculator',
       // `microgreens-tray-planner` joined 2026-10-06 on its first commit: growers who sell at the same markets and
       // restaurants, one hop from `backyard-honey-profit-calculator`.
       'microgreens-tray-planner',

@@ -3857,3 +3857,17 @@ entries:
         cafe-drink-margin-calculator covers per-drink margin only; no store-level break-even or ramp tool existed. First visitor: people
         searching boba shop break-even; volume unmeasured.
     mrr_end: 0
+  - venture: convenience-store-gas-station-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built convenience-store-gas-station-profit-calculator: a browser-only monthly P&L for independent convenience store and
+        gas station owners and buyers. Gallons, pump price, delivered cost and card fees (percentage plus per-transaction) become net fuel
+        margin in cents a gallon; inside sales by category with margin, card fees and shrink, labor, fixed costs and loan payments become
+        operating profit, debt coverage, break-even gallons (closed form, round-trip tested), the net fuel margin needed at current volume,
+        fuel's share of profit, and margin and volume sweeps, with text summary and CSV. Hand-computed unit tests plus page and usage tests,
+        checked in Chromium. portfolio/pipeline/duplicate_check.py top score 0.28; no c-store or gas-station tool existed in ventures/.
+        An earlier attempt this session (tow-truck-call-profit-calculator) was dropped after finding tow-truck-rate-calculator and
+        tow-motor-club-call-calculator already on main. First visitor: people searching gas station profit per gallon; volume unmeasured.
+    mrr_end: 0

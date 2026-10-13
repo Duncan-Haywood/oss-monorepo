@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'convenience-store-gas-station-profit-calculator':
+    'the hourly wage prices paid staff hours across a whole open store day, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and fuel margin is cents a gallon after card fees.',
   'kombucha-brewery-profit-calculator':
     'the hourly labour cost prices minutes per gallon of kombucha for a production brewery sold by the gallon, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are a monthly dollar total, and the target margin is a share of net brewery revenue.',
   'boba-tea-shop-profit-calculator':
