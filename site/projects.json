@@ -1398,6 +1398,11 @@
      "slug": "selfrep-reinvest",
      "title": "When should a replicating shop stop copying itself and start making goods?",
      "summary": "Builds on the selfrep-growth fleet model. A fluid optimal-control model splits machine time between building copies and making goods, scored on the total value of goods over 600 h. Copying flat out and then switching to goods one e-folding time (1/<em>k</em> = <em>W</em>/(1&minus;<em>f</em>), 50 h with no failures) before the horizon matches the closed form; the best constant split earns only 9&ndash;27% of that value, and smooth ramps are no better than the sharp switch. When imports or goods sales fund vitamins, cash binds throughout and the switch lands about 50 h from the end. Every input is assumed, the fleet is a continuous fluid, goods demand is unlimited and the final fleet is worth nothing. Stylised. Piecewise policies are local search, not a proof of optimality."
+    },
+    {
+     "slug": "selfrep-materials",
+     "title": "How much imported material can recycling save a self-replicating printer shop?",
+     "summary": "Builds on the selfrep-closure part list. A stylised steady-state mass and energy balance for building one more RepRap Prusa Mendel, with shredding and re-extrusion of plastic and remelting of aluminium offcuts. With assumed process parameters, vitamins stay about 75% of imported mass for the largest shop (82% for the printer alone), and recycling the shop&rsquo;s own scrap cuts imports by a median 3% (5&ndash;95% over parameter draws: 1&ndash;6%). Only plastic from retired machines changes the filament import much, and then the assumed recycled-share cap decides the result. Limitations: every yield, loss and energy figure is an assumption, recycling machines are not counted, and recycled-plastic quality is not modelled."
     }
    ]
   },
