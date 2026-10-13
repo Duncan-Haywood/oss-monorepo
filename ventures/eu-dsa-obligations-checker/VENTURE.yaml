@@ -1,0 +1,41 @@
+name: eu-dsa-obligations-checker
+description: >-
+  Free browser tool for platform founders, marketplace operators and their counsel: pick your service type (conduit, cache, host, public platform, marketplace, search engine), size and monthly EU users to get the Digital Services Act (Regulation (EU) 2022/2065) duties that apply, each with its Article, the micro and small enterprise exemption, the 45 million VLOP threshold and the penalty ceiling. Nothing is uploaded. Not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no DSA tool in ventures/ (eu-ai-act-risk-checker, gpsr-product-safety-checker, eu-data-act-checker cover sibling regulations).
+#
+# First visitor: founder or CTO of a small forum, marketplace, creator platform or app with user content, or a lawyer, searching "DSA obligations small platform",
+# "digital services act micro enterprise exemption", "DSA notice and action requirements". Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet into the other EU checkers; GitHub Sponsors. Paid version, not built: a DSA compliance pack generator
+# (terms clauses, notice-and-action form, statement-of-reasons templates, transparency report skeleton) behind an env-var switch.
+#
+# Liability: first read of a law with implementing acts still moving; every result names a verify source, carries no-warranty and not-legal-advice clauses,
+# and says what it does not decide (borderline public-dissemination calls, small-enterprise group rules). Rules were written from memory without network access.
+# Ethical risk is false comfort from a small-enterprise result, mitigated by listing the duties that still apply to small hosts.
+hypotheses:
+  - claim: >-
+      Small platform operators unsure what the DSA asks of them will use a free checker to get the exact Article list for their size and service type.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that an Article or threshold differs from the cited Regulation on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eu-dsa-obligations-checker/
+  analytics: null
