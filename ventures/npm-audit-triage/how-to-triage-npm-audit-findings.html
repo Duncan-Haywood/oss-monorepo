@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Triage npm audit Findings Without Ignoring Real Risk</title>
+  <meta name="description" content="A practical order of operations for a long npm audit report: what to fix first, what is build-time noise, and why not imported does not mean safe.">
+  <link rel="canonical" href="./how-to-triage-npm-audit-findings.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to triage npm audit findings without ignoring real risk","about":"Prioritising npm audit vulnerabilities by reachability","author":{"@type":"Organization","name":"npm Audit Triage"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← npm Audit Triage</a></p>
+  <h1>How to triage npm audit findings without ignoring real risk</h1>
+  <p>A fresh <code>npm audit</code> on a mid-sized project routinely lists dozens of advisories. Most teams respond in one of two bad ways: fix none of them because the list is overwhelming, or run <code>npm audit fix --force</code> and break the build. A better first step is to sort the list by whether your code can reach the vulnerable package.</p>
+
+  <h2>The four buckets this tool uses</h2>
+  <ul>
+    <li><strong>imported</strong> — your runtime code imports or requires the vulnerable package directly. Read these first; a high or critical here deserves a fix this week.</li>
+    <li><strong>via-imported</strong> — your code imports a package that depends on the vulnerable one. Often fixed by upgrading the parent, which is what the <em>fix</em> column suggests.</li>
+    <li><strong>test-only</strong> — the package is imported only from test files or tooling configuration (test runners, bundler configs, linters). The risk is mostly to developer machines and CI, not your users.</li>
+    <li><strong>not-referenced</strong> — nothing in the scanned source imports it or a parent that does. Usually a deep build-time dependency.</li>
+  </ul>
+
+  <h2>A sensible order</h2>
+  <ol>
+    <li>Run <code>npm audit --json</code> and the triage together so the ranked list replaces the raw list.</li>
+    <li>Fix reachable high and critical findings first. Use <code>--fail-on high</code> in CI so a new reachable one blocks the merge.</li>
+    <li>For via-imported findings, upgrade the parent package the report names, and re-run. If the fix is a major version, schedule it rather than forcing it.</li>
+    <li>For test-only findings, patch on your normal dependency-update cadence. Do not ignore advisories about code that runs in CI with secrets, such as a malicious or compromised build tool.</li>
+    <li>For not-referenced findings, confirm the package is really unused (a bundler plugin, a framework convention or a postinstall script can load it without an <code>import</code> line), then batch the upgrades.</li>
+  </ol>
+
+  <h2>What this ranking cannot tell you</h2>
+  <p>It reads import statements as text. It cannot see a <code>require</code> built from a variable, code loaded by a framework by naming convention, or whether the specific vulnerable function is ever called. Not imported is a reason to lower the urgency, not a certificate of safety. It is a heuristic, not a security audit.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. It is not security advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the triage</a>.</p>
+  </footer>
+</body>
+</html>

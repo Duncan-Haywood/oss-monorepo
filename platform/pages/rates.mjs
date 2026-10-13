@@ -361,6 +361,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
 export const REVIEWED_NOT_CARRIED = {
   'boba-tea-shop-profit-calculator':
     'the hourly wage prices paid staff hours across a whole open day of a drink shop, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net shop revenue.',
+  'ice-cream-shop-seasonal-profit-calculator':
+    'the hourly wage and payroll-extras percentage price counter staff across every open day of a seasonal ice cream shop, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are a monthly dollar total, and there is no target margin.',
   'hydroponic-farm-profit-calculator':
     'the hourly labour cost prices minutes per head of lettuce for a farm sold by the head, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are a monthly dollar total, and the target margin is a share of net farm revenue.',
   'self-serve-dog-wash-profit-calculator':
