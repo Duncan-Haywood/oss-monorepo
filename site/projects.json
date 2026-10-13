@@ -1414,6 +1414,11 @@
      "slug": "robofab-liftload",
      "title": "Does the friction-grasp bound survive lift acceleration and an off-centre centre of mass?",
      "summary": "A follow-up to <code>robofab-grasp</code>. With a constant lift or sideways acceleration applied as an effective gravity, the simulated minimum jaw force for the six free parts of the toy gripper stays within 6% of the scaled bound <em>m</em>&thinsp;&radic;((<em>g</em>+<em>a</em><sub>z</sub>)<sup>2</sup>+<em>a</em><sub>t</sub><sup>2</sup>)/(2&mu;) over 66 cases, at most 0.21&nbsp;N. These parts are symmetric, so they test no torque. For a 10&times;10&nbsp;mm bar held at one end the torque bracket is inconclusive: with a 5&deg; rotation tolerance MuJoCo holds with less force than the lower bound in 11 of 12 cases, and with 1&deg; the longer bars do not hold at 20&nbsp;N. Stylised: constant load, boxes, assumed density and friction, thresholds chosen by me."
+    },
+    {
+     "slug": "robofab-sliprate",
+     "title": "Is the off-centre bar result in robofab-liftload a grasp effect or solver creep?",
+     "summary": "A follow-up to <code>robofab-liftload</code> that replaces its pass/fail threshold with the bar&rsquo;s rotation rate. A 10&times;10&times;40&nbsp;mm bar held at one end creeps at about 3.7&nbsp;deg/s from 0.3 to 3&nbsp;N and still 2.2&nbsp;deg/s at 20&nbsp;N, so no force stops it. The rate scales with the contact time constant and drops tenfold when <code>impratio</code> goes from 1 to 10; torsional friction lowers it 2.5&ndash;3&times;. Free drops occur only at 0.1&nbsp;N. The earlier verdict reflects simulator settings, not the grasp. Stylised: one engine, boxes, assumed density and friction."
     }
    ]
   },
