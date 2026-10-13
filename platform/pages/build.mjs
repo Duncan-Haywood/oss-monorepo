@@ -1811,6 +1811,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-child-benefit-charge-calculator'
       // `uk-payments-on-account-calculator` joined 2026-10-13 on its first commit: UK Self Assessment payment-schedule arithmetic, sibling of the trading-allowance and CIS tools.
       || slug === 'uk-payments-on-account-calculator'
+      // `uk-ir35-inside-outside-calculator` joined 2026-10-13 on its first commit: UK contractor tax arithmetic, sibling of the sole-trader-vs-company and trading-allowance tools.
+      || slug === 'uk-ir35-inside-outside-calculator'
       // `uk-self-assessment-late-penalty-calculator` joined 2026-10-13 on its first commit: UK Self Assessment penalty and interest arithmetic, sibling of the payments-on-account tool.
       || slug === 'uk-self-assessment-late-penalty-calculator'
       // `uk-capital-gains-tax-calculator` joined 2026-10-13 on its first commit: UK personal-tax arithmetic, sibling of the payments-on-account and child-benefit tools.
