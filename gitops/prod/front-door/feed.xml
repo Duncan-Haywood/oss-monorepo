@@ -88,6 +88,14 @@
     <summary type="text">Free EU Batteries Regulation (2023/1542) checker for makers, importers and online sellers: which duties reach your battery, when each applies (label, removability, QR code, battery passport, due diligence), and what is still open. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>EU CSRD Scope Checker — Do You Have to Report Under the CSRD After the Omnibus?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-csrd-scope-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/eu-csrd-scope-checker</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free EU CSRD scope checker: are you in mandatory sustainability reporting under the original CSRD and under the Omnibus thresholds (1,000 employees and EUR 450M turnover), from which financial year, and what to do if you are only squeezed by customer data requests. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>EU Data Act Checker — Does the Data Act Apply to You?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-data-act-checker/"/>
     <id>tag:marisstella.dev,2026:tool/eu-data-act-checker</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free EU Whistleblower Directive checker for employers: whether you must run an internal reporting channel at your headcount, which requirements are still open, and the 7-day and 3-month clocks for a report. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EUDR Scope Checker — Is My Product Covered?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eudr-scope-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/eudr-scope-checker</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free EU Deforestation Regulation (EUDR) checker: tick your role, size and commodities to see whether Regulation (EU) 2023/1115 covers you, your duties with the Articles, and your application date. Screens customs codes against Annex I. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
