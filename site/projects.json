@@ -1471,6 +1471,11 @@
      "slug": "ambient-bandit",
      "title": "Can an always-on assistant learn when to speak from accept/dismiss feedback alone, and what does it cost in dismissals?",
      "summary": "A simulated assistant learns an interruption policy online (greedy, &epsilon;-greedy or Thompson-sampled logistic model) from the user&rsquo;s reaction only when it speaks. With an uninformed prior none of the three learns a useful policy in 100&nbsp;h; with a prior that the intent score is informative, greedy reaches 90% of an offline oracle&rsquo;s rate after a median 22.5&nbsp;h and about 185 dismissals, and Thompson sampling takes 32.5&nbsp;h. It still earns 10.4 against the oracle&rsquo;s 12.7 per hour, and after a drop in classifier quality it does far worse than frozen offline weights (0.3 vs 4.4 per hour). Stylised: independent windows, instant noise-free feedback, picked costs."
+    },
+    {
+     "slug": "ambient-ips",
+     "title": "Does inverse-propensity weighting fix an always-on assistant learning from its own accept/dismiss feedback?",
+     "summary": "A stylised follow-up to <em>ambient-bandit</em>: the assistant speaks with a known probability (&epsilon;-greedy) and refits its model with each labelled window weighted by 1/propensity. Mostly negative: exploration itself costs more utility than the learning gains at every &epsilon; tried, weights up to 500 make the weighted fit unstable at small &epsilon; (a standard deviation across seeds of tens of utility units per hour), and the weighting did not rescue the uninformed-prior or the drift scenarios. Only at &epsilon;&nbsp;=&nbsp;0.02 with an informed prior is the weighted model slightly closer to the oracle (12.2 vs 11.4 per hour at 100&nbsp;h, oracle 12.7). Stylised: every distribution is chosen by me."
     }
    ]
   },
