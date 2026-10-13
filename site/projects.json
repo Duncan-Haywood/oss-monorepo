@@ -1267,6 +1267,11 @@
      "slug": "chip-toolchain",
      "title": "What does an all-open RTL flow report for small designs, and can it prove them equivalent?",
      "summary": "Installs Yosys, Icarus Verilog and Verilator, records versions, and synthesises adders, a multiplier and a FIFO to a generic gate library: a ripple-carry adder is 5<em>W</em>&minus;3 gates deep 2<em>W</em>&minus;1, and the operator form <code>+</code> gets the same depth with a few more gates. A SAT miter proves the two adders equivalent and rejects a deliberately broken one. Stylised: gate counts, not silicon area; OpenROAD and a PDK are not yet part of the flow."
+    },
+    {
+     "slug": "chip-rtl-loop",
+     "title": "Which check catches an RTL bug: lint, random simulation or a formal equivalence proof?",
+     "summary": "A feedback-loop harness (propose Verilog; lint, random-vector simulation and a Yosys equivalence proof score it) with 12 small tasks. One attempt per task written by the session agent (not an LLM benchmark) passed every stage at round 0, so the loop never had a failure to use. Of 414 single-point mutants of those designs, lint rejects 56, simulation 303 and only the formal proof 30 (7.7% of the 389 rejected), while 25 pass everything. A no-LLM random-mutation repair baseline fixes 11/36 broken designs within 4 proposals and 22/36 within 16. Toy: tiny modules, bounded 10-cycle proof for sequential tasks, syntactic mutants."
     }
    ]
   },
