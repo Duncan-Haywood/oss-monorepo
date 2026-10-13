@@ -1,0 +1,5 @@
+# Yosys 0.33 (git sha1 2584903a060); Icarus Verilog version 12.0 (stable) ()
+# cycles per batch of R vectors; cells = Yosys generic-gate cells incl. flip-flops; cells*cycles per batch
+
+WB R   design        MACs cycles  cells    depth  cells*cycles  cells*cycles/R  rtl==numpy(32 vecs)
+ 4  4  systolic 4x2     8     80   4077    41        326160          81540  True
