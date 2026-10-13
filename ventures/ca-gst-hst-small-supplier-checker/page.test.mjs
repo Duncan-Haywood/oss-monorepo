@@ -60,3 +60,7 @@ test("sibling tools linked from the page exist", () => {
   const html = page("index.html");
   for (const m of html.matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)) assert.ok(readFileSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
 });
+
+test("page links the Australian GST sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/au-gst-registration-checker\/"/);
+});
