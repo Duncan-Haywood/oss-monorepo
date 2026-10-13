@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Social Security Survivor and Spousal Benefit Calculator</title>
+  <meta name="description" content="Free Social Security widow(er) and spousal benefit calculator: see the survivor benefit at every age from 60, whether to take survivor first and your own at 70, and a spousal top-up. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Social Security survivor and spousal benefit calculator. Free, private">
+  <meta property="og:description" content="Survivor benefit by claiming age, the survivor-first-then-own strategy compared, and the spousal top-up.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Social Security Survivor and Spousal Benefit Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much is a Social Security survivor benefit?", "acceptedAnswer": {"@type": "Answer", "text": "A widow or widower can get up to 100% of what the deceased worker was receiving, or would have received at full retirement age, if the survivor waits until their own survivor full retirement age. Claiming as early as 60 pays 71.5% of that amount. If the worker claimed early, the survivor gets the larger of the reduced benefit and 82.5% of the worker's primary insurance amount."}}, {"@type": "Question", "name": "Can I take the survivor benefit first and my own later?", "acceptedAnswer": {"@type": "Answer", "text": "Often yes. You can claim one benefit at a reduced rate and switch to the other later, for example survivor benefits from 60 and your own retirement benefit at 70, when delayed credits have raised it by up to 24% to 32%. When both are claimed you receive the larger one, not both added together. This calculator compares the combinations."}}, {"@type": "Question", "name": "How much is a spousal benefit?", "acceptedAnswer": {"@type": "Answer", "text": "Up to 50% of the worker's primary insurance amount at your full retirement age, paid only as the amount that exceeds your own benefit, and only once the worker has filed. Claiming at 62 with a full retirement age of 67 cuts it to 32.5% of the worker's amount. Spousal benefits get no delayed credits after full retirement age."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SOCIAL SECURITY SURVIVOR AND SPOUSAL BENEFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>When should a widow or widower claim the survivor benefit?</h1>
+    <p>Enter your own and your late spouse's benefit amounts from the ssa.gov statement. You get the survivor benefit at every age from 60, your own benefit at every age from 62, and which order and timing pays the most by the age you plan to.</p>
+    <p class="note">The numbers on the page are an example. Replace every one with the amounts on your my Social Security account. Not financial advice, and not a statement from the Social Security Administration.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="birthYear">Your birth year</label><input id="birthYear" type="number" min="0" step="1"></div>
+      <div><label for="ownPia">Your own benefit at full retirement age (PIA, $ per month; 0 if none)</label><input id="ownPia" type="number" min="0" step="50"></div>
+      <div><label for="deceasedPia">Deceased spouse's PIA ($ per month)</label><input id="deceasedPia" type="number" min="0" step="50"></div>
+      <div><label for="deceasedBirthYear">Deceased spouse's birth year</label><input id="deceasedBirthYear" type="number" min="0" step="1"></div>
+      <div><label for="deceasedClaimAge">Age the deceased started benefits (or was at death if never claimed)</label><input id="deceasedClaimAge" type="number" min="0" step="0.25"></div>
+      <div><label for="survivorFraYears">Your survivor full retirement age (years)</label><input id="survivorFraYears" type="number" min="0" step="0.1"></div>
+      <div><label for="planAge">Plan to age</label><input id="planAge" type="number" min="0" step="1"></div>
+      <div><label for="spousePia">Living spouse's PIA ($ per month, 0 to skip the spousal check)</label><input id="spousePia" type="number" min="0" step="50"></div>
+      <div><label for="spousalClaimAge">Age you would claim a spousal benefit</label><input id="spousalClaimAge" type="number" min="0" step="0.25"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Calculate</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the answers, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h3>Monthly benefit by claiming age</h3>
+    <div class="scroll"><table id="ages"></table></div>
+    <h3>Claiming strategies</h3>
+    <div class="scroll"><table id="strategies"></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the survivor benefit by claiming age (71.5% at 60 rising to 100% at survivor full retirement age), the 82.5% widow limit when the worker claimed early, delayed credits the worker earned, your own benefit by claiming age, every survivor-first or own-first combination compared by total to your planning age, and the spousal top-up.</li>
+      <li><strong>Gives:</strong> a printable or downloadable text summary to take to a Social Security appointment or a planner.</li>
+      <li><strong>Not decided:</strong> taxes on benefits, the earnings test, cost-of-living adjustments, remarriage, divorced-spouse and child benefits, Medicare premiums and your actual SSA record. Your Social Security Administration office or planner decides these.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much is a Social Security survivor benefit?</h3>
+    <p>A widow or widower can get up to 100% of what the deceased worker was receiving, or would have received at full retirement age, if the survivor waits until their own survivor full retirement age. Claiming as early as 60 pays 71.5% of that amount. If the worker claimed early, the survivor gets the larger of the reduced benefit and 82.5% of the worker's primary insurance amount.</p>
+    <h3>Can I take the survivor benefit first and my own later?</h3>
+    <p>Often yes. You can claim one benefit at a reduced rate and switch to the other later, for example survivor benefits from 60 and your own retirement benefit at 70, when delayed credits have raised it by up to 24% to 32%. When both are claimed you receive the larger one, not both added together. This calculator compares the combinations.</p>
+    <h3>How much is a spousal benefit?</h3>
+    <p>Up to 50% of the worker's primary insurance amount at your full retirement age, paid only as the amount that exceeds your own benefit, and only once the worker has filed. Claiming at 62 with a full retirement age of 67 cuts it to 32.5% of the worker's amount. Spousal benefits get no delayed credits after full retirement age.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice and it is not a statement from the Social Security Administration. You are responsible for reviewing and verifying its output with the Social Security Administration or a planner before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../social-security-claiming-age-calculator/">Social Security claiming age calculator</a>, the <a href="../social-security-benefits-tax-calculator/">Social Security benefits tax calculator</a> and the <a href="../medicare-irmaa-cliff-calculator/">Medicare IRMAA cliff calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { birthYear: "birthYear", ownPia: "ownPia", deceasedPia: "deceasedPia", deceasedBirthYear: "deceasedBirthYear", deceasedClaimAge: "deceasedClaimAge", survivorFraYears: "survivorFraYears", planAge: "planAge", spousePia: "spousePia", spousalClaimAge: "spousalClaimAge" };
+    const IDLE = "Fill in the answers, then click Calculate.";
+    const age = (m) => Math.floor(m / 12) + (m % 12 ? " and " + (m % 12) + " mo" : "");
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `Survivor benefit ${money(r.table[r.table.length - 1].survivor)} a month at full survivor age; best total ${money(r.strategies[0].total)}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#ages").innerHTML = "<thead><tr><th>Age</th><th class=\"n\">Survivor benefit</th><th class=\"n\">Your own benefit</th></tr></thead><tbody>" + r.table.map((t) => `<tr><td>${t.age}</td><td class="n">${money(t.survivor)}</td><td class="n">${t.own === null ? "n/a" : money(t.own)}</td></tr>`).join("") + "</tbody>";
+      $("#strategies").innerHTML = "<thead><tr><th>Strategy</th><th>Survivor at</th><th>Own at</th><th class=\"n\">Total to plan age</th></tr></thead><tbody>" + r.strategies.map((s) => `<tr><td>${esc(s.label)}</td><td>${age(s.sa)}</td><td>${age(s.oa)}</td><td class="n">${money(s.total)}</td></tr>`).join("") + "</tbody>";
+      report.hidden = false;
+      status.textContent = "Done. Verify against your my Social Security account.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a widow with a 1962 birth year. Replace every number.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("survivor-benefit-summary.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
