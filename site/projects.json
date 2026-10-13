@@ -1669,6 +1669,11 @@
      "summary": "Eight-layer thin-film stacks on a flat nylon-like substrate, optimised to minimise the colour shift between 0 and 15&ndash;45&deg; incidence while keeping chroma C* &ge; 40 and hue near a quarter-wave target. At an equal budget of 3000 evaluations (10 seeds), Nelder&ndash;Mead with restarts cuts the median mean &Delta;E<sub>76</sub> shift from 12.4 to 1.4 (red target) and from 25.9 to 5.6 (blue), beating random search and differential evolution, but chroma falls toward the floor and oxide mass rises about 1.8&ndash;2.5&times;. Stylised: flat substrate, three sample angles, recalled indices, no fabrication tolerance; no LLM involved."
     },
     {
+     "slug": "garment-stackrobust",
+     "title": "Does an angle-stable structural-colour stack survive layer-thickness error?",
+     "summary": "The 8-layer stacks optimised in <em>garment-stackopt</em> are fabricated virtually with independent Gaussian thickness error (3 and 5%) and scored on 200 held-out draws. The nominal optimum (angle shift 1.4 &Delta;E<sub>76</sub>) degrades to a mean cost of 24.9 at 3% error, worse than the plain quarter-wave stack (13.2), and only about half of draws keep an acceptable colour. A robust objective averaged over six error draws, at equal total cost, recovers part of this (red target, 3%: 11.7 against 13.2) but not the colour drift, and at 5% error or the blue target the quarter-wave stack is hard to beat. Stylised: flat substrate, no dispersion, uncorrelated errors, 10 seeds, no significance tests, two optimisers."
+    },
+    {
      "slug": "garment-assist",
      "title": "Does an assistive garment pay for its own mass?",
      "summary": "A one-joint ankle model of an exosuit-style garment: a suit adding a fraction of the biological push-off torque cuts modelled whole-body metabolic cost by 3.1, 8.8 and 14.1% at gains 0.1, 0.3 and 0.5, but a delay of 0.25 of the gait cycle removes the benefit and a stiff passive spring raises ankle cost 17%. Added mass erases the saving at 8.9&nbsp;kg if each kg costs 1% of whole-body power and at 1.8&nbsp;kg if it costs 5%; the break-even scales as 1/sensitivity, a number the project does not supply. Stylised: lumped muscle, prescribed gait, assumed constants; not OpenSim or MyoSuite."
