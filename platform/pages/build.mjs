@@ -3397,6 +3397,8 @@ const CATEGORY_RULES = [
         'ugc-creator-rate-calculator',
         // `uk-sole-trader-vs-limited-company-calculator` joined 2026-10-13 on its first commit: one UK freelancer deciding whether to incorporate, the same solo earner.
         'uk-sole-trader-vs-limited-company-calculator',
+        // `uk-mtd-income-tax-checker` joined 2026-10-13 on its first commit: UK sole traders and landlords checking their Making Tax Digital start date, the same solo earner.
+        'uk-mtd-income-tax-checker',
         'cat-adjuster-fee-calculator',
         'ad-slot-sell-through-planner',
         'candle-batch-cost-calculator',
