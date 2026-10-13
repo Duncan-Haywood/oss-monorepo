@@ -3879,6 +3879,21 @@ entries:
         requirements-pin-check. Known gap: no dependency graph, so transitive-only packages read not-referenced. First visitor:
         searches for pip-audit noise; volume unmeasured. Natural paid upgrade is a GitHub Action commenting on Dependabot PRs.
     mrr_end: 0
+  - venture: cargo-audit-triage
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built cargo-audit-triage, the Rust counterpart of npm-audit-triage and pip-audit-triage: paste cargo audit --json
+        plus Rust source in the browser, or run a zero-dependency Node CLI that exits 1 on a vulnerable crate your runtime code uses.
+        Findings are bucketed imported / test-only / not-referenced (src/ versus tests, benches, examples and build.rs) by reading use
+        declarations including brace groups, extern crate and crate::path expressions with comments and string literals stripped, and
+        dashes in crate names read as underscores. Real vulnerabilities rank above unmaintained, unsound and yanked warnings, which
+        cargo audit mixes into the same list. 11 unit tests plus page tests, guide page, CLI smoke-tested. Known gaps: no dependency
+        graph, so transitive-only crates read not-referenced; renamed dependencies, macro-generated paths and feature gates are not
+        seen. First visitor: searches for cargo audit noise; volume unmeasured. Natural paid upgrade is a GitHub Action commenting on
+        Dependabot PRs.
+    mrr_end: 0
   - venture: nis2-scope-checker
     agent_spend_usd: 0
     human_hours: 0
