@@ -1,0 +1,42 @@
+name: paid-sick-leave-accrual-calculator
+description: >-
+  Free browser tool for small employers, bookkeepers and HR generalists: pick a state (14 with statewide paid sick leave laws), headcount, hours and wage to get the accrual per pay period, annual use cap, balance cap, whether leave must be paid at your size, front-loading option and the dollar cost. Nothing is uploaded. Not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session. Gap: pto-accrual-liability-calculator values an existing PTO bank; nothing in ventures/ answers
+# "what does the state require me to accrue, and what will it cost" for a small employer. Covered neighbours: final-paycheck-deadline-calculator, overtime-pay-calculator.
+#
+# First visitor: owner of a 5-50 person shop, restaurant or clinic, or their bookkeeper, searching "paid sick leave accrual calculator [state]",
+# "how much sick leave do part time employees earn", "do I have to pay sick leave small business". Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet into the payroll/HR tools; GitHub Sponsors. Paid version, not built: a policy generator
+# (handbook clause, accrual ledger CSV, state posting notice) and more states/cities behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names the statute to verify, carries no-warranty and not-legal-advice
+# clauses and lists what it does not decide (city ordinances, waiting periods, permitted uses). Ethical risk is under-providing leave from a wrong
+# threshold; mitigated by sourcing links, the explicit local-ordinance warning, and a kill criterion on any reported rule error.
+hypotheses:
+  - claim: >-
+      Small employers will use a free state-by-state accrual and cost calculator instead of reading eleven statutes, and will return when they hire.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate, cap or size threshold differs from the cited statute on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/paid-sick-leave-accrual-calculator/
+  analytics: null
