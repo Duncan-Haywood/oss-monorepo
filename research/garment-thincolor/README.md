@@ -2,7 +2,7 @@
 
 Follow-up to `garment-optics` (its "structural colour (thin-film transfer matrix)" next step), in the engineered-clothing track (`PROJECTS.md`, track 6). A stylised plane-wave transfer-matrix model of a dielectric coating on a flat nylon-like substrate: reflectance spectrum, colour, angle dependence and sensitivity to thickness error. Everything is a model on a CPU; no fabric or coating was made or measured. Produced with AI assistance (Claude).
 
-**Builds on.** The standard characteristic-matrix method of optical thin films (e.g. Macleod, *Thin-Film Optical Filters*; Born and Wolf, *Principles of Optics*) and the analytic CIE 1931 colour-matching-function fit of Wyman, Sloan and Shirley (2013), *JCGT* 2(2):1-11. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. **Citation check.** These references are cited from memory; no bibliographic lookup was possible in this run, so the book editions and the Wyman page range are unverified. The Gaussian-fit coefficients were typed from memory; tests only check sanity (peak of y-bar near 1 at 560 nm, perfect white gives L*=100), not exact agreement with the CIE tables.
+**Builds on.** The standard characteristic-matrix method of optical thin films (e.g. Macleod, *Thin-Film Optical Filters*; Born and Wolf, *Principles of Optics*) and the analytic CIE 1931 colour-matching-function fit of Wyman, Sloan and Shirley (2013), *JCGT* 2(2):1-11. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. **Citation check.** Checked this run: the Wyman, Sloan and Shirley paper exists with those authors, title, journal and year 2013 (NVIDIA Research publication page); volume/issue 2(2) is inferred from the JCGT URL and the page range 1-11 is unverified. The two books are cited from memory; editions are unverified. The Gaussian-fit coefficients were typed from memory; tests only check sanity (peak of y-bar near 1 at 560 nm, perfect white gives L*=100), not exact agreement with the CIE tables.
 
 ## Method (`src/garment_thincolor/model.py`)
 - Characteristic-matrix reflectance for s and p polarisation at any angle, layers on a semi-infinite substrate in air; unpolarised is the mean of s and p. Checked against the closed-form single-layer result and the Fresnel and quarter-wave anti-reflection limits.
@@ -37,6 +37,6 @@ Depositing a coating (sputtering, ALD or layer-by-layer assembly) and measuring 
 Python, numpy. Refractive indices, densities and the CMF coefficients come from outside the model.
 
 ## References
-- Wyman, C., Sloan, P.-P., Shirley, P. (2013). Simple Analytic Approximations to the CIE XYZ Color Matching Functions. *Journal of Computer Graphics Techniques* 2(2):1-11. (From memory, not re-checked.)
+- Wyman, C., Sloan, P.-P., Shirley, P. (2013). Simple Analytic Approximations to the CIE XYZ Color Matching Functions. *Journal of Computer Graphics Techniques* 2(2):1-11. (Existence, authors, journal and year checked; volume/issue inferred, pages unverified.)
 - Macleod, H. A. *Thin-Film Optical Filters*, CRC Press. (Edition not re-checked.)
 - Born, M., Wolf, E. *Principles of Optics*, Cambridge University Press. (Edition not re-checked.)
