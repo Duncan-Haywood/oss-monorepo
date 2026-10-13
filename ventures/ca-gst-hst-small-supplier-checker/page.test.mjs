@@ -64,3 +64,7 @@ test("sibling tools linked from the page exist", () => {
 test("page links the Australian GST sibling", () => {
   assert.match(page("index.html"), /href="\.\.\/au-gst-registration-checker\/"/);
 });
+
+test("links the TFSA over-contribution checker sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/tfsa-over-contribution-checker\/"/);
+});
