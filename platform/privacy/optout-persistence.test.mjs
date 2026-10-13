@@ -1655,6 +1655,7 @@ const SWITCHES_IN_THE_CATALOGUE = 1130;
 // +1: `csv-to-sql-generator` graduated.
 // +1: `eu-dsa-obligations-checker` graduated.
 // +1: `uk-mtd-income-tax-checker` graduated.
+// +1: `schengen-90-180-day-calculator` graduated.
 
 let counter = 0;
 function fixture(source) {
