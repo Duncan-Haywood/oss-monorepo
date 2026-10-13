@@ -1431,6 +1431,11 @@
      "slug": "ambient-glance",
      "title": "When is a glance better than speech for an always-on assistant?",
      "summary": "A stylised expected-utility model chooses between speech, a glanceable display and silence by noise, other talkers, free eyes and message length; a Monte Carlo check agrees with the closed form to 0.001. A glance wins in about half of 84 grid contexts, and the look rate, the number a simulator is least able to supply, drives the twin gap (up to 0.036 utility per message). Every parameter is a round figure of mine: nothing is fitted or measured."
+    },
+    {
+     "slug": "ambient-bandit",
+     "title": "Can an always-on assistant learn when to speak from accept/dismiss feedback alone, and what does it cost in dismissals?",
+     "summary": "A simulated assistant learns an interruption policy online (greedy, &epsilon;-greedy or Thompson-sampled logistic model) from the user&rsquo;s reaction only when it speaks. With an uninformed prior none of the three learns a useful policy in 100&nbsp;h; with a prior that the intent score is informative, greedy reaches 90% of an offline oracle&rsquo;s rate after a median 22.5&nbsp;h and about 185 dismissals, and Thompson sampling takes 32.5&nbsp;h. It still earns 10.4 against the oracle&rsquo;s 12.7 per hour, and after a drop in classifier quality it does far worse than frozen offline weights (0.3 vs 4.4 per hour). Stylised: independent windows, instant noise-free feedback, picked costs."
     }
    ]
   },
