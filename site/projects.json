@@ -1729,6 +1729,11 @@
      "summary": "The 8-layer stacks optimised in <em>garment-stackopt</em> are fabricated virtually with independent Gaussian thickness error (3 and 5%) and scored on 200 held-out draws. The nominal optimum (angle shift 1.4 &Delta;E<sub>76</sub>) degrades to a mean cost of 24.9 at 3% error, worse than the plain quarter-wave stack (13.2), and only about half of draws keep an acceptable colour. A robust objective averaged over six error draws, at equal total cost, recovers part of this (red target, 3%: 11.7 against 13.2) but not the colour drift, and at 5% error or the blue target the quarter-wave stack is hard to beat. Stylised: flat substrate, no dispersion, uncorrelated errors, 10 seeds, no significance tests, two optimisers."
     },
     {
+     "slug": "garment-stackcvar",
+     "title": "Does a tail-risk objective, or a correlated-error model, rescue the angle-stable structural-colour stack?",
+     "summary": "Follow-up to <em>garment-stackrobust</em>. The 8-layer stacks are trained on a CVaR objective (mean of the worst quarter of 8 sampled thickness errors) or on errors with a shared rate-drift component (&rho; = 0.5), then cross-evaluated on 200 held-out draws under both error models (5% error, 8 seeds, 3000 evaluations). Negative result: no optimised design beats the plain quarter-wave stack (red, independent error: mean cost 14.1 against 16.5 for the best optimised one). CVaR trims Nelder&ndash;Mead's 90th-percentile cost (47.1 to 43.1) while raising its mean, and correlated-error training did worse. Stylised thin-film model; nothing was coated or measured."
+    },
+    {
      "slug": "garment-stackpareto",
      "title": "How much angle shift can a structural-colour coating shed at a given chroma and oxide mass?",
      "summary": "The 8-layer stacks of <em>garment-stackopt</em> re-optimised on a grid of chroma floors and oxide-mass caps (Nelder&ndash;Mead restarts, 3000 calls, 5 seeds per cell). For the red target at a chroma floor of C* 40 the best mean angle shift is 0.68 &Delta;E<sub>76</sub> at a 4.0 g/m<sup>2</sup> cap, 2.71 at 3.0, and no run is feasible at 2.0 or below; raising the floor to 60 costs more (2.84 at a 4.0 cap). Mass binds before chroma. Stylised: flat substrate, three sample angles, untuned penalties, a coarse grid and a single optimiser, so cell values are noisy and the front is not smooth."
