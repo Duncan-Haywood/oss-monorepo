@@ -47,3 +47,7 @@ test("usage events named on the page are the ones the code records", () => {
 test("page says its defaults are placeholders", () => {
   assert.match(page("index.html"), /placeholders, not/i);
 });
+
+test("links the UK sole trader vs limited company calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/uk-sole-trader-vs-limited-company-calculator\/"/);
+});
