@@ -78,3 +78,7 @@ test("footer links the platform work and product liability directive checkers", 
   assert.match(page("index.html"), /href="\.\.\/eu-platform-work-directive-checker\/"/);
   assert.match(page("index.html"), /href="\.\.\/eu-product-liability-directive-checker\/"/);
 });
+
+test("footer links the DORA readiness checker", () => {
+  assert.match(page("index.html"), /href="\.\.\/eu-dora-readiness-checker\/"/);
+});

@@ -1608,8 +1608,9 @@ const RELATIVE_SELF = relative(
 // +1: `eu-platform-work-directive-checker` graduated.
 // +1: `eu-price-reduction-claim-checker` graduated.
 // +1: `eu-green-claims-copy-scanner` graduated.
+// +1: `eu-dora-readiness-checker` graduated.
 // +1: `ugc-creator-rate-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1123;
+const SWITCHES_IN_THE_CATALOGUE = 1124;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
