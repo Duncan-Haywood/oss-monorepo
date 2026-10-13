@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EU Data Act Checker — Does the Data Act Apply to You?</title>
+  <meta name="description" content="Free EU Data Act checker: pick your role and size to see whether Regulation (EU) 2023/2854 likely applies, whether the micro and small enterprise exemption covers you, the Article behind it, the dates and the main duties. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="EU Data Act checker: does the Data Act apply to your connected product or cloud service? Free, private">
+  <meta property="og:description" content="Role and size in; likely Data Act result, the Article it rests on and the main duties out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "EU Data Act Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does the EU Data Act apply to my business?", "acceptedAnswer": {"@type": "Answer", "text": "It applies to makers of connected products and providers of related services, to data holders, to third parties that receive a user's data, and to providers of data processing services such as cloud and SaaS, where they place products on the EU market or serve users or customers in the EU. It has applied since 12 September 2025. Micro and small enterprises are exempt from the connected-product data-access duties, but not from the cloud switching duties."}}, {"@type": "Question", "name": "Is my small company exempt from the Data Act?", "acceptedAnswer": {"@type": "Answer", "text": "If you make connected products or provide related services and are a micro or small enterprise (under 50 people and turnover or balance sheet of EUR 10 million or less), the Chapter II data-access duties do not apply to you under Article 7, unless you have a larger partner or linked enterprise or are subcontracted to make or design the product for one. Cloud providers get no such exemption."}}, {"@type": "Question", "name": "When do the Data Act connected-product rules start?", "acceptedAnswer": {"@type": "Answer", "text": "The Regulation applies from 12 September 2025. The duty to design connected products for direct data access in Article 3(1) applies to products placed on the market after 12 September 2026. Switching charges for cloud services end on 12 January 2027."}}, {"@type": "Question", "name": "Does the Data Act apply to businesses outside the EU?", "acceptedAnswer": {"@type": "Answer", "text": "Yes where they place connected products on the EU market, offer related services to users in the EU, or provide data processing services to customers in the EU, wherever they are established."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EU DATA ACT CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Does the EU Data Act apply to your connected product or cloud service?</h1>
+    <p>Pick your role and your size. You get a <strong>likely applicability result</strong>, the <strong>Article it rests on</strong>, whether the <strong>micro and small enterprise exemption</strong> covers you, the key <strong>dates</strong> and the <strong>main duties</strong> in plain words.</p>
+    <p class="note">A first read of Regulation (EU) 2023/2854, which has applied since 12 September 2025. National authorities enforce it. It is not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="role">Your role</label><select id="role"><option value="">Choose one</option><option value="none">None of the roles below</option><option value="manufacturer">Manufacturer of a connected product (a product that gets or generates data about its use and can send it)</option><option value="service">Provider of a related service (software or app connected to the product that affects what it does)</option><option value="holder">Data holder (you hold or control data generated by a customer's connected product and can make it available)</option><option value="cloud">Provider of a data processing service (cloud, SaaS, IaaS, PaaS or edge service customers can switch away from)</option><option value="recipient">Third party that asks a data holder for a user's connected-product data</option></select></div>
+      <div><label for="staff">People employed (whole group)</label><input id="staff" inputmode="decimal" value="" placeholder="35"></div>
+      <div><label for="turnover">Annual turnover, EUR millions (whole group)</label><input id="turnover" inputmode="decimal" value="" placeholder="6"></div>
+      <div><label for="balance">Annual balance sheet total, EUR millions (whole group)</label><input id="balance" inputmode="decimal" value="" placeholder="4"></div>
+      <div><label for="eu">Do you reach the EU (products on its market, or users and customers there)?</label><select id="eu"><option value="yes">Yes</option><option value="no">No</option><option value="unsure">Not sure</option></select></div>
+      <div><label for="partner">Do you have a partner or linked enterprise that is not micro or small?</label><select id="partner"><option value="">No or not known</option><option value="1">Yes</option></select></div>
+      <div><label for="subcontract">Are you subcontracted to make or design the product or service for a larger company?</label><select id="subcontract"><option value="">No or not known</option><option value="1">Yes</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check applicability</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose your role, enter your size figures, then click Check applicability.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>The same business at each size class</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Size</th><th scope="col">Result</th><th scope="col">Basis</th></tr></thead><tbody id="ladder-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download size table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Roles:</strong> connected-product makers and related-service providers (Art 3), data holders (Art 4, 5, 8 to 13), third-party recipients (Art 6) and data processing service providers (Art 23 to 31).</li>
+      <li><strong>Size:</strong> micro is under 10 people and EUR 2 million; small is under 50 people and EUR 10 million, on turnover or balance sheet. Art 7 exempts micro and small makers, providers and holders from Chapter II, unless a larger partner or linked enterprise is involved or the company is subcontracted.</li>
+      <li><strong>Not decided:</strong> whether your product is a connected product, partner-enterprise proportional size rules, trade-secret and security refusals, the one-year grace after growing past small, national enforcement, and any GDPR duties on personal data.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Does the EU Data Act apply to my business?</h3>
+    <p>It applies to makers of connected products and providers of related services, to data holders, to third parties that receive a user's data, and to providers of data processing services such as cloud and SaaS, where they place products on the EU market or serve users or customers in the EU. It has applied since 12 September 2025. Micro and small enterprises are exempt from the connected-product data-access duties, but not from the cloud switching duties.</p>
+    <h3>Is my small company exempt from the Data Act?</h3>
+    <p>If you make connected products or provide related services and are a micro or small enterprise (under 50 people and turnover or balance sheet of EUR 10 million or less), the Chapter II data-access duties do not apply to you under Article 7, unless you have a larger partner or linked enterprise or are subcontracted to make or design the product for one. Cloud providers get no such exemption.</p>
+    <h3>When do the Data Act connected-product rules start?</h3>
+    <p>The Regulation applies from 12 September 2025. The duty to design connected products for direct data access in Article 3(1) applies to products placed on the market after 12 September 2026. Switching charges for cloud services end on 12 January 2027.</p>
+    <h3>Does the Data Act apply to businesses outside the EU?</h3>
+    <p>Yes where they place connected products on the EU market, offer related services to users in the EU, or provide data processing services to customers in the EU, wherever they are established.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your national authority or counsel before relying on it.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../nis2-scope-checker/">NIS2 scope checker</a>, the <a href="../eu-ai-act-risk-checker/">EU AI Act risk checker</a> and the <a href="../eaa-accessibility-act-checker/">European Accessibility Act checker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, ladderCsv, SIZE_LABEL } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { role: "role", staff: "staff", turnover: "turnover", balance: "balance", eu: "eu", partner: "partner", subcontract: "subcontract" };
+    const IDLE = "Choose your role, enter your size figures, then click Check applicability.";
+    const label = (v) => (v.status === "in" ? "In scope" : v.status === "exempt-small" ? "Exempt as a micro or small enterprise" : "Not in scope directly");
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `${label(r.verdict)} (${r.sizeLabel})`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#ladder-rows").innerHTML = r.ladder.map((l) => `<tr><td>${SIZE_LABEL[l.size]}</td><td>${esc(label(l))}</td><td>${esc(l.via)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Check with your national authority before relying on this.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a 35-person maker of connected equipment. Illustrative figures, not a real company.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = id === "eu" ? "yes" : ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("data-act-check.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("data-act-check-sizes.csv", ladderCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
