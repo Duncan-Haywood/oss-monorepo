@@ -3791,3 +3791,16 @@ entries:
         sweeps, with text summary and CSV. 11 hand-computed unit tests plus page and usage tests. No coworking tool existed in
         ventures/. First visitor: people searching coworking break-even occupancy; volume unmeasured.
     mrr_end: 0
+  - venture: hydroponic-farm-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built hydroponic-farm-profit-calculator: a browser-only model for indoor, vertical and hydroponic growers. Growing
+        area, plant density, crop cycle, loss, wholesale/retail mix, per-head inputs and labour, lights and climate energy, rent, fit-out
+        and a loan become heads a week, monthly profit, break-even heads (operating and with the loan), the price change that reaches a
+        target margin, output, price and electricity sweeps, and a sixty-month ramp-up with cash reserve and payback, with text summary
+        and CSV. 12 hand-computed unit tests plus page and usage tests; page exercised in headless Chromium. No indoor-farm economics tool
+        existed in ventures/. Also fixed coworking-space-profit-calculator, whose results panel threw on a nonexistent r.cfByYear and never
+        displayed (now r.yearCash; verified in Chromium). First visitor: people searching hydroponic farm break-even; volume unmeasured.
+    mrr_end: 0
