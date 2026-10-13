@@ -1,0 +1,22 @@
+E1  bound constants (N=10): anytime sqrt-liquidity vs horizon-aware; ratio -> sqrt(2)
+  T=   100  fixed    10.73  anytime    14.64  ratio 1.3643   (sqrt2=1.4142)
+  T=  1000  fixed    33.93  anytime    47.44  ratio 1.3981   (sqrt2=1.4142)
+  T= 10000  fixed   107.30  anytime   151.19  ratio 1.4091   (sqrt2=1.4142)
+  T=100000  fixed   339.31  anytime   479.30  ratio 1.4126   (sqrt2=1.4142)
+
+E2  adaptive adversary vs bound (N=8, T=2000): realised regret / bound
+  fixed b (T known)  regret   22.78  bound   45.60  ratio 0.500
+  b_t=c*sqrt(t)     regret   31.13  bound   63.97  ratio 0.487
+
+E3  doubling trick vs continuous anytime liquidity (N=8, adversary vs anytime b_t)
+  T= 1000  anytime   21.70  doubling   36.87  (doubling/anytime 1.70; bound const 3.41x fixed)
+  T= 4000  anytime   44.48  doubling   75.68  (doubling/anytime 1.70; bound const 3.41x fixed)
+  T=16000  anytime   90.08  doubling  153.36  (doubling/anytime 1.70; bound const 3.41x fixed)
+
+E4  self-tuning liquidity (AdaHedge) vs c*sqrt(t): regret, and final subsidy b_T ln N  (N=8, T=20000)
+  gap=0.00  sqrt-liq regret  102.20 subsidy  101.97 | adaptive regret   95.95 Delta_T   64.08 subsidy   64.07  R<=2Delta: True
+  gap=0.05  sqrt-liq regret   24.69 subsidy  101.97 | adaptive regret   18.15 Delta_T   11.83 subsidy   11.83  R<=2Delta: True
+  gap=0.20  sqrt-liq regret    6.74 subsidy  101.97 | adaptive regret    5.12 Delta_T    3.44 subsidy    3.44  R<=2Delta: True
+  gap=0.60  sqrt-liq regret    2.27 subsidy  101.97 | adaptive regret    1.75 Delta_T    1.27 subsidy    1.27  R<=2Delta: True
+  adaptive vs adversary (N=8, T=5000, adversary reacts to adaptive prices):
+  regret 50.62  sqrt(T lnN/2) = 72.10  subsidy 50.95

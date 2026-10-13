@@ -1,0 +1,50 @@
+Inertia twin: real = body of inertia I = k m r^2 rolling/slipping on a ramp (exact stick/slip simulation, dt = 1e-4 s); twin = frictionless point mass.
+g = 9.81 m/s^2, ramp length 2.0 m, angle 30 deg unless stated
+
+== 1. Down-ramp acceleration from rest, mu = 0.9 (rolling): simulation vs g sin(a)/(1+k), twin g sin(a) ==
+shape    k     a sim   a closed   a twin   twin/real   fall time real   fall time twin   time ratio
+sphere 0.40   3.5039    3.5036   4.9050     1.4000          1.0685          0.9030      0.8452
+disc   0.50   3.2703    3.2700   4.9050     1.5000          1.1060          0.9030      0.8165
+hoop   1.00   2.4527    2.4525   4.9050     2.0000          1.2771          0.9030      0.7071
+
+== 2. Slip threshold mu* = k tan(a)/(1+k): acceleration vs friction coefficient (disc, k = 0.5, 30 deg) ==
+mu* = 0.1925; twin acceleration 4.9050 regardless of mu
+   mu    a sim    a closed   regime    twin/real
+ 0.00   4.9050    4.9050   slip       1.0000
+ 0.05   4.4803    4.4802   slip       1.0948
+ 0.10   4.0556    4.0554   slip       1.2095
+ 0.15   3.6309    3.6306   slip       1.3510
+ 0.19   3.2911    3.2908   slip       1.4905
+ 0.20   3.2700    3.2700   roll       1.5000
+ 0.25   3.2700    3.2700   roll       1.5000
+ 0.50   3.2700    3.2700   roll       1.5000
+ 0.90   3.2700    3.2700   roll       1.5000
+
+== 3. Threshold vs ramp angle: smallest mu that rolls (closed form), and twin/real acceleration when mu = 0.15 ==
+angle   mu*(sphere)  mu*(disc)  mu*(hoop)   twin/real sphere   disc   hoop   (mu = 0.15)
+   5       0.0250     0.0292     0.0437             1.4000 1.5000 2.0000
+  10       0.0504     0.0588     0.0882             1.4000 1.5000 2.0000
+  20       0.1040     0.1213     0.1820             1.4000 1.5000 1.7010
+  30       0.1650     0.1925     0.2887             1.3510 1.3510 1.3510
+  45       0.2857     0.3333     0.5000             1.1765 1.1765 1.1765
+
+== 4. Coast distance: twin-trained launch speed to stop at d = 1 m on a 15 deg ramp, body launched rolling ==
+twin launch speed 2.2534 m/s
+shape    k   real stop distance (closed)   simulated   overshoot
+sphere 0.40                       1.4000      1.3999       40.0%
+disc   0.50                       1.5000      1.4999       50.0%
+hoop   1.00                       2.0000      1.9999      100.0%
+
+== 5. One-parameter calibration (fit gain c on the twin acceleration) on one shape, applied to the fleet; fall-time error on a 2 m ramp, 20 deg ==
+fit on   c       sphere err    disc err     hoop err    (fall time, % of real)
+sphere 0.7143        0.00%      -3.39%     -16.33%
+disc   0.6667        3.51%       0.00%     -13.40%
+hoop   0.5000       19.52%      15.47%       0.00%
+
+fleet-mean fit (k in {0.4,0.5,1.0} pooled):
+c = 0.6270; fall-time error: sphere 6.74%, disc 3.12%, hoop -10.70%
+
+== 6. Ranking a race: fall times real vs twin (2 m, 30 deg, mu = 0.9) ==
+sphere real 1.0685 s   twin 0.9030 s
+disc   real 1.1060 s   twin 0.9030 s
+hoop   real 1.2771 s   twin 0.9030 s

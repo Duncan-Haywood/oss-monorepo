@@ -1,0 +1,13 @@
+# Fusion twin: how many redundant sensors does a twin with independent errors say a robot needs?
+
+Pure Python, no dependencies. `n` redundant sensors (radar returns, lidar ranges, wheel odometers) measure one quantity, each with error variance `σ²`. The twin draws their errors independently; the "real" errors share a common component, so every pair has correlation `ρ`. The equal-weight fused estimate (optimal for equicorrelated errors, so reweighting cannot repair it) has exact variance `σ²(1+(n−1)ρ)/n`: the twin understates the fused std by `√(1+(n−1)ρ)`, `n` sensors are worth only `n_eff = n/(1+(n−1)ρ) < 1/ρ` independent ones, and no fleet goes below the floor `σ√ρ`. For a target std of `0.25σ` the twin says 16 sensors; the real fleet needs 19/30/77/376 at `ρ`=0.01/0.03/0.05/0.06 and none at `ρ ≥ 0.0625` (all matched to Monte Carlo). A 3-σ gate sized from the twin's std at `n=16` false-alarms at 0.0051/0.0233/0.0578/0.2008 for `ρ`=0.01/0.05/0.1/0.3, i.e. 1.9×/8.6×/21×/74× the nominal 0.0027; the honest gate is `3√k` twin stds. Repair from calibration logs (8 sensors, truth known, `ρ=0.03`): the pooled `ρ̂` is essentially unbiased (mean 0.0295 at T=400), yet a plug-in fleet size misses the target in 105/200 (T=25), 102/200 (T=100) and 103/200 (T=400) repeats, because the required `n` is convex and steeply rising in `ρ`. A 90% bootstrap upper bound cuts misses to 17/200 at T=400, at a median 55 sensors instead of 30 and with 19/200 repeats declaring the target infeasible. See `paper/whitepaper.md`.
+
+```bash
+cd research/fusion-twin
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, ~2 s
+PYTHONPATH=src python3 experiments/run.py                 # ~25 s; output in experiments/results.txt
+```
+
+**Builds on.** The sensor simulation and multi-sensor perception/SLAM direction of ARPG (<https://arpg.colorado.edu/>), and the field-robot direction of the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. The mathematics is classical: variance of an equicorrelated average and the effective sample size (Kish 1965), fusion of correlated estimates (Bar-Shalom & Campo 1986; Julier & Uhlmann 1997), the bootstrap (Efron 1979). Same pooled-correlation algebra as `expert-pooling` in this repository, applied to sensor fleets and gates. Companion to `odometry-twin` and `filter-twin`.
+
+Stylised: Gaussian errors with one shared common factor and equal variance and correlation across sensors, a simulated "real" fleet, no sensor data; real correlation is structured (per-modality, per-range, time-varying). MIT.

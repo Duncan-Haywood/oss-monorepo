@@ -1,0 +1,34 @@
+E1 exact plug-in variance (formula vs full enumeration) and fresh-penalty variance (formula vs 40000-run simulation)
+ n=2: enumerated mean 0.07800 var 0.057600 | formula mean 0.07800 var 0.057600
+ n=4: enumerated mean 0.11700 var 0.040919 | formula mean 0.11700 var 0.040918
+ n=6: enumerated mean 0.13000 var 0.029747 | formula mean 0.13000 var 0.029747
+ n=20: plug-in sim 0.1486/0.00998 vs 0.1482/0.00990 | fresh sim 0.1568/0.02378 vs 0.1560/0.02378
+ n=100: plug-in sim 0.1548/0.00207 vs 0.1544/0.00204 | fresh sim 0.1570/0.00475 vs 0.1560/0.00476
+
+E2 SD ratio fresh/plug-in (n=200), same expected pay; symmetric verifiers a=b=(1+g)/2
+   p     g   mean pay   sd fresh  sd plug-in  ratio
+ 0.5  0.2   0.0199   0.0500    0.0352   1.42
+ 0.5  0.5   0.1244   0.0492    0.0342   1.44
+ 0.5  0.8   0.3184   0.0446    0.0272   1.64
+ 0.2  0.2   0.0127   0.0500    0.0348   1.44
+ 0.2  0.5   0.0796   0.0491    0.0327   1.50
+ 0.2  0.8   0.2038   0.0438    0.0316   1.39
+
+E3 noise rent of a verifier who does no work, paid max(S - tau, 0) (limited liability), n=100, p=.5, peer g=.6
+ random coin : fresh E[S+] 0.0280 (normal 0.0282)  plug-in E[S+] 0.0199
+ constant 1  : fresh E[S+] 0.0285 (normal 0.0282)  plug-in E[S+] 0.0000
+ honest (g_i=.7) plug-in mean pay 0.2079, sd 0.0452
+ deductible tau making the coin's plug-in rent <= eps, and honest pay lost
+ eps=0.005: tau=0.0448 coin rent sim 0.00497; honest pay 0.1631 (vs 0.2079), simulated 0.1633
+ eps=0.001: tau=0.0826 coin rent sim 0.00097; honest pay 0.1253 (vs 0.2079), simulated 0.1255
+ eps=0.0002: tau=0.1128 coin rent sim 0.00020; honest pay 0.0954 (vs 0.2079), simulated 0.0956
+
+E4 tasks to detect a verifier of informativeness g against a lazy coin (alpha=beta=.05), p=.5, peer g=.6; predicted vs simulated power at that n
+ g=0.3: n=  329  false-pass 0.049  power 0.950
+ g=0.5: n=  115  false-pass 0.050  power 0.944
+ g=0.7: n=   56  false-pass 0.046  power 0.941
+
+E5 tasks to rank verifier 1 (g=.7) above verifier 2 with 95% probability, vs peer (g=.6), p=.5
+ g2=0.6: gap 0.0300 sd/task 0.538 -> n=  870; correct-order rate 0.949
+ g2=0.5: gap 0.0600 sd/task 0.567 -> n=  242; correct-order rate 0.949
+ g2=0.3: gap 0.1200 sd/task 0.617 -> n=   72; correct-order rate 0.947

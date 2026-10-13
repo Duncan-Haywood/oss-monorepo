@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "categorical-scores"
+version = "0.1.0"
+description = "K-ary proper scores (Brier, spherical, log) for multiclass verifier reports: exact regrets, worst-case regret, local curvature and payment-range-normalised comparison"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

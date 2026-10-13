@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rain-twin"
+version = "0.1.0"
+description = "Rain twin: a clear-air or mean-rain-rate radar twin vs the real storm-cell attenuation; Jensen gap in the rain-rate power law, Lambert-W mean-rate range, and a rain ensemble that is calibrated"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

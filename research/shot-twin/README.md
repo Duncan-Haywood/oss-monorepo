@@ -1,0 +1,13 @@
+# Shot twin: a constant-variance Gaussian camera twin puts the dark/bright threshold at the wrong mean, and a detector tuned in it pays for that
+
+Pure Python, no dependencies. Real system: a pixel counts photons `K ~ Poisson(λ)`. Task: decide dark (`λ0`) vs bright (`λ1`), equal priors, rule "bright iff `K ≥ m`". The twin is additive Gaussian noise `Normal(λ, s²)` with one variance matched to the scene's mean brightness `s² = (λ0+λ1)/2`. Results (all from `experiments/results.txt`; error rates exact by Poisson summation, checked against simulation): (1) the Bayes threshold of the real sensor is the *logarithmic* mean `(λ1−λ0)/ln(λ1/λ0)`, the twin's is the *arithmetic* mean, and a square-root (variance-stabilised) twin gives `(A+G)/2` in between, with `L ≤ (A+G)/2 ≤ A` always (e.g. 7.28 / 7.46 / 8.00 for 4 vs 12; 72.1 / 72.9 / 75.0 for 50 vs 100); (2) a detector tuned in the arithmetic twin has real error 1.25× the optimum at (4,12), 1.83× at (10,30) and 1.74× at (50,100) (0.00292 vs 0.00168); (3) at `λ1 = 2λ0` the penalty grows with brightness because the error itself shrinks: ratio 1.09 at `λ0 = 10`, 3.98 at 100 and 23 at 200 (5.1e-8 vs 2.2e-9), even though the twin's own predicted error stays within a factor 1.8 of the optimum (3.9e-9); (4) the twin's predicted error for its own rule is below the real error of that rule in every row of the main table (e.g. 0.0512 vs 0.0673 at (2,10)); (5) the square-root threshold gives exactly the optimal integer rule in 8 of 9 pairs and is 1.02× the optimum at (2,10).
+
+```bash
+cd research/shot-twin
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 7 tests, under 1 s
+PYTHONPATH=src python3 experiments/run.py                 # a few seconds; output in experiments/results.txt
+```
+
+**Builds on.** The camera/sensor simulation and sim-to-real perception direction of ARPG (<https://arpg.colorado.edu/>) and the digital-twin simulation-fidelity direction of RECUV (<https://www.colorado.edu/recuv/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. Poisson photon statistics and the logarithmic-mean likelihood-ratio threshold are classical (Cover & Thomas 2006; Anscombe 1948). Companion to `sample-twin`, `blur-twin`, `quantization-twin` and `glint-twin` (what a simplified sensor twin gets wrong about the noise statistics).
+
+Stylised: simulated "real" sensor, no camera data; ideal Poisson counts only (no read noise, dark current, gain or fixed-pattern noise, which would push the real sensor toward the Gaussian twin), two known intensities, equal priors, one pixel (no spatial pooling). The square-root rule is checked only on the nine listed pairs.

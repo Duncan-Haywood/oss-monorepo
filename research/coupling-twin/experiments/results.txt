@@ -1,0 +1,37 @@
+Coupling twin: two axes, x+ = x - k G x, G = [[1,c12],[c21,1]]; the twin models each axis alone (G = I).
+
+== 1. Stable-gain limit: twin says 2; real is 2/(1+sqrt(p)) (p = c12 c21 >= 0) or 2/(1+|p|) (p < 0) ==
+c12    c21     limit    check: rho(limit-0.01)  rho(limit+0.01)
+0      0       2.0000   0.9900  1.0100
+0.1    0.1     1.8182   0.9890  1.0110
+0.25   0.25    1.6000   0.9875  1.0125
+0.5    0.5     1.3333   0.9850  1.0150
+0.9    0.9     1.0526   0.9810  1.0190
+0.5    -0.5    1.6000   0.9900  1.0100
+1      -1      1.0000   0.9901  1.0100
+2      -2      0.4000   0.9902  1.0102
+1.2    1.2     0.0000   no stable k>0: rho(0.01)=1.0020
+
+== 2. A twin-certified 10% margin (k = 1.8) fails once coupling exceeds 1/9 ==
+c = 0.05  twin rho 0.800  real rho 0.8900  stable
+c = 0.11  twin rho 0.800  real rho 0.9980  stable
+c = 0.12  twin rho 0.800  real rho 1.0160  UNSTABLE
+c = 0.2   twin rho 0.800  real rho 1.1600  UNSTABLE
+
+== 3. Twin-deadbeat gain k = 1: twin settles in 1 step; real rate is |c| (= sqrt|p|) ==
+c      real rho   steps to 1e-6   simulated |x_t| at that step (x0=(1,0.3))
+0.1    0.1000     6               1.04e-06
+0.4    0.4000     16              4.48e-07
+0.8    0.8000     62              1.02e-06
+0.95   0.9500     270             1.01e-06
+antisymmetric c12 = -c21 = 0.5: rho(k=1) = 0.5 ; c = 1.5: 1.5 (diverges)
+
+== 4. Fitted diagonal gain from logs with input correlation rho (c = 0.3, n = 200, noise 0.5, 2000 log sets) ==
+corr  b_hat theory  b_hat MC   var_diag MC  theory   c_hat(full) MC  var_full MC  theory    real rho (k=1/b_hat) theory  formula
+0     1.0000        0.9999     1.79e-03     1.70e-03 0.3014          1.21e-03     1.25e-03  0.3000                       0.3000
+0.3   1.0900        1.0900     1.75e-03     1.66e-03 0.3014          1.33e-03     1.37e-03  0.3578                       0.3578
+0.6   1.1800        1.1800     1.63e-03     1.54e-03 0.3017          1.89e-03     1.95e-03  0.4068                       0.4068
+0.8   1.2400        1.2402     1.50e-03     1.41e-03 0.3023          3.36e-03     3.47e-03  0.4355                       0.4355
+0.95  1.2850        1.2853     1.39e-03     1.29e-03 0.3044          1.24e-02     1.28e-02  0.4553                       0.4553
+0.99  1.2970        1.2974     1.36e-03     1.26e-03 0.3096          6.09e-02     6.28e-02  0.4603                       0.4603
+rho(corr) = c(1+corr)/(1+c corr) for corr >= 0; corr = -0.6: 0.5854 ; corr = 1: 0.4615

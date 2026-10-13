@@ -1,0 +1,26 @@
+E1 optimal-bet growth = KL(q||pi); small-gap approx (q-pi)^2/(2pi(1-pi))
+ rA=0.7 rB=0.4 q=0.65 pi=0.550 lam*=0.673 growth=0.02063 KL=0.02063 approx=0.02020
+ rA=0.7 rB=0.4 q=0.6 pi=0.550 lam*=0.337 growth=0.00509 KL=0.00509 approx=0.00505
+ rA=0.55 rB=0.45 q=0.56 pi=0.500 lam*=1.200 growth=0.00722 KL=0.00722 approx=0.00720
+ rA=0.9 rB=0.1 q=0.6 pi=0.500 lam*=0.250 growth=0.02014 KL=0.02014 approx=0.02000
+ rA=0.8 rB=0.5 q=0.7 pi=0.650 lam*=0.366 growth=0.00563 KL=0.00563 approx=0.00549
+
+E2 false-rejection rate at the null q=pi (rA=.7,rB=.4), alpha=0.05, 2000 runs
+ T=   50 e-process 0.004   peeking z-test 0.194
+ T=  200 e-process 0.021   peeking z-test 0.296
+ T= 1000 e-process 0.038   peeking z-test 0.382
+
+E3 stopping time (alpha=0.05): oracle bet prediction ln(20)/KL vs uniform-mixture simulation
+ rA=0.7 rB=0.4 q=0.65: predicted    145.2  mixture    167.5  ratio 1.15  power 1.00
+ rA=0.7 rB=0.4 q=0.6: predicted    588.1  mixture    705.1  ratio 1.20  power 1.00
+ rA=0.8 rB=0.2 q=0.6: predicted    148.8  mixture    187.3  ratio 1.26  power 1.00
+ rA=0.55 rB=0.45 q=0.56: predicted    415.1  mixture    586.3  ratio 1.41  power 1.00
+
+E4 growth of a misspecified fixed bet as a fraction of optimal (rA=.7,rB=.4,q=.65)
+ lam*=0.673
+ lam=0.25*lam*: 0.431
+ lam=0.5*lam*: 0.743
+ lam=1*lam*: 1.000
+ lam=1.5*lam*: 0.720
+ lam=2*lam*: -0.200
+ lam=3*lam*: -4.924

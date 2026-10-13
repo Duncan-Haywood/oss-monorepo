@@ -1,0 +1,63 @@
+Task (normalised): real reward R*1{theta>=0} - c(theta+m)^2 with R=1, c=1, m=0.5; nominal pose -m; real optimum theta=0, value 0.750.
+Twin: edge replaced by a logistic of width tau (twin objective R*sigmoid((theta-e)/tau) - c(theta+m)^2); e = twin edge error (0 unless stated).
+Real gradient at the nominal pose is 0 (hard edge): plain ascent on the real plant stays at -m with regret 0.750.
+
+== 0. Checks: twin optimum vs brute-force grid, and the small-tau law theta ~ tau ln(R/(2cm tau)) ==
+tau    optimum (root)   brute-force argmax   asymptote   asymptote/optimum
+0.02   0.074510         0.074509             0.078240    1.050
+0.05   0.131132         0.131132             0.149787    1.142
+0.1    0.166933         0.166934             0.230259    1.379
+0.15   0.151777         0.151776             0.284568    1.875
+0.2    0.092640         0.092640             0.321888    3.475
+
+== 1. Twin optimum, real regret and trainability by gradient ascent from the nominal pose (eta=0.02) ==
+trap threshold tau_c (below it the twin objective has two local maxima) = 0.1048
+upper threshold tau_u (above it the twin optimum lies below the real edge)  = 0.2500
+tau     #local max   twin optimum   real regret   ascent from -m: theta   steps    reaches optimum?
+0.02    2            0.0745         0.0801        -0.5000                 0        NO (trapped)
+0.05    2            0.1311         0.1483        -0.4995                 340      NO (trapped)
+0.1     2            0.1669         0.1948        -0.4402                 1036     NO (trapped)
+0.11    1            0.1676         0.1957        0.1676                  353      yes
+0.12    1            0.1664         0.1941        0.1664                  244      yes
+0.15    1            0.1518         0.1748        0.1518                  237      yes
+0.2     1            0.0926         0.1012        0.0926                  358      yes
+0.24    1            0.0199         0.0203        0.0199                  507      yes
+0.26    1            -0.0199        0.9805        -0.0199                 576      yes
+0.3     1            -0.0932        0.9155        -0.0932                 648      yes
+0.5     1            -0.2670        0.8043        -0.2670                 556      yes
+
+== 2. Annealing tau geometrically (40 stages, warm-started ascent from -m), start tau=0.2 ==
+final tau   final theta   real regret   (fixed-tau ascent regret at that tau)
+0.1         0.1669        0.1948        0.7536
+0.05        0.1311        0.1483        0.7500
+0.02        0.0745        0.0801        0.7500
+0.01        0.0517        0.0544        0.7500
+
+== 3. Real-plant exploration without a twin: expected evaluations until a Gaussian perturbation of std s around the nominal pose first crosses the edge ==
+s=0.1  P(success per evaluation)=2.87e-07  expected evaluations=3.49e+06
+s=0.2  P(success per evaluation)=6.21e-03  expected evaluations=161
+s=0.5  P(success per evaluation)=1.59e-01  expected evaluations=6.3
+
+== 4. Smoothing as a safety margin: twin edge at 0 (known to the twin), real edge at eps ~ N(0, s^2) (unknown) ==
+The twin's optimum pose theta_hat(tau) is one number per tau; E[real regret] of a fixed pose is by quadrature over eps.
+largest pose reachable by any tau: theta_hat=0.1676 at tau=0.110 (tau_c=0.1048, so all poses above ~0.168 need a trapped tau... check below)
+
+s=0.02:  hard twin (pose 0)  E[regret]=0.4990;  never leave nominal: 0.7496
+  Bayes-best explicit pose theta*=0.049  E[regret]=0.0580
+  best trainable smoothing (tau in [tau_c, tau_u]): tau=0.225  pose=0.0494  E[regret]=0.0582  (excess over Bayes-best 0.0001)
+  smallest-tau annealed end-point (tau=0.02): pose=0.0745  E[regret]=0.0798
+
+s=0.05:  hard twin (pose 0)  E[regret]=0.4969;  never leave nominal: 0.7475
+  Bayes-best explicit pose theta*=0.096  E[regret]=0.1298
+  best trainable smoothing (tau in [tau_c, tau_u]): tau=0.195  pose=0.1007  E[regret]=0.1303  (excess over Bayes-best 0.0005)
+  smallest-tau annealed end-point (tau=0.02): pose=0.0745  E[regret]=0.1457
+
+s=0.1:  hard twin (pose 0)  E[regret]=0.4894;  never leave nominal: 0.7400
+  Bayes-best explicit pose theta*=0.149  E[regret]=0.2287
+  best trainable smoothing (tau in [tau_c, tau_u]): tau=0.155  pose=0.1480  E[regret]=0.2292  (excess over Bayes-best 0.0006)
+  smallest-tau annealed end-point (tau=0.02): pose=0.0745  E[regret]=0.2980
+
+s=0.2:  hard twin (pose 0)  E[regret]=0.4603;  never leave nominal: 0.7047
+  Bayes-best explicit pose theta*=0.176  E[regret]=0.3560
+  best trainable smoothing (tau in [tau_c, tau_u]): tau=0.105  pose=0.1675  E[regret]=0.3573  (excess over Bayes-best 0.0014)
+  smallest-tau annealed end-point (tau=0.02): pose=0.0745  E[regret]=0.3953

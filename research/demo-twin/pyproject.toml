@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "demo-twin"
+version = "0.1.0"
+description = "Cloning an expert from demonstrations logged in a digital twin under actuator saturation: exact clone gain, twin errors that help or hurt, and why DAgger with applied-action labels does not fix it"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

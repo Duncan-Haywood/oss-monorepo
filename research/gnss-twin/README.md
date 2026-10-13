@@ -1,0 +1,13 @@
+# GNSS twin: a satellite-positioning twin with white range noise certifies an error radius the real receiver does not meet, so how wrong is it once multipath is correlated, and does averaging fix it?
+
+Pure Python, no dependencies. Real receiver: 2-D position and clock solved by least squares from `n` pseudoranges, each with white noise `σ` plus multipath; twin: white noise only. Results (all from `experiments/results.txt`, seeded): (1) for `n` satellites evenly spread in azimuth `HᵀH = diag(n/2, n/2, n)`, so HDOP is exactly `√(4/n)` (Monte Carlo rms 0.7088 vs 0.7071 at n = 8) and eight satellites within a 90° arc give HDOP 4.25; (2) one satellite with range bias `b` moves the fix by exactly `2b/n` toward that satellite (and the clock by `b/n`), independent of `σ` and of averaging; (3) with AR(1) multipath (`ρ = 0.99`, 2 m on every satellite) the twin predicts 0.71 → 0.03 m over 1 → 500 epochs, the simulation gives 1.58 → 0.80 m, matching the exact variance factor `(1/T²)[T + 2Σ(T−k)ρᵏ]` (1.58 → 0.80); (4) a 95% radius calibrated on single-epoch total variance covers 33% of fixes averaged over T = 10 (exact 31%) and 5% at T = 100 (exact 5%); (5) a residual (RAIM-style) test with 6 degrees of freedom tuned to 1% false alarms on the twin alarms 21% of the time when multipath has the same size as the noise (exact 0.2098, simulated 0.2102), and a single-satellite bias raises the mean statistic by `b²(1 − 3/n)` while the position error grows as `2b/n`. Stylised: 2-D, linearised geometry, evenly spread or single-arc constellations, stationary AR(1) multipath, known noise level; see `paper/whitepaper.md`.
+
+```bash
+cd research/gnss-twin
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, under 1 s
+PYTHONPATH=src python3 experiments/run.py                 # about 15 s; output in experiments/results.txt
+```
+
+**Builds on.** The sensor-simulation and sim-to-real-for-perception direction of ARPG (<https://arpg.colorado.edu/>; perception, localisation and field robotics) and the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>) and RECUV (<https://www.colorado.edu/recuv/>; unmanned vehicles navigating outdoors); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. Dilution of precision, receiver autonomous integrity monitoring and the effect of time-correlated errors are textbook (Misra & Enge 2011; Parkinson & Axelrad 1988). Companion to `sweep-twin`, `odometry-twin` and `twin-monitor` in this repository.
+
+Stylised: simulated "real" receiver, no measured pseudoranges. MIT.

@@ -1,0 +1,48 @@
+Setup: vocab 30 Zipf(1.1) claimed model P; alpha=0.05; grid of 16 log-spaced fractions in [0.02,1]; L=ln(G/alpha)=5.77
+
+E1. How different is the cheap model? Q ~ P^beta
+beta=0.3: KL(Q||P)=0.3308 chi2=0.7440
+beta=0.5: KL(Q||P)=0.1808 chi2=0.3898
+beta=0.7: KL(Q||P)=0.0675 chi2=0.1405
+beta=0.9: KL(Q||P)=0.0075 chi2=0.0152
+
+Using beta=0.5: chi2=0.3898, KL=0.1808
+
+E2. False alarms under an honest provider (p=0), 1500 checked queries, 400 runs
+alpha=0.05: false-alarm rate 0.0150
+alpha=0.2: false-alarm rate 0.1000
+
+E3. Detection delay vs cheating fraction p (f=1, 40 runs each; theory = L/KL(mix_p||P))
+p=0.5   detected 40/40 mean delay       94 theory      126 ratio 0.75  small-p law 2L/(p^2 chi2)=     118
+p=0.3   detected 40/40 mean delay      210 theory      344 ratio 0.61  small-p law 2L/(p^2 chi2)=     329
+p=0.2   detected 40/40 mean delay      572 theory      764 ratio 0.75  small-p law 2L/(p^2 chi2)=     740
+p=0.15  detected 40/40 mean delay     1069 theory     1349 ratio 0.79  small-p law 2L/(p^2 chi2)=    1315
+p=0.1   detected 40/40 mean delay     2119 theory     3012 ratio 0.70  small-p law 2L/(p^2 chi2)=    2959
+p=0.07  detected 40/40 mean delay     4708 theory     6117 ratio 0.77  small-p law 2L/(p^2 chi2)=    6039
+p=0.05  detected 40/40 mean delay     6251 theory    11947 ratio 0.52  small-p law 2L/(p^2 chi2)=   11837
+p=0.035 detected 40/40 mean delay    16317 theory    24316 ratio 0.67  small-p law 2L/(p^2 chi2)=   24157
+
+E4. Cheater's best mean undetected savings over N queries (s=1 per cheated query, f=1), best p on the grid
+N       best p   savings   sqrt-law   savings/sqrt(N)  (full cheating saves N)
+250     0.3      49.4      86.0       3.121            
+1000    0.15     110.7     172.0      3.500            
+4000    0.07     220.9     344.1      3.492            
+16000   0.035    382.9     688.1      3.027            
+64000   0.035    555.0     1376.2     2.194            
+
+E5. Savings ceiling at f=1 (sqrt-law, N=1000000) and audit rate needed to cap savings at B, by cheap-model quality
+beta=0.3: chi2=0.7440 savings at f=1:     3938; f needed for B=10000:    0.155, B=30000:    0.017
+beta=0.5: chi2=0.3898 savings at f=1:     5440; f needed for B=10000:    0.296, B=30000:    0.033
+beta=0.7: chi2=0.1405 savings at f=1:     9062; f needed for B=10000:    0.821, B=30000:    0.091
+beta=0.9: chi2=0.0152 savings at f=1:    27586; f needed for B=10000:    7.610, B=30000:    0.846
+
+E6. Optimal check rate f* (harm h per unit savings, check cost c per query, N=1000000, s=1, beta=0.5)
+h=1    c=0.01  f*=0.4198 grid-search 0.4200 cost(f*)=     12594 cost(f=1)=     15440
+h=1    c=0.1   f*=0.0904 grid-search 0.0905 cost(f*)=     27133 cost(f=1)=    105440
+h=1    c=1.0   f*=0.0195 grid-search 0.0195 cost(f*)=     58456 cost(f=1)=   1005440
+h=5    c=0.01  f*=1.0000 grid-search 1.0000 cost(f*)=     37200 cost(f=1)=     37200
+h=5    c=0.1   f*=0.2645 grid-search 0.2645 cost(f*)=     79337 cost(f=1)=    127200
+h=5    c=1.0   f*=0.0570 grid-search 0.0570 cost(f*)=    170927 cost(f=1)=   1027200
+h=20   c=0.01  f*=1.0000 grid-search 1.0000 cost(f*)=    118799 cost(f=1)=    118799
+h=20   c=0.1   f*=0.6664 grid-search 0.6665 cost(f*)=    199917 cost(f=1)=    208799
+h=20   c=1.0   f*=0.1436 grid-search 0.1435 cost(f*)=    430709 cost(f=1)=   1108799

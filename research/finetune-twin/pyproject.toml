@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finetune-twin"
+version = "0.1.0"
+description = "Fine-tuning a twin-pretrained policy on the real plant: exact SGD risk on a quadratic, warm-start steps saved, 1/k residual law for any twin-error spectrum, negative transfer crossover and the flat-direction trap"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,13 @@
+# Closed-loop twin: a digital twin identified from logs of the deployed controller passes every held-out check and still cannot tell you whether a different controller is stable
+
+Pure Python, no dependencies. A scalar unstable plant `x' = 1.1x + u + w` is logged under `u = −0.6x + e` (dither `e ~ N(0, τ²)`, logged closed-loop pole 0.5), and the twin is the least-squares fit of `x_{t+1}` on `(x_t, u_t)`. Its predicted pole under a new gain `k'` has sd `(σ/√n)·√((k−k')²/τ² + 1/v)` (`v` = logged Var x), matched to simulation (0.0616 vs 0.0602 at τ=0.5, 0.255 vs 0.249 at τ=0.1, n=500, k'=0.05); the extrapolation term `(k−k')²/τ²` is invisible at `k'=k`. Held-out one-step error on fresh logs of the same controller is 1.00–1.005σ² for every dither level from τ=1 down to the minimum-norm fit at τ=0, while the sd of the predicted pole under k'=0.05 goes 0.037 / 0.090 / 0.245 / 0.819 (τ=1 / 0.3 / 0.1 / 0.03). With no dither the fit identifies only the logged pole, the minimum-norm split has `b̂ = −kρ/(1+k²) = −0.22` (true +1), and the twin certifies a real-unstable gain (pole 1.05, twin says 0.38) in 100% of fits. Point-rule false stability certification is 3–48% at n=200–1000; the usual OLS upper bound on the contrast cuts it to 0.1–4.7% (coverage 0.94–0.965) but certifies a truly stable gain (pole 0.9) only 5–9% of the time at low dither. A predicted-pole sd of 0.05 at `k'=0.05` needs τ = 1.23 / 0.40 / 0.16 at n = 200 / 1000 / 5000. See `paper/whitepaper.md`.
+
+```bash
+cd research/closedloop-twin
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, ~3 s
+PYTHONPATH=src python3 experiments/run.py                 # ~1 min; output in experiments/results.txt
+```
+
+**Builds on.** The safe-autonomy and field-robot simulation direction of the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>) and RECUV (<https://www.colorado.edu/recuv/>), and the sim-to-real manipulation direction of the HIRO Group (<https://hiro-group.ronc.one/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. The method is classical closed-loop system identification and experiment design (Ljung 1999; Forssell & Ljung 1999; Gevers & Ljung 1986; Hjalmarsson 2005). Companion to `input-twin` (finite-data error in a queueing twin), `control-twin` and `safety-twin` in this repository.
+
+Stylised: one scalar linear Gaussian plant with known structure and known logging gain, ordinary least squares, one unstable open-loop plant (a=1.1), a single set of noise levels, stability judged by the closed-loop pole only (no performance or nonlinear effects), simulated "real" data. Dither cost is measured as extra logged state variance only. MIT.

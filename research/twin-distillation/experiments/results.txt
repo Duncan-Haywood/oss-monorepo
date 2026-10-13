@@ -1,0 +1,78 @@
+real plant a=0.9 b=1.0 q=1.0 r=0.1, process noise variance 1; student sees z = x + zeta, Var zeta = s; teacher sees x
+
+== 1. Closed forms vs Monte Carlo ==
+twin (bh=1.0, s2h=0.25), s=0.5: teacher g=0.8233, demo Var x=0.2515, BC gain theory 0.2755, Monte Carlo 0.2756 (20x1e5 steps)
+twin (bh=1.0, s2h=1.00), s=2.0: teacher g=0.8233, demo Var x=1.0059, BC gain theory 0.2755, Monte Carlo 0.2757 (20x1e5 steps)
+twin (bh=0.7, s2h=4.00), s=0.5: teacher g=1.0905, demo Var x=4.0761, BC gain theory 0.9714, Monte Carlo 0.9715 (20x1e5 steps)
+student k=0.3, s=0.5 in the real plant: cost theory 1.6520, Monte Carlo 1.6504
+student k=0.6, s=2.0 in the real plant: cost theory 2.0302, Monte Carlo 2.0300
+
+== 2. On-policy imitation of an exact teacher is nearly optimal (no twin error) ==
+grid a in {.5,.9,.99} x b in {.5,1,2} x (q,r) x s in 0.01..20 (252 cells): worst relative regret of the DAgger fixed point 0.0347 at (a,b,q,r,s)=(0.99, 0.5, 1, 1, 20), k=0.179 vs best 0.226
+s=0.1: teacher g=0.8233, best student k=0.7539 (cost 1.1469), DAgger fixed point 0.7536 (regret 0.00000), BC in the exact twin 0.7489 (regret 0.00004)
+s=0.5: teacher g=0.8233, best student k=0.5972 (cost 1.3614), DAgger fixed point 0.5944 (regret 0.00002), BC in the exact twin 0.5500 (regret 0.00542)
+s=2.0: teacher g=0.8233, best student k=0.3928 (cost 1.8199), DAgger fixed point 0.3859 (regret 0.00028), BC in the exact twin 0.2755 (regret 0.09780)
+
+== 3. A too-clean twin (process noise s2h < 1, exact actuator) teaches a lazy student ==
+s     s2h    BC gain   DAgger-in-twin   RL-in-twin   |  regret: BC    DAgger-twin   RL-twin   real-DAgger
+0.5   0.10   0.1379    0.2569           0.2648       |  1.0523     0.4150       0.3894    0.00002
+0.5   0.25   0.2755    0.3859           0.3928       |  0.3568     0.1283       0.1190    0.00002
+0.5   0.50   0.4129    0.4927           0.4977       |  0.0943     0.0278       0.0251    0.00002
+0.5   1.00   0.5500    0.5944           0.5972       |  0.0054     0.0000       0.0000    0.00002
+0.5   2.00   0.6595    0.6787           0.6800       |  0.0088     0.0149       0.0154    0.00002
+0.5   4.00   0.7323    0.7391           0.7396       |  0.0403     0.0443       0.0446    0.00002
+2.0   0.10   0.0394    0.1164           0.1222       |  2.0479     0.8476       0.7938    0.00028
+2.0   0.25   0.0920    0.2012           0.2088       |  1.1143     0.3094       0.2798    0.00028
+2.0   0.50   0.1654    0.2861           0.2940       |  0.4827     0.0793       0.0671    0.00028
+2.0   1.00   0.2755    0.3859           0.3928       |  0.0978     0.0003       0.0000    0.00028
+2.0   2.00   0.4129    0.4927           0.4977       |  0.0023     0.0529       0.0580    0.00028
+2.0   4.00   0.5500    0.5944           0.5972       |  0.1250     0.1997       0.2051    0.00028
+s=0.5, s2h=0.25: BC regret / DAgger-in-twin regret = 2.8; BC regret / best-student cost = 0.26
+s=2.0, s2h=0.25: BC regret / DAgger-in-twin regret = 3.6; BC regret / best-student cost = 0.61
+
+== 4. Actuator error: BC's regret can cancel the teacher's, but the cancellation point moves with sensor noise ==
+s=0.5   bh: teacher-gain error and BC-in-twin (s2h=1) vs DAgger-real-with-twin-teacher (the 'teacher floor')
+   bh    g(bh)    BC gain   floor gain   BC regret   floor regret   twin-RL regret
+   0.50  1.3624   0.9230    1.0315       0.22946     0.41674        0.36185
+   0.70  1.0905   0.7316    0.7925       0.03982     0.08289        0.08556
+   0.85  0.9404   0.6291    0.6783       0.00234     0.01478        0.01678
+   1.00  0.8233   0.5500    0.5944       0.00542     0.00002        0.00000
+   1.20  0.7036   0.4695    0.5115       0.04244     0.01837        0.01932
+   1.50  0.5753   0.3837    0.4246       0.13136     0.08154        0.09085
+   2.00  0.4392   0.2929    0.3325       0.30882     0.21806        0.25027
+   BC gain equals the real-optimal student exactly at bh = 0.9060 (accident of cancellation)
+s=2.0   bh: teacher-gain error and BC-in-twin (s2h=1) vs DAgger-real-with-twin-teacher (the 'teacher floor')
+   bh    g(bh)    BC gain   floor gain   BC regret   floor regret   twin-RL regret
+   0.50  1.3624   0.4691    0.6875       0.03154     0.40820        0.37639
+   0.70  1.0905   0.3681    0.5162       0.00372     0.07911        0.09463
+   0.85  0.9404   0.3156    0.4401       0.03938     0.01252        0.01897
+   1.00  0.8233   0.2755    0.3859       0.09780     0.00028        0.00000
+   1.20  0.7036   0.2350    0.3333       0.19300     0.02271        0.02229
+   1.50  0.5753   0.1919    0.2789       0.34863     0.09174        0.10516
+   2.00  0.4392   0.1465    0.2215       0.60277     0.23482        0.28811
+   BC gain equals the real-optimal student exactly at bh = 0.6423 (accident of cancellation)
+
+== 5. DAgger rounds (aggregated data) in the twin with s2h=0.25, s=0.5 ==
+gains by round (0 = BC): 0.2755 0.3456 0.3609 0.3678 0.3718 0.3743 0.3761 0.3774 0.3784 0.3792 0.3798 ; fixed point 0.3859
+regret in the real plant by round: 0.3568 0.1928 0.1662 0.1550 0.1489 0.1451 0.1424 0.1405 0.1390 0.1378 0.1369
+
+== 6. Matching one scalar: DART-style noise in the twin, set from real logs ==
+deploy the student, log z, estimate P_hat = mean(z^2) - s, choose injected teacher-action noise nu so the twin's demo Var x = P_hat, re-clone (labels stay clean); repeat
+exact statistics (infinite real logs), twin s2h=0.25, s=0.5:
+round 0 (plain BC): k=0.2755 regret 0.35682
+round 1: real Var x under the student 1.7015 -> nu=1.4415, demo Var x 1.7015, k=0.6363 regret 0.00351
+round 2: real Var x under the student 1.2923 -> nu=1.0347, demo Var x 1.2923, k=0.5937 regret 0.00003
+round 3: real Var x under the student 1.2980 -> nu=1.0404, demo Var x 1.2980, k=0.5944 regret 0.00002
+round 4: real Var x under the student 1.2979 -> nu=1.0402, demo Var x 1.2979, k=0.5944 regret 0.00002
+real DAgger fixed point (needs privileged real state): k=0.5944 regret 0.00002
+with finite real logs (one round, 300 repetitions; s=0.5, s2h=0.25): regret of the DART student after n real steps
+n_real     mean regret   90th pct    fraction with P_hat<=0 or unstable
+   100     0.00576      0.01420     0.000
+   300     0.00420      0.00885     0.000
+  1000     0.00366      0.00598     0.000
+ 10000     0.00351      0.00424     0.000
+reference: plain BC regret 0.35682
+
+== 7. Teacher floor vs distribution shift, with both errors present (bh=0.7, s2h=0.25) ==
+s=0.5: BC regret 0.1546, teacher floor (on-policy real, twin teacher) 0.0829, twin-RL regret 0.0117
+s=2.0: BC regret 0.7851, teacher floor (on-policy real, twin teacher) 0.0791, twin-RL regret 0.0812

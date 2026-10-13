@@ -1,0 +1,41 @@
+1. Informed-trader profit at equal worst-case loss L = C0 = 1 (LMSR b = 1/ln n): fraction of L extracted
+   belief pi                      CFMM 1-n*GM(pi)   LMSR 1-H(pi)/ln n
+   [0.6, 0.4]                      0.0202            0.0290
+   [0.75, 0.25]                    0.1340            0.1887
+   [0.9, 0.1]                      0.4000            0.5310
+   [0.99, 0.01]                    0.8010            0.9192
+   [0.5, 0.3, 0.2]                 0.0678            0.0628
+   [0.8, 0.1, 0.1]                 0.4000            0.4183
+   [0.7, 0.1, 0.1, 0.1]            0.3494            0.3216
+   [0.97, 0.01, 0.01, 0.01]        0.8745            0.8790
+
+2. Cost of pushing a binary price to p (L = C0 = 1; LMSR b = 1/ln 2, cost = b ln(1/(2(1-p))))
+   p      CFMM cost  shares    LMSR cost  shares
+   0.600     0.225    0.408      0.322    0.585
+   0.750     0.732    1.155      1.000    1.585
+   0.900     2.000    2.667      2.322    3.170
+   0.950     3.359    4.129      3.322    4.248
+   0.990     8.950    9.849      5.644    6.629
+   0.999    30.607   31.575      8.966    9.964
+
+3. Laggard price, one leader and n-1 tied laggards at gap G (C0 = 10, LMSR b = C0/ln n): CFMM ~ (C0/G)^n vs LMSR e^{-G/b}
+   n=2 G=   30  CFMM 8.397e-02  (C0/G)^n=1.111e-01   LMSR 1.111e-01
+   n=2 G=  100  CFMM 9.710e-03  (C0/G)^n=1.000e-02   LMSR 9.756e-04
+   n=2 G=  300  CFMM 1.107e-03  (C0/G)^n=1.111e-03   LMSR 9.313e-10
+   n=2 G= 1000  CFMM 9.997e-05  (C0/G)^n=1.000e-04   LMSR 7.889e-31
+   n=4 G=   30  CFMM 1.137e-02  (C0/G)^n=1.235e-02   LMSR 1.493e-02
+   n=4 G=  100  CFMM 9.993e-05  (C0/G)^n=1.000e-04   LMSR 9.537e-07
+   n=4 G=  300  CFMM 1.235e-06  (C0/G)^n=1.235e-06   LMSR 8.674e-19
+   n=4 G= 1000  CFMM 1.000e-08  (C0/G)^n=1.000e-08   LMSR 6.223e-61
+
+4. Regret identity  regret = [Q_i - (C(q_T)-C(0))] + sum Bregman  (n=4, T=500, random gains)
+   C0=  2.0  regret=   9.106  settle= 1.636 (<=C0)  sum D=   7.470  check=+1.6e-13
+   C0= 10.0  regret=   5.485  settle= 3.883 (<=C0)  sum D=   1.602  check=+2.7e-15
+   C0= 50.0  regret=   5.620  settle= 5.316 (<=C0)  sum D=   0.305  check=-8.8e-14
+
+5. Routing under a regime switch (n=4, T=2000; expert 0 has mean gain .7 until t=1000, then expert 1; others .5; 100 seeds)
+   pseudo-regret vs current best expert's mean; matched worst-case loss (LMSR b = C0/ln 4)
+   C0      | CFMM pre-switch  post-switch  recover(p1>.5) | LMSR pre-switch  post-switch  recover
+     2.0   |       3.4        188.8        943.5    |       3.6        188.8     943.5
+    10.0   |      10.8        188.8        943.5    |      11.1        187.7     943.5
+    40.0   |      40.2        186.0        944.1    |      40.7        177.5     943.5

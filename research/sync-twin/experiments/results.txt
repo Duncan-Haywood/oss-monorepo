@@ -1,0 +1,61 @@
+Sensors A (reference clock, noise var 0.01) and B (var 0.04, clock error u=delta+J) observe x(t): SE kernel, var 1, length scale 1 (time unit).
+Twin: both sensors on one simulated clock, weight on A = b/(a+b) = 0.800, claimed MSE = ab/(a+b) = 0.00800.
+
+== 1. Closed form vs simulation (200000 draws): real MSE of the twin-designed fusion ==
+delta  jitter  g(closed)  MSE(closed)  MSE(sim)   MSE/claim
+0      0       0.00000    0.00800      0.00798    1.000
+0.1    0       0.00998    0.00840      0.00837    1.050
+0      0.1     0.00993    0.00840      0.00837    1.050
+0.2    0.1     0.04895    0.00996      0.00994    1.245
+0.5    0       0.23501    0.01740      0.01741    2.175
+0.3    0.3     0.16182    0.01447      0.01450    1.809
+
+== 2. Offset and jitter add in quadrature for small errors: g ~ s2*(delta^2+s^2)/ell^2 ==
+delta  jitter  g(exact)   s2*(d^2+s^2)  ratio
+0.05   0.05    0.00498    0.00500       0.997
+0.1    0.1     0.01975    0.02000       0.988
+0.2    0       0.03960    0.04000       0.990
+0      0.2     0.03884    0.04000       0.971
+0.3    0.3     0.16182    0.18000       0.899
+0.6    0.6     0.49762    0.72000       0.691
+
+== 3. Excess over the twin's claim: MSE/claim = 1 + a*g/(b*(a+b)); pure offset delta (units of ell) ==
+delta  g         MSE/claim  real MSE   A alone   B alone(b+g)  optimal(known g)
+0.05   0.00250   1.012      0.00810    0.01000   0.04250       0.00810
+0.1    0.00998   1.050      0.00840    0.01000   0.04998       0.00833
+0.2    0.03960   1.198      0.00958    0.01000   0.07960       0.00888
+0.3    0.08801   1.440      0.01152    0.01000   0.12801       0.00928
+0.5    0.23501   2.175      0.01740    0.01000   0.27501       0.00965
+0.8    0.54770   3.739      0.02991    0.01000   0.58770       0.00983
+1.2    1.02650   6.132      0.04906    0.01000   1.06650       0.00991
+Break-even: twin-weight fusion is worse than A alone iff g > a+b = 0.050, i.e. pure offset delta > 0.225 ell.
+
+== 4. The better the delayed sensor, the more it hurts (fixed g = 0.02, a = 0.01) ==
+b      weight on B  MSE/claim  real MSE   A alone  optimal(known g)
+0.005  0.667        3.667      0.01222    0.01000  0.00714
+0.01   0.500        2.000      0.01000    0.01000  0.00750
+0.02   0.333        1.333      0.00889    0.01000  0.00800
+0.04   0.200        1.100      0.00880    0.01000  0.00857
+0.16   0.059        1.007      0.00948    0.01000  0.00947
+0.64   0.015        1.000      0.00985    0.01000  0.00985
+
+== 5. Sync budget: largest RMS timing error (units of ell) keeping real MSE <= (1+eps)*claim, and what it is in ms for ell = 0.3 s ==
+eps    g_max     pure-offset delta_max   small-error approx ell*sqrt(g/s2)   ms at ell=0.3s
+0.02   0.00400   0.0633                  0.0632                              19
+0.05   0.01000   0.1001                  0.1000                              30
+0.1    0.02000   0.1418                  0.1414                              43
+0.25   0.05000   0.2250                  0.2236                              68
+0.5    0.10000   0.3203                  0.3162                              96
+1      0.20000   0.4590                  0.4472                              138
+
+== 6. Randomising the twin's clock: weight learned under randomised timing variance g_r, evaluated at true g ==
+Real MSE / optimal MSE at true g (a=0.01, b=0.04).
+true g = 0.005 (delta ~ 0.071 ell); optimal MSE 0.00818, twin claim 0.00800
+  g_r/g:     0       0.25    0.5     1       2       4       10      100   
+  MSE/opt:   1.002   1.001   1.001   1.000   1.002   1.010   1.045   1.180 
+true g = 0.02 (delta ~ 0.142 ell); optimal MSE 0.00857, twin claim 0.00800
+  g_r/g:     0       0.25    0.5     1       2       4       10      100   
+  MSE/opt:   1.027   1.012   1.005   1.000   1.008   1.036   1.086   1.155 
+true g = 0.1 (delta ~ 0.320 ell); optimal MSE 0.00933, twin claim 0.00800
+  g_r/g:     0       0.25    0.5     1       2       4       10      100   
+  MSE/opt:   1.286   1.071   1.018   1.000   1.011   1.032   1.052   1.069 

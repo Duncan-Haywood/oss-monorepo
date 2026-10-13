@@ -1,0 +1,90 @@
+== E1  exact James-Stein risk d-(d-2)^2 E[1/(d-2+2K)] vs simulation (delta on one coordinate); risk in units of s^2, real-only = d
+   d   lam    exact     sim(JS)   sim(JS+)   oracle-blend   twin-only
+   3   0.0    2.0000    1.9790    1.6017     0.0000        0.00
+   3   1.0    2.2752    2.3451    1.9908     0.7500        1.00
+   3   1.5    2.3774   26.6366    2.1385     1.0000        1.50
+   3   3.0    2.5903    2.5705    2.4507     1.5000        3.00
+   3  12.0    2.9065    2.9045    2.9028     2.4000       12.00
+  10   0.0    2.0000    1.9893    1.2500     0.0000        0.00
+  10   1.0    2.7378    2.7347    2.0717     0.9091        1.00
+  10   5.0    4.7837    4.7807    4.4557     3.3333        5.00
+  10  10.0    6.2091    6.2071    6.1016     5.0000       10.00
+  10  40.0    8.6172    8.6063    8.6063     8.0000       40.00
+  30   0.0    2.0000    2.0109    1.1275     0.0000        0.00
+  30   1.0    2.9050    2.9174    2.0705     0.9677        1.00
+  30  15.0   11.4714   11.4797   11.3321    10.0000       15.00
+  30  30.0   16.2371   16.2370   16.2282    15.0000       30.00
+  30 120.0   24.6435   24.6133   24.6133    24.0000      120.00
+
+== E2  saving over real-only, 1 - JS/real, by twin quality (lam/d = per-parameter discrepancy in noise variances)
+  d \ lam/d:    0      0.25     0.5      1        2        4        16
+    3       0.333   0.261   0.208   0.137   0.070   0.031   0.007
+    5       0.600   0.473   0.383   0.268   0.159   0.085   0.022
+   10       0.800   0.635   0.522   0.379   0.241   0.138   0.039
+   30       0.933   0.745   0.618   0.459   0.302   0.179   0.052
+  100       0.980   0.783   0.652   0.488   0.324   0.193   0.057
+  large-d Bayes limit 1 - q/(1+q):   0.800   0.667   0.500   0.333   0.200   0.059
+  twin-only risk / real-only = lam/d: it beats real-only only for lam/d < 1, JS at lam/d = 1:
+    d=  3: JS/real at lam/d=1: 0.863   oracle blend: 0.500
+    d= 10: JS/real at lam/d=1: 0.621   oracle blend: 0.500
+    d=100: JS/real at lam/d=1: 0.512   oracle blend: 0.500
+
+== E3  the price of not knowing lam: JS risk / oracle-blend risk (both exact)
+  d \ lam/d:    0.05     0.25     1        4
+    3       14.340   3.694   1.727   1.211
+    5        9.008   2.633   1.465   1.143
+   10        5.006   1.824   1.242   1.077
+   30        2.336   1.276   1.082   1.027
+  100        1.401   1.083   1.025   1.008
+
+== E4  twin worth in real samples: n_eq = n + sigma^2/tau^2 (large d); finite-d exact JS risk turned into an equivalent real sample count
+   tau^2  d    n   JS risk/d (units s^2=sig2/n)   real-only n giving that risk   n_eq (large d)  ratio
+   0.25    5   20      0.1540                           26.0                       36.0      0.722
+   0.25   20   20      0.1225                           32.6                       36.0      0.907
+   0.25  100   20      0.1134                           35.3                       36.0      0.980
+   1.00    5   20      0.1862                           21.5                       24.0      0.895
+   1.00   20   20      0.1721                           23.2                       24.0      0.968
+   1.00  100   20      0.1678                           23.8                       24.0      0.993
+   4.00    5   20      0.1964                           20.4                       21.0      0.970
+   4.00   20   20      0.1922                           20.8                       21.0      0.991
+   4.00  100   20      0.1908                           21.0                       21.0      0.998
+
+== E5  the coordinate hazard (d = 10): discrepancy of size k*s in ONE parameter, twin exact in the other nine; JS toward the twin (positive part)
+   k   total risk (real-only 10)   parameter-1 risk (real-only 1)   other-9 avg risk   twin-only total
+  0.0      1.255                        0.125                          0.1255            0.00
+  1.0      2.076                        0.712                          0.1515            1.00
+  2.0      3.991                        1.911                          0.2311            4.00
+  3.0      5.862                        2.737                          0.3472            9.00
+  4.0      7.165                        2.912                          0.4725           16.00
+  6.0      8.474                        2.390                          0.6759           36.00
+  8.0      9.103                        1.974                          0.7921           64.00
+  worst parameter-1 risk over k in 0..12 step 0.5, by dimension
+    d=  3: max parameter-1 risk 1.251 at k=3.0
+    d= 10: max parameter-1 risk 2.857 at k=4.5
+    d= 30: max parameter-1 risk 7.861 at k=5.5
+    d=100: max parameter-1 risk 25.471 at k=10.5
+  heuristic scaling of the worst case: about d/4 (k = sqrt d): d/4 = 0.75, 2.50, 7.50, 25.00
+
+== E8  repair: shrink within blocks of g parameters (d = 30): worst risk of one badly mismatched parameter vs saving from a perfect twin
+   g    saving at lam=0 (1-JS/real)   worst parameter-1 risk over k in 0..12   at k
+   30        0.961                           7.871                  6.0
+   10        0.874                           2.872                  3.5
+    5        0.721                           1.650                  3.5
+    3        0.461                           1.212                  2.5
+
+== E6  unknown noise variance (nu df), d = 10, positive part; total risk / d; lam = 10 (per-parameter discrepancy 1)
+   nu    known-var JS+   plug-in (d-2)   Stein factor (d-2)nu/(nu+2)   real-only   (lam=0: known / plug-in / Stein)
+    4      0.610           0.705             0.725                      1.000       0.123 / 0.256 / 0.376
+    8      0.613           0.669             0.681                      1.000       0.127 / 0.204 / 0.275
+   16      0.611           0.642             0.648                      1.000       0.126 / 0.166 / 0.204
+   64      0.612           0.620             0.622                      1.000       0.127 / 0.137 / 0.147
+
+== E7  end to end: identify d=8 plant gains by regression on a Hadamard-design experiment of n=64 rows (X^T X = 64 I), sigma=1; twin = truth + delta
+  discrepancy per parameter tau (sd of delta_i, Gaussian); risk = E|theta_hat - theta|^2 over 3000 experiments, in units of real-only risk d s^2
+  tau/s   OLS   twin-only   JS+ (known sigma)   oracle blend   (theta redrawn each experiment: delta_i ~ N(0, tau^2))
+   0.0   0.998     0.000      0.161               0.000
+   0.5   0.996     0.250      0.336               0.191
+   1.0   0.992     1.001      0.595               0.466
+   2.0   1.006     3.953      0.855               0.766
+   4.0   0.998    16.164      0.954               0.924
+   8.0   1.013    62.648      1.000               0.991

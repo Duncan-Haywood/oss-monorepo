@@ -1,0 +1,13 @@
+# Doppler twin: which ego-velocity estimator should a radar twin choose when the real scene has moving targets?
+
+Pure Python, no dependencies. A radar returns `n` Doppler measurements `y_i = v + e_i` off (assumed) stationary targets; the ego velocity `v` is their common location. The twin's scene is static, so `e_i ~ N(0, 1)` and the least-squares mean beats the median by exactly `π/2` in variance: the twin picks the mean. In the "real" scene a fraction `ε` of returns come from moving targets with an extra zero-mean radial offset of standard deviation `τ` (units of the noise `σ`). Then `n·Var(mean) = 1+ετ²` exactly, and the median's exact finite-`n` variance is a one-dimensional integral (asymptotically `1/(4f(0)²)`), both matched to Monte Carlo. The twin's choice is wrong on a band of contamination rates: for `τ=10` the median wins for `ε` from 0.006 up to 0.97 (`τ=3`: 0.086–0.83; `τ=2`: 0.37–0.50; `τ=1`: never), and at `ε=0.1, τ=10` the mean has 5.8× the median's variance. The variance the twin *claims* for the mean is short by exactly `1+ετ²` (11× there); the twin's own 95% interval covers 48.7% (n=30) instead of 95%, and 2-D least squares over an azimuth sector scales identically (the geometry cancels). A kurtosis test on residuals with a known ego-velocity detects the contamination only at moderate `N` (power 0.74 / 0.97 at `N`=20/50 for `ε=0.1, τ=10`; 0.61 at `N`=200 for `ε=0.02, τ=3`). See `paper/whitepaper.md`.
+
+```bash
+cd research/doppler-twin
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, ~2 s
+PYTHONPATH=src python3 experiments/run.py                 # ~10 s; output in experiments/results.txt
+```
+
+**Builds on.** The radar sensor-simulation and sim-to-real perception direction of ARPG (<https://arpg.colorado.edu/>) and the field-robot direction of the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. The setting is Doppler ego-motion estimation as in Kellner et al. (2013), where moving targets are the outliers; the statistics are classical (Tukey 1960 contaminated normal; Huber 1964). Companion to `radar-clutter-twin` and `cfar-family-twin` (same kind of "too clean radar twin" failure, on detection rather than estimation) in this repository.
+
+Stylised: 1-D radial location model with zero-mean Gaussian contamination (a real moving-target offset is not zero-mean in a given scene and would bias both estimators), independent returns, known `σ`, a simulated "real" scene, no radar data; RANSAC and Huber-type estimators, which are what practitioners use, are not evaluated. Preliminary. MIT.

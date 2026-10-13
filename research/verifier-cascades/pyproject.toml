@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "verifier-cascades"
+version = "0.1.0"
+description = "Information cascades among sequential verifiers: exact wrong-cascade probability, expected cascade time, accuracy ceiling versus independent majority, and the value of a committed first batch"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

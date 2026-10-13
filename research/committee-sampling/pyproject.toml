@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "committee-sampling"
+version = "0.1.0"
+description = "Sampling verifier committees from a finite pool: exact hypergeometric failure, Chernoff sizing, stake-weighted sampling, threshold safety/liveness trade-off, adaptive corruption"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

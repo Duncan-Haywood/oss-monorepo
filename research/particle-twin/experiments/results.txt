@@ -1,0 +1,59 @@
+Particle twin: prior x~N(0,P=1), twin sensor N(0,R=1), bootstrap weights exp(-(y-x)^2/(2R))
+real sensor: N(0,R) w.p. 0.95, N(0,(10)^2 R) w.p. 0.05 (outliers). rho(y)=c0 exp(-a y^2), c0=0.8660, a=0.1667
+
+== 1. Mean ESS fraction (large N, exact) vs d, twin vs real ==
+  d   twin      real      real/twin
+  1   0.67082   0.64463   0.9610
+  2   0.45000   0.42858   0.9524
+  4   0.20250   0.19240   0.9501
+  8   0.04101   0.03896   0.9500
+  16  0.00168   0.00160   0.9500
+  Monte Carlo d=1, N=2000, 1500 draws of y: twin 0.6671, real 0.6575 (exact large-N 0.6708, 0.6446)
+
+== 2. Tail: P(ESS fraction < theta), d=1, exact large-N ==
+  theta    twin        real        real/twin
+  0.3      7.453e-02   1.109e-01   1.5
+  0.1      1.093e-02   4.640e-02   4.2
+  0.03     1.492e-03   3.416e-02   22.9
+  0.01     2.538e-04   3.058e-02   120.5
+  0.003    3.746e-05   2.813e-02   750.8
+  0.001    6.649e-06   2.631e-02   3957.8
+
+  P(ESS fraction < 0.01) vs outlier scale kappa (eps=0.05)
+  kappa  P(ESS<1%)
+  1      2.5378e-04
+  2      1.2751e-03
+  3      5.3321e-03
+  5      1.5754e-02
+  10     3.0575e-02
+  30     4.3399e-02
+  100    4.8178e-02
+
+== 3. Sizing N for ESS >= 50 w.p. 1-delta (large-N approximation, d=1) ==
+  delta   |y| quantile twin/real   N twin     N real
+  0.2     1.812 / 1.959           100        109.4
+  0.1     2.326 / 2.625           142        182
+  0.05    2.772 / 3.468           208        428.3
+  0.02    3.290 / 8.458           351        8.705e+06
+  0.01    3.643 / 12.879           527        5.864e+13
+  0.001   4.654 / 23.380           2133       2.117e+41
+  N=143 (twin-sized for delta=0.1): twin fails ESS<50 in 0.0943 of 3000 steps
+  N=143 (twin-sized for delta=0.1): real fails ESS<50 in 0.1327 of 3000 steps
+  N=528 (twin-sized for delta=0.01): twin fails ESS<50 in 0.0107 of 3000 steps
+  N=528 (twin-sized for delta=0.01): real fails ESS<50 in 0.0437 of 3000 steps
+
+== 4. When does N*rho(y) predict ESS? (N=2000, 200 runs per y) ==
+  y      N*rho(y)    MC ESS
+  0      1732.051    1731.932
+  2      889.265     889.501
+  4      120.349     122.451
+  6      4.293       13.071
+  8      0.040       4.168
+  10     0.000       2.581
+  12     0.000       2.142
+
+== 5. Estimator error: mean sq. deviation of PF posterior mean from the exact Kalman update (3000 steps) ==
+  N      twin       real       real/twin
+  50     0.01882   0.84833   45.08
+  200    0.00464   0.67924   146.46
+  1000   0.00097   0.40813   421.04

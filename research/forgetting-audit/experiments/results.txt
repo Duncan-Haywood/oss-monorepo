@@ -1,0 +1,75 @@
+setup: d=16 r=2 T=24 tasks, |e_init|=1; loss = |P e|^2 at the final checkpoint; one audit sample per job
+
+E1 exact law vs simulation (6000 jobs each): mean loss of the task at position t (lag T-t) and of a fresh task
+ honest    rho=0.8750 lam=0.7713
+   t= 1 (lag 23): law 0.00479 sim 0.00476
+   t= 8 (lag 16): law 0.00440 sim 0.00442
+   t=16 (lag  8): law 0.00322 sim 0.00321
+   t=22 (lag  2): law 0.00113 sim 0.00110
+   t=24 (lag  0): law 0.00000 sim 0.00000
+   fresh      : law 0.00507 sim 0.00519
+ skip 20%  rho=0.9000 lam=0.8170
+   t= 1 (lag 23): law 0.00913 sim 0.00894
+   t= 8 (lag 16): law 0.00832 sim 0.00828
+   t=16 (lag  8): law 0.00639 sim 0.00638
+   t=22 (lag  2): law 0.00358 sim 0.00351
+   t=24 (lag  0): law 0.00222 sim 0.00225
+   fresh      : law 0.00997 sim 0.00982
+ step 0.5  rho=0.9062 lam=0.8803
+   t= 1 (lag 23): law 0.00740 sim 0.00743
+   t= 8 (lag 16): law 0.00641 sim 0.00629
+   t=16 (lag  8): law 0.00501 sim 0.00508
+   t=22 (lag  2): law 0.00373 sim 0.00368
+   t=24 (lag  0): law 0.00325 sim 0.00326
+   fresh      : law 0.01177 sim 0.01211
+
+E2 skipped vs honest task at the same lag (theory): ratio -> floor d/(d-r) = 1.1429
+ lag  1: skipped/honest = 9.643
+ lag  2: skipped/honest = 5.125
+ lag  4: skipped/honest = 2.884
+ lag  8: skipped/honest = 1.798
+ lag 16: skipped/honest = 1.318
+ lag 32: skipped/honest = 1.163
+ lag 64: skipped/honest = 1.143
+ ratio >= 2.0: window k <= 6.72
+ ratio >= 1.5: window k <= 11.38
+ ratio >= 1.3: window k <= 16.75
+ ratio >= 1.2: window k <= 24.13
+ d=16 r=2: floor 1.143, ratio>=2 window k<= 6.7, lag of ratio 1.5*floor: 8.7
+ d=64 r=2: floor 1.032, ratio>=2 window k<= 23.2, lag of ratio 1.5*floor: 35.1
+ d=64 r=8: floor 1.143, ratio>=2 window k<= 6.4, lag of ratio 1.5*floor: 8.4
+ d=256 r=4: floor 1.016, ratio>=2 window k<= 45.2, lag of ratio 1.5*floor: 70.0
+
+E3 jobs needed (alpha=.05, power .8) to catch a trainer that skips 20% of tasks, by audit position
+  t= 1 (lag 23): N =     20.4
+  t= 2 (lag 22): N =     17.9
+  t= 4 (lag 20): N =     19.0
+  t= 8 (lag 16): N =     19.4
+  t=12 (lag 12): N =     20.2
+  t=16 (lag  8): N =     18.6
+  t=20 (lag  4): N =     17.1
+  t=22 (lag  2): N =     12.5
+  t=23 (lag  1): N =     12.4
+  t=24 (lag  0): N =      8.3
+  fresh task        : N =     19.9
+  best old-task position t=24 (lag 0), N = 8.3
+
+E4 cheater economics: skip fraction s (compute saved) vs jobs the verifier needs (fresh-task audit, T=24, 8000 jobs/pool)
+  s=0.02: N=  2480.0  N*s^2=  0.99  empirical size 0.056 power 0.792 at N=2481
+  s=0.05: N=   253.1  N*s^2=  0.63  empirical size 0.052 power 0.782 at N=254
+  s=0.10: N=    76.0  N*s^2=  0.76  empirical size 0.056 power 0.801 at N=77
+  s=0.20: N=    17.9  N*s^2=  0.71  empirical size 0.067 power 0.816 at N=18
+  s=0.40: N=     4.3  N*s^2=  0.69  empirical size 0.068 power 0.849 at N=5
+
+E5 same, partial training (step fraction a on every task), fresh-task audit
+  a=0.95: fresh-loss law ratio 1.01, N=28458.3
+  a=0.9: fresh-loss law ratio 1.03, N=9644.1
+  a=0.8: fresh-loss law ratio 1.15, N=381.8
+  a=0.5: fresh-loss law ratio 2.32, N=9.7
+
+E6 horizon effect: jobs needed to catch 10% skipping with a fresh-task audit vs T
+  T= 4: mean-loss ratio 1.06, N=5049.8
+  T= 8: mean-loss ratio 1.12, N=695.2
+  T=16: mean-loss ratio 1.25, N=163.6
+  T=32: mean-loss ratio 1.57, N=56.5
+  T=48: mean-loss ratio 1.98, N=30.0

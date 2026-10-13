@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "grid-twin"
+version = "0.1.0"
+description = "Grid (k-connected lattice) twin of a free-space route: path length is biased by a direction-dependent factor that does not shrink with cell size (8-connected: mean 8(sqrt2-1)/pi = 1.0547, max 1.0824 at 22.5 degrees), so two routes can be ranked differently depending on map orientation"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

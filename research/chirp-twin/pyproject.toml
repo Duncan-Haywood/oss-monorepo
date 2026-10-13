@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chirp-twin"
+version = "0.1.0"
+description = "Chirp twin: an FMCW radar twin without range-Doppler coupling reports the true range of a moving target; the real sawtooth radar is biased by f_D*T range cells, compensating with an aliased Doppler is worse than not compensating on half of the over-range speeds"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

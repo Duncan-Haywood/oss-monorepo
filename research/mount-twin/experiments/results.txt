@@ -1,0 +1,30 @@
+Mount twin: radar ego-velocity dead reckoning with sensor yawed by e vs body; twin assumes e = 0. Speed 1, dt 1.
+
+== 1. Exactness: est = R(-e) truth; error = 2 sin(e/2) |p - p0| (heading random walk, 500 steps, 20 seeds) ==
+e(deg)   max |est - R(-e)truth|   max |err - chord*|p||   final err (mean)   final |p| (mean)   err/|p|
+1        6.76e-13                 5.48e-13               7.822              448.16             0.01745
+2        9.11e-13                 7.03e-13               15.643             448.16             0.03490
+5        8.55e-13                 6.32e-13               39.097             448.16             0.08724
+10       9.11e-13                 5.04e-13               78.120             448.16             0.17431
+20       9.31e-13                 5.97e-13               155.645            448.16             0.34730
+(2 sin(e/2) = 0.01745, 0.03490, 0.08724, 0.17431, 0.34730 )
+
+== 2. A loop-closure validation cannot see it; a straight run can. e = 10 deg ==
+circle R=50: end-of-lap error 1.45e-14, max error along lap 17.43 (= chord*diameter = 17.43)
+straight 157 m: end error 27.37 (= chord*157 = 27.37); out-and-back of the same length: end error 2.74e-14
+
+== 3. Calibrating e from position fixes (sigma per fix), closed-form rotation fit, true e = 5 deg, 4000 MC trials ==
+path         n_fix  sigma  sqrt(sum|p|^2)   MC std(e_hat) deg   formula deg   MC mean(e_hat) deg   95% CI covers 5 deg
+straight     100    1      581.7            0.0978              0.0985        5.0033               0.947
+straight     400    1      4627.5           0.0124              0.0124        5.0002               0.951
+wiggly       400    1      4438.8           0.0129              0.0129        5.0002               0.950
+wiggly       400    5      4438.8           0.0645              0.0645        5.0009               0.951
+tight-loop   400    1      1236.7           0.0459              0.0463        5.0004               0.952
+
+== 4. Not a 2-D effect: pitched mount on a level circle (radius 5, e = 5 deg), vertical drift ==
+laps   z error (sim)   laps*2 pi R sin e   x-y closure error
+1      2.7381          2.7381              2.22e-15
+2      5.4762          5.4762              3.68e-15
+5      13.6904         13.6904             1.46e-14
+10     27.3808         27.3808             1.33e-14
+(a yaw mount error is bounded by the path diameter; a pitch/roll mount error grows linearly with distance and is not removed by x-y loop closure)
