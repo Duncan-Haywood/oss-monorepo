@@ -3918,3 +3918,16 @@ entries:
         tests. portfolio/pipeline/duplicate_check.py top score 0.29; no dry-cleaner tool existed in ventures/. First visitor: people searching
         dry cleaner break-even; volume unmeasured.
     mrr_end: 0
+  - venture: eu-ai-act-risk-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built eu-ai-act-risk-checker: a browser-only first read of where one AI system falls under the EU AI Act (Regulation 2024/1689).
+        Use case (Article 5 bans, Annex III high-risk uses, Article 50 transparency, minimal) plus role (provider, deployer, importer, distributor),
+        profiling and Article 6(3) flags, Annex I safety-component flag and general-purpose model status become a risk tier with the Article it rests on,
+        the role's duties each with an Article and start date, fines, a note on the proposed Digital Omnibus delay, text summary and a downloadable
+        compliance checklist CSV. 22 unit tests plus page and usage tests. portfolio/pipeline/duplicate_check.py top score 0.34 (an unrelated US
+        labour-law checker); no AI Act tool existed in ventures/. First visitor: startup CTO or compliance lead answering an enterprise customer's
+        "is your AI high-risk?" questionnaire; volume unmeasured. Guidelines and standards are not modelled and the page says so.
+    mrr_end: 0

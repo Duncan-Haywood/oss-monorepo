@@ -1588,7 +1588,8 @@ const RELATIVE_SELF = relative(
 // +1: `cargo-audit-triage` graduated.
 // +1: `nis2-scope-checker` graduated.
 // +1: `dry-cleaner-profit-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1102;
+// +1: `eu-ai-act-risk-checker` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1103;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.

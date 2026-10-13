@@ -1,0 +1,47 @@
+name: eu-ai-act-risk-checker
+description: >-
+  Free browser tool that applies the EU AI Act (Regulation 2024/1689) to one AI system: what it does and your role in, risk tier out (prohibited, high-risk, Article 6(3) exception, transparency, minimal), the Article behind it, your duties with their dates, general-purpose model duties, and a downloadable compliance checklist. Nothing is uploaded. A first read of the Regulation's text, not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; portfolio/pipeline/duplicate_check.py top score 0.34 (worker-classification-checker, a US labour-law
+# tool) for "EU AI Act risk classification checker"; no AI Act classifier in ventures/. Sibling EU-law checkers nis2-scope-checker and cra-evidence-desk
+# cover other laws. Not in screened-out.md.
+#
+# First visitor: a startup CTO, product manager or compliance lead asked by an enterprise customer's procurement questionnaire "is your AI system high-risk
+# under the EU AI Act?"; search phrases "EU AI Act risk classification", "is my AI system high risk", "AI Act Annex III checker", "AI Act provider vs
+# deployer obligations". Volume not measured with an external tool. The signal is that the high-risk rules were due on 2 August 2026 and every B2B AI
+# vendor selling into the EU is being asked.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. The paid version, not built, would be an evidence pack generator (Annex IV technical
+# documentation templates, risk-management log, FRIA for deployers) and a vendor-questionnaire answer bank, behind an env-var switch.
+#
+# Liability: encodes the Regulation's own Articles 2, 4, 5, 6, 26, 27, 50, 53-55 and 99 and Annex III, each result naming its Article. It says plainly that
+# guidelines, standards and the proposed Digital Omnibus delay are outside it, rejects bad input instead of guessing, and carries the no-warranty and
+# not-legal-advice clauses. Ethical risk is false comfort from a "minimal" or Article 6(3) result; the page says the exception is the provider's documented
+# call that authorities can challenge, and points to counsel.
+
+hypotheses:
+  - claim: >-
+      Startups and SMEs selling AI into the EU will use a free use-case-and-role checker to get a first tier and the Articles behind it, and download the duty checklist, instead of paying for a scoping call to find out where to start.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the tier, Article reference or duty differs from the Regulation's text on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eu-ai-act-risk-checker/
+  analytics: null
