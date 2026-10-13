@@ -1599,7 +1599,7 @@
     {
      "slug": "simdesign-filletfloor",
      "title": "Is the shrinking laser-cutting price scatter under the patch stress caused by the near-sharp fillet floor?",
-     "summary": "In progress (stylised): the laser-cutting bracket search is repeated with the inner-fillet floor raised from 0.2 to 1 and 3.175&nbsp;mm, under the peak and the patch stress."
+     "summary": "A negative result (stylised). Raising the laser-cutting inner-fillet floor from 0.2 to 1 and 3.175&nbsp;mm over five seeds does not explain the scatter in the mass price of the rules: the peak-stress designs already use fillets of 7.6&ndash;14.3&nbsp;mm, so the 0.2 and 1&nbsp;mm floors give identical designs (sd of the price 0.063), and under a 3&nbsp;mm patch average the price is steady (sd 0.006&ndash;0.011) at every floor. The cause of the peak-stress scatter is not identified. Limits: five seeds, one process and load, uncalibrated limit, assumed values, 2D plane stress."
     },
     {
      "slug": "simdesign-kirsch",
