@@ -1813,10 +1813,14 @@ const CATEGORY_RULES = [
       || slug === 'uk-student-loan-repayment-calculator'
       // `uk-payments-on-account-calculator` joined 2026-10-13 on its first commit: UK Self Assessment payment-schedule arithmetic, sibling of the trading-allowance and CIS tools.
       || slug === 'uk-payments-on-account-calculator'
+      // `uk-ir35-inside-outside-calculator` joined 2026-10-13 on its first commit: UK contractor tax arithmetic, sibling of the sole-trader-vs-company and trading-allowance tools.
+      || slug === 'uk-ir35-inside-outside-calculator'
       // `uk-self-assessment-late-penalty-calculator` joined 2026-10-13 on its first commit: UK Self Assessment penalty and interest arithmetic, sibling of the payments-on-account tool.
       || slug === 'uk-self-assessment-late-penalty-calculator'
       // `uk-capital-gains-tax-calculator` joined 2026-10-13 on its first commit: UK personal-tax arithmetic, sibling of the payments-on-account and child-benefit tools.
       || slug === 'uk-capital-gains-tax-calculator'
+      // `uk-dividend-tax-calculator` joined 2026-10-13 on its first commit: UK personal-tax arithmetic for directors and investors, sibling of the capital-gains and sole-trader tools.
+      || slug === 'uk-dividend-tax-calculator'
       // `tfsa-over-contribution-checker` joined 2026-10-13 on its first commit: Canadian personal-tax room and penalty arithmetic, a sibling of the Canada GST/HST checker.
       || slug === 'tfsa-over-contribution-checker'
       // `uk-statutory-sick-pay-calculator` joined 2026-10-13 on its first commit: UK employer payroll-compliance arithmetic, same back-office job.
