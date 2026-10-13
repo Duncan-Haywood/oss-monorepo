@@ -3824,11 +3824,18 @@ entries:
         existed in ventures/. Also fixed coworking-space-profit-calculator, whose results panel threw on a nonexistent r.cfByYear and never
         displayed (now r.yearCash; verified in Chromium). First visitor: people searching hydroponic farm break-even; volume unmeasured.
     mrr_end: 0
+  - venture: kombucha-brewery-profit-calculator
   - venture: ice-cream-shop-seasonal-profit-calculator
     agent_spend_usd: 0
     human_hours: 0
     outcomes:
       - >-
+        Graduated and built kombucha-brewery-profit-calculator: a browser-only pro forma for kombucha brewers. Fermenter capacity, batch fill,
+        brew days, loss, wholesale/taproom mix, per-gallon inputs and labour, chilling and brewhouse energy, rent, fit-out and a loan become
+        gallons a week, monthly profit, break-even gallons (operating and with the loan), the price change that reaches a target margin,
+        output, price and electricity sweeps, and a sixty-month ramp-up with cash reserve and payback, with text summary and CSV. Hand-computed
+        unit tests plus page and usage tests. No kombucha-brewery economics tool existed in ventures/. First visitor: people searching
+        kombucha business break-even; volume unmeasured.
         Graduated and built ice-cream-shop-seasonal-profit-calculator: a browser-only twelve-month P&L for seasonal ice cream, frozen-dessert
         and snow-cone shops. Days open and customers per day by month, spend, product cost, card fees, traffic-sized labor with a minimum
         crew, utilities, fixed costs and a loan become monthly profit, break-even customers per day (solved by bisection), an open, close or

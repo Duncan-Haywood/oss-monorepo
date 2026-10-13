@@ -821,6 +821,9 @@ const CATEGORY_RULES = [
       // `hydroponic-farm-profit-calculator` joined 2026-10-12 on its first commit: an indoor or hydroponic grower sizing a build, selling
       // at the same restaurants and markets, one hop from `microgreens-tray-planner`.
       'hydroponic-farm-profit-calculator',
+      // `kombucha-brewery-profit-calculator` joined 2026-10-13 on its first commit: a brewer selling drink by the gallon, one hop from
+      // `craft-brewery-batch-margin-calculator` and `cafe-drink-margin-calculator`.
+      'kombucha-brewery-profit-calculator',
       // `maple-syrup-sugarbush-profit-calculator` joined 2026-10-07 on its first commit: producers selling syrup at the
       // same farm stands and markets, one hop from `backyard-honey-profit-calculator`.
       'maple-syrup-sugarbush-profit-calculator',
