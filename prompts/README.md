@@ -1,0 +1,85 @@
+# Prompt system
+
+How work in this repository is directed, measured and improved. The pieces:
+
+```
+prompt.md                  master prompt: route, work, record, improve
+prompts/goals.md           goals, guardrails and how a run is scored (owner-owned)
+prompts/routing.json       tracks, their weights, champion and candidate versions
+prompts/<track>/prompt-<n>.md
+                           sub-prompts: ventures, research, review
+prompts/runs/*.json        one record per run
+prompts/experiments.md     every change the review track makes, and its result
+prompts/promptctl.py       route | record | measure | validate
+```
+
+## The loop
+
+1. **Route.** A session reads `prompt.md`, which runs
+   `promptctl.py route`. Once `review_every` runs have merged since the last
+   review, it picks the review track. Otherwise it draws a track by weight,
+   then the champion version or, with probability `candidate_share`, the
+   candidate. A session with a specific task picks the track itself
+   (`--track`).
+2. **Work.** The session follows the sub-prompt, and every commit carries
+   `Prompt-Version: <track>/<n>`. That trailer ties a version, a model and a
+   session together in git history.
+3. **Record.** Before merging, the session writes its run record: outcome,
+   PR, errors, integrity issues, and **doc friction**, meaning any
+   instruction that was wrong, stale or costly, with the file it lives in.
+   The record lands in the same pull request as the work.
+4. **Measure and improve.** The review track scores versions, models and
+   starting messages with `promptctl.py measure`. It promotes or retires
+   candidates, writes the next candidate, and fixes the documentation the
+   friction reports single out. It logs each change in `experiments.md` and
+   checks it at the next review.
+
+The goals are fixed by the owner; everything else is allowed to change when
+the measurements say it should. That is the split between `goals.md` and the
+rest of the system.
+
+## What the review track may change
+
+| Thing | How it changes | How the change is judged |
+|---|---|---|
+| A sub-prompt | A candidate version, routed to about 20% of runs | Candidate against champion on the same runs window (A/B) |
+| `AGENTS.md`, `CLAUDE.md`, READMEs, `land-your-work.md`, this file | A direct edit, logged in `experiments.md` | Friction reports per run for that file, before against after |
+| `routing.json` weights | The owner's call; a review can propose a change | Track goals in `goals.md` |
+| `goals.md` | Never by a review; proposals go in `experiments.md` | The owner |
+
+A documentation change reaches every run at once, so it cannot be A/B tested.
+It is judged by a before and after comparison instead, which is weaker
+evidence; the log should say so.
+
+## Promotion rule
+
+`measure` suggests one; the review decides and writes down why.
+
+- Fewer than about 10 runs on either version: keep collecting.
+- More integrity issues per run than the champion, or a success rate whose
+  95% interval sits wholly below the champion's: retire.
+- No more integrity issues, and a success rate whose 95% interval sits wholly
+  above the champion's: promote. A clear win on error rate also counts.
+- Otherwise: keep collecting.
+
+## Commands
+
+```
+python3 prompts/promptctl.py route [--track T] [--skip-review] [--json]
+python3 prompts/promptctl.py record --track T --version N --session URL [--model M] [--input TEXT]
+python3 prompts/promptctl.py measure [--json]
+python3 prompts/promptctl.py validate
+python3 -m unittest discover -s prompts
+```
+
+`validate` runs in CI (`.github/workflows/prompts-ci.yml`). It checks that
+every routed version exists and that every sub-prompt links to `goals.md`,
+so a candidate cannot drop the guardrails by leaving them out. It also checks
+that every run record is complete. Record files cannot conflict, because each
+run writes its own.
+
+## Adding a track
+
+Add `prompts/<track>/prompt-0.md` (linking to `goals.md`) and an entry in
+`routing.json`. Add the track's goals and measures to `goals.md`, which is the
+owner's file, so a new track is the owner's call.

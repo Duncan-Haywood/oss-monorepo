@@ -1,7 +1,9 @@
 # Research instructions
 
 `research/` is the open research portfolio: one directory per project, MIT licensed
-(`research/LICENSE`). The standing brief is [`PROMPT.md`](PROMPT.md). The root `CLAUDE.md`
+(`research/LICENSE`). The standing brief is the research track of the prompt system:
+[`prompts/research/`](../prompts/research/), routed by the master prompt (`prompt.md`), with
+the goals and research guardrails in [`prompts/goals.md`](../prompts/goals.md). The root `CLAUDE.md`
 is about the product portfolio under `ventures/`; its session gate, usage tracking,
 disclaimers and venture rules do not apply to work that stays inside `research/`.
 Its public-repository rules do.

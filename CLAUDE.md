@@ -17,6 +17,13 @@ Usage — the metric while everything is free — is specified in
 [`research/CLAUDE.md`](research/CLAUDE.md) and its brief, not the product
 rules below; the public-repository rules apply everywhere.
 
+**[`prompt.md`](prompt.md) is the master prompt.** It routes each run to a
+sub-prompt in `prompts/` (ventures, research, or the review track) with
+`python3 prompts/promptctl.py route`, and asks for a run record before the
+merge. The goals and guardrails in [`prompts/goals.md`](prompts/goals.md)
+are the owner's; the review track improves everything else, this file
+included, from what the records measure ([`prompts/README.md`](prompts/README.md)).
+
 Four agent families (GitHub Actions, Kilo, Cursor, Claude) also run an
 automated cross-review layer — see `.github/prompts/review-open-prs-first.md`
 and `platform/ci/agent_review/README.md`. It posts APPROVE/REQUEST_CHANGES
@@ -147,6 +154,7 @@ python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new ven
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline infra/tests -q
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
+python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt.md, prompts/, run records
 (cd research/<project> && PYTHONPATH=$(ls -d ../*/src | tr '\n' :) python3 -m pytest tests -q)  # research/ changes: one project at a time
 python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches
 python3 platform/ci/run_workflow_locally.py --tree          # and: is main itself green right now?

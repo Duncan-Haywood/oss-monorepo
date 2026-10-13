@@ -47,6 +47,14 @@ push, open the PR straight away, verify, merge it yourself, then confirm
 PRs land, but 100 branches from the prior two weeks were pushed and never got
 a PR. Four finished ventures are among them, and `main` still lacks them.
 
+**Sessions started from [`prompt.md`](prompt.md) record themselves.** The
+master prompt routes each run to a sub-prompt (`prompts/ventures/`,
+`prompts/research/`, or the review track that improves the rest) and asks for
+a run record under `prompts/runs/` in the same PR. Any agent may add one. Its
+`doc_friction` field, listing instructions that were wrong, stale or slow,
+names the file, and it is how this file gets corrected
+([`prompts/README.md`](prompts/README.md)).
+
 ## Build criteria
 
 Prefer products that:

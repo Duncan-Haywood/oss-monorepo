@@ -32,6 +32,9 @@ ventures/     one directory per business; each has a VENTURE.yaml
 research/     the open research portfolio (MIT), formerly oss-research-monorepo;
               its homepage is published at /research/ on the Pages site
 platform/     shared agent definitions, skills, and CI — versioned once
+prompts/      the prompt system: prompt.md (the master prompt) routes each run to
+              a sub-prompt here, run records measure it, and a review track
+              improves the prompts and docs from the records (prompts/README.md)
 portfolio/    the ledger, the router that allocates agent effort, and the
               candidate pipeline of researched-but-not-started businesses
 infra/        RETIRED: OpenTofu for the hel1 pair (servers deleted 2026-10-01)

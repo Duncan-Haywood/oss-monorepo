@@ -1762,6 +1762,9 @@ workflows:
 - workflow: prometheus-cardinality-cost-ci.yml
   classification: none
   publishes: []
+- workflow: prompts-ci.yml
+  classification: none
+  publishes: []
 - workflow: propane-delivery-route-margin-ci.yml
   classification: none
   publishes: []
