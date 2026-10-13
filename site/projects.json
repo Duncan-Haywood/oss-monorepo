@@ -1413,6 +1413,11 @@
      "slug": "selfrep-materials",
      "title": "How much imported material can recycling save a self-replicating printer shop?",
      "summary": "Builds on the selfrep-closure part list. A stylised steady-state mass and energy balance for building one more RepRap Prusa Mendel, with shredding and re-extrusion of plastic and remelting of aluminium offcuts. With assumed process parameters, vitamins stay about 75% of imported mass for the largest shop (82% for the printer alone), and recycling the shop&rsquo;s own scrap cuts imports by a median 3% (5&ndash;95% over parameter draws: 1&ndash;6%). Only plastic from retired machines changes the filament import much, and then the assumed recycled-share cap decides the result. Limitations: every yield, loss and energy figure is an assumption, recycling machines are not counted, and recycled-plastic quality is not modelled."
+    },
+    {
+     "slug": "selfrep-satmarket",
+     "title": "When the goods market saturates, does a replicating shop&rsquo;s bang-bang switch turn smooth?",
+     "summary": "Builds on the selfrep-reinvest fluid model, with concave goods revenue <em>a c</em>(1 &minus; e<sup>&minus;<em>g</em>/<em>c</em></sup>) and a backward dynamic programme (Bellman) as a check on the local-search policies. With a large market the optimum is still copy-then-switch; once market capacity <em>c</em> is below about 10<sup>4</sup> machine-hours per hour the optimal copy share ramps down over 90&ndash;300 h, bang-bang loses 4.5&ndash;7% of the optimum and a logistic ramp recovers all but 1&ndash;1.5%. Slower growth from failed builds sharpens the switch again. Every input is assumed and the saturation form is a convenient choice; cash never binds. The DP value is the optimum of a discretised problem, within a few tenths of a percent of its simulated policy where it is accurate and several percent in near-linear cases. Stylised."
     }
    ]
   },
