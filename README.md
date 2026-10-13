@@ -1,6 +1,8 @@
 # oss-research-monorepo
 Duncan's open source software monorepo (MIT licensed). Portfolio homepage: <https://duncan-haywood.github.io/oss-research-monorepo/> (built from `site/` by `.github/workflows/pages.yml`).
 
+Priority projects for the agents that build this portfolio are in [`PROJECTS.md`](PROJECTS.md).
+
 - [`research/decentralized-verification-markets`](research/decentralized-verification-markets) — peer-prediction and prediction-market mechanisms for verifying decentralized ML training, with adversarial evaluation.
 - [`research/market-routing`](research/market-routing) — cost-function markets as expert routers: LMSR = Hedge, quadratic potential = sparsemax; regret/loss bounds verified, continual-learning simulation.
 - [`research/wagering-modular-experts`](research/wagering-modular-experts) — self-financed wagering mechanisms as verifiable routers for modular, continually learning experts; shows plain WSWM locks in under recurring regimes and a fixed-share tax fixes it at the cost of subsidising free-riders.
@@ -235,3 +237,5 @@ Duncan's open source software monorepo (MIT licensed). Portfolio homepage: <http
 - [`research/groundeffect-twin`](research/groundeffect-twin) — rotorcraft altitude twin without ground effect vs real thrust gain `1/(1−(R/4z)²)`: hover sits 18 mm high at one rotor radius (twin: 0), and a delayed loop with 28% twin headroom goes unstable at 0.54 rotor radii. Stylised.
 - [`research/chirp-twin`](research/chirp-twin) — FMCW range–Doppler coupling: a twin that reads true range misses a bias of `f_D T` cells (0.6–4.8 at 30 m/s), signal-level check ≤1e-4 cells, wrapped-Doppler compensation is worse than none on half of the over-range speeds, and a ±60° stationary scene leaves `0.71κv` position bias plus `0.46κv` distortion.
 - [`research/flyingpixel-twin`](research/flyingpixel-twin) — single-ray lidar twin vs a finite beam with merged pulses at a depth edge: ghost-range band exactly `2Φ⁻¹(1−ε/D)` beam widths (2.56 at ε/D=0.1, none at ε≥D/2), shifts and narrows for unequal brightness, matches a scan simulation to 0.3%, and a 3-of-5 persistence filter still passes 80–99% of ghosts.
+- [`research/corridor-twin`](research/corridor-twin) — scan matching in a corridor: along-track information is exactly zero without door frames, 1.6–6× a room's along-track sd with them; a filter fed the room twin's covariance has NEES 432–1535 over a blind span, and the exact covariance holds only inside a ~0.2 m basin. Stylised.
+- [`research/particle-twin`](research/particle-twin) — Gaussian-sensor twin vs outliers for a bootstrap particle filter: exact ESS fraction `c₀e^{−ay²}`, the mean ESS barely moves (0.671 vs 0.645) while P(ESS<1%) rises 120× (2.5e-4 → 3.1e-2), a twin-sized N=528 fails 4.4% of real steps, and posterior-mean error is 45–421× the twin's.

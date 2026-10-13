@@ -1,5 +1,21 @@
 # Repo instructions
 
+**Active; the move is on hold.** The owner lifted the freeze on 2026-10-12. The portfolio was
+due to move to `Duncan-Haywood/fp-monorepo` under `research/`, in
+<https://github.com/Duncan-Haywood/fp-monorepo/pull/6143>. That pull request is still open, and
+its copy of `research/` dates from 2026-10-01. Work lands here, on this repository's `main`. If
+the move resumes, re-sync that copy from here first.
+
+New projects come from the priority tracks in [`PROJECTS.md`](PROJECTS.md).
+
+## Land what you push
+
+A branch that never reaches `main` is lost work: nobody sees it, and the next run redoes it.
+When you push a branch here, open a pull request for it in the same run. Merge it yourself once
+CI is green, or close it with a one-line reason. Never leave a branch without a pull request,
+and never push to a branch whose pull request has merged. Scheduled runs follow the full rules
+in `prompt.md` under Landing work.
+
 ## Keep the GitHub Pages homepage up to date
 
 The portfolio homepage <https://duncan-haywood.github.io/oss-research-monorepo/> is generated
