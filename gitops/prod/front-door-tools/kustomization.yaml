@@ -38,44 +38,44 @@
 #   portfolio-front-tools-2: 144 files, 553486 bytes
 #   portfolio-front-tools-3: 128 files, 549681 bytes
 #   portfolio-front-tools-4: 136 files, 554019 bytes
-#   portfolio-front-tools-5: 130 files, 549893 bytes
-#   portfolio-front-tools-6: 124 files, 556242 bytes
-#   portfolio-front-tools-7: 121 files, 556791 bytes
-#   portfolio-front-tools-8: 135 files, 555871 bytes
-#   portfolio-front-tools-9: 135 files, 551141 bytes
-#   portfolio-front-tools-10: 134 files, 555685 bytes
-#   portfolio-front-tools-11: 135 files, 555123 bytes
-#   portfolio-front-tools-12: 127 files, 554449 bytes
-#   portfolio-front-tools-13: 131 files, 554794 bytes
-#   portfolio-front-tools-14: 127 files, 547115 bytes
-#   portfolio-front-tools-15: 125 files, 556787 bytes
-#   portfolio-front-tools-16: 129 files, 551431 bytes
-#   portfolio-front-tools-17: 122 files, 551661 bytes
-#   portfolio-front-tools-18: 128 files, 552039 bytes
-#   portfolio-front-tools-19: 122 files, 553736 bytes
-#   portfolio-front-tools-20: 123 files, 555162 bytes
-#   portfolio-front-tools-21: 120 files, 554803 bytes
-#   portfolio-front-tools-22: 117 files, 552215 bytes
-#   portfolio-front-tools-23: 128 files, 557032 bytes
-#   portfolio-front-tools-24: 125 files, 551727 bytes
-#   portfolio-front-tools-25: 131 files, 551310 bytes
-#   portfolio-front-tools-26: 139 files, 552870 bytes
-#   portfolio-front-tools-27: 117 files, 553970 bytes
-#   portfolio-front-tools-28: 128 files, 556568 bytes
-#   portfolio-front-tools-29: 136 files, 554683 bytes
-#   portfolio-front-tools-30: 129 files, 553656 bytes
-#   portfolio-front-tools-31: 120 files, 549937 bytes
-#   portfolio-front-tools-32: 134 files, 553020 bytes
-#   portfolio-front-tools-33: 110 files, 551696 bytes
-#   portfolio-front-tools-34: 100 files, 554955 bytes
-#   portfolio-front-tools-35: 129 files, 550848 bytes
-#   portfolio-front-tools-36: 116 files, 555487 bytes
-#   portfolio-front-tools-37: 130 files, 548125 bytes
-#   portfolio-front-tools-38: 122 files, 549827 bytes
-#   portfolio-front-tools-39: 135 files, 556816 bytes
-#   portfolio-front-tools-40: 120 files, 551033 bytes
-#   portfolio-front-tools-41: 95 files, 485709 bytes
-#   portfolio-front-tools-42: 50 files, 263860 bytes
+#   portfolio-front-tools-5: 130 files, 549888 bytes
+#   portfolio-front-tools-6: 124 files, 556216 bytes
+#   portfolio-front-tools-7: 121 files, 556817 bytes
+#   portfolio-front-tools-8: 135 files, 555873 bytes
+#   portfolio-front-tools-9: 135 files, 551137 bytes
+#   portfolio-front-tools-10: 134 files, 555716 bytes
+#   portfolio-front-tools-11: 135 files, 555158 bytes
+#   portfolio-front-tools-12: 127 files, 554464 bytes
+#   portfolio-front-tools-13: 131 files, 554857 bytes
+#   portfolio-front-tools-14: 127 files, 547148 bytes
+#   portfolio-front-tools-15: 125 files, 556733 bytes
+#   portfolio-front-tools-16: 129 files, 551442 bytes
+#   portfolio-front-tools-17: 122 files, 551677 bytes
+#   portfolio-front-tools-18: 128 files, 552061 bytes
+#   portfolio-front-tools-19: 122 files, 553683 bytes
+#   portfolio-front-tools-20: 123 files, 555083 bytes
+#   portfolio-front-tools-21: 120 files, 554874 bytes
+#   portfolio-front-tools-22: 117 files, 552214 bytes
+#   portfolio-front-tools-23: 127 files, 549952 bytes
+#   portfolio-front-tools-24: 125 files, 553512 bytes
+#   portfolio-front-tools-25: 132 files, 556627 bytes
+#   portfolio-front-tools-26: 139 files, 552923 bytes
+#   portfolio-front-tools-27: 117 files, 553898 bytes
+#   portfolio-front-tools-28: 128 files, 556642 bytes
+#   portfolio-front-tools-29: 136 files, 554713 bytes
+#   portfolio-front-tools-30: 129 files, 553508 bytes
+#   portfolio-front-tools-31: 120 files, 549944 bytes
+#   portfolio-front-tools-32: 134 files, 553014 bytes
+#   portfolio-front-tools-33: 110 files, 551643 bytes
+#   portfolio-front-tools-34: 100 files, 555031 bytes
+#   portfolio-front-tools-35: 129 files, 550925 bytes
+#   portfolio-front-tools-36: 116 files, 555496 bytes
+#   portfolio-front-tools-37: 130 files, 548124 bytes
+#   portfolio-front-tools-38: 122 files, 549844 bytes
+#   portfolio-front-tools-39: 135 files, 556825 bytes
+#   portfolio-front-tools-40: 120 files, 551159 bytes
+#   portfolio-front-tools-41: 95 files, 485719 bytes
+#   portfolio-front-tools-42: 50 files, 263902 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3270,12 +3270,12 @@ configMapGenerator:
       - log-management-pricing-calculator__cli.mjs.gz=log-management-pricing-calculator__cli.mjs.gz
       - log-management-pricing-calculator__engine.mjs.gz=log-management-pricing-calculator__engine.mjs.gz
       - log-management-pricing-calculator__how-to-choose-a-log-management-tool-by-gb-ingested.html.gz=log-management-pricing-calculator__how-to-choose-a-log-management-tool-by-gb-ingested.html.gz
-      - log-management-pricing-calculator__index.html.gz=log-management-pricing-calculator__index.html.gz
   - name: portfolio-front-tools-24
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - log-management-pricing-calculator__index.html.gz=log-management-pricing-calculator__index.html.gz
       - log-management-pricing-calculator__usage.mjs.gz=log-management-pricing-calculator__usage.mjs.gz
       - lot-split-calculator__cli.mjs.gz=lot-split-calculator__cli.mjs.gz
       - lot-split-calculator__engine.mjs.gz=lot-split-calculator__engine.mjs.gz
@@ -3400,12 +3400,12 @@ configMapGenerator:
       - mileage-deduction-method-calculator__calc.mjs.gz=mileage-deduction-method-calculator__calc.mjs.gz
       - mileage-deduction-method-calculator__index.html.gz=mileage-deduction-method-calculator__index.html.gz
       - mileage-deduction-method-calculator__usage.mjs.gz=mileage-deduction-method-calculator__usage.mjs.gz
-      - mileage-log__calc.mjs.gz=mileage-log__calc.mjs.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - mileage-log__calc.mjs.gz=mileage-log__calc.mjs.gz
       - mileage-log__index.html.gz=mileage-log__index.html.gz
       - mileage-log__usage.mjs.gz=mileage-log__usage.mjs.gz
       - mini-golf-course-profit-calculator__calc.mjs.gz=mini-golf-course-profit-calculator__calc.mjs.gz
