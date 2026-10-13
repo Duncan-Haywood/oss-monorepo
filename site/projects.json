@@ -1729,6 +1729,11 @@
      "summary": "A one-joint ankle model of an exosuit-style garment: a suit adding a fraction of the biological push-off torque cuts modelled whole-body metabolic cost by 3.1, 8.8 and 14.1% at gains 0.1, 0.3 and 0.5, but a delay of 0.25 of the gait cycle removes the benefit and a stiff passive spring raises ankle cost 17%. Added mass erases the saving at 8.9&nbsp;kg if each kg costs 1% of whole-body power and at 1.8&nbsp;kg if it costs 5%; the break-even scales as 1/sensitivity, a number the project does not supply. Stylised: lumped muscle, prescribed gait, assumed constants; not OpenSim or MyoSuite."
     },
     {
+     "slug": "garment-assistpower",
+     "title": "Is it the motor or the battery that decides whether an exosuit pays for its own mass?",
+     "summary": "Extends the ankle exosuit model with a power train: motor mass from peak torque and a torque density, battery mass from electrical energy and hours of use, and the resulting mass fed back into metabolic cost. With an assumed 8 N m/kg motor the gain-0.3 suit weighs about 9&nbsp;kg, 8.4 of it motor, and raises whole-body cost 0.2&ndash;1.9%; the sign flips between 8 and 20 N m/kg, while eight hours of battery add under 2&nbsp;kg. Stylised: every power-train constant is assumed, not sourced."
+    },
+    {
      "slug": "garment-protective",
      "title": "What would a suit-like protective garment weigh and cost, and what limits it?",
      "summary": "A Cunniff-style specific-toughness scaling (U*) for nylon, aramid and UHMWPE with a 0.5&nbsp;m<sup>2</sup> torso-panel mass, cost, thickness and stiffness model. At equal weight UHMWPE gives 1.49&times; aramid's V50 in this scaling, and needs 0.20&ndash;0.67&times; the areal density depending on an unknown exponent. Under a 3&nbsp;mm, 1&nbsp;kg suit-like limit the panel falls short of a 4&nbsp;kg/m<sup>2</sup> aramid reference except for UHMWPE with an optimistic exponent. Stylised: recalled formula, assumed properties and unsourced prices, no ballistic physics and no protection claim."
