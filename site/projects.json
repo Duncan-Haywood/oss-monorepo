@@ -1292,6 +1292,11 @@
      "slug": "chip-accel",
      "title": "How do MAC-lane count and bit width trade area against latency in a tiny quantised-MLP accelerator?",
      "summary": "A generator for an 8-8-4 integer MLP engine with P multiply-accumulate lanes and 4-, 6- or 8-bit weights, simulated in Icarus Verilog and matched bit for bit and cycle for cycle against an integer NumPy reference in all 12 configurations. Synthesised with Yosys to generic gates, latency falls from 110 to 20 cycles as lanes go from 1 to 8 while area grows about 3&times; to 4&times;, so cells&times;cycles is smallest at 4 lanes for every width. 6 bits matched float accuracy on the toy task; 4 bits lost about 3 points. Stylised: one synthetic task and seed, weights baked into logic, gate counts rather than layout, nothing about a real chip."
+    },
+    {
+     "slug": "chip-systolic",
+     "title": "Does an output-stationary systolic array beat a MAC-lane engine for a tiny quantised MLP?",
+     "summary": "An R&times;C systolic-array generator for the 8-8-4 integer MLP, simulated in Icarus Verilog and matched bit for bit and cycle for cycle against an integer NumPy reference in all 12 configurations (batch of 4). Against the MAC-lane engine of <em>chip-accel</em> at 4, 6 and 8 bits, synthesised with the same Yosys generic-gate script, the array has 1.6&times; to 1.8&times; more cells&times;cycles at its best shape (a negative result), but lower latency: 40 cycles for 4&times;8 against 80 for 8 MAC lanes, at about 3.9&times; the cells at 4 bits. Stylised: fan-in 8, one network, gate counts rather than area, no clock, power or layout."
     }
    ]
   },
