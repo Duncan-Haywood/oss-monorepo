@@ -1,0 +1,43 @@
+name: eu-dora-readiness-checker
+description: >-
+  Free browser tool for EU financial entities and the software and cloud vendors that sell to them under DORA, Regulation (EU) 2022/2554: whether DORA reaches you, which duty areas (ICT risk framework, incident process, testing, register of information, exit plans) and Article 30 contract terms are still open, and the 4-hour, 72-hour and one-month deadlines for a major ICT incident. Nothing is uploaded. Not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture session; no DORA tool in ventures/ (duplicate_check top hit 0.27, cra-evidence-desk; siblings: nis2-scope-checker, eu-ai-act-risk-checker). Not in screened-out.md.
+#
+# First visitor, two of them. (1) A compliance or security lead at a small payment, e-money, crypto or investment firm filing its first major-incident report or preparing the register of
+# information. (2) A founder or sales engineer at a SaaS or cloud vendor handed a DORA addendum by a bank customer, who needs to know which Article 30 terms their contract lacks.
+# Search phrases: "DORA major incident reporting 4 hours", "DORA article 30 contract requirements", "DORA register of information", "does DORA apply to SaaS vendors". Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a vendor DORA-addendum response pack (clause-by-clause gap report against the customer's
+# addendum, and a register-of-information export in the supervisor's template), behind an env-var switch. The buyer is a vendor with a bank deal waiting on it, which is the real money here.
+#
+# Liability: first read of scope, duty areas and clocks; rejects bad input, says plainly that the supervisor, classification thresholds and technical standards decide, carries no-warranty
+# and not-legal-advice clauses, tells users never to type incident details. Article numbers, the Art 2(3) exclusions and the incident-report periods were written from memory without
+# network access to EUR-Lex in the building session and must be verified; ethical risk is false comfort from an "out" result or a checklist box ticked without evidence.
+
+hypotheses:
+  - claim: >-
+      Compliance leads at small EU financial firms, and founders of vendors selling to them, will use a free checker to learn what DORA requires of them and to prepare answers before paying a consultant.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a scope rule, article reference or incident-report period differs from the Regulation's text or current technical standards on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eu-dora-readiness-checker/
+  analytics: null

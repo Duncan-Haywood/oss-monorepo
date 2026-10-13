@@ -3062,7 +3062,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `dac7-seller-reporting-checker` graduated (browser EU DAC7 platform seller reporting check).
     # +1: `eu-platform-work-directive-checker` graduated (browser EU Platform Work Directive scope, employment presumption and algorithmic-management check).
     # +1: `eu-price-reduction-claim-checker` graduated (browser EU 30-day lowest price rule check for sale prices).
-    total = 1144  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1144 tools" wording.
+    # +1: `eu-dora-readiness-checker` graduated (browser EU DORA scope, duty areas, Article 30 contract terms and major-incident report clocks).
+    # +1: `ugc-creator-rate-calculator` graduated (browser UGC creator rate calculator: content plus ad usage rights, whitelisting, exclusivity).
+    total = 1146  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1146 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
