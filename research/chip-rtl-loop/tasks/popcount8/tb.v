@@ -1,6 +1,6 @@
 module tb;
   reg [7:0] x; wire [3:0] y, yr;
-  popcount8 dut(.x(x), .y(y)); popcount8_ref ref(.x(x), .y(yr));
+  popcount8 dut(.x(x), .y(y)); popcount8_ref golden(.x(x), .y(yr));
   integer k, fail, total;
   initial begin
     fail = 0; total = 0;

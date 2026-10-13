@@ -1,6 +1,6 @@
 module tb;
   reg [7:0] a, b; wire [7:0] d, dr;
-  absdiff8 dut(.a(a), .b(b), .d(d)); absdiff8_ref ref(.a(a), .b(b), .d(dr));
+  absdiff8 dut(.a(a), .b(b), .d(d)); absdiff8_ref golden(.a(a), .b(b), .d(dr));
   integer k, fail, total;
   initial begin
     fail = 0; total = 0;

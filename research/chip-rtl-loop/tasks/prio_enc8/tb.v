@@ -1,6 +1,6 @@
 module tb;
   reg [7:0] req; wire [2:0] idx, ir; wire v, vr;
-  prio_enc8 dut(.req(req), .idx(idx), .valid(v)); prio_enc8_ref ref(.req(req), .idx(ir), .valid(vr));
+  prio_enc8 dut(.req(req), .idx(idx), .valid(v)); prio_enc8_ref golden(.req(req), .idx(ir), .valid(vr));
   integer k, fail, total;
   initial begin
     fail = 0; total = 0;

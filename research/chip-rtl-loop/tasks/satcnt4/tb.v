@@ -2,7 +2,7 @@ module tb;
   reg clk, rst, en, dec;
   wire [3:0] q, qr;
   satcnt4 dut(.clk(clk), .rst(rst), .en(en), .dec(dec), .q(q));
-  satcnt4_ref ref(.clk(clk), .rst(rst), .en(en), .dec(dec), .q(qr));
+  satcnt4_ref golden(.clk(clk), .rst(rst), .en(en), .dec(dec), .q(qr));
   integer k, fail, total, seen_rst;
   reg [31:0] lfsr;
   initial begin

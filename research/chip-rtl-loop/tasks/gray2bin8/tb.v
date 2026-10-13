@@ -1,6 +1,6 @@
 module tb;
   reg [7:0] g; wire [7:0] b, br;
-  gray2bin8 dut(.g(g), .b(b)); gray2bin8_ref ref(.g(g), .b(br));
+  gray2bin8 dut(.g(g), .b(b)); gray2bin8_ref golden(.g(g), .b(br));
   integer k, fail, total;
   initial begin
     fail = 0; total = 0;

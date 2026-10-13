@@ -1,0 +1,1 @@
+Module `sat_add_s8`: signed (two's complement) inputs `[7:0] a`, `[7:0] b`, output `[7:0] s` equal to a + b clamped to the range -128..127 (so overflow gives 127 or -128, never a wrapped value). Purely combinational.

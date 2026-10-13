@@ -1,6 +1,6 @@
 module tb;
   reg [7:0] x; wire [3:0] n, nr;
-  clz8 dut(.x(x), .n(n)); clz8_ref ref(.x(x), .n(nr));
+  clz8 dut(.x(x), .n(n)); clz8_ref golden(.x(x), .n(nr));
   integer k, fail, total;
   initial begin
     fail = 0; total = 0;

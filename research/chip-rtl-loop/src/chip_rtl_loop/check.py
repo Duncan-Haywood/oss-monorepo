@@ -9,7 +9,10 @@ import tempfile
 from pathlib import Path
 
 TASKS = Path(__file__).resolve().parents[2] / "tasks"
-SEQUENTIAL = {"satcnt4"}  # no combinational miter for these; simulation only
+SEQUENTIAL = {"satcnt4", "rr_arb4"}  # no combinational miter; simulation only
+# bcd_add2: the spec leaves non-BCD digits undefined, so an unconstrained miter would reject
+# correct designs; its testbench is exhaustive over the specified (BCD) domain instead.
+NO_FORMAL = SEQUENTIAL | {"bcd_add2"}
 
 
 def task_names():
@@ -48,7 +51,7 @@ def check(task, source):
             res.update(stage="compile", feedback="iverilog: " + p.stderr.strip()[:600])
             return res
         # 2. lint (Verilator): errors fail, warnings are reported
-        lp = _run(["verilator", "--lint-only", "-Wall", "--top-module", task, str(cand)])
+        lp = _run(["verilator", "--lint-only", "-Wall", "-Wno-fatal", "--top-module", task, str(cand)])
         if "%Error" in lp.stderr:
             msg = "\n".join(l for l in lp.stderr.splitlines() if l.startswith("%Error"))
             res.update(stage="lint", feedback="verilator: " + msg[:600])
@@ -56,7 +59,11 @@ def check(task, source):
         warns = [l for l in lp.stderr.splitlines() if l.startswith("%Warning")]
         res["lint_warnings"] = len(warns)
         # 3. simulation against the reference
-        out = _run(["vvp", str(vvp)], timeout=120).stdout
+        try:
+            out = _run(["vvp", str(vvp)], timeout=20).stdout
+        except subprocess.TimeoutExpired:  # e.g. a mutated loop bound that never ends
+            res.update(stage="sim", feedback="simulation timed out after 20 s")
+            return res
         m = re.search(r"RESULT fail=(\d+) total=(\d+)", out)
         if not m:
             res.update(stage="sim", feedback="simulation printed no RESULT line")
@@ -66,7 +73,7 @@ def check(task, source):
             res.update(stage="sim", feedback=f"simulation: {res['fail']} of {res['total']} vectors differ from the reference")
             return res
         # 4. formal (combinational tasks): SAT miter against the reference
-        if task not in SEQUENTIAL:
+        if task not in NO_FORMAL:
             script = (f"read_verilog {cand}; read_verilog {t / 'golden.v'}; proc; flatten; "
                       f"miter -equiv -flatten -make_outputs {task} {task}_ref miter; "
                       f"hierarchy -top miter; sat -verify -prove trigger 0 miter")

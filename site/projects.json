@@ -1267,6 +1267,11 @@
      "slug": "chip-toolchain",
      "title": "What does an all-open RTL flow report for small designs, and can it prove them equivalent?",
      "summary": "Installs Yosys, Icarus Verilog and Verilator, records versions, and synthesises adders, a multiplier and a FIFO to a generic gate library: a ripple-carry adder is 5<em>W</em>&minus;3 gates deep 2<em>W</em>&minus;1, and the operator form <code>+</code> gets the same depth with a few more gates. A SAT miter proves the two adders equivalent and rejects a deliberately broken one. Stylised: gate counts, not silicon area; OpenROAD and a PDK are not yet part of the flow."
+    },
+    {
+     "slug": "chip-rtl-loop",
+     "title": "Can a scripted checker drive an RTL generate-and-repair loop, and what does a no-model baseline repair?",
+     "summary": "A four-stage checker (compile, lint, simulation, SAT miter) over ten small Verilog tasks, with a random-mutation hill-climbing baseline that uses no model. Given 1, 2 or 3 injected faults and 60 checker evaluations, the baseline repairs 9/20, 4/20 and 4/20 cases. The session agent (Claude) passed all ten tasks on its first attempt, so the feedback rounds were never exercised and no pass-rate-versus-rounds curve is reported. Preliminary: tiny tasks, one attempt, mutation faults unlike a language model's mistakes, and the optional API proposer is untested."
     }
    ]
   },
