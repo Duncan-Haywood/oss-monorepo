@@ -1235,6 +1235,11 @@
      "slug": "footprint-twin",
      "title": "Can a fixed inflation radius stand in for a rectangular robot's footprint in a narrow gap?",
      "summary": "A 1.0&times;0.5&nbsp;m robot with Gaussian heading error crossing a gap: pass probability is exactly 2&Phi;(&theta;*/&sigma;)&minus;1 with &theta;* = asin(<em>g</em>/<em>R</em>)&minus;atan(<em>W</em>/<em>L</em>) (matches a corner-geometry Monte Carlo within 0.0013). Inscribed- and circumscribed-circle twins are step functions (always pass / always fail below 1.118&nbsp;m); an inflation calibrated to 95% at &sigma;&nbsp;=&nbsp;0.05 is 0.17&nbsp;m too small at &sigma;&nbsp;=&nbsp;0.15 (real pass 0.49), and ten-gap missions succeed only 0.60 of the time where the twin says 1. Stylised: simulated robot, Gaussian heading error, no sensing error."
+     },
+     {
+     "slug": "ransac-twin",
+     "title": "If a twin gives every scene the same inlier fraction, how many RANSAC iterations does it say we need, and is that enough when real scenes vary?",
+     "summary": "With <em>N</em>&nbsp;=&nbsp;100 correspondences, minimal sample 2 and 50% mean inliers, the twin's budget for 99% success is 17 iterations. If the real scene inlier count is beta-binomial with concentration &kappa;, the exact failure at 17 iterations is 1.3% (binomial variation only), 7.0% (&kappa;&nbsp;=&nbsp;10) and 14.1% (&kappa;&nbsp;=&nbsp;4); restoring 99% takes 19, 58 and 458 iterations, and for &kappa;&nbsp;&le;&nbsp;2 no budget exists because scenes with fewer than 2 inliers cannot succeed. Exact values match a sampler, and an end-to-end noisy line fit goes from 0.9% to 12.6% slope failures at &kappa;&nbsp;=&nbsp;4 (1.8% with the larger budget, still above 1%). Stylised: assumed scene law, line fitting only, no real data."
     }
    ]
   }
