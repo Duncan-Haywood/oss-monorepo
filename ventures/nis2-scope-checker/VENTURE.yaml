@@ -1,0 +1,45 @@
+name: nis2-scope-checker
+description: >-
+  Free browser tool that applies the scope rules of the EU NIS2 Directive (2022/2555) to a company's sector and whole-group staff, turnover and balance sheet: whether it is likely in scope, as an essential or important entity, the Article the call rests on, the result at other company sizes, and the main duties. Nothing is uploaded. A first read of the Directive's text, not legal advice and not a national transposition check.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; portfolio/pipeline/duplicate_check.py top score 0.12 (no NIS2 tool in ventures/; nearest were
+# cra-evidence-desk, a Cyber Resilience Act desk, and boi-reporting-exemption-checker, a US reporting exemption). Not in screened-out.md.
+#
+# First visitor: an EU SME's IT, compliance or founder role asked by a customer or auditor "are you NIS2 in scope?"; search phrases "NIS2 applicability
+# check", "am I essential or important entity NIS2", "NIS2 scope self assessment". Volume not measured with an external tool. Many managed service
+# providers and SaaS vendors are being asked this in customer security questionnaires, which is the demand signal.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. The paid version, not built, would be per-Member-State transposition notes,
+# an obligations gap checklist and an evidence pack for security questionnaires, behind an env-var switch.
+#
+# Liability: encodes the Directive's own Articles 2 and 3 and Annexes I and II and the Recommendation 2003/361 size ceilings, each result naming its
+# Article. It says plainly that national transposition decides, does not model partner-enterprise proportional size or national designations, rejects bad
+# input instead of clamping, and carries the no-warranty and not-legal-advice clauses. Ethical risk is false comfort from an "out of scope" result; the page
+# says it is a first read and points to the national authority and to supply chain pressure from in-scope customers.
+
+hypotheses:
+  - claim: >-
+      EU SMEs asked by a customer or auditor whether NIS2 applies will use a free sector-and-size checker to get a first answer and the Article behind it, instead of paying for a consultation to find out whether to start.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the size class, category or Article reference differs from the Directive's text on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/nis2-scope-checker/
+  analytics: null
