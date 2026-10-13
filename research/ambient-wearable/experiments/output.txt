@@ -1,0 +1,17 @@
+mode            speech  avg mA  hours   days
+idle              0.0   0.002 68000.0 2833.3
+push_to_talk      0.1   0.206   582.7   24.3
+push_to_talk      0.3   0.614   195.4    8.1
+vad_gate          0.1   0.880   136.3    5.7
+vad_gate          0.3   1.148   104.6    4.4
+vad_gate          0.6   1.548    77.5    3.2
+always_stream     1.0   2.043    58.7    2.4
+raw_stream        1.0   3.641    33.0    1.4
+
+vad_gate @ speech 0.3, one parameter at a time (hours):
+  i_mic_ma         0.3-> 151.0  0.6-> 104.6  1.0->  74.2
+  codec_load       0.1-> 123.5  0.25-> 104.6  0.5->  83.3
+  link_overhead    1.5-> 107.1  2-> 104.6  4->  95.6
+  supply_eff       0.7->  86.1  0.85-> 104.6  0.95-> 116.9
+  usable_fraction  0.6->  78.4  0.8-> 104.6  1.0-> 130.7
+base 104.6 h; mic-only ceiling 170.0 h
