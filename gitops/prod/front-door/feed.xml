@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1127 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1128 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -78,6 +78,14 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free ice cream shop profit calculator: twelve months of days open and customers per day become monthly profit, break-even customers, open-or-close verdicts, loan coverage and the cash reserve the slow months need. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Indoor Play Center Profit Calculator — Break-Even Visits, Parties, Payback</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/indoor-play-center-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/indoor-play-center-profit-calculator</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free indoor play center profit calculator: weekday and weekend visits, memberships, birthday parties, cafe spend, staffing, rent and a loan become monthly profit, break-even visits a week, the price change that hits a target margin, the ramp-up cash reserve and payback. Private, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Kombucha Brewery Profit Calculator — Break-Even, Gallons a Week, Payback</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free tool for bail bond agents: enter your open bonds, collateral and surety terms to see net premium, the loss if bonds are forfeited, whether cash covers the largest ones, and a court-date call list. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Band Tour Profit Planner — free tour budget and gig profit calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/band-tour-profit-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/band-tour-profit-planner</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free band tour profit planner. Enter your shows, venue deals (flat, door or versus), miles, rooms and merch and see profit per show and for the tour, break-even attendance, the guarantee to ask for and which dates to drop. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

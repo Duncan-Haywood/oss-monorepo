@@ -1,0 +1,54 @@
+name: indoor-play-center-profit-calculator
+description: >-
+  Free browser tool for people planning or running an indoor play centre or soft-play cafe: enter weekday and weekend child visits, walk-in and
+  membership prices, birthday parties, cafe spend, staff hours, rent, fit-out, equipment and a loan, and see monthly profit at planned attendance,
+  break-even visits a week, the price change that reaches a target margin, attendance, price and wage sensitivity tables, a sixty-month ramp-up with
+  the lowest cash point and payback, and loan coverage. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session. Nearest in ventures/ are kids-birthday-party-package-profit-calculator (one party package, not a
+# whole centre), arcade-game-payback-calculator (per-game payback), childcare-center-break-even-calculator (enrolment-based) and
+# trampoline-park-profit-calculator (jumper capacity and sessions, not walk-in attendance with cafe). None models walk-in/membership attendance by weekday and weekend, parties and cafe together with staffing,
+# break-even visits, ramp-up reserve and payback. Not in screened-out.md.
+#
+# First visitor: a parent or operator planning an indoor playground, soft-play or kids' cafe and sizing a lease and a loan; search phrases
+# "indoor playground business plan calculator", "how much profit does an indoor play center make", "indoor playground break even". Volume not
+# measured with an external tool.
+#
+# Who: small independent operators and first-time owners raising money. Staffing hours, rent per square foot and the months of ramp-up are the
+# numbers a generic startup template leaves out, and parties are the margin that decides whether the walk-in business can carry the lease.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. Saved scenarios, seasonality by month and a lender-ready
+# export behind an env-var switch is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with every rule visible on the page. No price, attendance or market is claimed, sample figures
+# are labelled illustrative, bad input is rejected instead of clamped, and the page carries the no-warranty and not-advice clauses and lists what
+# it does not decide (catchment demand, seasonality, child-safety and play-equipment rules, building and fire codes, occupancy, food licensing,
+# waivers, background checks, insurance, tax, lender terms).
+
+hypotheses:
+  - claim: >-
+      A prospective or current indoor play centre operator will enter attendance, party and staffing figures before signing a lease or borrowing,
+      because break-even visits a week and the ramp-up cash reserve are hard to see in a generic startup spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the profit, break-even or payback arithmetic differs from the stated rules on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/indoor-play-center-profit-calculator/
+  analytics: null
