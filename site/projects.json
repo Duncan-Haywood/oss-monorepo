@@ -1371,6 +1371,11 @@
      "slug": "ambient-android",
      "title": "Which parts of an always-on Android listening service can be tested without a phone?",
      "summary": "A plain-Kotlin core (frame re-chunking, an energy-gate voice detector with hangover and pre-roll, an utterance segmenter that never emits silence, and a headset route policy that pauses rather than falling back to the phone mic) with 7 unit tests, which pass when compiled with Kotlin 2.0.21 and run through a test shim. The Android foreground-service shell is <em>unbuilt</em>: no SDK was usable, so no latency, battery or accuracy numbers exist. Synthetic square-wave frames only. Produced with AI assistance."
+    },
+    {
+     "slug": "ambient-glance",
+     "title": "When is a glance better than speech for an always-on assistant?",
+     "summary": "A stylised expected-utility model chooses between speech, a glanceable display and silence by noise, other talkers, free eyes and message length; a Monte Carlo check agrees with the closed form to 0.001. A glance wins in about half of 84 grid contexts, and the look rate, the number a simulator is least able to supply, drives the twin gap (up to 0.036 utility per message). Every parameter is a round figure of mine: nothing is fitted or measured."
     }
    ]
   },
