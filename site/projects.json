@@ -1259,6 +1259,18 @@
    ]
   },
   {
+   "id": "chip",
+   "name": "LLM chip design loops",
+   "blurb": "Open-source hardware design flows (Yosys, Icarus, Verilator, OpenROAD) and the loops that put language models in them.",
+   "projects": [
+    {
+     "slug": "chip-toolchain",
+     "title": "What does an all-open RTL flow report for small designs, and can it prove them equivalent?",
+     "summary": "Installs Yosys, Icarus Verilog and Verilator, records versions, and synthesises adders, a multiplier and a FIFO to a generic gate library: a ripple-carry adder is 5<em>W</em>&minus;3 gates deep 2<em>W</em>&minus;1, and the operator form <code>+</code> gets the same depth with a few more gates. A SAT miter proves the two adders equivalent and rejects a deliberately broken one. Stylised: gate counts, not silicon area; OpenROAD and a PDK are not yet part of the flow."
+    }
+   ]
+  },
+  {
    "id": "robofab",
    "name": "Robot manufacturing loops",
    "blurb": "Can general-purpose robot arms make and assemble things, planned and checked in simulation first? Assembly sequences, insertion and cells, with every claim kept to the simulator.",
