@@ -1,67 +1,60 @@
-# ambient-labelmatch: is the gap from learning on self-selected feedback bias or too few labels, and do clipped or normalised weights close it?
+# ambient-dr: does a doubly robust estimator fix learning from an assistant's own self-selected feedback?
 
-Track 2 (ambient AI assistant), follow-up to `ambient-fullinfo`, whose first two "next steps" were a label-matched control and clipped or self-normalised weights. Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product.
+Track 2 (ambient AI assistant), follow-up to `ambient-labelmatch`, whose first next step was "doubly robust weights on the same logged history". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Negative result.**
 
 ## Motivation
 
-`ambient-fullinfo` found that a model fitted on every window's label reaches the oracle, while the model fitted only on windows where the assistant spoke does not. But the full-information fit had about 360 labels per hour against a few per hour, so that gap mixes selection bias with data volume. It also suspected, without testing, that the raw 1/&epsilon; weights were what made IPS unstable. Here I test both.
+`ambient-labelmatch` showed that the gap between a model fitted on windows where the assistant spoke and one fitted on all windows is mostly selection bias, and that raw inverse-propensity (IPS) weights are unstable while capped weights help only with an informed prior. A doubly robust (DR) estimator is the standard next candidate: it combines an outcome model with an IPS correction and is consistent if either is right. Does it help here?
 
 ## Builds on (and does not claim affiliation with)
 
-- `research/ambient-fullinfo`, `research/ambient-ips` and `research/ambient-bandit` in this repository: simulated windows, decision rule, &epsilon;-greedy policy and MAP logistic fit, copied into `src/ambient_labelmatch/core.py` so the project is self-contained.
-- Horvitz and Thompson (1952), *Journal of the American Statistical Association* 47(260):663&ndash;685, for inverse-propensity weighting; self-normalised weights follow the H&aacute;jek-style idea of dividing by the weight total (ideas only; I checked the Horvitz&ndash;Thompson citation against the bibliographic record only, as in `ambient-ips`, and cite no specific result from the paper).
-- Horvitz (1999), "Principles of mixed-initiative user interfaces", CHI '99, 159&ndash;166, <https://doi.org/10.1145/302979.303030>, for the expected-utility speaking rule (idea only).
+- `research/ambient-labelmatch`, `ambient-fullinfo`, `ambient-ips`, `ambient-bandit` in this repository: simulated windows, decision rule, &epsilon;-greedy policy and MAP logistic fit, copied into `src/ambient_dr/core.py` so the project is self-contained.
+- The doubly robust idea for missing outcomes and off-policy evaluation: Robins, Rotnitzky and Zhao (1994), "Estimation of regression coefficients when some regressors are not always observed", *Journal of the American Statistical Association* 89(427):846&ndash;866; Dud&iacute;k, Langford and Li (2011), "Doubly robust policy evaluation and learning", ICML. I checked these two against the bibliographic record only and cite no specific result from them; the pseudo-label form below is my own adaptation of the idea to a logistic fit, not a reproduction of either paper.
 
 No research group from `prompt.md` is built on; there is no lab tag.
 
 ## Method
 
-Same world, deployed policy and held-out scoring as `ambient-fullinfo` (speak if the model says so or a wake phrase is heard; otherwise speak with probability &epsilon;; refit every 10 minutes on windows where it spoke, unweighted). At hour 100 I fit seven models on the same history with the same prior and prior precision:
+Same world, policy and scoring as `ambient-labelmatch` (fits at hour 100; 20 seeds; &epsilon; &isin; {0.002, 0.005, 0.02}; two priors; scored on 20 fresh 100 h held-out streams without exploration). For every window i so far, the pseudo-label is
 
-- **biased**, **ips**, **full**: as in `ambient-fullinfo`;
-- **clip10**, **clip50**: IPS with each weight capped at 10 or 50;
-- **selfnorm**: IPS weights divided by their mean;
-- **random_matched**: a uniformly random subset of *all* windows so far, of the same size as the number of windows where the policy spoke. A real assistant cannot observe labels of windows where it stayed silent, so this is a diagnostic control, not a deployable method.
+&nbsp;&nbsp;&nbsp;&nbsp;ŷ<sub>i</sub> = m(x<sub>i</sub>) + (S<sub>i</sub>/&pi;<sub>i</sub>) (y<sub>i</sub> &minus; m(x<sub>i</sub>)),
 
-Scored by utility per hour on 20 fresh 100 h held-out streams with no exploration, and by L2 distance of the weights to the oracle weights. Two priors, &epsilon; &isin; {0.002, 0.005, 0.02}, 20 seeds. The biased, ips and full rows reproduce `ambient-fullinfo`'s hour-100 rows exactly (same seeds).
+where S<sub>i</sub> = 1 if the assistant spoke (label observed), &pi;<sub>i</sub> is its known propensity and m is an outcome model. A MAP logistic fit with the same prior is then made on all windows with soft targets ŷ. Three outcome models: **dr_biased** (the deployed biased fit), **dr_clip10** (the clip10 fit) and **dr_prior** (the prior weights alone). The other columns are as in `ambient-labelmatch`.
 
 ## Reproduce
 
 ```bash
-cd research/ambient-labelmatch
-PYTHONPATH=src python3 -m pytest -q tests       # 4 tests
-PYTHONPATH=src python3 experiments/run.py       # a few minutes, writes experiments/results.txt
+cd research/ambient-dr
+PYTHONPATH=src python3 -m pytest -q tests       # 5 tests
+PYTHONPATH=src python3 experiments/run.py       # about 2 minutes, writes experiments/results.txt
 ```
 
-## Results (from `experiments/results.txt`; held-out utility per hour, mean &plusmn; std over 20 seeds; oracle 12.71)
+## Results (from `experiments/results.txt`; held-out utility per hour, mean over 20 seeds; oracle 12.71)
 
-| prior | &epsilon; | labels | biased | ips | clip10 | clip50 | selfnorm | random_matched | full |
+| prior | &epsilon; | biased | ips | clip10 | selfnorm | dr_biased | dr_clip10 | dr_prior | random_matched |
 |---|---|---|---|---|---|---|---|---|---|
-| uninformed | 0.002 | 814 | 1.59 | &minus;23.80 | &minus;33.17 | &minus;58.26 | &minus;11.97 | 12.15 | 12.72 |
-| uninformed | 0.005 | 932 | &minus;0.15 | &minus;32.73 | &minus;62.95 | &minus;64.43 | 5.44 | 12.18 | 12.72 |
-| uninformed | 0.020 | 2691 | &minus;13.08 | &minus;45.55 | &minus;96.19 | &minus;45.55 | &minus;38.68 | 12.52 | 12.72 |
-| informed | 0.002 | 1688 | 10.62 | 9.73 | 11.70 | 12.07 | 10.01 | 12.48 | 12.72 |
-| informed | 0.005 | 1757 | 10.84 | 11.14 | 12.15 | 12.30 | 11.60 | 12.49 | 12.72 |
-| informed | 0.020 | 2178 | 11.42 | 12.36 | 12.52 | 12.36 | 12.45 | 12.48 | 12.72 |
+| uninformed | 0.002 | 1.59 | &minus;23.80 | &minus;33.17 | &minus;11.97 | &minus;40.53 | &minus;48.77 | &minus;39.93 | 12.15 |
+| uninformed | 0.005 | &minus;0.15 | &minus;32.73 | &minus;62.95 | 5.44 | &minus;54.12 | &minus;15.89 | &minus;59.04 | 12.18 |
+| uninformed | 0.020 | &minus;13.08 | &minus;45.55 | &minus;96.19 | &minus;38.68 | &minus;47.24 | &minus;49.54 | &minus;47.74 | 12.52 |
+| informed | 0.002 | 10.62 | 9.73 | 11.70 | 10.01 | &minus;9.66 | 0.26 | 0.90 | 12.48 |
+| informed | 0.005 | 10.84 | 11.14 | 12.15 | 11.60 | 10.74 | 11.00 | 10.92 | 12.49 |
+| informed | 0.020 | 11.42 | 12.36 | 12.52 | 12.45 | 12.24 | 12.35 | 12.34 | 12.48 |
 
-Standard deviations are in `results.txt`; for the uninformed prior the weighted fits have stds of 20 to 90, so their means are unreliable.
+The biased, ips, clip10, selfnorm and random_matched columns reproduce `ambient-labelmatch` exactly (same seeds). Standard deviations are in `results.txt`.
 
-1. **Mostly selection bias, not label volume, in this world.** With the same number of labels, a random sample of windows gets 12.15 to 12.52 utility per hour (weights within 0.65 to 1.21 of the oracle's), against 1.59 to &minus;13.08 for the biased fit with the uninformed prior and 10.6 to 11.4 with the informed one. The remaining gap from random_matched to full (up to 0.57) is the effect of having 13 to 44 times more labels (36,000 windows against 814 to 2,691). This corrects the open question in `ambient-fullinfo`, whose gap was partly volume.
-2. **Clipping helps only when the prior is informed.** With the informed prior, clip10 beats both biased and raw IPS in every row (for example 12.15 against 10.84 and 11.14 at &epsilon; = 0.005), and so does clip50 except at &epsilon; = 0.02, where it equals raw IPS and at &epsilon; = 0.02 clip10 (12.52) is level with random_matched (12.48), within noise. With the uninformed prior every clipped fit is worse than biased (clip10 between &minus;33 and &minus;96). The raw-weight hypothesis in `ambient-fullinfo` is only partly right: weights up to 500 hurt, but removing the extremes does not help when the starting point is bad. clip50 at &epsilon; = 0.02 is identical to raw IPS because the largest weight is 1/0.02 = 50.
-3. **Self-normalisation is inconsistent.** It is the best weighted fit for the uninformed prior at &epsilon; = 0.002 and 0.005 on weight distance (23 and 32, against thousands for IPS), but its utility is noisy (stds 23 to 80) and it is negative at two of three uninformed settings. With the informed prior it is below the clipped fits and not reliably better than biased (10.01 against 10.62 at &epsilon; = 0.002).
-4. **What this does not show.** random_matched needs labels the assistant would never see, so it says where the loss comes from, not how to recover it. With feedback only on windows where it spoke, the best rows here are informed-prior clipped fits; I did not test why they work or whether the cap should be tuned.
+1. **No benefit from DR in this world.** With the uninformed prior every DR variant is worse than the biased fit at all three &epsilon; (for example &minus;40.5 against 1.6 at &epsilon; = 0.002), with standard deviations of tens of utility per hour in `results.txt`, so only the sign is reliable.
+2. **Informed prior, rare exploration: DR is the worst fit.** At &epsilon; = 0.002 the DR fits score &minus;9.7 to 0.9 against 10.6 for biased. At &epsilon; = 0.005 they are level with biased (10.7 to 11.0 against 10.8) and below clip10 (12.15); at &epsilon; = 0.02 they are between biased (11.42) and clip10 (12.52).
+3. **Likely cause (not tested).** The correction term (S/&pi;)(y &minus; m) puts a residual of size up to 1/&epsilon; = 500 on the rare explored windows, and these are used as soft targets in a logistic fit, so a few windows dominate the gradient. Clipping the correction, or fitting the outcome model on a held-out split, are the obvious next tests; I did not try either.
 
 ## Limitations
 
-- Same stylised world as `ambient-fullinfo`: independent windows, instant noise-free accept/dismiss, a model with the true functional form, costs and benefit chosen by me.
-- The IPS-family fits are evaluated off-policy on the history of one deployed (unweighted) learner, not as their own online loops.
-- One hour (100), one prevalence (3%), caps 10 and 50 only, 20 seeds; large stds for the uninformed prior.
-- No doubly robust estimator.
+- Same stylised world as `ambient-fullinfo`: independent windows, instant noise-free feedback, a model with the true functional form, costs chosen by me.
+- Fits are off-policy on the history of one deployed learner, not online loops; one hour (100), one prevalence, 20 seeds, large variance for the uninformed prior.
+- The DR form is a pseudo-label adaptation, not a tuned estimator: no clipping, cross-fitting or self-normalisation. The negative result is about this form only.
 
 ## Next steps
 
-- Doubly robust weights (outcome model plus IPS correction) on the same logged history.
-- Run clipped and self-normalised weights as online learners (as `ambient-ips` did for raw IPS) and tune the cap with held-out logged data.
+- Clipped and cross-fitted DR pseudo-labels; test the 1/&epsilon; explanation by capping the correction.
 - Real accept/dismiss logs, if the owner opts in to collecting them.
 
 ## Outside dependencies
