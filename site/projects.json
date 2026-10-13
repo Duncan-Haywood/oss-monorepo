@@ -1289,6 +1289,11 @@
      "slug": "robofab-insert",
      "title": "Does an insertion policy tuned in one simulator survive a better one?",
      "summary": "Cross-entropy-tuned five-parameter peg-in-hole search policies in MuJoCo, trained on three simulator fidelity levels or with domain randomisation and tested on all three plus a held-out parameter set. Tuned on the simplest level, success is 0.91 there but 0.53 on the stiffer-contact level and 0.26 on the held-out one; training on the stiffer level or with randomisation gives 0.43&ndash;0.46 on the held-out set, and with 5 seeds the two cannot be ranked. No seed exceeds 0.61 on the held-out level. Toy planar task; sim-to-sim only."
+    },
+    {
+     "slug": "robofab-program",
+     "title": "How much of the gap between “the twin passes” and “it fails for real” does each twin fidelity close?",
+     "summary": "A kinematic SCARA pick-and-place twin at three checking levels (geometry; plus joint, payload and deadline limits; plus stochastic grasp error, grip build-up and slip) against a held-out reference twin. Of 162 injected-bug mutants of three programs, 69 fail the reference; the levels reject 38, 46 and 60 of them, with no false alarms. The misses are effects the checker does not model, so the rates reflect how the reference was built. Four programs written by the building session: three failed the reference as drafted, and one failure (payload at long reach) was invisible to all three levels. <em>Stylised, kinematic only, no language-model API called.</em>"
     }
    ]
   },
