@@ -40,6 +40,17 @@ class T(unittest.TestCase):
     def test_rho_is_three_mm(self):
         self.assertEqual(PATCH_RHO, 3.0)
 
+    def test_gauge2_rules_subsearch_finds_a_feasible_design(self):
+        from simdesign_gaugescatter.optimise import _search
+        p, n = _search(PROCESSES["laser cutting"], 2, 1, 4, 17, 2.5, "peak")
+        e = evaluate(PROCESSES["laser cutting"], p, h=2.5, measure="peak")
+        self.assertTrue(e["feasible"])
+        self.assertGreater(n, 0)
+        self.assertLess(e["mass_g"], 40.0)
+
+    def test_thick_gauge_web_rule_binds(self):
+        v = rule_violations(PROCESSES["laser cutting"], Params(w=6.0, r=4.0, b=10.0))
+        self.assertGreater(sum(v.values()), 0.0)
 
 if __name__ == "__main__":
     unittest.main()

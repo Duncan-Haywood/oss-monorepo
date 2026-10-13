@@ -1624,7 +1624,7 @@
     {
      "slug": "simdesign-gaugescatter",
      "title": "What causes the peak-stress price scatter of laser-cutting rules in the bracket search?",
-     "summary": "In progress (stylised): per-gauge differential-evolution sub-searches compared with a dense grid, to locate the source of the seed-to-seed scatter."
+     "summary": "A diagnostic with a negative-for-the-rules answer (stylised). The high price in one of five seeds (1.15 vs 1.00&ndash;1.01 in the others) is a missed search, not a cost of the laser rules: the 2&nbsp;mm sheet gauge, which wins, has a feasible region of only 13 of 900 grid cells, and the rules sub-search missed it in 1 of 20 seeds (the rule-free twin in 0 of 20). Feasible 2&nbsp;mm results fall in two mass groups (33.3&ndash;34.0 g and 35.3&ndash;35.6 g) whose cause is not identified. Mesh effects were not tested. Stylised 2D plane stress; assumed rules and loads."
     }
    ]
   },
