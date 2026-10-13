@@ -1580,10 +1580,11 @@ const RELATIVE_SELF = relative(
 // +1: `hydroponic-farm-profit-calculator` graduated.
 // +1: `kombucha-brewery-profit-calculator` graduated.
 // +1: `npm-audit-triage` graduated.
+// +1: `pet-boarding-daycare-profit-calculator` graduated.
 // +1: `ice-cream-shop-seasonal-profit-calculator` graduated.
 // +1: `boba-tea-shop-profit-calculator` graduated.
 // +1: `pip-audit-triage` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1096;
+const SWITCHES_IN_THE_CATALOGUE = 1097;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
