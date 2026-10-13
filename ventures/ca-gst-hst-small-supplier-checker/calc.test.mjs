@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compute, summaryText, SAMPLE, VERIFY, quarterAt, rollingEffective, parse } from "./calc.mjs";
+import { quickCompare, compute, summaryText, SAMPLE, VERIFY, quarterAt, rollingEffective, parse } from "./calc.mjs";
 
 const run = (o) => compute({ ...SAMPLE, ...o });
 const zeros = { q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0, q7: 0, q8: 0 };
@@ -76,4 +76,19 @@ test("summary names the source to verify", () => {
   const t = summaryText(run({}));
   assert.ok(t.includes(VERIFY));
   assert.match(t, /Not tax advice/);
+});
+
+test("quick method: Ontario services with few costs remits less", () => {
+  const q = quickCompare({ sales: 38000, costs: 4000, region: "on13", kind: "services" });
+  assert.equal(q.ok, true);
+  assert.ok(Math.abs(q.quickPay - (38000 * 1.13 * 0.088 - 300)) < 1e-6);
+  assert.ok(Math.abs(q.regularPay - 34000 * 0.13) < 1e-6);
+  assert.ok(q.diff > 0);
+});
+
+test("quick method: heavy costs favour regular accounting; bad input rejected; limit flagged", () => {
+  assert.ok(quickCompare({ sales: 50000, costs: 40000, region: "gst5", kind: "goods" }).diff < 0);
+  assert.equal(quickCompare({ sales: 1, costs: 1, region: "x", kind: "goods" }).ok, false);
+  assert.equal(quickCompare({ sales: -1, costs: 1, region: "gst5", kind: "goods" }).ok, false);
+  assert.ok(quickCompare({ sales: 500000, costs: 0, region: "gst5", kind: "goods" }).findings.some((f) => f.severity === "high"));
 });
