@@ -6,4 +6,6 @@ After using this, you know whether and when you must register with the CRA, whic
 
 Open `index.html`. Tests: `node --test 'ventures/ca-gst-hst-small-supplier-checker/**/*.test.mjs'`.
 
+Also includes a Quick Method vs regular accounting comparison (GST-only, Ontario and 15% HST regions).
+
 **No warranty.** Free and as-is; not tax advice. Rules were written from memory and must be verified against the source each result names. See `VENTURE.yaml`.

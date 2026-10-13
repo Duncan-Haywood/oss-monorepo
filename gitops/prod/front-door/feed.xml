@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1156 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1157 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -46,6 +46,14 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free CBAM cost estimator for EU importers of steel, aluminium, cement, fertilisers and hydrogen: embedded emissions, free-allocation phase-out 2026 to 2034, certificates needed, cost per tonne, and the 50-tonne threshold. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Commercial Property Cap Rate Calculator — NOI, Value, DSCR</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/commercial-property-cap-rate-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/commercial-property-cap-rate-calculator</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free commercial real estate calculator: enter rent, vacancy and expenses to get NOI, property value at a cap rate, DSCR, cash-on-cash return, break-even occupancy and a cap-rate sensitivity grid. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Convenience Store and Gas Station Profit Calculator — Fuel Margin After Card Fees</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free EU green claims checker (Directive 2024/825, Empowering Consumers): tick the eco, climate and durability claims you use and see which are banned for consumer marketing from 27 September 2026 (generic eco-friendly, climate neutral by offsetting, own-made labels, net zero without a plan, fake repairability) and what to say instead. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EU Green Claims Copy Scanner — Greenwashing Scan for Directive 2024/825</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-green-claims-copy-scanner/"/>
-    <id>tag:marisstella.dev,2026:tool/eu-green-claims-copy-scanner</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free greenwashing scanner for product pages, ads and packaging text under the EU Empowering Consumers Directive (2024/825), in force since 27 September 2026: flags carbon-neutral claims, vague words like eco-friendly, home-made badges, future net-zero promises and legal-minimum claims, with the fix for each. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
