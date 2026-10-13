@@ -19,7 +19,7 @@ Track 4 asks for general-purpose robot cells that make parts, including for the 
 
 ## Builds on
 
-The workcell-twin direction of the HIRO Group (Alessandro Roncone, <https://hiro-group.ronc.one/>). No paper from that group is reproduced; nothing here is affiliated with or endorsed by them. Scheduling background, cited for context and not reproduced: Graham (1969), "Bounds on Multiprocessing Timing Anomalies", *SIAM J. Appl. Math.* 17(2), 416-429 (longest-processing-time rule); Pinedo (2016), *Scheduling: Theory, Algorithms, and Systems*, 5th ed., Springer. Both were cited from memory; this run did not re-check them online, so verify before relying on them. See `paper/refs.bib`.
+The workcell-twin direction of the HIRO Group (Alessandro Roncone, <https://hiro-group.ronc.one/>). No paper from that group is reproduced; nothing here is affiliated with or endorsed by them. Scheduling background, cited for context and not reproduced: Graham (1969), "Bounds on Multiprocessing Timing Anomalies", *SIAM J. Appl. Math.* 17(2), 416-429 (longest-processing-time rule); Pinedo (2016), *Scheduling: Theory, Algorithms, and Systems*, 5th ed., Springer. Existence, title, venue, year and pages (Graham) and edition and year (Pinedo) were checked against web search results on 2026-10-13 (SIAM DOI 10.1137/0117039; Springer DOI 10.1007/978-3-319-26580-3); the paper text itself was paywalled and not read, so the LPT/SPT behaviour is attributed to textbook knowledge, not to a quoted passage. See `paper/refs.bib`.
 
 ## Method
 

@@ -13,4 +13,4 @@
 
 **Limits.** One product, no travel time or arm motion planning, no failures except rejects, no setup or material changes, a single batch from empty. The numbers describe the model, not any physical cell; measuring a real cell's times is an owner step.
 
-**References.** Graham (1969), `refs.bib`; Pinedo (2016), `refs.bib`. Both are cited from memory and should be checked before being relied on.
+**References.** Graham (1969), `refs.bib`; Pinedo (2016), `refs.bib`. Bibliographic data checked by web search on 2026-10-13; the paper text was not read.
