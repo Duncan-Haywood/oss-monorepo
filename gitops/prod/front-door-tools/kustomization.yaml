@@ -33,50 +33,50 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548311 bytes
-#   portfolio-front-tools-1: 92 files, 555589 bytes
-#   portfolio-front-tools-2: 144 files, 553639 bytes
-#   portfolio-front-tools-3: 128 files, 549918 bytes
-#   portfolio-front-tools-4: 136 files, 554187 bytes
-#   portfolio-front-tools-5: 130 files, 549911 bytes
-#   portfolio-front-tools-6: 127 files, 556863 bytes
-#   portfolio-front-tools-7: 121 files, 556392 bytes
-#   portfolio-front-tools-8: 130 files, 554747 bytes
-#   portfolio-front-tools-9: 137 files, 554821 bytes
-#   portfolio-front-tools-10: 136 files, 554982 bytes
-#   portfolio-front-tools-11: 136 files, 556262 bytes
-#   portfolio-front-tools-12: 127 files, 549523 bytes
-#   portfolio-front-tools-13: 131 files, 554442 bytes
-#   portfolio-front-tools-14: 119 files, 556698 bytes
-#   portfolio-front-tools-15: 140 files, 556941 bytes
-#   portfolio-front-tools-16: 116 files, 546656 bytes
-#   portfolio-front-tools-17: 133 files, 556950 bytes
-#   portfolio-front-tools-18: 124 files, 556658 bytes
-#   portfolio-front-tools-19: 126 files, 556973 bytes
-#   portfolio-front-tools-20: 122 files, 556212 bytes
-#   portfolio-front-tools-21: 126 files, 555008 bytes
-#   portfolio-front-tools-22: 117 files, 554150 bytes
-#   portfolio-front-tools-23: 117 files, 551583 bytes
-#   portfolio-front-tools-24: 130 files, 556624 bytes
-#   portfolio-front-tools-25: 128 files, 556740 bytes
-#   portfolio-front-tools-26: 134 files, 556087 bytes
-#   portfolio-front-tools-27: 133 files, 551369 bytes
-#   portfolio-front-tools-28: 121 files, 552799 bytes
-#   portfolio-front-tools-29: 127 files, 556735 bytes
-#   portfolio-front-tools-30: 138 files, 555181 bytes
-#   portfolio-front-tools-31: 125 files, 553374 bytes
-#   portfolio-front-tools-32: 125 files, 555027 bytes
-#   portfolio-front-tools-33: 135 files, 552569 bytes
-#   portfolio-front-tools-34: 109 files, 555143 bytes
-#   portfolio-front-tools-35: 100 files, 552239 bytes
-#   portfolio-front-tools-36: 128 files, 549641 bytes
-#   portfolio-front-tools-37: 118 files, 554138 bytes
-#   portfolio-front-tools-38: 130 files, 553248 bytes
-#   portfolio-front-tools-39: 124 files, 555644 bytes
-#   portfolio-front-tools-40: 134 files, 551655 bytes
-#   portfolio-front-tools-41: 123 files, 555942 bytes
-#   portfolio-front-tools-42: 112 files, 547969 bytes
-#   portfolio-front-tools-43: 53 files, 283380 bytes
+#   portfolio-front-tools-0: 145 files, 548298 bytes
+#   portfolio-front-tools-1: 92 files, 555573 bytes
+#   portfolio-front-tools-2: 144 files, 553633 bytes
+#   portfolio-front-tools-3: 128 files, 549903 bytes
+#   portfolio-front-tools-4: 136 files, 554184 bytes
+#   portfolio-front-tools-5: 130 files, 549906 bytes
+#   portfolio-front-tools-6: 127 files, 556849 bytes
+#   portfolio-front-tools-7: 121 files, 556386 bytes
+#   portfolio-front-tools-8: 130 files, 554736 bytes
+#   portfolio-front-tools-9: 137 files, 554778 bytes
+#   portfolio-front-tools-10: 136 files, 554952 bytes
+#   portfolio-front-tools-11: 136 files, 556256 bytes
+#   portfolio-front-tools-12: 127 files, 549519 bytes
+#   portfolio-front-tools-13: 131 files, 554469 bytes
+#   portfolio-front-tools-14: 119 files, 556657 bytes
+#   portfolio-front-tools-15: 140 files, 556888 bytes
+#   portfolio-front-tools-16: 116 files, 546633 bytes
+#   portfolio-front-tools-17: 133 files, 556860 bytes
+#   portfolio-front-tools-18: 124 files, 556729 bytes
+#   portfolio-front-tools-19: 126 files, 556956 bytes
+#   portfolio-front-tools-20: 122 files, 556215 bytes
+#   portfolio-front-tools-21: 126 files, 555044 bytes
+#   portfolio-front-tools-22: 117 files, 554197 bytes
+#   portfolio-front-tools-23: 117 files, 551560 bytes
+#   portfolio-front-tools-24: 130 files, 556589 bytes
+#   portfolio-front-tools-25: 128 files, 556738 bytes
+#   portfolio-front-tools-26: 134 files, 556058 bytes
+#   portfolio-front-tools-27: 133 files, 551321 bytes
+#   portfolio-front-tools-28: 121 files, 552865 bytes
+#   portfolio-front-tools-29: 127 files, 556732 bytes
+#   portfolio-front-tools-30: 138 files, 555272 bytes
+#   portfolio-front-tools-31: 125 files, 553357 bytes
+#   portfolio-front-tools-32: 125 files, 555092 bytes
+#   portfolio-front-tools-33: 135 files, 552636 bytes
+#   portfolio-front-tools-34: 109 files, 555027 bytes
+#   portfolio-front-tools-35: 100 files, 552237 bytes
+#   portfolio-front-tools-36: 128 files, 549646 bytes
+#   portfolio-front-tools-37: 118 files, 554028 bytes
+#   portfolio-front-tools-38: 130 files, 553294 bytes
+#   portfolio-front-tools-39: 124 files, 555633 bytes
+#   portfolio-front-tools-40: 135 files, 554862 bytes
+#   portfolio-front-tools-41: 123 files, 556334 bytes
+#   portfolio-front-tools-42: 114 files, 555919 bytes
+#   portfolio-front-tools-43: 53 files, 283359 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -5414,6 +5414,9 @@ configMapGenerator:
       - uk-payments-on-account-calculator__calc.mjs.gz=uk-payments-on-account-calculator__calc.mjs.gz
       - uk-payments-on-account-calculator__index.html.gz=uk-payments-on-account-calculator__index.html.gz
       - uk-payments-on-account-calculator__usage.mjs.gz=uk-payments-on-account-calculator__usage.mjs.gz
+      - uk-self-assessment-late-penalty-calculator__calc.mjs.gz=uk-self-assessment-late-penalty-calculator__calc.mjs.gz
+      - uk-self-assessment-late-penalty-calculator__index.html.gz=uk-self-assessment-late-penalty-calculator__index.html.gz
+      - uk-self-assessment-late-penalty-calculator__usage.mjs.gz=uk-self-assessment-late-penalty-calculator__usage.mjs.gz
       - uk-sole-trader-vs-limited-company-calculator__calc.mjs.gz=uk-sole-trader-vs-limited-company-calculator__calc.mjs.gz
       - uk-sole-trader-vs-limited-company-calculator__index.html.gz=uk-sole-trader-vs-limited-company-calculator__index.html.gz
       - uk-sole-trader-vs-limited-company-calculator__usage.mjs.gz=uk-sole-trader-vs-limited-company-calculator__usage.mjs.gz
@@ -5496,13 +5499,13 @@ configMapGenerator:
       - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz
       - vendor-change-watch__store.mjs.gz=vendor-change-watch__store.mjs.gz
       - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
-      - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
-      - vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz=vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz
   - name: portfolio-front-tools-41
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
+      - vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz=vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz
       - vendor-contract-clause-reader__calc.mjs.gz=vendor-contract-clause-reader__calc.mjs.gz
       - vendor-contract-clause-reader__index.html.gz=vendor-contract-clause-reader__index.html.gz
       - vendor-contract-clause-reader__usage.mjs.gz=vendor-contract-clause-reader__usage.mjs.gz
@@ -5624,13 +5627,13 @@ configMapGenerator:
       - webhook-signature-debugger__usage.mjs.gz=webhook-signature-debugger__usage.mjs.gz
       - webhook-signature-debugger__webhook.mjs.gz=webhook-signature-debugger__webhook.mjs.gz
       - wedding-budget-allocator__calc.mjs.gz=wedding-budget-allocator__calc.mjs.gz
-      - wedding-budget-allocator__index.html.gz=wedding-budget-allocator__index.html.gz
-      - wedding-budget-allocator__usage.mjs.gz=wedding-budget-allocator__usage.mjs.gz
   - name: portfolio-front-tools-42
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - wedding-budget-allocator__index.html.gz=wedding-budget-allocator__index.html.gz
+      - wedding-budget-allocator__usage.mjs.gz=wedding-budget-allocator__usage.mjs.gz
       - wedding-day-timeline-builder__calc.mjs.gz=wedding-day-timeline-builder__calc.mjs.gz
       - wedding-day-timeline-builder__index.html.gz=wedding-day-timeline-builder__index.html.gz
       - wedding-day-timeline-builder__usage.mjs.gz=wedding-day-timeline-builder__usage.mjs.gz
