@@ -1364,6 +1364,11 @@
      "slug": "robofab-selfparts",
      "title": "Can a parallel-jaw arm assemble its own gripper?",
      "summary": "Exhaustive search over assembly orders of a seven-part toy gripper (axis-aligned boxes) by a modelled arm with a parallel-jaw grasp check, three approach-direction models and a swept jaw opening. No complete order exists below a 30&nbsp;mm opening, the width of the widest part; above it, 384 of 720 orderings are valid when parts may be slid sideways and 120 when strictly top-down. Jaw-pad thickness from 2 to 10&nbsp;mm changes nothing (a negative result for this geometry). <em>Stylised single design, no reach, force or fasteners; simulation only.</em>"
+    },
+    {
+     "slug": "robofab-bootstrap",
+     "title": "Can a printed gripper assemble its own next generation?",
+     "summary": "A follow-up to the self-parts project: the arm that builds generation k+1 is the printed gripper of generation k, with an assumed jaw opening of 32<em>s</em>&nbsp;&minus;&nbsp;2<em>t</em>&nbsp;mm for fixed-size pads of thickness <em>t</em>. Exhaustive assembly search gives a required opening of exactly 30<em>s</em>&nbsp;mm, so a gripper can build a copy only at scale <em>s</em>&nbsp;&ge;&nbsp;<em>t</em> (scale 4 for 4&nbsp;mm pads), and a stroke cap <em>S</em> admits one only if 30<em>t</em>&nbsp;&le;&nbsp;<em>S</em>. Seeds of 130 and 140&nbsp;mm sustain a chain; 60 and 100&nbsp;mm seeds shrink and stop. <em>Largely algebraic given the assumed opening; one toy design; simulation only.</em>"
     }
    ]
   },
