@@ -1,0 +1,43 @@
+name: eu-product-liability-directive-checker
+description: >-
+  Free browser tool for software, AI and product makers selling into the EU: pick your supply-chain role and what you supply to see whether the new Product Liability Directive (EU) 2024/2853 reaches you from 9 December 2026, who is liable for a defect, the covered harm, time limits and a preparation list. Nothing is uploaded. Not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no product-liability tool in ventures/ (siblings gpsr-product-safety-checker, cra-evidence-desk and
+# eu-ai-act-risk-checker cover other regulations). Not in screened-out.md.
+#
+# First visitor: SaaS/app founder, AI startup, hardware maker or Amazon seller selling into the EU; search phrases "product liability directive software 2026",
+# "does the new PLD apply to SaaS", "EU product liability AI open source". The 9 Dec 2026 date is under three months away so demand is time-bound. Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet into the CRA and GPSR tools; GitHub Sponsors. Paid version, not built: per-product liability file
+# (documentation tracker, supplier recourse register, 10-year retention reminders) for small manufacturers, behind an env-var switch.
+#
+# Liability: first read of a new law; rejects bad input, names a verify source on every result, says plainly that courts and national law decide, carries
+# no-warranty and not-legal-advice clauses. Rules were written from memory without network access and must be verified; ethical risk is false comfort from the
+# open-source exemption or the pre-December carve-out, mitigated by the caveats on each result.
+
+hypotheses:
+  - claim: >-
+      Software, AI and hardware founders selling into the EU will use a free checker to learn whether the new strict-liability regime reaches them before they review insurance and supplier contracts.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rule, time limit or exemption differs from the cited Directive on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eu-product-liability-directive-checker/
+  analytics: null
