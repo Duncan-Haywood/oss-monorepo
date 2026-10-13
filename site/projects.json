@@ -1374,6 +1374,11 @@
      "slug": "robofab-reach",
      "title": "How long an arm does it take to assemble its own toy gripper?",
      "summary": "A planar two-link arm on a turntable must reach a pick, place and lift point for each of the six free parts of the seven-part toy gripper from <code>robofab-selfparts</code>. With equal links and a 100&nbsp;mm shoulder height the shortest arm is 60&ndash;140&nbsp;mm per link as the tray moves from 40 to 400&nbsp;mm away; an elbow limit of 90&deg; raises it from 80 to 180&nbsp;mm and 60&deg; admits none up to 600&nbsp;mm. Stylised: wrist point only, no collisions, payload or wrist orientation; results sit on a 10&nbsp;mm grid."
+    },
+    {
+     "slug": "robofab-reachorder",
+     "title": "Does the assembly order change the arm an arm needs to build its own gripper?",
+     "summary": "Combines the order search of <code>robofab-selfparts</code> (384 valid orders) with the two-link reach model of <code>robofab-reach</code>, letting each part&rsquo;s lift height clear whatever is already assembled. Negative result: for every valid order the shortest arm is the same (for example 80&nbsp;mm per link at a 100&nbsp;mm shoulder and 120&nbsp;mm tray gap, 120&nbsp;mm at a 200&nbsp;mm shoulder), because the cover&rsquo;s own lift point bounds every order and the tray distance dominates. Stylised: wrist point only, 10&nbsp;mm link grid, 20&nbsp;mm base grid."
     }
    ]
   },
