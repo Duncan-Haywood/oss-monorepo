@@ -1,0 +1,46 @@
+name: eu-ai-act-risk-checker
+description: >-
+  Free browser tool that applies the EU AI Act (Regulation 2024/1689) to what an AI system does and the user's role: outside scope, prohibited practice, high-risk (Annex III or Annex I), transparency duties only, or minimal risk, with the Article behind the call, the duties for provider, deployer, importer or distributor, general-purpose model duties, fines and dates. Nothing is uploaded. A first read of the Regulation's text, not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; portfolio/pipeline/duplicate_check.py top score 0.12 (no AI Act tool in ventures/; nearest were
+# nis2-scope-checker, a sibling EU scope check, and cra-evidence-desk). Not in screened-out.md.
+#
+# First visitor: a founder, product or compliance lead at an AI startup or an EU company buying AI tools, asked by a customer, investor or auditor "is
+# this high-risk under the AI Act?"; search phrases "is my AI system high risk EU AI Act", "AI Act risk classification tool", "EU AI Act provider or
+# deployer obligations". Volume not measured with an external tool. AI Act questions are now routine in enterprise security and procurement reviews,
+# which is the demand signal.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. The paid version, not built, would be a per-system documentation pack (Annex IV
+# skeleton, risk register, FRIA template) and a monitor for changes in guidelines and dates, behind an env-var switch.
+#
+# Liability: encodes the Regulation's own Articles 2, 4, 5, 6, 16, 23-27, 50-55 and 99-101 and Annex III headings, each result naming its Article. It
+# reads only what the user ticks, states that Annex III boundaries are still being clarified, states that the dates are Art 113 as adopted and that a
+# postponement has been proposed, and carries the no-warranty and not-legal-advice clauses. Ethical risk is false comfort from a "minimal risk" result;
+# the page says it is a first read and points to counsel and national authorities.
+
+hypotheses:
+  - claim: >-
+      Teams asked by a customer, investor or auditor whether their AI system is high-risk under the AI Act will use a free tick-box classifier that names the Article and their role's duties, instead of paying for a consultation to find out which tier they are in.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a tier, Article reference or date differs from the Regulation's text on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eu-ai-act-risk-checker/
+  analytics: null
