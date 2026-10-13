@@ -1411,6 +1411,11 @@
      "summary": "A follow-up to <code>robofab-graspmove</code> and <code>robofab-reach</code>: a planar two-link arm with assumed masses carries each of the six free parts of the toy gripper on a min-jerk joint move, as fast as an assumed joint torque limit allows. With 0.12&nbsp;m links and 5&nbsp;N&nbsp;m the carries take 0.06 to 0.10&nbsp;s and the 5.95&nbsp;g cover needs 1.25&nbsp;N per jaw, 21&times; its static force; a jaw force under about 0.5&nbsp;N makes the grip, not the arm, the limit. A larger arm is slower at a fixed torque. Stylised: assumed masses and torques, and the grip bound, simulated only up to 40&nbsp;m/s<sup>2</sup> earlier, is applied beyond that range."
     },
     {
+     "slug": "robofab-armbang",
+     "title": "How much carry time does a time-optimal move save over min-jerk, and what does it cost the jaws?",
+     "summary": "A follow-up to <code>robofab-armaccel</code>: the same planar two-link arm carries the six free parts of the toy gripper along the same joint-space line, once with min-jerk and once with the time-optimal speed profile under an assumed joint torque limit. Over nine arm and torque cases the six-part total time falls by 21&ndash;29%, but the per-jaw force bound rises 1.2&ndash;2.4&times;. Stylised: every parameter except the geometry is assumed, the grip bound is not re-simulated above 40&nbsp;m/s<sup>2</sup>, and the path is fixed."
+    },
+    {
      "slug": "robofab-graspmove",
      "title": "How hard must the jaws squeeze while the arm moves?",
      "summary": "A follow-up to <code>robofab-grasp</code>: the jaw assembly accelerates upward or sideways at up to 40&nbsp;m/s<sup>2</sup> and the smallest holding force is compared with the bound <em>m</em>&radic;((<em>g</em>+<em>a</em><sub>up</sub>)<sup>2</sup>+<em>a</em><sub>side</sub><sup>2</sup>)/(2&mu;) at &mu;&nbsp;=&nbsp;0.5. Over 77 cases the two agree to within 7%, and the heaviest part needs at most 0.3&nbsp;N, so friction is still not the constraint. A fidelity finding: the contact time constant used for the static test (0.004&nbsp;s) reports slip at any force once the jaws accelerate; 0.0005&nbsp;s is needed. Stylised: boxes, rigid pads, assumed density and friction."
@@ -1533,6 +1538,11 @@
      "slug": "selfrep-extinction-kits",
      "title": "Is the lone-printer die-out an early birth-death accident?",
      "summary": "Tests the extinction explanation left open by selfrep-wearout with an exact continuous-time Markov chain of the same shop (Poisson vitamin kits, exponential builds and lives). With assumed inputs and a budget of 4 units/h, the chain gives a 0.194 chance that a lone seed machine is lost before the fleet reaches 6 machines at 500 h mean life (simulation 0.198 &plusmn; 0.006), of which 0.162 is the seed retiring before its first copy; relaxing the Markov assumptions moves this by at most about 0.03. Wear-out lives (Weibull shape 2 or more) cut it to under 3%. Exact mean extinction times for small equilibrium fleets match simulation (1464 h against 1511 &plusmn; 50 h at 200 h life), but with regular kits and lognormal builds long times roughly double, so the chain is a lower guide there. Stylised: every input is assumed; simulated only."
+    },
+    {
+     "slug": "selfrep-reconcile",
+     "title": "Why do two exact extinction chains of the same printer shop disagree?",
+     "summary": "Two sibling chains of the lone replicating printer shop, one on fleet size and one on machines and vitamin kits, give different mean extinction times for the same inputs. Stylised, with assumed inputs, the fleet-size chain is longer by 1.5 to 7 times because its birth law min(n/W, a) lets machines and kits never wait for each other. A fixed-in-advance repair that adds the two waits matches the kit chain within 5% when the fleet stays at 1 to 3 machines, but falls 24 to 60% below it for larger fleets, where kits pool in stock. No law right in both regimes was derived."
     }
    ]
   },
@@ -1600,6 +1610,11 @@
      "slug": "simdesign-filletfloor",
      "title": "Is the shrinking laser-cutting price scatter under the patch stress caused by the near-sharp fillet floor?",
      "summary": "A negative result (stylised). Raising the laser-cutting inner-fillet floor from 0.2 to 1 and 3.175&nbsp;mm over five seeds does not explain the scatter in the mass price of the rules: the peak-stress designs already use fillets of 7.6&ndash;14.3&nbsp;mm, so the 0.2 and 1&nbsp;mm floors give identical designs (sd of the price 0.063), and under a 3&nbsp;mm patch average the price is steady (sd 0.006&ndash;0.011) at every floor. The cause of the peak-stress scatter is not identified. Limits: five seeds, one process and load, uncalibrated limit, assumed values, 2D plane stress."
+    },
+    {
+     "slug": "simdesign-holepatch",
+     "title": "Does a patch-averaged stress give a mesh-converged stress concentration for a bolt hole?",
+     "summary": "A strip in tension with a central circular hole is solved by finite elements on meshes of 48 to 768 points around the hole, and the pointwise peak of &sigma;<sub>xx</sub> is compared with its average over a disc of 0.1 to 0.5 hole radii, for d/W from 0.05 to 0.4, and with Kirsch&rsquo;s analytic field. The peak is already nearly settled for a smooth hole (0.3% change over the last refinement; the patch measures 0.0&ndash;0.1%), and at d/W&nbsp;=&nbsp;0.05 the patch values match Kirsch&rsquo;s disc averages to within 0.4%. The patch reads 65&ndash;91% of the peak, so it needs its own limit. One coarse mesh (d/W&nbsp;=&nbsp;0.4, 96 points) is an unexplained outlier for every measure. Stylised; linear plane stress, no allowable calibrated."
     },
     {
      "slug": "simdesign-kirsch",

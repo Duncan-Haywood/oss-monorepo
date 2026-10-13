@@ -1,0 +1,12 @@
+W=50.0 h, V=170.3 units per copy (assumed, from selfrep-growth/selfrep-closure); kit rate a = B/V; hours
+min = selfrep-extinction chain from n=1; serial = b(n)=1/(W/n+1/a) from n=1; kits = selfrep-extinction-kits exact chain (nmax 30, kmax 12) from one idle machine, empty stock.
+ratio = chain / kits (1 means agreement).
+
+case                   min      serial        kits  min/kits  serial/kits
+L=75  B=4             186         121         117      1.59         1.04
+L=100 B=4             358         198         201      1.78         0.98
+L=200 B=4            3967        1110        1465      2.71         0.76
+L=300 B=4           41602        6696       10996      3.78         0.61
+L=200 B=8           92881        5323       13277      7.00         0.40
+L=200 B=2             806         508         524      1.54         0.97
+L=100 B=16           6566         544        1268      5.18         0.43
