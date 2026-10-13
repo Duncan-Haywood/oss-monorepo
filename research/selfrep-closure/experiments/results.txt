@@ -1,0 +1,18 @@
+== bearing variant: lm8uu
+shop                         lines  units  mass(assumed, 5-50-95%)      cost(assumed, 5-50-95%)
+printer                      35.3%   9.4%  17.3% [14-17-22]%   11.4% [9-11-15]%
+printer+cnc+laser            43.1%  42.1%  22.4% [18-22-28]%   15.9% [12-16-20]%
+printer+cnc+laser+casting    43.1%  42.1%  22.4% [18-22-28]%   15.9% [12-16-20]%
+totals: 51 lines, 468 units
+feedstock imported (largest shop): MDF sheet, aluminium bar, aluminium sheet, filament
+vitamins (largest shop): 100x M8 nut; 50x M3x20 bolt; 50x M3 nut; 6x M3x10 bolt; 2x M3x8 grub screw; 1x M8x50 grub screw / rod; 3x M3x10 bolt (extruder); 3x M3x40 bolt (extruder); 1x M3x8 grub screw (extruder); 1x M8x20 grub screw / rod (extruder); 1x M8x50 hobbed bolt; 10x LM8UU linear bearing; 6x 608 bearing; 6x 370 mm M8 threaded rod; 4x 294 mm M8 threaded rod; 3x 440 mm M8 threaded rod; 2x 210 mm M8 threaded rod; 2x 350 mm 8 mm smooth rod; 2x 405 mm 8 mm smooth rod; 2x 420 mm 8 mm smooth rod; 1x 840 mm GT2 belt; 1x 900 mm GT2 belt; 2x vinyl tubing 1.5 cm; 1x glass / mirror bed; 5x NEMA17 stepper motor; 1x controller electronics; 1x hot end (e.g. J-head); 1x thermistor + heater; 3x end-stop switch (inferred from 3 holders)
+
+== bearing variant: brass
+shop                         lines  units  mass(assumed, 5-50-95%)      cost(assumed, 5-50-95%)
+printer                      35.3%   9.4%  17.2% [13-17-22]%   11.4% [9-11-15]%
+printer+cnc+laser            43.1%  42.1%  22.3% [18-22-28]%   15.9% [12-16-20]%
+printer+cnc+laser+casting    45.1%  44.2%  24.1% [19-24-30]%   21.1% [16-21-27]%
+totals: 51 lines, 468 units
+feedstock imported (largest shop): MDF sheet, aluminium bar, aluminium sheet, brass/bronze ingot, filament
+vitamins (largest shop): 100x M8 nut; 50x M3x20 bolt; 50x M3 nut; 6x M3x10 bolt; 2x M3x8 grub screw; 1x M8x50 grub screw / rod; 3x M3x10 bolt (extruder); 3x M3x40 bolt (extruder); 1x M3x8 grub screw (extruder); 1x M8x20 grub screw / rod (extruder); 1x M8x50 hobbed bolt; 6x 608 bearing; 6x 370 mm M8 threaded rod; 4x 294 mm M8 threaded rod; 3x 440 mm M8 threaded rod; 2x 210 mm M8 threaded rod; 2x 350 mm 8 mm smooth rod; 2x 405 mm 8 mm smooth rod; 2x 420 mm 8 mm smooth rod; 1x 840 mm GT2 belt; 1x 900 mm GT2 belt; 2x vinyl tubing 1.5 cm; 1x glass / mirror bed; 5x NEMA17 stepper motor; 1x controller electronics; 1x hot end (e.g. J-head); 1x thermistor + heater; 3x end-stop switch (inferred from 3 holders)
+
