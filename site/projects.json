@@ -1471,6 +1471,16 @@
      "slug": "ambient-bandit",
      "title": "Can an always-on assistant learn when to speak from accept/dismiss feedback alone, and what does it cost in dismissals?",
      "summary": "A simulated assistant learns an interruption policy online (greedy, &epsilon;-greedy or Thompson-sampled logistic model) from the user&rsquo;s reaction only when it speaks. With an uninformed prior none of the three learns a useful policy in 100&nbsp;h; with a prior that the intent score is informative, greedy reaches 90% of an offline oracle&rsquo;s rate after a median 22.5&nbsp;h and about 185 dismissals, and Thompson sampling takes 32.5&nbsp;h. It still earns 10.4 against the oracle&rsquo;s 12.7 per hour, and after a drop in classifier quality it does far worse than frozen offline weights (0.3 vs 4.4 per hour). Stylised: independent windows, instant noise-free feedback, picked costs."
+    },
+    {
+     "slug": "ambient-ips",
+     "title": "Does inverse-propensity weighting fix an always-on assistant learning from its own accept/dismiss feedback?",
+     "summary": "A stylised follow-up to <em>ambient-bandit</em>: the assistant speaks with a known probability (&epsilon;-greedy) and refits its model with each labelled window weighted by 1/propensity. Mostly negative: exploration itself costs more utility than the learning gains at every &epsilon; tried, weights up to 500 make the weighted fit unstable at small &epsilon; (a standard deviation across seeds of tens of utility units per hour), and the weighting did not rescue the uninformed-prior or the drift scenarios. Only at &epsilon;&nbsp;=&nbsp;0.02 with an informed prior is the weighted model slightly closer to the oracle (12.2 vs 11.4 per hour at 100&nbsp;h, oracle 12.7). Stylised: every distribution is chosen by me."
+    },
+    {
+     "slug": "ambient-wearable",
+     "title": "What limits the battery life of a pendant-style always-on audio wearable?",
+     "summary": "A stylised average-current model for an nRF52840-class pendant with a 150 mAh cell, built from a few vendor figures read on 2026-10-13 plus labelled assumptions. The always-on microphone is the floor (about 170 h alone); gating codec and radio on speech at a 30% speech fraction gives about 105 h against 59 h for always streaming. A 74-byte energy-gate routine compiles for Cortex-M4. Nothing is measured on hardware, the datasheets were not read in full and there is no numeric comparison with Omi."
     }
    ]
   },
@@ -1625,6 +1635,11 @@
      "slug": "simdesign-kirsch",
      "title": "How far below the exact stress concentration does a finite-element peak stress sit, and how fast does it close?",
      "summary": "A plate with a circular hole under tension has an exact peak stress of 3&times; the remote stress (Kirsch). On a graded quarter-plate mesh with exact-solution tractions (48&nbsp;384 elements at the finest), the usual element-centroid peak sits 27% below it on the coarsest mesh and 1.1% below on the finest, closing only at first order, while the field itself converges at second order: the shortfall is sampling position, not solver error. Reading the stress at the hole-edge vertices instead is within 1% on every mesh. Stylised 2D plane stress, one geometry, regular mesh; the numbers do not transfer to other fillets."
+    },
+    {
+     "slug": "simdesign-gaugescatter",
+     "title": "What causes the peak-stress price scatter of laser-cutting rules in the bracket search?",
+     "summary": "A diagnostic with a negative-for-the-rules answer (stylised). The high price in one of five seeds (1.15 vs 1.00&ndash;1.01 in the others) is a missed search, not a cost of the laser rules: the 2&nbsp;mm sheet gauge, which wins, has a feasible region of only 13 of 900 grid cells, and the rules sub-search missed it in 1 of 20 seeds (the rule-free twin in 0 of 20). Feasible 2&nbsp;mm results fall in two mass groups (33.3&ndash;34.0 g and 35.3&ndash;35.6 g) whose cause is not identified. Mesh effects were not tested. Stylised 2D plane stress; assumed rules and loads."
     }
    ]
   },
