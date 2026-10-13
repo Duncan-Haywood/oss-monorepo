@@ -1620,7 +1620,8 @@ const RELATIVE_SELF = relative(
 // +1: `au-gst-registration-checker` graduated.
 // +1: `social-security-survivor-spousal-benefit-calculator` graduated.
 // +1: `au-redundancy-pay-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1140;
+// +1: `iolta-three-way-reconciliation-checker` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1141;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
