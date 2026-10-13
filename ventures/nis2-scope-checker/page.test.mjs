@@ -67,3 +67,7 @@ test("footer links the EU pay gap report calculator", () => {
 test("footer links the EU AI Act risk checker", () => {
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/eu-ai-act-risk-checker\/"/);
 });
+
+test("footer links the CBAM cost estimator", () => {
+  assert.match(page("index.html"), /href="\.\.\/cbam-cost-estimator\/"/);
+});
