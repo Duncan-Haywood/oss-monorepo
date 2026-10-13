@@ -1483,6 +1483,11 @@
      "slug": "selfrep-wearout",
      "title": "What fleet can a replicating printer shop sustain when its machines wear out?",
      "summary": "Extends the selfrep-growth fleet model with random machine lifetimes (Weibull) and a recovered share of vitamin value at retirement. With assumed inputs and a vitamin budget of 4 units/h, a lone seed machine died out in every run when mean life was 200 h or less (20% of runs at 500 h, 3% at 2000 h), while the fluid model predicted a small stable fleet; survivors held about 10 machines at 500 h. Wear-out lifetimes are safer than constant hazard at the same mean. The fluid equilibrium over-predicts fleet size at high recycling (235 vs 73 simulated at 95% recovery); charging for builds cut short by retirement closes the gap (76), though that correction was added after seeing the discrepancy. Stylised: every input is assumed."
+    },
+    {
+     "slug": "selfrep-extinction",
+     "title": "Is the lone-printer die-out an early birth-death accident?",
+     "summary": "Tests the extinction explanation left open by selfrep-wearout with an exact continuous-time Markov chain of the same shop (Poisson vitamin kits, exponential builds and lives). With assumed inputs and a budget of 4 units/h, the chain gives a 0.194 chance that a lone seed machine is lost before the fleet reaches 6 machines at 500 h mean life (simulation 0.198 &plusmn; 0.006), of which 0.162 is the seed retiring before its first copy; relaxing the Markov assumptions moves this by at most about 0.03. Wear-out lives (Weibull shape 2 or more) cut it to under 3%. Exact mean extinction times for small equilibrium fleets match simulation (1464 h against 1511 &plusmn; 50 h at 200 h life), but with regular kits and lognormal builds long times roughly double, so the chain is a lower guide there. Stylised: every input is assumed; simulated only."
     }
    ]
   },
