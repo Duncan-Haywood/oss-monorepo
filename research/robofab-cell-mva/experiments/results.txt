@@ -1,0 +1,54 @@
+Types: A print 20 min q 0.10; B print 60 min q 0.20; load/unload 2 min; inspect 3 min; equal mix.
+Rates in good parts per hour. Sim: 24 h horizon, 4 h warm-up, 20 seeds, mean +/- s.e.
+
+1. Product-form-compatible model (arm one service per pass, printer held only while printing).
+   MVA is exact when all services are exponential and every FCFS station has one mean for all jobs.
+   Single type A, exponential, wip = P+2:
+   P= 1 MVA   2.66  sim   2.53+/-0.08  diff/s.e. -1.5
+   P= 2 MVA   5.10  sim   5.13+/-0.11  diff/s.e. +0.3
+   P= 4 MVA   8.86  sim   9.10+/-0.11  diff/s.e. +2.3
+   P= 6 MVA  11.09  sim  11.03+/-0.13  diff/s.e. -0.5
+   P= 8 MVA  12.27  sim  12.33+/-0.12  diff/s.e. +0.5
+
+2. Same, equal mix of A and B (printing station has two mean service times, so not exactly product form):
+   P= 1 MVA   1.23  sim   1.31+/-0.06  MVA error -6.3%
+   P= 2 MVA   2.45  sim   2.36+/-0.07  MVA error +3.9%
+   P= 4 MVA   4.77  sim   4.73+/-0.12  MVA error +0.9%
+   P= 6 MVA   6.86  sim   6.98+/-0.12  MVA error -1.8%
+   P= 8 MVA   8.62  sim   8.77+/-0.12  MVA error -1.7%
+
+3. Error of MVA and of the utilisation bound against sim, mix, wip = P+2. 'err' = (prediction - sim)/sim.
+   variants: pf/exp, pf/ln(cv .3), pf/det, hold/ln(cv .3), hold/det. 'MVA-h' uses printer demand + load + unload.
+   P= 4 wip 6: MVA   4.77  MVA-h   4.38  bound   4.94
+      pf/exp    sim   4.73+/-0.12  err MVA  +0.9%  MVA-h  -7.3%  bound  +4.4%
+      pf/ln     sim   4.93+/-0.09  err MVA  -3.2%  MVA-h -11.1%  bound  +0.1%
+      pf/det    sim   4.86+/-0.08  err MVA  -1.9%  MVA-h  -9.9%  bound  +1.5%
+      hold/ln   sim   4.45+/-0.07  err MVA  +7.2%  MVA-h  -1.6%  bound +10.9%
+      hold/det  sim   4.43+/-0.07  err MVA  +7.8%  MVA-h  -1.0%  bound +11.5%
+   P= 8 wip 10: MVA   8.62  MVA-h   8.08  bound   9.87
+      pf/exp    sim   8.77+/-0.12  err MVA  -1.7%  MVA-h  -7.8%  bound +12.6%
+      pf/ln     sim   9.35+/-0.10  err MVA  -7.9%  MVA-h -13.6%  bound  +5.6%
+      pf/det    sim   9.57+/-0.13  err MVA -10.0%  MVA-h -15.6%  bound  +3.2%
+      hold/ln   sim   8.41+/-0.10  err MVA  +2.5%  MVA-h  -3.9%  bound +17.4%
+      hold/det  sim   8.79+/-0.10  err MVA  -2.0%  MVA-h  -8.1%  bound +12.3%
+   P=12 wip 14: MVA  11.02  MVA-h  10.61  bound  12.71
+      pf/exp    sim  10.88+/-0.14  err MVA  +1.3%  MVA-h  -2.5%  bound +16.8%
+      pf/ln     sim  12.00+/-0.08  err MVA  -8.2%  MVA-h -11.6%  bound  +5.9%
+      pf/det    sim  12.37+/-0.10  err MVA -10.9%  MVA-h -14.2%  bound  +2.7%
+      hold/ln   sim  11.62+/-0.10  err MVA  -5.2%  MVA-h  -8.8%  bound  +9.3%
+      hold/det  sim  11.75+/-0.09  err MVA  -6.2%  MVA-h  -9.7%  bound  +8.2%
+   P=16 wip 18: MVA  12.13  MVA-h  11.93  bound  12.71
+      pf/exp    sim  12.19+/-0.16  err MVA  -0.5%  MVA-h  -2.1%  bound  +4.2%
+      pf/ln     sim  12.60+/-0.11  err MVA  -3.8%  MVA-h  -5.4%  bound  +0.8%
+      pf/det    sim  12.74+/-0.08  err MVA  -4.8%  MVA-h  -6.4%  bound  -0.3%
+      hold/ln   sim  12.61+/-0.09  err MVA  -3.8%  MVA-h  -5.4%  bound  +0.8%
+      hold/det  sim  12.66+/-0.09  err MVA  -4.2%  MVA-h  -5.8%  bound  +0.3%
+
+4. Work-in-process sweep, P=8, hold/ln (the real-cell semantics).
+   wip  2 sim   2.09+/-0.05  MVA   2.09  MVA-h   1.93
+   wip  4 sim   4.19+/-0.07  MVA   4.07  MVA-h   3.78
+   wip  6 sim   6.26+/-0.09  MVA   5.92  MVA-h   5.52
+   wip  8 sim   8.07+/-0.08  MVA   7.58  MVA-h   7.12
+   wip 10 sim   8.41+/-0.10  MVA   8.62  MVA-h   8.08
+   wip 14 sim   8.33+/-0.10  MVA   9.46  MVA-h   8.77
+   wip 20 sim   8.56+/-0.09  MVA   9.79  MVA-h   8.97
