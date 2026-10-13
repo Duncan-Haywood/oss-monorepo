@@ -3931,6 +3931,30 @@ entries:
         0.12; no AI Act tool existed in ventures/. First visitor: a founder or compliance lead asked "is this high-risk?" by a customer or
         investor; volume unmeasured. Dates are Art 113 as adopted and the page flags the proposed postponement.
     mrr_end: 0
+  - venture: eudr-scope-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built eudr-scope-checker: a browser-only first read of the EU Deforestation Regulation (2023/1115, as amended through
+        December 2025). Role, size, commodity, country risk and out-of-scope product types become scope, duties by Article (statement,
+        geolocation, risk assessment, records, Art 25 penalties) and the application date with a day count, plus a pasted customs-code screen
+        against Annex I headings with CSV export. 25 tests including page and usage guards. No EUDR tool existed in ventures/. First visitor:
+        an importer or trader asked by a customer "what do you file under EUDR?"; volume unmeasured. Application date 30 Dec 2026, so demand
+        is rising now. Scope screen is heading-level and says the 8-digit code decides.
+    mrr_end: 0
+  - venture: cbam-cost-estimator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built cbam-cost-estimator: a browser-only estimate of EU CBAM (Regulation 2023/956) cost for importers of steel, aluminium,
+        cement, fertilisers and hydrogen. Tonnes, embedded emissions (illustrative presets, overridable) and a carbon price become certificates,
+        euro cost and cost per tonne, with the 2026-2034 free-allocation phase-out, the 50-tonne threshold, default-value mark-up, foreign carbon
+        price deduction, and year and price sensitivity tables. 14 unit tests plus page and usage tests. portfolio/pipeline/duplicate_check.py
+        top score 0.18; no CBAM tool existed in ventures/. First visitor: an EU importer or buyer who has received a CBAM supplier questionnaire;
+        volume unmeasured. Preset emission figures are labelled illustrative.
+    mrr_end: 0
   - venture: eaa-accessibility-act-checker
     agent_spend_usd: 0
     human_hours: 0

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1125 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1127 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,14 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste cargo audit --json and your Rust source: see which flagged crates your code actually uses and which are test-only or unreferenced noise. Free cargo audit triage, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>CBAM Cost Estimator — What Will the EU Carbon Border Levy Cost on My Imports?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cbam-cost-estimator/"/>
+    <id>tag:marisstella.dev,2026:tool/cbam-cost-estimator</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free CBAM cost estimator for EU importers of steel, aluminium, cement, fertilisers and hydrogen: embedded emissions, free-allocation phase-out 2026 to 2034, certificates needed, cost per tonne, and the 50-tonne threshold. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Convenience Store and Gas Station Profit Calculator — Fuel Margin After Card Fees</title>
@@ -54,6 +62,14 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free EU AI Act risk checker: tick what your AI system does and your role to see whether it is prohibited, high-risk, or only has transparency duties under Regulation (EU) 2024/1689, with the Articles, your duties and the dates. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>EUDR Scope Checker — Is My Product Covered?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eudr-scope-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/eudr-scope-checker</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free EU Deforestation Regulation (EUDR) checker: tick your role, size and commodities to see whether Regulation (EU) 2023/1115 covers you, your duties with the Articles, and your application date. Screens customs codes against Annex I. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Ice Cream Shop Seasonal Profit Calculator — Break-Even and Off-Season Cash</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free band tour profit planner. Enter your shows, venue deals (flat, door or versus), miles, rooms and merch and see profit per show and for the tour, break-even attendance, the guarantee to ask for and which dates to drop. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Business Insurance Policy Reader</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/business-insurance-policy-reader/"/>
-    <id>tag:marisstella.dev,2026:tool/business-insurance-policy-reader</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free business insurance policy reader: paste a general liability, professional liability or BOP policy and get the limits, deductible, claims-made trigger and renewal dates (downloadable .ics), whether the limits meet a client&#39;s contract requirement, and the exclusions to ask your broker about. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>California Meal &amp; Rest Break Premium Checker — free timecard audit</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ca-meal-rest-break-premium-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/ca-meal-rest-break-premium-checker</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free California meal and rest break premium pay checker for restaurants, retail and any hourly employer. Paste timecards, find late, short and missed meal periods and rest break shortfalls, and total the one-hour premium owed per workday. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
