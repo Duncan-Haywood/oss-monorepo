@@ -60,3 +60,7 @@ test("the page points to the official rates source", () => {
   const html = page("index.html");
   assert.match(html, /gov\.uk\/income-tax-rates/);
 });
+
+test("links the contract vs FTE rate calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/contract-vs-fte-rate-calculator\/"/);
+});
