@@ -1304,6 +1304,11 @@
      "slug": "robofab-program",
      "title": "How much of the gap between “the twin passes” and “it fails for real” does each twin fidelity close?",
      "summary": "A kinematic SCARA pick-and-place twin at three checking levels (geometry; plus joint, payload and deadline limits; plus stochastic grasp error, grip build-up and slip) against a held-out reference twin. Of 162 injected-bug mutants of three programs, 69 fail the reference; the levels reject 38, 46 and 60 of them, with no false alarms. The misses are effects the checker does not model, so the rates reflect how the reference was built. Four programs written by the building session: three failed the reference as drafted, and one failure (payload at long reach) was invisible to all three levels. <em>Stylised, kinematic only, no language-model API called.</em>"
+    },
+    {
+     "slug": "robofab-cell",
+     "title": "Where is the bottleneck of an arm, printer and inspection cell?",
+     "summary": "A hand-written discrete-event twin of one arm that loads and unloads P 3D printers, plus an inspection station with reprints, against a utilisation bound. The bound names the bottleneck (printers up to 10 printers, the arm from 12, about 12.7 good parts/h) and the simulation reaches it within 1&ndash;2% far from the switch but sits 10&ndash;11% below it at 10&ndash;12 printers. A 25% faster arm lifts throughput from 11.34 to 12.68 parts/h at 12 printers while a second inspector does nothing; arm dispatch rules made no measurable gain, and WIP beyond one job per printer plus one only lengthens flow time. <em>Stylised parameters of my choosing, no travel or breakdowns, 20 seeds.</em>"
     }
    ]
   },
