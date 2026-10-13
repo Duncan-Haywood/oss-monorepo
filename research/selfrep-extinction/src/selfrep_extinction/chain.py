@@ -11,18 +11,21 @@ import math
 import random
 
 
-def birth_rate(n, work_h, vit_cost, budget, fail=0.0):
+def birth_rate(n, work_h, vit_cost, budget, fail=0.0, life_h=None):
+    """Birth rate; if ``life_h`` is given, scale by exp(-work_h/life_h), the chance a build outlives its machine."""
     if n <= 0:
         return 0.0
-    return (1 - fail) * min(n / work_h, budget / vit_cost)
+    keep = math.exp(-work_h / life_h) if life_h else 1.0
+    return keep * (1 - fail) * min(n / work_h, budget / vit_cost)
 
 
-def mean_extinction_times(work_h, vit_cost, budget, life_h, fail=0.0, nmax=200):
+def mean_extinction_times(work_h, vit_cost, budget, life_h, fail=0.0, nmax=200, interrupt=False):
     """Exact E[time to reach 0 from n] for n = 0..nmax, births suppressed at nmax (reflecting top).
 
     Solves (b_n + d_n) T_n - b_n T_{n+1} - d_n T_{n-1} = 1 with T_0 = 0 and T_nmax's birth term dropped.
     """
-    b = [birth_rate(n, work_h, vit_cost, budget, fail) for n in range(nmax + 1)]
+    lf = life_h if interrupt else None
+    b = [birth_rate(n, work_h, vit_cost, budget, fail, lf) for n in range(nmax + 1)]
     b[nmax] = 0.0
     d = [n / life_h for n in range(nmax + 1)]
     # Thomas algorithm on unknowns T_1..T_nmax
@@ -47,12 +50,12 @@ def equilibrium(work_h, vit_cost, budget, life_h, fail=0.0):
     return (1 - fail) * budget * life_h / vit_cost
 
 
-def gillespie_extinction(n0, work_h, vit_cost, budget, life_h, fail=0.0, seed=0, horizon=1e9):
+def gillespie_extinction(n0, work_h, vit_cost, budget, life_h, fail=0.0, seed=0, horizon=1e9, interrupt=False):
     """One sample path of the same chain; returns the extinction time, or ``horizon`` if not reached."""
     rng = random.Random(seed)
     n, t = n0, 0.0
     while n > 0 and t < horizon:
-        b = birth_rate(n, work_h, vit_cost, budget, fail)
+        b = birth_rate(n, work_h, vit_cost, budget, fail, life_h if interrupt else None)
         d = n / life_h
         t += rng.expovariate(b + d)
         n += 1 if rng.random() < b / (b + d) else -1

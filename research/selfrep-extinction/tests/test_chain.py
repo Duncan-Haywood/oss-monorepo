@@ -29,6 +29,11 @@ class Chain(unittest.TestCase):
         se = statistics.stdev(runs) / len(runs) ** 0.5
         self.assertLess(abs(statistics.mean(runs) - exact), 4 * se)
 
+    def test_interruption_shortens_extinction(self):
+        a = mean_extinction_times(50, 170, 4, 200, nmax=100)[2]
+        b = mean_extinction_times(50, 170, 4, 200, nmax=100, interrupt=True)[2]
+        self.assertLess(b, a)
+
     def test_equilibrium(self):
         self.assertAlmostEqual(equilibrium(50, 170, 4, 500), 4 * 500 / 170)
 
