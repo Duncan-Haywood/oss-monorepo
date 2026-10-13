@@ -23,7 +23,13 @@ backend = "claude-code"
 model = "claude-opus-5-5"
 parallel = 4
 
-reel_seconds = 15.0
+# Reel lengths. Three classes: short (7-15 s, several per event, each with its own hook), medium
+# (30-60 s, a story arc) and long (60 s-3 min, trip and event recaps). These are the targets;
+# reel_caps are the hard limits.
+reel_seconds = 12.0             # short target
+reel_medium_seconds = 45.0
+reel_long_seconds = 120.0
+# reel_caps = { short = 15.0, medium = 60.0, long = 180.0 }
 beat_seconds = 0.5      # cut grid for reels without music
 photo_aspect = "4:5"    # or "3:4"
 
@@ -37,7 +43,15 @@ music = "auto"
 # Tracks without one are never used, nor are NC / ND licences. CC BY credits go in the caption.
 natural_sound = true    # keep the clips' own sound under the music; loud moments duck the music
 # natural_sound_db = -12  # where the clips' steady sound sits, dB under the music
+
+# Events whose key contains one of these go to reels/_review/ (they feature other people), even
+# when the critic shipped them; you approve them by hand.
+# review_events = ["Wedding"]
 """
+
+REEL_CLASSES = ("short", "medium", "long")
+# (floor, target, cap) seconds per class; the short target is Config.reel_seconds
+REEL_DEFAULTS = {"short": (7.0, 12.0, 15.0), "medium": (30.0, 45.0, 60.0), "long": (60.0, 120.0, 180.0)}
 
 
 @dataclass
@@ -52,7 +66,10 @@ class Config:
     ffmpeg: str = "ffmpeg"
     ffprobe: str = "ffprobe"
     exiftool: str = "exiftool"
-    reel_seconds: float = 15.0
+    reel_seconds: float = 12.0          # the short reel's target length (see reel_length)
+    reel_medium_seconds: float = 45.0
+    reel_long_seconds: float = 120.0
+    reel_caps: dict = field(default_factory=dict)  # class -> hard limit (s); defaults REEL_DEFAULTS
     beat_seconds: float = 0.5
     photo_aspect: str = "4:5"
     style_guide: Path | None = None
@@ -66,6 +83,28 @@ class Config:
     @property
     def db_path(self) -> Path:
         return self.state_dir / "igmp.sqlite"
+
+    def reel_length(self, length_class: str = "short") -> tuple[float, float, float]:
+        """(floor, target, cap) seconds for a reel of this class. The target is what the story pass
+        aims for, the cap the hard limit snap() and the renderer hold it to, the floor its lower
+        edge. reel_seconds is the short target (as it was the reel length before classes); a
+        short target under the class floor (7 s) is taken as a fixed length (cap = target)."""
+        if length_class not in REEL_DEFAULTS:
+            raise ValueError(f"unknown reel class {length_class!r}; use one of {REEL_CLASSES}")
+        floor, _, cap = REEL_DEFAULTS[length_class]
+        target = {"short": self.reel_seconds, "medium": self.reel_medium_seconds,
+                  "long": self.reel_long_seconds}[length_class]
+        cap = float((self.reel_caps or {}).get(length_class, cap))
+        if length_class == "short" and target < floor:
+            return target, target, target
+        target = min(target, cap)
+        return min(floor, target), target, cap
+
+    def reel_cap(self, length_class: str = "short") -> float:
+        return self.reel_length(length_class)[2]
+
+    def reel_target(self, length_class: str = "short") -> float:
+        return self.reel_length(length_class)[1]
 
     def style_guide_text(self) -> str:
         path = self.style_guide or Path(__file__).resolve().parents[2] / "style" / "STYLE_GUIDE.md"

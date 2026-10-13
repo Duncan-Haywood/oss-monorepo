@@ -194,3 +194,4 @@ def test_insv_two_streams_frame_and_reframe(tmp_path, cfg):
 def test_v360_filter_mentions_lens_fov():
     g = media.v360_filter(30, -5, 80, 1080, 1920)
     assert "dfisheye" in g and f"ih_fov={media.X5_VIDEO_FOV_DEG}" in g and "yaw=30.000" in g
+    assert g.startswith("[0:v:1][0:v:0]hstack")          # [rear | front]: yaw 0 is the front lens

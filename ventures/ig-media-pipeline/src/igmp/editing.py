@@ -20,14 +20,22 @@ from .taste import describe
 
 log = logging.getLogger(__name__)
 MIN_SCORE = 6.5      # frames this good always get a full RAW edit
-TOP_SHARE = 0.15     # ...and so does the best 15% of each event's keepers (at least TOP_MIN),
-TOP_MIN = 3          # because the scale is strict: a good shoot can top out around 6
+TOP_SHARE = 0.25     # ...and so does the best 25% of each event's keepers (at least TOP_MIN),
+TOP_MIN = 6          # because the scale is strict, and carousels need 5-20 strong frames an event
 FLOOR = 5.0          # but never below this
 REVISIONS = 2
 
 
+def needs_review(cfg: Config, event_key: str) -> bool:
+    """Events that feature other people (setting `review_events`) wait for the owner's approval."""
+    return any(s and s in event_key for s in cfg.extra.get("review_events", []))
+
+
 def edit_dir(cfg: Config, a: Asset) -> Path:
-    return cfg.output_dir / "photos" / (a.event_key or "undated")
+    base = cfg.output_dir / "photos"
+    if needs_review(cfg, a.event_key):
+        base = base / "_review"
+    return base / (a.event_key or "undated")
 
 
 def keepers(store: Store, assets: list[Asset]) -> list[tuple[Asset, Score]]:

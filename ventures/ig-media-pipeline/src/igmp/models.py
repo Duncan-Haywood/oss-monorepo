@@ -141,6 +141,26 @@ class Shot(BaseModel):
     focus_to: Point | None = Field(
         None, description="fill only: the crop centre moves from focus to here over the shot (a slow pan "
                           "across a wide landscape); null keeps it still")
+    transition: Literal["cut", "crossfade", "whip-left", "whip-right", "zoom-in", "dip-black", "wipe"] = Field(
+        "cut", description="How this shot arrives from the previous one; mostly cuts on the beat, a few motivated "
+                           "transitions (a whip on a fast move, a crossfade on a mood change, zoom-in through to "
+                           "a new place, dip-black between chapters of a long reel; 'wipe' is the before/after "
+                           "reveal from a camera version to the edit of the same frame). Ignored on shot 1")
+    speed: float = Field(1.0, ge=0.25, le=4.0, description="Video only: 1 normal, below 1 slow motion, above 1 "
+                                                          "faster (speed ramps); stills ignore it")
+    speed_to: float | None = Field(
+        None, ge=0.25, le=4.0, description="Video only: a speed ramp from `speed` at the start of the shot to "
+                                           "this at its end (eased), e.g. 1.0 -> 0.4 into a peak moment or 2.0 -> "
+                                           "1.0 arriving at a stop; null keeps the speed constant")
+    version: Literal["edit", "camera"] = Field(
+        "edit", description="Photo only: 'camera' shows the camera's own JPEG instead of the RAW edit - the "
+                            "'before' half of a before/after reveal (the next shot is the same id, 'edit', "
+                            "arriving with transition 'wipe')")
+    view: Literal["flat", "tiny-planet"] = Field(
+        "flat", description="360 only: 'tiny-planet' is the little-planet (stereographic, looking down) view, "
+                            "an opener or closer")
+    view_yaw_to: float | None = Field(
+        None, description="360 only: the view turns from view_yaw_deg to this over the shot (a spin); null holds")
 
 
 class MusicChoice(BaseModel):
@@ -148,8 +168,16 @@ class MusicChoice(BaseModel):
     start_s: float = Field(0, ge=0, description="Where in the track the reel starts (on a beat)")
 
 
+REEL_FORMATS = ("story", "photo-dump", "shot-vs-scene", "before-after", "day-to-night", "road-trip",
+                "city-night", "360-moves", "awe-loop", "recap")
+
+
 class ReelPlan(BaseModel):
     event_key: str
+    length_class: Literal["short", "medium", "long"] = "short"
+    format: Literal["story", "photo-dump", "shot-vs-scene", "before-after", "day-to-night", "road-trip",
+                    "city-night", "360-moves", "awe-loop", "recap"] = Field(
+        "story", description="The reel's format (see the style guide); the posting queue mixes formats")
     title: str = ""
     shots: list[Shot]
     cover_asset_id: str
@@ -165,6 +193,16 @@ class Critique(BaseModel):
     crops_safe: bool = Field(description="Subject never cut off or under the top/bottom UI bands")
     pacing_ok: bool = Field(description="Cuts on the beat, one place to breathe, no shot overstays")
     ending_ok: bool = Field(description="The last shot lands and loops back")
+    arc_ok: bool = Field(True, description=(
+        "short: one clear idea from hook to closer, from a different angle than the event's other reels; "
+        "medium: a story arc (hook, place, build, a breath, payoff, closer); long: a cold-open hook, then "
+        "chapters with changes of pace, and no sag in the middle third"))
+    transitions_ok: bool = Field(True, description=(
+        "Every transition that is not a hard cut is motivated (a whip on a fast move, a crossfade on a change "
+        "of mood or time, a dip to black between chapters) and none looks gimmicky; true when all are cuts"))
+    slowmo_ok: bool = Field(True, description=(
+        "Slow motion and speed changes look clean (no warping, ghosting or judder) and serve a moment; "
+        "true when there are none"))
     score: float = Field(ge=0, le=10)
     notes: str
     verdict: Literal["ship", "revise"]
@@ -173,7 +211,7 @@ class Critique(BaseModel):
     @property
     def passes(self) -> bool:
         return all((self.hook_ok, self.all_sharp, self.no_redundancy, self.crops_safe,
-                    self.pacing_ok, self.ending_ok))
+                    self.pacing_ok, self.ending_ok, self.arc_ok, self.transitions_ok, self.slowmo_ok))
 
 
 def strict_schema(model: type[BaseModel]) -> dict:
@@ -199,3 +237,52 @@ def strict_schema(model: type[BaseModel]) -> dict:
         return node
 
     return walk(schema)
+
+
+class CarouselFrame(BaseModel):
+    """One slide of a carousel. Every slide is 4:5 portrait (1080x1350)."""
+    frame_id: str = Field(description="A candidate's id, exactly as listed")
+    layout: Literal["fill", "fit"] = Field(
+        "fill", description="fill: the slide is a 4:5 crop around focus (the normal case); fit: the whole picture "
+                            "at full width over a blurred copy of itself - at most one slide per carousel, only for "
+                            "a frame whose subject a 4:5 crop would cut. 360 views and tiny planets: fill")
+    focus: Point | None = Field(
+        None, description="fill only: centre of the 4:5 crop as fractions of the whole picture; null keeps the "
+                          "marked crop")
+    view_yaw_deg: float | None = Field(
+        None, description="360 views and tiny planets only: direction to look (-180..180); null keeps the listed one")
+
+
+class CarouselPlan(BaseModel):
+    event_key: str
+    style: Literal["story", "photo-dump", "before-after"] = Field(
+        "story", description="story: 5-10 slides that tell the event; photo-dump: a looser set of up to 20; "
+                             "before-after: 2-4 photos, each shown as its camera JPEG then its RAW edit")
+    frames: list[CarouselFrame] = Field(description="Slides in swipe order: slide 1 opens the loop, the last closes "
+                                                    "it (before-after: each photo once, in order)")
+    caption: str = Field(description="First line specific and keyword-rich (place, what it is, when); then one or "
+                                     "two lines of story or a tip; then 3-5 relevant hashtags. No names of people")
+
+
+class CarouselCritique(BaseModel):
+    """The carousel critic. A carousel ships only when every check passes."""
+    hook_ok: bool = Field(description="Slide 1 is striking and gives a reason to swipe")
+    cover_ok: bool = Field(description="Slide 1 works as the profile-grid cover: its subject inside the centre 3:4")
+    scale_varied: bool = Field(description="Wide, medium and detail frames: not one scale throughout")
+    no_near_duplicates: bool = Field(description="No two slides (pairs, for a before/after) show nearly the same "
+                                                 "picture")
+    colour_consistent: bool = Field(description="White balance, contrast and grade read as one set")
+    crops_ok: bool = Field(description="Every slide fills the frame and keeps its subject whole: no cut heads, "
+                                       "buildings or horizons; at most one blurred-background slide")
+    closer_ok: bool = Field(description="The last slide lands: the best frame or a strong detail")
+    caption_ok: bool = Field(description="First line names the place, the subject and when; one or two lines of "
+                                         "story or a tip; 3-5 relevant hashtags; no names")
+    score: float = Field(ge=0, le=10)
+    notes: str
+    verdict: Literal["ship", "revise"]
+    revised: CarouselPlan | None = None
+
+    @property
+    def passes(self) -> bool:
+        return all((self.hook_ok, self.cover_ok, self.scale_varied, self.no_near_duplicates,
+                    self.colour_consistent, self.crops_ok, self.closer_ok, self.caption_ok))

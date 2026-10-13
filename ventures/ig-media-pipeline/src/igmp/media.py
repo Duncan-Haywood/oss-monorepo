@@ -564,7 +564,8 @@ def v360_filter(yaw_deg: float, pitch_deg: float, hfov_deg: float, out_w: int, o
     .insv (both lens streams) in one pass, for rendering moving clips. Unlike
     reframe_360_image it switches lenses with a hard edge at +-90 deg from the front axis."""
     vfov = math.degrees(2 * math.atan(math.tan(math.radians(hfov_deg) / 2) * out_h / out_w))
-    return (f"{front}{rear}hstack=inputs=2,v360=input=dfisheye:output=flat:"
+    # [rear | front], the same layout as .insp stills and render.py, so yaw 0 is the front lens
+    return (f"{rear}{front}hstack=inputs=2,v360=input=dfisheye:output=flat:"
             f"ih_fov={fisheye_fov_deg}:iv_fov={fisheye_fov_deg}:h_fov={hfov_deg:.3f}:"
             f"v_fov={vfov:.3f}:yaw={yaw_deg:.3f}:pitch={pitch_deg:.3f}:roll={roll_deg:.3f}:"
             f"w={out_w}:h={out_h}:interp=lanczos{out}")
