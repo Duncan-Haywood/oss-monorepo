@@ -1,0 +1,43 @@
+name: social-security-survivor-spousal-benefit-calculator
+description: >-
+  Free browser tool for widows, widowers and spouses: enter your own and your spouse's Social Security benefit amounts to get the survivor benefit at every age from 60, your own benefit by age, which survivor-first or own-first claiming order pays the most to your planning age, and the spousal top-up. Nothing is uploaded. Not an SSA statement.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session. Gap: social-security-claiming-age-calculator covers one worker's own benefit; nothing in ventures/ models the
+# survivor benefit (71.5% at 60 to 100% at survivor FRA, the 82.5% widow limit, inherited delayed credits) or the switch strategy of claiming survivor first and own at 70.
+# Open Social Security, Maximize My Social Security and paid planners sell this answer; SSA's own calculators do not compare the two-benefit orderings.
+#
+# First visitor: a recent widow or widower aged 58-70 (or their adult child), searching "widow survivor benefit calculator", "survivor benefits at 60", "should I take
+# survivor benefit first". Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet into the retirement and Medicare tools; GitHub Sponsors. Paid version, not built: inflation and discounting,
+# tax-aware comparison, and a divorced-spouse and child-benefit module.
+#
+# Liability: no SSA data is shipped; every figure is typed by the reader and the page says the example is illustrative. Risk is a claiming decision that cannot be undone
+# after 12 months; mitigated by a verify-with-SSA line, a list of what is not modelled, and no-warranty and not-an-SSA-statement clauses. The survivor FRA is an input
+# rather than a hard-coded table so a wrong year cannot silently mis-state it.
+hypotheses:
+  - claim: >-
+      Recent widows and widowers will use a free private tool that compares survivor-first and own-first claiming orders and return when a spouse or friend faces the same decision.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a factor (survivor reduction, 82.5% limit, spousal reduction, delayed credit) gives a wrong figure for stated inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/social-security-survivor-spousal-benefit-calculator/
+  analytics: null
