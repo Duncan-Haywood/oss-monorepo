@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1145 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1146 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -88,6 +88,14 @@
     <summary type="text">Free EU Batteries Regulation (2023/1542) checker for makers, importers and online sellers: which duties reach your battery, when each applies (label, removability, QR code, battery passport, due diligence), and what is still open. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>EU CSRD Scope Checker — Do You Have to Report Under the CSRD After the Omnibus?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-csrd-scope-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/eu-csrd-scope-checker</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free EU CSRD scope checker: are you in mandatory sustainability reporting under the original CSRD and under the Omnibus thresholds (1,000 employees and EUR 450M turnover), from which financial year, and what to do if you are only squeezed by customer data requests. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>EU Data Act Checker — Does the Data Act Apply to You?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-data-act-checker/"/>
     <id>tag:marisstella.dev,2026:tool/eu-data-act-checker</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free EU Product Liability Directive checker: is your software, AI system or product in scope from 9 December 2026, who is liable in the supply chain, what damage is claimable and what to prepare. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EU Whistleblower Channel Checker — Do You Need a Reporting Channel and Is It Compliant?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-whistleblower-channel-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/eu-whistleblower-channel-checker</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free EU Whistleblower Directive checker for employers: whether you must run an internal reporting channel at your headcount, which requirements are still open, and the 7-day and 3-month clocks for a report. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
