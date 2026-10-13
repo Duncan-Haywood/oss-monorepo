@@ -1,0 +1,51 @@
+name: hydroponic-farm-profit-calculator
+description: >-
+  Free browser tool for people planning or running a hydroponic, vertical or indoor farm: enter growing area, plant density, crop cycle,
+  wholesale and retail prices, lights, labour, rent, fit-out and a loan, and see heads a week, monthly profit at full production,
+  break-even heads, the price change that reaches a target margin, a power-price sensitivity table, a sixty-month ramp-up with the lowest
+  cash point and payback, and loan coverage. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture-first session. Nearest in ventures/ are microgreens-tray-planner, u-pick-farm-profit-planner and
+# oyster-farm-growout-planner (different crops, no lighting/climate energy model, no per-head break-even, no ramp-up cash reserve).
+# Not in screened-out.md.
+#
+# First visitor: an aspiring or current indoor grower sizing a build; search phrases "hydroponic farm business plan calculator",
+# "how much profit does a hydroponic lettuce farm make", "vertical farm break-even". Volume not measured with an external tool.
+#
+# Who: small commercial growers and people raising money for a container or greenhouse farm. Lighting power is the cost that sinks
+# indoor farms, and the power-price table and ramp-up reserve are the numbers blog-post spreadsheets leave out.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. Saved scenarios and multi-crop comparison
+# behind an env-var switch is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with every rule visible on the page. No price, yield or market is claimed, sample
+# figures are labelled illustrative, bad input is rejected instead of clamped, and the page carries the no-warranty and not-advice
+# clauses and lists what it does not decide (buyers, yield risk, food-safety, licensing, zoning, power capacity, tax, lender terms).
+
+hypotheses:
+  - claim: >-
+      A prospective or current indoor grower will enter area, density, cycle, prices and power cost before building or expanding, because
+      the break-even heads a week and the electricity sensitivity are hard to see in a headline yield-per-square-foot claim.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the output, profit, break-even or payback arithmetic differs from the stated rules on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/hydroponic-farm-profit-calculator/
+  analytics: null
