@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambient-labelmatch"
+version = "0.1.0"
+description = "Label-matched control and clipped or self-normalised weights for learning from an assistant's own feedback (simulated)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
