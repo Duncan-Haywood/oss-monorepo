@@ -1225,6 +1225,11 @@
      "slug": "particle-twin",
      "title": "A twin whose sensor never produces outliers: how many particles does a bootstrap filter need, and is the average effective sample size the right thing to size on?",
      "summary": "For a bootstrap particle filter the large-<em>N</em> effective-sample-size fraction is exactly <em>c</em><sub>0</sub>&nbsp;e<sup>&minus;<em>ay</em>&sup2;</sup> in the measurement <em>y</em> (<em>c</em><sub>0</sub>&nbsp;=&nbsp;0.866, <em>a</em>&nbsp;=&nbsp;1/6 at <em>P</em>&nbsp;=&nbsp;<em>R</em>&nbsp;=&nbsp;1). With 5% real outliers at 10&times; the noise scale the <em>mean</em> ESS fraction barely moves (0.671 in the twin, 0.645 real, at every dimension), but P(ESS&nbsp;&lt;&nbsp;1% of <em>N</em>) goes from 2.5&times;10<sup>&minus;4</sup> to 3.1&times;10<sup>&minus;2</sup> (120&times;). Sizing <em>N</em>&nbsp;=&nbsp;528 for ESS&nbsp;&ge;&nbsp;50 at 1% failure in the twin fails 4.4% of real steps, and the particle posterior mean's error against the exact Kalman update is 45&times; to 421&times; the twin's for <em>N</em>&nbsp;=&nbsp;50 to 1000, falling barely at all with <em>N</em>. The large-<em>N</em> formula is checked against quadrature and simulation and fails once <em>N&rho;</em> is small (reported). Stylised: scalar update, simulated outliers, no resampling dynamics."
+    },
+    {
+     "slug": "footprint-twin",
+     "title": "Can a fixed inflation radius stand in for a rectangular robot's footprint in a narrow gap?",
+     "summary": "A 1.0&times;0.5&nbsp;m robot with Gaussian heading error crossing a gap: pass probability is exactly 2&Phi;(&theta;*/&sigma;)&minus;1 with &theta;* = asin(<em>g</em>/<em>R</em>)&minus;atan(<em>W</em>/<em>L</em>) (matches a corner-geometry Monte Carlo within 0.0013). Inscribed- and circumscribed-circle twins are step functions (always pass / always fail below 1.118&nbsp;m); an inflation calibrated to 95% at &sigma;&nbsp;=&nbsp;0.05 is 0.17&nbsp;m too small at &sigma;&nbsp;=&nbsp;0.15 (real pass 0.49), and ten-gap missions succeed only 0.60 of the time where the twin says 1. Stylised: simulated robot, Gaussian heading error, no sensing error."
     }
    ]
   }
