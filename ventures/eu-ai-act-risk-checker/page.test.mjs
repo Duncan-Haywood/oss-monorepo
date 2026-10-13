@@ -69,3 +69,7 @@ test("the sample loads through the same path the page uses", async () => {
   const { compute, SAMPLE } = await import("./calc.mjs");
   assert.equal(compute(SAMPLE).errors.length, 0);
 });
+
+test("footer links the whistleblower channel checker", () => {
+  assert.match(page("index.html"), /href="\.\.\/eu-whistleblower-channel-checker\/"/);
+});

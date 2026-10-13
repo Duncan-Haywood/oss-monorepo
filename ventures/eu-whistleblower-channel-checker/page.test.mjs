@@ -64,3 +64,9 @@ test("footer links the related EU tools", () => {
   assert.match(html, /href="\.\.\/eaa-accessibility-act-checker\/"/);
   assert.match(html, /href="\.\.\/eu-ai-act-risk-checker\/"/);
 });
+
+test("footer links the pay transparency and AI Act checkers", () => {
+  const html = page("index.html");
+  assert.match(html, /href="\.\.\/pay-transparency-directive-checker\/"/);
+  assert.match(html, /href="\.\.\/eu-ai-act-risk-checker\/"/);
+});
