@@ -1,0 +1,72 @@
+== real instance: bearings=lm8uu, objective=lines closure (assumed masses/costs, assumed machine prices)
+budget  exhaustive                                  greedy-per-price                  closure(ex)  closure(greedy)
+     0  -                                           -                                   35.3%       35.3%
+   300  -                                           -                                   35.3%       35.3%
+   600  laser cutter                                laser cutter                        37.3%       37.3%
+   800  cnc router                                  cnc router                          43.1%       43.1%
+   900  cnc router                                  cnc router                          43.1%       43.1%
+  1100  cnc router                                  cnc router                          43.1%       43.1%
+  1400  cnc router                                  cnc router                          43.1%       43.1%
+  1700  cnc router                                  cnc router                          43.1%       43.1%
+
+== real instance: bearings=lm8uu, objective=mass closure (assumed masses/costs, assumed machine prices)
+budget  exhaustive                                  greedy-per-price                  closure(ex)  closure(greedy)
+     0  -                                           -                                   17.3%       17.3%
+   300  -                                           -                                   17.3%       17.3%
+   600  laser cutter                                laser cutter                        19.7%       19.7%
+   800  cnc router                                  cnc router                          22.4%       22.4%
+   900  cnc router                                  cnc router                          22.4%       22.4%
+  1100  cnc router                                  cnc router                          22.4%       22.4%
+  1400  cnc router                                  cnc router                          22.4%       22.4%
+  1700  cnc router                                  cnc router                          22.4%       22.4%
+
+== real instance: bearings=lm8uu, objective=cost closure (assumed masses/costs, assumed machine prices)
+budget  exhaustive                                  greedy-per-price                  closure(ex)  closure(greedy)
+     0  -                                           -                                   11.4%       11.4%
+   300  -                                           -                                   11.4%       11.4%
+   600  laser cutter                                laser cutter                        12.5%       12.5%
+   800  cnc router                                  cnc router                          15.9%       15.9%
+   900  cnc router                                  cnc router                          15.9%       15.9%
+  1100  cnc router                                  cnc router                          15.9%       15.9%
+  1400  cnc router                                  cnc router                          15.9%       15.9%
+  1700  cnc router                                  cnc router                          15.9%       15.9%
+
+== real instance: bearings=brass, objective=lines closure (assumed masses/costs, assumed machine prices)
+budget  exhaustive                                  greedy-per-price                  closure(ex)  closure(greedy)
+     0  -                                           -                                   35.3%       35.3%
+   300  -                                           -                                   35.3%       35.3%
+   600  laser cutter                                laser cutter                        37.3%       37.3%
+   800  cnc router                                  cnc router                          43.1%       43.1%
+   900  cnc router                                  cnc router                          43.1%       43.1%
+  1100  casting setup, cnc router                   cnc router, casting setup           45.1%       45.1%
+  1400  casting setup, cnc router                   cnc router, casting setup           45.1%       45.1%
+  1700  casting setup, cnc router                   cnc router, casting setup           45.1%       45.1%
+
+== real instance: bearings=brass, objective=mass closure (assumed masses/costs, assumed machine prices)
+budget  exhaustive                                  greedy-per-price                  closure(ex)  closure(greedy)
+     0  -                                           -                                   17.2%       17.2%
+   300  -                                           -                                   17.2%       17.2%
+   600  laser cutter                                laser cutter                        19.5%       19.5%
+   800  cnc router                                  cnc router                          22.3%       22.3%
+   900  cnc router                                  cnc router                          22.3%       22.3%
+  1100  casting setup, cnc router                   cnc router, casting setup           24.1%       24.1%
+  1400  casting setup, cnc router                   cnc router, casting setup           24.1%       24.1%
+  1700  casting setup, cnc router                   cnc router, casting setup           24.1%       24.1%
+
+== real instance: bearings=brass, objective=cost closure (assumed masses/costs, assumed machine prices)
+budget  exhaustive                                  greedy-per-price                  closure(ex)  closure(greedy)
+     0  -                                           -                                   11.4%       11.4%
+   300  -                                           -                                   11.4%       11.4%
+   600  laser cutter                                laser cutter                        12.5%       12.5%
+   800  cnc router                                  cnc router                          15.9%       15.9%
+   900  cnc router                                  cnc router                          15.9%       15.9%
+  1100  casting setup, cnc router                   cnc router, casting setup           21.1%       21.1%
+  1400  casting setup, cnc router                   cnc router, casting setup           21.1%       21.1%
+  1700  casting setup, cnc router                   cnc router, casting setup           21.1%       21.1%
+
+== synthetic instances: 8 machines, 40 parts, 6 processes, 500 instances, seed 0
+budget  greedy=optimal  mean greedy/optimal  worst greedy/optimal
+  1000  362/500 (72%)    0.966                0.619
+  2000  381/500 (76%)    0.980                0.712
+  3000  472/500 (94%)    0.997                0.846
+(ratios are of closure GAIN over the printer-only shop, counted over instances where some machine helps)
