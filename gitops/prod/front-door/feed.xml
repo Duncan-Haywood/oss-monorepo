@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1140 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1141 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -120,6 +120,14 @@
     <summary type="text">Free EU Packaging and Packaging Waste Regulation (PPWR, 2025/40) checker for brand owners, importers and online sellers: which duties reach your packaging, when each applies (producer registration, PFAS limits, label, recyclability, recycled content, 50 percent empty-space rule), and what is still open. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>EU Price Reduction Checker — Is Your “Was” Price Legal Under the 30-Day Rule?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-price-reduction-claim-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/eu-price-reduction-claim-checker</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free EU 30-day lowest price checker for webshops: paste a price history and see the prior price you may show next to a sale, the true percentage off, and whether your crossed-out price or advertised discount holds up. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>EU Product Liability Directive Checker — Software, AI and Product Makers (2026)</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-product-liability-directive-checker/"/>
     <id>tag:marisstella.dev,2026:tool/eu-product-liability-directive-checker</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free ice cream shop profit calculator: twelve months of days open and customers per day become monthly profit, break-even customers, open-or-close verdicts, loan coverage and the cash reserve the slow months need. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Indoor Play Center Profit Calculator — Break-Even Visits, Parties, Payback</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/indoor-play-center-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/indoor-play-center-profit-calculator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free indoor play center profit calculator: weekday and weekend visits, memberships, birthday parties, cafe spend, staffing, rent and a loan become monthly profit, break-even visits a week, the price change that hits a target margin, the ramp-up cash reserve and payback. Private, runs in your browser.</summary>
   </entry>
 </feed>
