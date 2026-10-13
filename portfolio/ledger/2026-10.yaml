@@ -3824,3 +3824,16 @@ entries:
         existed in ventures/. Also fixed coworking-space-profit-calculator, whose results panel threw on a nonexistent r.cfByYear and never
         displayed (now r.yearCash; verified in Chromium). First visitor: people searching hydroponic farm break-even; volume unmeasured.
     mrr_end: 0
+  - venture: ice-cream-shop-seasonal-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ice-cream-shop-seasonal-profit-calculator: a browser-only twelve-month P&L for seasonal ice cream, frozen-dessert
+        and snow-cone shops. Days open and customers per day by month, spend, product cost, card fees, traffic-sized labor with a minimum
+        crew, utilities, fixed costs and a loan become monthly profit, break-even customers per day (solved by bisection), an open, close or
+        closed verdict per month, loan coverage, a winter cash reserve over two repeating years, payback and price and traffic sweeps, with
+        text summary and CSV. 11 hand-computed unit tests plus page and usage tests. Screened with duplicate_check.py (nearest venture 0.32,
+        vocabulary match only); shaved-ice-stand-profit-calculator is the event-stand sibling and is cross-linked. First visitor: people
+        searching ice cream shop break-even or closing in winter; volume unmeasured.
+    mrr_end: 0
