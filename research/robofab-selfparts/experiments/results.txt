@@ -1,0 +1,40 @@
+# robofab-selfparts: valid assembly orders of a 7-part toy gripper (6 free parts, 720 orderings)
+# jaw_open in mm; pad_t=4 mm, pad_frac=0.5 unless stated
+
+## 1. Arm approach constraint x jaw opening (gravity on)
+arm      jaw  orders  largest_subassembly  stuck parts
+free      20       0                 5/6  cover
+free      25       0                 5/6  cover
+free      30     384                 6/6  -
+free      35     384                 6/6  -
+free      40     384                 6/6  -
+side      20       0                 5/6  cover
+side      25       0                 5/6  cover
+side      30     384                 6/6  -
+side      35     384                 6/6  -
+side      40     384                 6/6  -
+top       20       0                 5/6  cover
+top       25       0                 5/6  cover
+top       30     120                 6/6  -
+top       35     120                 6/6  -
+top       40     120                 6/6  -
+
+## 2. Smallest jaw opening (0.5 mm steps) giving at least one valid order
+free   30.0
+side   30.0
+top    30.0
+
+## 3. Gravity off (grasped-and-held, no support rule), jaw 40
+free   orders=720
+side   orders=720
+top    orders=120
+
+## 4. Pad thickness (jaw 40, arm=side): thicker pads need more free space around the part
+pad_t= 2 orders= 384 stuck=-
+pad_t= 4 orders= 384 stuck=-
+pad_t= 6 orders= 384 stuck=-
+pad_t= 8 orders= 384 stuck=-
+pad_t=10 orders= 384 stuck=-
+
+## 5. Example order (side arm, jaw 40)
+base -> rail_l -> rail_r -> finger_a -> finger_b -> link -> cover
