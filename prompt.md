@@ -58,6 +58,14 @@ This brief is the owner's explicit request to open a pull request for every bran
 8. **Never push to a merged branch.** Anything after the merge goes on a new branch from `main`, with its own pull request.
 9. **Check before you stop.** List every branch you pushed this run. Each one must either be merged into `main` or have an open pull request with a blocker comment. Put that list in your final message.
 
+## End state: one repository
+The goal is a single repository: `Duncan-Haywood/oss-monorepo` (formerly `fp-monorepo`), with this portfolio living under `research/`. Both commit histories must survive. Nothing gets squashed or re-committed as a fresh copy.
+- Until the move lands, work continues here on `main`, as `CLAUDE.md` says. Keep the tree movable: every project stays self-contained under `research/<slug>/`, and nothing hardcodes this repository's name, URL or root paths where a relative path would do.
+- The move is a history-preserving merge. Rewrite this repository's history into `research/` (`git filter-repo --to-subdirectory-filter research`, or the equivalent subtree merge). Then merge it into `oss-monorepo` with `--allow-unrelated-histories` and a merge commit. Afterwards, `git log -- research/<slug>` in `oss-monorepo` shows that project's original commits.
+- That is what <https://github.com/Duncan-Haywood/oss-monorepo/pull/6143> does, but its copy dates from 2026-10-01. When the move resumes, redo the import from this repository's current `main`, or merge the newer history into that branch. Do not hand-copy files.
+- After the merge lands, this repository is archived, not deleted, so its pull requests and links keep working. Its README points to the new home. Work then continues in `oss-monorepo/research/`.
+- The owner decides when the move resumes. A run here does not start it unasked, but nothing a run does should make it harder.
+
 ## Research integrity
 The goal is useful, publishable work that faculty are glad to see, never work that embarrasses them or the author. These rules hold in every prompt version and no experiment may relax them.
 - Credit every idea, method, dataset, figure and piece of code that is not original, with a citation or link at the point of use. When a project reproduces a paper, say so in its title or first line.
