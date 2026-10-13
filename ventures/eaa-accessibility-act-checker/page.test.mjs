@@ -69,4 +69,5 @@ test("footer links the related EU tools", () => {
   const html = page("index.html");
   assert.match(html, /href="\.\.\/nis2-scope-checker\/"/);
   assert.match(html, /href="\.\.\/eu-ai-act-risk-checker\/"/);
+  assert.match(html, /href="\.\.\/eu-data-act-checker\/"/);
 });
