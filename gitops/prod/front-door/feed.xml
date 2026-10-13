@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1137 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1138 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -46,6 +46,14 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free convenience store and gas station profit calculator: fuel margin after card fees, inside sales mix, labor and rent become monthly profit, break-even gallons, debt coverage and fuel margin sensitivity. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>DAC7 Seller Reporting Checker — Will Etsy, eBay, Vinted or Airbnb Report You?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dac7-seller-reporting-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/dac7-seller-reporting-checker</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free DAC7 checker for online sellers and hosts: will the platform report your sales or rentals to the tax authority this year? Checks the 30-sales / EUR 2,000 goods exemption, headroom, what is sent and the TIN deadline. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Dry Cleaner Profit Calculator — Break-Even Pieces and Price Per Piece</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free NIS2 scope checker: pick your sector and enter staff, turnover and balance sheet to see whether Directive (EU) 2022/2555 likely applies to you, as an essential or important entity, with the main duties. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>npm Audit Triage — Which npm audit Vulnerabilities Does Your Code Actually Use?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/npm-audit-triage/"/>
-    <id>tag:marisstella.dev,2026:tool/npm-audit-triage</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste npm audit --json and your source imports: see which vulnerable packages your code actually imports, which are only reached through a dependency, and which are test-only noise. Free npm audit triage, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
