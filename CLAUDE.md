@@ -1,8 +1,8 @@
 # Repo instructions
 
 **Active; the move is on hold.** The owner lifted the freeze on 2026-10-12. The portfolio was
-due to move to `Duncan-Haywood/fp-monorepo` under `research/`, in
-<https://github.com/Duncan-Haywood/fp-monorepo/pull/6143>. That pull request is still open, and
+due to move to `Duncan-Haywood/oss-monorepo` (formerly `fp-monorepo`) under `research/`, in
+<https://github.com/Duncan-Haywood/oss-monorepo/pull/6143>. That pull request is still open, and
 its copy of `research/` dates from 2026-10-01. Work lands here, on this repository's `main`. If
 the move resumes, re-sync that copy from here first.
 
