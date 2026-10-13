@@ -3048,7 +3048,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `rv-boat-storage-lot-calculator` graduated (browser RV and boat storage lot: acres, land, site cost, rent and occupancy to spaces, NOI, yield on cost, debt coverage, lease-up cash and equity IRR).
     # +1: `arcade-game-payback-calculator` graduated (browser arcade and family-entertainment-center worksheet: per-game plays, credits and tickets to weekly profit, payback, break-even plays and a keep, watch or cut verdict).
     # +1: `self-serve-dog-wash-profit-calculator` graduated (browser dog wash pro forma: tub capacity, traffic by weekday and season, break-even washes per day, ramp and payback).
-    total = 1117  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1117 tools" wording.
+    # +1: `convenience-store-gas-station-profit-calculator` graduated (browser c-store and gas station P&L: fuel margin after card fees, inside sales, labor, loan, break-even gallons and debt coverage).
+    total = 1120  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1120 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
