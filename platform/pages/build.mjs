@@ -1803,6 +1803,8 @@ const CATEGORY_RULES = [
       || slug === 'au-gst-registration-checker'
       // `uk-statutory-sick-pay-calculator` joined 2026-10-13 on its first commit: UK employer payroll-compliance arithmetic, same back-office job.
       || slug === 'uk-statutory-sick-pay-calculator'
+      // `au-redundancy-pay-calculator` joined 2026-10-13 on its first commit: employer termination-pay compliance arithmetic, same back-office job.
+      || slug === 'au-redundancy-pay-calculator'
       // `uk-vat-registration-checker` was left in the catch-all by its own merge (which put the tree one over the bound); filed here beside its UK sibling above.
       || slug === 'uk-vat-registration-checker'
       // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
