@@ -1799,6 +1799,8 @@ const CATEGORY_RULES = [
       || slug === 'eu-vat-oss-calculator'
       // `ca-gst-hst-small-supplier-checker` joined 2026-10-13 on its first commit: when a small seller must register for sales tax, the same compliance-arithmetic job.
       || slug === 'ca-gst-hst-small-supplier-checker'
+      // `au-gst-registration-checker` joined 2026-10-13 on its first commit: the Australian sibling of the GST/HST small-supplier test, same compliance-arithmetic job.
+      || slug === 'au-gst-registration-checker'
       // `uk-statutory-sick-pay-calculator` joined 2026-10-13 on its first commit: UK employer payroll-compliance arithmetic, same back-office job.
       || slug === 'uk-statutory-sick-pay-calculator'
       // `uk-vat-registration-checker` was left in the catch-all by its own merge (which put the tree one over the bound); filed here beside its UK sibling above.
