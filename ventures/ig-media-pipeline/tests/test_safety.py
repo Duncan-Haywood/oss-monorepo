@@ -14,10 +14,10 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from igmp import safety
+from igmp import metadata, safety
 from igmp.config import Config, load
 from igmp.judge import ClaudeCodeBackend, JudgeTask
-from igmp.models import Score
+from igmp.models import Asset, Score
 
 
 @pytest.fixture
@@ -272,3 +272,101 @@ def test_dry_run_guard_blocks_output_writes_too(cfg, lib):
         with pytest.raises(safety.LibraryWriteError):
             (lib / "x").write_text("x")
     assert len(g.violations) == 2 and not cfg.output_dir.exists()
+
+
+# --- the one exception: XMP sidecars beside originals -----------------------------------------
+
+def test_xmp_sidecars_of_originals_may_be_written_and_nothing_else(cfg, lib, library_tree):
+    """metadata.py writes <stem>.xmp beside an original, through <stem>.xmp.tmp. That is allowed;
+    every neighbouring move is not."""
+    (lib / "DSC0001.ARW").write_bytes(b"raw")
+    (lib / "DSC0001.JPG").write_bytes(b"jpg")
+    originals = {n: (lib / n).read_bytes() for n in ("a.JPG", "DSC0001.ARW", "DSC0001.JPG")}
+    with safety.guard(cfg) as g:
+        tmp = lib / "DSC0001.xmp.tmp"
+        tmp.write_text("<x:xmpmeta/>")
+        tmp.replace(lib / "DSC0001.xmp")                     # metadata.write_sidecar, exactly
+        (lib / "DSC0001.xmp").write_text("<x:xmpmeta>v2</x:xmpmeta>")   # and later refreshed
+        (lib / "a.JPG.xmp").write_text("<x:xmpmeta/>")      # name.ext.xmp style
+        assert not g.violations
+        refused = {
+            "sidecar of nothing": lambda: (lib / "nothing.xmp").write_text("x"),
+            "hidden sidecar": lambda: (lib / "._DSC0001.xmp").write_text("x"),
+            "original": lambda: (lib / "DSC0001.ARW").write_bytes(b"x"),
+            "other kind": lambda: (lib / "DSC0001.pp3").write_text("x"),
+            "exiftool backup": lambda: (lib / "DSC0001.xmp_original").write_text("x"),
+            "sidecar onto original": lambda: os.replace(lib / "DSC0001.xmp", lib / "DSC0001.ARW"),
+            "original onto sidecar": lambda: os.replace(lib / "DSC0001.JPG", lib / "DSC0001.xmp"),
+            "delete sidecar": lambda: (lib / "DSC0001.xmp").unlink(),
+            "touch sidecar": lambda: os.utime(lib / "DSC0001.xmp"),
+            "chmod sidecar": lambda: os.chmod(lib / "DSC0001.xmp", 0o600),
+            "folder named like one": lambda: (lib / "DSC0001.xmp.d").mkdir(),
+        }
+        for name, attempt in refused.items():
+            with pytest.raises(safety.LibraryWriteError):
+                attempt()
+    assert len(g.violations) == len(refused)
+    assert {n: (lib / n).read_bytes() for n in originals} == originals
+    assert sorted(p.name for p in lib.iterdir()) == ["DSC0001.ARW", "DSC0001.JPG", "DSC0001.xmp", "a.JPG",
+                                                     "a.JPG.xmp"]
+
+
+def test_a_dry_run_writes_no_sidecar_either(cfg, lib):
+    with safety.guard(cfg, dry_run=True):
+        with pytest.raises(safety.LibraryWriteError):
+            (lib / "a.xmp").write_text("x")
+    assert not (lib / "a.xmp").exists()
+
+
+def test_exiftool_may_update_sidecars_in_place_and_nothing_else(cfg, lib):
+    b = safety.boundary(cfg)
+    sidecar = lib / "a.xmp"
+    sidecar.write_text("<x:xmpmeta/>")
+    out = cfg.output_dir / "photos" / "x_ig.jpg"
+    # metadata.write_sidecar's merge, and metadata.embed into an export under output_dir
+    safety.check_tool_args(["exiftool", "-config", "igmp_xmp.config", "-overwrite_original", "-q",
+                            "-XMP-dc:Title=Harbor", str(sidecar)], b)
+    safety.check_tool_args(["exiftool", "-config", "igmp_xmp.config", "-overwrite_original", "-q", "-tagsfromfile",
+                            str(sidecar), "-xmp:all", "-IPTC:Keywords<XMP-dc:Subject", str(out)], b)
+    for bad in (["exiftool", "-XMP-dc:Title=x", str(sidecar)],                     # leaves a.xmp_original
+                ["exiftool", "-overwrite_original", "-XMP-dc:Title=x", str(lib / "a.JPG")],   # an original
+                ["exiftool", "-overwrite_original", "-o", str(lib / "b.xmp"), str(sidecar)],
+                ["exiftool", "-overwrite_original", "-tagsfromfile", str(lib / "a.JPG"), str(sidecar)]):
+        with pytest.raises(safety.LibraryWriteError):
+            safety.check_tool_args(bad, b)
+
+
+FOREIGN_XMP = """<?xpacket begin='' id='W5M0MpCehiHzreSzNTczkc9d'?>
+<x:xmpmeta xmlns:x='adobe:ns:meta/'>
+<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+ <rdf:Description rdf:about='' xmlns:crs='http://ns.adobe.com/camera-raw-settings/1.0/'>
+  <crs:Exposure2012>+0.50</crs:Exposure2012>
+ </rdf:Description>
+</rdf:RDF>
+</x:xmpmeta>
+<?xpacket end='w'?>
+"""
+
+
+@pytest.mark.skipif(shutil.which("exiftool") is None, reason="exiftool not installed")
+def test_real_exiftool_merges_into_a_foreign_sidecar_and_leaves_nothing_else(cfg, lib, tmp_path):
+    """metadata.py merges into a sidecar another app wrote (here Lightroom-style develop settings)
+    with exiftool -overwrite_original, then embeds it in an export: under the tripwire, with the
+    real binary, the library gains no *_original backup or exiftool temp file."""
+    raw = lib / "DSC0001.ARW"
+    raw.write_bytes(b"raw bytes")
+    sidecar = lib / "DSC0001.xmp"
+    sidecar.write_text(FOREIGN_XMP)
+    export = cfg.output_dir / "photos" / "DSC0001_ig.jpg"
+    export.parent.mkdir(parents=True)
+    Image.new("RGB", (8, 8)).save(export)
+    a = Asset(id="a1", kind="photo", files=[str(raw)], raw=str(raw))
+    with safety.guard(cfg) as g:
+        assert metadata.write_sidecar(a, {"xmp:Rating": 4, "igmp:Score": 8.0}, cfg) == sidecar
+        metadata.embed([str(export)], sidecar, cfg)
+    assert not g.violations
+    assert sorted(p.name for p in lib.iterdir()) == ["DSC0001.ARW", "DSC0001.xmp", "a.JPG"]
+    text = sidecar.read_text()
+    assert "Exposure2012" in text and "Rating" in text          # theirs kept, ours merged in
+    assert raw.read_bytes() == b"raw bytes"
+    assert sorted(p.name for p in export.parent.iterdir()) == ["DSC0001_ig.jpg"]   # no export_original either

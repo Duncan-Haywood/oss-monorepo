@@ -2,14 +2,15 @@
 
   igmp init        write a settings template (~/.config/igmp/config.toml)
   igmp plan        what a run would read, write and ask Claude; writes nothing. Run it first.
-  igmp verify-library   --record a manifest of the library (--hash: sample contents too);
-                   without --record, check the library still matches it
+  igmp verify-library   compare the library with `igmp backup manifest`'s checksums
+                   (size and time; --full re-hashes every file)
   igmp run         every stage below, resuming where the last run stopped
   igmp scan | prefilter | score | edit | reels | status
   --dry-run        with run or a stage: the plan for just that, writing nothing
 
-The library is only read. Every command runs with safety's tripwire up and compares the library
-before and after; it exits 3 if anything under a library root changed or a write to it was blocked.
+The library is only read, apart from the tag stage's XMP sidecars (and `igmp backup`'s own
+_checksums.csv). Every command runs with safety's tripwire up and compares the library before and
+after; it exits 3 if anything else under a library root changed, or a write to it was blocked.
 """
 from __future__ import annotations
 
@@ -125,10 +126,11 @@ def run_backup(cfg: config.Config, args) -> int:
     return 1 if bad else 0
 
 
-def guarded(cfg: config.Config, work) -> int:
+def guarded(cfg: config.Config, work, allow: list[Path] = ()) -> int:
     """Run `work` with the library tripwire up and the library listed before and after. Exit 3
-    if anything under a library root changed, or a write to it was blocked (and so did not happen)."""
-    with safety.guard(cfg) as g:
+    if anything under a library root changed other than XMP sidecars (and the `allow`ed paths),
+    or a write to it was blocked (and so did not happen)."""
+    with safety.guard(cfg, allow=allow) as g:
         before = {r: integrity.snapshot([r])[0] for r in cfg.library_roots if r.is_dir()}
         try:
             code = work()
@@ -143,6 +145,11 @@ def guarded(cfg: config.Config, work) -> int:
                     diff.added += d.added
                     diff.removed += d.removed
                     diff.changed += d.changed
+            sidecars, diff = integrity.split_sidecars(diff, {str(a) for a in allow})
+            if sidecars:
+                log.info("library: %d XMP sidecar(s) written or refreshed", sidecars)
+            if not diff and not g.violations:
+                log.info("library otherwise unchanged (%d roots checked)", len(before))
             if diff:
                 log.error("the library changed during this run (%s). If you did not add or edit files "
                           "there yourself meanwhile, this is a bug: please report it.", diff.summary())
@@ -172,26 +179,27 @@ def dry_run(cfg: config.Config, command: str) -> int:
 
 
 def verify_library(cfg: config.Config, args) -> int:
-    if args.record:
-        with safety.guard(cfg):
-            where, n, unreadable = integrity.record(cfg, hash_files=args.hash)
-        print(f"recorded {n} entries under {len(cfg.library_roots)} root(s)"
-              f"{' with content samples' if args.hash else ''}: {where}")
-        for u in unreadable:
-            print(f"  could not read {u}")
-        return 0
-    if not integrity.manifest_path(cfg).exists():
-        print("no manifest yet: run `igmp verify-library --record` before a run", file=sys.stderr)
-        return 2
-    diff, doc = integrity.check(cfg)
-    if not diff:
-        print(f"library unchanged since {doc['created']} ({len(doc['entries'])} entries"
-              f"{', content samples compared' if doc.get('hashed') else ''})")
-        return 0
-    print(f"library CHANGED since {doc['created']}: {diff.summary()}")
-    for line in diff.lines():
-        print(f"  {line}")
-    return 1
+    """Each library root against `igmp backup manifest`'s <root>/_checksums.csv. Exit 1 if
+    anything other than XMP sidecars changed, 2 if a root has no manifest yet."""
+    with safety.guard(cfg, dry_run=True):         # reading only: any write would be refused
+        reports = integrity.verify(cfg, full=args.full)
+    code = 0
+    for r in reports:
+        if r.note:
+            print(f"{r.root}: {r.note}")
+            code = max(code, 2 if "manifest" in r.note else 0)
+            continue
+        problems = r.problems
+        how = "hashes" if args.full else "size and modification time"
+        state = "CHANGED" if problems else "unchanged"
+        print(f"{r.root}: {state} against {r.files} checksummed files ({how})"
+              f"{f'; {r.sidecars} XMP sidecar(s) written since, as expected' if r.sidecars else ''}")
+        for line in problems[:50]:
+            print(f"  {line}")
+        if len(problems) > 50:
+            print(f"  ... and {len(problems) - 50} more")
+        code = max(code, 1) if problems else code
+    return code
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -204,8 +212,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--limit", type=int, default=None, help="score at most this many candidates")
     p.add_argument("--config", type=str, default=None)
     p.add_argument("--dry-run", action="store_true", help="with run or a stage: show the plan, write nothing")
-    p.add_argument("--record", action="store_true", help="verify-library: save a new manifest of the library")
-    p.add_argument("--hash", action="store_true", help="verify-library --record: also sample file contents")
+    p.add_argument("--full", action="store_true", help="verify-library: re-hash every file, not just size and time")
     args = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
@@ -222,7 +229,10 @@ def main(argv: list[str] | None = None) -> int:
         return dry_run(cfg, args.command)
     if args.command == "verify-library":
         return verify_library(cfg, args)
-    return guarded(cfg, lambda: run_command(cfg, args))
+    allow = []
+    if args.command == "backup":    # the manifest backup.py keeps in each root, and nothing else
+        allow = [r / n for r in cfg.library_roots for n in ("_checksums.csv", "_checksums.csv.tmp")]
+    return guarded(cfg, lambda: run_command(cfg, args), allow)
 
 
 def run_command(cfg: config.Config, args) -> int:

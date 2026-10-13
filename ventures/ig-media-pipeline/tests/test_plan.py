@@ -44,8 +44,8 @@ def test_first_plan_writes_nothing(tmp_path, fake_rawtherapee, library_tree, cap
     assert "Found 5 asset(s): 4 photo, 1 video in 1 event(s)" in out
     assert "will be created" in out and "state: none yet" in out
     assert "Claude  0-5 call(s)" in section(out, "score")    # up to one per asset; the prefilter decides
-    # the metadata refresh would put XMP sidecars beside the originals: the plan says so
-    assert "5 XMP sidecar(s) next to originals, INSIDE the library" in out and "refused by the safety guard" in out
+    # the metadata refresh puts XMP sidecars beside the originals: the plan says so
+    assert "up to 5 XMP sidecar(s) <name>.xmp beside their originals" in section(out, "tag")
     assert library_tree(tmp_path) == before                  # not even output_dir was created
 
 

@@ -1,50 +1,36 @@
-"""Proof that a run left the library as it found it.
+"""Proof that igmp left the library as it found it (apart from its XMP sidecars).
 
-A manifest lists every file, folder and link under each library root, hidden ones included, so
-a stray ._* AppleDouble file, .DS_Store, .pp3 sidecar or *_original backup shows up as "added".
-Each file is listed with its size and modification time, and optionally a fast content hash:
-BLAKE2b of the size and three 64 KiB samples (start, middle, end). An in-place metadata edit
-(exiftool, or a converter writing XMP into the file) lands in the first samples. A full hash of
-a multi-hundred-GB library would take hours.
+Two checks, both read-only:
 
-`igmp run` (and every stage) takes a size-and-mtime snapshot before and after and fails loudly
-if they differ. `igmp verify-library --record` saves one to compare against later.
+* During every command, cli lists each library root before and after (`snapshot`, hidden files
+  included, so a stray ._* AppleDouble file, .DS_Store, .pp3 or `*_original` shows up) and
+  `compare`s the two. XMP sidecars of existing originals are the tag stage's job and are counted
+  separately (`split_sidecars`); any other difference fails the command.
+* `igmp verify-library` compares the library with the checksum manifest `igmp backup manifest`
+  keeps at `<root>/_checksums.csv` (backup.py's format and code): fast by size and modification
+  time, or `--full` by re-hashing every file. backup.walk skips hidden and *.tmp files, so
+  those are listed separately when they are newer than the manifest.
 
 Folders macOS maintains on its own at a volume root (.Spotlight-V100, .fseventsd, .Trashes...)
-are skipped. Only reading happens here: os.scandir, lstat, and files opened "rb" to hash them.
+are skipped.
 """
 from __future__ import annotations
 
-import hashlib
-import json
 import os
 import stat
 from dataclasses import dataclass, field
-from datetime import datetime
 from pathlib import Path
 
-from . import safety
+from . import backup, safety
 from .config import Config
 
-SAMPLE = 64 * 1024
-SKIP = {".Spotlight-V100", ".fseventsd", ".Trashes", ".TemporaryItems", ".DocumentRevisions-V100",
-        ".PKInstallSandboxManager", ".PKInstallSandboxManager-SystemSoftware",
-        "System Volume Information", "$RECYCLE.BIN"}
-
-Entry = dict          # {"type": "file"|"dir"|"link", "size", "mtime_ns", "hash"?, "target"?}
+Entry = dict          # {"type": "file"|"dir"|"link", "size", "mtime_ns", "target"?}
 
 
-def fast_hash(path: str, size: int) -> str:
-    h = hashlib.blake2b(str(size).encode(), digest_size=16)
-    with open(path, "rb") as fh:
-        for offset in sorted({0, max(0, size // 2 - SAMPLE // 2), max(0, size - SAMPLE)}):
-            fh.seek(offset)
-            h.update(fh.read(SAMPLE))
-    return h.hexdigest()
+# --- before / after a command ------------------------------------------------------------------
 
-
-def snapshot(roots: list[Path], hash_files: bool = False) -> tuple[dict[str, Entry], list[str]]:
-    """(entries keyed by absolute path, folders that could not be read)."""
+def snapshot(roots: list[Path]) -> tuple[dict[str, Entry], list[str]]:
+    """(every file, folder and link under the roots, keyed by path; folders that could not be read)."""
     entries: dict[str, Entry] = {}
     unreadable: list[str] = []
     stack = [str(Path(r)) for r in roots if Path(r).is_dir()]
@@ -57,7 +43,7 @@ def snapshot(roots: list[Path], hash_files: bool = False) -> tuple[dict[str, Ent
             unreadable.append(f"{folder}: {e.strerror or e}")
             continue
         for item in items:
-            if item.name in SKIP:
+            if item.name in backup.SKIP_DIRS:
                 continue
             try:
                 st = item.stat(follow_symlinks=False)
@@ -70,10 +56,8 @@ def snapshot(roots: list[Path], hash_files: bool = False) -> tuple[dict[str, Ent
                 entries[item.path] = {"type": "dir"}
                 stack.append(item.path)
             else:
-                e: Entry = {"type": "file", "size": st.st_size, "mtime_ns": st.st_mtime_ns}
-                if hash_files and stat.S_ISREG(st.st_mode):
-                    e["hash"] = fast_hash(item.path, st.st_size)
-                entries[item.path] = e
+                entries[item.path] = {"type": "file", "size": st.st_size, "mtime_ns": st.st_mtime_ns,
+                                      "mode": st.st_mode}
     return entries, unreadable
 
 
@@ -107,10 +91,10 @@ def compare(before: dict[str, Entry], after: dict[str, Entry]) -> Diff:
         elif a["type"] == "file":
             if a["size"] != b["size"]:
                 what.append(f"size {a['size']} -> {b['size']}")
-            if "hash" in a and "hash" in b and a["hash"] != b["hash"]:
-                what.append("content")
             if a["mtime_ns"] != b["mtime_ns"]:
                 what.append("modified time")
+            if a.get("mode") != b.get("mode"):
+                what.append("permissions")
         elif a["type"] == "link" and a.get("target") != b.get("target"):
             what.append(f"link target {a.get('target')} -> {b.get('target')}")
         if what:
@@ -118,25 +102,97 @@ def compare(before: dict[str, Entry], after: dict[str, Entry]) -> Diff:
     return d
 
 
-def manifest_path(cfg: Config) -> Path:
-    return cfg.state_dir / "library-manifest.json"
+def split_sidecars(diff: Diff, expected: set[str] = frozenset()) -> tuple[int, Diff]:
+    """(how many XMP sidecars of existing originals were written or refreshed, the rest of the
+    diff). `expected` are further exact paths a command was allowed to write."""
+    def ours(path: str) -> bool:
+        return path in expected or (path.lower().endswith(".xmp") and safety.sidecar_of(path) is not None)
+
+    added = [p for p in diff.added if not ours(p)]
+    changed = [c for c in diff.changed if not ours(c.split(": ", 1)[0])]
+    return (len(diff.added) - len(added)) + (len(diff.changed) - len(changed)), \
+        Diff(added=added, removed=diff.removed, changed=changed)
 
 
-def record(cfg: Config, path: Path | None = None, hash_files: bool = False) -> tuple[Path, int, list[str]]:
-    """Save a manifest of the library (under state/ unless `path` says otherwise; never in the
-    library). Returns (where, how many entries, unreadable folders)."""
-    entries, unreadable = snapshot(cfg.library_roots, hash_files)
-    where = path or manifest_path(cfg)
-    doc = {"version": 1, "created": datetime.now().isoformat(timespec="seconds"),
-           "roots": [str(r) for r in cfg.library_roots], "hashed": hash_files, "entries": entries}
-    safety.write_text(cfg, where, json.dumps(doc, indent=0, sort_keys=True))
-    return where, len(entries), unreadable
+# --- against the backup manifest ---------------------------------------------------------------
+
+@dataclass
+class RootReport:
+    root: Path
+    note: str = ""                      # why it was not checked, if it wasn't
+    damaged: list[str] = field(default_factory=list)    # content changed, size and mtime did not
+    changed: list[str] = field(default_factory=list)
+    missing: list[str] = field(default_factory=list)
+    new: list[str] = field(default_factory=list)
+    hidden: list[str] = field(default_factory=list)     # hidden or *.tmp files newer than the manifest
+    unreadable: list[str] = field(default_factory=list)
+    sidecars: int = 0                   # XMP sidecars written or refreshed since (expected)
+    files: int = 0
+
+    @property
+    def problems(self) -> list[str]:
+        return ([f"damaged  {r}" for r in self.damaged] + [f"changed  {r}" for r in self.changed]
+                + [f"missing  {r}" for r in self.missing] + [f"new      {r}" for r in self.new]
+                + [f"new      {r}   (hidden or temporary)" for r in self.hidden]
+                + [f"unreadable {r}" for r in self.unreadable])
 
 
-def check(cfg: Config, path: Path | None = None) -> tuple[Diff, dict]:
-    """Compare the library with a saved manifest (re-hashing if it was recorded with hashes)."""
-    where = path or manifest_path(cfg)
-    doc = json.loads(Path(where).read_text())
-    roots = [Path(r) for r in doc["roots"]]
-    now, _ = snapshot(roots, doc.get("hashed", False))
-    return compare(doc["entries"], now), doc
+def _fast(root: Path, known: dict) -> dict[str, list[str]]:
+    """backup.verify's report without hashing: size and modification time only."""
+    report: dict[str, list[str]] = {"damaged": [], "changed": [], "missing": [], "new": [], "unreadable": []}
+    seen = set()
+    for p in backup.walk(root):
+        rel = p.relative_to(root).as_posix()
+        seen.add(rel)
+        e = known.get(rel)
+        try:
+            st = p.stat()
+        except OSError:
+            report["unreadable"].append(rel)
+            continue
+        if e is None:
+            report["new"].append(rel)
+        elif e.size != st.st_size or e.mtime_ns != st.st_mtime_ns:
+            report["changed"].append(rel)
+    report["missing"] = sorted(set(known) - seen)
+    return report
+
+
+def _hidden_since(root: Path, since_ns: int) -> list[str]:
+    out = []
+    for dirpath, dirs, files in os.walk(root):
+        dirs[:] = [d for d in dirs if d not in backup.SKIP_DIRS]
+        for name in files:
+            if name.startswith(".") or name.endswith(".tmp"):
+                p = Path(dirpath) / name
+                try:
+                    if p.lstat().st_mtime_ns > since_ns:
+                        out.append(p.relative_to(root).as_posix())
+                except OSError:
+                    continue
+    return sorted(out)
+
+
+def verify(cfg: Config, full: bool = False) -> list[RootReport]:
+    """Each library root against its <root>/_checksums.csv."""
+    reports = []
+    for root in cfg.library_roots:
+        r = RootReport(root)
+        reports.append(r)
+        manifest = root / backup.MANIFEST
+        if not root.is_dir():
+            r.note = "not connected"
+            continue
+        if not manifest.exists():
+            r.note = f"no {backup.MANIFEST} yet: run `igmp backup manifest` first"
+            continue
+        known = backup.load(root)
+        found = backup.verify(root) if full else _fast(root, known)
+        r.files = len(known)
+        sidecar = lambda rel: rel.lower().endswith(".xmp") and safety.sidecar_of(root / rel) is not None
+        r.sidecars = sum(sidecar(x) for x in found["changed"] + found["new"])
+        r.changed = [x for x in found["changed"] if not sidecar(x)]
+        r.new = [x for x in found["new"] if not sidecar(x)]
+        r.damaged, r.missing, r.unreadable = found["damaged"], found["missing"], found["unreadable"]
+        r.hidden = _hidden_since(root, manifest.stat().st_mtime_ns)
+    return reports

@@ -155,9 +155,9 @@ def steps(cfg: Config, assets: list[Asset], store, stages: tuple[str, ...]) -> l
     # every command except plan, status, backup and music refreshes the XMP sidecars afterwards
     from . import metadata
     inside = [a for a in assets if a.kind != "sequence" and safety.in_library(cfg, metadata.sidecar_path(a))]
-    out.append(Step("tag", "the state database", f"{len(inside)} XMP sidecar(s) next to originals, INSIDE the library",
-                    note="refused by the safety guard: these writes are blocked and logged until sidecars "
-                         "move under output_dir" if inside else ""))
+    out.append(Step("tag", "the state database",
+                    f"up to {len(inside)} XMP sidecar(s) <name>.xmp beside their originals in the library "
+                    "(the one kind of file igmp adds there; only changed ones are rewritten)"))
     return out
 
 
@@ -223,7 +223,8 @@ def report(cfg: Config, stages: tuple[str, ...] = STAGES, out: TextIO | None = N
         total_hi = None if total_hi is None or s.calls[1] is None else total_hi + s.calls[1]
     w()
     w(f"Claude in total: {_calls(total_lo, total_hi)} ({cfg.backend}, {cfg.model})")
-    w("The library is only read: igmp refuses any write, rename, move or delete under a library root.")
+    w("Originals are only read: igmp refuses any write, rename, move or delete of them, and any new file "
+      "in the library other than an XMP sidecar.")
     if store:
         store.close()
     return -1 if total_hi is None else total_hi

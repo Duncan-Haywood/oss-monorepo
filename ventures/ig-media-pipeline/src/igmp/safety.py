@@ -1,15 +1,21 @@
 """The one boundary between igmp and the photo library.
 
-Nothing igmp does may modify, move, rename, delete or add a file under a library root, and an
-original is never edited in place: edit settings live in the state database and in .pp3 files
-under state/, and every render is a new file under output_dir. Three layers hold that line, so
-no single mistake can cross it:
+Nothing igmp does may modify, move, rename or delete a file under a library root, and an original
+is never edited in place: edit settings live in the state database and .pp3 files, and every
+render is a new file under output_dir. igmp adds exactly one kind of file there: the XMP sidecar
+`<stem>.xmp` beside an existing original `<stem>.<ext>`, written by the tag stage (metadata.py)
+through `<stem>.xmp.tmp`, and updated in place by exiftool with -overwrite_original. Anything
+else in a library root (a .pp3, a `*_original` backup, an AppleDouble `._*` file, a write to an
+original) is refused. The one other allowance is scoped to a single command: `igmp backup`
+may write its own `<root>/_checksums.csv` (cli passes it to `guard(allow=...)`). Three layers
+hold that line, so no single mistake can cross it:
 
 1. Config. `check_config` refuses an output_dir that is a library root, sits inside one, or
    contains one. Symlinks, `..`, letter case and Unicode normalisation are resolved first, and
    folder identity (device, inode) catches aliases a path comparison cannot see.
-2. Writers. The writers here are the one way to write: `atomic`, `write_text`, `save_image`,
-   `move`, `make_dirs`, `scratch`, `staged_copy`, and `run`/`popen` for external tools. A target
+2. Writers, for igmp's outputs: `atomic`, `write_text`, `save_image`, `move`, `make_dirs`,
+   `scratch`, `staged_copy`, and `run`/`popen` for external tools. (Stages that still write
+   with plain Python or subprocess are held to the same line by the tripwire.) A target
    outside output_dir or inside a library root is refused. A file is written into a private temp
    folder beside its target and renamed into place, so a crash never leaves half a file. A file
    igmp did not write, or one that changed since igmp wrote it, is never replaced; the ledger
@@ -21,7 +27,9 @@ no single mistake can cross it:
      exiftool     library files only in a read-only command: no tag assignment (`-TAG=`,
                   `-TAG<SRC`), and none of -o -w -tagsFromFile -overwrite_original* -geotag
                   -srcfile -delete_original -restore_original -@ (exiftool edits in place and
-                  leaves `<name>_original` backups)
+                  leaves `<name>_original` backups). The one exception: XMP sidecars, which it
+                  may update with -overwrite_original (and read with -tagsFromFile) when the
+                  command creates no other file
      rawtherapee  never a library path; a private symlink to a RAW, kept outside the library, is
                   accepted as a -c input when -s/-S/-O are absent (no sidecar is read or written)
      anything     else (claude included): no library path at all
@@ -34,9 +42,9 @@ no single mistake can cross it:
    (Pillow's codecs, LibRaw via rawpy) only read, and the before/after library check in cli
    (integrity.py) would report anything that slipped through.
 
-igmp only reads the library. Files are opened read-only (Pillow, rawpy, the csv index, ffmpeg
-inputs). On a volume mounted with access times, reading can update a file's atime. Contents,
-sizes, modification times and directory entries are never touched.
+Originals are only read. Files are opened read-only (Pillow, rawpy, the csv index, ffmpeg and
+exiftool inputs). On a volume mounted with access times, reading can update a file's atime;
+contents, sizes and modification times are never touched.
 """
 from __future__ import annotations
 
@@ -379,6 +387,57 @@ def exiftool_reads_only(cmd: Sequence[str]) -> bool:
     return True
 
 
+EXIFTOOL_OTHER_FILES = {"-o", "-out", "-w", "-w!", "-w+", "-textout", "-tagout", "-srcfile", "-geotag",
+                        "-delete_original", "-delete_original!", "-restore_original", "-@", "-stay_open"}
+
+
+def exiftool_updates_in_place(cmd: Sequence[str]) -> bool:
+    """True when an exiftool write replaces its target files in place (-overwrite_original)
+    and creates no other file: no *_original backup, no -o/-w output, no argfile."""
+    opts = {a.lower() for a in cmd[1:] if a.startswith("-")}
+    return bool(opts & {"-overwrite_original", "-overwrite_original_in_place"}) and not opts & EXIFTOOL_OTHER_FILES
+
+
+def sidecar_of(path) -> Path | None:
+    """The original that `path` is the XMP sidecar of: for `<stem>.xmp` (or the `<stem>.xmp.tmp`
+    it is written through), an existing file `<stem>.<ext>` beside it (or `<stem>` itself, for
+    the `name.ext.xmp` style). None for anything else, including hidden names."""
+    p = Path(path)
+    low = p.name.lower()
+    stem = p.name[:-len(".xmp.tmp")] if low.endswith(".xmp.tmp") else p.name[:-4] if low.endswith(".xmp") else ""
+    if not stem or stem.startswith("."):
+        return None
+    folder, key = str(p.parent), _fold(stem)
+    for refresh in (False, True):            # originals don't come and go during a run: cache the listing
+        names = _originals(folder, refresh)
+        if key in names:
+            return p.parent / names[key]
+    return None
+
+
+_listings: dict[str, dict[str, str]] = {}
+
+
+def _originals(folder: str, refresh: bool) -> dict[str, str]:
+    """{folded stem or name: name} of the non-sidecar, non-hidden files in a folder."""
+    if refresh or folder not in _listings:
+        names: dict[str, str] = {}
+        try:
+            with os.scandir(folder) as it:
+                for e in it:
+                    low = e.name.lower()
+                    if e.name.startswith(".") or low.endswith((".xmp", ".xmp.tmp")) or not e.is_file():
+                        continue
+                    names[_fold(e.name)] = e.name
+                    names.setdefault(_fold(e.name.rsplit(".", 1)[0]), e.name)
+        except OSError:
+            pass
+        if len(_listings) > 256:
+            _listings.clear()
+        _listings[folder] = names
+    return _listings[folder]
+
+
 def _private_link(arg: str, b: Boundary) -> bool:
     """A symlink to a library file that itself lives outside the library (igmp's work folder or
     the system temp folder), so anything written beside it lands there, not beside the original."""
@@ -400,7 +459,8 @@ def check_tool_args(cmd: Sequence[str], b: Boundary, strict: bool = True) -> Non
             continue
         if (ffmpeg and cmd[i - 1] == "-i") or (ffprobe and cmd[i - 1] != "-o"):
             continue
-        if exiftool and exiftool_reads_only(cmd):
+        if exiftool and (exiftool_reads_only(cmd) or (exiftool_updates_in_place(cmd)
+                                                       and sidecar_of(resolve(arg)) is not None)):
             continue
         if rawtherapee and i >= rt_inputs and _private_link(arg, b) and not RAWTHERAPEE_SIDECARS & set(cmd):
             continue
@@ -453,7 +513,7 @@ def popen(cmd: Sequence, cfg: Config, *, writes: Sequence = (), **kwargs) -> sub
 
 # --- tripwire --------------------------------------------------------------------------------
 
-_active: list[tuple[Boundary, bool]] = []        # (boundary, dry run: output_dir is off limits too)
+_active: list[tuple[Boundary, bool, frozenset[str]]] = []   # (boundary, dry run, extra writable paths)
 _violations: list[str] = []
 _installed = False
 _WRITE_FLAGS = os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC | os.O_APPEND
@@ -470,7 +530,9 @@ def _fd_path(fd: int) -> str | None:
         return None
 
 
-def _deny(what: str, path, dir_fd=None, *, by_fd: bool = False) -> None:
+def _deny(what: str, path, dir_fd=None, *, by_fd: bool = False, sidecars: tuple[str, ...] = ()) -> None:
+    """Raise if `path` is in a guarded library (or, in a dry run, in output_dir). `sidecars`
+    names the sidecar files this operation may touch (".xmp", ".xmp.tmp"): the one exception."""
     if isinstance(path, int) and by_fd:
         path = _fd_path(path)     # utime/chmod/truncate/xattr through a descriptor change the file too
     if path is None or isinstance(path, int):
@@ -482,9 +544,12 @@ def _deny(what: str, path, dir_fd=None, *, by_fd: bool = False) -> None:
     if dir_fd not in (None, -1) and not os.path.isabs(text):
         return                  # relative to an open folder: the call that opened it was checked
     p = resolve(text)
-    for b, dry_run in list(_active):
+    for b, dry_run, extra in list(_active):
         root = next((r for r in b.library if r.contains(p)), None)
         if root is not None:
+            if not dry_run and sidecars and (_fold(str(p)) in extra or (
+                    p.name.lower().endswith(sidecars) and sidecar_of(p) is not None)):
+                continue
             msg = f"blocked {what} {text}: it is inside the photo library {root.path}"
             _violations.append(msg)
             raise LibraryWriteError(msg)
@@ -503,7 +568,7 @@ def _deny_command(args, cwd=None) -> None:
         argv = [os.fsdecode(a) for a in (args or ())]
     if not argv:
         return
-    for b, _ in list(_active):
+    for b, _, _ in list(_active):
         try:
             check_tool_args(argv, b, strict=False)
         except UnsafeWrite as e:
@@ -530,13 +595,14 @@ def _open(args) -> None:
     writing = (isinstance(mode, str) and any(c in mode for c in "wax+")) or \
               (isinstance(flags, int) and bool(flags & _WRITE_FLAGS))
     if writing:
-        _deny("writing", path)
+        _deny("writing", path, sidecars=(".xmp", ".xmp.tmp"))
 
 
 _HANDLERS = {
     "open": _open,
-    "os.rename": lambda a: (_deny("renaming", a[0], a[2]), _deny("renaming onto", a[1], a[3])),
-    "os.remove": lambda a: _deny("deleting", a[0], a[1]),
+    "os.rename": lambda a: (_deny("renaming", a[0], a[2], sidecars=(".xmp", ".xmp.tmp")),
+                            _deny("renaming onto", a[1], a[3], sidecars=(".xmp", ".xmp.tmp"))),
+    "os.remove": lambda a: _deny("deleting", a[0], a[1], sidecars=(".xmp.tmp",)),
     "os.rmdir": lambda a: _deny("deleting", a[0], a[1]),
     "os.mkdir": lambda a: _deny("creating", a[0], a[2]),
     "os.link": lambda a: (_deny("linking", a[0], a[2]), _deny("linking onto", a[1], a[3])),
@@ -592,10 +658,12 @@ class Guard:
 
 
 @contextmanager
-def guard(cfg: Config, *, dry_run: bool = False) -> Iterator[Guard]:
-    """Turn on the tripwire for `cfg`'s library (and, in a dry run, its output_dir too)."""
+def guard(cfg: Config, *, dry_run: bool = False, allow: Sequence = ()) -> Iterator[Guard]:
+    """Turn on the tripwire for `cfg`'s library (and, in a dry run, its output_dir too). `allow`
+    lists exact library paths that may be written and renamed onto while this guard is up (cli
+    passes `igmp backup`'s own <root>/_checksums.csv); everything else stays refused."""
     install()
-    entry = (boundary(cfg), dry_run)
+    entry = (boundary(cfg), dry_run, frozenset(_fold(str(resolve(a))) for a in allow))
     _active.append(entry)
     try:
         yield Guard(len(_violations))
@@ -606,6 +674,6 @@ def guard(cfg: Config, *, dry_run: bool = False) -> Iterator[Guard]:
 def guard_worker(cfg: Config, dry_run: bool = False) -> None:
     """ProcessPoolExecutor initializer: the tripwire for the life of a worker process."""
     install()
-    entry = (boundary(cfg), dry_run)
+    entry = (boundary(cfg), dry_run, frozenset())
     if entry not in _active:
         _active.append(entry)
