@@ -3857,3 +3857,16 @@ entries:
         cafe-drink-margin-calculator covers per-drink margin only; no store-level break-even or ramp tool existed. First visitor: people
         searching boba shop break-even; volume unmeasured.
     mrr_end: 0
+  - venture: pip-audit-triage
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built pip-audit-triage, the Python counterpart of npm-audit-triage: paste pip-audit -f json plus Python source in
+        the browser, or run a zero-dependency Node CLI that exits 1 on a vulnerable package your runtime code imports. Findings are
+        bucketed imported / test-only / not-referenced using PEP 503 names, a distribution-to-import-name table (PyYAML -> yaml,
+        Pillow -> PIL) and import, from-import, import_module and __import__ parsing with comments and docstrings ignored. pip-audit
+        prints no severity, so reachability is the ranking signal. 18 unit and page tests, guide page, sibling link from
+        requirements-pin-check. Known gap: no dependency graph, so transitive-only packages read not-referenced. First visitor:
+        searches for pip-audit noise; volume unmeasured. Natural paid upgrade is a GitHub Action commenting on Dependabot PRs.
+    mrr_end: 0
