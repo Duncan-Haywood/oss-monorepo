@@ -1578,7 +1578,8 @@ const RELATIVE_SELF = relative(
 // +1: `coworking-space-profit-calculator` graduated.
 // +1: `arcade-game-payback-calculator` graduated.
 // +1: `hydroponic-farm-profit-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1091;
+// +1: `npm-audit-triage` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1092;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
