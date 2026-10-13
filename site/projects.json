@@ -1488,6 +1488,11 @@
      "summary": "A stylised follow-up to <em>ambient-fullinfo</em>. A control that fits on a uniformly random sample of windows, of the same size as the biased fit&rsquo;s label set, gets 12.2&ndash;12.5 utility per hour against an oracle of 12.71, while the biased fit gets 10.6&ndash;11.4 with an informed prior and fails with an uninformed one: in this world the gap is mostly selection bias. Capping the inverse-propensity weights at 10 or 50 beats raw weights and the biased fit with the informed prior, but is worse than the biased fit with the uninformed prior; self-normalised weights are noisy. The control uses labels a real assistant never sees, so it locates the loss rather than recovering it. Stylised: chosen distributions, independent windows, noise-free feedback, simulated only."
     },
     {
+     "slug": "ambient-dr",
+     "title": "Does a doubly robust estimator fix learning from an assistant&rsquo;s own self-selected feedback?",
+     "summary": "A stylised follow-up to <em>ambient-labelmatch</em>. Doubly robust pseudo-labels (an outcome model plus an inverse-propensity correction on the windows where the assistant spoke) are fitted on every window and compared with biased, IPS, clipped and self-normalised fits on the same logged history. A negative result: with an uninformed prior all three variants are far worse than the biased fit (utility per hour below &minus;15 against 12.71 for the oracle) and have huge variance, and with an informed prior they are level with or above the biased fit at they match the biased fit at &epsilon; = 0.005 and 0.02 butepsilon; = 0.005 and 0.02 but are not better than clipped IPS. Simulated windows chosen by me; nothing is claimed about real users."
+    },
+    {
      "slug": "ambient-wearable",
      "title": "What limits the battery life of a pendant-style always-on audio wearable?",
      "summary": "A stylised average-current model for an nRF52840-class pendant with a 150 mAh cell, built from a few vendor figures read on 2026-10-13 plus labelled assumptions. The always-on microphone is the floor (about 170 h alone); gating codec and radio on speech at a 30% speech fraction gives about 105 h against 59 h for always streaming. A 74-byte energy-gate routine compiles for Cortex-M4. Nothing is measured on hardware, the datasheets were not read in full and there is no numeric comparison with Omi."
@@ -1704,6 +1709,11 @@
      "summary": "A two-layer resistor network of a conductive weave: warp and weft touch only through a contact resistor at each crossing, and yarn segments break at random. On an intact fabric the contacts carry no current, so they have no effect at all. Once yarns break they carry the bypass currents: with 20% of segments broken, the median sheet resistance is 1.74 segment-resistances with perfect contacts, 2.11 with contacts equal to one segment, 4.07 at ten and 16.7 at a hundred. For a stylised stainless weave that is 59.6 dB against 52.3 dB at ten segments (thin-sheet only, aperture limit excluded). Stylised: contact values are a sweep, not measurements; one lattice size, 20 draws, independent breaks."
     },
     {
+     "slug": "garment-flexdamage",
+     "title": "Does it matter where an RF-shielding fabric is damaged, and whether worn contacts go with the breaks?",
+     "summary": "Follow-up to the contact-resistance model, on a 24&times;24 conductive weave with 60 draws per cell and bootstrap intervals. When contacts next to a broken yarn are worn (contact resistance &times;<em>k</em>), the median sheet resistance at 20% broken and a base contact of one segment rises from 2.05 segment-resistances (<em>k</em>&nbsp;=&nbsp;1) to 3.03 (<em>k</em>&nbsp;=&nbsp;10). Clustering matters more: a fold band across the current that holds the mean break fraction fixed but breaks 4&times; as often inside the band leaves the weave open in 57 of 60 draws at 20% broken, while the same band along the current direction lowers the resistance to 1.43. Stylised: square lattice, one lattice size, a rule-of-thumb wear multiplier rather than a measured one, no flexing physics, and no measurement."
+    },
+    {
      "slug": "garment-thincolor",
      "title": "How thin must a coating be to colour a fibre without dye, and how fragile is that colour?",
      "summary": "A transfer-matrix model of dielectric quarter-wave stacks on a flat nylon-like substrate, with colour computed under an equal-energy illuminant. Six-pair stacks reach 99% reflectance with 2&ndash;3 g/m<sup>2</sup> of oxide and saturated colour, but the peak blue-shifts from 620 to 540 nm by 60&deg; incidence (&Delta;E<sub>76</sub> 48), and 10% layer-thickness error moves hue by &Delta;E&asymp;10 while roughly preserving chroma. Stylised: flat substrate, constant indices, no fibre scattering."
@@ -1729,9 +1739,19 @@
      "summary": "The 8-layer stacks of <em>garment-stackopt</em> re-optimised on a grid of chroma floors and oxide-mass caps (Nelder&ndash;Mead restarts, 3000 calls, 5 seeds per cell). For the red target at a chroma floor of C* 40 the best mean angle shift is 0.68 &Delta;E<sub>76</sub> at a 4.0 g/m<sup>2</sup> cap, 2.71 at 3.0, and no run is feasible at 2.0 or below; raising the floor to 60 costs more (2.84 at a 4.0 cap). Mass binds before chroma. Stylised: flat substrate, three sample angles, untuned penalties, a coarse grid and a single optimiser, so cell values are noisy and the front is not smooth."
     },
     {
+     "slug": "garment-stacklayers",
+     "title": "Does adding layers cut the angle shift of a structural-colour coating at fixed chroma and oxide mass?",
+     "summary": "The constrained problem of <em>garment-stackpareto</em> with the layer count varied from 2 to 12 (Nelder&ndash;Mead restarts, 3000 calls, 8 seeds per cell). For the red target at C* &ge; 40 and 4 g/m<sup>2</sup>, 2 and 4 layers reach a best mean &Delta;E of about 3.4, while 6, 8 and 10 layers reach 0.5&ndash;0.8; medians are several times higher, so the ranking among 6&ndash;10 is within noise. At 12 layers few runs were feasible, probably a search limit at equal budget rather than a property of the stack. Stylised: flat substrate, three angles, no thickness tolerance; no coating was made."
+    },
+    {
      "slug": "garment-assist",
      "title": "Does an assistive garment pay for its own mass?",
      "summary": "A one-joint ankle model of an exosuit-style garment: a suit adding a fraction of the biological push-off torque cuts modelled whole-body metabolic cost by 3.1, 8.8 and 14.1% at gains 0.1, 0.3 and 0.5, but a delay of 0.25 of the gait cycle removes the benefit and a stiff passive spring raises ankle cost 17%. Added mass erases the saving at 8.9&nbsp;kg if each kg costs 1% of whole-body power and at 1.8&nbsp;kg if it costs 5%; the break-even scales as 1/sensitivity, a number the project does not supply. Stylised: lumped muscle, prescribed gait, assumed constants; not OpenSim or MyoSuite."
+    },
+    {
+     "slug": "garment-assistpower",
+     "title": "Is it the motor or the battery that decides whether an exosuit pays for its own mass?",
+     "summary": "Extends the ankle exosuit model with a power train: motor mass from peak torque and a torque density, battery mass from electrical energy and hours of use, and the resulting mass fed back into metabolic cost. With an assumed 8 N m/kg motor the gain-0.3 suit weighs about 9&nbsp;kg, 8.4 of it motor, and raises whole-body cost 0.2&ndash;1.9%; the sign flips between 8 and 20 N m/kg, while eight hours of battery add under 2&nbsp;kg. Stylised: every power-train constant is assumed, not sourced."
     },
     {
      "slug": "garment-protective",
