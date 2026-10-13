@@ -3968,6 +3968,19 @@ entries:
         tests. No EAA tool existed in ventures/. First visitor: EU online-shop owners and agencies asked "does the Accessibility Act apply to us?";
         volume unmeasured. National transposition is not modelled and the page says so.
     mrr_end: 0
+  - venture: indoor-play-center-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built indoor-play-center-profit-calculator: a browser-only pro forma for an indoor playground or soft-play cafe. Weekday and
+        weekend child visits, walk-in and member prices, birthday parties, cafe spend, staff hours with payroll load, rent, fit-out, equipment and a loan
+        give monthly profit, break-even visits a week (operating and with the loan), the admission and party price factor that reaches a target margin,
+        attendance, price and wage sensitivity tables, a sixty-month ramp-up with the cash reserve and payback, and text and CSV downloads. 15 hand-checked
+        unit tests plus page and usage tests. Nearest sibling trampoline-park-profit-calculator models jumper capacity and sessions, not attendance with
+        cafe and ramp-up. First visitor: first-time owners sizing a lease and loan; volume unmeasured. Every figure is the user's own; the example is
+        labelled illustrative.
+    mrr_end: 0
   - venture: eu-data-act-checker
     agent_spend_usd: 0
     human_hours: 0
