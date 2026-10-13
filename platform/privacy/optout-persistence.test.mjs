@@ -1627,7 +1627,7 @@ const RELATIVE_SELF = relative(
 // +1: `uk-trading-allowance-calculator` graduated.
 // +1: `uk-self-assessment-late-penalty-calculator` graduated.
 // +1: `uk-child-benefit-charge-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1148;
+const SWITCHES_IN_THE_CATALOGUE = 1149;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
