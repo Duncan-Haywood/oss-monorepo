@@ -3051,7 +3051,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `convenience-store-gas-station-profit-calculator` graduated (browser c-store and gas station P&L: fuel margin after card fees, inside sales, labor, loan, break-even gallons and debt coverage).
     # +1: `nis2-scope-checker` graduated (browser EU NIS2 scope check: sector and size to essential, important or out of scope, with the Article).
     # +1: `eaa-accessibility-act-checker` graduated (browser European Accessibility Act check: product or service, role and size to in scope, microenterprise-exempt or out, with the Article).
-    # +1: `gpsr-product-safety-checker` graduated (browser EU General Product Safety Regulation check: scope, EU responsible person gap, open duties by role).
+    # +1: `indoor-play-center-profit-calculator` graduated (browser indoor play centre pro forma: visits, memberships, parties, cafe and staffing to profit, break-even visits, ramp-up reserve and payback).
+    # +1: `gpsr-product-safety-checker` graduated (browser EU General Product Safety Regulation check).
     total = 1128  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1128 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
