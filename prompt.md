@@ -39,5 +39,27 @@ touch closer to that:
   above means ideas and public behaviour, never another product's code, copy
   or assets under an incompatible license.
 
+**One repository is the end state (added 2026-10-13).** This repository is
+where everything ends up. The research portfolio,
+`Duncan-Haywood/oss-research-monorepo`, merges in under `research/` with its
+full commit history, so both histories survive in one repo. That is
+[PR #6143](https://github.com/Duncan-Haywood/oss-monorepo/pull/6143):
+
+- **Keep both histories.** Rewrite the research repository into `research/`
+  (`git filter-repo --to-subdirectory-filter research` or a subtree merge).
+  Merge it here with `--allow-unrelated-histories` and a merge commit. Never
+  squash, rebase or hand-copy the files in. Afterwards,
+  `git log -- research/<slug>` shows each project's original commits.
+- **Import from the research repo's current `main`.** Work continues there
+  until the move lands. #6143's copy is from 2026-10-01, so re-import or merge
+  the newer research history into that branch before landing it.
+- **Leave room for it.** Do not create a top-level `research/` for anything
+  else. Inside `research/`, the research rules (`research/CLAUDE.md`, its
+  brief) apply, not the product rules.
+- **Afterwards**, the research repository is archived (not deleted), and its
+  README points here.
+- **The owner decides when the move resumes.** Preparing for it is every
+  session's job.
+
 Making a repository public is the owner's call (publishing under the
 portfolio's name, `CLAUDE.md`). Preparing for it is every session's job.
