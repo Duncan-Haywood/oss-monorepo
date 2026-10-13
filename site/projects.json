@@ -1306,6 +1306,11 @@
      "summary": "A kinematic SCARA pick-and-place twin at three checking levels (geometry; plus joint, payload and deadline limits; plus stochastic grasp error, grip build-up and slip) against a held-out reference twin. Of 162 injected-bug mutants of three programs, 69 fail the reference; the levels reject 38, 46 and 60 of them, with no false alarms. The misses are effects the checker does not model, so the rates reflect how the reference was built. Four programs written by the building session: three failed the reference as drafted, and one failure (payload at long reach) was invisible to all three levels. <em>Stylised, kinematic only, no language-model API called.</em>"
     },
     {
+     "slug": "robofab-cell",
+     "title": "Which resource limits a small robot-printer-inspection cell, and does the busiest one tell you what to upgrade?",
+     "summary": "A discrete-event twin of one arm, 1&ndash;8 printers and one inspection station (30 parts, 200 replications, illustrative times). Printers have the highest utilisation at every size, yet at 6 printers an extra arm saves 10.9 min of makespan against 2.3 for an extra inspection station, because a printer is held while it waits for the arm. Dispatch rules trade makespan for mean flow time as textbook scheduling predicts, and a mean-value twin underestimates the stochastic makespan by 1&ndash;133 min. <em>Stylised; parameters are invented, not measured.</em>"
+    },
+    {
      "slug": "robofab-cell-bound",
      "title": "Where is the bottleneck of an arm, printer and inspection cell?",
      "summary": "A hand-written discrete-event twin of one arm that loads and unloads P 3D printers, plus an inspection station with reprints, against a utilisation bound. The bound names the bottleneck (printers up to 10 printers, the arm from 12, about 12.7 good parts/h) and the simulation reaches it within 1&ndash;2% far from the switch but sits 10&ndash;11% below it at 10&ndash;12 printers. A 25% faster arm lifts throughput from 11.34 to 12.68 parts/h at 12 printers while a second inspector does nothing; arm dispatch rules made no measurable gain, and WIP beyond one job per printer plus one only lengthens flow time. <em>Stylised parameters of my choosing, no travel or breakdowns, 20 seeds.</em>"
@@ -1321,6 +1326,18 @@
      "slug": "ambient-pipeline",
      "title": "How much latency and memory does an open-model voice pipeline cost on a CPU, and what reply time does it leave?",
      "summary": "A streaming Silero VAD, Whisper <em>tiny.en</em> (int8), Qwen2.5-0.5B (4-bit) and Piper chain on four CPU cores, on six synthetic sentences. VAD costs 0.15&nbsp;ms per 32&nbsp;ms frame, ASR 306&nbsp;ms per segment (RTF 0.11), the first LLM sentence 267&nbsp;ms, the first TTS chunk 88&nbsp;ms, and the models add about 740&nbsp;MB. End of speech to first audio is 0.94&ndash;1.55&nbsp;s at 200&ndash;800&nbsp;ms endpoint hangover, of which about 0.7&nbsp;s is compute; a 200&nbsp;ms hangover already cut one utterance in two, and a 0.5&nbsp;s target is impossible once the hangover alone exceeds it. Stylised: synthetic clean speech, one server CPU not a phone, batch ASR, LLM answer quality not evaluated."
+    }
+   ]
+  },
+  {
+   "id": "selfrep",
+   "name": "Self-replicating manufacturing",
+   "blurb": "How close can a small shop get to making copies of its own machines? Closure, growth and what to build next, in models that run on a CPU.",
+   "projects": [
+    {
+     "slug": "selfrep-closure",
+     "title": "How much of a RepRap printer can a growing seed shop make itself?",
+     "summary": "The RepRap Prusa Mendel (iteration 2) bill of materials (51 part lines, from the RepRap wiki) against three seed shops. A printer alone makes 18 of 51 lines (35%); adding a CNC router and laser cutter reaches 43% of lines and, under assumed masses and costs, about 22% of mass and 16% of cost; casting helps only if brass bushings replace LM8UU bearings (45% of lines, 24% of mass). Motors, electronics, rods, bearings and fasteners stay vitamins. Stylised: the wiki gives no masses or prices, so those inputs are assumed and shown with a sensitivity range, process assignments are judgement, and only the printer is decomposed."
     }
    ]
   }
