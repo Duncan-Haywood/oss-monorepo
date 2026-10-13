@@ -5,8 +5,8 @@ import sys
 here = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(here.parent / "src"))
 sys.path.insert(0, str(here.parents[1] / "selfrep-growth" / "src"))
-from selfrep_extinction.chain import first_generation_extinction, solve
-from selfrep_extinction.des import run
+from selfrep_extinction_kits.chain import first_generation_extinction, solve
+from selfrep_extinction_kits.des import run
 from selfrep_growth.params import printer_copy
 
 W, V, _, _ = printer_copy()

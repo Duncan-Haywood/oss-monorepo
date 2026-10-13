@@ -3,8 +3,8 @@ import sys
 import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "src"))
-from selfrep_extinction.chain import first_generation_extinction, solve, transitions
-from selfrep_extinction.des import run
+from selfrep_extinction_kits.chain import first_generation_extinction, solve, transitions
+from selfrep_extinction_kits.des import run
 
 
 class Extinction(unittest.TestCase):

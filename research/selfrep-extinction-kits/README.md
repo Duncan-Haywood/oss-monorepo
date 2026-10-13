@@ -1,19 +1,21 @@
-# selfrep-extinction: is the lone-printer die-out an early birth-death accident? An exact Markov-chain test (stylised)
+# selfrep-extinction-kits: is the lone-printer die-out an early accident of the first copies? A Markov chain with vitamin kits (stylised)
 
 Follow-up to `selfrep-wearout` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking the last item of that project's next steps: test its extinction explanation with a birth-death model whose extinction probability and time can be computed exactly. Produced with AI assistance (Claude).
+
+**Companion to `research/selfrep-extinction`**, written in parallel by another run: that project solves a chain on fleet size alone (births min(n/W, B/V)) and compares mean extinction times with the `selfrep-wearout` simulator. This one tracks the kit stock and idle/building machines, so it can also give the probability of early extinction and the first-generation bound; the two use different chains and I did not reconcile their numbers.
 
 **Builds on.** `research/selfrep-wearout` (the observation: a lone seed printer often dies out although the fluid model predicts a stable fleet) and, through `research/selfrep-growth` and `research/selfrep-closure`, the work per copy W = 50.0 h and vitamins per copy V = 170.3 (assumed currency units; imported by relative path). Behind them: the RepRap project (Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>) and the question of von Neumann (1966) and Freitas and Merkle (2004), as in `PROJECTS.md`. Absorption probabilities and expected absorption times of a continuous-time Markov chain are textbook material (any text on Markov chains); no paper's result is reproduced and I cite none for the method. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method
-- **Chain** (`src/selfrep_extinction/chain.py`, standard library). Vitamin kits (one kit = V units, enough for one copy) arrive as a Poisson process of rate a = B/V; a build takes an exponential time of mean W; a machine's life is exponential with mean L; no failed builds and no recycling. State = (machines building, machines idle, kits in stock). A retiring builder loses its kit. This is the `selfrep-wearout` shop with every random time made memoryless.
+- **Chain** (`src/selfrep_extinction_kits/chain.py`, standard library). Vitamin kits (one kit = V units, enough for one copy) arrive as a Poisson process of rate a = B/V; a build takes an exponential time of mean W; a machine's life is exponential with mean L; no failed builds and no recycling. State = (machines building, machines idle, kits in stock). A retiring builder loses its kit. This is the `selfrep-wearout` shop with every random time made memoryless.
 - **Exact solutions.** Gauss-Seidel on the embedded jump chain gives (i) the probability that the fleet hits zero before it first reaches 6 machines ("early extinction"), and (ii) the expected time to extinction. State space truncated at a maximum fleet and kit stock; every row is also solved on a larger truncation to show the answer does not move.
 - **First-generation bound** (closed form): the seed retires before delivering one copy, i.e. before a kit arrives and the build ends. It is a lower bound on early extinction.
-- **Simulation** (`src/selfrep_extinction/des.py`) of the same shop with switches that relax one Markov assumption at a time: kits regular instead of Poisson, build time lognormal (CV 0.2, as in `selfrep-wearout`) or fixed, and Weibull life. 4000 runs per early-extinction row, 2000 per extinction-time row, seeds 0 upward.
+- **Simulation** (`src/selfrep_extinction_kits/des.py`) of the same shop with switches that relax one Markov assumption at a time: kits regular instead of Poisson, build time lognormal (CV 0.2, as in `selfrep-wearout`) or fixed, and Weibull life. 4000 runs per early-extinction row, 2000 per extinction-time row, seeds 0 upward.
 - Every input (W, V, B, L) is an assumption carried over from `selfrep-growth`; nothing here is a measurement.
 
 ## Reproduce
 ```bash
-cd research/selfrep-extinction
+cd research/selfrep-extinction-kits
 python3 -m unittest discover -s tests -v     # 7 tests, standard library only
 python3 experiments/run.py                   # about 1 minute; writes experiments/results.txt
 ```
