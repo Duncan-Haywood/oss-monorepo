@@ -1,0 +1,43 @@
+name: eu-espr-readiness-checker
+description: >-
+  Free browser tool for fashion brands, importers and retailers selling consumer goods in the EU under the Ecodesign for Sustainable Products Regulation, (EU) 2024/1781: whether the ban on destroying unsold apparel and footwear binds you (large enterprises since 19 July 2026), a draft of the annual public unsold-goods disclosure table built from your own numbers, and the Digital Product Passport data to start collecting. Nothing is uploaded. Not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture session; duplicate_check found no ESPR or Digital Product Passport tool in ventures/ (nearest eu-packaging-regulation-checker, eu-battery-regulation-checker). Not in screened-out.md.
+#
+# First visitor: a sustainability, compliance or operations lead at a mid-size or large EU fashion, footwear or home-textile brand, or an e-commerce founder on Shopify who sells clothing into
+# the EU and has unsold stock and returns to clear. Search phrases: "ESPR destruction of unsold goods ban", "ban on destroying unsold clothes EU 2026", "digital product passport textiles
+# requirements", "unsold goods disclosure ESPR template". Volume not measured. Also r/ecommerce, r/fashionbusiness and sustainable-fashion newsletters.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: upload a stock CSV, get the disclosure table and a passport data-gap report per SKU,
+# behind an env-var switch. The buyer is a brand that must publish the disclosure and sits on years of unlabelled product data.
+#
+# Liability: first read; rejects bad input, says plainly that the delegated acts, exceptions and size/group rules decide, carries no-warranty and not-legal-advice clauses, tells users
+# not to enter personal data. Dates (19 July 2026 large, 19 July 2030 medium), article numbers and the working plan were written from memory without network access to EUR-Lex
+# and must be verified; ethical risk is false comfort from an "exempt" or "not covered" result, or a disclosure table published unchecked.
+
+hypotheses:
+  - claim: >-
+      Sustainability and compliance leads at EU apparel and footwear brands will use a free tool to check the destruction ban, draft the unsold-goods disclosure and see what passport data to prepare, before paying a consultant.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a date, size rule or exception differs from the Regulation's text or the delegated acts on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eu-espr-readiness-checker/
+  analytics: null
