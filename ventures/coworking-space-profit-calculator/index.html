@@ -180,7 +180,7 @@
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
       $("#rows").innerHTML = r.occSweep.map((x) => `<tr><td class="n">${Math.round(x.scale * 100)}%</td><td class="n">${x.occ.toFixed(0)}%</td><td class="n">${whole(x.profit)}</td><td class="n">${x.margin === null ? "n/a" : pct(x.margin)}</td><td class="n">${whole(x.cash)}</td></tr>`).join("");
       $("#rent-rows").innerHTML = r.priceSweep.map((x) => `<tr><td class="n">${x.pct > 0 ? "+" : ""}${x.pct}%</td><td class="n">${whole(x.profit)}</td><td class="n">${x.margin === null ? "n/a" : pct(x.margin)}</td><td class="n">${whole(x.cash)}</td></tr>`).join("");
-      $("#year-rows").innerHTML = r.yearProfit.map((v, i) => `<tr><td class="n">${i + 1}</td><td class="n">${whole(v)}</td><td class="n">${whole(r.cfByYear[i])}</td></tr>`).join("");
+      $("#year-rows").innerHTML = r.yearProfit.map((v, i) => `<tr><td class="n">${i + 1}</td><td class="n">${whole(v)}</td><td class="n">${whole(r.yearCash[i])}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
       report.scrollIntoView({ behavior: "smooth", block: "start" });

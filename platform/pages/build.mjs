@@ -813,6 +813,9 @@ const CATEGORY_RULES = [
       // `microgreens-tray-planner` joined 2026-10-06 on its first commit: growers who sell at the same markets and
       // restaurants, one hop from `backyard-honey-profit-calculator`.
       'microgreens-tray-planner',
+      // `hydroponic-farm-profit-calculator` joined 2026-10-12 on its first commit: an indoor or hydroponic grower sizing a build, selling
+      // at the same restaurants and markets, one hop from `microgreens-tray-planner`.
+      'hydroponic-farm-profit-calculator',
       // `maple-syrup-sugarbush-profit-calculator` joined 2026-10-07 on its first commit: producers selling syrup at the
       // same farm stands and markets, one hop from `backyard-honey-profit-calculator`.
       'maple-syrup-sugarbush-profit-calculator',
