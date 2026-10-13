@@ -1,4 +1,4 @@
-name: eu-green-claims-checker
+name: eu-green-claims-copy-scanner
 description: >-
   Free browser tool that scans product-page, ad and packaging copy for wording targeted by the EU Empowering Consumers for the Green Transition Directive (2024/825), in application since 27 September 2026: product-level carbon or climate neutral claims, generic claims such as eco-friendly or sustainable, self-made sustainability labels, future net-zero promises, whole-product claims and legal-minimum claims. Marks up the text, names the rule, gives the fix. English, German, French, Spanish, Italian, Dutch. Nothing is uploaded. Not legal advice.
 stage: prototype
