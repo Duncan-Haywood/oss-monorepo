@@ -4,9 +4,9 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from chip_rtl_loop import check  # noqa: E402
-from chip_rtl_loop.loop import Replay, run_task  # noqa: E402
-from chip_rtl_loop.mutate import mutants  # noqa: E402
+from chip_rtl_probe import check  # noqa: E402
+from chip_rtl_probe.loop import Replay, run_task  # noqa: E402
+from chip_rtl_probe.mutate import mutants  # noqa: E402
 
 GOOD = "module sat_add8(input [7:0] a, input [7:0] b, output [7:0] y);\n  wire [8:0] s = a + b;\n  assign y = s[8] ? 8'hFF : s[7:0];\nendmodule\n"
 WRAPS = "module sat_add8(input [7:0] a, input [7:0] b, output [7:0] y);\n  assign y = a + b;\nendmodule\n"

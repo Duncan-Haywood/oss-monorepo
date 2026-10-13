@@ -1,12 +1,12 @@
-# chip-rtl-loop: RTL with lint, simulation and formal-equivalence feedback, and what each check catches
+# chip-rtl-probe: what do lint, random simulation and a formal equivalence proof each catch in small RTL designs?
 
-Second milestone of the LLM chip-design-loop track (`PROJECTS.md`, track 3). It builds the loop harness (a proposer writes Verilog; lint, random-vector simulation and a Yosys equivalence proof score it; the failure text goes back) and a 12-task suite of small modules. Produced with AI assistance (Claude).
+Companion to the track-3 milestone `chip-rtl-loop` (`research/chip-rtl-loop`, landed by a parallel run with its own, different task suite and checker; this project was built independently and overlaps it in purpose). It builds the loop harness (a proposer writes Verilog; lint, random-vector simulation and a Yosys equivalence proof score it; the failure text goes back) and a 12-task suite of small modules. Produced with AI assistance (Claude).
 
 **Builds on.** The task-and-testbench style of VerilogEval (Liu et al., ICCAD 2023, <https://doi.org/10.1109/ICCAD57390.2023.10323812>) and RTLLM (Lu et al., ASP-DAC 2024, <https://doi.org/10.1109/ASP-DAC58780.2024.10473904>), and the human-in-the-loop RTL conversations of Chip-Chat (Blocklove et al., MLCAD 2023). No task, testbench or number from those works is used or reproduced; all tasks, references and testbenches here are original and MIT-licensed. Tools: Yosys, Icarus Verilog, Verilator. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## What was and was not measured
 - **No LLM benchmark.** The build environment has no model API key. The proposer that wrote the attempts is the session agent (Claude), **one attempt per task, written before the checker was run**. That is 12 attempts, not a benchmark, and says nothing about other models.
-- Result: all 12 attempts passed all three stages at round 0, so **the feedback loop never had a failure to react to**, and "pass rate against feedback rounds" is flat (12/12 at round 0). The suite is too easy for the session agent. Harder tasks are the first next step.
+- Result: all 12 attempts passed all three stages at round 0 (the sibling `chip-rtl-loop` had 3 of 9 round-0 failures with different tasks and the same kind of session-agent proposer, so this suite being easy for the proposer is a property of these tasks, not of the proposer), so **the feedback loop never had a failure to react to**, and "pass rate against feedback rounds" is flat (12/12 at round 0). The suite is too easy for the session agent. Harder tasks are the first next step.
 - Because of that, the measured parts are about the *checker*: what each stage catches (single-point mutants of the 12 designs) and how a no-LLM repair baseline does.
 - `loop.py` also contains an `Anthropic` proposer (needs `ANTHROPIC_API_KEY` and `CHIP_RTL_MODEL`). **It has never been run**; the deterministic `Replay` proposer is what the tests and results use.
 
@@ -19,7 +19,7 @@ Second milestone of the LLM chip-design-loop track (`PROJECTS.md`, track 3). It 
 ## Reproduce
 ```bash
 sudo apt-get install -y yosys iverilog verilator     # Ubuntu 24.04 packages
-cd research/chip-rtl-loop
+cd research/chip-rtl-probe
 python3 -m unittest discover -s tests -v              # 9 tests, about 1 s
 python3 experiments/run.py                            # about 3 min; output in experiments/results.txt
 ```
@@ -37,7 +37,7 @@ python3 experiments/run.py                            # about 3 min; output in e
 - Lint is a project-defined subset of Verilator warnings.
 
 ## Next steps
-Harder tasks (so a round-0 failure occurs), an actual LLM proposer run with the API key set by the owner, a feedback-text ablation (stage name only vs full counterexample), then `chip-ppa-loop`.
+Harder tasks (so a round-0 failure occurs), an actual LLM proposer run with the API key set by the owner, a feedback-text ablation (stage name only vs full counterexample), then `chip-ppa-loop`. Merge the two checkers' task suites if the owner wants one project.
 
 ## Outside dependencies
 Yosys, Icarus Verilog, Verilator (apt). An LLM API is optional and not used for any reported number. No benchmark data is vendored.

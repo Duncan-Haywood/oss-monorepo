@@ -1,4 +1,4 @@
-"""Experiments for chip-rtl-loop. Writes experiments/results.txt (the only source of README numbers)."""
+"""Experiments for chip-rtl-probe. Writes experiments/results.txt (the only source of README numbers)."""
 import json
 import sys
 import tempfile
@@ -7,9 +7,9 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "src"))
-from chip_rtl_loop import check  # noqa: E402
-from chip_rtl_loop.loop import Replay, RandomMutation, run_task  # noqa: E402
-from chip_rtl_loop.mutate import mutants  # noqa: E402
+from chip_rtl_probe import check  # noqa: E402
+from chip_rtl_probe.loop import Replay, RandomMutation, run_task  # noqa: E402
+from chip_rtl_probe.mutate import mutants  # noqa: E402
 
 out = []
 
