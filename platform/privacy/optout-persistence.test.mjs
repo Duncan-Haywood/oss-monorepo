@@ -1618,13 +1618,14 @@ const RELATIVE_SELF = relative(
 // +1: `uk-statutory-sick-pay-calculator` graduated.
 // +1: `retirement-plan-startup-credit-calculator` graduated.
 // +1: `au-gst-registration-checker` graduated.
+// +1: `tfsa-over-contribution-checker` graduated.
 // +1: `social-security-survivor-spousal-benefit-calculator` graduated.
 // +1: `au-redundancy-pay-calculator` graduated.
 // +1: `iolta-three-way-reconciliation-checker` graduated.
 // +1: `uk-cis-deduction-refund-calculator` graduated.
 // +1: `nz-gst-registration-checker` graduated.
 // +1: `uk-trading-allowance-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1144;
+const SWITCHES_IN_THE_CATALOGUE = 1145;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
