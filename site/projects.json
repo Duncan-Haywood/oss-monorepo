@@ -1289,6 +1289,16 @@
      "summary": "A loop in which rewrites of a 16-bit adder and a 6&times;6 multiplier must be proved equivalent to the reference by a Yosys miter before a generic-gate ABC script scores cells and depth. With nine attempts written by the session agent (not an LLM benchmark; two were seeded faults the gate rejected), the best adder is a 4-bit carry-select at 0.85&times; the reference cells&times;depth, the same circuit family as the best config of a no-model parameter sweep, so a random sweep of the same budget never beats it (ties in 63 of 200 seeds). No multiplier rewrite beat <code>a * b</code>. Stylised: gate counts, not layout; one tool version; two designs."
     },
     {
+     "slug": "chip-abc-sweep",
+     "title": "Does the ABC synthesis script matter as much as the written RTL structure for adder and multiplier area and depth?",
+     "summary": "A follow-up to <code>chip-ppa-loop</code>: five ABC scripts are applied to five written 16-bit adder structures and eight 6&times;6 multiplier structures, each proved equivalent to its reference by a Yosys miter. For the adder, cells&times;depth moves by up to 1.75&times; with the script for one structure and 1.18&ndash;1.94&times; across structures for a fixed script; the best pair is 0.48&times; the default-script plain adder. All eight multiplier structures score identically under each script, yet the script alone moves them by 1.17&times;. Stylised: two designs, one Yosys version, generic-gate counts rather than layout."
+    },
+    {
+     "slug": "chip-ppa-script",
+     "title": "Does a rewritten adder or multiplier still beat the reference once the ABC script is allowed to vary?",
+     "summary": "A follow-up to <code>chip-abc-sweep</code> and <code>chip-ppa-loop</code>: the earlier proposer files and a 16-adder and 8-multiplier sweep are scored under five ABC scripts, and every mapped netlist is proved equivalent to its reference (none failed). For the adder the best rewrite is 0.80&ndash;0.86&times; the reference under the same script, but the reference under its best script is already 0.61&times; its default score, so much of the headline gain was the script. For the multiplier no rewrite beats <code>a * b</code> under any script; the only gain (0.90&times;) is from the script. Stylised: two designs, one Yosys version, a session-written proposer, generic-gate counts rather than layout."
+    },
+    {
      "slug": "chip-accel",
      "title": "How do MAC-lane count and bit width trade area against latency in a tiny quantised-MLP accelerator?",
      "summary": "A generator for an 8-8-4 integer MLP engine with P multiply-accumulate lanes and 4-, 6- or 8-bit weights, simulated in Icarus Verilog and matched bit for bit and cycle for cycle against an integer NumPy reference in all 12 configurations. Synthesised with Yosys to generic gates, latency falls from 110 to 20 cycles as lanes go from 1 to 8 while area grows about 3&times; to 4&times;, so cells&times;cycles is smallest at 4 lanes for every width. 6 bits matched float accuracy on the toy task; 4 bits lost about 3 points. Stylised: one synthetic task and seed, weights baked into logic, gate counts rather than layout, nothing about a real chip."
@@ -1344,6 +1354,11 @@
      "slug": "robofab-cell-mva",
      "title": "Does exact queueing analysis predict a robot-printer cell's throughput better than a utilisation bound?",
      "summary": "Mean value analysis of a closed arm, printers and inspection network, checked against a hand-written discrete-event simulation that adds one departure from product form at a time (illustrative times, 20 seeds). The code matches the exact Markov-chain solution on small networks. With exponential times MVA is within &minus;6% to +4% of simulation; with less variable times it is up to 11% low. With printers held while waiting for the arm, MVA beats the utilisation bound at 4, 8 and 12 printers but not at 16, and it overshoots the saturation plateau at high work in process (9.8 against 8.6 parts/h at 8 printers). Stylised, simulation-only; no physical cell."
+    },
+    {
+     "slug": "robofab-cell-cv",
+     "title": "Where does exact queueing analysis of a robot-printer cell stop working?",
+     "summary": "A follow-up to the mean-value-analysis project: a coefficient-of-variation sweep (0&ndash;2, lognormal times, 4&ndash;16 printers, 20 seeds) and a directly measured printer stall share (finished parts waiting for the arm). At 12 printers the MVA error runs from &minus;6.2% to +8.4% and crosses zero near cv&nbsp;1, while the utilisation bound stays 8&ndash;25% high. Stall is small (about 4.6% at 8 printers), but holding the printer through load and unload plus the stall reproduces the saturated rate at 4 and 8 printers (8.59 against 8.56&nbsp;&plusmn;&nbsp;0.09). Stylised, illustrative times, simulation only."
     },
     {
      "slug": "robofab-selfparts",
@@ -1413,6 +1428,11 @@
      "slug": "selfrep-materials",
      "title": "How much imported material can recycling save a self-replicating printer shop?",
      "summary": "Builds on the selfrep-closure part list. A stylised steady-state mass and energy balance for building one more RepRap Prusa Mendel, with shredding and re-extrusion of plastic and remelting of aluminium offcuts. With assumed process parameters, vitamins stay about 75% of imported mass for the largest shop (82% for the printer alone), and recycling the shop&rsquo;s own scrap cuts imports by a median 3% (5&ndash;95% over parameter draws: 1&ndash;6%). Only plastic from retired machines changes the filament import much, and then the assumed recycled-share cap decides the result. Limitations: every yield, loss and energy figure is an assumption, recycling machines are not counted, and recycled-plastic quality is not modelled."
+    },
+    {
+     "slug": "selfrep-satmarket",
+     "title": "When the goods market saturates, does a replicating shop&rsquo;s bang-bang switch turn smooth?",
+     "summary": "Builds on the selfrep-reinvest fluid model, with concave goods revenue <em>a c</em>(1 &minus; e<sup>&minus;<em>g</em>/<em>c</em></sup>) and a backward dynamic programme (Bellman) as a check on the local-search policies. With a large market the optimum is still copy-then-switch; once market capacity <em>c</em> is below about 10<sup>4</sup> machine-hours per hour the optimal copy share ramps down over 90&ndash;300 h, bang-bang loses 4.5&ndash;7% of the optimum and a logistic ramp recovers all but 1&ndash;1.5%. Slower growth from failed builds sharpens the switch again. Every input is assumed and the saturation form is a convenient choice; cash never binds. The DP value is the optimum of a discretised problem, within a few tenths of a percent of its simulated policy where it is accurate and several percent in near-linear cases. Stylised."
     }
    ]
   },
@@ -1450,6 +1470,11 @@
      "slug": "simdesign-holes",
      "title": "How much does a bolt hole cost a tension plate, and which rule sets its width?",
      "summary": "A flat plate carrying one required hole is sized for minimum mass under a working-stress limit with three stress models (net section, a fixed Kt&nbsp;=&nbsp;3, and 2D finite elements over <em>d/W</em>) and with per-process hole rules (minimum hole, centre-to-edge distance, ligament, stock thickness). FE reproduces the large-plate limit of Kt&nbsp;=&nbsp;3 as the hole shrinks. Ignoring the concentration gives plates 1.9&ndash;2.7&times; overstressed where stress binds; Kt&nbsp;=&nbsp;3 is safe but 8&ndash;26% heavier for FDM. Where an edge-distance rule binds (CNC routing, laser from 8&nbsp;mm, casting from 8&nbsp;mm) the stress model is irrelevant and the plate is 2&ndash;4&times; stronger than needed. Stylised: rule values, load and materials are assumed, 2D plane stress, no bolt contact or fatigue, mesh not fully converged (about 1% low), nothing built."
+    },
+    {
+     "slug": "simdesign-processcover",
+     "title": "Which share of a bracket family can each shop process make, and which machine should a shop add next?",
+     "summary": "Using the assumed rules of <em>simdesign-dfm</em> (FDM, CNC routing, laser cutting, casting) as feasibility checks on 20&nbsp;000 sampled bracket feature sets, geometry alone gives a degenerate answer: FDM covers 89% and no other process covers anything FDM cannot, so no machine adds coverage (a negative result). With a tip-load requirement of 1&ndash;1000&nbsp;N and closed-form beam checks the processes separate: FDM alone covers 30%, adding casting and a laser cutter 41%, and the best next machine depends on the budget and on the part sizes. Greedy selection from <em>selfrep-nextmachine</em> is sometimes 1&ndash;2 coverage points below exhaustive search. Stylised: all rule values, working stresses and prices are assumed, the beam check ignores fillet stress concentration, and nothing was made."
     }
    ]
   },
@@ -1479,9 +1504,19 @@
      "summary": "A Fanger/ISO 7730 PMV model and a Gagge-style two-node model extended with fabric infrared emissivity and transmittance, solar absorptance and vapour permeability. The no-optics PMV matches an open-source ISO implementation to 0.006 over 144 cases. Indoors without sun, infrared transmittance (0 to 0.8) is worth about 2.4&nbsp;&deg;C of comfort at 28&nbsp;&deg;C, more than cutting insulation from 0.7 to 0.3&nbsp;clo (1.8&nbsp;&deg;C), but makes a 16&nbsp;&deg;C room feel 7.3&nbsp;&deg;C colder; in sun, solar absorptance (7.7&nbsp;&deg;C span) dominates the infrared properties. Stylised: assumed fabric properties, a parallel-path radiation model with no reference data, and recalled two-node constants."
     },
     {
+     "slug": "garment-assist",
+     "title": "Does an assistive garment pay for its own mass?",
+     "summary": "A one-joint ankle model of an exosuit-style garment: a suit adding a fraction of the biological push-off torque cuts modelled whole-body metabolic cost by 3.1, 8.8 and 14.1% at gains 0.1, 0.3 and 0.5, but a delay of 0.25 of the gait cycle removes the benefit and a stiff passive spring raises ankle cost 17%. Added mass erases the saving at 8.9&nbsp;kg if each kg costs 1% of whole-body power and at 1.8&nbsp;kg if it costs 5%; the break-even scales as 1/sensitivity, a number the project does not supply. Stylised: lumped muscle, prescribed gait, assumed constants; not OpenSim or MyoSuite."
+    },
+    {
      "slug": "garment-protective",
      "title": "What would a suit-like protective garment weigh and cost, and what limits it?",
      "summary": "A Cunniff-style specific-toughness scaling (U*) for nylon, aramid and UHMWPE with a 0.5&nbsp;m<sup>2</sup> torso-panel mass, cost, thickness and stiffness model. At equal weight UHMWPE gives 1.49&times; aramid's V50 in this scaling, and needs 0.20&ndash;0.67&times; the areal density depending on an unknown exponent. Under a 3&nbsp;mm, 1&nbsp;kg suit-like limit the panel falls short of a 4&nbsp;kg/m<sup>2</sup> aramid reference except for UHMWPE with an optimistic exponent. Stylised: recalled formula, assumed properties and unsourced prices, no ballistic physics and no protection claim."
+    },
+    {
+     "slug": "garment-smart",
+     "title": "Which sensors in a smart garment recognise what you are doing, and how fragile is that to garment slip?",
+     "summary": "Synthetic chest, thigh and wrist accelerometers and knee and elbow strain channels, six activities, a softmax classifier on spectral features and unseen simulated people. Two sensors reach about 99% and all five 99.9%, because the invented classes are easy to separate. A model trained on clean data falls to 81, 61 and 45% when the IMUs rotate by 0.3, 0.6 and 1.0&nbsp;rad (a garment slipping), while training with 0.6&nbsp;rad of slip holds 94&ndash;99%. Strain-only stays at 97% under slip by construction. Stylised: sinusoidal signals, no real dataset, no drift or hysteresis."
     }
    ]
   }

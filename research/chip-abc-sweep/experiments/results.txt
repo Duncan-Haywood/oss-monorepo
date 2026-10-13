@@ -1,0 +1,27 @@
+== add16: cells / depth / cells*depth (all structures proved equivalent to the reference)
+structure             yosys_default       strash_map          dc2_map             dch_map             resyn2_map          
+plus                  82/31/2542          110/14/1540         82/31/2542          110/14/1540         108/15/1620         
+ripple                77/31/2387          77/31/2387          77/31/2387          77/31/2387          77/31/2387          
+csel4                 95/22/2090          125/12/1500         98/22/2156          112/11/1232         111/15/1665         
+cselrip4              77/31/2387          79/28/2212          77/31/2387          77/31/2387          77/31/2387          
+cselrip2              77/31/2387          82/24/1968          77/31/2387          77/31/2387          77/31/2387          
+max/min product across structures, per script: yosys_default 1.22, strash_map 1.59, dc2_map 1.18, dch_map 1.94, resyn2_map 1.47
+max/min product across scripts, per structure: plus 1.65, ripple 1.00, csel4 1.75, cselrip4 1.08, cselrip2 1.21
+best product: 1232 (csel4 under dch_map); best per script: yosys_default 2090, strash_map 1500, dc2_map 2156, dch_map 1232, resyn2_map 1620
+
+== mul6: cells / depth / cells*depth (all structures proved equivalent to the reference)
+structure             yosys_default       strash_map          dc2_map             dch_map             resyn2_map          
+chain-lsb-mux         175/22/3850         191/19/3629         179/23/4117         185/19/3515         179/20/3580         
+chain-lsb-and         175/22/3850         191/19/3629         180/23/4140         185/19/3515         179/20/3580         
+chain-msb-mux         175/22/3850         191/19/3629         179/23/4117         185/19/3515         179/20/3580         
+chain-msb-and         175/22/3850         191/19/3629         179/23/4117         185/19/3515         179/20/3580         
+tree-lsb-mux          175/22/3850         191/19/3629         179/23/4117         185/19/3515         179/20/3580         
+tree-lsb-and          175/22/3850         191/19/3629         180/23/4140         185/19/3515         179/20/3580         
+tree-msb-mux          175/22/3850         191/19/3629         179/23/4117         185/19/3515         179/20/3580         
+tree-msb-and          175/22/3850         191/19/3629         179/23/4117         185/19/3515         179/20/3580         
+max/min product across structures, per script: yosys_default 1.00, strash_map 1.00, dc2_map 1.01, dch_map 1.00, resyn2_map 1.00
+max/min product across scripts, per structure: chain-lsb-mux 1.17, chain-lsb-and 1.18, chain-msb-mux 1.17, chain-msb-and 1.17, tree-lsb-mux 1.17, tree-lsb-and 1.18, tree-msb-mux 1.17, tree-msb-and 1.17
+best product: 3515 (chain-lsb-mux under dch_map); best per script: yosys_default 3850, strash_map 3629, dc2_map 4117, dch_map 3515, resyn2_map 3580
+
+median spread factor (max/min product): add16: across structures 1.47, across scripts 1.21; mul6: across structures 1.00, across scripts 1.17
+tool: Yosys 0.33 (git sha1 2584903a060)
