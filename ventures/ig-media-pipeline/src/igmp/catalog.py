@@ -78,7 +78,7 @@ def _assemble(group_key: str, paths: list[Path], meta: dict) -> Asset | None:
         preview = preview or raw
     return Asset(id=asset_id(group_key), kind=kind, files=sorted(str(p) for p in paths),
                  preview=preview, raw=raw, **{k: meta[k] for k in
-                 ("taken_at", "date_label", "location", "event", "camera") if k in meta})
+                 ("taken_at", "date_label", "location", "event", "camera", "clock_time") if k in meta})
 
 
 def scan_flat(folder: Path) -> list[Asset]:
@@ -115,6 +115,7 @@ def scan_insta360(folder: Path) -> list[Asset]:
         camera = row.get("camera") or ("X5" if any("_00_" in p.name or "_01_" in p.name for p in paths) else "Insta360")
         meta = {"taken_at": taken, "date_label": row.get("local_date", ""),
                 "location": row.get("location", ""), "event": row.get("event", ""), "camera": camera}
+        meta["clock_time"] = datetime.strptime(key.split("_", 1)[1][:15], "%Y%m%d_%H%M%S")
         a = _assemble(f"{folder.parent.name}/{folder.name}/{key}", paths, meta)
         if a:
             assets.append(a)

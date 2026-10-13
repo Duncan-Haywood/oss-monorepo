@@ -10,7 +10,7 @@ from typing import Iterator, TypeVar
 
 from pydantic import BaseModel
 
-TABLES = ("assets", "metrics", "scores", "curation", "edits", "reels", "jobs")
+TABLES = ("assets", "metrics", "scores", "curation", "edits", "reels", "meta", "geo", "jobs")
 M = TypeVar("M", bound=BaseModel)
 
 
@@ -28,6 +28,14 @@ class Store:
         text = value.model_dump_json() if isinstance(value, BaseModel) else json.dumps(value, sort_keys=True)
         with self.lock:
             self.db.execute(f"INSERT OR REPLACE INTO {table} (key, value) VALUES (?, ?)", (key, text))
+            self.db.commit()
+
+    def put_many(self, table: str, items: list[tuple[str, BaseModel | dict]]) -> None:
+        """One transaction for many rows: a commit per row is slow on USB drives."""
+        rows = [(k, v.model_dump_json() if isinstance(v, BaseModel) else json.dumps(v, sort_keys=True))
+                for k, v in items]
+        with self.lock:
+            self.db.executemany(f"INSERT OR REPLACE INTO {table} (key, value) VALUES (?, ?)", rows)
             self.db.commit()
 
     def get(self, table: str, key: str, model: type[M] | None = None):

@@ -24,8 +24,19 @@ model = "claude-opus-5-5"
 parallel = 4
 
 reel_seconds = 15.0
-beat_seconds = 0.5      # cut grid; music is added later in the Instagram app
+beat_seconds = 0.5      # cut grid for reels without music
 photo_aspect = "4:5"    # or "3:4"
+
+# Music. "auto": every reel gets a track from music_dir, cut on its beats, mixed and loudness
+# normalised for Instagram (-14 LUFS, -1 dBTP). "none": silent reels; add a sound in the app.
+# An empty or missing music_dir also means silent reels.
+music = "auto"
+# music_dir = "/Volumes/PhotoDrive/IG/music"   # default: <output_dir>/music
+# Each track needs a sidecar licence record next to it, e.g. song.mp3.license.json:
+#   {"source": "...", "license": "CC0-1.0", "attribution": null, "url": "https://..."}
+# Tracks without one are never used, nor are NC / ND licences. CC BY credits go in the caption.
+natural_sound = true    # keep the clips' own sound under the music; loud moments duck the music
+# natural_sound_db = -12  # where the clips' steady sound sits, dB under the music
 """
 
 
@@ -45,6 +56,7 @@ class Config:
     beat_seconds: float = 0.5
     photo_aspect: str = "4:5"
     style_guide: Path | None = None
+    places: dict = field(default_factory=dict)   # location label -> city/state/country/timezone/lat/lon
     extra: dict = field(default_factory=dict)
 
     @property

@@ -52,12 +52,14 @@ Natural, clean and slightly warm, never "filtered".
 - Straighten horizons and verticals of buildings.
 - When a frame is a judgment call, edit lighter.
 
-## Reels (15 seconds, music added later)
+## Reels (15 seconds, music from the licensed library)
 
 - **Hook in the first second**: the strongest, most kinetic or most surprising shot first. Not an
   establishing shot unless it is spectacular.
-- 6 to 10 shots. Cuts land on the beat grid (default 0.5 s). Most shots 1.0-2.0 s; a hero shot can
-  hold 2.5-3 s. Nothing under 0.5 s.
+- 6 to 10 shots. Cuts land on the chosen track's beats (or a 0.5 s grid when there is no music).
+  Most shots 1.0-2.0 s; a hero shot can hold 2.5-3 s. Nothing under 0.5 s.
+- Music fits the mood of the event: energy matches the footage, the reel starts on a strong
+  entrance and ends on a bar line. Natural sound (waves, laughter, a toast) stays under the music.
 - Vary scale: wide, medium, detail. Never two near-identical shots in a row.
 - Motion: prefer clips with natural movement; give stills a gentle push-in (zoom 1.00 -> 1.08) or a
   slow pull-out on a reveal. Never zoom on a frame that is already tight on a face.

@@ -30,7 +30,7 @@ class FakeJudge:
 def setup(tmp_path, monkeypatch):
     renders = []
 
-    def fake_render(raw, params, out_dir, cfg, aspect=None):
+    def fake_render(raw, params, out_dir, cfg, aspect=None, **kw):
         renders.append(params)
         out = tmp_path / f"r{len(renders)}.jpg"
         out.write_bytes(b"x")

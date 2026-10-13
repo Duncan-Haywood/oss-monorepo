@@ -7,6 +7,7 @@ requires-python = ">=3.11"
 license = "MIT"
 dependencies = [
     "anthropic>=0.70",
+    "librosa>=0.10",       # music: beat, tempo and character analysis (local, cached)
     "numpy>=1.26",
     "pillow>=10",
     "pydantic>=2.7",
@@ -15,6 +16,16 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+# Apple Vision on-device signals (aesthetics, faces, labels, feature prints): macOS 15+ only
+mac = [
+    "pyobjc-framework-Vision>=10.3; sys_platform == 'darwin'",
+    "pyobjc-framework-Quartz>=10.3; sys_platform == 'darwin'",
+]
+# phone-GPS matching: the Apple Photos library as a track (macOS) and offline reverse geocoding
+geo = [
+    "osxphotos>=0.70; sys_platform == 'darwin'",
+    "reverse_geocoder>=1.5",
+]
 
 [project.scripts]
 igmp = "igmp.cli:main"

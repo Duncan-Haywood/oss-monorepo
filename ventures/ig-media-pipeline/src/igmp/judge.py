@@ -16,7 +16,7 @@ import re
 import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Generic, Protocol, TypeVar
@@ -63,11 +63,19 @@ def system_prompt(cfg: Config) -> str:
     return PREAMBLE + cfg.style_guide_text()
 
 
+class InvalidAnswer(JudgeError):
+    """The answer didn't fit the schema; worth one retry that says what was wrong."""
+
+    def __init__(self, key: str, error: Exception):
+        self.problem = str(error).replace("\n", " ")[:600]
+        super().__init__(f"{key}: unusable answer: {self.problem}")
+
+
 def _parse(task: JudgeTask[M], text: str) -> M:
     try:
         return task.output.model_validate(json.loads(text))
     except (json.JSONDecodeError, ValidationError) as e:
-        raise JudgeError(f"{task.key}: unusable answer: {e}") from e
+        raise InvalidAnswer(task.key, e) from e
 
 
 # --- Anthropic API -------------------------------------------------------------------------------
@@ -230,13 +238,21 @@ class ClaudeCodeBackend:
             try:
                 return task.output.model_validate(structured)
             except ValidationError as e:
-                raise JudgeError(f"{task.key}: {e}") from e
+                raise InvalidAnswer(task.key, e) from e
         return _parse(task, result.get("result", ""))
 
     def judge(self, task: JudgeTask[M]) -> M:
+        retried = False
         for attempt in range(6):
             try:
                 return self._once(task)
+            except InvalidAnswer as e:
+                if retried:
+                    raise
+                # one retry with the exact problem, then give up on this item
+                retried = True
+                task = replace(task, instructions=f"{task.instructions}\n\nYour previous answer was rejected: "
+                                                  f"{e.problem}. Answer again with every field the schema requires.")
             except UsageLimit as e:
                 wait = seconds_until(str(e))
                 log.warning("plan limit reached; resuming in %.0f min (resets %s)", wait / 60, e)

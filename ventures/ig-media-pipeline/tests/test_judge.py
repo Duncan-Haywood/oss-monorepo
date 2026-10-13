@@ -124,3 +124,16 @@ def test_api_backend_builds_cached_structured_request(tmp_path, monkeypatch):
     assert captured["output_config"]["format"]["type"] == "json_schema"
     assert captured["extra_body"] == {"fallbacks": "default"}
     assert captured["messages"][0]["content"][0]["type"] == "image"
+
+
+def test_invalid_answer_is_retried_once_with_the_problem(tmp_path):
+    prompts = []
+
+    def run(args, **kw):
+        prompts.append(args[2])
+        body = {**SCORE, "score": 99} if len(prompts) == 1 else SCORE
+        return subprocess.CompletedProcess(args, 0, json.dumps({"subtype": "success", "structured_output": body}), "")
+
+    s = ClaudeCodeBackend(cfg(tmp_path), runner=run).judge(task(tmp_path))
+    assert s.score == 7.5 and len(prompts) == 2
+    assert "previous answer was rejected" in prompts[1] and "score" in prompts[1]

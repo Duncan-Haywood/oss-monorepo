@@ -672,10 +672,15 @@ def preview_image(asset: Asset, cfg: Config, size: int = PREVIEW_SIZE) -> Path:
     photo: the camera JPEG (or the RAW's embedded preview), EXIF orientation applied.
     photo360: equirect panorama + yaw scale + four flat 90-degree views (see _photo360_preview).
     video: contact sheet of 8 evenly spaced frames, each labelled with its time in seconds.
-    video360: contact sheet of 8 times, each four flat views at yaw 0/90/180/-90."""
+    video360: contact sheet of 8 times, each four flat views at yaw 0/90/180/-90.
+    sequence: 12 evenly spaced member frames labelled '#index t=+Ns' under 'N frames every X s'."""
     dest = _preview_path(asset, cfg, size)
     if dest.exists() and dest.stat().st_size > 0:
         return dest
+    if asset.kind == "sequence":    # no file of its own: a sheet of its member stills (sequences.py)
+        from . import sequences
+        sheet = sequences.contact_sheet(asset, sequences.member_assets(asset, cfg), size)
+        return _save_jpeg(_fit(sheet, size), dest)
     if not asset.preview:
         raise MediaError(f"asset {asset.id} has no preview file")
     src = Path(asset.preview)

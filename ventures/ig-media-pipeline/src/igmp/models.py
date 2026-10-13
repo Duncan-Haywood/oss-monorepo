@@ -7,7 +7,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-Kind = Literal["photo", "video", "photo360", "video360"]
+Kind = Literal["photo", "video", "photo360", "video360", "sequence"]
 
 
 class Asset(BaseModel):
@@ -23,6 +23,11 @@ class Asset(BaseModel):
     event: str = ""
     camera: str = ""
     duration_s: float | None = None
+    # sequence only: the photos of an intervalometer run (timelapse or stop-motion), in order
+    members: list[str] = []
+    interval_s: float | None = None
+    # camera clock time when the local time is unknown (zone not yet known): orders shots
+    clock_time: datetime | None = None
 
     @property
     def event_key(self) -> str:
@@ -43,6 +48,14 @@ class Metrics(BaseModel):
     burst_id: str = ""                  # assets that are near-duplicates share one
     candidate: bool = True              # best of its burst and not technically broken
     segments: list[tuple[float, float]] = []   # video only: usable stretches (seconds)
+    # Apple Vision, on-device and free (None when it hasn't run, or off macOS)
+    aesthetics: float | None = None     # overall aesthetics score, -1..1
+    utility: bool | None = None         # screenshot/receipt/document-like, not a photograph to post
+    faces: int = 0
+    face_quality: float | None = None   # best face capture quality 0..1 (sharp, eyes open, well lit)
+    face_quality_min: float | None = None   # worst face: one blink in a group shot pulls this down
+    labels: list[str] = []              # scene classification, most confident first
+    feature_print: str = ""             # base64 float32 vector for semantic near-duplicate checks
 
 
 class Point(BaseModel):
@@ -62,6 +75,11 @@ class Score(BaseModel):
     best_in_s: float | None = Field(None, description="Video only: start of the best moment")
     best_out_s: float | None = Field(None, description="Video only: end of the best moment")
     view_yaw_deg: float | None = Field(None, description="360 only: direction to look, -180..180")
+    sequence_style: Literal["timelapse", "stop-motion", "not-a-sequence"] | None = Field(
+        None, description="Sequence only: what the run of evenly spaced photos was meant to be")
+    sequence_fps: int | None = Field(None, description="Sequence only: playback rate, 24-30 timelapse, 8-12 stop-motion")
+    sequence_from: int | None = Field(None, description="Sequence only: first frame index of the best stretch")
+    sequence_to: int | None = Field(None, description="Sequence only: last frame index of the best stretch")
     issues: list[str] = []
     edit_notes: str = ""
 
@@ -80,6 +98,9 @@ class EditParams(BaseModel):
     sharpening: int = Field(100, ge=0, le=300)
     noise_reduction: int = Field(0, ge=0, le=100)
     straighten_deg: float = Field(0, ge=-10, le=10)
+    aspect: Literal["4:5", "1:1", "1.91:1"] = Field(
+        "4:5", description="Feed shape: 4:5 portrait (most screen) unless it would cut the composition; "
+                           "1:1 or wide 1.91:1 for landscapes that need their width")
     crop_focus: Point = Point(x=0.5, y=0.5)
     crop_zoom: float = Field(1.0, ge=1.0, le=2.0, description="1.0 = largest crop of the target aspect")
     rationale: str = ""
@@ -116,12 +137,18 @@ class Shot(BaseModel):
     view_yaw_deg: float | None = None
 
 
+class MusicChoice(BaseModel):
+    track_id: str = Field(description="Id of a track from the music library listing")
+    start_s: float = Field(0, ge=0, description="Where in the track the reel starts (on a beat)")
+
+
 class ReelPlan(BaseModel):
     event_key: str
-    title: str
+    title: str = ""
     shots: list[Shot]
     cover_asset_id: str
     caption: str = Field(description="One or two lines; no hashtags, no names of people")
+    music: MusicChoice | None = Field(None, description="Null when music is added later in the app")
 
 
 class Critique(BaseModel):

@@ -19,7 +19,10 @@ from .store import Store
 from .taste import describe
 
 log = logging.getLogger(__name__)
-MIN_SCORE = 6.5      # only frames good enough to post get a full RAW edit
+MIN_SCORE = 6.5      # frames this good always get a full RAW edit
+TOP_SHARE = 0.15     # ...and so does the best 15% of each event's keepers (at least TOP_MIN),
+TOP_MIN = 3          # because the scale is strict: a good shoot can top out around 6
+FLOOR = 5.0          # but never below this
 REVISIONS = 2
 
 
@@ -28,11 +31,17 @@ def edit_dir(cfg: Config, a: Asset) -> Path:
 
 
 def keepers(store: Store, assets: list[Asset]) -> list[tuple[Asset, Score]]:
-    out = []
+    """Photos worth a full RAW edit: every frame at MIN_SCORE or above, plus each event's best."""
+    by_event: dict[str, list[tuple[Asset, Score]]] = defaultdict(list)
     for a in assets:
         s = store.get("scores", a.id, Score)
-        if a.kind == "photo" and a.raw and s and s.keep and s.score >= MIN_SCORE:
-            out.append((a, s))
+        if a.kind == "photo" and a.raw and s and s.keep and s.score >= FLOOR:
+            by_event[a.event_key].append((a, s))
+    out = []
+    for picks in by_event.values():
+        picks.sort(key=lambda p: -p[1].score)
+        top = max(TOP_MIN, round(len(picks) * TOP_SHARE))
+        out += [p for i, p in enumerate(picks) if p[1].score >= MIN_SCORE or i < top]
     return out
 
 
@@ -77,10 +86,14 @@ def direct(a: Asset, score: Score, cfg: Config) -> JudgeTask:
         key=a.id, output=EditParams, images=[media.preview_image(a, cfg)], effort="medium",
         instructions=(
             f"{describe(a)} This is the camera's own JPEG of a RAW file. Choose global RAW edit settings "
-            f"that give the style guide's look, and a {cfg.photo_aspect} crop (crop_focus = centre of the "
-            f"crop, crop_zoom 1.0 = the largest crop of that shape). Earlier notes on this frame: "
+            "that give the style guide's look, and a crop: choose the feed shape (aspect) - 4:5 portrait "
+            "fills the most screen, but never at the cost of the composition: a wide landscape whose subject "
+            "spans the frame gets 1:1 or 1.91:1 - then crop_focus (centre of the crop) and crop_zoom (1.0 = "
+            "the largest crop of that shape). Earlier notes on this frame: "
             f"{score.edit_notes or 'none'}. Issues seen: {'; '.join(score.issues) or 'none'}. "
-            "Use straighten_deg only for a tilted horizon or verticals."))
+            "Use straighten_deg only for a tilted horizon or verticals. The render starts from the camera's "
+            "own colour (each photo is colour-matched to its camera JPEG), so vibrance and saturation stack on "
+            "top of already-finished colour: keep them small."))
 
 
 def critic(a: Asset, params: EditParams, rendered: Path, cfg: Config) -> JudgeTask:
@@ -96,7 +109,8 @@ def critic(a: Asset, params: EditParams, rendered: Path, cfg: Config) -> JudgeTa
 def finish(a: Asset, params: EditParams, cfg: Config, judge: Backend) -> dict:
     notes = []
     for round_ in range(REVISIONS + 1):
-        result = rawedit.render_raw(a.raw, params, edit_dir(cfg, a), cfg)
+        result = rawedit.render_raw(a.raw, params, edit_dir(cfg, a), cfg, aspect=params.aspect,
+                                    camera_jpeg=a.preview if a.preview != a.raw else None)
         verdict = judge.judge(critic(a, params, Path(result["ig"]), cfg))
         notes.append(verdict.notes)
         if verdict.verdict == "ship" and verdict.passes:
@@ -107,7 +121,7 @@ def finish(a: Asset, params: EditParams, cfg: Config, judge: Backend) -> dict:
             break
         params = verdict.revised
     return {"status": status, "params": params.model_dump(), "notes": notes, "rounds": round_ + 1,
-            **{k: str(v) for k, v in result.items()}}
+            **{k: (v if isinstance(v, (dict, int, float)) or v is None else str(v)) for k, v in result.items()}}
 
 
 def edit_all(cfg: Config, store: Store, judge: Backend, assets: list[Asset]) -> int:

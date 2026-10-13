@@ -12,13 +12,23 @@ library ──scan──> catalog ──prefilter──> candidates ──score�
 | Stage | What happens | Who decides |
 |---|---|---|
 | scan | Reads `YYYY-MM-DD_HHMMSS_Location[_Event]_Camera_Original.EXT` files and Insta360 folders with an `_index.csv`; groups RAW+JPG pairs, 360 INSP+DNG pairs, clips with their proxies | code |
-| prefilter | Sharpness, exposure, near-duplicate bursts (dHash), usable video stretches | code, local, free |
-| score | Each candidate is scored 0-10 with a role (hook, establishing, moment...), 9:16 and 4:5 crop centres, the best stretch of a clip, the best direction of a 360 shot | Claude |
-| edit | Keepers (score >= 6.5) get RAW edit settings from Claude, are rendered by RawTherapee, and reviewed before/after: ship, revise once, or reject | Claude + RawTherapee |
-| reels | Per event, Claude picks and orders 6-10 shots on a beat grid; ffmpeg renders 1080x1920; a critic watches a contact sheet of the render and revises up to twice | Claude + ffmpeg |
+| geo | Matches shots to a phone's GPS track (Apple Photos, an exported folder, GPX/CSV, Google Timeline) by time; suggests place labels for unlabelled days | code |
+| prefilter | Sharpness, exposure, dHash bursts, usable video stretches; on macOS a free Apple Vision pass (aesthetics, face capture quality incl. blinks in groups, feature prints for near-duplicates across cameras); intervalometer runs become one timelapse/stop-motion **sequence** | code, local, free |
+| score | Each candidate is scored 0-10 with a role, 9:16 and feed crop centres, the best stretch of a clip, a 360 view direction, or (for sequences) timelapse vs stop-motion, fps and frame range | Claude |
+| edit | A curator drops near-repeats per event; every frame >= 6.5 plus each event's best 15% get RAW edit settings and a feed shape (4:5, 1:1 or 1.91:1); RawTherapee renders; a checklist critic ships, revises (up to twice) or rejects | Claude + RawTherapee |
+| reels | Per event (thin consecutive days merge into one trip), a story pass picks 6-10 shots and a licensed track, cuts land on its beats; ffmpeg renders 1080x1920 with the mix at -14 LUFS; a stricter critic (hook, sharpness, redundancy, UI-safe crops, pacing, ending) ships it or revises up to three times, else it waits in `reels/_needs-attention/` | Claude + ffmpeg |
+| tag | After every stage, XMP sidecars carry what was learned | code |
 
 Every decision is stored, so a stopped run resumes where it left off and a re-render is exact.
-Reels are exported without music (add a sound in Instagram, which avoids copyright muting).
+
+**Music.** With `music = "auto"`, reels are cut to the beats of a track from your licensed library
+(`music_dir`, one `<file>.license.json` per track; tracks without a usable license are never used),
+mixed with the clips' natural sound and levelled to -14 LUFS. `music = "none"` exports silent reels
+for adding a sound in the Instagram app (better reach for trending audio, but not hands-off).
+
+**Metadata.** Every stage refreshes an XMP sidecar next to each shot: corrected local time with its
+offset, place, event, keywords, star rating, colour label, and the pipeline's own fields. Camera
+originals are never rewritten; edited exports carry the metadata embedded.
 
 ## Setup
 
@@ -56,7 +66,10 @@ Both send downscaled previews (about 1024 px), never the original files.
 
 ## Commands
 
-`igmp run` runs every stage. `igmp scan | prefilter | score | edit | reels | status` run one.
+`igmp run` runs every stage. `igmp scan | geo | prefilter | score | edit | reels | tag | status` run one.
+`igmp music` lists the analysed music library. `igmp backup manifest | verify | copy --to DEST` keeps
+checksums for the library and makes verified copies. `--only TEXT` limits a run to matching events;
+`--limit N` scores at most N new candidates.
 
 ## Tests
 
