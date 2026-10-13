@@ -1331,6 +1331,11 @@
      "summary": "Exact subset dynamic programming over assembly orders for a twelve-part printed gearbox, checked at three fidelity levels. Collision-only admits 4,227,168 of 39,916,800 orders (10.6%); adding quasi-static support leaves 30,760 (0.077%), and the collision-only optimum is infeasible once support is checked. Greedy disassembly needs 4 insertion-direction changes against an optimum of 1; one order written by the session agent (a single attempt, not a benchmark) passes with 2. Stylised axis-aligned boxes, no physics engine."
     },
     {
+     "slug": "robofab-settle",
+     "title": "Does a quasi-static support rule agree with a physics engine?",
+     "summary": "Validates the support rule of <code>robofab-sequence</code> against MuJoCo settle tests on all 2,048 partial assemblies of the printed gearbox. The rule agrees on 1,957 (95.6%): 81 states it accepts topple because a part can count as resting on a part that rests on it, and 10 it rejects hold because a gear bore captures the shaft. An acyclic-support variant reaches 99.5% (fitted on the same states). The count of valid orders is unchanged at 30,760 for three friction values, so this product's conclusions survive. Stylised boxes, static release, one product."
+    },
+    {
      "slug": "robofab-insert",
      "title": "Does an insertion policy tuned in one simulator survive a better one?",
      "summary": "Cross-entropy-tuned five-parameter peg-in-hole search policies in MuJoCo, trained on three simulator fidelity levels or with domain randomisation and tested on all three plus a held-out parameter set. Tuned on the simplest level, success is 0.91 there but 0.53 on the stiffer-contact level and 0.26 on the held-out one; training on the stiffer level or with randomisation gives 0.43&ndash;0.46 on the held-out set, and with 5 seeds the two cannot be ranked. No seed exceeds 0.61 on the held-out level. Toy planar task; sim-to-sim only."
@@ -1374,6 +1379,11 @@
      "slug": "robofab-reach",
      "title": "How long an arm does it take to assemble its own toy gripper?",
      "summary": "A planar two-link arm on a turntable must reach a pick, place and lift point for each of the six free parts of the seven-part toy gripper from <code>robofab-selfparts</code>. With equal links and a 100&nbsp;mm shoulder height the shortest arm is 60&ndash;140&nbsp;mm per link as the tray moves from 40 to 400&nbsp;mm away; an elbow limit of 90&deg; raises it from 80 to 180&nbsp;mm and 60&deg; admits none up to 600&nbsp;mm. Stylised: wrist point only, no collisions, payload or wrist orientation; results sit on a 10&nbsp;mm grid."
+    },
+    {
+     "slug": "robofab-reachorder",
+     "title": "Does the assembly order change the arm an arm needs to build its own gripper?",
+     "summary": "Combines the order search of <code>robofab-selfparts</code> (384 valid orders) with the two-link reach model of <code>robofab-reach</code>, letting each part&rsquo;s lift height clear whatever is already assembled. Negative result: for every valid order the shortest arm is the same (for example 80&nbsp;mm per link at a 100&nbsp;mm shoulder and 120&nbsp;mm tray gap, 120&nbsp;mm at a 200&nbsp;mm shoulder), because the cover&rsquo;s own lift point bounds every order and the tray distance dominates. Stylised: wrist point only, 10&nbsp;mm link grid, 20&nbsp;mm base grid."
     }
    ]
   },
@@ -1453,6 +1463,11 @@
      "slug": "selfrep-satmarket",
      "title": "When the goods market saturates, does a replicating shop&rsquo;s bang-bang switch turn smooth?",
      "summary": "Builds on the selfrep-reinvest fluid model, with concave goods revenue <em>a c</em>(1 &minus; e<sup>&minus;<em>g</em>/<em>c</em></sup>) and a backward dynamic programme (Bellman) as a check on the local-search policies. With a large market the optimum is still copy-then-switch; once market capacity <em>c</em> is below about 10<sup>4</sup> machine-hours per hour the optimal copy share ramps down over 90&ndash;300 h, bang-bang loses 4.5&ndash;7% of the optimum and a logistic ramp recovers all but 1&ndash;1.5%. Slower growth from failed builds sharpens the switch again. Every input is assumed and the saturation form is a convenient choice; cash never binds. The DP value is the optimum of a discretised problem, within a few tenths of a percent of its simulated policy where it is accurate and several percent in near-linear cases. Stylised."
+    },
+    {
+     "slug": "selfrep-wearout",
+     "title": "What fleet can a replicating printer shop sustain when its machines wear out?",
+     "summary": "Extends the selfrep-growth fleet model with random machine lifetimes (Weibull) and a recovered share of vitamin value at retirement. With assumed inputs and a vitamin budget of 4 units/h, a lone seed machine died out in every run when mean life was 200 h or less (20% of runs at 500 h, 3% at 2000 h), while the fluid model predicted a small stable fleet; survivors held about 10 machines at 500 h. Wear-out lifetimes are safer than constant hazard at the same mean. The fluid equilibrium over-predicts fleet size at high recycling (235 vs 73 simulated at 95% recovery); charging for builds cut short by retirement closes the gap (76), though that correction was added after seeing the discrepancy. Stylised: every input is assumed."
     }
    ]
   },
@@ -1527,6 +1542,11 @@
      "slug": "garment-thermal",
      "title": "How much comfort can an infrared-transparent or gating textile buy, and which fabric properties matter?",
      "summary": "A Fanger/ISO 7730 PMV model and a Gagge-style two-node model extended with fabric infrared emissivity and transmittance, solar absorptance and vapour permeability. The no-optics PMV matches an open-source ISO implementation to 0.006 over 144 cases. Indoors without sun, infrared transmittance (0 to 0.8) is worth about 2.4&nbsp;&deg;C of comfort at 28&nbsp;&deg;C, more than cutting insulation from 0.7 to 0.3&nbsp;clo (1.8&nbsp;&deg;C), but makes a 16&nbsp;&deg;C room feel 7.3&nbsp;&deg;C colder; in sun, solar absorptance (7.7&nbsp;&deg;C span) dominates the infrared properties. Stylised: assumed fabric properties, a parallel-path radiation model with no reference data, and recalled two-node constants."
+    },
+    {
+     "slug": "garment-optics",
+     "title": "How much conductive yarn does an RF-shielding fabric need, and how fast does breakage ruin it?",
+     "summary": "A thin-sheet shielding model of a conductive square weave (sheet resistance, aperture bound, metal mass) plus a Monte Carlo of random yarn breakage. Every design tried has a sheet shielding of 54&ndash;87&nbsp;dB, but the aperture bound limits it: 36&nbsp;dB at 2.4&nbsp;GHz for a 1&nbsp;mm pitch, about 15&nbsp;dB at 28&nbsp;GHz. Breakage raises resistance as the effective-medium estimate 1/(1&minus;2<em>f</em>) up to 30% broken segments and the weave stops conducting near 50% (bond percolation). Stylised: plane wave, ideal crossings, recalled constants, no measurement; covers only the RF part of the optics milestone."
     },
     {
      "slug": "garment-assist",
