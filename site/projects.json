@@ -1402,6 +1402,11 @@
      "slug": "garment-teardown",
      "title": "Where does a designer coat's price go, and what does a $20 to $50 replica keep?",
      "summary": "A bottom-up cost model for a lined woven coat (fabric from pattern area and marker efficiency, trims, sewing minutes times wage, overhead, brand and retail multipliers) applied to two reported designer prices. Under assumed inputs the factory cost is $186&ndash;248 for a $2,850 trench and $469&ndash;551 for a $3,850 coat, under 15% of the price in every wage scenario, and the assumed multipliers do not close the gap. A cheap-cloth replica costs $46&ndash;100 to make; only a very lean case reaches $29&ndash;34. Stylised: every cost input is assumed, prices are from search snippets, and fit and durability are not scored."
+    },
+    {
+     "slug": "garment-pattern-fit",
+     "title": "Can a cheap cloth drape score how well a flat pattern fits a body, and is a fitted pattern body-specific?",
+     "summary": "A flat skirt-tube pattern is draped by position-based-dynamics cloth on two synthetic elliptical-section bodies and scored by circumferential strain and waist ease. The best waist is close to the body&rsquo;s waist perimeter (&times;1.01 and &times;1.03); tighter patterns strain, looser ones leave ease. A pattern optimised for one body costs 2.1&ndash;2.9 on the other against own optima of 0.15&ndash;0.75 (arbitrary cost units). Stylised: the body is a stack of ellipses, the cost weights are assumptions, the hem optimum sits at the edge of the search range, and the optimum cost moves from 0.75 to 1.34 on a finer mesh."
     }
    ]
   }
