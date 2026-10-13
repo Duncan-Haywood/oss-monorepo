@@ -3981,3 +3981,37 @@ entries:
         cafe and ramp-up. First visitor: first-time owners sizing a lease and loan; volume unmeasured. Every figure is the user's own; the example is
         labelled illustrative.
     mrr_end: 0
+  - venture: padel-club-profit-calculator
+  - venture: eu-data-act-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built padel-club-profit-calculator: a browser-only pro forma for a padel club. Courts, opening hours, peak and off-peak court-hour prices and
+        utilisation, member discount, coaching with a coach share, food and drink, pro shop, staff hours with payroll load, rent, court and fit-out cost
+        and a loan give monthly profit, break-even booked court-hours and utilisation (reported only when the courts can hold them), the court and lesson
+        price factor that reaches a target margin, booking, price and wage sensitivity tables, a sixty-month ramp-up with the cash reserve and payback,
+        and text and CSV downloads. 17 hand-checked unit tests plus page and usage tests. No padel tool existed in ventures/; nearest siblings are
+        pickleball-facility-pro-forma and golf-simulator-bay-profit-calculator. First visitor: would-be club owners sizing a lease and loan; volume
+        unmeasured. Every figure is the user's own; the example is labelled illustrative.
+        Graduated and built eu-data-act-checker: a browser-only first read of whether the EU Data Act (Regulation 2023/2854, applying since 12 September
+        2025) covers a business. A role (connected-product maker, related-service provider, data holder, third-party recipient, cloud or SaaS provider),
+        whole-group size on the Recommendation 2003/361 micro and small ceilings, a larger-partner flag and a subcontracting flag give an in-scope,
+        micro-or-small-exempt (Art 7) or out-of-scope result with the Article it rests on, the result at each size class, role-specific duties with the
+        Art 3(1) (12 Sep 2026) and switching-charge (12 Jan 2027) dates, and text and CSV downloads. Cloud switching duties carry no size exemption.
+        12 hand-checked unit tests plus page and usage tests. No Data Act tool existed in ventures/. First visitor: EU hardware and SaaS vendors asked
+        "does the Data Act apply to us, are we exempt as an SME?"; volume unmeasured. National enforcement is not modelled and the page says so.
+    mrr_end: 0
+  - venture: bowling-center-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built bowling-center-profit-calculator: a browser-only pro forma for a bowling center. Lanes, opening hours, peak and off-peak
+        lane-hour prices and utilization, league share and discount, birthday parties with their cost share, food and bar, arcade and shoe rental,
+        staff hours with payroll load, rent, refurbishment cost and a loan give monthly profit, break-even booked lane-hours and utilization (reported
+        only when the lanes can hold them), the price factor that reaches a target margin, booking, price and wage sensitivity tables, a sixty-month
+        ramp-up with the cash reserve and payback, and text and CSV downloads. Hand-checked unit tests plus page and usage tests. No bowling tool existed
+        in ventures/; nearest siblings are padel-club-profit-calculator and trampoline-park-profit-calculator. First visitor: buyers and operators of
+        independent centers sizing a lease and loan; volume unmeasured. Every figure is the user's own; the example is labelled illustrative.
+    mrr_end: 0

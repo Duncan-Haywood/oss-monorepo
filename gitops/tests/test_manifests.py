@@ -3053,8 +3053,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `eaa-accessibility-act-checker` graduated (browser European Accessibility Act check: product or service, role and size to in scope, microenterprise-exempt or out, with the Article).
     # +1: `indoor-play-center-profit-calculator` graduated (browser indoor play centre pro forma: visits, memberships, parties, cafe and staffing to profit, break-even visits, ramp-up reserve and payback).
     # +1: `gpsr-product-safety-checker` graduated (browser EU General Product Safety Regulation check).
+    # +1: `eu-battery-regulation-checker` graduated (browser EU Batteries Regulation duty timeline).
+    # +1: `padel-club-profit-calculator` graduated (browser padel club pro forma: courts, peak and off-peak utilisation, members, coaching, food and drink and staffing to profit, break-even utilisation, ramp-up reserve and payback).
     # +1: `pay-transparency-directive-checker` graduated (browser EU Pay Transparency Directive check).
-    total = 1129  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1129 tools" wording.
+    total = 1134  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1134 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).

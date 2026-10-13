@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EU Battery Regulation Checker — Deadlines and Duties</title>
+  <meta name="description" content="Free EU Batteries Regulation (2023/1542) checker for makers, importers and online sellers: which duties reach your battery, when each applies (label, removability, QR code, battery passport, due diligence), and what is still open. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="EU Battery Regulation checker: which duties apply to your battery and by when? Free, private">
+  <meta property="og:description" content="Battery type, role and place of establishment in; dated duty timeline, EU operator status and open items out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"EU Battery Regulation Checker","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the EU Batteries Regulation apply to e-bikes and power banks?","acceptedAnswer":{"@type":"Answer","text":"Yes. Regulation (EU) 2023/1542 covers portable batteries, light-means-of-transport batteries such as e-bike packs, starter batteries, industrial batteries and electric vehicle batteries placed on the EU market, including batteries built into other products and products sold online from outside the EU."}},{"@type":"Question","name":"When does the battery passport apply?","acceptedAnswer":{"@type":"Answer","text":"From 18 February 2027 for light-means-of-transport batteries, industrial batteries over 2 kWh and electric vehicle batteries. A QR code on the battery links to the digital record."}},{"@type":"Question","name":"When do the battery label and removability rules apply?","acceptedAnswer":{"@type":"Answer","text":"The general information label applies from 18 August 2026. Users must be able to remove and replace portable batteries built into appliances from 18 February 2027."}},{"@type":"Question","name":"Do I need an authorised representative to sell batteries into the EU from outside?","acceptedAnswer":{"@type":"Answer","text":"An EU-established manufacturer, importer or authorised representative must stand behind the battery, and a seller shipping to EU buyers needs an authorised representative for producer-responsibility registration in each country it sells into."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BATTERY REGULATION CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which EU Batteries Regulation duties reach your battery, and by when?</h1>
+    <p>Pick the battery, your role and where you are established. You get a <strong>dated timeline</strong> (label, removability, QR code, battery passport, due diligence), whether an <strong>EU operator</strong> stands behind the battery, and the <strong>duties still open</strong>.</p>
+    <p class="note">A first read of Regulation (EU) 2023/1542. Dates can move with EU implementing acts. It is not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="category">What the battery is</label><select id="category"><option value="">Choose one</option><option value="portable">Portable battery (sealed, under 5 kg, for consumer use: cells, packs, power banks, battery inside a device)</option><option value="lmt">Light means of transport battery (e-bike, e-scooter, mobility device)</option><option value="sli">Starting, lighting and ignition battery (vehicle starter battery)</option><option value="industrial-big">Industrial battery over 2 kWh (storage, forklifts, back-up power)</option><option value="industrial-small">Industrial battery of 2 kWh or less</option><option value="ev">Electric vehicle battery (car, van, truck, bus traction battery)</option><option value="exempt">Battery only for military, space or nuclear use</option><option value="none">No battery is placed on the EU market</option></select></div>
+      <div><label for="role">Your role</label><select id="role"><option value="">Choose one</option><option value="manufacturer">Manufacturer (you make it, or have it made under your name or brand)</option><option value="importer">Importer (you bring it into the EU from outside)</option><option value="distributor">Distributor or reseller (you sell it on without changing it)</option><option value="distance">Seller direct to EU buyers online from outside the EU</option><option value="fulfilment">Fulfilment service provider (you store, pack or ship for others)</option></select></div>
+      <div><label for="location">Where you are established</label><select id="location"><option value="">Choose one</option><option value="eu">In the EU</option><option value="noneu">Outside the EU</option></select></div>
+      <div><label for="sellsEu">Do you sell into the EU?</label><select id="sellsEu"><option value="yes">Yes</option><option value="no">No</option><option value="unsure">Not sure</option></select></div>
+      <div><label for="euOperator">Is an EU manufacturer, importer or authorised representative named for it?</label><select id="euOperator"><option value="unsure">Not sure</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+      <div><label for="sme">Is your firm a micro, small or medium enterprise?</label><select id="sme"><option value="yes">Yes</option><option value="no">No</option></select></div>
+      <div><label for="today">Reference date (blank = today)</label><input id="today" type="date"></div>
+      <div><label for="substances">Mercury, cadmium and lead are within the Regulation's limits</label><select id="substances"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="conformity">Conformity assessment is done, the EU declaration of conformity exists and the CE marking is on the battery</label><select id="conformity"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="epr">You are registered as a producer in each EU country you sell into, with an authorised representative where you sell from abroad</label><select id="epr"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="label">The general information label (manufacturer, type, date, capacity, hazard and collection symbol) is on the battery</label><select id="label"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="removable">The battery can be removed and replaced as the Regulation requires</label><select id="removable"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="passport">A QR code and digital battery passport are set up</label><select id="passport"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="diligence">A supply-chain due-diligence policy is in place and verified</label><select id="diligence"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="recycled">Recycled-content documentation is ready</label><select id="recycled"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="carbon">A carbon-footprint declaration and performance class are ready</label><select id="carbon"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check my battery</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose the battery, your role and where you are established, then click Check my battery.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Timeline of duties for your battery and role</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Applies from</th><th scope="col">Status</th><th scope="col">Duty</th><th scope="col">Basis</th></tr></thead><tbody id="timeline-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download timeline (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Scope:</strong> batteries placed on the EU market, including batteries built into other products and online sales from outside the EU. Military, space and nuclear batteries are outside it.</li>
+      <li><strong>Timeline:</strong> duties are filtered by battery category and role and ordered by the date they apply from. Duties that wait on an EU implementing act, such as the carbon-footprint declaration, show no date.</li>
+      <li><strong>Not decided:</strong> whether your battery meets the performance, safety and durability requirements, the exact data fields of the passport, sector-law conformity, national penalties and registration fees.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Does the EU Batteries Regulation apply to e-bikes and power banks?</h3>
+    <p>Yes. Regulation (EU) 2023/1542 covers portable batteries, light-means-of-transport batteries such as e-bike packs, starter batteries, industrial batteries and electric vehicle batteries placed on the EU market, including batteries built into other products and products sold online from outside the EU.</p>
+    <h3>When does the battery passport apply?</h3>
+    <p>From 18 February 2027 for light-means-of-transport batteries, industrial batteries over 2 kWh and electric vehicle batteries. A QR code on the battery links to the digital record.</p>
+    <h3>When do the battery label and removability rules apply?</h3>
+    <p>The general information label applies from 18 August 2026. Users must be able to remove and replace portable batteries built into appliances from 18 February 2027.</p>
+    <h3>Do I need an authorised representative to sell batteries into the EU from outside?</h3>
+    <p>An EU-established manufacturer, importer or authorised representative must stand behind the battery, and a seller shipping to EU buyers needs an authorised representative for producer-responsibility registration in each country it sells into.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your national authority or counsel before relying on it.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../gpsr-product-safety-checker/">GPSR product safety checker</a>, the <a href="../eu-packaging-regulation-checker/">EU packaging regulation checker</a>, the <a href="../cbam-cost-estimator/">CBAM cost estimator</a> and the <a href="../eaa-accessibility-act-checker/">European Accessibility Act checker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, timelineCsv, LOCATIONS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { category: "category", role: "role", location: "location", sellsEu: "sellsEu", euOperator: "euOperator", sme: "sme", today: "today", substances: "substances", conformity: "conformity", epr: "epr", label: "label", removable: "removable", passport: "passport", diligence: "diligence", recycled: "recycled", carbon: "carbon" };
+    const DEFAULTS = { sellsEu: "yes", euOperator: "unsure", sme: "yes" };
+    const IDLE = "Choose the battery, your role and where you are established, then click Check my battery.";
+    const RP = { self: "You can carry the operator's duties", covered: "Covered by an EU operator", check: "Check who is named", gap: "Gap: no EU operator", unknown: "Not confirmed" };
+    const ST = { applies: "Applies now", soon: "Within a year", later: "Later", pending: "Date not yet set" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = (r.verdict.status === "in" ? "In scope" : "Not in scope directly") + " — " + RP[r.responsible.status];
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => '<div class="finding"><span class="pill ' + f.severity + '">' + f.severity + "</span>" + esc(f.title) + "</div>").join("");
+      $("#timeline-rows").innerHTML = r.timeline.map((t) => "<tr><td>" + (t.from || "tbd") + "</td><td>" + ST[t.state] + (t.done ? " · done" : "") + "</td><td>" + esc(t.label) + "</td><td>" + esc(t.article) + "</td></tr>").join("");
+      report.hidden = false;
+      status.textContent = "Done. Check implementing acts and your national authority before relying on this.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a non-EU importer of e-bike batteries. Illustrative, not a real company.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] || ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("battery-regulation-check.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("battery-regulation-timeline.csv", timelineCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
