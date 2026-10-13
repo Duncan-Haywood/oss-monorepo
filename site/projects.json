@@ -1724,6 +1724,11 @@
      "summary": "The 8-layer stacks of <em>garment-stackopt</em> re-optimised on a grid of chroma floors and oxide-mass caps (Nelder&ndash;Mead restarts, 3000 calls, 5 seeds per cell). For the red target at a chroma floor of C* 40 the best mean angle shift is 0.68 &Delta;E<sub>76</sub> at a 4.0 g/m<sup>2</sup> cap, 2.71 at 3.0, and no run is feasible at 2.0 or below; raising the floor to 60 costs more (2.84 at a 4.0 cap). Mass binds before chroma. Stylised: flat substrate, three sample angles, untuned penalties, a coarse grid and a single optimiser, so cell values are noisy and the front is not smooth."
     },
     {
+     "slug": "garment-stacklayers",
+     "title": "Does adding layers cut the angle shift of a structural-colour coating at fixed chroma and oxide mass?",
+     "summary": "The constrained problem of <em>garment-stackpareto</em> with the layer count varied from 2 to 12 (Nelder&ndash;Mead restarts, 3000 calls, 8 seeds per cell). For the red target at C* &ge; 40 and 4 g/m<sup>2</sup>, 2 and 4 layers reach a best mean &Delta;E of about 3.4, while 6, 8 and 10 layers reach 0.5&ndash;0.8; medians are several times higher, so the ranking among 6&ndash;10 is within noise. At 12 layers few runs were feasible, probably a search limit at equal budget rather than a property of the stack. Stylised: flat substrate, three angles, no thickness tolerance; no coating was made."
+    },
+    {
      "slug": "garment-assist",
      "title": "Does an assistive garment pay for its own mass?",
      "summary": "A one-joint ankle model of an exosuit-style garment: a suit adding a fraction of the biological push-off torque cuts modelled whole-body metabolic cost by 3.1, 8.8 and 14.1% at gains 0.1, 0.3 and 0.5, but a delay of 0.25 of the gait cycle removes the benefit and a stiff passive spring raises ankle cost 17%. Added mass erases the saving at 8.9&nbsp;kg if each kg costs 1% of whole-body power and at 1.8&nbsp;kg if it costs 5%; the break-even scales as 1/sensitivity, a number the project does not supply. Stylised: lumped muscle, prescribed gait, assumed constants; not OpenSim or MyoSuite."
