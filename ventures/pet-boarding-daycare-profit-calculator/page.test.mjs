@@ -54,3 +54,7 @@ test("every input id the script reads exists on the page", () => {
   const map = html.match(/const map = \{([^}]*)\}/)[1];
   for (const [, id] of map.matchAll(/(\w+): "/g)) assert.match(html, new RegExp(`id="${id}"`));
 });
+
+test("page links one hop to the dog-boarding-daycare-pricing sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/dog-boarding-daycare-pricing\/"/);
+});

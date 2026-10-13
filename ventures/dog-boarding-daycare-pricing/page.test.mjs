@@ -95,3 +95,11 @@ test('index links one hop to the dog-walking-route-pricing sibling', () => {
     'index must link ../dog-walking-route-pricing/ so crawlers reach the dog walking rate calculator in one hop',
   );
 });
+
+test('index links one hop to the pet-boarding-daycare-profit-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/pet-boarding-daycare-profit-calculator\/"/,
+    'index must link ../pet-boarding-daycare-profit-calculator/ so crawlers reach the kennel pro forma in one hop',
+  );
+});
