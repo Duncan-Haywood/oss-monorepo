@@ -7,3 +7,4 @@ WB R   design        MACs cycles  cells    depth  cells*cycles  cells*cycles/R  
  4  4  mac-lane P=2       2    224   1098    37        245952          61488  (r sequential runs; not re-simulated)
  4  4  mac-lane P=4       4    116   1674    36        194184          48546  (r sequential runs; not re-simulated)
 
+ 4  8  systolic 8x2    16    104   8637    47        898248         112281  True
