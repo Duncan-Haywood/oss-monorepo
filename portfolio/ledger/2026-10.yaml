@@ -3982,6 +3982,7 @@ entries:
         labelled illustrative.
     mrr_end: 0
   - venture: padel-club-profit-calculator
+  - venture: eu-data-act-checker
     agent_spend_usd: 0
     human_hours: 0
     outcomes:
@@ -3993,4 +3994,11 @@ entries:
         and text and CSV downloads. 17 hand-checked unit tests plus page and usage tests. No padel tool existed in ventures/; nearest siblings are
         pickleball-facility-pro-forma and golf-simulator-bay-profit-calculator. First visitor: would-be club owners sizing a lease and loan; volume
         unmeasured. Every figure is the user's own; the example is labelled illustrative.
+        Graduated and built eu-data-act-checker: a browser-only first read of whether the EU Data Act (Regulation 2023/2854, applying since 12 September
+        2025) covers a business. A role (connected-product maker, related-service provider, data holder, third-party recipient, cloud or SaaS provider),
+        whole-group size on the Recommendation 2003/361 micro and small ceilings, a larger-partner flag and a subcontracting flag give an in-scope,
+        micro-or-small-exempt (Art 7) or out-of-scope result with the Article it rests on, the result at each size class, role-specific duties with the
+        Art 3(1) (12 Sep 2026) and switching-charge (12 Jan 2027) dates, and text and CSV downloads. Cloud switching duties carry no size exemption.
+        12 hand-checked unit tests plus page and usage tests. No Data Act tool existed in ventures/. First visitor: EU hardware and SaaS vendors asked
+        "does the Data Act apply to us, are we exempt as an SME?"; volume unmeasured. National enforcement is not modelled and the page says so.
     mrr_end: 0
