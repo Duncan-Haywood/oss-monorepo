@@ -1,5 +1,4 @@
 {
-  "cargo-audit-triage": "2026-10-13",
   "launched": {
     "1099-k-threshold-checker": "2026-09-17",
     "1099-vendor-csv-checker": "2026-10-04",
@@ -158,6 +157,7 @@
     "card-grading-submission-picker": "2026-10-02",
     "card-processing-fee-audit": "2026-09-06",
     "card-surcharge-vs-cash-discount-calculator": "2026-09-29",
+    "cargo-audit-triage": "2026-10-13",
     "carpet-cleaning-bid-calculator": "2026-08-26",
     "carpet-install-bid-calculator": "2026-08-26",
     "cash-balance-plan-calculator": "2026-09-30",

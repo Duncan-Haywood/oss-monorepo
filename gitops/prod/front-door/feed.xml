@@ -16,6 +16,14 @@
     <summary type="text">Free pro forma for boba, bubble tea and specialty drink shops: profit per cup, break-even cups a day with the loan, the price for your target margin, delivery-app cost, and a 60-month ramp-up with the cash reserve you need. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>cargo audit Triage — Which RustSec Advisories Does Your Rust Code Actually Use?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cargo-audit-triage/"/>
+    <id>tag:marisstella.dev,2026:tool/cargo-audit-triage</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste cargo audit --json and your Rust source: see which flagged crates your code actually uses and which are test-only or unreferenced noise. Free cargo audit triage, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Convenience Store and Gas Station Profit Calculator — Fuel Margin After Card Fees</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/convenience-store-gas-station-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/convenience-store-gas-station-profit-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Estimate what 280E costs a cannabis business: federal and state tax on gross profit versus real profit, the extra tax, whether you owe tax while losing money, and what moving costs into COGS is worth. Free, in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Climbing Gym Profit Calculator — monthly profit, payback and break-even members</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/climbing-gym-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/climbing-gym-profit-calculator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for climbing and bouldering gyms. Enter day passes, memberships, youth programs, parties, staff, route setting, rent and the build; it shows monthly profit, margin, payback, break-even members and the lowest day pass and membership fee for your target margin. Private, in your browser.</summary>
   </entry>
 </feed>
