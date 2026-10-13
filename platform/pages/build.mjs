@@ -1801,6 +1801,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-statutory-sick-pay-calculator'
       // `uk-vat-registration-checker` was left in the catch-all by its own merge (which put the tree one over the bound); filed here beside its UK sibling above.
       || slug === 'uk-vat-registration-checker'
+      // `iolta-three-way-reconciliation-checker` joined 2026-10-13 on its first commit: a lawyer's monthly trust-account reconciliation, the same back-office bookkeeping job.
+      || slug === 'iolta-three-way-reconciliation-checker'
       // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
       // export as `invoice-payment-terms-calculator` here and asks how much revenue one client carries.
       || slug === 'client-concentration-risk-analyzer'
