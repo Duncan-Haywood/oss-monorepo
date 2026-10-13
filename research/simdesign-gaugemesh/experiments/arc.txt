@@ -1,0 +1,10 @@
+peak von Mises (MPa) of gauge-2 laser designs vs polygon-fillet facets n_arc; columns h = 2.5, 1.0, 0.75 mm
+seed 1 (w=15.3, r=13.6) n_arc= 24: 99.3 107.2 108.6
+seed 1 (w=15.3, r=13.6) n_arc= 96: 101.2 107.6 108.8
+seed 1 (w=15.3, r=13.6) n_arc=384: 101.3 107.7 108.8
+seed 2 (w=14.4, r=10.7) n_arc= 24: 100.0 121.9 126.6
+seed 2 (w=14.4, r=10.7) n_arc= 96: 100.3 121.9 126.9
+seed 2 (w=14.4, r=10.7) n_arc=384: 100.3 122.2 127.0
+seed 4 (w=15.6, r=7.6) n_arc= 24: 99.7 109.1 119.2
+seed 4 (w=15.6, r=7.6) n_arc= 96: 99.8 109.1 119.6
+seed 4 (w=15.6, r=7.6) n_arc=384: 99.8 109.5 119.6
