@@ -1525,6 +1525,11 @@
      "slug": "simdesign-meshmargin",
      "title": "Does a mesh-aware stress margin change what manufacturing rules cost a sized bracket?",
      "summary": "The process-rule search of <em>simdesign-dfm</em> is repeated with a coarse mesh, a coarse mesh with the stress limit divided by 1.3, and a finer mesh, and every design is re-solved on a finer check mesh. The ordering of the mass prices survives: casting about 1.4, CNC routing about 1.23, FDM 1.0 by construction. The laser-cutting price does not (1.01 to 1.22 across settings, with only two seeds). A margin of 1.3 leaves the designs at 0.88 to 1.02 of the limit on the check mesh, at a 17at a 20&ndash;35% mass costndash;35% mass cost. Stylised: the peak stress is not converged even on the check mesh, rule values are assumed, and nothing was made."
+    },
+    {
+     "slug": "simdesign-patchstress",
+     "title": "Does a patch-averaged stress converge under mesh refinement where the peak element stress does not?",
+     "summary": "On four L-bracket designs solved on five meshes (h = 2.5 to 0.55&nbsp;mm), the peak von Mises stress rises by 18&ndash;41% while a 3&nbsp;mm patch average moves by 1&ndash;6%. The peak is not monotone along the sequence, so a two-mesh check can mislead. The patch average is not conservative: it reads 0.45&ndash;0.69 of the fine-mesh peak and would need its own calibrated limit. Stylised: 2D plane stress, one load case, a non-nested mesh family, assumed material, nothing made."
     }
    ]
   },
