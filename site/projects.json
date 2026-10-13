@@ -1383,6 +1383,11 @@
      "slug": "selfrep-growth",
      "title": "How fast does a replicating printer shop grow when its vitamins must be bought?",
      "summary": "Builds on the selfrep-closure part model. A discrete-event simulation of a fleet of printers that each build copies of themselves, checked against a closed-form fluid model. With a small import budget the doubling time falls almost in proportion to the budget (about 455 h at 4 units/h, 120 h at 16/h); above a crossover fleet size N* = BW/V machine time binds and doubling flattens near the 50 h build time. Failed builds raise the doubling time by about 1/(1&minus;<em>f</em>), and raising closure helps most when imports bind. Every input (print rate, assembly time, costs, budget, failure rate) is assumed and the fleet is homogeneous. Stylised. The comparison with Lackner and Wendt&rsquo;s growth model is not done."
+    },
+    {
+     "slug": "selfrep-reinvest",
+     "title": "When should a replicating shop stop copying itself and start making goods?",
+     "summary": "Builds on the selfrep-growth fleet model. A fluid optimal-control model splits machine time between building copies and making goods, scored on the total value of goods over 600 h. Copying flat out and then switching to goods one e-folding time (1/<em>k</em> = <em>W</em>/(1&minus;<em>f</em>), 50 h with no failures) before the horizon matches the closed form; the best constant split earns only 9&ndash;27% of that value, and smooth ramps are no better than the sharp switch. When imports or goods sales fund vitamins, cash binds throughout and the switch lands about 50 h from the end. Every input is assumed, the fleet is a continuous fluid, goods demand is unlimited and the final fleet is worth nothing. Stylised. Piecewise policies are local search, not a proof of optimality."
     }
    ]
   },
