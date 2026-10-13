@@ -1279,6 +1279,11 @@
      "slug": "robofab-sequence",
      "title": "Which assembly orders survive a better checker?",
      "summary": "Exact subset dynamic programming over assembly orders for a twelve-part printed gearbox, checked at three fidelity levels. Collision-only admits 4,227,168 of 39,916,800 orders (10.6%); adding quasi-static support leaves 30,760 (0.077%), and the collision-only optimum is infeasible once support is checked. Greedy disassembly needs 4 insertion-direction changes against an optimum of 1; one order written by the session agent (a single attempt, not a benchmark) passes with 2. Stylised axis-aligned boxes, no physics engine."
+    },
+    {
+     "slug": "robofab-insert",
+     "title": "Does an insertion policy tuned in one simulator survive a better one?",
+     "summary": "Cross-entropy-tuned five-parameter peg-in-hole search policies in MuJoCo, trained on three simulator fidelity levels or with domain randomisation and tested on all three plus a held-out parameter set. Tuned on the simplest level, success is 0.91 there but 0.53 on the stiffer-contact level and 0.26 on the held-out one; training on the stiffer level or with randomisation gives 0.43&ndash;0.46 on the held-out set, and with 5 seeds the two cannot be ranked. No seed exceeds 0.61 on the held-out level. Toy planar task; sim-to-sim only."
     }
    ]
   },
