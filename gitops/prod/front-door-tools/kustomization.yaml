@@ -33,49 +33,49 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548291 bytes
+#   portfolio-front-tools-0: 145 files, 548287 bytes
 #   portfolio-front-tools-1: 92 files, 555571 bytes
-#   portfolio-front-tools-2: 144 files, 553497 bytes
-#   portfolio-front-tools-3: 128 files, 549816 bytes
-#   portfolio-front-tools-4: 136 files, 553994 bytes
-#   portfolio-front-tools-5: 130 files, 550014 bytes
-#   portfolio-front-tools-6: 124 files, 556321 bytes
-#   portfolio-front-tools-7: 121 files, 556682 bytes
-#   portfolio-front-tools-8: 133 files, 554954 bytes
-#   portfolio-front-tools-9: 139 files, 554737 bytes
-#   portfolio-front-tools-10: 131 files, 556320 bytes
-#   portfolio-front-tools-11: 138 files, 554695 bytes
-#   portfolio-front-tools-12: 126 files, 552979 bytes
-#   portfolio-front-tools-13: 131 files, 555895 bytes
-#   portfolio-front-tools-14: 130 files, 554781 bytes
-#   portfolio-front-tools-15: 129 files, 553440 bytes
-#   portfolio-front-tools-16: 121 files, 553739 bytes
-#   portfolio-front-tools-17: 125 files, 555291 bytes
-#   portfolio-front-tools-18: 123 files, 555297 bytes
-#   portfolio-front-tools-19: 126 files, 557010 bytes
-#   portfolio-front-tools-20: 125 files, 547016 bytes
-#   portfolio-front-tools-21: 121 files, 539612 bytes
-#   portfolio-front-tools-22: 117 files, 555706 bytes
-#   portfolio-front-tools-23: 116 files, 555275 bytes
-#   portfolio-front-tools-24: 132 files, 550740 bytes
-#   portfolio-front-tools-25: 128 files, 556403 bytes
-#   portfolio-front-tools-26: 138 files, 555646 bytes
-#   portfolio-front-tools-27: 123 files, 551621 bytes
-#   portfolio-front-tools-28: 127 files, 555509 bytes
-#   portfolio-front-tools-29: 132 files, 556207 bytes
-#   portfolio-front-tools-30: 130 files, 549817 bytes
-#   portfolio-front-tools-31: 120 files, 551004 bytes
-#   portfolio-front-tools-32: 134 files, 555969 bytes
-#   portfolio-front-tools-33: 120 files, 556806 bytes
-#   portfolio-front-tools-34: 100 files, 553106 bytes
-#   portfolio-front-tools-35: 123 files, 554517 bytes
-#   portfolio-front-tools-36: 117 files, 556903 bytes
-#   portfolio-front-tools-37: 129 files, 554237 bytes
-#   portfolio-front-tools-38: 127 files, 551682 bytes
-#   portfolio-front-tools-39: 127 files, 556322 bytes
-#   portfolio-front-tools-40: 123 files, 553903 bytes
-#   portfolio-front-tools-41: 122 files, 557017 bytes
-#   portfolio-front-tools-42: 82 files, 437277 bytes
+#   portfolio-front-tools-2: 144 files, 553423 bytes
+#   portfolio-front-tools-3: 128 files, 549792 bytes
+#   portfolio-front-tools-4: 136 files, 554038 bytes
+#   portfolio-front-tools-5: 130 files, 549997 bytes
+#   portfolio-front-tools-6: 124 files, 556324 bytes
+#   portfolio-front-tools-7: 121 files, 556724 bytes
+#   portfolio-front-tools-8: 133 files, 555012 bytes
+#   portfolio-front-tools-9: 139 files, 554733 bytes
+#   portfolio-front-tools-10: 131 files, 556323 bytes
+#   portfolio-front-tools-11: 138 files, 554747 bytes
+#   portfolio-front-tools-12: 126 files, 552959 bytes
+#   portfolio-front-tools-13: 131 files, 555888 bytes
+#   portfolio-front-tools-14: 130 files, 554689 bytes
+#   portfolio-front-tools-15: 129 files, 553436 bytes
+#   portfolio-front-tools-16: 120 files, 552938 bytes
+#   portfolio-front-tools-17: 124 files, 555361 bytes
+#   portfolio-front-tools-18: 125 files, 553538 bytes
+#   portfolio-front-tools-19: 125 files, 556976 bytes
+#   portfolio-front-tools-20: 127 files, 555492 bytes
+#   portfolio-front-tools-21: 123 files, 547182 bytes
+#   portfolio-front-tools-22: 117 files, 555775 bytes
+#   portfolio-front-tools-23: 116 files, 555408 bytes
+#   portfolio-front-tools-24: 132 files, 550768 bytes
+#   portfolio-front-tools-25: 128 files, 556457 bytes
+#   portfolio-front-tools-26: 138 files, 555628 bytes
+#   portfolio-front-tools-27: 123 files, 551712 bytes
+#   portfolio-front-tools-28: 127 files, 555467 bytes
+#   portfolio-front-tools-29: 132 files, 556245 bytes
+#   portfolio-front-tools-30: 130 files, 549766 bytes
+#   portfolio-front-tools-31: 120 files, 550908 bytes
+#   portfolio-front-tools-32: 134 files, 555875 bytes
+#   portfolio-front-tools-33: 120 files, 556784 bytes
+#   portfolio-front-tools-34: 100 files, 553158 bytes
+#   portfolio-front-tools-35: 123 files, 554580 bytes
+#   portfolio-front-tools-36: 117 files, 556883 bytes
+#   portfolio-front-tools-37: 129 files, 554275 bytes
+#   portfolio-front-tools-38: 127 files, 551781 bytes
+#   portfolio-front-tools-39: 127 files, 556336 bytes
+#   portfolio-front-tools-40: 123 files, 553797 bytes
+#   portfolio-front-tools-41: 122 files, 556894 bytes
+#   portfolio-front-tools-42: 82 files, 437275 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2279,6 +2279,9 @@ configMapGenerator:
       - eu-data-act-checker__calc.mjs.gz=eu-data-act-checker__calc.mjs.gz
       - eu-data-act-checker__index.html.gz=eu-data-act-checker__index.html.gz
       - eu-data-act-checker__usage.mjs.gz=eu-data-act-checker__usage.mjs.gz
+      - eu-packaging-regulation-checker__calc.mjs.gz=eu-packaging-regulation-checker__calc.mjs.gz
+      - eu-packaging-regulation-checker__index.html.gz=eu-packaging-regulation-checker__index.html.gz
+      - eu-packaging-regulation-checker__usage.mjs.gz=eu-packaging-regulation-checker__usage.mjs.gz
       - eu-pay-gap-report-calculator__calc.mjs.gz=eu-pay-gap-report-calculator__calc.mjs.gz
       - eu-pay-gap-report-calculator__index.html.gz=eu-pay-gap-report-calculator__index.html.gz
       - eu-pay-gap-report-calculator__usage.mjs.gz=eu-pay-gap-report-calculator__usage.mjs.gz
@@ -2372,15 +2375,15 @@ configMapGenerator:
       - feature-flag-pricing-calculator__index.html.gz=feature-flag-pricing-calculator__index.html.gz
       - feature-flag-pricing-calculator__usage.mjs.gz=feature-flag-pricing-calculator__usage.mjs.gz
       - feie-physical-presence-calculator__engine.mjs.gz=feie-physical-presence-calculator__engine.mjs.gz
-      - feie-physical-presence-calculator__index.html.gz=feie-physical-presence-calculator__index.html.gz
-      - feie-physical-presence-calculator__physical-presence-test-330-days-how-to-count.html.gz=feie-physical-presence-calculator__physical-presence-test-330-days-how-to-count.html.gz
-      - feie-physical-presence-calculator__usage.mjs.gz=feie-physical-presence-calculator__usage.mjs.gz
-      - fers-retirement-planner__calc.mjs.gz=fers-retirement-planner__calc.mjs.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - feie-physical-presence-calculator__index.html.gz=feie-physical-presence-calculator__index.html.gz
+      - feie-physical-presence-calculator__physical-presence-test-330-days-how-to-count.html.gz=feie-physical-presence-calculator__physical-presence-test-330-days-how-to-count.html.gz
+      - feie-physical-presence-calculator__usage.mjs.gz=feie-physical-presence-calculator__usage.mjs.gz
+      - fers-retirement-planner__calc.mjs.gz=fers-retirement-planner__calc.mjs.gz
       - fers-retirement-planner__index.html.gz=fers-retirement-planner__index.html.gz
       - fers-retirement-planner__usage.mjs.gz=fers-retirement-planner__usage.mjs.gz
       - fertilizer-blend-optimizer__calc.mjs.gz=fertilizer-blend-optimizer__calc.mjs.gz
@@ -2501,16 +2504,16 @@ configMapGenerator:
       - foundation-repair-bid-calculator__calc.mjs.gz=foundation-repair-bid-calculator__calc.mjs.gz
       - foundation-repair-bid-calculator__how-much-to-charge-for-foundation-repair.html.gz=foundation-repair-bid-calculator__how-much-to-charge-for-foundation-repair.html.gz
       - foundation-repair-bid-calculator__index.html.gz=foundation-repair-bid-calculator__index.html.gz
-      - foundation-repair-bid-calculator__share.mjs.gz=foundation-repair-bid-calculator__share.mjs.gz
-      - foundation-repair-bid-calculator__usage.mjs.gz=foundation-repair-bid-calculator__usage.mjs.gz
-      - foundation-repair-bid-calculator__vs-a-flat-price-per-pier.html.gz=foundation-repair-bid-calculator__vs-a-flat-price-per-pier.html.gz
-      - foundation-repair-bid-calculator__vs-jobber.html.gz=foundation-repair-bid-calculator__vs-jobber.html.gz
-      - fractional-executive-rate-calculator__calc.mjs.gz=fractional-executive-rate-calculator__calc.mjs.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - foundation-repair-bid-calculator__share.mjs.gz=foundation-repair-bid-calculator__share.mjs.gz
+      - foundation-repair-bid-calculator__usage.mjs.gz=foundation-repair-bid-calculator__usage.mjs.gz
+      - foundation-repair-bid-calculator__vs-a-flat-price-per-pier.html.gz=foundation-repair-bid-calculator__vs-a-flat-price-per-pier.html.gz
+      - foundation-repair-bid-calculator__vs-jobber.html.gz=foundation-repair-bid-calculator__vs-jobber.html.gz
+      - fractional-executive-rate-calculator__calc.mjs.gz=fractional-executive-rate-calculator__calc.mjs.gz
       - fractional-executive-rate-calculator__index.html.gz=fractional-executive-rate-calculator__index.html.gz
       - fractional-executive-rate-calculator__usage.mjs.gz=fractional-executive-rate-calculator__usage.mjs.gz
       - franchise-item-19-reality-check__calc.mjs.gz=franchise-item-19-reality-check__calc.mjs.gz
@@ -2631,14 +2634,14 @@ configMapGenerator:
       - gbp-bulk-location-check__index.html.gz=gbp-bulk-location-check__index.html.gz
       - gbp-bulk-location-check__usage.mjs.gz=gbp-bulk-location-check__usage.mjs.gz
       - ghost-kitchen-brand-picker__calc.mjs.gz=ghost-kitchen-brand-picker__calc.mjs.gz
-      - ghost-kitchen-brand-picker__index.html.gz=ghost-kitchen-brand-picker__index.html.gz
-      - ghost-kitchen-brand-picker__usage.mjs.gz=ghost-kitchen-brand-picker__usage.mjs.gz
-      - ghost-members-export-analyzer__calc.mjs.gz=ghost-members-export-analyzer__calc.mjs.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ghost-kitchen-brand-picker__index.html.gz=ghost-kitchen-brand-picker__index.html.gz
+      - ghost-kitchen-brand-picker__usage.mjs.gz=ghost-kitchen-brand-picker__usage.mjs.gz
+      - ghost-members-export-analyzer__calc.mjs.gz=ghost-members-export-analyzer__calc.mjs.gz
       - ghost-members-export-analyzer__index.html.gz=ghost-members-export-analyzer__index.html.gz
       - ghost-members-export-analyzer__usage.mjs.gz=ghost-members-export-analyzer__usage.mjs.gz
       - ghostwriter-book-quote-calculator__calc.mjs.gz=ghostwriter-book-quote-calculator__calc.mjs.gz
@@ -2761,15 +2764,15 @@ configMapGenerator:
       - gutter-guard-bid-calculator__index.html.gz=gutter-guard-bid-calculator__index.html.gz
       - gutter-guard-bid-calculator__usage.mjs.gz=gutter-guard-bid-calculator__usage.mjs.gz
       - gutter-guard-bid-calculator__vs-a-flat-8-per-foot-special.html.gz=gutter-guard-bid-calculator__vs-a-flat-8-per-foot-special.html.gz
-      - gutter-guard-bid-calculator__vs-jobber.html.gz=gutter-guard-bid-calculator__vs-jobber.html.gz
-      - gutter-guard-bid-calculator__vs-jobnimbus.html.gz=gutter-guard-bid-calculator__vs-jobnimbus.html.gz
-      - gutter-install-bid-calculator__calc.mjs.gz=gutter-install-bid-calculator__calc.mjs.gz
-      - gutter-install-bid-calculator__how-much-to-charge-to-install-gutters.html.gz=gutter-install-bid-calculator__how-much-to-charge-to-install-gutters.html.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - gutter-guard-bid-calculator__vs-jobber.html.gz=gutter-guard-bid-calculator__vs-jobber.html.gz
+      - gutter-guard-bid-calculator__vs-jobnimbus.html.gz=gutter-guard-bid-calculator__vs-jobnimbus.html.gz
+      - gutter-install-bid-calculator__calc.mjs.gz=gutter-install-bid-calculator__calc.mjs.gz
+      - gutter-install-bid-calculator__how-much-to-charge-to-install-gutters.html.gz=gutter-install-bid-calculator__how-much-to-charge-to-install-gutters.html.gz
       - gutter-install-bid-calculator__index.html.gz=gutter-install-bid-calculator__index.html.gz
       - gutter-install-bid-calculator__share.mjs.gz=gutter-install-bid-calculator__share.mjs.gz
       - gutter-install-bid-calculator__usage.mjs.gz=gutter-install-bid-calculator__usage.mjs.gz
@@ -2893,13 +2896,13 @@ configMapGenerator:
       - hos-trip-planner__calc.mjs.gz=hos-trip-planner__calc.mjs.gz
       - hos-trip-planner__index.html.gz=hos-trip-planner__index.html.gz
       - hos-trip-planner__usage.mjs.gz=hos-trip-planner__usage.mjs.gz
-      - hot-tub-bid-calculator__calc.mjs.gz=hot-tub-bid-calculator__calc.mjs.gz
-      - hot-tub-bid-calculator__how-much-to-charge-to-install-a-hot-tub.html.gz=hot-tub-bid-calculator__how-much-to-charge-to-install-a-hot-tub.html.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - hot-tub-bid-calculator__calc.mjs.gz=hot-tub-bid-calculator__calc.mjs.gz
+      - hot-tub-bid-calculator__how-much-to-charge-to-install-a-hot-tub.html.gz=hot-tub-bid-calculator__how-much-to-charge-to-install-a-hot-tub.html.gz
       - hot-tub-bid-calculator__index.html.gz=hot-tub-bid-calculator__index.html.gz
       - hot-tub-bid-calculator__share.mjs.gz=hot-tub-bid-calculator__share.mjs.gz
       - hot-tub-bid-calculator__usage.mjs.gz=hot-tub-bid-calculator__usage.mjs.gz

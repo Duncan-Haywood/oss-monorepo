@@ -74,3 +74,7 @@ test("footer links the related EU tools", () => {
 test("footer links the GPSR checker", () => {
   assert.match(page("index.html"), /href="\.\.\/gpsr-product-safety-checker\/"/);
 });
+
+test("footer links the packaging regulation checker", () => {
+  assert.match(page("index.html"), /href="\.\.\/eu-packaging-regulation-checker\/"/);
+});
