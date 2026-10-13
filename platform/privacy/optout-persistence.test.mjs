@@ -1613,7 +1613,6 @@ const RELATIVE_SELF = relative(
 // +1: `eu-csrd-scope-checker` graduated.
 // +1: `uk-sole-trader-vs-limited-company-calculator` graduated.
 // +1: `eu-espr-readiness-checker` graduated.
-// +1: `paid-sick-leave-accrual-calculator` graduated.
 const SWITCHES_IN_THE_CATALOGUE = 1133;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
@@ -1656,7 +1655,6 @@ const SWITCHES_IN_THE_CATALOGUE = 1133;
 // +1: `csv-to-sql-generator` graduated.
 // +1: `eu-dsa-obligations-checker` graduated.
 // +1: `uk-mtd-income-tax-checker` graduated.
-// +1: `schengen-90-180-day-calculator` graduated.
 
 let counter = 0;
 function fixture(source) {
