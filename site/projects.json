@@ -1406,6 +1406,11 @@
      "summary": "A follow-up to <code>robofab-selfparts</code>: for each of the six free parts of the toy gripper and each grasp axis that fits a 30&nbsp;mm jaw opening, the smallest jaw force that holds the part against gravity by friction, from the bound <em>m</em>&thinsp;<em>g</em>/(2&mu;) and from a MuJoCo simulation, at &mu;&nbsp;=&nbsp;0.3, 0.5 and 0.8. Over 33 cases the two agree to within 5%, and the force needed is at most 0.1&nbsp;N, so in this model the jaw opening, not friction, is the binding constraint. A check on the simulator set-up rather than a new result. Stylised: static hold only, boxes, assumed density and friction, no tipping or insertion loads."
     },
     {
+     "slug": "robofab-armaccel",
+     "title": "Does arm torque or jaw friction limit how fast an arm carries a printed part?",
+     "summary": "A follow-up to <code>robofab-graspmove</code> and <code>robofab-reach</code>: a planar two-link arm with assumed masses carries each of the six free parts of the toy gripper on a min-jerk joint move, as fast as an assumed joint torque limit allows. With 0.12&nbsp;m links and 5&nbsp;N&nbsp;m the carries take 0.06 to 0.10&nbsp;s and the 5.95&nbsp;g cover needs 1.25&nbsp;N per jaw, 21&times; its static force; a jaw force under about 0.5&nbsp;N makes the grip, not the arm, the limit. A larger arm is slower at a fixed torque. Stylised: assumed masses and torques, and the grip bound, simulated only up to 40&nbsp;m/s<sup>2</sup> earlier, is applied beyond that range."
+    },
+    {
      "slug": "robofab-graspmove",
      "title": "How hard must the jaws squeeze while the arm moves?",
      "summary": "A follow-up to <code>robofab-grasp</code>: the jaw assembly accelerates upward or sideways at up to 40&nbsp;m/s<sup>2</sup> and the smallest holding force is compared with the bound <em>m</em>&radic;((<em>g</em>+<em>a</em><sub>up</sub>)<sup>2</sup>+<em>a</em><sub>side</sub><sup>2</sup>)/(2&mu;) at &mu;&nbsp;=&nbsp;0.5. Over 77 cases the two agree to within 7%, and the heaviest part needs at most 0.3&nbsp;N, so friction is still not the constraint. A fidelity finding: the contact time constant used for the static test (0.004&nbsp;s) reports slip at any force once the jaws accelerate; 0.0005&nbsp;s is needed. Stylised: boxes, rigid pads, assumed density and friction."
