@@ -71,3 +71,7 @@ test("footer links the related EU tools and the page owns up to dates from memor
   for (const slug of ["eu-packaging-regulation-checker", "gpsr-product-safety-checker", "eu-battery-regulation-checker", "eudr-scope-checker"]) assert.match(html, new RegExp(`href="\\.\\./${slug}/"`));
   assert.match(html, /written from memory/);
 });
+
+test("footer links the green claims copy scanner", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/eu-green-claims-copy-scanner\/"/);
+});

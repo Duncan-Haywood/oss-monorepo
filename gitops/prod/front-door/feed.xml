@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1142 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1143 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -128,6 +128,14 @@
     <summary type="text">Free EU Packaging and Packaging Waste Regulation (PPWR, 2025/40) checker for brand owners, importers and online sellers: which duties reach your packaging, when each applies (producer registration, PFAS limits, label, recyclability, recycled content, 50 percent empty-space rule), and what is still open. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>EU Platform Work Directive Checker — Are Your Gig Workers Presumed Employees?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-platform-work-directive-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/eu-platform-work-directive-checker</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free EU Platform Work Directive (2024/2831) checker for gig and app platforms and platform workers: is the platform in scope, how strong is the employment presumption, which algorithmic-management rules apply, and how long until 2 December 2026. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>EU Price Reduction Checker — Is Your “Was” Price Legal Under the 30-Day Rule?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-price-reduction-claim-checker/"/>
     <id>tag:marisstella.dev,2026:tool/eu-price-reduction-claim-checker</id>
@@ -140,7 +148,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-product-liability-directive-checker/"/>
     <id>tag:marisstella.dev,2026:tool/eu-product-liability-directive-checker</id>
     <updated>2026-10-13T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free EU Product Liability Directive checker: is your software, AI system or product in scope from 9 December 2026, who is liable in the supply chain, what damage is claimable and what to prepare. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
@@ -158,13 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free EU Deforestation Regulation (EUDR) checker: tick your role, size and commodities to see whether Regulation (EU) 2023/1115 covers you, your duties with the Articles, and your application date. Screens customs codes against Annex I. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>GPSR Checker — Do You Need an EU Responsible Person?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gpsr-product-safety-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/gpsr-product-safety-checker</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free EU General Product Safety Regulation (GPSR) checker for online sellers: is your product in scope, is an EU responsible person behind it, and which basic duties are still open. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
