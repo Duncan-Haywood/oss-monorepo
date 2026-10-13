@@ -75,3 +75,7 @@ test("footer links the CBAM cost estimator", () => {
 test("footer links the EUDR scope checker", () => {
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/eudr-scope-checker\/"/);
 });
+
+test("footer links the European Accessibility Act checker", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/eaa-accessibility-act-checker\/"/);
+});

@@ -3955,3 +3955,16 @@ entries:
         top score 0.18; no CBAM tool existed in ventures/. First visitor: an EU importer or buyer who has received a CBAM supplier questionnaire;
         volume unmeasured. Preset emission figures are labelled illustrative.
     mrr_end: 0
+  - venture: eaa-accessibility-act-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built eaa-accessibility-act-checker: a browser-only first read of whether the European Accessibility Act (Directive 2019/882,
+        applying since 28 June 2025) covers a business. A product or service from Article 2, a role (manufacturer, importer, distributor, service
+        provider), whole-group size on the Recommendation 2003/361 microenterprise ceilings, B2C versus B2B and Union-market answers give an in-scope,
+        microenterprise-exempt (Art 4(5), services only) or out-of-scope result with the Article it rests on, the result at the other size class,
+        role-specific duties, and text and CSV downloads. Rejects roles that do not fit the category. 13 hand-checked unit tests plus page and usage
+        tests. No EAA tool existed in ventures/. First visitor: EU online-shop owners and agencies asked "does the Accessibility Act apply to us?";
+        volume unmeasured. National transposition is not modelled and the page says so.
+    mrr_end: 0
