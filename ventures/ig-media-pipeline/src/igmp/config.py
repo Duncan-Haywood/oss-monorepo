@@ -6,6 +6,8 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from . import safety
+
 DEFAULT_PATH = Path(os.environ.get("IGMP_CONFIG", "~/.config/igmp/config.toml")).expanduser()
 
 TEMPLATE = """\
@@ -100,13 +102,16 @@ def load(path: Path = DEFAULT_PATH) -> Config:
     raw = tomllib.loads(path.read_text())
     known = {f for f in Config.__dataclass_fields__ if f != "extra"}
     kwargs = {k: v for k, v in raw.items() if k in known}
-    kwargs["library_roots"] = [Path(p).expanduser() for p in raw.get("library_roots", [])]
-    kwargs["output_dir"] = Path(raw["output_dir"]).expanduser()
+    # absolute, so every path igmp handles (and every check on it) is unambiguous
+    kwargs["library_roots"] = [Path(p).expanduser().absolute() for p in raw.get("library_roots", [])]
+    kwargs["output_dir"] = Path(raw["output_dir"]).expanduser().absolute()
     if raw.get("style_guide"):
         kwargs["style_guide"] = Path(raw["style_guide"]).expanduser()
     if "claude_cli" not in raw and kwargs.get("backend", "claude-code") == "claude-code":
         kwargs["claude_cli"] = find_claude_cli()
-    return Config(**kwargs, extra={k: v for k, v in raw.items() if k not in known})
+    cfg = Config(**kwargs, extra={k: v for k, v in raw.items() if k not in known})
+    safety.check_config(cfg)        # refuses an output_dir inside a library root, or around one
+    return cfg
 
 
 def write_template(path: Path = DEFAULT_PATH) -> Path:
