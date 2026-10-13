@@ -1684,9 +1684,19 @@
      "summary": "A Fanger/ISO 7730 PMV model and a Gagge-style two-node model extended with fabric infrared emissivity and transmittance, solar absorptance and vapour permeability. The no-optics PMV matches an open-source ISO implementation to 0.006 over 144 cases. Indoors without sun, infrared transmittance (0 to 0.8) is worth about 2.4&nbsp;&deg;C of comfort at 28&nbsp;&deg;C, more than cutting insulation from 0.7 to 0.3&nbsp;clo (1.8&nbsp;&deg;C), but makes a 16&nbsp;&deg;C room feel 7.3&nbsp;&deg;C colder; in sun, solar absorptance (7.7&nbsp;&deg;C span) dominates the infrared properties. Stylised: assumed fabric properties, a parallel-path radiation model with no reference data, and recalled two-node constants."
     },
     {
+     "slug": "garment-comfortcost",
+     "title": "What does a degree of comfort cost in fabric?",
+     "summary": "Joins the thermal comfort model to the garment cost chain for five fabric levers (infrared transmittance, low emissivity, white, thinner, thicker cloth). Levers combine sub-additively (infrared-transparent plus thin: +2.58&nbsp;&deg;C jointly, +3.25 summed), and in each scenario only one treatment helps, so a price premium sets cost, not ranking. At assumed premiums the treatments cost $0.5 to $19 per &deg;C on a $20&ndash;50 replica trench and $3 to $114 on a designer one, because the retail chain multiplies the premium about 6&times;. Stylised: every premium and the thickness pricing are assumed, not quoted, and the comfort model has no reference for its optical extension."
+    },
+    {
      "slug": "garment-optics",
      "title": "How much conductive yarn does an RF-shielding fabric need, and how fast does breakage ruin it?",
      "summary": "A thin-sheet shielding model of a conductive square weave (sheet resistance, aperture bound, metal mass) plus a Monte Carlo of random yarn breakage. Every design tried has a sheet shielding of 54&ndash;87&nbsp;dB, but the aperture bound limits it: 36&nbsp;dB at 2.4&nbsp;GHz for a 1&nbsp;mm pitch, about 15&nbsp;dB at 28&nbsp;GHz. Breakage raises resistance as the effective-medium estimate 1/(1&minus;2<em>f</em>) up to 30% broken segments and the weave stops conducting near 50% (bond percolation). Stylised: plane wave, ideal crossings, recalled constants, no measurement; covers only the RF part of the optics milestone."
+    },
+    {
+     "slug": "garment-contactres",
+     "title": "Does contact resistance at yarn crossings matter for an RF-shielding fabric?",
+     "summary": "A two-layer resistor network of a conductive weave: warp and weft touch only through a contact resistor at each crossing, and yarn segments break at random. On an intact fabric the contacts carry no current, so they have no effect at all. Once yarns break they carry the bypass currents: with 20% of segments broken, the median sheet resistance is 1.74 segment-resistances with perfect contacts, 2.11 with contacts equal to one segment, 4.07 at ten and 16.7 at a hundred. For a stylised stainless weave that is 59.6 dB against 52.3 dB at ten segments (thin-sheet only, aperture limit excluded). Stylised: contact values are a sweep, not measurements; one lattice size, 20 draws, independent breaks."
     },
     {
      "slug": "garment-thincolor",
