@@ -1801,6 +1801,8 @@ const CATEGORY_RULES = [
       || slug === 'ca-gst-hst-small-supplier-checker'
       // `au-gst-registration-checker` joined 2026-10-13 on its first commit: the Australian sibling of the GST/HST small-supplier test, same compliance-arithmetic job.
       || slug === 'au-gst-registration-checker'
+      // `uk-cis-deduction-refund-calculator` joined 2026-10-13 on its first commit: UK construction subcontractors' CIS deduction and refund, sibling of the UK VAT and sole-trader tools.
+      || slug === 'uk-cis-deduction-refund-calculator'
       // `nz-gst-registration-checker` joined 2026-10-13 on its first commit: the New Zealand sibling of the AU/CA registration tests, same compliance-arithmetic job.
       || slug === 'nz-gst-registration-checker'
       // `uk-statutory-sick-pay-calculator` joined 2026-10-13 on its first commit: UK employer payroll-compliance arithmetic, same back-office job.
