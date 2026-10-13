@@ -1419,6 +1419,11 @@
      "slug": "robofab-liftload",
      "title": "Does the friction-grasp bound survive lift acceleration and an off-centre centre of mass?",
      "summary": "A follow-up to <code>robofab-grasp</code>. With a constant lift or sideways acceleration applied as an effective gravity, the simulated minimum jaw force for the six free parts of the toy gripper stays within 6% of the scaled bound <em>m</em>&thinsp;&radic;((<em>g</em>+<em>a</em><sub>z</sub>)<sup>2</sup>+<em>a</em><sub>t</sub><sup>2</sup>)/(2&mu;) over 66 cases, at most 0.21&nbsp;N. These parts are symmetric, so they test no torque. For a 10&times;10&nbsp;mm bar held at one end the torque bracket is inconclusive: with a 5&deg; rotation tolerance MuJoCo holds with less force than the lower bound in 11 of 12 cases, and with 1&deg; the longer bars do not hold at 20&nbsp;N. Stylised: constant load, boxes, assumed density and friction, thresholds chosen by me."
+    },
+    {
+     "slug": "robofab-sliprate",
+     "title": "Is the off-centre bar result in robofab-liftload a grasp effect or solver creep?",
+     "summary": "A follow-up to <code>robofab-liftload</code> that replaces its pass/fail threshold with the bar&rsquo;s rotation rate. A 10&times;10&times;40&nbsp;mm bar held at one end creeps at about 3.7&nbsp;deg/s from 0.3 to 3&nbsp;N and still 2.2&nbsp;deg/s at 20&nbsp;N, so no force stops it. The rate scales with the contact time constant and drops tenfold when <code>impratio</code> goes from 1 to 10; torsional friction lowers it 2.5&ndash;3&times;. Free drops occur only at 0.1&nbsp;N. The earlier verdict reflects simulator settings, not the grasp. Stylised: one engine, boxes, assumed density and friction."
     }
    ]
   },
@@ -1537,6 +1542,11 @@
      "summary": "A Q4 plane-stress SIMP code with the 99-line sensitivity filter and optimality-criteria update, tested against Hooke's law and finite-difference sensitivities. It gives truss-like cantilever (compliance 351.9&nbsp;&rarr;&nbsp;52.4) and half-MBB (1007.0&nbsp;&rarr;&nbsp;203.3) designs. Without the filter 11.5% of 2&times;2 cells are checkerboards; with it none, at the same compliance within 0.03%. The thresholded MBB design is one connected body and is written as an extruded, mirrored STL. Stylised: dimensionless 2D compliance only, no stress or 3D check, not compared with the published codes."
     },
     {
+     "slug": "simdesign-heaviside",
+     "title": "Does a density filter with Heaviside projection close the gap between a topology-optimised density field and the black-and-white part?",
+     "summary": "Adds a density filter, a tanh Heaviside projection and &beta; continuation to the SIMP code of <code>simdesign-topopt</code>. On a 90&times;30 half-MBB beam the sensitivity and density filters leave 26&ndash;34% grey elements and a model compliance 10&ndash;15% above the thresholded part&rsquo;s; with projection the two agree to 0.1% (192.1 vs 192.0). The thresholded parts are equally stiff within 0.9% (190.3&ndash;192.0), so the gain is an honest model, not a stiffer part. Starting at &beta;&nbsp;=&nbsp;64 without continuation gives 344.8 against 192.1. A minimum-length-scale check did not separate the formulations (negative): a single projection does not by itself fix a physical minimum feature. Stylised: 2D dimensionless compliance, one problem, one run per setting."
+    },
+    {
      "slug": "simdesign-fidelity",
      "title": "When does a cheaper beam model pick the same design as 3D finite elements?",
      "summary": "A rectangular cantilever is sized for minimum mass under a tip-deflection and a top-fibre stress limit with Euler&ndash;Bernoulli and Timoshenko beam theory, 2D plane-stress and 3D finite elements (scikit-fem), and each design is judged by the 3D model. Stress read away from the clamp agrees across models; deflection does not. Over 12 length&ndash;width cases the cheap models choose a depth within about 5% of the 3D optimum: Euler&ndash;Bernoulli is unsafe for narrow, stubby beams (up to 1.05&times; the deflection limit), while Timoshenko and plane stress are up to about 5% too heavy for wide ones, where plane strain stiffens the beam. Stylised: assumed material, a coarse 3D reference whose deflection still moves about 0.4% under refinement, no stress concentrations, nothing measured."
@@ -1609,10 +1619,10 @@
      "summary": "A thin-sheet shielding model of a conductive square weave (sheet resistance, aperture bound, metal mass) plus a Monte Carlo of random yarn breakage. Every design tried has a sheet shielding of 54&ndash;87&nbsp;dB, but the aperture bound limits it: 36&nbsp;dB at 2.4&nbsp;GHz for a 1&nbsp;mm pitch, about 15&nbsp;dB at 28&nbsp;GHz. Breakage raises resistance as the effective-medium estimate 1/(1&minus;2<em>f</em>) up to 30% broken segments and the weave stops conducting near 50% (bond percolation). Stylised: plane wave, ideal crossings, recalled constants, no measurement; covers only the RF part of the optics milestone."
     },
     {
-  "slug": "garment-thincolor",
-  "title": "How thin must a coating be to colour a fibre without dye, and how fragile is that colour?",
-  "summary": "A transfer-matrix model of dielectric quarter-wave stacks on a flat nylon-like substrate, with colour computed under an equal-energy illuminant. Six-pair stacks reach 99% reflectance with 2&ndash;3 g/m<sup>2</sup> of oxide and saturated colour, but the peak blue-shifts from 620 to 540 nm by 60&deg; incidence (&Delta;E<sub>76</sub> 48), and 10% layer-thickness error moves hue by &Delta;E&asymp;10 while roughly preserving chroma. Stylised: flat substrate, constant indices, no fibre scattering."
- },
+     "slug": "garment-thincolor",
+     "title": "How thin must a coating be to colour a fibre without dye, and how fragile is that colour?",
+     "summary": "A transfer-matrix model of dielectric quarter-wave stacks on a flat nylon-like substrate, with colour computed under an equal-energy illuminant. Six-pair stacks reach 99% reflectance with 2&ndash;3 g/m<sup>2</sup> of oxide and saturated colour, but the peak blue-shifts from 620 to 540 nm by 60&deg; incidence (&Delta;E<sub>76</sub> 48), and 10% layer-thickness error moves hue by &Delta;E&asymp;10 while roughly preserving chroma. Stylised: flat substrate, constant indices, no fibre scattering."
+    },
     {
      "slug": "garment-assist",
      "title": "Does an assistive garment pay for its own mass?",
