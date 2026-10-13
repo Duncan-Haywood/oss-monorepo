@@ -3931,3 +3931,15 @@ entries:
         0.12; no AI Act tool existed in ventures/. First visitor: a founder or compliance lead asked "is this high-risk?" by a customer or
         investor; volume unmeasured. Dates are Art 113 as adopted and the page flags the proposed postponement.
     mrr_end: 0
+  - venture: cbam-cost-estimator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built cbam-cost-estimator: a browser-only estimate of EU CBAM (Regulation 2023/956) cost for importers of steel, aluminium,
+        cement, fertilisers and hydrogen. Tonnes, embedded emissions (illustrative presets, overridable) and a carbon price become certificates,
+        euro cost and cost per tonne, with the 2026-2034 free-allocation phase-out, the 50-tonne threshold, default-value mark-up, foreign carbon
+        price deduction, and year and price sensitivity tables. 14 unit tests plus page and usage tests. portfolio/pipeline/duplicate_check.py
+        top score 0.18; no CBAM tool existed in ventures/. First visitor: an EU importer or buyer who has received a CBAM supplier questionnaire;
+        volume unmeasured. Preset emission figures are labelled illustrative.
+    mrr_end: 0
