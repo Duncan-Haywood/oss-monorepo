@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ice Cream Shop Profit Calculator — Break-Even Scoops, Payback, Seasons</title>
+  <meta name="description" content="Free ice cream shop and seasonal stand calculator: scoops per day by weekday, weekend and season, ticket mix, cost of goods, labor, build-out and a loan become break-even scoops per day, prime cost, monthly cash, payback and equity return. Private, runs in your browser.">
+  <meta property="og:title" content="Ice cream shop calculator: how many scoops a day to break even? Free, private">
+  <meta property="og:description" content="Scoops, price, mix cost, crew, rent and build-out in; break-even scoops per day, prime cost, payback month and equity return out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Ice Cream Shop Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does an ice cream shop make?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your scoop price, how many scoops you sell a day, your rent, your crew and what the mix and cones cost you. Enter your own figures; the page works out sales, cost of goods, labor, operating profit, yield on what you spend to open, the loan coverage and how long it takes to get your equity back."}}, {"@type": "Question", "name": "How many scoops a day do I need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "Two figures are shown: the scoops per open day that cover running costs, and the higher number that also covers the loan payment. They come from what each scoop earns after card fees and its own mix, cone, shake and topping cost, set against your fixed costs and the labor of your open hours."}}, {"@type": "Question", "name": "What are cost of goods, labor and prime cost?", "acceptedAnswer": {"@type": "Answer", "text": "Cost of goods is the mix, cones, cups, shake and topping cost of what you sold, as a share of sales. Labor is wages plus payroll taxes. Prime cost is the two added together. The page shows all three for a full year so you can see what is left for rent and profit."}}, {"@type": "Question", "name": "How does a hot season and an off season change the result?", "acceptedAnswer": {"@type": "Answer", "text": "You set the months of your hot season, how much busier they are and how much slower the other months are. A seasonal stand can set the off season to 0 to close it: staff are not paid in closed months but rent and other fixed costs still run, and the month-by-month table shows the cash low point that causes."}}, {"@type": "Question", "name": "Does this tell me what sales to expect or whether I can get a permit?", "acceptedAnswer": {"@type": "Answer", "text": "No. It works from your own figures. Scoop volume, local prices, zoning, health-department licensing and equipment rules all depend on your location, so check them before you sign a lease."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ICE CREAM SHOP PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many scoops a day does an ice cream shop need to pay for itself?</h1>
+    <p>Enter your scoops per day, price, mix and cone cost, crew, rent and build-out. You get <strong>break-even scoops per day</strong>, <strong>cost of goods, labor and prime cost</strong>, <strong>operating profit</strong>, <strong>yield on start-up cost</strong>, <strong>loan coverage</strong>, a <strong>month-by-month cash table</strong> with the lowest point, the <strong>payback month</strong> and the <strong>return on your equity</strong>. Shakes, toppings, pints and a closed off season are optional.</p>
+    <p class="note">It works from your own figures. It does not know how many scoops your location will sell, what neighbors charge, or whether the space can be permitted.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your ice cream shop</h2>
+    <div class="grid">
+      <div><label for="price">Average price of a scoop in a cone or cup, dollars</label><input id="price" inputmode="decimal" value="" placeholder="4.5"></div>
+      <div><label for="scoopsperticket">Scoops per ticket (one customer's order)</label><input id="scoopsperticket" inputmode="decimal" value="" placeholder="1.8"></div>
+      <div><label for="shakepct">Share of scoops that go into shakes or sundaes, %</label><input id="shakepct" inputmode="decimal" value="" placeholder="12"></div>
+      <div><label for="shakeuplift">Extra price of a shake or sundae scoop over a cone scoop, dollars</label><input id="shakeuplift" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="shakecost">Extra cost of a shake or sundae scoop: milk, syrup, cup, dollars</label><input id="shakecost" inputmode="decimal" value="" placeholder="1.4"></div>
+      <div><label for="toppingpct">Toppings sold per 100 scoops</label><input id="toppingpct" inputmode="decimal" value="" placeholder="35"></div>
+      <div><label for="toppingprice">Price per topping, dollars</label><input id="toppingprice" inputmode="decimal" value="" placeholder="1"></div>
+      <div><label for="toppingcost">Cost per topping, dollars</label><input id="toppingcost" inputmode="decimal" value="" placeholder="0.3"></div>
+      <div><label for="pintsperday">Pints or wholesale tubs sold per open day (0 for none)</label><input id="pintsperday" inputmode="decimal" value="" placeholder="8"></div>
+      <div><label for="pintprice">Pint price, dollars</label><input id="pintprice" inputmode="decimal" value="" placeholder="9"></div>
+      <div><label for="pintcost">Pint cost: mix, container, label, dollars</label><input id="pintcost" inputmode="decimal" value="" placeholder="3.8"></div>
+      <div><label for="scoopsweekday">Scoops on a typical weekday</label><input id="scoopsweekday" inputmode="decimal" value="" placeholder="150"></div>
+      <div><label for="scoopsweekend">Scoops on a typical weekend day</label><input id="scoopsweekend" inputmode="decimal" value="" placeholder="280"></div>
+      <div><label for="weekdaysopen">Weekdays open per week (0 to 5)</label><input id="weekdaysopen" inputmode="decimal" value="" placeholder="5"></div>
+      <div><label for="weekenddaysopen">Weekend days open per week (0 to 2)</label><input id="weekenddaysopen" inputmode="decimal" value="" placeholder="2"></div>
+      <div><label for="openhours">Open hours per day</label><input id="openhours" inputmode="decimal" value="" placeholder="11"></div>
+      <div><label for="peakfirstmonth">Hot season starts in month (1 = January)</label><input id="peakfirstmonth" inputmode="decimal" value="" placeholder="5"></div>
+      <div><label for="peakmonths">Hot season length, months (0 for no seasons)</label><input id="peakmonths" inputmode="decimal" value="" placeholder="5"></div>
+      <div><label for="peakpct">Sales in the hot season, % of typical</label><input id="peakpct" inputmode="decimal" value="" placeholder="140"></div>
+      <div><label for="offpct">Sales in the other months, % of typical (0 closes the shop)</label><input id="offpct" inputmode="decimal" value="" placeholder="60"></div>
+      <div><label for="dairyperscoop">Mix, dairy and flavoring cost per scoop, dollars</label><input id="dairyperscoop" inputmode="decimal" value="" placeholder="0.65"></div>
+      <div><label for="vesselperscoop">Cone, cup, spoon and napkin cost per scoop, dollars</label><input id="vesselperscoop" inputmode="decimal" value="" placeholder="0.22"></div>
+      <div><label for="cardpct">Card fees, % of sales</label><input id="cardpct" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="staffperopenhour">Staff hours per open hour (2 people on = 2)</label><input id="staffperopenhour" inputmode="decimal" value="" placeholder="2.5"></div>
+      <div><label for="wage">Wage per hour, dollars</label><input id="wage" inputmode="decimal" value="" placeholder="15"></div>
+      <div><label for="burdenpct">Payroll taxes and benefits, % of wages</label><input id="burdenpct" inputmode="decimal" value="" placeholder="12"></div>
+      <div><label for="rent">Rent per month, dollars</label><input id="rent" inputmode="decimal" value="" placeholder="3800"></div>
+      <div><label for="utilities">Utilities per month: electric for freezers, water, internet, trash, dollars</label><input id="utilities" inputmode="decimal" value="" placeholder="700"></div>
+      <div><label for="insurance">Insurance per month, dollars</label><input id="insurance" inputmode="decimal" value="" placeholder="250"></div>
+      <div><label for="otherfixed">Other fixed costs per month: software, marketing, repairs, dollars</label><input id="otherfixed" inputmode="decimal" value="" placeholder="300"></div>
+      <div><label for="ownerpay">Owner pay per month, dollars (0 if none)</label><input id="ownerpay" inputmode="decimal" value="" placeholder="0"></div>
+      <div><label for="cabinets">Dipping cabinets and freezers (count)</label><input id="cabinets" inputmode="decimal" value="" placeholder="4"></div>
+      <div><label for="cabinetcost">Cost per cabinet or freezer, dollars</label><input id="cabinetcost" inputmode="decimal" value="" placeholder="4500"></div>
+      <div><label for="otherequipment">Other equipment: hardening freezer, blenders, sinks, tables, dollars</label><input id="otherequipment" inputmode="decimal" value="" placeholder="12000"></div>
+      <div><label for="sqft">Shop square feet</label><input id="sqft" inputmode="decimal" value="" placeholder="900"></div>
+      <div><label for="buildpersqft">Build-out per square foot: plumbing, floors, counters, dollars</label><input id="buildpersqft" inputmode="decimal" value="" placeholder="55"></div>
+      <div><label for="permits">Permits, legal and health-department fees, dollars</label><input id="permits" inputmode="decimal" value="" placeholder="3500"></div>
+      <div><label for="signagepos">Signage, point of sale and menu boards, dollars</label><input id="signagepos" inputmode="decimal" value="" placeholder="6000"></div>
+      <div><label for="inventory">Opening inventory, dollars</label><input id="inventory" inputmode="decimal" value="" placeholder="3500"></div>
+      <div><label for="cashreserve">Cash you keep in the bank at opening, dollars</label><input id="cashreserve" inputmode="decimal" value="" placeholder="20000"></div>
+      <div><label for="otherstartup">Other start-up cost, dollars</label><input id="otherstartup" inputmode="decimal" value="" placeholder="3000"></div>
+      <div><label for="startmonth">Opening month (1 = January)</label><input id="startmonth" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="startutilpct">Sales in month 1, % of full sales</label><input id="startutilpct" inputmode="decimal" value="" placeholder="40"></div>
+      <div><label for="rampmonths">Months to reach full sales</label><input id="rampmonths" inputmode="decimal" value="" placeholder="10"></div>
+      <div><label for="ltcpct">Loan as % of start-up cost (0 for all cash)</label><input id="ltcpct" inputmode="decimal" value="" placeholder="60"></div>
+      <div><label for="loanrate">Loan interest rate, %</label><input id="loanrate" inputmode="decimal" value="" placeholder="8"></div>
+      <div><label for="termyears">Loan term, years</label><input id="termyears" inputmode="decimal" value="" placeholder="7"></div>
+      <div><label for="horizonmonths">Months to project from opening</label><input id="horizonmonths" inputmode="decimal" value="" placeholder="60"></div>
+      <div><label for="exitmultiple">Optional sale: times a year of operating profit (blank for none)</label><input id="exitmultiple" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="targetyield">Target yield on start-up cost, % a year</label><input id="targetyield" inputmode="decimal" value="" placeholder="25"></div>
+      <div><label for="targetpayback">Target months to get your equity back</label><input id="targetpayback" inputmode="decimal" value="" placeholder="36"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the shop</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in your shop, then click Work out the shop. Only scoop price and weekday scoops are required; the rest default to zero or the neutral choice.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>If sales run above or below plan</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Versus plan</th><th scope="col" class="n">Scoops per open day</th><th scope="col" class="n">Profit per year</th><th scope="col" class="n">Yield on cost</th><th scope="col" class="n">Loan coverage</th><th scope="col" class="n">Cash after loan</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>If the scoop price is higher or lower</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Price change</th><th scope="col" class="n">Price</th><th scope="col" class="n">Profit per year</th><th scope="col" class="n">Yield on cost</th><th scope="col" class="n">Loan coverage</th><th scope="col" class="n">Cash after loan</th></tr></thead><tbody id="price-rows"></tbody></table></div>
+    <h3>Month by month from opening</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Month</th><th scope="col">Calendar</th><th scope="col" class="n">Scoops</th><th scope="col" class="n">Sales</th><th scope="col" class="n">Operating profit</th><th scope="col" class="n">Cash after loan</th><th scope="col" class="n">Cumulative cash</th></tr></thead><tbody id="month-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download sales table (CSV)</button> <button type="button" class="secondary" id="dl-months">Download months (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Sales:</strong> scoops = scoops per day (weekday and weekend figures) x open days x the hot or off season share x the ramp share. Sales = scoops x price + the shake uplift on the share of scoops that go into shakes or sundaes + toppings sold x topping price + pints x pint price. Average ticket = scoops per ticket x sales per scoop. Pints follow the same seasons and ramp.</li>
+      <li><strong>Seasons:</strong> the hot season runs for the months you give, wrapping the year end; every other month uses the off-season share. An off-season share of 0 closes the shop: no staff are paid in a closed month, but rent, utilities, insurance and other fixed costs still run.</li>
+      <li><strong>Costs:</strong> card fees are a share of sales. Cost of goods = scoops x (mix, dairy and flavoring + cone, cup and spoon) + the extra cost of shakes and toppings + pints x pint cost. Labor = staff hours per open hour x open hours x open days x wage x (1 + payroll share). Rent, utilities, insurance, other fixed costs and owner pay are monthly. Prime cost = cost of goods + labor. Operating profit = sales less all of these.</li>
+      <li><strong>Break-even:</strong> what one scoop earns after card fees and its own cost, divided into the fixed costs and labor (less what the pint line earns), and the same with the loan payments added. Shown per open day of the year. Labor and pints are held at the planned level.</li>
+      <li><strong>Return:</strong> start-up cost = cabinets x cost each + other equipment + square feet x build-out + the other lines. Yield on cost = full-year operating profit / start-up cost. Loan = share of start-up cost, level payments. Month by month from opening, sales ramp in a straight line, and cumulative cash starts at minus your equity. Payback is the first month it reaches zero. If you enter a sale multiple, the shop sells at that many times the last twelve months of operating profit, less the loan balance; with it blank, no sale is assumed.</li>
+      <li><strong>Not decided:</strong> how many scoops your location will sell or how fast; zoning, health-department food, dairy and frozen-dessert licensing, hood and equipment rules, sales-tax rules; income tax and depreciation; build-out overruns and rent paid before opening; spoilage, a freezer failure, weather and staff turnover; and what a lender will actually offer. The sample figures are illustrative, not market prices or a forecast.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much does an ice cream shop make?</h3>
+    <p>It depends on your scoop price, how many scoops you sell a day, your rent, your crew and what the mix and cones cost you. Enter your own figures; the page works out sales, cost of goods, labor, operating profit, yield on what you spend to open, the loan coverage and how long it takes to get your equity back.</p>
+    <h3>How many scoops a day do I need to break even?</h3>
+    <p>Two figures are shown: the scoops per open day that cover running costs, and the higher number that also covers the loan payment. They come from what each scoop earns after card fees and its own mix, cone, shake and topping cost, set against your fixed costs and the labor of your open hours.</p>
+    <h3>What are cost of goods, labor and prime cost?</h3>
+    <p>Cost of goods is the mix, cones, cups, shake and topping cost of what you sold, as a share of sales. Labor is wages plus payroll taxes. Prime cost is the two added together. The page shows all three for a full year so you can see what is left for rent and profit.</p>
+    <h3>How does a hot season and an off season change the result?</h3>
+    <p>You set the months of your hot season, how much busier they are and how much slower the other months are. A seasonal stand can set the off season to 0 to close it: staff are not paid in closed months but rent and other fixed costs still run, and the month-by-month table shows the cash low point that causes.</p>
+    <h3>Does this tell me what sales to expect or whether I can get a permit?</h3>
+    <p>No. It works from your own figures. Scoop volume, local prices, zoning, health-department licensing and equipment rules all depend on your location, so check them before you sign a lease.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output before signing a lease, borrowing money or building out. Treat it as a worksheet to check, not an investment recommendation.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../shaved-ice-stand-profit-calculator/">shaved ice stand calculator</a>, the <a href="../food-truck-event-margin-calculator/">food truck event margin calculator</a>, the <a href="../pour-cost-calculator/">pour cost calculator</a> and the <a href="../recipe-costing-calculator/">recipe costing calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv, monthsCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { price: "price", scoopsperticket: "scoopsPerTicket", shakepct: "shakePct", shakeuplift: "shakeUplift", shakecost: "shakeCost", toppingpct: "toppingPct", toppingprice: "toppingPrice", toppingcost: "toppingCost", pintsperday: "pintsPerDay", pintprice: "pintPrice", pintcost: "pintCost", scoopsweekday: "scoopsWeekday", scoopsweekend: "scoopsWeekend", weekdaysopen: "weekdaysOpen", weekenddaysopen: "weekendDaysOpen", openhours: "openHours", peakfirstmonth: "peakFirstMonth", peakmonths: "peakMonths", peakpct: "peakPct", offpct: "offPct", dairyperscoop: "dairyPerScoop", vesselperscoop: "vesselPerScoop", cardpct: "cardPct", staffperopenhour: "staffPerOpenHour", wage: "wage", burdenpct: "burdenPct", rent: "rent", utilities: "utilities", insurance: "insurance", otherfixed: "otherFixed", ownerpay: "ownerPay", cabinets: "cabinets", cabinetcost: "cabinetCost", otherequipment: "otherEquipment", sqft: "sqft", buildpersqft: "buildPerSqft", permits: "permits", signagepos: "signagePos", inventory: "inventory", cashreserve: "cashReserve", otherstartup: "otherStartup", startmonth: "startMonth", startutilpct: "startUtilPct", rampmonths: "rampMonths", ltcpct: "ltcPct", loanrate: "loanRate", termyears: "termYears", horizonmonths: "horizonMonths", exitmultiple: "exitMultiple", targetyield: "targetYield", targetpayback: "targetPayback" };
+    const IDLE = "Fill in your shop, then click Work out the shop. Only scoop price and weekday scoops are required; the rest default to zero or the neutral choice.";
+    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const pct = (n) => (n === null ? "n/a" : (n * 100).toFixed(1) + "%");
+    const cov = (n) => (n === null ? "no loan" : n.toFixed(2));
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `${r.beDebtDay === null ? "No break-even at this price" : r.beDebtDay.toFixed(1) + " scoops a day to cover costs and the loan"}; ${whole(r.steady.operating)} operating profit a year at full sales; equity back ${r.paybackMonth === null ? "not within " + r.input.horizonMonths + " months" : "in month " + r.paybackMonth}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${Math.round(x.scale * 100)}%</td><td class="n">${x.scoopsPerDay.toFixed(1)}</td><td class="n">${whole(x.operating)}</td><td class="n">${pct(x.yoc)}</td><td class="n">${cov(x.dscr)}</td><td class="n">${whole(x.cash)}</td></tr>`).join("");
+      $("#price-rows").innerHTML = r.priceSweep.map((x) => `<tr><td class="n">${x.pct > 0 ? "+" : ""}${x.pct}%</td><td class="n">$${x.price.toFixed(2)}</td><td class="n">${whole(x.operating)}</td><td class="n">${pct(x.yoc)}</td><td class="n">${cov(x.dscr)}</td><td class="n">${whole(x.cash)}</td></tr>`).join("");
+      $("#month-rows").innerHTML = r.months.map((x) => `<tr><td class="n">${x.month}</td><td>${x.calendar}</td><td class="n">${Math.round(x.scoops)}</td><td class="n">${whole(x.revenue)}</td><td class="n">${whole(x.operating)}</td><td class="n">${whole(x.cash)}</td><td class="n">${whole(x.cumulative)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: $4.50 a scoop, hot season May to September. Illustrative figures, not market prices or a forecast.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("ice-cream-shop.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("ice-cream-shop-by-sales.csv", sweepCsv(last), "text/csv"); } });
+    $("#dl-months").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("ice-cream-shop-by-month.csv", monthsCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

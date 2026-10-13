@@ -3811,3 +3811,16 @@ entries:
         Screened with duplicate_check.py (nearest venture 0.19, shared word "wash" only). First visitor: people searching
         self-serve dog wash business plan; volume unmeasured.
     mrr_end: 0
+  - venture: ice-cream-shop-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built ice-cream-shop-profit-calculator: a browser-only pro forma for people planning or running a scoop shop or
+        seasonal ice cream stand. Scoops per day by weekday and weekend, a hot season and an off season, a ticket of cones, cups,
+        shakes, toppings and pints, mix and cone cost, crew, rent, equipment, build-out and a loan become break-even scoops per day,
+        cost of goods, labor and prime cost, operating profit, yield on start-up cost, the scoop price for a target yield, a
+        month-by-month cash table with lowest point and payback month, and an equity view with an optional sale, with sales and price
+        sensitivity tables, text summary and CSV. Hand-computed unit tests plus page and usage tests. Screened with duplicate_check.py
+        (nearest venture 0.16). First visitor: people searching ice cream shop business plan; volume unmeasured.
+    mrr_end: 0

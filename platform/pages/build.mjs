@@ -717,6 +717,9 @@ const CATEGORY_RULES = [
       // `shaved-ice-stand-profit-calculator` joined 2026-10-10 on its first commit: per-cup concession stands at fairs and
       // festivals, the cold-drink sibling of `coffee-cart-event-quote-calculator`.
       'shaved-ice-stand-profit-calculator',
+      // `ice-cream-shop-profit-calculator` joined 2026-10-12 on its first commit: a scoop shop or seasonal ice cream stand sits beside
+      // `shaved-ice-stand-profit-calculator` and `pour-cost-calculator`, the same food-and-drink operator planning a counter-service business.
+      'ice-cream-shop-profit-calculator',
       // `shared-kitchen-rate-planner` joined 2026-10-07 on its first commit: commissary and shared-kitchen owners pricing
       // station-hours and memberships; the renters are the food-truck and catering operators served here, one hop away.
       'shared-kitchen-rate-planner',
