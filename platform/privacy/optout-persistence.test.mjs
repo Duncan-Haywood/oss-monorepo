@@ -1614,7 +1614,8 @@ const RELATIVE_SELF = relative(
 // +1: `uk-sole-trader-vs-limited-company-calculator` graduated.
 // +1: `eu-espr-readiness-checker` graduated.
 // +1: `employer-payroll-tax-cost-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1134;
+// +1: `commercial-property-cap-rate-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1135;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
