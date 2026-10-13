@@ -1411,6 +1411,11 @@
      "summary": "A follow-up to <code>robofab-graspmove</code> and <code>robofab-reach</code>: a planar two-link arm with assumed masses carries each of the six free parts of the toy gripper on a min-jerk joint move, as fast as an assumed joint torque limit allows. With 0.12&nbsp;m links and 5&nbsp;N&nbsp;m the carries take 0.06 to 0.10&nbsp;s and the 5.95&nbsp;g cover needs 1.25&nbsp;N per jaw, 21&times; its static force; a jaw force under about 0.5&nbsp;N makes the grip, not the arm, the limit. A larger arm is slower at a fixed torque. Stylised: assumed masses and torques, and the grip bound, simulated only up to 40&nbsp;m/s<sup>2</sup> earlier, is applied beyond that range."
     },
     {
+     "slug": "robofab-armbang",
+     "title": "How much carry time does a time-optimal move save over min-jerk, and what does it cost the jaws?",
+     "summary": "A follow-up to <code>robofab-armaccel</code>: the same planar two-link arm carries the six free parts of the toy gripper along the same joint-space line, once with min-jerk and once with the time-optimal speed profile under an assumed joint torque limit. Over nine arm and torque cases the six-part total time falls by 21&ndash;29%, but the per-jaw force bound rises 1.2&ndash;2.4&times;. Stylised: every parameter except the geometry is assumed, the grip bound is not re-simulated above 40&nbsp;m/s<sup>2</sup>, and the path is fixed."
+    },
+    {
      "slug": "robofab-graspmove",
      "title": "How hard must the jaws squeeze while the arm moves?",
      "summary": "A follow-up to <code>robofab-grasp</code>: the jaw assembly accelerates upward or sideways at up to 40&nbsp;m/s<sup>2</sup> and the smallest holding force is compared with the bound <em>m</em>&radic;((<em>g</em>+<em>a</em><sub>up</sub>)<sup>2</sup>+<em>a</em><sub>side</sub><sup>2</sup>)/(2&mu;) at &mu;&nbsp;=&nbsp;0.5. Over 77 cases the two agree to within 7%, and the heaviest part needs at most 0.3&nbsp;N, so friction is still not the constraint. A fidelity finding: the contact time constant used for the static test (0.004&nbsp;s) reports slip at any force once the jaws accelerate; 0.0005&nbsp;s is needed. Stylised: boxes, rigid pads, assumed density and friction."
@@ -1600,6 +1605,11 @@
      "slug": "simdesign-patchsearch",
      "title": "Does a patch-averaged stress change what manufacturing rules cost a sized bracket?",
      "summary": "The minimum-mass bracket search under FDM, CNC-routing, laser-cutting and casting rules is repeated with a 3&nbsp;mm patch-averaged stress in place of the peak element stress, using the same numeric limit, then every design is re-solved on a fine check mesh (h = 0.55&nbsp;mm). The ordering of the mass prices survives (casting 1.35, CNC 1.23&ndash;1.27, laser 1.03&ndash;1.05, FDM 1.0), and the laser-cutting price, which varied from 0.99 to 1.15 across three seeds under the peak measure, varies by under 0.005. Patch-searched designs exceed the limit by 2&ndash;12% on the fine mesh, against 19&ndash;34% for peak-searched designs, but they are lighter only because the same numeric limit is a looser test; the patch limit is uncalibrated. Three seeds, assumed rules and material, stylised 2D."
+    },
+    {
+     "slug": "simdesign-holepatch",
+     "title": "Does a patch-averaged stress give a mesh-converged stress concentration for a bolt hole?",
+     "summary": "A strip in tension with a central circular hole is solved by finite elements on meshes of 48 to 768 points around the hole, and the pointwise peak of &sigma;<sub>xx</sub> is compared with its average over a disc of 0.1 to 0.5 hole radii, for d/W from 0.05 to 0.4, and with Kirsch&rsquo;s analytic field. The peak is already nearly settled for a smooth hole (0.3% change over the last refinement; the patch measures 0.0&ndash;0.1%), and at d/W&nbsp;=&nbsp;0.05 the patch values match Kirsch&rsquo;s disc averages to within 0.4%. The patch reads 65&ndash;91% of the peak, so it needs its own limit. One coarse mesh (d/W&nbsp;=&nbsp;0.4, 96 points) is an unexplained outlier for every measure. Stylised; linear plane stress, no allowable calibrated."
     },
     {
      "slug": "simdesign-kirsch",
