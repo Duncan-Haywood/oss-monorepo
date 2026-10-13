@@ -1403,6 +1403,11 @@
      "slug": "selfrep-reinvest",
      "title": "When should a replicating shop stop copying itself and start making goods?",
      "summary": "Builds on the selfrep-growth fleet model. A fluid optimal-control model splits machine time between building copies and making goods, scored on the total value of goods over 600 h. Copying flat out and then switching to goods one e-folding time (1/<em>k</em> = <em>W</em>/(1&minus;<em>f</em>), 50 h with no failures) before the horizon matches the closed form; the best constant split earns only 9&ndash;27% of that value, and smooth ramps are no better than the sharp switch. When imports or goods sales fund vitamins, cash binds throughout and the switch lands about 50 h from the end. Every input is assumed, the fleet is a continuous fluid, goods demand is unlimited and the final fleet is worth nothing. Stylised. Piecewise policies are local search, not a proof of optimality."
+    },
+    {
+     "slug": "selfrep-materials",
+     "title": "How much imported material can recycling save a self-replicating printer shop?",
+     "summary": "Builds on the selfrep-closure part list. A stylised steady-state mass and energy balance for building one more RepRap Prusa Mendel, with shredding and re-extrusion of plastic and remelting of aluminium offcuts. With assumed process parameters, vitamins stay about 75% of imported mass for the largest shop (82% for the printer alone), and recycling the shop&rsquo;s own scrap cuts imports by a median 3% (5&ndash;95% over parameter draws: 1&ndash;6%). Only plastic from retired machines changes the filament import much, and then the assumed recycled-share cap decides the result. Limitations: every yield, loss and energy figure is an assumption, recycling machines are not counted, and recycled-plastic quality is not modelled."
     }
    ]
   },
@@ -1462,6 +1467,11 @@
      "slug": "garment-thermal",
      "title": "How much comfort can an infrared-transparent or gating textile buy, and which fabric properties matter?",
      "summary": "A Fanger/ISO 7730 PMV model and a Gagge-style two-node model extended with fabric infrared emissivity and transmittance, solar absorptance and vapour permeability. The no-optics PMV matches an open-source ISO implementation to 0.006 over 144 cases. Indoors without sun, infrared transmittance (0 to 0.8) is worth about 2.4&nbsp;&deg;C of comfort at 28&nbsp;&deg;C, more than cutting insulation from 0.7 to 0.3&nbsp;clo (1.8&nbsp;&deg;C), but makes a 16&nbsp;&deg;C room feel 7.3&nbsp;&deg;C colder; in sun, solar absorptance (7.7&nbsp;&deg;C span) dominates the infrared properties. Stylised: assumed fabric properties, a parallel-path radiation model with no reference data, and recalled two-node constants."
+    },
+    {
+     "slug": "garment-protective",
+     "title": "What would a suit-like protective garment weigh and cost, and what limits it?",
+     "summary": "A Cunniff-style specific-toughness scaling (U*) for nylon, aramid and UHMWPE with a 0.5&nbsp;m<sup>2</sup> torso-panel mass, cost, thickness and stiffness model. At equal weight UHMWPE gives 1.49&times; aramid's V50 in this scaling, and needs 0.20&ndash;0.67&times; the areal density depending on an unknown exponent. Under a 3&nbsp;mm, 1&nbsp;kg suit-like limit the panel falls short of a 4&nbsp;kg/m<sup>2</sup> aramid reference except for UHMWPE with an optimistic exponent. Stylised: recalled formula, assumed properties and unsourced prices, no ballistic physics and no protection claim."
     }
    ]
   }
