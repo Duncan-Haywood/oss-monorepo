@@ -1,0 +1,10 @@
+# draft 1 (session-written): reach to the far goal
+MOVE 0.30 -0.10 0.10 1.0
+MOVE 0.30 -0.10 0.015 0.5
+GRIP
+WAIT 0.2
+MOVE 0.30 -0.10 0.10 0.5
+MOVE 0.45 0.25 0.10 1.5
+MOVE 0.45 0.25 0.015 0.5
+RELEASE
+MOVE 0.45 0.25 0.10 0.5

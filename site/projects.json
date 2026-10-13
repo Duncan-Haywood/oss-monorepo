@@ -1269,6 +1269,16 @@
      "summary": "Installs Yosys, Icarus Verilog and Verilator, records versions, and synthesises adders, a multiplier and a FIFO to a generic gate library: a ripple-carry adder is 5<em>W</em>&minus;3 gates deep 2<em>W</em>&minus;1, and the operator form <code>+</code> gets the same depth with a few more gates. A SAT miter proves the two adders equivalent and rejects a deliberately broken one. Stylised: gate counts, not silicon area; OpenROAD and a PDK are not yet part of the flow."
     },
     {
+     "slug": "chip-rtl-probe",
+     "title": "Which check catches an RTL bug: lint, random simulation or a formal equivalence proof?",
+     "summary": "A harness (a proposer writes Verilog; lint, random-vector simulation and a Yosys equivalence proof score it) with 12 small tasks. One attempt per task written by the session agent (not an LLM benchmark) passed every stage at round 0, so the loop never had a failure to use. Of 414 single-point mutants of those designs, lint rejects 56, simulation 303 and only the formal proof 30 (7.7% of the 389 rejected), while 25 pass everything. A no-LLM random-mutation repair baseline fixes 11/36 broken designs within 4 proposals and 22/36 within 16. Toy: tiny modules, bounded 10-cycle proof for sequential tasks, syntactic mutants."
+    },
+    {
+     "slug": "chip-rtl-loop",
+     "title": "How much does simulation and formal feedback help a proposer repair small Verilog designs?",
+     "summary": "A checker (Verilator lint, Icarus lockstep simulation against a golden model, Yosys SAT proof for combinational tasks) scores nine small tasks. With the session itself as proposer, 6 of 9 pass from the spec alone and all 9 after one round of mismatch feedback; the three failures were a Gray encoder written as a decoder, a logical shift on a signed value and a combinational pulse that should be registered. Anecdotal: one attempt per round, one proposer who also wrote the tasks, no resampling baseline, simulation only for sequential tasks. Not an LLM benchmark."
+    },
+    {
      "slug": "chip-repair-baseline",
      "title": "What does a no-model baseline repair when a scripted RTL checker is the only feedback?",
      "summary": "A companion to <code>chip-rtl-loop</code>: a four-stage checker (compile, lint, simulation, SAT miter) over ten small Verilog tasks, with a random-mutation hill-climbing baseline that uses no model. Given 1, 2 or 3 injected faults and 60 checker evaluations, the baseline repairs 9/20, 4/20 and 4/20 cases. The session agent (Claude) passed all ten tasks on its first attempt, so the feedback rounds were never exercised and no pass-rate-versus-rounds curve is reported. Preliminary: tiny tasks, one attempt, mutation faults unlike a language model's mistakes, and the optional API proposer is untested."
@@ -1289,6 +1299,11 @@
      "slug": "robofab-insert",
      "title": "Does an insertion policy tuned in one simulator survive a better one?",
      "summary": "Cross-entropy-tuned five-parameter peg-in-hole search policies in MuJoCo, trained on three simulator fidelity levels or with domain randomisation and tested on all three plus a held-out parameter set. Tuned on the simplest level, success is 0.91 there but 0.53 on the stiffer-contact level and 0.26 on the held-out one; training on the stiffer level or with randomisation gives 0.43&ndash;0.46 on the held-out set, and with 5 seeds the two cannot be ranked. No seed exceeds 0.61 on the held-out level. Toy planar task; sim-to-sim only."
+    },
+    {
+     "slug": "robofab-program",
+     "title": "How much of the gap between “the twin passes” and “it fails for real” does each twin fidelity close?",
+     "summary": "A kinematic SCARA pick-and-place twin at three checking levels (geometry; plus joint, payload and deadline limits; plus stochastic grasp error, grip build-up and slip) against a held-out reference twin. Of 162 injected-bug mutants of three programs, 69 fail the reference; the levels reject 38, 46 and 60 of them, with no false alarms. The misses are effects the checker does not model, so the rates reflect how the reference was built. Four programs written by the building session: three failed the reference as drafted, and one failure (payload at long reach) was invisible to all three levels. <em>Stylised, kinematic only, no language-model API called.</em>"
     }
    ]
   },

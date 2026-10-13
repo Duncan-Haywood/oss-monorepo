@@ -1,0 +1,1 @@
+Module `updown_ctr(input clk, input rst, input load, input [3:0] d, input up, input en, output [3:0] q)`. 4-bit counter, synchronous active-high reset `rst` (to 0), rising-edge clock. Priority per clock edge: `rst` clears; else `load` loads `d`; else if `en` counts up (`up`=1) or down (`up`=0), wrapping modulo 16; else holds. `q` is the register value.

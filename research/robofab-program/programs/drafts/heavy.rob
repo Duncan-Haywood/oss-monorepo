@@ -1,0 +1,10 @@
+# draft 1 (session-written): move the heavy cube quickly (deadline 6 s)
+MOVE 0.30 0.10 0.10 0.6
+MOVE 0.30 0.10 0.015 0.3
+GRIP
+WAIT 0.1
+MOVE 0.30 0.10 0.08 0.3
+MOVE 0.15 0.30 0.08 0.5
+MOVE 0.15 0.30 0.015 0.3
+RELEASE
+MOVE 0.15 0.30 0.10 0.3
