@@ -1369,6 +1369,11 @@
      "slug": "robofab-bootstrap",
      "title": "Can a printed gripper assemble its own next generation?",
      "summary": "A follow-up to the self-parts project: the arm that builds generation k+1 is the printed gripper of generation k, with an assumed jaw opening of 32<em>s</em>&nbsp;&minus;&nbsp;2<em>t</em>&nbsp;mm for fixed-size pads of thickness <em>t</em>. Exhaustive assembly search gives a required opening of exactly 30<em>s</em>&nbsp;mm, so a gripper can build a copy only at scale <em>s</em>&nbsp;&ge;&nbsp;<em>t</em> (scale 4 for 4&nbsp;mm pads), and a stroke cap <em>S</em> admits one only if 30<em>t</em>&nbsp;&le;&nbsp;<em>S</em>. Seeds of 130 and 140&nbsp;mm sustain a chain; 60 and 100&nbsp;mm seeds shrink and stop. <em>Largely algebraic given the assumed opening; one toy design; simulation only.</em>"
+    },
+    {
+     "slug": "robofab-reach",
+     "title": "How long an arm does it take to assemble its own toy gripper?",
+     "summary": "A planar two-link arm on a turntable must reach a pick, place and lift point for each of the six free parts of the seven-part toy gripper from <code>robofab-selfparts</code>. With equal links and a 100&nbsp;mm shoulder height the shortest arm is 60&ndash;140&nbsp;mm per link as the tray moves from 40 to 400&nbsp;mm away; an elbow limit of 90&deg; raises it from 80 to 180&nbsp;mm and 60&deg; admits none up to 600&nbsp;mm. Stylised: wrist point only, no collisions, payload or wrist orientation; results sit on a 10&nbsp;mm grid."
     }
    ]
   },

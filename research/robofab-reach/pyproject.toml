@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robofab-reach"
+version = "0.1.0"
+description = "How long an arm does it take to assemble its own toy gripper? Reach and joint-limit check in a planar two-link model"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
