@@ -1620,6 +1620,11 @@
      "slug": "simdesign-kirsch",
      "title": "How far below the exact stress concentration does a finite-element peak stress sit, and how fast does it close?",
      "summary": "A plate with a circular hole under tension has an exact peak stress of 3&times; the remote stress (Kirsch). On a graded quarter-plate mesh with exact-solution tractions (48&nbsp;384 elements at the finest), the usual element-centroid peak sits 27% below it on the coarsest mesh and 1.1% below on the finest, closing only at first order, while the field itself converges at second order: the shortfall is sampling position, not solver error. Reading the stress at the hole-edge vertices instead is within 1% on every mesh. Stylised 2D plane stress, one geometry, regular mesh; the numbers do not transfer to other fillets."
+    },
+    {
+     "slug": "simdesign-gaugescatter",
+     "title": "What causes the peak-stress price scatter of laser-cutting rules in the bracket search?",
+     "summary": "In progress (stylised): per-gauge differential-evolution sub-searches compared with a dense grid, to locate the source of the seed-to-seed scatter."
     }
    ]
   },
