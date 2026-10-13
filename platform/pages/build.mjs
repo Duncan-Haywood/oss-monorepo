@@ -1540,6 +1540,8 @@ const CATEGORY_RULES = [
       // `paid-sick-leave-accrual-calculator` joined 2026-10-13: a 14-state employment-law reference table (accrual, caps, size thresholds) with the same
       // not-legal-advice posture as `final-paycheck-deadline-calculator`; added by exact slug beside it.
       || slug === 'paid-sick-leave-accrual-calculator'
+      // `employer-payroll-tax-cost-calculator` joined 2026-10-13: federal payroll-tax arithmetic plus editable state unemployment presets with a not-tax-advice posture; exact slug.
+      || slug === 'employer-payroll-tax-cost-calculator'
       || slug === 'mechanics-lien-deadline-calculator'
       || slug === 'boi-reporting-exemption-checker'
       // `hubspot-contacts-csv-check` joined 2026-10-04: a list preflight that reports what it found with line numbers and an explicit not-checked list, and
