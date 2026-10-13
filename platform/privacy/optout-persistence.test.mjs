@@ -1592,7 +1592,8 @@ const RELATIVE_SELF = relative(
 // +1: `eudr-scope-checker` graduated.
 // +1: `cbam-cost-estimator` graduated.
 // +1: `eaa-accessibility-act-checker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1106;
+// +1: `indoor-play-center-profit-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1107;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
