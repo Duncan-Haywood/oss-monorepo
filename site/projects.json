@@ -76,6 +76,11 @@
      "summary": "For ordered fault severities the ranked probability score is Brier on the cumulative distribution: strictly proper with exact regret &Sigma;(R<sub>k</sub>&minus;P<sub>k</sub>)&sup2;, so moving mass &epsilon; a distance d costs exactly d&epsilon;&sup2; where Brier charges 2&epsilon;&sup2; for every d. Pooling adjacent classes costs exactly half of Brier&rsquo;s, and every threshold probability is within &radic;regret of the truth. The price: per unit of payment range RPS gives Brier&rsquo;s incentive only for a maximal-distance shift (1/(K&minus;1) for adjacent ones). Extends categorical-scores."
     },
     {
+     "slug": "tail-elicitation",
+     "title": "Can the tail of benign drift be elicited with a proper score?",
+     "summary": "Verifiers forecast a tolerance threshold (VaR) and the mean drift beyond it (expected shortfall, ES). ES alone is not elicitable (a 50/50 mixture of two ES&nbsp;=&nbsp;10 laws has ES&nbsp;12.5), but the 0-homogeneous Fissler&ndash;Ziegel score ln&nbsp;e&nbsp;&minus;&nbsp;1&nbsp;+&nbsp;(v&nbsp;+&nbsp;(y&minus;v)<sub>+</sub>/(1&minus;&tau;))/e is minimised exactly at (VaR, ES), with exact closed-form excess scores matched to 10<sup>&minus;10</sup>. Pinball loss scores a forecaster with ES off by 30% identically to the truth; the joint score separates them with about 0.6&ndash;1.2k samples at &tau;&nbsp;=&nbsp;0.9&ndash;0.95. Stylised. Follows up property-elicitation-verification."
+    },
+    {
      "slug": "mode-elicitation",
      "title": "Can we elicit the mode of a mixture of honest and cheating drift?",
      "summary": "When some workers cheat, drift is a mixture and the mean, which squared loss elicits, lands where almost no task lies (at a 30% cheater 6&sigma; away, the mean&rsquo;s window holds 0.15 of the mass versus 0.48 at the mode). The mode is not elicitable, but the centre of the width-2&alpha; window with the most mass is, with the bounded loss 1[|y&minus;r|&gt;&alpha;]. Regret is an exact window-mass difference; the best window is &alpha;=&sigma; for normal drift and &gamma;/&radic;3 for Cauchy (no mean exists); an equal bimodal mixture has one &alpha;-mode iff &alpha; exceeds a closed-form root &alpha;*; and under 10&ndash;40% contamination the sample &alpha;-mode has ~0 bias while the mean is off by 5&epsilon;, at a 3.7&times; RMSE cost when clean."
