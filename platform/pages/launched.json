@@ -1,4 +1,5 @@
 {
+  "cargo-audit-triage": "2026-10-13",
   "launched": {
     "1099-k-threshold-checker": "2026-09-17",
     "1099-vendor-csv-checker": "2026-10-04",
@@ -716,6 +717,7 @@
     "pinned-actions-check": "2026-09-07",
     "pip-audit-triage": "2026-10-13",
     "pipedrive-import-csv-check": "2026-10-04",
+    "pizzeria-profit-calculator": "2026-10-13",
     "plantation-shutter-bid-calculator": "2026-08-26",
     "plumber-flat-rate-price-calculator": "2026-10-03",
     "podcast-feed-check": "2026-09-23",

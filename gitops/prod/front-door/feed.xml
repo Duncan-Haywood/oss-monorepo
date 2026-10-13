@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1120 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1122 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -70,6 +70,14 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste pip-audit -f json and your Python source: see which vulnerable packages your code actually imports and which are test-only or unreferenced noise. Free pip-audit triage, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Pizzeria Profit Calculator — Break-Even Orders and Ramp-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pizzeria-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/pizzeria-profit-calculator</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free pro forma for pizzerias and pizza takeout shops: profit per order, break-even orders a day with the loan, the ticket for your target margin, delivery-app and own-driver cost, and a 60-month ramp-up with the cash reserve you need. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>3PL Invoice Audit Checker — Did Your 3PL Overbill You?</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free coworking space profit calculator: floor area, offices, desks, memberships, rent and staff become monthly profit, break-even occupancy, the cash reserve for ramp-up, loan coverage and payback. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>CSV to SQL Converter — CREATE TABLE and INSERT for Postgres, MySQL, SQLite — Free, Private</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/csv-to-sql-generator/"/>
-    <id>tag:marisstella.dev,2026:tool/csv-to-sql-generator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Convert a CSV to SQL: CREATE TABLE with inferred column types plus batched INSERT statements for PostgreSQL, MySQL, SQLite, SQL Server and BigQuery. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
