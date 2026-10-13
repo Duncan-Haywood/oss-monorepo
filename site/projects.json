@@ -1277,6 +1277,11 @@
      "slug": "chip-rtl-loop",
      "title": "How much does simulation and formal feedback help a proposer repair small Verilog designs?",
      "summary": "A checker (Verilator lint, Icarus lockstep simulation against a golden model, Yosys SAT proof for combinational tasks) scores nine small tasks. With the session itself as proposer, 6 of 9 pass from the spec alone and all 9 after one round of mismatch feedback; the three failures were a Gray encoder written as a decoder, a logical shift on a signed value and a combinational pulse that should be registered. Anecdotal: one attempt per round, one proposer who also wrote the tasks, no resampling baseline, simulation only for sequential tasks. Not an LLM benchmark."
+    },
+    {
+     "slug": "chip-repair-baseline",
+     "title": "What does a no-model baseline repair when a scripted RTL checker is the only feedback?",
+     "summary": "A companion to <code>chip-rtl-loop</code>: a four-stage checker (compile, lint, simulation, SAT miter) over ten small Verilog tasks, with a random-mutation hill-climbing baseline that uses no model. Given 1, 2 or 3 injected faults and 60 checker evaluations, the baseline repairs 9/20, 4/20 and 4/20 cases. The session agent (Claude) passed all ten tasks on its first attempt, so the feedback rounds were never exercised and no pass-rate-versus-rounds curve is reported. Preliminary: tiny tasks, one attempt, mutation faults unlike a language model's mistakes, and the optional API proposer is untested."
     }
    ]
   },
