@@ -22,6 +22,7 @@ class World:
     p_kw_other: float = 0.08      # ... when not
     p_others: float = 0.30        # other people are talking in the window
     others_cost: float = 2.0      # an interruption costs this much more then
+    null_sd: float = 1.0          # spread of the intent score when no help is wanted (need class: 1)
 
 
 def simulate(world: World, hours: float, rng: np.random.Generator) -> dict:
@@ -29,7 +30,7 @@ def simulate(world: World, hours: float, rng: np.random.Generator) -> dict:
     need = rng.random(n) < world.prevalence
     wake = rng.random(n) < np.where(need, world.p_wake_need, world.p_wake_other)
     kw = rng.random(n) < np.where(need, world.p_kw_need, world.p_kw_other)
-    score = rng.normal(np.where(need, world.d_prime, 0.0), 1.0)
+    score = rng.normal(np.where(need, world.d_prime, 0.0), np.where(need, 1.0, world.null_sd))
     others = rng.random(n) < world.p_others
     return dict(need=need, wake=wake, kw=kw, score=score, others=others, hours=float(hours),
                 others_cost=world.others_cost)
@@ -94,6 +95,6 @@ def q(x: float) -> float:
 
 def threshold_theory(world: World, tau: float) -> tuple:
     """Per-window (P(speak | no need), P(speak | need)) for the score-threshold policy with wake."""
-    fp = 1 - (1 - world.p_wake_other) * (1 - q(tau))
+    fp = 1 - (1 - world.p_wake_other) * (1 - q(tau / world.null_sd))
     tp = 1 - (1 - world.p_wake_need) * (1 - q(tau - world.d_prime))
     return fp, tp

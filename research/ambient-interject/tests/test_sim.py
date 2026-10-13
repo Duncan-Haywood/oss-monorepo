@@ -58,3 +58,10 @@ def test_tune_respects_budget():
     t = tune_to_budget(d, lambda x: x["score"], 1.0, np.linspace(-1, 6, 141))
     assert score_policy(d, speak_threshold(d, t))["fp_per_hour"] <= 1.0
     assert prob(np.zeros(5), d).shape == d["need"].shape
+
+
+def test_null_sd_theory():
+    w = World(null_sd=1.5)
+    d = simulate(w, 2000, np.random.default_rng(8))
+    fp, _ = threshold_theory(w, 2.0)
+    assert abs(np.mean(speak_threshold(d, 2.0)[~d["need"]]) - fp) < 0.004
