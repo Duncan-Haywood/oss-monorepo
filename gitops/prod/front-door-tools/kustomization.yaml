@@ -33,49 +33,49 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548274 bytes
-#   portfolio-front-tools-1: 92 files, 555560 bytes
-#   portfolio-front-tools-2: 144 files, 553484 bytes
-#   portfolio-front-tools-3: 128 files, 549894 bytes
-#   portfolio-front-tools-4: 136 files, 554043 bytes
-#   portfolio-front-tools-5: 130 files, 549960 bytes
-#   portfolio-front-tools-6: 124 files, 556307 bytes
-#   portfolio-front-tools-7: 121 files, 556685 bytes
-#   portfolio-front-tools-8: 133 files, 555022 bytes
-#   portfolio-front-tools-9: 139 files, 554782 bytes
-#   portfolio-front-tools-10: 131 files, 556311 bytes
-#   portfolio-front-tools-11: 138 files, 554723 bytes
-#   portfolio-front-tools-12: 127 files, 555684 bytes
+#   portfolio-front-tools-0: 145 files, 548275 bytes
+#   portfolio-front-tools-1: 92 files, 555562 bytes
+#   portfolio-front-tools-2: 144 files, 553489 bytes
+#   portfolio-front-tools-3: 128 files, 549899 bytes
+#   portfolio-front-tools-4: 136 files, 554045 bytes
+#   portfolio-front-tools-5: 130 files, 549961 bytes
+#   portfolio-front-tools-6: 124 files, 556309 bytes
+#   portfolio-front-tools-7: 121 files, 556683 bytes
+#   portfolio-front-tools-8: 133 files, 555114 bytes
+#   portfolio-front-tools-9: 139 files, 554781 bytes
+#   portfolio-front-tools-10: 131 files, 556313 bytes
+#   portfolio-front-tools-11: 138 files, 554721 bytes
+#   portfolio-front-tools-12: 127 files, 555685 bytes
 #   portfolio-front-tools-13: 131 files, 556582 bytes
-#   portfolio-front-tools-14: 129 files, 556314 bytes
-#   portfolio-front-tools-15: 130 files, 551607 bytes
+#   portfolio-front-tools-14: 129 files, 556317 bytes
+#   portfolio-front-tools-15: 130 files, 551606 bytes
 #   portfolio-front-tools-16: 120 files, 551478 bytes
-#   portfolio-front-tools-17: 127 files, 556052 bytes
-#   portfolio-front-tools-18: 127 files, 554362 bytes
+#   portfolio-front-tools-17: 127 files, 556056 bytes
+#   portfolio-front-tools-18: 127 files, 554363 bytes
 #   portfolio-front-tools-19: 123 files, 556305 bytes
-#   portfolio-front-tools-20: 124 files, 554389 bytes
+#   portfolio-front-tools-20: 124 files, 554405 bytes
 #   portfolio-front-tools-21: 127 files, 555698 bytes
-#   portfolio-front-tools-22: 116 files, 554107 bytes
-#   portfolio-front-tools-23: 116 files, 556236 bytes
+#   portfolio-front-tools-22: 116 files, 554108 bytes
+#   portfolio-front-tools-23: 116 files, 556237 bytes
 #   portfolio-front-tools-24: 133 files, 554767 bytes
-#   portfolio-front-tools-25: 126 files, 553378 bytes
+#   portfolio-front-tools-25: 126 files, 553382 bytes
 #   portfolio-front-tools-26: 137 files, 554493 bytes
-#   portfolio-front-tools-27: 128 files, 555631 bytes
-#   portfolio-front-tools-28: 122 files, 556865 bytes
-#   portfolio-front-tools-29: 132 files, 554542 bytes
-#   portfolio-front-tools-30: 134 files, 556177 bytes
-#   portfolio-front-tools-31: 121 files, 555714 bytes
-#   portfolio-front-tools-32: 131 files, 551958 bytes
-#   portfolio-front-tools-33: 125 files, 545518 bytes
-#   portfolio-front-tools-34: 97 files, 556420 bytes
-#   portfolio-front-tools-35: 121 files, 552709 bytes
-#   portfolio-front-tools-36: 117 files, 551986 bytes
-#   portfolio-front-tools-37: 126 files, 549410 bytes
-#   portfolio-front-tools-38: 127 files, 548140 bytes
-#   portfolio-front-tools-39: 128 files, 550635 bytes
-#   portfolio-front-tools-40: 125 files, 554881 bytes
-#   portfolio-front-tools-41: 120 files, 550638 bytes
-#   portfolio-front-tools-42: 98 files, 522180 bytes
+#   portfolio-front-tools-27: 128 files, 555627 bytes
+#   portfolio-front-tools-28: 122 files, 556871 bytes
+#   portfolio-front-tools-29: 132 files, 554541 bytes
+#   portfolio-front-tools-30: 134 files, 556175 bytes
+#   portfolio-front-tools-31: 121 files, 555713 bytes
+#   portfolio-front-tools-32: 131 files, 551962 bytes
+#   portfolio-front-tools-33: 125 files, 545511 bytes
+#   portfolio-front-tools-34: 97 files, 556423 bytes
+#   portfolio-front-tools-35: 121 files, 552708 bytes
+#   portfolio-front-tools-36: 117 files, 551985 bytes
+#   portfolio-front-tools-37: 126 files, 549411 bytes
+#   portfolio-front-tools-38: 127 files, 548150 bytes
+#   portfolio-front-tools-39: 128 files, 551901 bytes
+#   portfolio-front-tools-40: 125 files, 555494 bytes
+#   portfolio-front-tools-41: 122 files, 554475 bytes
+#   portfolio-front-tools-42: 99 files, 527243 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -5339,6 +5339,9 @@ configMapGenerator:
       - ucr-fee-calculator__calc.mjs.gz=ucr-fee-calculator__calc.mjs.gz
       - ucr-fee-calculator__index.html.gz=ucr-fee-calculator__index.html.gz
       - ucr-fee-calculator__usage.mjs.gz=ucr-fee-calculator__usage.mjs.gz
+      - ugc-creator-rate-calculator__calc.mjs.gz=ugc-creator-rate-calculator__calc.mjs.gz
+      - ugc-creator-rate-calculator__index.html.gz=ugc-creator-rate-calculator__index.html.gz
+      - ugc-creator-rate-calculator__usage.mjs.gz=ugc-creator-rate-calculator__usage.mjs.gz
       - upholstery-shop-job-profit-calculator__calc.mjs.gz=upholstery-shop-job-profit-calculator__calc.mjs.gz
       - upholstery-shop-job-profit-calculator__index.html.gz=upholstery-shop-job-profit-calculator__index.html.gz
       - upholstery-shop-job-profit-calculator__usage.mjs.gz=upholstery-shop-job-profit-calculator__usage.mjs.gz
@@ -5353,14 +5356,14 @@ configMapGenerator:
       - uptime-monitoring-pricing-calculator__index.html.gz=uptime-monitoring-pricing-calculator__index.html.gz
       - uptime-monitoring-pricing-calculator__usage.mjs.gz=uptime-monitoring-pricing-calculator__usage.mjs.gz
       - upwork-connects-roi-calculator__engine.mjs.gz=upwork-connects-roi-calculator__engine.mjs.gz
-      - upwork-connects-roi-calculator__index.html.gz=upwork-connects-roi-calculator__index.html.gz
-      - upwork-connects-roi-calculator__usage.mjs.gz=upwork-connects-roi-calculator__usage.mjs.gz
-      - upwork-connects-roi-calculator__what-are-upwork-connects-worth.html.gz=upwork-connects-roi-calculator__what-are-upwork-connects-worth.html.gz
   - name: portfolio-front-tools-40
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - upwork-connects-roi-calculator__index.html.gz=upwork-connects-roi-calculator__index.html.gz
+      - upwork-connects-roi-calculator__usage.mjs.gz=upwork-connects-roi-calculator__usage.mjs.gz
+      - upwork-connects-roi-calculator__what-are-upwork-connects-worth.html.gz=upwork-connects-roi-calculator__what-are-upwork-connects-worth.html.gz
       - upwork-earnings-fee-analyzer__calc.mjs.gz=upwork-earnings-fee-analyzer__calc.mjs.gz
       - upwork-earnings-fee-analyzer__index.html.gz=upwork-earnings-fee-analyzer__index.html.gz
       - upwork-earnings-fee-analyzer__usage.mjs.gz=upwork-earnings-fee-analyzer__usage.mjs.gz
@@ -5483,14 +5486,14 @@ configMapGenerator:
       - walk-in-shower-bid-calculator__index.html.gz=walk-in-shower-bid-calculator__index.html.gz
       - walk-in-shower-bid-calculator__should-i-install-customer-supplied-tile.html.gz=walk-in-shower-bid-calculator__should-i-install-customer-supplied-tile.html.gz
       - walk-in-shower-bid-calculator__should-i-match-an-alcove-price-on-a-curbless-walk-in.html.gz=walk-in-shower-bid-calculator__should-i-match-an-alcove-price-on-a-curbless-walk-in.html.gz
-      - walk-in-shower-bid-calculator__should-i-tile-a-walk-in-shower-after-hours.html.gz=walk-in-shower-bid-calculator__should-i-tile-a-walk-in-shower-after-hours.html.gz
-      - walk-in-shower-bid-calculator__usage.mjs.gz=walk-in-shower-bid-calculator__usage.mjs.gz
-      - walk-in-shower-bid-calculator__vs-jobber.html.gz=walk-in-shower-bid-calculator__vs-jobber.html.gz
   - name: portfolio-front-tools-41
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - walk-in-shower-bid-calculator__should-i-tile-a-walk-in-shower-after-hours.html.gz=walk-in-shower-bid-calculator__should-i-tile-a-walk-in-shower-after-hours.html.gz
+      - walk-in-shower-bid-calculator__usage.mjs.gz=walk-in-shower-bid-calculator__usage.mjs.gz
+      - walk-in-shower-bid-calculator__vs-jobber.html.gz=walk-in-shower-bid-calculator__vs-jobber.html.gz
       - walk-in-shower-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=walk-in-shower-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
       - walk-in-tub-bid-calculator__calc.mjs.gz=walk-in-tub-bid-calculator__calc.mjs.gz
       - walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz=walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz
@@ -5610,12 +5613,12 @@ configMapGenerator:
       - where-to-sell-calculator__reverb-vs-ebay-for-gear.html.gz=where-to-sell-calculator__reverb-vs-ebay-for-gear.html.gz
       - where-to-sell-calculator__share.mjs.gz=where-to-sell-calculator__share.mjs.gz
       - where-to-sell-calculator__usage.mjs.gz=where-to-sell-calculator__usage.mjs.gz
-      - where-to-sell-calculator__vs-crosslist.html.gz=where-to-sell-calculator__vs-crosslist.html.gz
   - name: portfolio-front-tools-42
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - where-to-sell-calculator__vs-crosslist.html.gz=where-to-sell-calculator__vs-crosslist.html.gz
       - where-to-sell-calculator__vs-each-marketplaces-own-calculator.html.gz=where-to-sell-calculator__vs-each-marketplaces-own-calculator.html.gz
       - where-to-sell-calculator__vs-list-perfectly.html.gz=where-to-sell-calculator__vs-list-perfectly.html.gz
       - where-to-sell-calculator__vs-vendoo.html.gz=where-to-sell-calculator__vs-vendoo.html.gz
