@@ -818,6 +818,9 @@ const CATEGORY_RULES = [
       // `convenience-store-gas-station-profit-calculator` joined 2026-10-13 on its first commit: an independent c-store or gas station owner or buyer sizing fuel margin after card fees,
       // inside sales and debt coverage sits beside `franchise-unit-economics-calculator` and `sba-loan-capacity-calculator`, the same run-or-buy-a-store job.
       'convenience-store-gas-station-profit-calculator',
+      // `dry-cleaner-profit-calculator` joined 2026-10-13 on its first commit: a plant owner or buyer sizing break-even pieces and debt coverage sits beside
+      // `convenience-store-gas-station-profit-calculator` and `franchise-unit-economics-calculator`, the same run-or-buy-a-store job.
+      'dry-cleaner-profit-calculator',
       // `microgreens-tray-planner` joined 2026-10-06 on its first commit: growers who sell at the same markets and
       // restaurants, one hop from `backyard-honey-profit-calculator`.
       'microgreens-tray-planner',
