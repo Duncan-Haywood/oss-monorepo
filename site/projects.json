@@ -1597,6 +1597,11 @@
      "summary": "The minimum-mass bracket search under FDM, CNC-routing, laser-cutting and casting rules is repeated with a 3&nbsp;mm patch-averaged stress in place of the peak element stress, using the same numeric limit, then every design is re-solved on a fine check mesh (h = 0.55&nbsp;mm). The ordering of the mass prices survives (casting 1.35, CNC 1.23&ndash;1.27, laser 1.03&ndash;1.05, FDM 1.0), and the laser-cutting price, which varied from 0.99 to 1.15 across three seeds under the peak measure, varies by under 0.005. Patch-searched designs exceed the limit by 2&ndash;12% on the fine mesh, against 19&ndash;34% for peak-searched designs, but they are lighter only because the same numeric limit is a looser test; the patch limit is uncalibrated. Three seeds, assumed rules and material, stylised 2D."
     },
     {
+     "slug": "simdesign-filletfloor",
+     "title": "Is the shrinking laser-cutting price scatter under the patch stress caused by the near-sharp fillet floor?",
+     "summary": "In progress (stylised): the laser-cutting bracket search is repeated with the inner-fillet floor raised from 0.2 to 1 and 3.175&nbsp;mm, under the peak and the patch stress."
+    },
+    {
      "slug": "simdesign-kirsch",
      "title": "How far below the exact stress concentration does a finite-element peak stress sit, and how fast does it close?",
      "summary": "A plate with a circular hole under tension has an exact peak stress of 3&times; the remote stress (Kirsch). On a graded quarter-plate mesh with exact-solution tractions (48&nbsp;384 elements at the finest), the usual element-centroid peak sits 27% below it on the coarsest mesh and 1.1% below on the finest, closing only at first order, while the field itself converges at second order: the shortfall is sampling position, not solver error. Reading the stress at the hole-edge vertices instead is within 1% on every mesh. Stylised 2D plane stress, one geometry, regular mesh; the numbers do not transfer to other fillets."
