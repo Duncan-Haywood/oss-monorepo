@@ -33,49 +33,49 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548273 bytes
-#   portfolio-front-tools-1: 92 files, 555558 bytes
-#   portfolio-front-tools-2: 144 files, 553465 bytes
-#   portfolio-front-tools-3: 128 files, 549668 bytes
-#   portfolio-front-tools-4: 136 files, 554012 bytes
-#   portfolio-front-tools-5: 130 files, 549888 bytes
-#   portfolio-front-tools-6: 124 files, 556242 bytes
-#   portfolio-front-tools-7: 121 files, 556834 bytes
-#   portfolio-front-tools-8: 135 files, 555850 bytes
-#   portfolio-front-tools-9: 135 files, 551082 bytes
-#   portfolio-front-tools-10: 134 files, 555591 bytes
-#   portfolio-front-tools-11: 135 files, 555096 bytes
-#   portfolio-front-tools-12: 127 files, 554420 bytes
-#   portfolio-front-tools-13: 131 files, 554917 bytes
-#   portfolio-front-tools-14: 127 files, 547169 bytes
-#   portfolio-front-tools-15: 125 files, 556816 bytes
-#   portfolio-front-tools-16: 129 files, 551466 bytes
-#   portfolio-front-tools-17: 122 files, 551671 bytes
-#   portfolio-front-tools-18: 128 files, 552071 bytes
-#   portfolio-front-tools-19: 122 files, 553739 bytes
-#   portfolio-front-tools-20: 123 files, 555167 bytes
-#   portfolio-front-tools-21: 120 files, 554790 bytes
-#   portfolio-front-tools-22: 117 files, 552061 bytes
-#   portfolio-front-tools-23: 128 files, 556842 bytes
-#   portfolio-front-tools-24: 125 files, 551630 bytes
-#   portfolio-front-tools-25: 131 files, 551318 bytes
-#   portfolio-front-tools-26: 137 files, 555095 bytes
-#   portfolio-front-tools-27: 118 files, 550140 bytes
-#   portfolio-front-tools-28: 127 files, 555323 bytes
-#   portfolio-front-tools-29: 137 files, 556512 bytes
-#   portfolio-front-tools-30: 127 files, 554275 bytes
-#   portfolio-front-tools-31: 124 files, 556812 bytes
-#   portfolio-front-tools-32: 133 files, 549104 bytes
-#   portfolio-front-tools-33: 109 files, 554231 bytes
-#   portfolio-front-tools-34: 100 files, 552185 bytes
-#   portfolio-front-tools-35: 128 files, 551806 bytes
-#   portfolio-front-tools-36: 117 files, 547160 bytes
-#   portfolio-front-tools-37: 129 files, 554608 bytes
-#   portfolio-front-tools-38: 121 files, 540548 bytes
-#   portfolio-front-tools-39: 135 files, 554452 bytes
-#   portfolio-front-tools-40: 120 files, 551975 bytes
-#   portfolio-front-tools-41: 90 files, 466525 bytes
-#   portfolio-front-tools-42: 50 files, 263796 bytes
+#   portfolio-front-tools-0: 145 files, 548278 bytes
+#   portfolio-front-tools-1: 92 files, 555566 bytes
+#   portfolio-front-tools-2: 144 files, 553483 bytes
+#   portfolio-front-tools-3: 128 files, 549678 bytes
+#   portfolio-front-tools-4: 136 files, 554019 bytes
+#   portfolio-front-tools-5: 130 files, 549913 bytes
+#   portfolio-front-tools-6: 124 files, 556249 bytes
+#   portfolio-front-tools-7: 121 files, 556754 bytes
+#   portfolio-front-tools-8: 134 files, 555897 bytes
+#   portfolio-front-tools-9: 136 files, 549233 bytes
+#   portfolio-front-tools-10: 134 files, 555489 bytes
+#   portfolio-front-tools-11: 134 files, 553393 bytes
+#   portfolio-front-tools-12: 128 files, 555390 bytes
+#   portfolio-front-tools-13: 131 files, 554703 bytes
+#   portfolio-front-tools-14: 128 files, 553444 bytes
+#   portfolio-front-tools-15: 125 files, 555347 bytes
+#   portfolio-front-tools-16: 129 files, 555575 bytes
+#   portfolio-front-tools-17: 124 files, 556931 bytes
+#   portfolio-front-tools-18: 128 files, 552117 bytes
+#   portfolio-front-tools-19: 122 files, 553655 bytes
+#   portfolio-front-tools-20: 123 files, 555196 bytes
+#   portfolio-front-tools-21: 120 files, 554909 bytes
+#   portfolio-front-tools-22: 117 files, 551969 bytes
+#   portfolio-front-tools-23: 128 files, 556786 bytes
+#   portfolio-front-tools-24: 125 files, 551598 bytes
+#   portfolio-front-tools-25: 131 files, 551467 bytes
+#   portfolio-front-tools-26: 137 files, 555164 bytes
+#   portfolio-front-tools-27: 118 files, 550015 bytes
+#   portfolio-front-tools-28: 127 files, 555283 bytes
+#   portfolio-front-tools-29: 137 files, 556525 bytes
+#   portfolio-front-tools-30: 127 files, 554409 bytes
+#   portfolio-front-tools-31: 124 files, 556738 bytes
+#   portfolio-front-tools-32: 133 files, 549127 bytes
+#   portfolio-front-tools-33: 109 files, 554190 bytes
+#   portfolio-front-tools-34: 100 files, 552117 bytes
+#   portfolio-front-tools-35: 128 files, 551862 bytes
+#   portfolio-front-tools-36: 117 files, 547164 bytes
+#   portfolio-front-tools-37: 129 files, 554399 bytes
+#   portfolio-front-tools-38: 121 files, 540541 bytes
+#   portfolio-front-tools-39: 135 files, 554373 bytes
+#   portfolio-front-tools-40: 120 files, 551905 bytes
+#   portfolio-front-tools-41: 90 files, 466492 bytes
+#   portfolio-front-tools-42: 50 files, 263762 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1167,6 +1167,9 @@ configMapGenerator:
       - boat-rental-fleet-profit-calculator__calc.mjs.gz=boat-rental-fleet-profit-calculator__calc.mjs.gz
       - boat-rental-fleet-profit-calculator__index.html.gz=boat-rental-fleet-profit-calculator__index.html.gz
       - boat-rental-fleet-profit-calculator__usage.mjs.gz=boat-rental-fleet-profit-calculator__usage.mjs.gz
+      - boba-tea-shop-profit-calculator__calc.mjs.gz=boba-tea-shop-profit-calculator__calc.mjs.gz
+      - boba-tea-shop-profit-calculator__index.html.gz=boba-tea-shop-profit-calculator__index.html.gz
+      - boba-tea-shop-profit-calculator__usage.mjs.gz=boba-tea-shop-profit-calculator__usage.mjs.gz
       - boi-reporting-exemption-checker__calc.mjs.gz=boi-reporting-exemption-checker__calc.mjs.gz
       - boi-reporting-exemption-checker__do-i-still-need-to-file-a-boi-report.html.gz=boi-reporting-exemption-checker__do-i-still-need-to-file-a-boi-report.html.gz
       - boi-reporting-exemption-checker__index.html.gz=boi-reporting-exemption-checker__index.html.gz
@@ -1289,15 +1292,15 @@ configMapGenerator:
       - cache-control-check__analyze.mjs.gz=cache-control-check__analyze.mjs.gz
       - cache-control-check__check.mjs.gz=cache-control-check__check.mjs.gz
       - cache-control-check__index.html.gz=cache-control-check__index.html.gz
-      - cache-control-check__probe.mjs.gz=cache-control-check__probe.mjs.gz
-      - cache-control-check__usage.mjs.gz=cache-control-check__usage.mjs.gz
-      - cache-control-check__vs-checking-headers-by-eye-in-devtools.html.gz=cache-control-check__vs-checking-headers-by-eye-in-devtools.html.gz
-      - cache-control-check__vs-curl.html.gz=cache-control-check__vs-curl.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cache-control-check__probe.mjs.gz=cache-control-check__probe.mjs.gz
+      - cache-control-check__usage.mjs.gz=cache-control-check__usage.mjs.gz
+      - cache-control-check__vs-checking-headers-by-eye-in-devtools.html.gz=cache-control-check__vs-checking-headers-by-eye-in-devtools.html.gz
+      - cache-control-check__vs-curl.html.gz=cache-control-check__vs-curl.html.gz
       - cache-control-check__why-isnt-my-cdn-caching-this.html.gz=cache-control-check__why-isnt-my-cdn-caching-this.html.gz
       - cafe-drink-margin-calculator__calc.mjs.gz=cafe-drink-margin-calculator__calc.mjs.gz
       - cafe-drink-margin-calculator__index.html.gz=cafe-drink-margin-calculator__index.html.gz
@@ -1430,14 +1433,14 @@ configMapGenerator:
       - certified-payroll-calculator__wh347-report.html.gz=certified-payroll-calculator__wh347-report.html.gz
       - certified-payroll-calculator__wh347.mjs.gz=certified-payroll-calculator__wh347.mjs.gz
       - chargeback-ratio-monitor__calc.mjs.gz=chargeback-ratio-monitor__calc.mjs.gz
-      - chargeback-ratio-monitor__index.html.gz=chargeback-ratio-monitor__index.html.gz
-      - chargeback-ratio-monitor__usage.mjs.gz=chargeback-ratio-monitor__usage.mjs.gz
-      - charitable-deduction-calculator__calc.mjs.gz=charitable-deduction-calculator__calc.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - chargeback-ratio-monitor__index.html.gz=chargeback-ratio-monitor__index.html.gz
+      - chargeback-ratio-monitor__usage.mjs.gz=chargeback-ratio-monitor__usage.mjs.gz
+      - charitable-deduction-calculator__calc.mjs.gz=charitable-deduction-calculator__calc.mjs.gz
       - charitable-deduction-calculator__index.html.gz=charitable-deduction-calculator__index.html.gz
       - charitable-deduction-calculator__usage.mjs.gz=charitable-deduction-calculator__usage.mjs.gz
       - charitable-deduction-calculator__vs-doing-the-math-by-hand.html.gz=charitable-deduction-calculator__vs-doing-the-math-by-hand.html.gz
@@ -1569,14 +1572,14 @@ configMapGenerator:
       - cobra-vs-marketplace-calculator__engine.mjs.gz=cobra-vs-marketplace-calculator__engine.mjs.gz
       - cobra-vs-marketplace-calculator__index.html.gz=cobra-vs-marketplace-calculator__index.html.gz
       - cobra-vs-marketplace-calculator__usage.mjs.gz=cobra-vs-marketplace-calculator__usage.mjs.gz
-      - codeowners-shadow-check__codeowners.mjs.gz=codeowners-shadow-check__codeowners.mjs.gz
-      - codeowners-shadow-check__index.html.gz=codeowners-shadow-check__index.html.gz
-      - codeowners-shadow-check__usage.mjs.gz=codeowners-shadow-check__usage.mjs.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - codeowners-shadow-check__codeowners.mjs.gz=codeowners-shadow-check__codeowners.mjs.gz
+      - codeowners-shadow-check__index.html.gz=codeowners-shadow-check__index.html.gz
+      - codeowners-shadow-check__usage.mjs.gz=codeowners-shadow-check__usage.mjs.gz
       - codeowners-shadow-check__vs-reading-codeowners-by-eye.html.gz=codeowners-shadow-check__vs-reading-codeowners-by-eye.html.gz
       - codeowners-shadow-check__why-codeowners-review-stops-being-required.html.gz=codeowners-shadow-check__why-codeowners-review-stops-being-required.html.gz
       - coffee-cart-event-quote-calculator__calc.mjs.gz=coffee-cart-event-quote-calculator__calc.mjs.gz
@@ -1708,15 +1711,15 @@ configMapGenerator:
       - coworking-space-profit-calculator__index.html.gz=coworking-space-profit-calculator__index.html.gz
       - coworking-space-profit-calculator__usage.mjs.gz=coworking-space-profit-calculator__usage.mjs.gz
       - cra-evidence-desk__index.html.gz=cra-evidence-desk__index.html.gz
-      - cra-evidence-desk__match.mjs.gz=cra-evidence-desk__match.mjs.gz
-      - cra-evidence-desk__sbom-and-advisory-package-names-dont-match.html.gz=cra-evidence-desk__sbom-and-advisory-package-names-dont-match.html.gz
-      - cra-evidence-desk__usage.mjs.gz=cra-evidence-desk__usage.mjs.gz
-      - cra-evidence-desk__vs-dependency-track.html.gz=cra-evidence-desk__vs-dependency-track.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cra-evidence-desk__match.mjs.gz=cra-evidence-desk__match.mjs.gz
+      - cra-evidence-desk__sbom-and-advisory-package-names-dont-match.html.gz=cra-evidence-desk__sbom-and-advisory-package-names-dont-match.html.gz
+      - cra-evidence-desk__usage.mjs.gz=cra-evidence-desk__usage.mjs.gz
+      - cra-evidence-desk__vs-dependency-track.html.gz=cra-evidence-desk__vs-dependency-track.html.gz
       - cra-evidence-desk__vs-matching-by-hand.html.gz=cra-evidence-desk__vs-matching-by-hand.html.gz
       - craft-brewery-batch-margin-calculator__calc.mjs.gz=craft-brewery-batch-margin-calculator__calc.mjs.gz
       - craft-brewery-batch-margin-calculator__index.html.gz=craft-brewery-batch-margin-calculator__index.html.gz
@@ -1841,14 +1844,14 @@ configMapGenerator:
       - dental-ppo-writeoff-calculator__form.mjs.gz=dental-ppo-writeoff-calculator__form.mjs.gz
       - dental-ppo-writeoff-calculator__index.html.gz=dental-ppo-writeoff-calculator__index.html.gz
       - dental-ppo-writeoff-calculator__usage.mjs.gz=dental-ppo-writeoff-calculator__usage.mjs.gz
-      - dental-ppo-writeoff-calculator__vs-ppo-fee-negotiators.html.gz=dental-ppo-writeoff-calculator__vs-ppo-fee-negotiators.html.gz
-      - dental-ppo-writeoff-calculator__vs-practice-management-report.html.gz=dental-ppo-writeoff-calculator__vs-practice-management-report.html.gz
-      - dental-ppo-writeoff-calculator__what-is-my-effective-reimbursement-rate.html.gz=dental-ppo-writeoff-calculator__what-is-my-effective-reimbursement-rate.html.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - dental-ppo-writeoff-calculator__vs-ppo-fee-negotiators.html.gz=dental-ppo-writeoff-calculator__vs-ppo-fee-negotiators.html.gz
+      - dental-ppo-writeoff-calculator__vs-practice-management-report.html.gz=dental-ppo-writeoff-calculator__vs-practice-management-report.html.gz
+      - dental-ppo-writeoff-calculator__what-is-my-effective-reimbursement-rate.html.gz=dental-ppo-writeoff-calculator__what-is-my-effective-reimbursement-rate.html.gz
       - dental-ppo-writeoff-calculator__which-ppo-contract-to-renegotiate-first.html.gz=dental-ppo-writeoff-calculator__which-ppo-contract-to-renegotiate-first.html.gz
       - dependabot-config-check__check.mjs.gz=dependabot-config-check__check.mjs.gz
       - dependabot-config-check__cli.mjs.gz=dependabot-config-check__cli.mjs.gz
@@ -1977,14 +1980,14 @@ configMapGenerator:
       - driving-instructor-lesson-pricing-calculator__index.html.gz=driving-instructor-lesson-pricing-calculator__index.html.gz
       - driving-instructor-lesson-pricing-calculator__usage.mjs.gz=driving-instructor-lesson-pricing-calculator__usage.mjs.gz
       - driving-school-profit-calculator__calc.mjs.gz=driving-school-profit-calculator__calc.mjs.gz
-      - driving-school-profit-calculator__index.html.gz=driving-school-profit-calculator__index.html.gz
-      - driving-school-profit-calculator__usage.mjs.gz=driving-school-profit-calculator__usage.mjs.gz
-      - drone-mapping-job-calculator__calc.mjs.gz=drone-mapping-job-calculator__calc.mjs.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - driving-school-profit-calculator__index.html.gz=driving-school-profit-calculator__index.html.gz
+      - driving-school-profit-calculator__usage.mjs.gz=driving-school-profit-calculator__usage.mjs.gz
+      - drone-mapping-job-calculator__calc.mjs.gz=drone-mapping-job-calculator__calc.mjs.gz
       - drone-mapping-job-calculator__how-much-to-charge-for-drone-mapping.html.gz=drone-mapping-job-calculator__how-much-to-charge-for-drone-mapping.html.gz
       - drone-mapping-job-calculator__index.html.gz=drone-mapping-job-calculator__index.html.gz
       - drone-mapping-job-calculator__usage.mjs.gz=drone-mapping-job-calculator__usage.mjs.gz
@@ -2110,13 +2113,13 @@ configMapGenerator:
       - email-api-pricing-calculator__cli.mjs.gz=email-api-pricing-calculator__cli.mjs.gz
       - email-api-pricing-calculator__engine.mjs.gz=email-api-pricing-calculator__engine.mjs.gz
       - email-api-pricing-calculator__how-to-choose-a-transactional-email-provider.html.gz=email-api-pricing-calculator__how-to-choose-a-transactional-email-provider.html.gz
-      - email-api-pricing-calculator__index.html.gz=email-api-pricing-calculator__index.html.gz
-      - email-api-pricing-calculator__usage.mjs.gz=email-api-pricing-calculator__usage.mjs.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - email-api-pricing-calculator__index.html.gz=email-api-pricing-calculator__index.html.gz
+      - email-api-pricing-calculator__usage.mjs.gz=email-api-pricing-calculator__usage.mjs.gz
       - email-auth-check__analyze.mjs.gz=email-auth-check__analyze.mjs.gz
       - email-auth-check__cli.mjs.gz=email-auth-check__cli.mjs.gz
       - email-auth-check__how-to-fix-spf-too-many-dns-lookups.html.gz=email-auth-check__how-to-fix-spf-too-many-dns-lookups.html.gz
@@ -2240,13 +2243,13 @@ configMapGenerator:
       - etsy-statement-to-journal__index.html.gz=etsy-statement-to-journal__index.html.gz
       - etsy-statement-to-journal__usage.mjs.gz=etsy-statement-to-journal__usage.mjs.gz
       - eu-bank-statement-reader__calc.mjs.gz=eu-bank-statement-reader__calc.mjs.gz
-      - eu-bank-statement-reader__index.html.gz=eu-bank-statement-reader__index.html.gz
-      - eu-bank-statement-reader__usage.mjs.gz=eu-bank-statement-reader__usage.mjs.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - eu-bank-statement-reader__index.html.gz=eu-bank-statement-reader__index.html.gz
+      - eu-bank-statement-reader__usage.mjs.gz=eu-bank-statement-reader__usage.mjs.gz
       - eu-pay-gap-report-calculator__calc.mjs.gz=eu-pay-gap-report-calculator__calc.mjs.gz
       - eu-pay-gap-report-calculator__index.html.gz=eu-pay-gap-report-calculator__index.html.gz
       - eu-pay-gap-report-calculator__usage.mjs.gz=eu-pay-gap-report-calculator__usage.mjs.gz
@@ -2374,13 +2377,13 @@ configMapGenerator:
       - fireplace-insert-bid-calculator__usage.mjs.gz=fireplace-insert-bid-calculator__usage.mjs.gz
       - fireplace-insert-bid-calculator__vs-a-flat-2499-installed-special.html.gz=fireplace-insert-bid-calculator__vs-a-flat-2499-installed-special.html.gz
       - fireplace-insert-bid-calculator__vs-jobber.html.gz=fireplace-insert-bid-calculator__vs-jobber.html.gz
-      - firewood-profit-calculator__engine.mjs.gz=firewood-profit-calculator__engine.mjs.gz
-      - firewood-profit-calculator__how-much-to-charge-for-a-cord-of-firewood.html.gz=firewood-profit-calculator__how-much-to-charge-for-a-cord-of-firewood.html.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - firewood-profit-calculator__engine.mjs.gz=firewood-profit-calculator__engine.mjs.gz
+      - firewood-profit-calculator__how-much-to-charge-for-a-cord-of-firewood.html.gz=firewood-profit-calculator__how-much-to-charge-for-a-cord-of-firewood.html.gz
       - firewood-profit-calculator__index.html.gz=firewood-profit-calculator__index.html.gz
       - firewood-profit-calculator__usage.mjs.gz=firewood-profit-calculator__usage.mjs.gz
       - fishing-charter-trip-pricing-calculator__calc.mjs.gz=fishing-charter-trip-pricing-calculator__calc.mjs.gz

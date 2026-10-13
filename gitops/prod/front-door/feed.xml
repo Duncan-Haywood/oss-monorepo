@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1112 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1113 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-10-12T00:00:00Z</updated>
+  <updated>2026-10-13T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Boba Tea Shop Profit Calculator — Break-Even and Ramp-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/boba-tea-shop-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/boba-tea-shop-profit-calculator</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free pro forma for boba, bubble tea and specialty drink shops: profit per cup, break-even cups a day with the loan, the price for your target margin, delivery-app cost, and a 60-month ramp-up with the cash reserve you need. Runs in your browser.</summary>
+  </entry>
   <entry>
     <title>3PL Invoice Audit Checker — Did Your 3PL Overbill You?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/3pl-invoice-audit-checker/"/>
@@ -158,13 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free payback calculator for glamping and cabin sites: build cost, shared infrastructure, seasonal nightly rates and occupancy, commission, turnovers and a loan become operating income, debt coverage, cash after the loan, payback in years and break-even occupancy. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Golf Simulator Bay Profit Calculator — monthly profit, payback and break-even utilization</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/golf-simulator-bay-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/golf-simulator-bay-profit-calculator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for indoor golf simulator lounges and bay-rental venues. Enter bays, peak and off-peak rates, utilization, members, food and drink, rent and staff; it shows monthly profit, margin, payback on the build, break-even utilization, the lowest rates for your target margin, and compares a second scenario. Private, in your browser.</summary>
   </entry>
 </feed>

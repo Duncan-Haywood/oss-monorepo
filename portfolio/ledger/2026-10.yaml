@@ -3824,3 +3824,16 @@ entries:
         existed in ventures/. Also fixed coworking-space-profit-calculator, whose results panel threw on a nonexistent r.cfByYear and never
         displayed (now r.yearCash; verified in Chromium). First visitor: people searching hydroponic farm break-even; volume unmeasured.
     mrr_end: 0
+  - venture: boba-tea-shop-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built boba-tea-shop-profit-calculator: a browser-only pro forma for bubble tea and specialty drink shops. Price,
+        topping attach, cup costs and waste, card, delivery-app commission and royalty, volume, staff hours, rent, owner pay, startup
+        cost, equity, loan and a ramp-up become contribution per cup, monthly profit, break-even cups a day with and without the loan,
+        the drink price that reaches a target net margin (closed form, round-trip tested), volume and ingredient-cost sweeps, and a
+        sixty-month ramp with working-capital reserve and payback, with CSV. 14 hand-computed unit tests plus page and usage tests.
+        cafe-drink-margin-calculator covers per-drink margin only; no store-level break-even or ramp tool existed. First visitor: people
+        searching boba shop break-even; volume unmeasured.
+    mrr_end: 0
