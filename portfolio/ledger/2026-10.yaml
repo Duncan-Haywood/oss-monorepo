@@ -3981,11 +3981,19 @@ entries:
         cafe and ramp-up. First visitor: first-time owners sizing a lease and loan; volume unmeasured. Every figure is the user's own; the example is
         labelled illustrative.
     mrr_end: 0
+  - venture: padel-club-profit-calculator
   - venture: eu-data-act-checker
     agent_spend_usd: 0
     human_hours: 0
     outcomes:
       - >-
+        Graduated and built padel-club-profit-calculator: a browser-only pro forma for a padel club. Courts, opening hours, peak and off-peak court-hour prices and
+        utilisation, member discount, coaching with a coach share, food and drink, pro shop, staff hours with payroll load, rent, court and fit-out cost
+        and a loan give monthly profit, break-even booked court-hours and utilisation (reported only when the courts can hold them), the court and lesson
+        price factor that reaches a target margin, booking, price and wage sensitivity tables, a sixty-month ramp-up with the cash reserve and payback,
+        and text and CSV downloads. 17 hand-checked unit tests plus page and usage tests. No padel tool existed in ventures/; nearest siblings are
+        pickleball-facility-pro-forma and golf-simulator-bay-profit-calculator. First visitor: would-be club owners sizing a lease and loan; volume
+        unmeasured. Every figure is the user's own; the example is labelled illustrative.
         Graduated and built eu-data-act-checker: a browser-only first read of whether the EU Data Act (Regulation 2023/2854, applying since 12 September
         2025) covers a business. A role (connected-product maker, related-service provider, data holder, third-party recipient, cloud or SaaS provider),
         whole-group size on the Recommendation 2003/361 micro and small ceilings, a larger-partner flag and a subcontracting flag give an in-scope,

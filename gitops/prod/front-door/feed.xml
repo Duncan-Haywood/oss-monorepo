@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1130 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1131 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -128,6 +128,14 @@
     <summary type="text">Paste npm audit --json and your source imports: see which vulnerable packages your code actually imports, which are only reached through a dependency, and which are test-only noise. Free npm audit triage, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Padel Club Profit Calculator — Break-Even Utilisation, Courts, Payback</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/padel-club-profit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/padel-club-profit-calculator</id>
+    <updated>2026-10-13T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free padel club profit calculator: courts, peak and off-peak court-hour prices, utilisation, members, coaching, food and drink, staffing, rent and a loan become monthly profit, break-even court utilisation, the price change that hits a target margin, the ramp-up cash reserve and payback. Private, runs in your browser.</summary>
+  </entry>
+  <entry>
     <title>Pet Boarding and Daycare Profit Calculator — Occupancy, Staffing, Break-Even</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pet-boarding-daycare-profit-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/pet-boarding-daycare-profit-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-12T00:00:00Z</updated>
     <category term="Logistics, freight &amp; cloud cost"/>
     <summary type="text">Check a 3PL invoice against your contract rate card and your own records. Flags rates above contract, duplicate lines, charges not in the rate card, minimum double billing and storage over average on-hand, totals the recoverable dollars and writes the dispute email. Free, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Arcade Game Payback Calculator — Which Games to Keep, Move or Cut</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/arcade-game-payback-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/arcade-game-payback-calculator</id>
-    <updated>2026-10-12T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free arcade game payback calculator: plays, credits, ticket payout, floor space and upkeep become weekly profit, payback, break-even plays and a keep, watch or cut verdict for every game. Private, runs in your browser.</summary>
   </entry>
 </feed>
