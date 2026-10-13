@@ -1584,10 +1584,11 @@ const RELATIVE_SELF = relative(
 // +1: `ice-cream-shop-seasonal-profit-calculator` graduated.
 // +1: `boba-tea-shop-profit-calculator` graduated.
 // +1: `convenience-store-gas-station-profit-calculator` graduated.
-// +1: `dry-cleaner-profit-calculator` graduated.
 // +1: `pip-audit-triage` graduated.
 // +1: `cargo-audit-triage` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1101;
+// +1: `nis2-scope-checker` graduated.
+// +1: `dry-cleaner-profit-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1102;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
