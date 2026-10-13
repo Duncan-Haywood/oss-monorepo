@@ -1340,6 +1340,18 @@
      "summary": "The RepRap Prusa Mendel (iteration 2) bill of materials (51 part lines, from the RepRap wiki) against three seed shops. A printer alone makes 18 of 51 lines (35%); adding a CNC router and laser cutter reaches 43% of lines and, under assumed masses and costs, about 22% of mass and 16% of cost; casting helps only if brass bushings replace LM8UU bearings (45% of lines, 24% of mass). Motors, electronics, rods, bearings and fasteners stay vitamins. Stylised: the wiki gives no masses or prices, so those inputs are assumed and shown with a sensitivity range, process assignments are judgement, and only the printer is decomposed."
     }
    ]
+  },
+  {
+   "id": "simdesign",
+   "name": "Simulation-first design",
+   "blurb": "Designs written as code, simulated, optimised and exported as manufacturing files with an open toolchain, on a CPU.",
+   "projects": [
+    {
+     "slug": "simdesign-bracket",
+     "title": "Can a parametric L-bracket be sized by finite elements for minimum mass and come out printable?",
+     "summary": "A 2D plane-stress scikit-fem model of an L-bracket with a filleted inner corner (arm width, fillet radius, depth) under a 100&nbsp;N tip load. Differential evolution reaches 19.6&nbsp;g against 25.6&nbsp;g for random search and 31.4&nbsp;g for a grid at 144&ndash;150 evaluations each, under a 20&nbsp;MPa stress and 4&nbsp;mm deflection limit. The design is exported as a binary STL and checked for minimum wall and overhang. Stylised: material properties and limits are assumed, the optimum stress rises about 7% on mesh refinement (just over the limit), the sharp-corner stress diverges, and the thin optimum was not checked for out-of-plane buckling."
+    }
+   ]
   }
  ],
  "featured": [
