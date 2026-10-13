@@ -1542,6 +1542,8 @@ const CATEGORY_RULES = [
       || slug === 'paid-sick-leave-accrual-calculator'
       // `employer-payroll-tax-cost-calculator` joined 2026-10-13: federal payroll-tax arithmetic plus editable state unemployment presets with a not-tax-advice posture; exact slug.
       || slug === 'employer-payroll-tax-cost-calculator'
+      // `retirement-plan-startup-credit-calculator` joined 2026-10-13: SECURE 2.0 credit arithmetic from published Form 8881 rules with a not-tax-advice posture; exact slug.
+      || slug === 'retirement-plan-startup-credit-calculator'
       || slug === 'mechanics-lien-deadline-calculator'
       || slug === 'boi-reporting-exemption-checker'
       // `hubspot-contacts-csv-check` joined 2026-10-04: a list preflight that reports what it found with line numbers and an explicit not-checked list, and
