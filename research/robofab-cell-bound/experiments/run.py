@@ -1,9 +1,9 @@
-"""Sweeps for robofab-cell. Writes experiments/results.txt and results.json. Deterministic (fixed seeds)."""
+"""Sweeps for robofab-cell-bound. Writes experiments/results.txt and results.json. Deterministic (fixed seeds)."""
 import json, pathlib, sys
 here = pathlib.Path(__file__).parent
 sys.path.insert(0, str(here.parent / "src"))
 from dataclasses import replace
-from robofab_cell import CellConfig, JobType, bound, replicate
+from robofab_cell_bound import CellConfig, JobType, bound, replicate
 
 A = JobType("A", 20, inspect_min=3, fail_prob=0.10)
 B = JobType("B", 60, inspect_min=3, fail_prob=0.20)

@@ -2,7 +2,7 @@ import pathlib, sys, unittest
 root = pathlib.Path(__file__).parent.parent
 sys.path.insert(0, str(root / "src"))
 from dataclasses import replace
-from robofab_cell import CellConfig, JobType, simulate, bound, replicate
+from robofab_cell_bound import CellConfig, JobType, simulate, bound, replicate
 
 J = JobType("J", 20, load_min=2, unload_min=2, inspect_min=3, fail_prob=0.0)
 
