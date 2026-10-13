@@ -1489,6 +1489,11 @@
      "summary": "A Fanger/ISO 7730 PMV model and a Gagge-style two-node model extended with fabric infrared emissivity and transmittance, solar absorptance and vapour permeability. The no-optics PMV matches an open-source ISO implementation to 0.006 over 144 cases. Indoors without sun, infrared transmittance (0 to 0.8) is worth about 2.4&nbsp;&deg;C of comfort at 28&nbsp;&deg;C, more than cutting insulation from 0.7 to 0.3&nbsp;clo (1.8&nbsp;&deg;C), but makes a 16&nbsp;&deg;C room feel 7.3&nbsp;&deg;C colder; in sun, solar absorptance (7.7&nbsp;&deg;C span) dominates the infrared properties. Stylised: assumed fabric properties, a parallel-path radiation model with no reference data, and recalled two-node constants."
     },
     {
+     "slug": "garment-assist",
+     "title": "Does an assistive garment pay for its own mass?",
+     "summary": "A one-joint ankle model of an exosuit-style garment: a suit adding a fraction of the biological push-off torque cuts modelled whole-body metabolic cost by 3.1, 8.8 and 14.1% at gains 0.1, 0.3 and 0.5, but a delay of 0.25 of the gait cycle removes the benefit and a stiff passive spring raises ankle cost 17%. Added mass erases the saving at 8.9&nbsp;kg if each kg costs 1% of whole-body power and at 1.8&nbsp;kg if it costs 5%; the break-even scales as 1/sensitivity, a number the project does not supply. Stylised: lumped muscle, prescribed gait, assumed constants; not OpenSim or MyoSuite."
+    },
+    {
      "slug": "garment-protective",
      "title": "What would a suit-like protective garment weigh and cost, and what limits it?",
      "summary": "A Cunniff-style specific-toughness scaling (U*) for nylon, aramid and UHMWPE with a 0.5&nbsp;m<sup>2</sup> torso-panel mass, cost, thickness and stiffness model. At equal weight UHMWPE gives 1.49&times; aramid's V50 in this scaling, and needs 0.20&ndash;0.67&times; the areal density depending on an unknown exponent. Under a 3&nbsp;mm, 1&nbsp;kg suit-like limit the panel falls short of a 4&nbsp;kg/m<sup>2</sup> aramid reference except for UHMWPE with an optimistic exponent. Stylised: recalled formula, assumed properties and unsourced prices, no ballistic physics and no protection claim."
