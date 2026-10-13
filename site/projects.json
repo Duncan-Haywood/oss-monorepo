@@ -1309,6 +1309,11 @@
      "slug": "robofab-cell",
      "title": "Which resource limits a small robot-printer-inspection cell, and does the busiest one tell you what to upgrade?",
      "summary": "A discrete-event twin of one arm, 1&ndash;8 printers and one inspection station (30 parts, 200 replications, illustrative times). Printers have the highest utilisation at every size, yet at 6 printers an extra arm saves 10.9 min of makespan against 2.3 for an extra inspection station, because a printer is held while it waits for the arm. Dispatch rules trade makespan for mean flow time as textbook scheduling predicts, and a mean-value twin underestimates the stochastic makespan by 1&ndash;133 min. <em>Stylised; parameters are invented, not measured.</em>"
+    },
+    {
+     "slug": "robofab-cell-bound",
+     "title": "Where is the bottleneck of an arm, printer and inspection cell?",
+     "summary": "A hand-written discrete-event twin of one arm that loads and unloads P 3D printers, plus an inspection station with reprints, against a utilisation bound. The bound names the bottleneck (printers up to 10 printers, the arm from 12, about 12.7 good parts/h) and the simulation reaches it within 1&ndash;2% far from the switch but sits 10&ndash;11% below it at 10&ndash;12 printers. A 25% faster arm lifts throughput from 11.34 to 12.68 parts/h at 12 printers while a second inspector does nothing; arm dispatch rules made no measurable gain, and WIP beyond one job per printer plus one only lengthens flow time. <em>Stylised parameters of my choosing, no travel or breakdowns, 20 seeds.</em>"
     }
    ]
   },
