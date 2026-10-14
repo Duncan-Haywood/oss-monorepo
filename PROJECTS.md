@@ -9,10 +9,9 @@ says. Every rule in `prompt.md` still applies, research integrity above all.
 
 ## Repository merge (before the tracks)
 
-Set on 2026-10-14. All work is moving to `Duncan-Haywood/oss-monorepo`, under `research/`, and
-until it does the two repositories are mirrored, with no history lost. `prompt.md` (Repository
-merge) has the rules. This is the action list. It is not a track and makes no `research/<slug>/`
-project.
+Set on 2026-10-14. All work is moving to `Duncan-Haywood/oss-monorepo`, under `research/`. Until
+then the two repositories are mirrored, with no history lost. `prompt.md` (Repository merge) has
+the rules. This is the action list. It is not a track and makes no `research/<slug>/` project.
 
 **Before you pick a track,** take the first milestone below that is not done, not claimed by an
 open pull request in either repository, and not on a branch pushed in the last three hours. Put
@@ -20,75 +19,58 @@ the milestone's name first in the pull request title, so the next run sees the c
 milestone is done or claimed, pick a track as usual. Milestones marked *oss-monorepo* push there.
 If your session cannot add that repository (`add_repo`, push access), skip them. Its
 `CLAUDE.md` governs those pull requests, except that a mirror pull request merges with a merge
-commit.
+commit, never a squash.
 
-**The path map.** It is fixed, so every sync places every file the same way:
-`research/<slug>/` here stays `research/<slug>/` there. Every other top-level entry `E` here goes
-to `research/E` there, so `site/` becomes `research/site/` and `prompt.md` becomes
-`research/prompt.md`. Projects keep their paths, so `git log -- research/<slug>` shows their
-original commits there with no `--follow`.
-
-**The sync.** It was dry-run on 2026-10-14 against both `main`s, and a second sync after a new
-commit here brought in only that commit. Run it in `oss-monorepo`:
-
-```
-git fetch https://github.com/Duncan-Haywood/oss-research-monorepo main
-R=$(git rev-parse FETCH_HEAD)
-git merge -s ours --no-commit --allow-unrelated-histories "$R"
-git rm -r -q --cached --ignore-unmatch research && rm -rf research
-git read-tree --prefix=research/ "$R:research"
-git ls-tree "$R" | while read -r mode type sha name; do
-  [ "$name" = research ] && continue
-  if [ "$type" = tree ]; then git read-tree --prefix="research/$name/" "$sha"
-  else git update-index --add --cacheinfo "$mode,$sha,research/$name"; fi
-done
-git ls-files -z research | xargs -0 git checkout-index -f --
-git commit -m "Mirror oss-research-monorepo@${R:0:12} into research/"
-```
+**The mirror.** <https://github.com/Duncan-Haywood/oss-monorepo/pull/6832> merged this
+repository's history into oss-monorepo through #474. It also carried all of oss-monorepo#6143.
+Every commit here keeps its hash there, and `git log -- research/<slug>` lists the same commits
+in both. oss-monorepo's `research/_mirror/mirror.py` keeps its `research/` an exact copy of this
+`main`, and `research/_mirror/README.md` there is the spec.
+- `sync` merges this `main` as a parent and copies files by a fixed map. `research/**` keeps its
+  path, `site/**` goes to `research/_homepage/**`, and `LICENSE`, `.gitignore` and `PROJECTS.md`
+  go to `research/`. `README.md` is derived from this one, and each line of `prompts/runs.jsonl`
+  becomes a record under `prompts/runs/`.
+- Five files are *adapted* by hand there, each pinned to the version it was ported from:
+  `CLAUDE.md`, `prompt.md` (as `prompts/research/prompt-0.md`), `site/build.py`,
+  `site/template.html` and `.github/workflows/pages.yml`. A change to one of them here has to be
+  ported there by hand, then confirmed with `mirror.py ack`.
+- `sync` deletes any file in the copy that this repository lacks, and overwrites any edit. So
+  before cutover nobody adds or edits files under `research/` there.
+- `check` proves the copy is exact. On 2026-10-14 it was exact at #474 and 33 commits behind.
 
 **Milestones.**
-1. `mirror-movable` (here): make this repository run unchanged at `oss-monorepo/research/`.
-   `site/build.py` finds projects in `research/` here and beside `site/` there, and skips
-   `site`, `prompts` and dot-directories. Test both layouts. Make every project's tests pass
-   from either root. Make sure no project slug can collide with a top-level name here.
-2. `mirror-tool` (*oss-monorepo*): turn the sync into a script, such as
-   `platform/ci/research_mirror.py`, with unit tests on a throwaway pair of repositories.
-   - `sync` makes the merge above, and refuses on a slug that collides with a top-level name.
-   - `--check` exits 1 when `research/` differs from the path map of the commit that the latest
-     mirror merge recorded, which means someone edited the copy, and reports how many commits
-     and hours the mirror lags this `main`.
-3. `mirror-guards` (*oss-monorepo*): make that repository's tree-wide checks treat `research/` as
-   foreign. Root pytest collection, `check_duplicate_symbols`, `checklist_coverage`, the workflow
-   validators and the usage buckets either skip `research/` or run it under these rules; #6143
-   found most of them. Mirror pull requests must never be squashed: today `land-your-work.md`
-   and the auto-merge in `platform/ci/agent_review` both squash, so make the auto-merge skip a
-   mirror pull request or merge it with a merge commit. Add a CI job that runs `--check` and
-   `python research/site/build.py`.
-4. `mirror-import` (*oss-monorepo*): the first sync, from oss-monorepo's `main` rather than
-   #6143's branch. Merge with a merge commit. If GitHub refuses one, the setting is the owner's:
-   comment the blocker on the pull request and stop, and never squash instead. Confirm all three:
-   - `git merge-base --is-ancestor <R> origin/main` there.
-   - For a few slugs, `git log --oneline -- research/<slug>` lists the same hashes in both.
-   - `python research/site/build.py` prints `ok`.
-5. `mirror-retire-6143` (*oss-monorepo*): split what #6143 still has worth landing into pull
-   requests of their own: the agent-review fork hardening, the Hetzner clean-up, and the Pages
-   wiring that serves the research homepage at `/research/`. Then close it with a pointer.
-   Checked on 2026-10-14: every research commit in it is an ancestor of this `main`, so the
-   mirror already holds them, and its 14 other commits are that session's own. Its edits inside
-   `research/`, such as the moved homepage builder, are redone here by milestone 1.
-6. `mirror-sync` (*oss-monorepo*, recurring): whenever the mirror is a day or more behind this
-   `main`, sync and land it. Then automate it with a workflow there that opens and merges the
-   sync pull request on a schedule. It pushes unattended, so it stays off until the owner sets
-   its gating variable (oss-monorepo `CLAUDE.md`, Automation).
-7. `mirror-cutover` (both): write the cutover checklist and the "moved" notices for this
-   README, `CLAUDE.md` and the Pages homepage, ready to merge in the last sync. Make sure
-   `oss-monorepo`'s Pages build serves the research homepage. The owner steps, in order:
-   1. Make `oss-monorepo` public.
-   2. Point the scheduled research runs at it.
-   3. Archive this repository after the last sync, and never delete it.
-8. `site-redesign` (both): give the two GitHub Pages homepages a comprehensive, modern,
+1. `mirror-sync` (*oss-monorepo*, recurring): whenever this `main` is ahead of `upstream_commit`
+   in `research/_mirror/state.json` there, sync it as that README says.
+   1. Run `mirror.py sync`.
+   2. Port each adapted file it lists, then run `mirror.py ack <path>`.
+   3. Run `mirror.py check`, `python3 research/_homepage/build.py` and
+      `python3 prompts/promptctl.py validate`.
+   4. Merge with a merge commit. If GitHub refuses one, that setting is the owner's: comment the
+      blocker on the pull request and stop. Never squash instead.
+   5. Confirm `git merge-base --is-ancestor <this main> origin/main` there.
+2. `mirror-guards` (*oss-monorepo*): make the rules enforce themselves.
+   - The auto-merge in `platform/ci/agent_review` squashes. Make it skip a mirror pull request
+     (one that changes `research/_mirror/state.json`) or merge it with a merge commit. Add a test.
+   - Run `mirror.py check --allow-behind` in `research-ci.yml` with full history, so a pull
+     request that edits the copy directly fails CI.
+3. `mirror-movable` (here): cut down the hand-porting. Make `site/build.py` and
+   `site/template.html` run unchanged at `oss-monorepo/research/_homepage/`, by finding projects
+   and the README relative to the layout. Keep `CLAUDE.md` and `prompt.md` free of anything that
+   only fits this repository. Then move those files to the exact map in `mirror.py`.
+4. `mirror-cutover` (both): prepare the cutover that `research/_mirror/README.md` describes. That
+   covers the "moved" notices for this README, `CLAUDE.md` and the Pages homepage, and serving the
+   research homepage from oss-monorepo's Pages, which already builds it at `/research/`. The
+   steps, in order:
+   1. The owner points the scheduled research routines at `oss-monorepo`.
+   2. A run merges the notices here, runs a final sync, and confirms `mirror.py check` exits 0
+      there.
+   3. The owner archives this repository and never deletes it. Its pull requests, review
+      threads, issues, branches and Pages site live only here.
+   4. A run removes `research/_mirror/` there. From then on, work lands in
+      `oss-monorepo/research/`.
+5. `site-redesign` (both): give the two GitHub Pages homepages a comprehensive, modern,
    professional redesign, with one super homepage that routes to both. Added on 2026-10-14 at the
-   owner's request. It is independent of milestones 1 to 7, so a run may take it while they are
+   owner's request. It is independent of milestones 1 to 4, so a run may take it while they are
    claimed.
    - **The two sites.** The research homepage
      (<https://duncan-haywood.github.io/oss-research-monorepo/>) is built here by
@@ -98,7 +80,7 @@ git commit -m "Mirror oss-research-monorepo@${R:0:12} into research/"
    - **The super homepage.** One landing page introduces the whole portfolio and routes visitors
      to the products and to the research. It must not be a third, thin page that each side
      forgets to update. Prefer making it the `oss-monorepo` Pages root, with the catalogue and
-     the research homepage (`/research/`, milestone 7) under it, and keep the old URLs working
+     the research homepage (`/research/`, milestone 4) under it, and keep the old URLs working
      with redirects or links.
    - **Better HTML, CSS and JS.** Use semantic HTML and a shared design system: tokens for
      colour, type and spacing, light and dark themes, and a responsive layout from phone width
@@ -112,7 +94,8 @@ git commit -m "Mirror oss-research-monorepo@${R:0:12} into research/"
      including `regen.mjs --verify` and the browser checks (`contrast.mjs`).
    - **Done when** both homepages and the super homepage ship the new design, each links to the
      other two, and before and after screenshots at phone and desktop widths are in the pull
-     request. Restyle the research side here, where the mirror sync carries it across. Do the
+     request. Restyle the research side here. The mirror sync carries it across, but
+     `site/build.py` and `site/template.html` are ported by hand until milestone 3. Do the
      catalogue and the super homepage in `oss-monorepo`.
 
 ## Picking work
