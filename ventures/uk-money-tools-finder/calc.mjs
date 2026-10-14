@@ -66,6 +66,7 @@ export const TOOLS = [
   ["Employing people", "uk-employer-hiring-cost-calculator", "UK employer hiring cost calculator", "True first-year cost of a hire with employer National Insurance and pension.", ["employer"]],
   ["Employing people", "uk-statutory-sick-pay-calculator", "UK Statutory Sick Pay calculator", "SSP weekly and daily rate, waiting days and the 28-week limit.", ["employer", "leave"]],
   ["Employing people", "uk-statutory-maternity-pay-calculator", "UK Statutory Maternity Pay calculator", "SMP eligibility and the 39-week schedule, plus paternity pay.", ["employer", "leave"]],
+  ["Employing people", "uk-shared-parental-pay-planner", "UK Shared Parental Pay planner", "Split the 39 weeks of statutory pay between two parents and compare household totals.", ["employer", "leave"]],
   ["Employing people", "uk-minimum-wage-checker", "UK minimum wage checker", "Effective hourly rate against the National Living Wage and NMW, shortfall, arrears and HMRC penalty exposure.", ["employer", "employed"]],
   ["Employing people", "uk-holiday-pay-calculator", "UK holiday pay calculator", "Statutory holiday for part-year and irregular-hours workers and the value of unpaid leave.", ["employer", "leave", "employed"]],
   ["Employing people", "uk-redundancy-pay-calculator", "UK redundancy pay calculator", "Statutory redundancy pay, notice and whether an offer beats the statutory minimum.", ["leave", "employer", "employed"]],
