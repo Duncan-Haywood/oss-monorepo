@@ -1,8 +1,16 @@
 """igmp: library -> Instagram photos and reels.
 
   igmp init        write a settings template (~/.config/igmp/config.toml)
+  igmp plan        what a run would read, write and ask Claude; writes nothing. Run it first.
+  igmp verify-library   compare the library with `igmp backup manifest`'s checksums
+                   (size and time; --full re-hashes every file)
   igmp run         every stage below, resuming where the last run stopped
   igmp scan | prefilter | score | edit | reels | status
+  --dry-run        with run or a stage: the plan for just that, writing nothing
+
+The library is only read, apart from the tag stage's XMP sidecars (and `igmp backup`'s own
+_checksums.csv). Every command runs with safety's tripwire up and compares the library before and
+after; it exits 3 if anything else under a library root changed, or a write to it was blocked.
 """
 from __future__ import annotations
 
@@ -12,7 +20,7 @@ import sys
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
 
-from . import catalog, config, media
+from . import catalog, config, integrity, media, safety
 from .models import Asset, Metrics
 from .store import Store
 
@@ -65,7 +73,7 @@ def measure(cfg: config.Config, store: Store, assets: list[Asset]) -> None:
     offline = [a for a in todo if not online(a)]
     todo = [a for a in todo if online(a)]
     log.info("measuring %d assets (%d on drives that aren't connected: skipped)", len(todo), len(offline))
-    with ProcessPoolExecutor() as pool:
+    with ProcessPoolExecutor(initializer=safety.guard_worker, initargs=(cfg,)) as pool:   # tripwire in workers too
         for a, m in zip(todo, pool.map(_measure, [(a, cfg) for a in todo], chunksize=8)):
             if isinstance(m, Exception):
                 store.put("jobs", f"measure:{a.id}", {"error": str(m)})
@@ -118,15 +126,93 @@ def run_backup(cfg: config.Config, args) -> int:
     return 1 if bad else 0
 
 
+def guarded(cfg: config.Config, work, allow: list[Path] = ()) -> int:
+    """Run `work` with the library tripwire up and the library listed before and after. Exit 3
+    if anything under a library root changed other than XMP sidecars (and the `allow`ed paths),
+    or a write to it was blocked (and so did not happen)."""
+    with safety.guard(cfg, allow=allow) as g:
+        before = {r: integrity.snapshot([r])[0] for r in cfg.library_roots if r.is_dir()}
+        try:
+            code = work()
+        except safety.UnsafeWrite as e:
+            log.error("stopped: %s", e)
+            code = 3
+        finally:
+            diff = integrity.Diff()
+            for root, entries in before.items():
+                if root.is_dir():               # a drive unplugged mid-run is not a change to it
+                    d = integrity.compare(entries, integrity.snapshot([root])[0])
+                    diff.added += d.added
+                    diff.removed += d.removed
+                    diff.changed += d.changed
+            sidecars, diff = integrity.split_sidecars(diff, {str(a) for a in allow})
+            if sidecars:
+                log.info("library: %d XMP sidecar(s) written or refreshed", sidecars)
+            if not diff and not g.violations:
+                log.info("library otherwise unchanged (%d roots checked)", len(before))
+            if diff:
+                log.error("the library changed during this run (%s). If you did not add or edit files "
+                          "there yourself meanwhile, this is a bug: please report it.", diff.summary())
+                for line in diff.lines():
+                    log.error("  %s", line)
+            if g.violations:
+                log.error("safety blocked %d write(s) to the library (none happened), e.g.:", len(g.violations))
+                for v in g.violations[:5]:
+                    log.error("  %s", v)
+    return 3 if diff or g.violations else code
+
+
+def dry_run(cfg: config.Config, command: str) -> int:
+    from . import plan
+    if command in ("plan", "run"):
+        stages = plan.STAGES
+    elif command in plan.STAGES:
+        stages = tuple(dict.fromkeys(("scan", command)))
+    else:
+        print(f"igmp: --dry-run goes with run or a stage ({', '.join(plan.STAGES)})", file=sys.stderr)
+        return 2
+    with safety.guard(cfg, dry_run=True) as g:
+        plan.report(cfg, stages)
+    for v in g.violations:
+        log.error("dry run: %s", v)
+    return 3 if g.violations else 0
+
+
+def verify_library(cfg: config.Config, args) -> int:
+    """Each library root against `igmp backup manifest`'s <root>/_checksums.csv. Exit 1 if
+    anything other than XMP sidecars changed, 2 if a root has no manifest yet."""
+    with safety.guard(cfg, dry_run=True):         # reading only: any write would be refused
+        reports = integrity.verify(cfg, full=args.full)
+    code = 0
+    for r in reports:
+        if r.note:
+            print(f"{r.root}: {r.note}")
+            code = max(code, 2 if "manifest" in r.note else 0)
+            continue
+        problems = r.problems
+        how = "hashes" if args.full else "size and modification time"
+        state = "CHANGED" if problems else "unchanged"
+        print(f"{r.root}: {state} against {r.files} checksummed files ({how})"
+              f"{f'; {r.sidecars} XMP sidecar(s) written since, as expected' if r.sidecars else ''}")
+        for line in problems[:50]:
+            print(f"  {line}")
+        if len(problems) > 50:
+            print(f"  ... and {len(problems) - 50} more")
+        code = max(code, 1) if problems else code
+    return code
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="igmp", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("command", choices=["init", "run", "scan", "prefilter", "score", "edit", "reels", "tag",
-                                       "backup", "geo", "music", "status"])
+    p.add_argument("command", choices=["init", "plan", "verify-library", "run", "scan", "prefilter", "score",
+                                       "edit", "reels", "tag", "backup", "geo", "music", "status"])
     p.add_argument("action", nargs="?", choices=["manifest", "verify", "copy"], help="backup only")
     p.add_argument("--to", type=str, default=None, help="backup copy destination")
     p.add_argument("--only", type=str, default=None, help="limit to events whose key contains this text")
     p.add_argument("--limit", type=int, default=None, help="score at most this many candidates")
     p.add_argument("--config", type=str, default=None)
+    p.add_argument("--dry-run", action="store_true", help="with run or a stage: show the plan, write nothing")
+    p.add_argument("--full", action="store_true", help="verify-library: re-hash every file, not just size and time")
     args = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
@@ -134,7 +220,22 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "init":
         print(f"settings template: {config.write_template(path)}")
         return 0
-    cfg = config.load(path)
+    try:
+        cfg = config.load(path)
+    except safety.UnsafeConfig as e:
+        print(f"igmp: refusing to start: {e}", file=sys.stderr)
+        return 2
+    if args.command == "plan" or args.dry_run:
+        return dry_run(cfg, args.command)
+    if args.command == "verify-library":
+        return verify_library(cfg, args)
+    allow = []
+    if args.command == "backup":    # the manifest backup.py keeps in each root, and nothing else
+        allow = [r / n for r in cfg.library_roots for n in ("_checksums.csv", "_checksums.csv.tmp")]
+    return guarded(cfg, lambda: run_command(cfg, args), allow)
+
+
+def run_command(cfg: config.Config, args) -> int:
     store = Store(cfg.db_path)
     log.addHandler(logging.FileHandler(cfg.state_dir / "igmp.log"))
     if args.command == "status":

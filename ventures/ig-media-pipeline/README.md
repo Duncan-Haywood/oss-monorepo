@@ -45,6 +45,55 @@ Settings live in `~/.config/igmp/config.toml` (or `$IGMP_CONFIG`), outside this 
 because they name your drives. Outputs go to `output_dir`: `photos/<event>/`, `reels/<event>.mp4`
 with a `.caption.txt`, and `state/` (database, previews, logs).
 
+## Safety: what igmp will and won't touch
+
+**Originals are only ever read.** igmp never modifies, moves, renames or deletes a file under a
+`library_roots` folder. The one kind of file it adds there is the tag stage's XMP sidecar,
+`<name>.xmp` beside an existing original (`<name>.ARW`, `.JPG`, `.MP4`...), which other photo apps
+read. `igmp backup manifest` also keeps its `_checksums.csv` in each root. Nothing else lands in
+the library: no `.pp3`, no exiftool `*_original` backup, no `._*` file, no temp file.
+
+This is enforced in code ([`safety.py`](src/igmp/safety.py)), not by convention:
+
+- **Settings.** igmp refuses to start if `output_dir` is a library root, sits inside one, or
+  contains one (symlinks, `..` and letter case resolved first).
+- **Tripwire.** Every command runs with a Python audit hook that sees each file write, rename,
+  delete, mkdir, chmod, timestamp or xattr change and process launch, in igmp and its worker
+  processes. It blocks any of them aimed at the library before it happens, except writing an XMP
+  sidecar as above.
+- **Tools.** ffmpeg gets library files only as `-i` inputs. exiftool gets them only for reading,
+  or with `-overwrite_original` on a sidecar. RawTherapee never gets an original, only a private
+  link to it in igmp's work folder, and never `-s`, `-S` or `-O`. Claude sees previews and
+  renders under `output_dir`, never an original.
+- **Proof.** Every command lists the library before and after and exits with status 3 if
+  anything other than XMP sidecars changed. `igmp verify-library` checks the library against
+  `igmp backup manifest`'s checksums, by size and time or (`--full`) by re-hashing every file.
+
+Reading can update access times on volumes mounted with atime; contents, sizes and modification
+times are untouched. Finder writes `.DS_Store` into folders you open, so a check may list one if
+you browse the library during a run: that file is Finder's, not igmp's.
+
+## First run on a real library (external drive)
+
+Point `library_roots` at the folders on the drive and keep `output_dir` outside them:
+
+```toml
+library_roots = ["/Volumes/PhotoDrive/2026"]   # only read (plus XMP sidecars)
+output_dir = "/Volumes/PhotoDrive/IG"           # a sibling folder, or ~/Pictures/igmp on the Mac
+```
+
+Never list the drive's root as a library root while `output_dir` is on the same drive; igmp
+refuses to start if you do. Then, in this order:
+
+```bash
+.venv/bin/igmp plan                    # what a run would read, write and ask Claude; writes nothing
+.venv/bin/igmp backup manifest         # checksums of the library as it is now (_checksums.csv)
+.venv/bin/igmp run                     # exits 3 if anything but XMP sidecars changed in the library
+.venv/bin/igmp verify-library          # size and time against the checksums; add --full to re-hash
+```
+
+`--dry-run` on `run` or any stage prints the plan for just that.
+
 ## Two ways to pay for Claude
 
 - `backend = "claude-code"` (default) runs Claude Code headlessly (`claude -p`) on the Claude plan
