@@ -1,0 +1,37 @@
+name: uk-shared-parental-pay-planner
+description: >-
+  Free browser tool for UK expecting parents: enter the due date, both parents' earnings and employment starts and how many weeks of maternity pay the mother takes first to test eligibility, price the plan and compare the household statutory pay of every split of the shared weeks. Nothing is uploaded. Not legal or payroll advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; the portfolio has UK SMP/SPP (uk-statutory-maternity-pay-calculator), which names shared parental pay as "not built". This is that gap: a two-parent planning tool, not a single-employee payroll check.
+#
+# First visitor: expecting parents searching "shared parental pay calculator", "shared parental leave how many weeks", "SMP vs shared parental pay". Evergreen with an April uprating spike; volume not measured. Rivals are GOV.UK's calculator (one parent at a time, no comparison of splits) and HR-software explainers.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: employer enhanced-pay modelling, leave-block calendar and notice-date generator behind an env-var switch.
+#
+# Liability: rates written from memory without network access (2025/26 standard GBP 187.18, LEL 125; 2026/27 standard GBP 194.32, LEL 129); every result names GOV.UK as the source to verify and carries no-warranty and not-payroll-advice clauses, and says what it does not decide (AWE, the other parent's work test, notices, Maternity Allowance, enhanced pay). Risk is a family planning leave on a wrong figure; mitigated by the verify line.
+hypotheses:
+  - claim: >-
+      Expecting UK parents will use a free private planner to compare how splitting the shared weeks changes household pay, because the official calculator prices one parent at a time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: GBP
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or rule differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-shared-parental-pay-planner/
+  analytics: null
