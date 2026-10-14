@@ -1,0 +1,39 @@
+name: uk-100k-tax-trap-calculator
+description: >-
+  Free browser tool for UK earners over GBP 100,000: your real marginal rate in the 60% personal-allowance taper, the pension contribution that restores the allowance and childcare support, and its true net cost after tax and NI. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no UK 100k taper tool in ventures/ (checked by name).
+#
+# First visitor: UK professional on GBP 100-125k searching "60% tax trap calculator", "pension to get under 100k", "lose childcare over 100k".
+# High-intent, high-income audience (money-motivated); volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: household planner (two earners, bonus timing) behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (Scottish rates, other income, annual allowance carry forward). Ethical risk is reading a pension contribution as free money; mitigated by the access-age and net-cost statements.
+hypotheses:
+  - claim: >-
+      UK earners in the GBP 100-125k band will use a free calculator to size a pension contribution that escapes the 60% marginal rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a band, rate or allowance differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-100k-tax-trap-calculator/
+  analytics: null

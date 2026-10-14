@@ -1811,6 +1811,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-child-benefit-charge-calculator'
       // `uk-student-loan-repayment-calculator` joined 2026-10-13 on its first commit: UK graduate repayment arithmetic, sibling of the Child Benefit and payments-on-account tools.
       || slug === 'uk-student-loan-repayment-calculator'
+      // `uk-100k-tax-trap-calculator` joined 2026-10-13 on its first commit: UK GBP 100k personal-allowance taper and pension/childcare planning, sibling of the Child Benefit tool.
+      || slug === 'uk-100k-tax-trap-calculator'
       // `uk-payments-on-account-calculator` joined 2026-10-13 on its first commit: UK Self Assessment payment-schedule arithmetic, sibling of the trading-allowance and CIS tools.
       || slug === 'uk-payments-on-account-calculator'
       // `uk-ir35-inside-outside-calculator` joined 2026-10-13 on its first commit: UK contractor tax arithmetic, sibling of the sole-trader-vs-company and trading-allowance tools.
