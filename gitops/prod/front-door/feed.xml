@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1204 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1205 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -54,6 +54,14 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK employer cost calculator: salary plus 15% employer National Insurance, workplace pension, Employment Allowance, equipment and recruitment. See the true monthly and first-year cost of a hire, and what a budget buys. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>UK Gift Aid Higher Rate Relief Calculator (what a donation really costs)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-gift-aid-higher-rate-relief-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-gift-aid-higher-rate-relief-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free UK Gift Aid calculator for higher and additional rate taxpayers: what the charity receives, the relief you reclaim, the carry-back to last tax year, and the gift that wins back your personal allowance. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>UK Holiday Entitlement and Pay Calculator 2026</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK salary sacrifice pension calculator for 2026/27: the same contribution by salary sacrifice, net pay and relief at source side by side, with income tax, National Insurance, student loan, employer NI saving and the April 2029 NI cap. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>UK Savings Interest Tax Calculator (Personal Savings Allowance, starting rate)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-savings-interest-tax-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/uk-savings-interest-tax-calculator</id>
-    <updated>2026-10-14T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free UK savings interest tax calculator: how much tax you owe on bank and building society interest after the personal allowance, the 0% starting rate for savings and the Personal Savings Allowance, how much you can earn tax-free, and what a cash ISA would save. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
