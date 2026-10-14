@@ -1864,6 +1864,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-emi-share-option-tax-calculator'
       // `uk-gift-aid-higher-rate-relief-calculator` joined 2026-10-14 on its first commit: UK charity-giving tax relief (Gift Aid, carry-back, allowance taper), sibling of the £100k trap and self assessment tools.
       || slug === 'uk-gift-aid-higher-rate-relief-calculator'
+      // `uk-lifetime-isa-vs-pension-calculator` joined 2026-10-14 on its first commit: UK LISA vs pension choice, sibling of the salary sacrifice and pension annual allowance tools.
+      || slug === 'uk-lifetime-isa-vs-pension-calculator'
       || slug === 'uk-holiday-pay-calculator'
       // `uk-employer-hiring-cost-calculator` joined 2026-10-14 on its first commit: UK employer cost arithmetic (NIC, pension, allowance), sibling of the take-home pay and holiday pay tools.
       || slug === 'uk-employer-hiring-cost-calculator'
