@@ -1708,6 +1708,11 @@
      "slug": "selfrep-terminalmarket",
      "title": "Does a resale value for the finished fleet still end copying late when the goods market saturates?",
      "summary": "Follow-up to selfrep-terminal and selfrep-satmarket: a backward dynamic programme with terminal reward <em>s</em> per machine on the saturating-market fluid model (<em>W</em>&nbsp;=&nbsp;50&nbsp;h, failure 0, horizon 600&nbsp;h, all inputs assumed). With a linear market the DP reproduces the closed-form switch of selfrep-terminal. As the market capacity <em>c</em> falls, a small <em>s</em> moves the optimum from an early switch to copying until the horizon (<em>c</em>&nbsp;=&nbsp;1000: switch near 400&nbsp;h at <em>s</em>&nbsp;=&nbsp;0, none at <em>s</em>&nbsp;=&nbsp;12.5), and a policy tuned for <em>s</em>&nbsp;=&nbsp;0 earns only 14% of the optimum. Where the final fleet is large the DP is not reliable: a bang-bang switch beats its policy by up to 0.7%, so it is a lower bound there. Stylised and preliminary; the resale value is assumed and does not itself saturate."
+    },
+    {
+     "slug": "selfrep-resalecurve",
+     "title": "How does a falling resale price for the finished fleet change when the shop stops copying?",
+     "summary": "Follow-up to selfrep-terminalmarket: the fleet is sold at the horizon for <em>s</em><em>m</em>(1&nbsp;&minus;&nbsp;e<sup>&minus;<em>N</em>/<em>m</em></sup>), so the first machine fetches <em>s</em> and the price falls with market depth <em>m</em> (<em>W</em>&nbsp;=&nbsp;50&nbsp;h, failure 0, horizon 600&nbsp;h, all inputs assumed). With an unsaturated goods market a shallower resale market moves the optimal switch from 574&nbsp;h (linear) to 549&nbsp;h (<em>m</em>&nbsp;=&nbsp;10<sup>3</sup>), and a single switch matches the DP. With a saturating goods market (<em>c</em>&nbsp;=&nbsp;10<sup>4</sup>) the DP policy beats the best single switch by up to 14%. The DP table value is not a certificate (it overstates at 400 grid points); simulated policy values are reported. Stylised and preliminary; both market curves are assumed, not fitted."
     }
    ]
   },
