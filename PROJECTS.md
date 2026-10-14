@@ -4,8 +4,8 @@ The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2
 started from `prompt.md` take their new work from here. There are eleven tracks. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
-README bullet, a `site/projects.json` entry and a passing `python site/build.py`, as `CLAUDE.md`
-says. Every rule in `prompt.md` still applies, research integrity above all.
+README bullet, a `site/projects.json` entry, a home page on the Pages site (milestone 9 below)
+and a passing `python site/build.py`, as `CLAUDE.md` says. Every rule in `prompt.md` still applies, research integrity above all.
 
 ## Repository merge (before the tracks)
 
@@ -115,6 +115,26 @@ git commit -m "Mirror oss-research-monorepo@${R:0:12} into research/"
      request. Restyle the research side here, where the mirror sync carries it across. Do the
      catalogue and the super homepage in `oss-monorepo`.
 
+9. `project-pages` (both): give every project and product its own home page on the GitHub-hosted
+   site, by default. Added on 2026-10-14 at the owner's request. The goal (`oss-monorepo`
+   `prompts/goals.md`, web presence) is one website on GitHub Pages from which all the work can be
+   checked out visually. Independent of milestones 1 to 7; build on milestone 8's design system if
+   it has landed, and do not wait for it if not.
+   - **Research (here).** `site/build.py` also writes `_site/<slug>/index.html` for every project:
+     the question it answers, the abstract and headline results, one or two figures from the
+     project's own output, the test count, the white paper, code and results links, the AI
+     assistance note, and its theme. The homepage card links to it. Generate it from
+     `projects.json`, the README and the project's files, so a new project gets its page with no
+     extra step, and make the build fail when a project's page cannot be built.
+   - **Products (*oss-monorepo*).** Every venture gets a home or marketing page from the Pages
+     build, including the CLIs, servers and apps the mirror excludes today: what it does and for
+     whom, a screenshot or demo, how to install or run it, and links to the code, with the
+     disclaimers and usage tracking every published page carries. Make the build or a check fail
+     on a venture with no page.
+   - **Done when** every project and every venture on `main` has a page reachable from its
+     homepage, the builds enforce it for new ones, and screenshots of a few pages at phone and
+     desktop widths are in the pull request.
+
 ## Picking work
 
 1. **Pick a track at random.** Draw a uniform random number and map it to the eleven tracks. Four
@@ -165,6 +185,9 @@ git commit -m "Mirror oss-research-monorepo@${R:0:12} into research/"
   part, a sewing pattern, a tool, a dataset.
 - **Lab tags where they fit.** Tracks 4, 5 and 9 build naturally on the groups in `prompt.md`.
   Where a project builds on none of them, say so instead of stretching a connection.
+- **A home page by default.** Every project gets its own page on the GitHub Pages site, with a
+  figure from its own output, so the work can be checked out visually without reading the code
+  (milestone 9). Until the builder generates it, the project is not done without one.
 - **Simulated is not real.** Say what each model leaves out, and keep simulated performance
   apart from any claim about a physical device.
 
