@@ -44,6 +44,7 @@ export const TOOLS = [
   ["Company and contracting", "uk-sole-trader-vs-limited-company-calculator", "UK sole trader vs limited company calculator", "What you keep from the same profit as a sole trader or through a company.", ["company", "selfemployed"]],
   ["Company and contracting", "uk-ir35-inside-outside-calculator", "UK IR35 inside vs outside calculator", "Take-home outside IR35 (own company) against inside IR35 (umbrella) and the break-even day rate.", ["contractor", "company"]],
   ["Company and contracting", "uk-dividend-tax-calculator", "UK dividend tax calculator", "Dividend tax by band for 2025/26 and 2026/27, the allowance and the cost of the next pound.", ["company", "investor"]],
+  ["Property and investments", "uk-rent-a-room-relief-calculator", "UK Rent a Room Relief calculator", "Is rent from a lodger tax-free under the £7,500 limit, and above it, does the relief or claiming expenses cost less tax.", ["landlord", "sidehustle"]],
   ["Property and investments", "uk-landlord-section-24-calculator", "UK landlord Section 24 calculator", "Tax with the 20% mortgage interest credit against the old rules.", ["landlord"]],
   ["Property and investments", "uk-capital-gains-tax-calculator", "UK Capital Gains Tax calculator", "CGT for 2025/26 at 18% and 24% with the annual exempt amount, costs and losses.", ["investor", "landlord"]],
   ["Property and investments", "uk-stamp-duty-calculator", "UK Stamp Duty calculator", "SDLT in England and Northern Ireland band by band, with first-time buyer and additional-home rates.", ["buying"]],
