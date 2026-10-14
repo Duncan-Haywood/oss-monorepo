@@ -1866,6 +1866,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-gift-aid-higher-rate-relief-calculator'
       // `uk-shared-parental-pay-planner` joined 2026-10-14 on its first commit: UK shared parental pay planning for two parents, sibling of the maternity and sick pay tools.
       || slug === 'uk-shared-parental-pay-planner'
+      // `uk-lifetime-isa-vs-pension-calculator` joined 2026-10-14 on its first commit: UK LISA vs pension choice, sibling of the salary sacrifice and pension annual allowance tools.
+      || slug === 'uk-lifetime-isa-vs-pension-calculator'
       || slug === 'uk-holiday-pay-calculator'
       // `uk-employer-hiring-cost-calculator` joined 2026-10-14 on its first commit: UK employer cost arithmetic (NIC, pension, allowance), sibling of the take-home pay and holiday pay tools.
       || slug === 'uk-employer-hiring-cost-calculator'
