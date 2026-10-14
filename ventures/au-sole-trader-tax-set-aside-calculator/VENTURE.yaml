@@ -1,0 +1,37 @@
+name: au-sole-trader-tax-set-aside-calculator
+description: >-
+  Free browser tool for Australian sole traders and ABN freelancers: enter income and expenses to see resident income tax, Medicare levy, the small business offset, and how much of every invoice to set aside, with GST and PAYG-instalment flags. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session (duplicate_check top match 0.36, the Canadian sibling). The portfolio has an Australian GST registration checker but no Australian income-tax set-aside tool.
+#
+# First visitor: Australian freelancers and tradies searching "how much tax should a sole trader set aside Australia", "sole trader tax calculator". Evergreen, peaks June-October; volume not measured. Rivals are accountant and bank calculators that ask for an email.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors.
+#
+# Liability: 2025-26 and 2026-27 ATO rates written from memory (resident brackets, Medicare levy, small business income tax offset); every result tells the reader to verify on ato.gov.au, carries no-warranty and not-tax-advice clauses and says what it does not decide (HELP, MLS, low-income Medicare reduction, other income).
+hypotheses:
+  - claim: >-
+      Australian sole traders will use a free private calculator to learn what share of each invoice to set aside, because with no employer withholding the first tax bill arrives after 30 June.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: AUD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that an ATO figure differs from ato.gov.au.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/au-sole-trader-tax-set-aside-calculator/
+  analytics: null
