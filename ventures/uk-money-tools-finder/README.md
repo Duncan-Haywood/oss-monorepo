@@ -2,7 +2,7 @@
 
 Free, private browser page: tick what applies to you (employee, Scottish taxpayer, landlord, contractor, director, parent, buying a home, employing people) and get the matching UK tax, pay and employment calculators from this repository's 27 UK tools, most relevant first.
 
-After using this, you know which of the UK calculators answers your situation, without reading 32 landing pages.
+After using this, you know which of the UK calculators answers your situation, without reading 43 landing pages.
 
 Open `index.html`. Tests: `node --test 'ventures/uk-money-tools-finder/**/*.test.mjs'`. A test fails when a `uk-*` venture is added without being listed in `calc.mjs`, so the finder cannot go stale.
 
