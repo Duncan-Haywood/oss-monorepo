@@ -1680,6 +1680,11 @@
      "slug": "simdesign-gaugemesh",
      "title": "Is the narrow 2&nbsp;mm laser-cut bracket region a mesh artefact?",
      "summary": "A negative result for the search mesh (stylised). All 39 gauge-2 bracket designs that were feasible on the 2.5&nbsp;mm search mesh (19 under laser rules, 20 for the no-rules twin) are infeasible on finer meshes (1.5, 1.0, 0.75&nbsp;mm): the peak von Mises stress is 1.09&ndash;1.27&times; higher at 0.75&nbsp;mm and is still rising, at the point where the fillet meets the arm. Tip deflection is unchanged and the fillet facet count is not the cause. Earlier mass prices in the bracket chain are therefore conditional on the coarse mesh; no fine-mesh optimum was searched."
+    },
+    {
+     "slug": "simdesign-gaugepatch",
+     "title": "Does a patch-averaged stress make the 2&nbsp;mm laser-cut bracket region mesh-independent?",
+     "summary": "Preliminary, stylised 2D plane stress. On the 39 gauge-2 bracket designs that fail the stress limit on fine meshes under the element-centroid peak, a 3&nbsp;mm patch-averaged stress changes by at most 2.2% between 1.0 and 0.75&nbsp;mm meshes (the centroid peak rises up to 9.7%), and all 39 stay feasible at every mesh size, with a median of 84&ndash;86&nbsp;MPa on the finest mesh. The verdict flips because the criterion is less strict, not because the model changed; whether a patch average is an adequate design rule was not shown, and no fine-mesh design search was run."
     }
    ]
   },
