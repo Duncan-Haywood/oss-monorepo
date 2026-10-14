@@ -1,0 +1,37 @@
+name: au-sole-trader-tax-set-aside-calculator
+description: >-
+  Free browser tool for Australian sole traders and freelancers: enter income and expenses to see income tax, Medicare levy, optional HELP repayment and how much of every invoice to set aside, with PAYG instalment and GST flags. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; the portfolio has an Australian GST registration checker and redundancy calculator, but no Australian income-tax set-aside tool for sole traders.
+#
+# First visitor: Australian freelancers and ABN holders searching "how much tax should I set aside sole trader Australia". Evergreen, peaks around lodgement time (July-October); volume not measured. Rivals are accountant and bank blog calculators that want an email.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: Medicare levy reductions, other income, invoice-by-invoice tracker behind an env-var switch.
+#
+# Liability: 2025-26 and 2026-27 ATO resident rates and the LITO written from memory; every result tells the reader to verify on ato.gov.au, carries no-warranty and not-tax-advice clauses and says what it does not decide.
+hypotheses:
+  - claim: >-
+      Australian sole traders will use a free private calculator to learn what share of each invoice to set aside, because rules of thumb ignore their own expense level and Medicare levy.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: AUD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that an ATO figure differs from ato.gov.au.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/au-sole-trader-tax-set-aside-calculator/
+  analytics: null
