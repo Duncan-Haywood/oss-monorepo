@@ -1,0 +1,51 @@
+pythermalcomfort 4.6.1 | numpy 2.2.6 | grid 108 conditions (ta = tr, v 0.1 m/s)
+
+== A. endpoint checks: the switchable model with all flags 'ours' / all 'ref' ==
+max |all-ours - garment-thermal two_node| = 7.11e-15 (t_skin, t_core C; evap, dry W/m2)
+max |all-ref  - pythermalcomfort|         = 7.54e-03
+
+mean |difference to pythermalcomfort| (t_skin C, t_core C, e_skin W/m2, q_sensible W/m2)
+all ours : t_skin 0.581  t_core 0.040  e_skin 2.146  q_sensible 1.564
+all ref  : t_skin 0.000  t_core 0.000  e_skin 0.001  q_sensible 0.000
+
+== B. one at a time: switch ONE choice from ours to ref (others stay ours) ==
+flag          t_skin      t_core      e_skin  q_sensible
+area           0.582       0.039       2.148       1.569
+consts         0.582       0.039       2.142       1.558
+conv           0.425       0.056       3.407       2.241
+rad            0.586       0.039       2.135       1.612
+alfa           0.362       0.049       2.369       1.625
+dilate         0.436       0.039       2.096       1.707
+sweatcap       0.583       0.034       2.428       1.464
+order          0.581       0.039       2.148       1.557
+steps          0.580       0.041       2.145       1.555
+
+== C. leave one out: all ref except ONE choice kept as ours (gap that choice alone causes) ==
+flag          t_skin      t_core      e_skin  q_sensible
+area           0.003       0.001       0.025       0.017
+consts         0.002       0.000       0.044       0.010
+conv           0.251       0.031       3.044       1.966
+rad            0.020       0.001       0.150       0.162
+alfa           0.225       0.018       1.056       1.162
+dilate         0.160       0.039       0.846       0.822
+sweatcap       0.064       0.027       1.713       0.304
+order          0.001       0.000       0.039       0.006
+steps          0.005       0.002       0.032       0.025
+
+== D. greedy cumulative alignment (each step switches the choice that most lowers mean |d t_skin|) ==
+start      t_skin gap 0.581
++ alfa      t_skin 0.362  t_core 0.049  e_skin 2.369  q_sensible 1.625
++ conv      t_skin 0.200  t_core 0.067  e_skin 2.564  q_sensible 1.166
++ dilate    t_skin 0.085  t_core 0.028  e_skin 1.872  q_sensible 0.454
++ sweatcap  t_skin 0.022  t_core 0.001  e_skin 0.195  q_sensible 0.155
++ rad       t_skin 0.002  t_core 0.001  e_skin 0.070  q_sensible 0.010
++ consts    t_skin 0.001  t_core 0.000  e_skin 0.029  q_sensible 0.005
++ order     t_skin 0.002  t_core 0.001  e_skin 0.010  q_sensible 0.008
++ steps     t_skin 0.003  t_core 0.001  e_skin 0.025  q_sensible 0.017
++ area      t_skin 0.000  t_core 0.000  e_skin 0.001  q_sensible 0.000
+
+== E. where is the original gap largest? all-ours mean |d t_skin| by air temperature ==
+ta 18 C: all-ours mean |d t_skin| 1.01 C
+ta 24 C: all-ours mean |d t_skin| 0.61 C
+ta 30 C: all-ours mean |d t_skin| 0.42 C
+ta 36 C: all-ours mean |d t_skin| 0.29 C
