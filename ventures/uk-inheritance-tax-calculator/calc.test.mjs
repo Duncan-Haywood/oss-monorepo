@@ -70,3 +70,19 @@ test("summary names the source and disclaims advice", () => {
   assert.ok(t.includes(VERIFY));
   assert.match(t, /Not tax advice/);
 });
+
+test("gifts in the last 7 years use up the nil-rate band first", () => {
+  const base = compute({ ...SAMPLE, assets: 1000000, debts: 0, home: 0, homeToDescendants: "no" });
+  const gifted = compute({ ...SAMPLE, assets: 1000000, debts: 0, home: 0, homeToDescendants: "no", gifts: 100000 });
+  assert.equal(gifted.tax - base.tax, 40000);
+  assert.equal(compute({ ...SAMPLE, gifts: -1 }).errors.length > 0, true);
+});
+
+test("pensions count in the estate only for deaths on or after 6 April 2027", () => {
+  const base = { ...SAMPLE, assets: 800000, debts: 0, home: 0, homeToDescendants: "no", pension: 200000 };
+  const before = compute({ ...base, pensionIn: "no" });
+  const after = compute({ ...base, pensionIn: "yes" });
+  assert.equal(after.tax - before.tax, 80000);
+  assert.ok(before.findings.some((f) => f.title.includes("left out because the death is before")));
+  assert.equal(compute({ ...SAMPLE, pension: "abc" }).errors.length > 0, true);
+});
