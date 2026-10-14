@@ -1827,6 +1827,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-statutory-maternity-pay-calculator'
       // `uk-scottish-income-tax-calculator` joined 2026-10-14 on its first commit: Scottish income tax bands, sibling of the UK take-home pay and student loan tools.
       || slug === 'uk-scottish-income-tax-calculator'
+      // `uk-self-assessment-tax-calculator` joined 2026-10-14 on its first commit: combined Self Assessment estimate, hub for the narrower UK tax tools.
+      || slug === 'uk-self-assessment-tax-calculator'
       // `uk-money-tools-finder` joined 2026-10-14 on its first commit: situation checklist routing to the 27 UK tax and pay tools.
       || slug === 'uk-money-tools-finder'
       // `uk-salary-sacrifice-calculator` joined 2026-10-14 on its first commit: salary sacrifice vs net pay vs relief at source, with the April 2029 NI cap; sibling of the UK take-home and annual allowance tools.

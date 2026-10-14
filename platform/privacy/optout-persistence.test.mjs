@@ -1639,6 +1639,7 @@ const RELATIVE_SELF = relative(
 // +1: `uk-holiday-pay-calculator` graduated.
 // +1: `uk-employer-hiring-cost-calculator` graduated.
 // +1: `uk-scottish-income-tax-calculator` graduated.
+// +1: `uk-self-assessment-tax-calculator` graduated.
 // +1: `uk-money-tools-finder` graduated.
 // +1: `uk-salary-sacrifice-calculator` graduated.
 // +1: `uk-minimum-wage-checker` graduated.
