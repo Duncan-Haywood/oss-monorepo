@@ -1633,7 +1633,8 @@ const RELATIVE_SELF = relative(
 // +1: `uk-landlord-section-24-calculator` graduated.
 // +1: `uk-stamp-duty-calculator` graduated.
 // +1: `uk-pension-annual-allowance-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1157;
+// +1: `uk-marriage-allowance-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1159;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.

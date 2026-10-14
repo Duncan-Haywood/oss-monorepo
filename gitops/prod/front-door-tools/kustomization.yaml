@@ -33,50 +33,50 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548310 bytes
-#   portfolio-front-tools-1: 92 files, 555590 bytes
-#   portfolio-front-tools-2: 144 files, 553642 bytes
-#   portfolio-front-tools-3: 128 files, 549919 bytes
-#   portfolio-front-tools-4: 136 files, 554188 bytes
-#   portfolio-front-tools-5: 130 files, 549912 bytes
-#   portfolio-front-tools-6: 127 files, 556861 bytes
-#   portfolio-front-tools-7: 121 files, 556392 bytes
-#   portfolio-front-tools-8: 130 files, 554742 bytes
-#   portfolio-front-tools-9: 137 files, 554911 bytes
-#   portfolio-front-tools-10: 136 files, 554854 bytes
-#   portfolio-front-tools-11: 136 files, 556305 bytes
-#   portfolio-front-tools-12: 127 files, 549615 bytes
-#   portfolio-front-tools-13: 131 files, 554514 bytes
-#   portfolio-front-tools-14: 119 files, 556713 bytes
-#   portfolio-front-tools-15: 140 files, 556956 bytes
-#   portfolio-front-tools-16: 116 files, 546574 bytes
-#   portfolio-front-tools-17: 133 files, 556888 bytes
-#   portfolio-front-tools-18: 124 files, 556679 bytes
-#   portfolio-front-tools-19: 126 files, 556922 bytes
-#   portfolio-front-tools-20: 122 files, 556198 bytes
-#   portfolio-front-tools-21: 126 files, 555048 bytes
-#   portfolio-front-tools-22: 117 files, 554250 bytes
-#   portfolio-front-tools-23: 117 files, 551541 bytes
-#   portfolio-front-tools-24: 130 files, 556648 bytes
-#   portfolio-front-tools-25: 128 files, 556469 bytes
-#   portfolio-front-tools-26: 134 files, 556131 bytes
-#   portfolio-front-tools-27: 133 files, 551229 bytes
-#   portfolio-front-tools-28: 121 files, 552926 bytes
-#   portfolio-front-tools-29: 127 files, 556710 bytes
-#   portfolio-front-tools-30: 138 files, 555167 bytes
-#   portfolio-front-tools-31: 125 files, 553539 bytes
-#   portfolio-front-tools-32: 125 files, 554916 bytes
-#   portfolio-front-tools-33: 135 files, 552618 bytes
-#   portfolio-front-tools-34: 109 files, 554821 bytes
-#   portfolio-front-tools-35: 100 files, 552245 bytes
-#   portfolio-front-tools-36: 128 files, 549671 bytes
-#   portfolio-front-tools-37: 118 files, 554050 bytes
-#   portfolio-front-tools-38: 130 files, 553256 bytes
-#   portfolio-front-tools-39: 124 files, 555672 bytes
-#   portfolio-front-tools-40: 137 files, 553821 bytes
-#   portfolio-front-tools-41: 123 files, 555422 bytes
-#   portfolio-front-tools-42: 119 files, 556941 bytes
-#   portfolio-front-tools-43: 76 files, 401550 bytes
+#   portfolio-front-tools-0: 145 files, 548278 bytes
+#   portfolio-front-tools-1: 92 files, 555556 bytes
+#   portfolio-front-tools-2: 144 files, 553603 bytes
+#   portfolio-front-tools-3: 128 files, 549885 bytes
+#   portfolio-front-tools-4: 136 files, 554172 bytes
+#   portfolio-front-tools-5: 130 files, 549891 bytes
+#   portfolio-front-tools-6: 127 files, 556830 bytes
+#   portfolio-front-tools-7: 121 files, 556375 bytes
+#   portfolio-front-tools-8: 130 files, 554725 bytes
+#   portfolio-front-tools-9: 137 files, 554940 bytes
+#   portfolio-front-tools-10: 136 files, 554802 bytes
+#   portfolio-front-tools-11: 136 files, 556423 bytes
+#   portfolio-front-tools-12: 127 files, 549517 bytes
+#   portfolio-front-tools-13: 131 files, 554472 bytes
+#   portfolio-front-tools-14: 119 files, 556629 bytes
+#   portfolio-front-tools-15: 140 files, 556935 bytes
+#   portfolio-front-tools-16: 116 files, 546556 bytes
+#   portfolio-front-tools-17: 133 files, 556903 bytes
+#   portfolio-front-tools-18: 124 files, 556646 bytes
+#   portfolio-front-tools-19: 126 files, 557047 bytes
+#   portfolio-front-tools-20: 122 files, 556203 bytes
+#   portfolio-front-tools-21: 126 files, 555085 bytes
+#   portfolio-front-tools-22: 117 files, 554160 bytes
+#   portfolio-front-tools-23: 117 files, 551523 bytes
+#   portfolio-front-tools-24: 130 files, 556596 bytes
+#   portfolio-front-tools-25: 128 files, 556540 bytes
+#   portfolio-front-tools-26: 134 files, 556111 bytes
+#   portfolio-front-tools-27: 133 files, 551279 bytes
+#   portfolio-front-tools-28: 121 files, 552879 bytes
+#   portfolio-front-tools-29: 127 files, 556731 bytes
+#   portfolio-front-tools-30: 138 files, 555060 bytes
+#   portfolio-front-tools-31: 125 files, 553470 bytes
+#   portfolio-front-tools-32: 125 files, 554939 bytes
+#   portfolio-front-tools-33: 135 files, 552535 bytes
+#   portfolio-front-tools-34: 109 files, 554888 bytes
+#   portfolio-front-tools-35: 100 files, 552226 bytes
+#   portfolio-front-tools-36: 128 files, 549716 bytes
+#   portfolio-front-tools-37: 118 files, 554149 bytes
+#   portfolio-front-tools-38: 130 files, 553258 bytes
+#   portfolio-front-tools-39: 124 files, 555553 bytes
+#   portfolio-front-tools-40: 136 files, 549991 bytes
+#   portfolio-front-tools-41: 121 files, 546646 bytes
+#   portfolio-front-tools-42: 121 files, 550563 bytes
+#   portfolio-front-tools-43: 83 files, 443972 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -5429,6 +5429,9 @@ configMapGenerator:
       - uk-landlord-section-24-calculator__calc.mjs.gz=uk-landlord-section-24-calculator__calc.mjs.gz
       - uk-landlord-section-24-calculator__index.html.gz=uk-landlord-section-24-calculator__index.html.gz
       - uk-landlord-section-24-calculator__usage.mjs.gz=uk-landlord-section-24-calculator__usage.mjs.gz
+      - uk-marriage-allowance-calculator__calc.mjs.gz=uk-marriage-allowance-calculator__calc.mjs.gz
+      - uk-marriage-allowance-calculator__index.html.gz=uk-marriage-allowance-calculator__index.html.gz
+      - uk-marriage-allowance-calculator__usage.mjs.gz=uk-marriage-allowance-calculator__usage.mjs.gz
       - uk-mtd-income-tax-checker__calc.mjs.gz=uk-mtd-income-tax-checker__calc.mjs.gz
       - uk-mtd-income-tax-checker__index.html.gz=uk-mtd-income-tax-checker__index.html.gz
       - uk-mtd-income-tax-checker__usage.mjs.gz=uk-mtd-income-tax-checker__usage.mjs.gz
@@ -5453,6 +5456,9 @@ configMapGenerator:
       - uk-student-loan-repayment-calculator__calc.mjs.gz=uk-student-loan-repayment-calculator__calc.mjs.gz
       - uk-student-loan-repayment-calculator__index.html.gz=uk-student-loan-repayment-calculator__index.html.gz
       - uk-student-loan-repayment-calculator__usage.mjs.gz=uk-student-loan-repayment-calculator__usage.mjs.gz
+      - uk-take-home-pay-calculator__calc.mjs.gz=uk-take-home-pay-calculator__calc.mjs.gz
+      - uk-take-home-pay-calculator__index.html.gz=uk-take-home-pay-calculator__index.html.gz
+      - uk-take-home-pay-calculator__usage.mjs.gz=uk-take-home-pay-calculator__usage.mjs.gz
       - uk-trading-allowance-calculator__calc.mjs.gz=uk-trading-allowance-calculator__calc.mjs.gz
       - uk-trading-allowance-calculator__index.html.gz=uk-trading-allowance-calculator__index.html.gz
       - uk-trading-allowance-calculator__usage.mjs.gz=uk-trading-allowance-calculator__usage.mjs.gz
@@ -5494,6 +5500,11 @@ configMapGenerator:
       - van-westendorp-pricing-analyzer__index.html.gz=van-westendorp-pricing-analyzer__index.html.gz
       - van-westendorp-pricing-analyzer__usage.mjs.gz=van-westendorp-pricing-analyzer__usage.mjs.gz
       - vcard-contacts-check__calc.mjs.gz=vcard-contacts-check__calc.mjs.gz
+  - name: portfolio-front-tools-41
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - vcard-contacts-check__index.html.gz=vcard-contacts-check__index.html.gz
       - vcard-contacts-check__usage.mjs.gz=vcard-contacts-check__usage.mjs.gz
       - vector-db-cost-calculator__calc.mjs.gz=vector-db-cost-calculator__calc.mjs.gz
@@ -5501,11 +5512,6 @@ configMapGenerator:
       - vector-db-cost-calculator__usage.mjs.gz=vector-db-cost-calculator__usage.mjs.gz
       - vector-db-cost-calculator__vs-doing-the-math-yourself.html.gz=vector-db-cost-calculator__vs-doing-the-math-yourself.html.gz
       - vector-db-cost-calculator__vs-pinecone.html.gz=vector-db-cost-calculator__vs-pinecone.html.gz
-  - name: portfolio-front-tools-41
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - vector-db-cost-calculator__vs-qdrant.html.gz=vector-db-cost-calculator__vs-qdrant.html.gz
       - vector-db-cost-calculator__what-is-vector-index-overhead.html.gz=vector-db-cost-calculator__what-is-vector-index-overhead.html.gz
       - vegetable-garden-planting-calendar__calc.mjs.gz=vegetable-garden-planting-calendar__calc.mjs.gz
@@ -5620,6 +5626,11 @@ configMapGenerator:
       - warehouse-slotting-optimizer__usage.mjs.gz=warehouse-slotting-optimizer__usage.mjs.gz
       - wash-and-fold-price-calculator__calculator.mjs.gz=wash-and-fold-price-calculator__calculator.mjs.gz
       - wash-and-fold-price-calculator__how-much-to-charge-for-wash-and-fold.html.gz=wash-and-fold-price-calculator__how-much-to-charge-for-wash-and-fold.html.gz
+  - name: portfolio-front-tools-42
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - wash-and-fold-price-calculator__index.html.gz=wash-and-fold-price-calculator__index.html.gz
       - wash-and-fold-price-calculator__share.mjs.gz=wash-and-fold-price-calculator__share.mjs.gz
       - wash-and-fold-price-calculator__usage.mjs.gz=wash-and-fold-price-calculator__usage.mjs.gz
@@ -5629,11 +5640,6 @@ configMapGenerator:
       - wash-sale-checker__index.html.gz=wash-sale-checker__index.html.gz
       - wash-sale-checker__usage.mjs.gz=wash-sale-checker__usage.mjs.gz
       - water-damage-drying-estimate-calculator__calc.mjs.gz=water-damage-drying-estimate-calculator__calc.mjs.gz
-  - name: portfolio-front-tools-42
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - water-damage-drying-estimate-calculator__index.html.gz=water-damage-drying-estimate-calculator__index.html.gz
       - water-damage-drying-estimate-calculator__usage.mjs.gz=water-damage-drying-estimate-calculator__usage.mjs.gz
       - water-heater-bid-calculator__calc.mjs.gz=water-heater-bid-calculator__calc.mjs.gz
@@ -5746,6 +5752,11 @@ configMapGenerator:
       - wholesale-real-estate-offer-calculator__index.html.gz=wholesale-real-estate-offer-calculator__index.html.gz
       - wholesale-real-estate-offer-calculator__usage.mjs.gz=wholesale-real-estate-offer-calculator__usage.mjs.gz
       - wholesale-vs-retail-pricing-calculator__calc.mjs.gz=wholesale-vs-retail-pricing-calculator__calc.mjs.gz
+  - name: portfolio-front-tools-43
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - wholesale-vs-retail-pricing-calculator__index.html.gz=wholesale-vs-retail-pricing-calculator__index.html.gz
       - wholesale-vs-retail-pricing-calculator__usage.mjs.gz=wholesale-vs-retail-pricing-calculator__usage.mjs.gz
       - wildlife-exclusion-bid-calculator__calc.mjs.gz=wildlife-exclusion-bid-calculator__calc.mjs.gz
@@ -5753,11 +5764,6 @@ configMapGenerator:
       - wildlife-exclusion-bid-calculator__usage.mjs.gz=wildlife-exclusion-bid-calculator__usage.mjs.gz
       - wildlife-exclusion-bid-calculator__vs-a-flat-395-removal-fee.html.gz=wildlife-exclusion-bid-calculator__vs-a-flat-395-removal-fee.html.gz
       - wildlife-exclusion-bid-calculator__vs-pestpac.html.gz=wildlife-exclusion-bid-calculator__vs-pestpac.html.gz
-  - name: portfolio-front-tools-43
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - wildlife-exclusion-bid-calculator__what-to-charge-for-wildlife-exclusion.html.gz=wildlife-exclusion-bid-calculator__what-to-charge-for-wildlife-exclusion.html.gz
       - window-cleaning-bid-calculator__calc.mjs.gz=window-cleaning-bid-calculator__calc.mjs.gz
       - window-cleaning-bid-calculator__how-much-to-charge-per-window.html.gz=window-cleaning-bid-calculator__how-much-to-charge-per-window.html.gz
