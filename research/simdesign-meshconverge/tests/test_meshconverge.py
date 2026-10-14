@@ -29,6 +29,11 @@ class T(unittest.TestCase):
         fine = one((1.5, 12.0, 15.0))[4]
         self.assertTrue(0.5 * coarse < fine < 2.0 * coarse)
 
+    def test_fine_mesh_rejects_the_coarse_feasible_design(self):
+        from meshscan import one
+        self.assertTrue(one((1.5, 12.0, 16.0))[3] or one((1.5, 12.0, 15.8))[3])
+        self.assertFalse(one((0.5, 12.0, 16.0))[3])
+
 
 if __name__ == "__main__":
     unittest.main()
