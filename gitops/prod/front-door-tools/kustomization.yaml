@@ -33,51 +33,51 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548303 bytes
-#   portfolio-front-tools-1: 92 files, 555579 bytes
-#   portfolio-front-tools-2: 144 files, 553615 bytes
-#   portfolio-front-tools-3: 128 files, 549947 bytes
-#   portfolio-front-tools-4: 136 files, 554215 bytes
-#   portfolio-front-tools-5: 130 files, 549960 bytes
-#   portfolio-front-tools-6: 128 files, 555741 bytes
-#   portfolio-front-tools-7: 120 files, 554988 bytes
-#   portfolio-front-tools-8: 130 files, 556723 bytes
-#   portfolio-front-tools-9: 137 files, 553695 bytes
-#   portfolio-front-tools-10: 136 files, 556887 bytes
-#   portfolio-front-tools-11: 136 files, 552241 bytes
-#   portfolio-front-tools-12: 129 files, 556446 bytes
-#   portfolio-front-tools-13: 131 files, 557018 bytes
-#   portfolio-front-tools-14: 119 files, 544387 bytes
-#   portfolio-front-tools-15: 137 files, 551675 bytes
-#   portfolio-front-tools-16: 119 files, 552715 bytes
-#   portfolio-front-tools-17: 131 files, 554811 bytes
-#   portfolio-front-tools-18: 123 files, 550832 bytes
-#   portfolio-front-tools-19: 124 files, 557035 bytes
-#   portfolio-front-tools-20: 126 files, 551085 bytes
-#   portfolio-front-tools-21: 120 files, 545162 bytes
-#   portfolio-front-tools-22: 117 files, 556410 bytes
-#   portfolio-front-tools-23: 121 files, 556449 bytes
-#   portfolio-front-tools-24: 130 files, 556879 bytes
-#   portfolio-front-tools-25: 125 files, 555350 bytes
-#   portfolio-front-tools-26: 132 files, 556465 bytes
-#   portfolio-front-tools-27: 139 files, 554447 bytes
-#   portfolio-front-tools-28: 118 files, 553412 bytes
-#   portfolio-front-tools-29: 128 files, 556810 bytes
-#   portfolio-front-tools-30: 138 files, 556713 bytes
-#   portfolio-front-tools-31: 130 files, 555428 bytes
-#   portfolio-front-tools-32: 120 files, 551388 bytes
-#   portfolio-front-tools-33: 134 files, 553576 bytes
-#   portfolio-front-tools-34: 111 files, 554439 bytes
-#   portfolio-front-tools-35: 101 files, 555536 bytes
-#   portfolio-front-tools-36: 131 files, 552068 bytes
-#   portfolio-front-tools-37: 116 files, 555622 bytes
-#   portfolio-front-tools-38: 130 files, 554823 bytes
-#   portfolio-front-tools-39: 123 files, 553453 bytes
-#   portfolio-front-tools-40: 137 files, 554090 bytes
-#   portfolio-front-tools-41: 136 files, 556815 bytes
-#   portfolio-front-tools-42: 121 files, 552703 bytes
-#   portfolio-front-tools-43: 118 files, 555716 bytes
-#   portfolio-front-tools-44: 66 files, 343827 bytes
+#   portfolio-front-tools-0: 145 files, 548268 bytes
+#   portfolio-front-tools-1: 92 files, 555567 bytes
+#   portfolio-front-tools-2: 144 files, 553602 bytes
+#   portfolio-front-tools-3: 128 files, 549925 bytes
+#   portfolio-front-tools-4: 136 files, 554201 bytes
+#   portfolio-front-tools-5: 130 files, 549942 bytes
+#   portfolio-front-tools-6: 128 files, 555710 bytes
+#   portfolio-front-tools-7: 120 files, 554954 bytes
+#   portfolio-front-tools-8: 130 files, 556710 bytes
+#   portfolio-front-tools-9: 137 files, 553665 bytes
+#   portfolio-front-tools-10: 136 files, 556841 bytes
+#   portfolio-front-tools-11: 136 files, 552221 bytes
+#   portfolio-front-tools-12: 129 files, 556443 bytes
+#   portfolio-front-tools-13: 131 files, 557012 bytes
+#   portfolio-front-tools-14: 119 files, 544354 bytes
+#   portfolio-front-tools-15: 137 files, 551666 bytes
+#   portfolio-front-tools-16: 119 files, 552817 bytes
+#   portfolio-front-tools-17: 131 files, 554775 bytes
+#   portfolio-front-tools-18: 123 files, 550796 bytes
+#   portfolio-front-tools-19: 124 files, 556934 bytes
+#   portfolio-front-tools-20: 126 files, 551013 bytes
+#   portfolio-front-tools-21: 120 files, 545208 bytes
+#   portfolio-front-tools-22: 117 files, 556370 bytes
+#   portfolio-front-tools-23: 121 files, 556395 bytes
+#   portfolio-front-tools-24: 130 files, 556912 bytes
+#   portfolio-front-tools-25: 125 files, 555309 bytes
+#   portfolio-front-tools-26: 132 files, 554375 bytes
+#   portfolio-front-tools-27: 139 files, 556528 bytes
+#   portfolio-front-tools-28: 119 files, 555949 bytes
+#   portfolio-front-tools-29: 129 files, 556621 bytes
+#   portfolio-front-tools-30: 137 files, 556875 bytes
+#   portfolio-front-tools-31: 131 files, 555777 bytes
+#   portfolio-front-tools-32: 120 files, 555457 bytes
+#   portfolio-front-tools-33: 135 files, 556847 bytes
+#   portfolio-front-tools-34: 111 files, 554411 bytes
+#   portfolio-front-tools-35: 101 files, 555500 bytes
+#   portfolio-front-tools-36: 131 files, 551996 bytes
+#   portfolio-front-tools-37: 116 files, 555580 bytes
+#   portfolio-front-tools-38: 130 files, 554894 bytes
+#   portfolio-front-tools-39: 123 files, 553278 bytes
+#   portfolio-front-tools-40: 137 files, 554020 bytes
+#   portfolio-front-tools-41: 136 files, 556929 bytes
+#   portfolio-front-tools-42: 121 files, 552735 bytes
+#   portfolio-front-tools-43: 118 files, 555726 bytes
+#   portfolio-front-tools-44: 66 files, 343865 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3657,6 +3657,9 @@ configMapGenerator:
       - nis2-scope-checker__calc.mjs.gz=nis2-scope-checker__calc.mjs.gz
       - nis2-scope-checker__index.html.gz=nis2-scope-checker__index.html.gz
       - nis2-scope-checker__usage.mjs.gz=nis2-scope-checker__usage.mjs.gz
+      - nl-zzp-tax-set-aside-calculator__calc.mjs.gz=nl-zzp-tax-set-aside-calculator__calc.mjs.gz
+      - nl-zzp-tax-set-aside-calculator__index.html.gz=nl-zzp-tax-set-aside-calculator__index.html.gz
+      - nl-zzp-tax-set-aside-calculator__usage.mjs.gz=nl-zzp-tax-set-aside-calculator__usage.mjs.gz
       - no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz=no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz
       - no-show-fee-calculator__app.mjs.gz=no-show-fee-calculator__app.mjs.gz
       - no-show-fee-calculator__calc.mjs.gz=no-show-fee-calculator__calc.mjs.gz
@@ -3673,14 +3676,14 @@ configMapGenerator:
       - no-tax-on-tips-overtime-calculator__vs-estimating-the-deduction-by-hand.html.gz=no-tax-on-tips-overtime-calculator__vs-estimating-the-deduction-by-hand.html.gz
       - node-version-drift-check__cli.mjs.gz=node-version-drift-check__cli.mjs.gz
       - node-version-drift-check__engine.mjs.gz=node-version-drift-check__engine.mjs.gz
-      - node-version-drift-check__index.html.gz=node-version-drift-check__index.html.gz
-      - node-version-drift-check__usage.mjs.gz=node-version-drift-check__usage.mjs.gz
-      - node-version-drift-check__vs-eyeballing-and-npm-engine-strict.html.gz=node-version-drift-check__vs-eyeballing-and-npm-engine-strict.html.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - node-version-drift-check__index.html.gz=node-version-drift-check__index.html.gz
+      - node-version-drift-check__usage.mjs.gz=node-version-drift-check__usage.mjs.gz
+      - node-version-drift-check__vs-eyeballing-and-npm-engine-strict.html.gz=node-version-drift-check__vs-eyeballing-and-npm-engine-strict.html.gz
       - node-version-drift-check__why-node-version-drift-happens.html.gz=node-version-drift-check__why-node-version-drift-happens.html.gz
       - npm-audit-triage__audit-triage.mjs.gz=npm-audit-triage__audit-triage.mjs.gz
       - npm-audit-triage__how-to-triage-npm-audit-findings.html.gz=npm-audit-triage__how-to-triage-npm-audit-findings.html.gz
@@ -3817,14 +3820,14 @@ configMapGenerator:
       - parcel-dim-weight-calculator__vs-guessing-the-box-size.html.gz=parcel-dim-weight-calculator__vs-guessing-the-box-size.html.gz
       - parcel-late-delivery-refund-finder__calc.mjs.gz=parcel-late-delivery-refund-finder__calc.mjs.gz
       - parcel-late-delivery-refund-finder__index.html.gz=parcel-late-delivery-refund-finder__index.html.gz
-      - parcel-late-delivery-refund-finder__usage.mjs.gz=parcel-late-delivery-refund-finder__usage.mjs.gz
-      - parking-lot-striping-bid-calculator__calc.mjs.gz=parking-lot-striping-bid-calculator__calc.mjs.gz
-      - parking-lot-striping-bid-calculator__how-much-to-charge-to-stripe-a-parking-lot.html.gz=parking-lot-striping-bid-calculator__how-much-to-charge-to-stripe-a-parking-lot.html.gz
   - name: portfolio-front-tools-28
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - parcel-late-delivery-refund-finder__usage.mjs.gz=parcel-late-delivery-refund-finder__usage.mjs.gz
+      - parking-lot-striping-bid-calculator__calc.mjs.gz=parking-lot-striping-bid-calculator__calc.mjs.gz
+      - parking-lot-striping-bid-calculator__how-much-to-charge-to-stripe-a-parking-lot.html.gz=parking-lot-striping-bid-calculator__how-much-to-charge-to-stripe-a-parking-lot.html.gz
       - parking-lot-striping-bid-calculator__index.html.gz=parking-lot-striping-bid-calculator__index.html.gz
       - parking-lot-striping-bid-calculator__usage.mjs.gz=parking-lot-striping-bid-calculator__usage.mjs.gz
       - parking-lot-striping-bid-calculator__vs-a-flat-8-per-stall-special.html.gz=parking-lot-striping-bid-calculator__vs-a-flat-8-per-stall-special.html.gz
@@ -3941,13 +3944,13 @@ configMapGenerator:
       - pet-sitting-platform-fee-calculator__index.html.gz=pet-sitting-platform-fee-calculator__index.html.gz
       - pet-sitting-platform-fee-calculator__usage.mjs.gz=pet-sitting-platform-fee-calculator__usage.mjs.gz
       - pet-waste-removal-route-calculator__calc.mjs.gz=pet-waste-removal-route-calculator__calc.mjs.gz
-      - pet-waste-removal-route-calculator__index.html.gz=pet-waste-removal-route-calculator__index.html.gz
-      - pet-waste-removal-route-calculator__usage.mjs.gz=pet-waste-removal-route-calculator__usage.mjs.gz
   - name: portfolio-front-tools-29
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pet-waste-removal-route-calculator__index.html.gz=pet-waste-removal-route-calculator__index.html.gz
+      - pet-waste-removal-route-calculator__usage.mjs.gz=pet-waste-removal-route-calculator__usage.mjs.gz
       - pg-stat-statements-analyzer__calc.mjs.gz=pg-stat-statements-analyzer__calc.mjs.gz
       - pg-stat-statements-analyzer__cli.mjs.gz=pg-stat-statements-analyzer__cli.mjs.gz
       - pg-stat-statements-analyzer__index.html.gz=pg-stat-statements-analyzer__index.html.gz
@@ -4075,12 +4078,12 @@ configMapGenerator:
       - postgres-explain-analyzer__usage.mjs.gz=postgres-explain-analyzer__usage.mjs.gz
       - postgres-index-auditor__calc.mjs.gz=postgres-index-auditor__calc.mjs.gz
       - postgres-index-auditor__cli.mjs.gz=postgres-index-auditor__cli.mjs.gz
-      - postgres-index-auditor__index.html.gz=postgres-index-auditor__index.html.gz
   - name: portfolio-front-tools-30
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - postgres-index-auditor__index.html.gz=postgres-index-auditor__index.html.gz
       - postgres-index-auditor__usage.mjs.gz=postgres-index-auditor__usage.mjs.gz
       - pottery-piece-pricing-calculator__calc.mjs.gz=pottery-piece-pricing-calculator__calc.mjs.gz
       - pottery-piece-pricing-calculator__index.html.gz=pottery-piece-pricing-calculator__index.html.gz
@@ -4217,13 +4220,13 @@ configMapGenerator:
       - pypi-provenance-check__index.html.gz=pypi-provenance-check__index.html.gz
       - pypi-provenance-check__usage.mjs.gz=pypi-provenance-check__usage.mjs.gz
       - pypi-provenance-check__vs-checking-each-package-on-pypi-by-hand.html.gz=pypi-provenance-check__vs-checking-each-package-on-pypi-by-hand.html.gz
-      - pypi-provenance-check__vs-socket.html.gz=pypi-provenance-check__vs-socket.html.gz
-      - pypi-provenance-check__why-not-just-pypi-attestations-verify.html.gz=pypi-provenance-check__why-not-just-pypi-attestations-verify.html.gz
   - name: portfolio-front-tools-31
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pypi-provenance-check__vs-socket.html.gz=pypi-provenance-check__vs-socket.html.gz
+      - pypi-provenance-check__why-not-just-pypi-attestations-verify.html.gz=pypi-provenance-check__why-not-just-pypi-attestations-verify.html.gz
       - qbi-deduction-calculator__calc.mjs.gz=qbi-deduction-calculator__calc.mjs.gz
       - qbi-deduction-calculator__index.html.gz=qbi-deduction-calculator__index.html.gz
       - qbi-deduction-calculator__usage.mjs.gz=qbi-deduction-calculator__usage.mjs.gz
@@ -4353,12 +4356,12 @@ configMapGenerator:
       - rental-dscr-calculator__calc.mjs.gz=rental-dscr-calculator__calc.mjs.gz
       - rental-dscr-calculator__index.html.gz=rental-dscr-calculator__index.html.gz
       - rental-dscr-calculator__usage.mjs.gz=rental-dscr-calculator__usage.mjs.gz
-      - rental-fleet-size-optimizer__calc.mjs.gz=rental-fleet-size-optimizer__calc.mjs.gz
   - name: portfolio-front-tools-32
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - rental-fleet-size-optimizer__calc.mjs.gz=rental-fleet-size-optimizer__calc.mjs.gz
       - rental-fleet-size-optimizer__how-many-rental-units-to-own.html.gz=rental-fleet-size-optimizer__how-many-rental-units-to-own.html.gz
       - rental-fleet-size-optimizer__index.html.gz=rental-fleet-size-optimizer__index.html.gz
       - rental-fleet-size-optimizer__usage.mjs.gz=rental-fleet-size-optimizer__usage.mjs.gz
@@ -4478,12 +4481,12 @@ configMapGenerator:
       - s3-bucket-exposure-check__vs-checking-by-hand.html.gz=s3-bucket-exposure-check__vs-checking-by-hand.html.gz
       - s3-bucket-exposure-check__why-s3-buckets-end-up-public.html.gz=s3-bucket-exposure-check__why-s3-buckets-end-up-public.html.gz
       - s3-storage-class-advisor__cli.mjs.gz=s3-storage-class-advisor__cli.mjs.gz
-      - s3-storage-class-advisor__engine.mjs.gz=s3-storage-class-advisor__engine.mjs.gz
   - name: portfolio-front-tools-33
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - s3-storage-class-advisor__engine.mjs.gz=s3-storage-class-advisor__engine.mjs.gz
       - s3-storage-class-advisor__index.html.gz=s3-storage-class-advisor__index.html.gz
       - s3-storage-class-advisor__s3-storage-class-guide-standard-vs-ia-vs-intelligent-tiering-vs-glacier.html.gz=s3-storage-class-advisor__s3-storage-class-guide-standard-vs-ia-vs-intelligent-tiering-vs-glacier.html.gz
       - s3-storage-class-advisor__usage.mjs.gz=s3-storage-class-advisor__usage.mjs.gz

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1219 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1220 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -30,6 +30,14 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Irish self-employed tax calculator: enter income and expenses to see income tax, USC, Class S PRSI and how much of every invoice to set aside. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Netherlands ZZP Tax Set-Aside Calculator — Income Tax + Zvw (2026)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nl-zzp-tax-set-aside-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/nl-zzp-tax-set-aside-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free Dutch ZZP tax calculator: enter turnover and expenses to see Box 1 income tax, zelfstandigenaftrek, MKB-winstvrijstelling, Zvw and how much of every invoice to set aside. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>New Zealand Self-Employed Tax Set-Aside Calculator — Income Tax + ACC</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK business mileage calculator using HMRC approved rates (45p/25p). Employees: see tax relief on what your employer under-pays. Self-employed: compare simplified mileage with actual vehicle costs. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>UK Minimum Wage Checker 2026/27 — Are You Paying National Living Wage?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-minimum-wage-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/uk-minimum-wage-checker</id>
-    <updated>2026-10-14T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free UK minimum wage checker for 2026/27: enter pay, hours worked, deductions and accommodation to see the effective hourly rate against the National Living Wage and NMW, the shortfall, and the arrears and HMRC penalty exposure. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
