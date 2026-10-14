@@ -1,0 +1,37 @@
+name: uk-eis-seis-relief-calculator
+description: >-
+  Free browser tool for UK angel investors: enter an EIS or SEIS investment and the income tax you owe to see the income tax relief you can use, CGT deferral or reinvestment relief, the real out-of-pocket loss after loss relief if the company fails, and the break-even sale price. Nothing is uploaded. Not tax or investment advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; duplicate_check.py found no EIS/SEIS tool (closest 0.22, unrelated).
+#
+# First visitor: a UK higher-rate taxpayer or angel investor searching "EIS tax relief calculator", "SEIS loss relief calculator", "how much does a SEIS investment really cost", often introduced to a deal by a platform or a founder. Evergreen, peaks before the 5 April tax-year end; volume not measured. Rivals are fund-manager and platform calculators that exist to sell deals, and static explainers.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: portfolio-level EIS/SEIS tracker with certificate dates and three-year holding reminders behind an env-var switch.
+#
+# Liability: 2025/26 rates and limits (EIS 30%/£1m/£2m KIC, SEIS 50%/£200k, 50% SEIS reinvestment exemption, loss relief at marginal rate) were written from memory without network access and are flagged for GOV.UK verification on the page. Company and investor qualification, connected-person rules, VCTs and exit tax are refused and named. It is not tax or investment advice.
+hypotheses:
+  - claim: >-
+      UK angel investors will use a free calculator to size the real downside of an EIS or SEIS cheque before investing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or threshold differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-eis-seis-relief-calculator/
+  analytics: null
