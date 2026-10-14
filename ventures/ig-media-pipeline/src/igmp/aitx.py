@@ -2055,9 +2055,11 @@ DEMO_PAIRS = {
 }
 
 
-def demo(out_dir: str | Path, cfg: Config, kinds: list[str] | None = None, parallax: bool = True) -> dict:
+def demo(out_dir: str | Path, cfg: Config, kinds: list[str] | None = None, parallax: bool = True,
+         reel: bool = True) -> dict:
     """Render every transition kind on synthetic footage (and parallax_still moves), with a contact
-    sheet for each and the timings, then join a reel from them. Writes only inside out_dir."""
+    sheet for each and the timings; then let the rule director pick transitions for a 14 s reel of
+    the segments and join it twice (cold, then from the cache). Writes only inside out_dir."""
     out_dir = Path(out_dir)
     src, segs, clips, sheets = (out_dir / d for d in ("src", "segments", "transitions", "sheets"))
     for d in (src, segs, clips, sheets):
@@ -2108,6 +2110,28 @@ def demo(out_dir: str | Path, cfg: Config, kinds: list[str] | None = None, paral
         report["transitions"][kind] = {"seconds": round(dt, 2), "frames": spec.frames(),
                                        "per_frame_s": round(dt / spec.frames(), 3), "sheet": str(sheet)}
         log.info("%s: %.1fs", kind, dt)
+    if reel:
+        from . import direction
+        order = ["pan_right", "city", "land_day", "land_golden", "land_golden_later", "stars", "testsrc"]
+        files = [seg(name) for name in order]
+        t0 = time.monotonic()
+        feats = direction.reel_features(files, cfg)
+        cuts = [direction.PlanCut(at_s=2.0 * (i + 1), beat_strength=1.0 if i % 2 == 0 else 0.6)
+                for i in range(len(files) - 1)]
+        specs = direction.auto_direct(cuts, feats, beat_s=0.5, reel_seconds=14.0)
+        t_dir = time.monotonic() - t0
+        runs = []
+        for name in ("reel.mp4", "reel_cached.mp4"):
+            dest = out_dir / name
+            dest.unlink(missing_ok=True)
+            t0 = time.monotonic()
+            rep = join(files, specs, dest, cfg, cache_dir=out_dir / "cache")
+            runs.append({"file": str(dest), "seconds": round(time.monotonic() - t0, 2),
+                         "transitions_s": rep["transitions_s"], "encode_s": rep["encode_s"],
+                         "cached": [t["cached"] for t in rep["transitions"]]})
+        report["reel"] = {"direction_s": round(t_dir, 2), "workers": settings(cfg)["workers"],
+                          "specs": [f"{s.kind} {s.duration_s:.2f}s{' ' + s.direction if s.direction else ''}"
+                                    for s in specs], "features": [f.summary() for f in feats], "runs": runs}
     if parallax:
         for name, img, depth, move in (("land_golden", land, land_depth, "dolly_in"),
                                        ("stars", stars, stars_depth, "truck_right"),
@@ -2145,6 +2169,7 @@ def main(argv: list[str] | None = None) -> int:
     d.add_argument("out")
     d.add_argument("--only", help="comma-separated kinds")
     d.add_argument("--no-parallax", action="store_true")
+    d.add_argument("--no-reel", action="store_true")
     r = sub.add_parser("render", help="render one transition clip")
     r.add_argument("a")
     r.add_argument("b")
@@ -2165,7 +2190,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "doctor":
         print(json.dumps(backends_report(cfg), indent=2))
     elif args.cmd == "demo":
-        rep = demo(args.out, cfg, args.only.split(",") if args.only else None, not args.no_parallax)
+        rep = demo(args.out, cfg, args.only.split(",") if args.only else None, not args.no_parallax,
+                   not args.no_reel)
         print(json.dumps(rep, indent=2))
     elif args.cmd == "render":
         spec = TransitionSpec(kind=args.kind, duration_s=args.duration, direction=args.direction, color=args.color)
