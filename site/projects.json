@@ -1703,6 +1703,11 @@
      "slug": "selfrep-terminal",
      "title": "How does a resale value for the finished fleet move the switch from copies to goods?",
      "summary": "Follow-up to selfrep-reinvest. Giving each machine left at the horizon a value <em>s</em> shortens the goods phase from one e-folding time 1/<em>k</em> to 1/<em>k</em> &minus; <em>s</em>/<em>a</em>, so the switch moves later; at <em>s</em> &ge; <em>a</em>/<em>k</em> (50 per machine with no failures, 29% of the assumed vitamin cost) the shop copies to the end. The grid optimum of the Euler simulation agrees with this closed form to within 1&nbsp;h, and ignoring a terminal value of 12.5&ndash;50 per machine costs 3&ndash;26% of the optimum. Every input is assumed; cash is free and demand unlimited. Stylised."
+    },
+    {
+     "slug": "selfrep-terminalmarket",
+     "title": "Does a resale value for the finished fleet still end copying late when the goods market saturates?",
+     "summary": "Follow-up to selfrep-terminal and selfrep-satmarket: a backward dynamic programme with terminal reward <em>s</em> per machine on the saturating-market fluid model (<em>W</em>&nbsp;=&nbsp;50&nbsp;h, failure 0, horizon 600&nbsp;h, all inputs assumed). With a linear market the DP reproduces the closed-form switch of selfrep-terminal. As the market capacity <em>c</em> falls, a small <em>s</em> moves the optimum from an early switch to copying until the horizon (<em>c</em>&nbsp;=&nbsp;1000: switch near 400&nbsp;h at <em>s</em>&nbsp;=&nbsp;0, none at <em>s</em>&nbsp;=&nbsp;12.5), and a policy tuned for <em>s</em>&nbsp;=&nbsp;0 earns only 14% of the optimum. Where the final fleet is large the DP is not reliable: a bang-bang switch beats its policy by up to 0.7%, so it is a lower bound there. Stylised and preliminary; the resale value is assumed and does not itself saturate."
     }
    ]
   },
