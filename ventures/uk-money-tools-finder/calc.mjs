@@ -1,0 +1,77 @@
+// Catalogue of the UK money tools in this repository and a deterministic
+// matcher from "what applies to me" to "which tool answers it". No network.
+
+export const SITUATIONS = [
+  ["employed", "I'm an employee on PAYE"],
+  ["scotland", "I live in Scotland"],
+  ["studentloan", "I have a student loan"],
+  ["over100k", "I earn over £100,000"],
+  ["children", "I get Child Benefit"],
+  ["married", "I'm married or in a civil partnership"],
+  ["selfemployed", "I'm self-employed or a sole trader"],
+  ["sidehustle", "I have side income or sell things"],
+  ["company", "I run (or am thinking of) a limited company"],
+  ["contractor", "I'm a contractor (IR35)"],
+  ["construction", "I'm a subcontractor in construction (CIS)"],
+  ["landlord", "I rent out property"],
+  ["investor", "I have shares, funds or assets to sell"],
+  ["buying", "I'm buying a home"],
+  ["employer", "I employ people"],
+  ["leave", "I'm off sick, on leave or being made redundant"],
+  ["pension", "I pay a lot into a pension"],
+  ["estate", "I'm planning an estate or dealing with one"],
+  ["late", "I'm late with Self Assessment"],
+];
+
+// category, slug, short title, one-line job, situations it answers
+export const TOOLS = [
+  ["Pay and tax on a salary", "uk-take-home-pay-calculator", "UK take-home pay calculator", "Salary after income tax, National Insurance, pension and student loan, per year, month and week.", ["employed", "studentloan"]],
+  ["Pay and tax on a salary", "uk-scottish-income-tax-calculator", "Scottish income tax calculator", "The same take-home calculation under the six Scottish bands, compared with the rest of the UK.", ["scotland", "employed"]],
+  ["Pay and tax on a salary", "uk-student-loan-repayment-calculator", "UK student loan repayment calculator", "Monthly deduction for Plans 1, 2, 4, 5 and Postgraduate Loan, payoff year or write-off, overpay test.", ["studentloan", "employed"]],
+  ["Pay and tax on a salary", "uk-100k-tax-trap-calculator", "UK £100k tax trap calculator", "The 60% effective rate between £100,000 and £125,140 and the pension payment that avoids it.", ["over100k", "pension", "children"]],
+  ["Pay and tax on a salary", "uk-child-benefit-charge-calculator", "UK Child Benefit charge calculator", "High Income Child Benefit Charge over £60,000 and whether to opt out or pay into a pension.", ["children", "over100k", "married"]],
+  ["Pay and tax on a salary", "uk-marriage-allowance-calculator", "UK Marriage Allowance calculator", "Whether you qualify, the tax saved and the four-year backdate.", ["married"]],
+  ["Pension", "uk-pension-annual-allowance-calculator", "UK pension annual allowance calculator", "Tapered annual allowance, three-year carry forward and the money purchase allowance.", ["pension", "over100k"]],
+  ["Self-employed and side income", "uk-trading-allowance-calculator", "UK trading allowance calculator", "Claim the £1,000 trading allowance or deduct real expenses: which leaves you with more.", ["sidehustle", "selfemployed"]],
+  ["Self-employed and side income", "uk-mtd-income-tax-checker", "UK Making Tax Digital checker", "Whether Making Tax Digital for Income Tax applies to you and from when.", ["selfemployed", "landlord"]],
+  ["Self-employed and side income", "uk-vat-registration-checker", "UK VAT registration checker", "The month your rolling 12-month turnover passed the VAT threshold and the registration deadline.", ["selfemployed", "company"]],
+  ["Self-employed and side income", "uk-payments-on-account-calculator", "UK payments on account calculator", "Balancing payment and two instalments due 31 January and 31 July, and the reduction claim.", ["selfemployed", "landlord"]],
+  ["Self-employed and side income", "uk-self-assessment-late-penalty-calculator", "UK Self Assessment late penalty calculator", "Late filing and payment penalties plus interest, and what each extra month costs.", ["late", "selfemployed"]],
+  ["Self-employed and side income", "uk-cis-deduction-refund-calculator", "UK CIS deduction and refund calculator", "The 20% or 30% Construction Industry Scheme deduction and your Self Assessment refund.", ["construction", "selfemployed"]],
+  ["Company and contracting", "uk-sole-trader-vs-limited-company-calculator", "UK sole trader vs limited company calculator", "What you keep from the same profit as a sole trader or through a company.", ["company", "selfemployed"]],
+  ["Company and contracting", "uk-ir35-inside-outside-calculator", "UK IR35 inside vs outside calculator", "Take-home outside IR35 (own company) against inside IR35 (umbrella) and the break-even day rate.", ["contractor", "company"]],
+  ["Company and contracting", "uk-dividend-tax-calculator", "UK dividend tax calculator", "Dividend tax by band for 2025/26 and 2026/27, the allowance and the cost of the next pound.", ["company", "investor"]],
+  ["Property and investments", "uk-landlord-section-24-calculator", "UK landlord Section 24 calculator", "Tax with the 20% mortgage interest credit against the old rules.", ["landlord"]],
+  ["Property and investments", "uk-capital-gains-tax-calculator", "UK Capital Gains Tax calculator", "CGT for 2025/26 at 18% and 24% with the annual exempt amount, costs and losses.", ["investor", "landlord"]],
+  ["Property and investments", "uk-stamp-duty-calculator", "UK Stamp Duty calculator", "SDLT in England and Northern Ireland band by band, with first-time buyer and additional-home rates.", ["buying"]],
+  ["Property and investments", "uk-inheritance-tax-calculator", "UK Inheritance Tax calculator", "IHT on an estate for deaths from April 2025, with the home allowance and gifts.", ["estate"]],
+  ["Employing people", "uk-employer-hiring-cost-calculator", "UK employer hiring cost calculator", "True first-year cost of a hire with employer National Insurance and pension.", ["employer"]],
+  ["Employing people", "uk-statutory-sick-pay-calculator", "UK Statutory Sick Pay calculator", "SSP weekly and daily rate, waiting days and the 28-week limit.", ["employer", "leave"]],
+  ["Employing people", "uk-statutory-maternity-pay-calculator", "UK Statutory Maternity Pay calculator", "SMP eligibility and the 39-week schedule, plus paternity pay.", ["employer", "leave"]],
+  ["Employing people", "uk-holiday-pay-calculator", "UK holiday pay calculator", "Statutory holiday for part-year and irregular-hours workers and the value of unpaid leave.", ["employer", "leave", "employed"]],
+  ["Employing people", "uk-redundancy-pay-calculator", "UK redundancy pay calculator", "Statutory redundancy pay, notice and whether an offer beats the statutory minimum.", ["leave", "employer", "employed"]],
+];
+
+export const SAMPLE = { picked: ["selfemployed", "landlord"] };
+
+export function match(picked) {
+  const set = new Set(picked || []);
+  const out = [];
+  for (const [category, slug, title, job, tags] of TOOLS) {
+    const hits = tags.filter((t) => set.has(t));
+    if (hits.length) out.push({ category, slug, title, job, hits, score: hits.length });
+  }
+  out.sort((a, b) => b.score - a.score || a.title.localeCompare(b.title));
+  return out;
+}
+
+export function categories() {
+  const seen = [];
+  for (const t of TOOLS) if (!seen.includes(t[0])) seen.push(t[0]);
+  return seen.map((c) => ({ name: c, tools: TOOLS.filter((t) => t[0] === c) }));
+}
+
+export function summaryText(rows) {
+  if (!rows.length) return "No tools matched. Tick at least one situation.";
+  return rows.map((r, i) => `${i + 1}. ${r.title} - ${r.job}\n   ../${r.slug}/`).join("\n");
+}
