@@ -22,6 +22,15 @@ and one platform that runs them:
 - **The platform** (`platform/`, `portfolio/`, `prompts/`): the agents,
   checks and prompts that do the work above. It exists to serve the two
   portfolios, not to grow on its own.
+- **The web presence** (added 2026-10-14): one website, hosted on GitHub
+  (GitHub Pages), from which all of the work above can be easily checked out
+  visually. A visitor lands on one homepage and reaches every product and
+  every research project from it without reading the repository.
+  - **Every project and product has a home page by default**: a home or
+    marketing page that says what it is, who it is for and what it found or
+    does, with screenshots or figures, and links to try it, the code and the
+    write-up. That includes CLIs, servers, apps and research projects, not
+    only browser tools. A new project or product is not done without one.
 
 ## Guardrails (every track, every version)
 
@@ -73,7 +82,8 @@ gain on a later one.
 2. **Success:** the run's pull request merged with CI green (or the local
    checklist when runners are starved) and its track's definition of done
    met: `PRODUCT_PLAYBOOK.md` for a venture, a complete README and passing
-   tests for a research project.
+   tests for a research project, and for both a home page on the GitHub
+   Pages site.
 3. **Errors:** CI failures before green, review findings, reverts or fix-ups
    within two weeks, abandoned runs, and leaked work. Leaked work is a branch
    or pull request a run pushed that was not on `main` 24 hours later.
@@ -90,5 +100,9 @@ gain on a later one.
 - **Research:** merged projects that pass the research guardrails and a
   quality audit: the code re-runs, the README numbers match its output, and
   every citation checks out.
+- **Web presence:** every venture and every research project reachable,
+  with its own home page, from one GitHub-hosted homepage, and nothing on
+  `main` without a page. Deploy and link what exists before polishing the
+  design.
 - **Review:** each review leaves the system measurably better on the scores
   above, or records honestly that it could not tell.
