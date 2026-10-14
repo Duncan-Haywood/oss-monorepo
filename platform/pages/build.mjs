@@ -1815,6 +1815,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-100k-tax-trap-calculator'
       // `uk-landlord-section-24-calculator` joined 2026-10-14 on its first commit: UK personal-tax arithmetic for landlords, sibling of the capital-gains and dividend tools.
       || slug === 'uk-landlord-section-24-calculator'
+      // `uk-redundancy-pay-calculator` joined 2026-10-14 on its first commit: UK employment-rights pay arithmetic, sibling of the take-home pay and statutory sick pay tools.
+      || slug === 'uk-redundancy-pay-calculator'
       // `uk-marriage-allowance-calculator` joined 2026-10-14 on its first commit: UK household tax arithmetic, sibling of the Child Benefit and 100k-trap tools.
       || slug === 'uk-marriage-allowance-calculator'
       // `uk-pension-annual-allowance-calculator` joined 2026-10-14 on its first commit: UK pension tapered annual allowance and carry forward, sibling of the 100k tax trap tool.
