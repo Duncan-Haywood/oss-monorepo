@@ -1446,6 +1446,11 @@
      "summary": "A follow-up to <code>robofab-jawcap</code> (stylised, preliminary): a peak joint-speed limit is added to the torque and jaw-force limits of a planar two-link arm carrying printed parts. Over three arm sizes, three jaw caps and speed limits of 6 to 1&nbsp;rad/s, the time-optimal profile is 28 to 46% shorter than min-jerk meeting the same limits (18 to 34% without a speed limit), and the saving tends to 1 &minus; 1/1.875 = 47%, a property of the min-jerk profile shape, so a trapezoidal baseline would show less. All parameters are assumed; the speed limits are round numbers, not an actuator rating."
     },
     {
+     "slug": "robofab-trapezoid",
+     "title": "Is the time-optimal carry's speed-limited advantage just the min-jerk profile's shape?",
+     "summary": "A follow-up to <code>robofab-jointspeed</code> (stylised, preliminary): the min-jerk comparator is replaced by a trapezoidal-velocity move with a tuned ramp fraction, under the same torque, jaw-force and joint-speed limits. Over three arm sizes, three jaw caps and speed limits of 6 to 1&nbsp;rad/s, the time-optimal profile beats the best trapezoid by only 0.4 to 2.9% at 2 and 1&nbsp;rad/s (0.4 to 0.8% at 1&nbsp;rad/s), against 46% over min-jerk, so the earlier ceiling was mostly the comparator. Without a speed limit it still wins by 8.7 to 22.5%. The smallest ramp fraction tried (0.01) binds in most tight-limit rows, so the small gap is bounded by the grid. All parameters are assumed; the speed limits are round numbers, not an actuator rating."
+    },
+    {
      "slug": "robofab-graspmove",
      "title": "How hard must the jaws squeeze while the arm moves?",
      "summary": "A follow-up to <code>robofab-grasp</code>: the jaw assembly accelerates upward or sideways at up to 40&nbsp;m/s<sup>2</sup> and the smallest holding force is compared with the bound <em>m</em>&radic;((<em>g</em>+<em>a</em><sub>up</sub>)<sup>2</sup>+<em>a</em><sub>side</sub><sup>2</sup>)/(2&mu;) at &mu;&nbsp;=&nbsp;0.5. Over 77 cases the two agree to within 7%, and the heaviest part needs at most 0.3&nbsp;N, so friction is still not the constraint. A fidelity finding: the contact time constant used for the static test (0.004&nbsp;s) reports slip at any force once the jaws accelerate; 0.0005&nbsp;s is needed. Stylised: boxes, rigid pads, assumed density and friction."
