@@ -1875,6 +1875,8 @@ const CATEGORY_RULES = [
       || slug === 'au-redundancy-pay-calculator'
       // `uk-vat-registration-checker` was left in the catch-all by its own merge (which put the tree one over the bound); filed here beside its UK sibling above.
       || slug === 'uk-vat-registration-checker'
+      // `uk-vat-flat-rate-scheme-calculator` joined 2026-10-14 on its first commit: UK VAT scheme choice, the next step after the registration checker above.
+      || slug === 'uk-vat-flat-rate-scheme-calculator'
       // `iolta-three-way-reconciliation-checker` joined 2026-10-13 on its first commit: a lawyer's monthly trust-account reconciliation, the same back-office bookkeeping job.
       || slug === 'iolta-three-way-reconciliation-checker'
       // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
