@@ -1662,8 +1662,8 @@ const RELATIVE_SELF = relative(
 // +1: `uk-shared-parental-pay-planner` graduated.
 // +1: `uk-mortgage-overpayment-calculator` graduated.
 // +1: `uk-working-from-home-tax-relief-calculator` graduated.
-// +1: `uk-mileage-allowance-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1190;
+// +1: `uk-bonus-tax-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1191;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
@@ -1705,6 +1705,7 @@ const SWITCHES_IN_THE_CATALOGUE = 1190;
 // +1: `csv-to-sql-generator` graduated.
 // +1: `eu-dsa-obligations-checker` graduated.
 // +1: `uk-mtd-income-tax-checker` graduated.
+// +1: `uk-mileage-allowance-calculator` graduated.
 
 let counter = 0;
 function fixture(source) {

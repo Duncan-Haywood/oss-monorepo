@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1211 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1212 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-14T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>UK Bonus Tax Calculator 2026/27 (how much of your bonus you keep)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-bonus-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-bonus-tax-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free UK bonus tax calculator for 2026/27: how much of a bonus you keep after income tax, National Insurance, student loan, the 60% personal allowance trap and the Child Benefit charge, and what paying part into your pension would change. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
   <entry>
     <title>UK Capital Allowances Calculator (AIA, full expensing, writing-down)</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-capital-allowances-calculator/"/>
@@ -158,13 +166,5 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK pension withdrawal tax calculator: how much of a lump sum or UFPLS is tax-free, the tax you really owe, the emergency tax refund to expect and how spreading it over tax years saves. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>UK R&amp;D Tax Relief Calculator (RDEC, ERIS, claims agency fee)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-rd-tax-relief-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/uk-rd-tax-relief-calculator</id>
-    <updated>2026-10-14T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free UK R&amp;D tax relief calculator: what the merged scheme credit or R&amp;D-intensive loss-maker relief is worth in cash or tax, the PAYE and NIC cap, and what a claims agency&#39;s percentage fee would cost you. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
