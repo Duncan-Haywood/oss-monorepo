@@ -1,0 +1,38 @@
+name: uk-simplified-expenses-calculator
+description: >-
+  Free browser tool for UK sole traders and partnerships: compare HMRC simplified expenses (45p/25p mileage, £10/£18/£26 use-of-home flat rate) with actual costs, see which claim is bigger per item and the estimated tax saved. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; duplicate_check.py closest matches were mileage-deduction-method-calculator (0.33, US standard mileage vs actual) and home-office-deduction-calculator (0.30, US) -- neither covers HMRC simplified expenses.
+#
+# First visitor: a UK sole trader, gig worker or landlord-adjacent self-employed person filling in Self Assessment, searching "simplified expenses or actual costs", "HMRC mileage 45p 25p calculator", "use of home flat rate 10 18 26", "working from home expenses self employed UK".
+# Evergreen annual spike around the 31 January filing deadline; volume not measured. Rivals are accountancy-firm blog posts and bundled bookkeeping apps (FreeAgent, QuickBooks Self-Employed, Coconut).
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: mileage log export plus year-end claim pack behind an env-var switch.
+#
+# Liability: rates are from GOV.UK guidance as remembered without network access this session (mileage unchanged since 2011, home flat rate since 2013); every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses, and excludes limited companies and living-at-premises claims.
+hypotheses:
+  - claim: >-
+      UK sole traders deciding between simplified expenses and actual costs will use a free calculator to see which claim is bigger and by how much.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or band differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-simplified-expenses-calculator/
+  analytics: null

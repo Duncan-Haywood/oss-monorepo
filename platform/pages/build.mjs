@@ -1841,6 +1841,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-company-car-tax-calculator'
       // `uk-late-payment-interest-calculator` joined 2026-10-14 on its first commit: UK B2B late payment statutory interest and compensation, sibling of the self assessment and trading allowance tools.
       || slug === 'uk-late-payment-interest-calculator'
+      // `uk-simplified-expenses-calculator` joined 2026-10-14 on its first commit: UK sole-trader simplified expenses vs actual costs, sibling of the self assessment and trading allowance tools.
+      || slug === 'uk-simplified-expenses-calculator'
       // `uk-holiday-pay-calculator` joined 2026-10-14 on its first commit: UK employment-pay arithmetic, sibling of the redundancy and sick pay tools.
       || slug === 'uk-holiday-pay-calculator'
       // `uk-employer-hiring-cost-calculator` joined 2026-10-14 on its first commit: UK employer cost arithmetic (NIC, pension, allowance), sibling of the take-home pay and holiday pay tools.
