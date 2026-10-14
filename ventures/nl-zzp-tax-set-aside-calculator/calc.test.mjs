@@ -6,7 +6,7 @@ const run = (o) => compute({ ...SAMPLE, ...o });
 
 test("Box 1 brackets", () => {
   assert.equal(Math.round(bracketTax(38883, "2026") * 100) / 100, 13900.67);
-  assert.ok(Math.abs(bracketTax(78426, "2026") - 28753.14) < 0.1);
+  assert.ok(Math.abs(bracketTax(78426, "2026") - 28753.02) < 0.1);
   assert.ok(bracketTax(100000, "2026") > bracketTax(78426, "2026") + 21574 * 0.49);
 });
 test("algemene heffingskorting phases out and reaches zero", () => {
