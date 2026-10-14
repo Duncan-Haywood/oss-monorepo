@@ -1692,6 +1692,11 @@
      "summary": "A diagnostic with a negative-for-the-rules answer (stylised). The high price in one of five seeds (1.15 vs 1.00&ndash;1.01 in the others) is a missed search, not a cost of the laser rules: the 2&nbsp;mm sheet gauge, which wins, has a feasible region of only 13 of 900 grid cells, and the rules sub-search missed it in 1 of 20 seeds (the rule-free twin in 0 of 20). Feasible 2&nbsp;mm results fall in two mass groups (33.3&ndash;34.0 g and 35.3&ndash;35.6 g) whose cause is not identified. Mesh effects were not tested. Stylised 2D plane stress; assumed rules and loads."
     },
     {
+     "slug": "simdesign-gaugerestart",
+     "title": "Do search restarts remove the missed 2&nbsp;mm sub-search in the laser-cut bracket problem?",
+     "summary": "A small search-effort experiment (stylised). At the 2&nbsp;mm sheet gauge, one differential-evolution run missed the narrow feasible region in 1 of 20 seeds; a second independent run or a doubled population missed in 0 of 40 runs each, at about twice the finite-element solves. Results also shift from an even split towards the lighter of two mass groups (to 70&ndash;75% with a restart, 85&ndash;95% with the larger population), consistent with the heavier group being a local optimum of the search. Zero misses in 20 does not prove a zero miss rate, and the 2&nbsp;mm region is itself a coarse-mesh effect, so the lower masses are not better physical designs."
+    },
+    {
      "slug": "simdesign-gaugemesh",
      "title": "Is the narrow 2&nbsp;mm laser-cut bracket region a mesh artefact?",
      "summary": "A negative result for the search mesh (stylised). All 39 gauge-2 bracket designs that were feasible on the 2.5&nbsp;mm search mesh (19 under laser rules, 20 for the no-rules twin) are infeasible on finer meshes (1.5, 1.0, 0.75&nbsp;mm): the peak von Mises stress is 1.09&ndash;1.27&times; higher at 0.75&nbsp;mm and is still rising, at the point where the fillet meets the arm. Tip deflection is unchanged and the fillet facet count is not the cause. Earlier mass prices in the bracket chain are therefore conditional on the coarse mesh; no fine-mesh optimum was searched."
