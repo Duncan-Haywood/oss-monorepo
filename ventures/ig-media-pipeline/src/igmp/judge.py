@@ -1,6 +1,7 @@
 """Where Claude's judgment comes from. Two interchangeable backends:
 
-  claude-code  runs `claude -p` headlessly, so it bills against your Claude plan
+  claude-code  runs `claude -p` headlessly on your Claude plan, and refuses to start when the CLI is
+               signed in any other way (a Console login or an API key bills every call per token)
   api          calls the Anthropic API; bulk work goes through the Message Batches API (half price)
 
 Both take the same JudgeTask and return a validated pydantic object. The style guide is the system
@@ -52,6 +53,10 @@ class JudgeError(RuntimeError):
 
 class UsageLimit(JudgeError):
     """The plan's usage limit was reached; the run should pause and resume later."""
+
+
+class NotOnPlan(JudgeError):
+    """Headless Claude Code would bill API usage instead of the Claude plan."""
 
 
 class Backend(Protocol):
@@ -156,6 +161,10 @@ class ApiBackend:
 
 # --- Claude Code on the user's plan --------------------------------------------------------------
 
+# `claude auth status` methods that run on a Claude subscription. Everything else - the API key a
+# Console login keeps, ANTHROPIC_API_KEY, an apiKeyHelper, a gateway - bills per token.
+PLAN_AUTH = {"claude.ai"}
+PAID_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN")
 PLAN_LIMIT = re.compile(r"hit your (?:\w+ )?limit\s*[·-]\s*resets ([^\n\"]+)", re.I)
 TRANSIENT = re.compile(r"\b(429|529|overloaded|temporary capacity)\b", re.I)
 
@@ -190,7 +199,26 @@ class ClaudeCodeBackend:
         self.sleep = sleep
         self.system = system_prompt(cfg)
         # In print mode an API key always wins over the plan login, so keep it out of the child.
-        self.env = {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}
+        self.env = {k: v for k, v in os.environ.items() if k not in PAID_ENV}
+
+    def check_plan_login(self) -> None:
+        """Refuse to start unless headless Claude Code is signed in to a Claude subscription. The
+        desktop app's sign-in does not carry over to the CLI, and a Console login keeps an API key
+        that print mode bills per token, so this is checked rather than assumed."""
+        proc = self.run([self.cfg.claude_cli, "auth", "status"], capture_output=True, text=True,
+                        timeout=60, env=self.env)
+        try:
+            status = json.loads(proc.stdout)
+        except json.JSONDecodeError:
+            status = {}
+        method = status.get("authMethod")
+        if method not in PLAN_AUTH:
+            how = status.get("apiKeySource") or method or "no login"
+            raise NotOnPlan(
+                f"headless Claude Code is signed in with {how}, which bills API usage per token, not your "
+                f"Claude plan. Sign it in to the plan with `{self.cfg.claude_cli} auth login --claudeai` "
+                "(check with `claude auth status`: authMethod must be \"claude.ai\"), or set "
+                "backend = \"api\" to use the API on purpose.")
 
     def _args(self, task: JudgeTask) -> list[str]:
         # Not --bare: bare mode only accepts an API key, and this path exists to use the plan login.
@@ -278,5 +306,7 @@ def backend(cfg: Config) -> Backend:
     if cfg.backend == "api":
         return ApiBackend(cfg)
     if cfg.backend == "claude-code":
-        return ClaudeCodeBackend(cfg)
+        judge = ClaudeCodeBackend(cfg)
+        judge.check_plan_login()
+        return judge
     raise ValueError(f"unknown backend {cfg.backend!r}; use 'claude-code' or 'api'")

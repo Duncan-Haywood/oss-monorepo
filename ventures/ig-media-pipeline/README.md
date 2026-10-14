@@ -52,6 +52,10 @@ with a `.caption.txt`, and `state/` (database, previews, logs).
   found automatically), keeps any `ANTHROPIC_API_KEY` out of the child process so the plan login is
   used, and pauses until the reset time when the plan's usage limit is reached. This is for your
   own library on your own machine; plan limits are shared with your other Claude use.
+  The CLI keeps its own login, separate from the desktop app's: if it was ever signed in with
+  `claude auth login --console`, print mode bills that Console API key per token. So before any
+  call the pipeline checks `claude auth status` and refuses to start unless `authMethod` is
+  `"claude.ai"`; `claude auth login --claudeai` switches it to the plan.
 - `backend = "api"` uses an Anthropic API key. Bulk scoring and edit direction go through the
   Message Batches API at half price; single calls opt into server-side refusal fallback.
 

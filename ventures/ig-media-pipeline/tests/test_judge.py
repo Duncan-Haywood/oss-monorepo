@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import pytest
 
 from igmp.config import Config
-from igmp.judge import ClaudeCodeBackend, JudgeError, JudgeTask, seconds_until
+from igmp.judge import ClaudeCodeBackend, JudgeError, JudgeTask, NotOnPlan, seconds_until
 from igmp.models import Critique, ReelPlan, Score, strict_schema
 
 SCORE = {"score": 7.5, "keep": True, "role": "hook", "subject": "dunes at dusk", "mood": "calm",
@@ -137,3 +137,28 @@ def test_invalid_answer_is_retried_once_with_the_problem(tmp_path):
     s = ClaudeCodeBackend(cfg(tmp_path), runner=run).judge(task(tmp_path))
     assert s.score == 7.5 and len(prompts) == 2
     assert "previous answer was rejected" in prompts[1] and "score" in prompts[1]
+
+
+def test_console_login_is_refused_before_any_call(tmp_path):
+    seen = []
+    status = json.dumps({"loggedIn": True, "authMethod": "api_key", "apiKeySource": "/login managed key"})
+    b = ClaudeCodeBackend(cfg(tmp_path), runner=fake_run(status, seen=seen))
+    with pytest.raises(NotOnPlan, match="bills API usage"):
+        b.check_plan_login()
+    assert seen[0][0][1:] == ["auth", "status"] and len(seen) == 1
+
+
+@pytest.mark.parametrize("stdout", ["", "not json", json.dumps({"loggedIn": False, "authMethod": "none"})])
+def test_unknown_login_is_refused(tmp_path, stdout):
+    with pytest.raises(NotOnPlan):
+        ClaudeCodeBackend(cfg(tmp_path), runner=fake_run(stdout)).check_plan_login()
+
+
+def test_subscription_login_passes_and_paid_env_is_dropped(tmp_path, monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_AUTH_TOKEN", "x")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "x")
+    seen = []
+    status = json.dumps({"loggedIn": True, "authMethod": "claude.ai", "subscriptionType": "max"})
+    ClaudeCodeBackend(cfg(tmp_path), runner=fake_run(status, seen=seen)).check_plan_login()
+    env = seen[0][1]["env"]
+    assert "ANTHROPIC_API_KEY" not in env and "ANTHROPIC_AUTH_TOKEN" not in env
