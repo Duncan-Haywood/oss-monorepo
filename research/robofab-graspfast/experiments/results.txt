@@ -1,0 +1,101 @@
+TABLE A: graspmove settings (dt 0.2 ms, solref 0.5 ms), t_acc 0.05 s
+part axis load a_up a_side t_acc bound_N mujoco_N ratio(mj/bound)
+link      x static    0   0 0.050 0.0035 0.0034 0.96
+link      x up40     40   0 0.050 0.0178 0.0174 0.98
+link      x side40    0  40 0.050 0.0147 0.0142 0.96
+link      x up100   100   0 0.050 0.0392 0.0389 0.99
+link      x side100   0 100 0.050 0.0359 0.0357 1.00
+link      x up200   200   0 0.050 0.0749 0.0751 1.00
+link      x side200   0 200 0.050 0.0715 0.0714 1.00
+link      x up400   400   0 0.050 0.1464 None -
+link      x side400   0 400 0.050 0.1429 None -
+link      x up800   800   0 0.050 0.2892 None -
+link      x side800   0 800 0.050 0.2857 None -
+link      x mix     200 100 0.050 0.0830 0.0833 1.00
+link      x mix     100 200 0.050 0.0815 0.0815 1.00
+finger_a  x static    0   0 0.050 0.0156 0.0156 1.00
+finger_a  x up40     40   0 0.050 0.0791 0.0769 0.97
+finger_a  x side40    0  40 0.050 0.0654 0.0641 0.98
+finger_a  x up100   100   0 0.050 0.1743 0.1740 1.00
+finger_a  x side100   0 100 0.050 0.1595 0.1593 1.00
+finger_a  x up200   200   0 0.050 0.3330 0.3333 1.00
+finger_a  x side200   0 200 0.050 0.3178 0.3186 1.00
+finger_a  x up400   400   0 0.050 0.6505 None -
+finger_a  x side400   0 400 0.050 0.6351 None -
+finger_a  x up800   800   0 0.050 1.2853 None -
+finger_a  x side800   0 800 0.050 1.2699 None -
+finger_a  x mix     200 100 0.050 0.3689 0.3735 1.01
+finger_a  x mix     100 200 0.050 0.3621 0.3662 1.01
+cover     y static    0   0 0.050 0.0584 0.0595 1.02
+cover     y up40     40   0 0.050 0.2965 0.2893 0.98
+cover     y side40    0  40 0.050 0.2451 0.2380 0.97
+cover     y up100   100   0 0.050 0.6536 0.6592 1.01
+cover     y side100   0 100 0.050 0.5981 0.6006 1.00
+cover     y up200   200   0 0.050 1.2488 1.2598 1.01
+cover     y side200   0 200 0.050 1.1918 1.2012 1.01
+cover     y up400   400   0 0.050 2.4392 None -
+cover     y side400   0 400 0.050 2.3815 None -
+cover     y up800   800   0 0.050 4.8200 None -
+cover     y side800   0 800 0.050 4.7620 None -
+cover     y mix     200 100 0.050 1.3834 1.3916 1.01
+cover     y mix     100 200 0.050 1.3580 1.3623 1.00
+rows 39, with a result 27, ratio min 0.96 median 1.00 max 1.02
+
+TABLE B: fine settings (dt 0.05 ms, solref 0.1 ms), t_acc 0.05 s
+part axis load a_up a_side t_acc bound_N mujoco_N ratio(mj/bound)
+link      x static    0   0 0.050 0.0035 0.0033 0.93
+link      x up40     40   0 0.050 0.0178 0.0167 0.94
+link      x side40    0  40 0.050 0.0147 0.0130 0.89
+link      x up100   100   0 0.050 0.0392 0.0385 0.98
+link      x side100   0 100 0.050 0.0359 0.0357 1.00
+link      x up200   200   0 0.050 0.0749 0.0751 1.00
+link      x side200   0 200 0.050 0.0715 0.0714 1.00
+link      x up400   400   0 0.050 0.1464 0.1465 1.00
+link      x side400   0 400 0.050 0.1429 0.1428 1.00
+link      x up800   800   0 0.050 0.2892 0.2893 1.00
+link      x side800   0 800 0.050 0.2857 0.2893 1.01
+link      x mix     200 100 0.050 0.0830 0.0833 1.00
+link      x mix     100 200 0.050 0.0815 0.0815 1.00
+finger_a  x static    0   0 0.050 0.0156 0.0153 0.98
+finger_a  x up40     40   0 0.050 0.0791 0.0751 0.95
+finger_a  x side40    0  40 0.050 0.0654 0.0632 0.97
+finger_a  x up100   100   0 0.050 0.1743 0.1721 0.99
+finger_a  x side100   0 100 0.050 0.1595 0.1575 0.99
+finger_a  x up200   200   0 0.050 0.3330 0.3333 1.00
+finger_a  x side200   0 200 0.050 0.3178 0.3186 1.00
+finger_a  x up400   400   0 0.050 0.6505 0.6519 1.00
+finger_a  x side400   0 400 0.050 0.6351 0.6372 1.00
+finger_a  x up800   800   0 0.050 1.2853 1.2891 1.00
+finger_a  x side800   0 800 0.050 1.2699 1.2744 1.00
+finger_a  x mix     200 100 0.050 0.3689 0.3735 1.01
+finger_a  x mix     100 200 0.050 0.3621 0.3662 1.01
+cover     y static    0   0 0.050 0.0584 0.0595 1.02
+cover     y up40     40   0 0.050 0.2965 0.2893 0.98
+cover     y side40    0  40 0.050 0.2451 0.2380 0.97
+cover     y up100   100   0 0.050 0.6536 0.6519 1.00
+cover     y side100   0 100 0.050 0.5981 0.5933 0.99
+cover     y up200   200   0 0.050 1.2488 1.2451 1.00
+cover     y side200   0 200 0.050 1.1918 1.2012 1.01
+cover     y up400   400   0 0.050 2.4392 2.4609 1.01
+cover     y side400   0 400 0.050 2.3815 2.4023 1.01
+cover     y up800   800   0 0.050 4.8200 4.8633 1.01
+cover     y side800   0 800 0.050 4.7620 4.8047 1.01
+cover     y mix     200 100 0.050 1.3834 1.3916 1.01
+cover     y mix     100 200 0.050 1.3580 1.3623 1.00
+rows 39, with a result 39, ratio min 0.89 median 1.00 max 1.02
+
+settings sweep: cover, up 400 m/s^2, t_acc 0.05 s
+part axis load a_up a_side t_acc bound_N mujoco_N ratio(mj/bound) solref dt
+cover     y up400   400   0 0.050 2.4392 None - 0.0005 0.0002
+cover     y up400   400   0 0.050 2.4392 None - 0.0005 0.0001
+cover     y up400   400   0 0.050 2.4392 2.4609 1.01 0.0002 0.0001
+cover     y up400   400   0 0.050 2.4392 2.4609 1.01 0.0002 5e-05
+cover     y up400   400   0 0.050 2.4392 2.4609 1.01 0.0001 5e-05
+cover     y up400   400   0 0.050 2.4392 2.4316 1.00 5e-05 2.5e-05
+
+duration check (fine settings): cover, side 400 m/s^2
+part axis load a_up a_side t_acc bound_N mujoco_N ratio(mj/bound)
+cover     y side400   0 400 0.020 2.3815 2.3438 0.98
+cover     y side400   0 400 0.050 2.3815 2.4023 1.01
+cover     y side400   0 400 0.100 2.3815 2.4023 1.01
+cover     y side400   0 400 0.150 2.3815 2.4023 1.01
