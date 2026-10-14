@@ -1663,7 +1663,8 @@ const RELATIVE_SELF = relative(
 // +1: `uk-mortgage-overpayment-calculator` graduated.
 // +1: `uk-working-from-home-tax-relief-calculator` graduated.
 // +1: `uk-business-mileage-tax-relief-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1189;
+// +1: `uk-bonus-tax-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1191;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.

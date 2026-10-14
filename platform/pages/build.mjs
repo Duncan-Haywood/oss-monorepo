@@ -1872,6 +1872,10 @@ const CATEGORY_RULES = [
       || slug === 'uk-lifetime-isa-vs-pension-calculator'
       // `uk-working-from-home-tax-relief-calculator` joined 2026-10-14 on its first commit: UK backdated homeworking tax relief claims, sibling of the tax code and self assessment tools.
       || slug === 'uk-working-from-home-tax-relief-calculator'
+      // `uk-bonus-tax-calculator` joined 2026-10-14 on its first commit: UK bonus take-home, 60% trap and Child Benefit charge, sibling of the salary sacrifice and 100k trap tools.
+      || slug === 'uk-bonus-tax-calculator'
+      // `uk-umbrella-company-take-home-calculator` joined 2026-10-14 on its first commit: UK agency day rate to take-home through an umbrella, sibling of the IR35 and take-home tools.
+      || slug === 'uk-umbrella-company-take-home-calculator'
       || slug === 'uk-holiday-pay-calculator'
       // `uk-employer-hiring-cost-calculator` joined 2026-10-14 on its first commit: UK employer cost arithmetic (NIC, pension, allowance), sibling of the take-home pay and holiday pay tools.
       || slug === 'uk-employer-hiring-cost-calculator'
