@@ -1858,6 +1858,8 @@ const CATEGORY_RULES = [
       // `uk-holiday-pay-calculator` joined 2026-10-14 on its first commit: UK employment-pay arithmetic, sibling of the redundancy and sick pay tools.
       // `uk-rd-tax-relief-calculator` joined 2026-10-14 on its first commit: UK R&D relief (merged scheme, ERIS), sibling of the capital allowances and sole-trader tools.
       || slug === 'uk-rd-tax-relief-calculator'
+      // `uk-emi-share-option-tax-calculator` joined 2026-10-14 on its first commit: UK EMI option tax (BADR, discount, unapproved comparison), sibling of the capital gains and R&D relief tools.
+      || slug === 'uk-emi-share-option-tax-calculator'
       || slug === 'uk-holiday-pay-calculator'
       // `uk-employer-hiring-cost-calculator` joined 2026-10-14 on its first commit: UK employer cost arithmetic (NIC, pension, allowance), sibling of the take-home pay and holiday pay tools.
       || slug === 'uk-employer-hiring-cost-calculator'
