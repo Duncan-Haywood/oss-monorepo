@@ -1644,7 +1644,8 @@ const RELATIVE_SELF = relative(
 // +1: `uk-salary-sacrifice-calculator` graduated.
 // +1: `uk-company-car-tax-calculator` graduated.
 // +1: `uk-minimum-wage-checker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1169;
+// +1: `uk-tax-code-checker` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1170;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
