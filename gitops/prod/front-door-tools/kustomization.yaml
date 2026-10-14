@@ -33,51 +33,51 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548305 bytes
-#   portfolio-front-tools-1: 92 files, 555584 bytes
-#   portfolio-front-tools-2: 144 files, 553636 bytes
-#   portfolio-front-tools-3: 128 files, 549912 bytes
-#   portfolio-front-tools-4: 136 files, 554189 bytes
-#   portfolio-front-tools-5: 130 files, 549909 bytes
-#   portfolio-front-tools-6: 127 files, 556855 bytes
-#   portfolio-front-tools-7: 121 files, 556388 bytes
-#   portfolio-front-tools-8: 130 files, 554743 bytes
-#   portfolio-front-tools-9: 137 files, 554838 bytes
-#   portfolio-front-tools-10: 136 files, 555071 bytes
-#   portfolio-front-tools-11: 136 files, 556443 bytes
-#   portfolio-front-tools-12: 127 files, 549546 bytes
-#   portfolio-front-tools-13: 131 files, 554466 bytes
-#   portfolio-front-tools-14: 119 files, 556786 bytes
-#   portfolio-front-tools-15: 140 files, 556915 bytes
-#   portfolio-front-tools-16: 116 files, 546653 bytes
-#   portfolio-front-tools-17: 133 files, 556917 bytes
-#   portfolio-front-tools-18: 124 files, 556719 bytes
-#   portfolio-front-tools-19: 125 files, 556204 bytes
-#   portfolio-front-tools-20: 122 files, 553606 bytes
-#   portfolio-front-tools-21: 126 files, 555574 bytes
-#   portfolio-front-tools-22: 117 files, 554254 bytes
-#   portfolio-front-tools-23: 118 files, 554571 bytes
-#   portfolio-front-tools-24: 130 files, 556608 bytes
-#   portfolio-front-tools-25: 128 files, 556559 bytes
-#   portfolio-front-tools-26: 134 files, 556096 bytes
-#   portfolio-front-tools-27: 133 files, 551215 bytes
-#   portfolio-front-tools-28: 121 files, 552877 bytes
-#   portfolio-front-tools-29: 127 files, 556792 bytes
-#   portfolio-front-tools-30: 138 files, 555229 bytes
-#   portfolio-front-tools-31: 125 files, 553548 bytes
-#   portfolio-front-tools-32: 125 files, 554983 bytes
-#   portfolio-front-tools-33: 135 files, 552528 bytes
-#   portfolio-front-tools-34: 109 files, 555130 bytes
-#   portfolio-front-tools-35: 100 files, 552235 bytes
-#   portfolio-front-tools-36: 128 files, 549681 bytes
-#   portfolio-front-tools-37: 118 files, 554115 bytes
-#   portfolio-front-tools-38: 130 files, 553364 bytes
-#   portfolio-front-tools-39: 124 files, 555483 bytes
-#   portfolio-front-tools-40: 135 files, 551001 bytes
-#   portfolio-front-tools-41: 133 files, 554378 bytes
-#   portfolio-front-tools-42: 122 files, 552770 bytes
-#   portfolio-front-tools-43: 66 files, 359543 bytes
-#   portfolio-front-tools-44: 50 files, 263727 bytes
+#   portfolio-front-tools-0: 145 files, 548312 bytes
+#   portfolio-front-tools-1: 92 files, 555587 bytes
+#   portfolio-front-tools-2: 144 files, 553637 bytes
+#   portfolio-front-tools-3: 128 files, 549917 bytes
+#   portfolio-front-tools-4: 136 files, 554191 bytes
+#   portfolio-front-tools-5: 130 files, 549911 bytes
+#   portfolio-front-tools-6: 127 files, 556859 bytes
+#   portfolio-front-tools-7: 121 files, 556391 bytes
+#   portfolio-front-tools-8: 130 files, 554739 bytes
+#   portfolio-front-tools-9: 137 files, 554853 bytes
+#   portfolio-front-tools-10: 136 files, 555052 bytes
+#   portfolio-front-tools-11: 136 files, 556451 bytes
+#   portfolio-front-tools-12: 127 files, 549532 bytes
+#   portfolio-front-tools-13: 131 files, 554405 bytes
+#   portfolio-front-tools-14: 119 files, 556789 bytes
+#   portfolio-front-tools-15: 140 files, 556958 bytes
+#   portfolio-front-tools-16: 116 files, 546684 bytes
+#   portfolio-front-tools-17: 133 files, 556915 bytes
+#   portfolio-front-tools-18: 124 files, 556692 bytes
+#   portfolio-front-tools-19: 126 files, 556950 bytes
+#   portfolio-front-tools-20: 122 files, 556190 bytes
+#   portfolio-front-tools-21: 126 files, 554991 bytes
+#   portfolio-front-tools-22: 117 files, 554347 bytes
+#   portfolio-front-tools-23: 117 files, 551535 bytes
+#   portfolio-front-tools-24: 130 files, 556553 bytes
+#   portfolio-front-tools-25: 128 files, 556670 bytes
+#   portfolio-front-tools-26: 134 files, 556086 bytes
+#   portfolio-front-tools-27: 133 files, 551212 bytes
+#   portfolio-front-tools-28: 121 files, 552873 bytes
+#   portfolio-front-tools-29: 127 files, 556716 bytes
+#   portfolio-front-tools-30: 138 files, 555215 bytes
+#   portfolio-front-tools-31: 125 files, 553540 bytes
+#   portfolio-front-tools-32: 125 files, 554971 bytes
+#   portfolio-front-tools-33: 135 files, 552637 bytes
+#   portfolio-front-tools-34: 109 files, 555000 bytes
+#   portfolio-front-tools-35: 100 files, 552241 bytes
+#   portfolio-front-tools-36: 128 files, 549752 bytes
+#   portfolio-front-tools-37: 118 files, 553978 bytes
+#   portfolio-front-tools-38: 130 files, 553368 bytes
+#   portfolio-front-tools-39: 124 files, 555555 bytes
+#   portfolio-front-tools-40: 137 files, 556254 bytes
+#   portfolio-front-tools-41: 133 files, 556136 bytes
+#   portfolio-front-tools-42: 123 files, 556725 bytes
+#   portfolio-front-tools-43: 66 files, 359554 bytes
+#   portfolio-front-tools-44: 50 files, 263758 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2772,12 +2772,12 @@ configMapGenerator:
       - grant-writer-proposal-price-calculator__usage.mjs.gz=grant-writer-proposal-price-calculator__usage.mjs.gz
       - grape-grower-sell-vs-bottle-calculator__calc.mjs.gz=grape-grower-sell-vs-bottle-calculator__calc.mjs.gz
       - grape-grower-sell-vs-bottle-calculator__index.html.gz=grape-grower-sell-vs-bottle-calculator__index.html.gz
+      - grape-grower-sell-vs-bottle-calculator__usage.mjs.gz=grape-grower-sell-vs-bottle-calculator__usage.mjs.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - grape-grower-sell-vs-bottle-calculator__usage.mjs.gz=grape-grower-sell-vs-bottle-calculator__usage.mjs.gz
       - graphql-introspection-exposure-check__analyze.mjs.gz=graphql-introspection-exposure-check__analyze.mjs.gz
       - graphql-introspection-exposure-check__check.mjs.gz=graphql-introspection-exposure-check__check.mjs.gz
       - graphql-introspection-exposure-check__index.html.gz=graphql-introspection-exposure-check__index.html.gz
@@ -2899,12 +2899,12 @@ configMapGenerator:
       - home-elevator-bid-calculator__how-much-to-charge-to-install-a-home-elevator.html.gz=home-elevator-bid-calculator__how-much-to-charge-to-install-a-home-elevator.html.gz
       - home-elevator-bid-calculator__index.html.gz=home-elevator-bid-calculator__index.html.gz
       - home-elevator-bid-calculator__should-i-expedite-a-home-elevator-for-hospital-discharge.html.gz=home-elevator-bid-calculator__should-i-expedite-a-home-elevator-for-hospital-discharge.html.gz
+      - home-elevator-bid-calculator__should-i-install-a-customer-supplied-home-elevator.html.gz=home-elevator-bid-calculator__should-i-install-a-customer-supplied-home-elevator.html.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - home-elevator-bid-calculator__should-i-install-a-customer-supplied-home-elevator.html.gz=home-elevator-bid-calculator__should-i-install-a-customer-supplied-home-elevator.html.gz
       - home-elevator-bid-calculator__usage.mjs.gz=home-elevator-bid-calculator__usage.mjs.gz
       - home-elevator-bid-calculator__vs-a-flat-pneumatic-special.html.gz=home-elevator-bid-calculator__vs-a-flat-pneumatic-special.html.gz
       - home-elevator-bid-calculator__vs-jobber.html.gz=home-elevator-bid-calculator__vs-jobber.html.gz
@@ -3030,12 +3030,12 @@ configMapGenerator:
       - import-landed-cost-calculator__usage.mjs.gz=import-landed-cost-calculator__usage.mjs.gz
       - import-landed-cost-calculator__vs-flexport.html.gz=import-landed-cost-calculator__vs-flexport.html.gz
       - import-landed-cost-calculator__vs-tracking-landed-cost-in-a-spreadsheet.html.gz=import-landed-cost-calculator__vs-tracking-landed-cost-in-a-spreadsheet.html.gz
+      - incident-postmortem-timeline__classify.mjs.gz=incident-postmortem-timeline__classify.mjs.gz
   - name: portfolio-front-tools-22
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - incident-postmortem-timeline__classify.mjs.gz=incident-postmortem-timeline__classify.mjs.gz
       - incident-postmortem-timeline__how-to-write-a-blameless-postmortem.html.gz=incident-postmortem-timeline__how-to-write-a-blameless-postmortem.html.gz
       - incident-postmortem-timeline__index.html.gz=incident-postmortem-timeline__index.html.gz
       - incident-postmortem-timeline__postmortem.mjs.gz=incident-postmortem-timeline__postmortem.mjs.gz
@@ -3152,12 +3152,12 @@ configMapGenerator:
       - json-to-types-generator__index.html.gz=json-to-types-generator__index.html.gz
       - json-to-types-generator__types.mjs.gz=json-to-types-generator__types.mjs.gz
       - json-to-types-generator__usage.mjs.gz=json-to-types-generator__usage.mjs.gz
+      - junk-car-buyer-offer-calculator__calc.mjs.gz=junk-car-buyer-offer-calculator__calc.mjs.gz
   - name: portfolio-front-tools-23
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - junk-car-buyer-offer-calculator__calc.mjs.gz=junk-car-buyer-offer-calculator__calc.mjs.gz
       - junk-car-buyer-offer-calculator__index.html.gz=junk-car-buyer-offer-calculator__index.html.gz
       - junk-car-buyer-offer-calculator__usage.mjs.gz=junk-car-buyer-offer-calculator__usage.mjs.gz
       - junk-removal-bid-calculator__calc.mjs.gz=junk-removal-bid-calculator__calc.mjs.gz
@@ -5478,6 +5478,9 @@ configMapGenerator:
       - uk-self-assessment-tax-calculator__calc.mjs.gz=uk-self-assessment-tax-calculator__calc.mjs.gz
       - uk-self-assessment-tax-calculator__index.html.gz=uk-self-assessment-tax-calculator__index.html.gz
       - uk-self-assessment-tax-calculator__usage.mjs.gz=uk-self-assessment-tax-calculator__usage.mjs.gz
+      - uk-simplified-expenses-calculator__calc.mjs.gz=uk-simplified-expenses-calculator__calc.mjs.gz
+      - uk-simplified-expenses-calculator__index.html.gz=uk-simplified-expenses-calculator__index.html.gz
+      - uk-simplified-expenses-calculator__usage.mjs.gz=uk-simplified-expenses-calculator__usage.mjs.gz
       - uk-sole-trader-vs-limited-company-calculator__calc.mjs.gz=uk-sole-trader-vs-limited-company-calculator__calc.mjs.gz
       - uk-sole-trader-vs-limited-company-calculator__index.html.gz=uk-sole-trader-vs-limited-company-calculator__index.html.gz
       - uk-sole-trader-vs-limited-company-calculator__usage.mjs.gz=uk-sole-trader-vs-limited-company-calculator__usage.mjs.gz
@@ -5499,12 +5502,12 @@ configMapGenerator:
       - uk-take-home-pay-calculator__calc.mjs.gz=uk-take-home-pay-calculator__calc.mjs.gz
       - uk-take-home-pay-calculator__index.html.gz=uk-take-home-pay-calculator__index.html.gz
       - uk-take-home-pay-calculator__usage.mjs.gz=uk-take-home-pay-calculator__usage.mjs.gz
-      - uk-tax-code-checker__calc.mjs.gz=uk-tax-code-checker__calc.mjs.gz
   - name: portfolio-front-tools-41
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - uk-tax-code-checker__calc.mjs.gz=uk-tax-code-checker__calc.mjs.gz
       - uk-tax-code-checker__index.html.gz=uk-tax-code-checker__index.html.gz
       - uk-tax-code-checker__usage.mjs.gz=uk-tax-code-checker__usage.mjs.gz
       - uk-tax-free-childcare-calculator__calc.mjs.gz=uk-tax-free-childcare-calculator__calc.mjs.gz
@@ -5637,12 +5640,12 @@ configMapGenerator:
       - vpat-acr-generator__vs-filling-out-the-vpat-template-by-hand.html.gz=vpat-acr-generator__vs-filling-out-the-vpat-template-by-hand.html.gz
       - vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz=vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz
       - vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz=vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz
-      - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
   - name: portfolio-front-tools-42
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
       - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
       - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz
       - vscode-extension-drift-check__usage.mjs.gz=vscode-extension-drift-check__usage.mjs.gz
