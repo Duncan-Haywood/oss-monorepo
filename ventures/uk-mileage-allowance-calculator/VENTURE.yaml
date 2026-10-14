@@ -1,0 +1,37 @@
+name: uk-mileage-allowance-calculator
+description: >-
+  Free browser tool for UK employees and sole traders: enter business miles and the employer's pence per mile to see the HMRC approved mileage amount, tax relief on any shortfall, and (self-employed) whether simplified mileage or actual vehicle costs gives the larger deduction. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; the portfolio has US IRS mileage tools (mileage-deduction-calculator) and UK simplified expenses, but no UK AMAP calculator.
+#
+# First visitor: employees searching "HMRC mileage allowance calculator", "claim tax back on business mileage"; sole traders searching "simplified mileage vs actual costs". Evergreen, peaks around Self Assessment (January) and P87 claims; volume not measured. Rivals are GOV.UK rate pages and accountant blog calculators.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: mileage log import and P87 claim pack behind an env-var switch.
+#
+# Liability: AMAP rates written from memory (45p/25p, 24p, 20p, 5p passenger; unchanged since 2011); every result tells the reader to verify on GOV.UK, carries no-warranty and not-tax-advice clauses and says what it does not decide (qualifying journeys, capital allowances, VAT, advisory fuel rates).
+hypotheses:
+  - claim: >-
+      UK employees paid below 45p a mile will use a free private calculator to learn their tax-relief claim, because employer rates are rarely compared with the HMRC approved rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: GBP
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate differs from GOV.UK guidance.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-mileage-allowance-calculator/
+  analytics: null
