@@ -1,0 +1,39 @@
+name: uk-take-home-pay-calculator
+description: >-
+  Free browser tool for UK employees: enter gross salary, pension and student loan to see income tax, National Insurance, loan deductions and take-home pay per year, month and week (England, Wales and NI, 2025/26 rates), the marginal rate on the next pound including the 60 percent allowance taper, and the same pension under salary sacrifice, net pay and relief at source. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no UK take-home or salary-after-tax tool in ventures/ (checked by name for take-home, salary, paye).
+#
+# First visitor: a UK employee searching "take home pay calculator", "salary after tax", "£45,000 after tax UK", "salary sacrifice pension calculator".
+# The highest-volume UK pay query family (volume not measured). Hub for the other UK tax tools here: the 100k trap, student loan, pension allowance and dividend tools link in.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: salary-by-salary landing pages and an employer-facing offer-comparison sheet behind an env-var switch.
+#
+# Liability: rates written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (Scotland, other tax codes, benefits in kind). Ethical risk is an overstated take-home figure; mitigated by naming the unmodelled items and sourcing.
+hypotheses:
+  - claim: >-
+      UK employees will use a free calculator to see take-home pay and compare pension methods, and will return when pay or pension changes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, rate or date differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-take-home-pay-calculator/
+  analytics: null
