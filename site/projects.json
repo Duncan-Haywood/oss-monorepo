@@ -1688,6 +1688,11 @@
      "slug": "selfrep-alufreq",
      "title": "How stiff a rod does a frequency target need, in aluminium and in wood?",
      "summary": "Follow-up to selfrep-alurod and selfrep-rodmodes: rods of the printer redesign are sized to a first-mode frequency target (Rayleigh estimate, assumed 0.3&nbsp;kg carriage) instead of a sag spec. Aluminium reaches 40&nbsp;Hz with 10.0&nbsp;mm, inside the assumed 12&nbsp;mm holder limit, where hardwood needs 16.0&nbsp;mm; within 12&nbsp;mm the highest reachable frequency is 56&nbsp;Hz for aluminium and 23&nbsp;Hz for hardwood. Closure by mass rises with the target only because thicker stock counts as makeable, while imported stock grows from 1946&nbsp;g to 2596&nbsp;g. Stylised: one mode, assumed carriage mass, moduli and holder limit."
+    },
+    {
+     "slug": "selfrep-terminal",
+     "title": "How does a resale value for the finished fleet move the switch from copies to goods?",
+     "summary": "Follow-up to selfrep-reinvest. Giving each machine left at the horizon a value <em>s</em> shortens the goods phase from one e-folding time 1/<em>k</em> to 1/<em>k</em> &minus; <em>s</em>/<em>a</em>, so the switch moves later; at <em>s</em> &ge; <em>a</em>/<em>k</em> (50 per machine with no failures, 29% of the assumed vitamin cost) the shop copies to the end. The grid optimum of the Euler simulation agrees with this closed form to within 1&nbsp;h, and ignoring a terminal value of 12.5&ndash;50 per machine costs 3&ndash;26% of the optimum. Every input is assumed; cash is free and demand unlimited. Stylised."
     }
    ]
   },
