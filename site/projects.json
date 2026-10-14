@@ -2063,7 +2063,7 @@
     {
      "slug": "accel-kws",
      "title": "How small can a keyword-spotting accelerator get, and what does each bit of precision cost?",
-     "summary": "In progress."
+     "summary": "A one-hidden-layer MLP on pooled MFCC features of Speech Commands v0.02 (10 keywords plus unknown), quantised to 2&ndash;8 bit weights, mapped to a serial-MAC RTL engine that matches an integer NumPy reference bit for bit on all 40 swept configurations. Test accuracy saturates near 75% (0.752 at 128 hidden units, 4 bits); 4-bit weights are within 0.4 points of 8-bit at 64 and 128 units, 2 bits collapses at small width, and a 64-unit 4-bit design (0.722) uses about 31% of the best design&rsquo;s modelled energy. Modelled classifier energy is 0.0045&ndash;0.19&nbsp;&micro;W at 4 inferences per second, far below the 1.8&nbsp;mW microphone floor in <em>ambient-wearable</em>. Stylised: assumed 45&nbsp;nm energy constants not re-checked, generic-gate area without memories, no front end, a third-party dataset mirror, and a weak feature set."
     }
    ]
   }
