@@ -1872,6 +1872,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-shared-parental-pay-planner'
       // `uk-mileage-allowance-calculator` joined 2026-10-14 on its first commit: UK business mileage (HMRC approved rates), sibling of the simplified expenses and self assessment tools.
       || slug === 'uk-mileage-allowance-calculator'
+      // `uk-unfair-dismissal-compensation-calculator` joined 2026-10-14 on its first commit: UK dismissal-payment arithmetic, sibling of the redundancy pay and holiday pay tools.
+      || slug === 'uk-unfair-dismissal-compensation-calculator'
       // `uk-lifetime-isa-vs-pension-calculator` joined 2026-10-14 on its first commit: UK LISA vs pension choice, sibling of the salary sacrifice and pension annual allowance tools.
       || slug === 'uk-lifetime-isa-vs-pension-calculator'
       // `uk-working-from-home-tax-relief-calculator` joined 2026-10-14 on its first commit: UK backdated homeworking tax relief claims, sibling of the tax code and self assessment tools.
