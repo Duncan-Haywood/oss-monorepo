@@ -110,4 +110,4 @@ Full matrix with scores, monthly € math, and payback: `pnpm docs:dev` → **RO
 
 ## License
 
-Private repository — all rights reserved unless otherwise agreed with store operators.
+MIT — see [`LICENSE`](LICENSE).
