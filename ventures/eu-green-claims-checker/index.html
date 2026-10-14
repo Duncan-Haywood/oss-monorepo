@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EU Green Claims Checker — Which Eco Claims Are Banned From 27 Sept 2026</title>
+  <meta name="description" content="Free EU green claims checker (Directive 2024/825, Empowering Consumers): tick the eco, climate and durability claims you use and see which are banned for consumer marketing from 27 September 2026 (generic eco-friendly, climate neutral by offsetting, own-made labels, net zero without a plan, fake repairability) and what to say instead. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="EU green claims checker: is your eco-friendly claim banned from 27 September 2026? Free, private">
+  <meta property="og:description" content="Tick the claims you use; get the banned and conditional ones with the rule and a safer wording.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"EU Green Claims Checker","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When do the EU green claims rules start to apply?","acceptedAnswer":{"@type":"Answer","text":"Directive (EU) 2024/825 had to be turned into national law by 27 March 2026 and the national rules apply to consumer marketing from 27 September 2026."}},{"@type":"Question","name":"Can I still say a product is eco-friendly or green?","acceptedAnswer":{"@type":"Answer","text":"Not as a bare generic claim. A generic environmental claim is banned unless you can show recognised excellent environmental performance, for example an EU Ecolabel. Say what is better and by how much instead."}},{"@type":"Question","name":"Can I call a product climate neutral if I offset the emissions?","acceptedAnswer":{"@type":"Answer","text":"No. A claim that a product has a neutral, reduced or positive climate impact because of offsetting is banned. You may still describe offset spending separately as a contribution, not as the product's footprint."}},{"@type":"Question","name":"Does this apply to a small shop or a seller outside the EU?","acceptedAnswer":{"@type":"Answer","text":"Yes if you market to consumers in the EU. The rules amend consumer-protection law, which has no small-business exemption, and they follow the consumer, not the seller's address."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GREEN CLAIMS CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your eco claims are banned in the EU from 27 September 2026?</h1>
+    <p>Tick the environmental and durability claims you use in consumer marketing. You get the <strong>banned</strong> ones, the ones allowed only <strong>on a condition</strong>, the rule behind each and a <strong>safer wording</strong>.</p>
+    <p class="note">A first read of Directive (EU) 2024/825. The claim list was written from memory and national laws differ in detail. It is not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="role">Your role</label><select id="role"><option value="">Choose one</option><option value="seller">Brand owner or seller of your own goods or services</option><option value="retailer">Retailer or reseller of other brands</option><option value="marketplace">Online marketplace or platform listing other traders' offers</option><option value="agency">Marketing agency or copywriter writing claims for clients</option></select></div>
+      <div><label for="audience">Who you sell to</label><select id="audience"><option value="">Choose one</option><option value="eu">Consumers in the EU (B2C)</option><option value="b2b">Businesses only (B2B)</option><option value="none">No sales into the EU</option></select></div>
+      <div><label for="today">Reference date (blank = today)</label><input id="today" type="date"></div>
+      <div><label for="generic">Do you use: A generic environmental claim such as "eco-friendly", "green", "climate friendly", "biodegradable" or "nature's friend"?</label><select id="generic"><option value="">No or not sure</option><option value="1">Yes, we use it</option></select></div>
+      <div><label for="label">Do you use: A sustainability label, badge or logo you made up or a trade body awarded itself?</label><select id="label"><option value="">No or not sure</option><option value="1">Yes, we use it</option></select></div>
+      <div><label for="offset">Do you use: "Climate neutral", "CO2 compensated" or "carbon positive" because emissions are offset elsewhere?</label><select id="offset"><option value="">No or not sure</option><option value="1">Yes, we use it</option></select></div>
+      <div><label for="whole">Do you use: A claim about the whole product or business when it only holds for one part ("sustainable shoe" when only the laces are recycled)?</label><select id="whole"><option value="">No or not sure</option><option value="1">Yes, we use it</option></select></div>
+      <div><label for="future">Do you use: A future environmental claim such as "net zero by 2030" or "plastic-free by 2028"?</label><select id="future"><option value="">No or not sure</option><option value="1">Yes, we use it</option></select></div>
+      <div><label for="legal">Do you use: Presenting something the law already requires of every trader as a special feature of your offer ("free of banned substance X")?</label><select id="legal"><option value="">No or not sure</option><option value="1">Yes, we use it</option></select></div>
+      <div><label for="durability">Do you use: A durability claim ("lasts 10 years", "500 washes") that the product does not meet under normal use?</label><select id="durability"><option value="">No or not sure</option><option value="1">Yes, we use it</option></select></div>
+      <div><label for="repairable">Do you use: Calling a good repairable when it cannot be repaired?</label><select id="repairable"><option value="">No or not sure</option><option value="1">Yes, we use it</option></select></div>
+      <div><label for="obsolescence">Do you use: Selling a good without saying it has a feature built in that limits its durability (for example a part that wears out on a counter or schedule)?</label><select id="obsolescence"><option value="">No or not sure</option><option value="1">Yes, we use it</option></select></div>
+      <div><label for="software">Do you use: Pushing a software update that makes a good work worse without saying so, or calling an update necessary when it only adds features?</label><select id="software"><option value="">No or not sure</option><option value="1">Yes, we use it</option></select></div>
+      <div><label for="consumables">Do you use: Telling buyers to replace ink, filters or other consumables earlier than the technical need?</label><select id="consumables"><option value="">No or not sure</option><option value="1">Yes, we use it</option></select></div>
+      <div><label for="guarantee">Do you use: A producer's commercial guarantee of durability longer than two years?</label><select id="guarantee"><option value="">No or not sure</option><option value="1">Yes, we use it</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check my claims</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose your role and who you sell to, tick the claims you use, then click Check my claims.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Claims you use</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Kind</th><th scope="col">Claim</th><th scope="col">Rule</th><th scope="col">Instead</th></tr></thead><tbody id="claim-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download claims (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Scope:</strong> marketing, listings, packaging text and ads aimed at consumers in the EU, by any trader of any size, wherever established.</li>
+      <li><strong>Claims:</strong> twelve common environmental and durability claims, marked banned (unfair in every case) or conditional (allowed only when a stated condition is met). The first read lists the main ones; it is not every blacklisted practice.</li>
+      <li><strong>Not decided:</strong> whether your evidence meets the standard, whether an ecolabel is recognised in your country, national penalties and enforcement, and sector-law conformity.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>When do the EU green claims rules start to apply?</h3>
+    <p>Directive (EU) 2024/825 had to be turned into national law by 27 March 2026 and the national rules apply to consumer marketing from 27 September 2026.</p>
+    <h3>Can I still say a product is eco-friendly or green?</h3>
+    <p>Not as a bare generic claim. A generic environmental claim is banned unless you can show recognised excellent environmental performance, for example an EU Ecolabel. Say what is better and by how much instead.</p>
+    <h3>Can I call a product climate neutral if I offset the emissions?</h3>
+    <p>No. A claim that a product has a neutral, reduced or positive climate impact because of offsetting is banned. You may still describe offset spending separately as a contribution, not as the product's footprint.</p>
+    <h3>Does this apply to a small shop or a seller outside the EU?</h3>
+    <p>Yes if you market to consumers in the EU. The rules amend consumer-protection law, which has no small-business exemption, and they follow the consumer, not the seller's address.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your national authority or counsel before relying on it.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../eu-green-claims-copy-scanner/">EU green claims copy scanner</a>, the <a href="../eu-packaging-regulation-checker/">EU packaging regulation checker</a>, the <a href="../gpsr-product-safety-checker/">GPSR product safety checker</a>, the <a href="../eu-battery-regulation-checker/">EU Batteries Regulation checker</a> the <a href="../eudr-scope-checker/">EUDR scope checker</a> and the <a href="../eu-price-reduction-claim-checker/">EU price reduction checker</a> for sale prices.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p>Selling a product in the EU? The <a href="../eu-product-liability-directive-checker/">EU product liability directive checker</a> shows scope, the liability chain and time limits.</p>
+    <p>Also for EU consumer-goods sellers: the <a href="../eu-espr-readiness-checker/">EU ESPR readiness checker</a> (unsold-stock destruction ban and Digital Product Passport).</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, claimsCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = {role: "role", audience: "audience", today: "today", generic: "generic", label: "label", offset: "offset", whole: "whole", future: "future", legal: "legal", durability: "durability", repairable: "repairable", obsolescence: "obsolescence", software: "software", consumables: "consumables", guarantee: "guarantee"};
+    const DEFAULTS = {};
+    const IDLE = "Choose your role and who you sell to, tick the claims you use, then click Check my claims.";
+    const KIND = { banned: "Banned", conditional: "Condition" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.verdict.status === "in" ? (r.banned.length + " banned, " + r.conditional.length + " conditional") : "Not in scope directly";
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => '<div class="finding"><span class="pill ' + f.severity + '">' + f.severity + "</span>" + esc(f.title) + "</div>").join("");
+      $("#claim-rows").innerHTML = r.hits.map((c) => "<tr><td>" + KIND[c.kind] + "</td><td>" + esc(c.label) + "</td><td>" + esc(c.rule) + "</td><td>" + esc(c.fix) + "</td></tr>").join("");
+      report.hidden = false;
+      status.textContent = "Done. Check your national law and authority before relying on this.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: an EU-facing brand using eco-friendly, climate-neutral, net-zero and long-life claims. Illustrative, not a real company.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] || ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("green-claims-check.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("green-claims.csv", claimsCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

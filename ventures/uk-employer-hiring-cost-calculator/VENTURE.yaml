@@ -1,0 +1,39 @@
+name: uk-employer-hiring-cost-calculator
+description: >-
+  Free browser tool for UK small employers: enter a salary to see the yearly, monthly and first-year cost of a hire including employer National Insurance (15% above £5,000), Employment Allowance, workplace pension and extras, the change from 2024/25, and the salary a budget can fund. Nothing is uploaded. Not tax or legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no UK employer-cost tool in ventures/ (employer-payroll-tax-cost-calculator is US payroll tax).
+#
+# First visitor: a UK sole trader, startup founder or small-business owner considering a first hire and searching "cost of employing someone UK", "employer NI calculator", "true cost of an employee".
+# High-intent, evergreen, with a spike each April and after each Budget (the April 2025 NIC rise made it newsworthy); volume not measured. Sibling of the UK take-home pay, holiday pay and maternity pay tools for cross-links.
+#
+# Path to revenue (payment rails stay off): lead magnet toward payroll/HR tooling referrals later; GitHub Sponsors now. Competes with free payroll-software and accountant calculators by adding the 2024/25 comparison, apprentice relief and budget-to-salary in one result.
+#
+# Liability: rules written from memory without network access. Every result names GOV.UK as the source to verify, carries no-warranty and not-tax-or-legal-advice clauses, and says what it does not decide
+# (apprenticeship levy, Employment Allowance eligibility, benefits in kind, part-year hiring). Ethical risk is a hiring budget set on a wrong NIC figure; mitigated by sourcing and the verify step.
+hypotheses:
+  - claim: >-
+      UK small employers weighing a first hire will use a free calculator to see the full cost of employing someone, including employer NIC and pension, before committing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate, threshold or rounding rule differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-employer-hiring-cost-calculator/
+  analytics: null

@@ -40,5 +40,16 @@ touch closer to that:
   above means ideas and public behaviour, never another product's code, copy
   or assets under an incompatible license.
 
+**One repository is the end state (added 2026-10-13; the move landed in
+#6832).** This repository is where everything ends up. The research
+portfolio, `Duncan-Haywood/oss-research-monorepo`, lives under `research/`
+with its full commit history, so `git log -- research/<slug>` shows each
+project's original commits. Until the research repository is deleted,
+`research/` stays an exact mirror of it: `python3 research/_mirror/mirror.py
+sync` brings in new upstream history, and `mirror.py check` proves the two
+match (`research/_mirror/README.md`). Do not create a top-level `research/`
+for anything else; inside it the research rules (`research/CLAUDE.md`, the
+research track of `prompts/`) apply, not the product rules.
+
 Making a repository public is the owner's call (publishing under the
 portfolio's name, `CLAUDE.md`). Preparing for it is every session's job.

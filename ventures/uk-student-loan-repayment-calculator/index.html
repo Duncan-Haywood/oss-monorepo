@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Student Loan Repayment Calculator — Will It Be Written Off?</title>
+  <meta name="description" content="Free UK student loan calculator for Plan 1, 2, 4, 5 and Postgraduate loans: monthly deduction, when you clear it, how much is written off, and whether overpaying is worth it. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK student loan calculator: will yours be written off? Is overpaying worth it? Free, private">
+  <meta property="og:description" content="Project your repayments to clearance or write-off and test an overpayment.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Student Loan Repayment Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much of my pay goes to student loan repayments?", "acceptedAnswer": {"@type": "Answer", "text": "9% of everything you earn above your plan's threshold for Plan 1, 2, 4 and 5, and a further 6% above the Postgraduate Loan threshold if you have one. It is taken from pay, not from the balance, so a bigger balance does not change the monthly deduction."}}, {"@type": "Question", "name": "Will my student loan be written off?", "acceptedAnswer": {"@type": "Answer", "text": "Many borrowers on Plan 2 and Plan 5 never clear the loan from pay alone, and the remaining balance is cancelled after 30 years (Plan 2, Plan 4, Postgraduate) or 40 years (Plan 5); Plan 1 is 25 years. This calculator projects the write-off from your pay, growth and interest assumptions."}}, {"@type": "Question", "name": "Should I overpay my student loan?", "acceptedAnswer": {"@type": "Answer", "text": "Only if you would otherwise clear it before write-off. If part of the balance will be cancelled anyway, extra payments just turn into cash you did not have to spend. Enter a yearly extra amount and the tool shows the change in total cost."}}, {"@type": "Question", "name": "Which interest rate and thresholds does this use?", "acceptedAnswer": {"@type": "Answer", "text": "Prefilled with the 2025/26 thresholds and a 6% annual rate. The real Plan 2 rate varies with income and RPI and every figure is reset by government each year, so edit them from GOV.UK."}}, {"@type": "Question", "name": "Is a student loan like normal debt?", "acceptedAnswer": {"@type": "Answer", "text": "It is repaid as a percentage of income, is cancelled after a fixed term and does not appear as a normal debt on most credit reports. That is why the monthly cost rises and falls with pay."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK STUDENT LOAN REPAYMENT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will your student loan ever be paid off, or written off first?</h1>
+    <p>Enter your plan, balance and pay. You get the monthly deduction, the year it clears or is cancelled, the total you repay, and whether an overpayment would save you anything.</p>
+    <p class="note">A first read written from published rules without a live lookup. Thresholds, rates and write-off terms change; confirm the current figures. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="year">Tax year</label><select id="year"><option value="2025">2025/26 (6 Apr 2025 – 5 Apr 2026)</option><option value="2026">2026/27 (6 Apr 2026 – 5 Apr 2027)</option></select></div>
+      <div><label for="plan">Plan type</label><select id="plan"><option value="2">Plan 2 (England/Wales, started 2012–2022)</option><option value="1">Plan 1 (started before 2012)</option><option value="4">Plan 4 (Scotland)</option><option value="5">Plan 5 (England, started 2023 on)</option></select></div>
+      <div><label for="salary">Gross annual pay (£)</label><input id="salary" type="number" min="0" step="1"></div>
+      <div><label for="balance">Plan loan balance (£)</label><input id="balance" type="number" min="0" step="1"></div>
+      <div><label for="firstDue">Year repayments first fell due</label><input id="firstDue" type="number" min="1990" max="2040" step="1"></div>
+      <div><label for="interest">Interest rate (% a year)</label><input id="interest" type="number" min="0" step="0.1" value="6"></div>
+      <div><label for="growth">Yearly pay growth (%)</label><input id="growth" type="number" min="0" step="0.1" value="3"></div>
+      <div><label for="threshold">Plan threshold (£ a year)</label><input id="threshold" type="number" min="0" step="1" value="28470"></div>
+      <div><label for="thresholdGrowth">Yearly threshold growth (%)</label><input id="thresholdGrowth" type="number" min="0" step="0.1" value="3"></div>
+      <div><label for="overpay">Extra you could pay each year (£, optional)</label><input id="overpay" type="number" min="0" step="1"></div>
+      <div><label for="pgBalance">Postgraduate loan balance (£, optional)</label><input id="pgBalance" type="number" min="0" step="1"></div>
+      <div><label for="pgFirstDue">Year postgraduate repayments began</label><input id="pgFirstDue" type="number" min="2016" max="2040" step="1"></div>
+      <div><label for="pgThreshold">Postgraduate threshold (£ a year)</label><input id="pgThreshold" type="number" min="0" step="1" value="21000"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Project my loan</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Project my loan.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>The numbers</h2>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Amount</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h2>What to check</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> 9% over the plan threshold, 6% over the Postgraduate threshold, one editable interest rate, pay and threshold growth, the write-off year, and a yearly overpayment test.</li>
+      <li><strong>Gives:</strong> the deduction now, the clear or write-off year, total repaid and cancelled, and the overpayment verdict.</li>
+      <li><strong>Not decided:</strong> your real balance, the exact interest rate (Plan 2 varies with income), Plan 1 borrowers who must repay to age 65, Scottish or Welsh variations, part-year pay and self-assessment collection. For the Self Assessment cash side see the <a href="../uk-payments-on-account-calculator/">payments on account calculator</a>.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much of my pay goes to student loan repayments?</h3>
+    <p>9% of everything you earn above your plan's threshold for Plan 1, 2, 4 and 5, and a further 6% above the Postgraduate Loan threshold if you have one. It is taken from pay, not from the balance, so a bigger balance does not change the monthly deduction.</p>
+    <h3>Will my student loan be written off?</h3>
+    <p>Many borrowers on Plan 2 and Plan 5 never clear the loan from pay alone, and the remaining balance is cancelled after 30 years (Plan 2, Plan 4, Postgraduate) or 40 years (Plan 5); Plan 1 is 25 years. This calculator projects the write-off from your pay, growth and interest assumptions.</p>
+    <h3>Should I overpay my student loan?</h3>
+    <p>Only if you would otherwise clear it before write-off. If part of the balance will be cancelled anyway, extra payments just turn into cash you did not have to spend. Enter a yearly extra amount and the tool shows the change in total cost.</p>
+    <h3>Which interest rate and thresholds does this use?</h3>
+    <p>Prefilled with the 2025/26 thresholds and a 6% annual rate. The real Plan 2 rate varies with income and RPI and every figure is reset by government each year, so edit them from GOV.UK.</p>
+    <h3>Is a student loan like normal debt?</h3>
+    <p>It is repaid as a percentage of income, is cancelled after a fixed term and does not appear as a normal debt on most credit reports. That is why the monthly cost rises and falls with pay.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or HMRC before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-payments-on-account-calculator/">UK payments on account calculator</a>, the <a href="../uk-child-benefit-charge-calculator/">UK Child Benefit charge calculator</a>, the <a href="../uk-take-home-pay-calculator/">UK take-home pay calculator</a> and the <a href="../uk-capital-gains-tax-calculator/">UK capital gains tax calculator</a>.</p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { year: "year", plan: "plan", salary: "salary", balance: "balance", firstDue: "firstDue", interest: "interest", growth: "growth", threshold: "threshold", thresholdGrowth: "thresholdGrowth", overpay: "overpay", pgBalance: "pgBalance", pgFirstDue: "pgFirstDue", pgThreshold: "pgThreshold" };
+    const IDLE = "Fill in the figures, then click Project my loan.";
+    const DEFAULTS = {"year": "2025", "plan": "2", "interest": "6", "growth": "3", "threshold": "28470", "thresholdGrowth": "3", "pgThreshold": "21000"};
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      const b = r.base;
+      $("#due").textContent = b.writtenOff > 0 ? `${gbp(b.writtenOff)} would be written off` : (r.yearly > 0 ? `About ${gbp(r.monthly)} a month; cleared in about ${b.years} years` : "Nothing deducted at this pay");
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      const rows = [["Deducted this year", r.yearly], ["Deducted per month", r.monthly], ["Total repaid from pay", b.repaid + b.pgRepaid], ["Interest charged over the period", b.interestPaid], ["Written off", b.writtenOff]];
+      $("#rows").innerHTML = rows.map((x) => `<tr><td>${esc(x[0])}</td><td class="n">${gbp(x[1])}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: Plan 2, £38,000 pay, £45,000 balance.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-student-loan-projection.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

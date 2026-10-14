@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Canada GST/HST Small Supplier Checker — Do You Have to Register at $30,000?</title>
+  <meta name="description" content="Free Canada GST/HST small supplier checker: enter your last eight calendar quarters of sales to see whether you passed the CAD 30,000 line in one quarter or over four, the date you must start charging, and your registration deadline. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="GST/HST small supplier checker: do you have to register? Free, private">
+  <meta property="og:description" content="Single-quarter and four-quarter tests against the CAD 30,000 line.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Canada GST/HST Small Supplier Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "CAD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When do I have to register for GST/HST in Canada?", "acceptedAnswer": {"@type": "Answer", "text": "When your worldwide taxable sales are more than CAD 30,000 in a single calendar quarter, or in total over four consecutive calendar quarters. Taxi and ride-share drivers must register from day one."}}, {"@type": "Question", "name": "What happens if I pass 30,000 in one quarter?", "acceptedAnswer": {"@type": "Answer", "text": "You become a registrant on the sale that took you over the line, must charge GST/HST on that sale, and have 29 days to register."}}, {"@type": "Question", "name": "What happens if I pass 30,000 over four quarters?", "acceptedAnswer": {"@type": "Answer", "text": "You stop being a small supplier at the end of the month after the quarter in which the total passed 30,000, and charge tax from the next day."}}, {"@type": "Question", "name": "Does the CAD 30,000 include GST?", "acceptedAnswer": {"@type": "Answer", "text": "The test uses your taxable sales before tax, worldwide, including those of associated businesses. Check the CRA guide for items that are excluded."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CANADA GST/HST SMALL SUPPLIER CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Have you passed the CAD 30,000 line, and when must you register for GST/HST?</h1>
+    <p>Enter your taxable sales for your last eight calendar quarters, oldest first. You get whether you crossed the line in one quarter or over four, the date you start charging tax and your registration deadline.</p>
+    <p class="note">A first read written from the CRA's published rules without a live lookup. Guidance changes; confirm the current text. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="lastYear">Year of your most recent quarter</label><input id="lastYear" type="number" min="2000" max="2100" step="1"></div>
+      <div><label for="lastQ">Calendar quarter of that period</label><select id="lastQ"><option value="">Choose</option><option value="1">Q1 (Jan-Mar)</option><option value="2">Q2 (Apr-Jun)</option><option value="3">Q3 (Jul-Sep)</option><option value="4">Q4 (Oct-Dec)</option></select></div>
+      <div><label for="q1">Taxable sales, <span id="ql1">quarter 1</span> (CAD)</label><input id="q1" type="number" min="0" step="1"></div>
+      <div><label for="q2">Taxable sales, <span id="ql2">quarter 2</span> (CAD)</label><input id="q2" type="number" min="0" step="1"></div>
+      <div><label for="q3">Taxable sales, <span id="ql3">quarter 3</span> (CAD)</label><input id="q3" type="number" min="0" step="1"></div>
+      <div><label for="q4">Taxable sales, <span id="ql4">quarter 4</span> (CAD)</label><input id="q4" type="number" min="0" step="1"></div>
+      <div><label for="q5">Taxable sales, <span id="ql5">quarter 5</span> (CAD)</label><input id="q5" type="number" min="0" step="1"></div>
+      <div><label for="q6">Taxable sales, <span id="ql6">quarter 6</span> (CAD)</label><input id="q6" type="number" min="0" step="1"></div>
+      <div><label for="q7">Taxable sales, <span id="ql7">quarter 7</span> (CAD)</label><input id="q7" type="number" min="0" step="1"></div>
+      <div><label for="q8">Taxable sales, <span id="ql8">quarter 8</span> (CAD)</label><input id="q8" type="number" min="0" step="1"></div>
+      <div><label for="taxi">You drive a taxi, limousine or ride-share</label><select id="taxi"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="quebec">You sell in Quebec</label><select id="quebec"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="charity">You are a charity or public institution</label><select id="charity"><option value="no">No</option><option value="yes">Yes</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check my registration date</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Check my registration date.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>Quarter by quarter</h2>
+    <div class="scroll"><table><thead><tr><th>Quarter</th><th class="n">Sales</th><th class="n">Four-quarter total</th><th>Result</th></tr></thead><tbody id="tests"></tbody></table></div>
+    <h2>What you must do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="quick">
+    <h2>Quick Method check (optional)</h2>
+    <p class="note">Once registered, the Quick Method lets you remit a set percentage of tax-included sales instead of tracking input tax credits. It pays off when your costs carry little GST/HST. Rates as understood; confirm on canada.ca.</p>
+    <div class="grid">
+      <div><label for="qmSales">Yearly taxable sales, before tax (CAD)</label><input id="qmSales" type="number" min="0" step="100" value="38000"></div>
+      <div><label for="qmCosts">Yearly costs that carry GST/HST, before tax (CAD)</label><input id="qmCosts" type="number" min="0" step="100" value="4000"></div>
+      <div><label for="qmRegion">Where you sell</label><select id="qmRegion"></select></div>
+      <div><label for="qmKind">You mostly sell</label><select id="qmKind"><option value="services">Services</option><option value="goods">Goods</option></select></div>
+    </div>
+    <p><button type="button" id="qm-run">Compare Quick Method</button></p>
+    <p class="note" id="qm-msg" role="alert"></p>
+    <div id="qm-out" hidden aria-live="polite">
+      <div class="scroll"><table><thead><tr><th>Line</th><th class="n">Regular accounting</th><th class="n">Quick Method</th></tr></thead><tbody id="qm-lines"></tbody></table></div>
+      <div id="qm-findings"></div>
+    </div>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the CAD 30,000 single-quarter and four-quarter tests, the taxi and ride-share rule, the effective date and the 29-day registration window.</li>
+      <li><strong>Also compares:</strong> the Quick Method against regular accounting for GST-only, Ontario and 15% HST regions (Nova Scotia 14% not modelled).</li>
+      <li><strong>Gives:</strong> a quarter-by-quarter table, your effective date and a checklist.</li>
+      <li><strong>Not decided:</strong> which of your sales count as taxable supplies, sales of associated businesses, the CAD 50,000 charity test, QST, voluntary registration advice, filing frequency, penalties, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>When do I have to register for GST/HST in Canada?</h3>
+    <p>When your worldwide taxable sales are more than CAD 30,000 in a single calendar quarter, or in total over four consecutive calendar quarters. Taxi and ride-share drivers must register from day one.</p>
+    <h3>What happens if I pass 30,000 in one quarter?</h3>
+    <p>You become a registrant on the sale that took you over the line, must charge GST/HST on that sale, and have 29 days to register.</p>
+    <h3>What happens if I pass 30,000 over four quarters?</h3>
+    <p>You stop being a small supplier at the end of the month after the quarter in which the total passed 30,000, and charge tax from the next day.</p>
+    <h3>Does the CAD 30,000 include GST?</h3>
+    <p>The test uses your taxable sales before tax, worldwide, including those of associated businesses. Check the CRA guide for items that are excluded.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or the CRA before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>quick_method_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../ca-self-employed-tax-set-aside-calculator/">Canada self-employed tax set-aside calculator</a>, the <a href="../au-gst-registration-checker/">Australia GST registration checker</a> for the same test under the ATO's rules, the <a href="../tfsa-over-contribution-checker/">TFSA over-contribution checker</a>, the <a href="../eu-vat-oss-calculator/">EU VAT OSS calculator</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, quickCompare, QM_REGIONS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const cad = (n) => "CAD " + Number(n).toLocaleString("en-CA");
+    let last = null;
+    const map = { lastYear: "lastYear", lastQ: "lastQ", q1: "q1", q2: "q2", q3: "q3", q4: "q4", q5: "q5", q6: "q6", q7: "q7", q8: "q8", taxi: "taxi", quebec: "quebec", charity: "charity" };
+    const IDLE = "Fill in the figures, then click Check my registration date.";
+    const DEFAULTS = { taxi: "no", quebec: "no", charity: "no" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; }
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      const t = r.trigger;
+      $("#due").textContent = !t ? "Not required on these figures" : t.kind === "taxi" ? "Required from your first fare" : t.kind === "single" ? `Required on the sale that took ${t.label} over CAD 30,000` : `Start charging ${t.effective}; register by ${t.registerBy}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#tests").innerHTML = r.quarters.map((x) => `<tr><td>${esc(x.label)}</td><td class="n">${cad(x.amount)}</td><td class="n">${x.rolling === null ? "n/a" : cad(x.rolling)}</td><td>${x.single ? "Over in one quarter" : x.rollingOver ? "Over across four" : "Under"}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    function labels() {
+      const y = Number($("#lastYear").value), n = Number($("#lastQ").value);
+      if (!Number.isInteger(y) || ![1, 2, 3, 4].includes(n)) return;
+      for (let k = 1; k <= 8; k++) { const idx = y * 4 + (n - 1) - (8 - k); $("#ql" + k).textContent = `Q${(idx % 4) + 1} ${Math.floor(idx / 4)}`; }
+    }
+    $("#lastYear").addEventListener("input", labels);
+    $("#lastQ").addEventListener("change", labels);
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      labels(); run(); record("example_loaded");
+      status.textContent = "Worked example: a freelancer whose sales grew from CAD 4,000 to CAD 10,400 a quarter.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("gst-hst-small-supplier-check.txt", summaryText(last), "text/plain"); } });
+    $("#qmRegion").innerHTML = QM_REGIONS.map((s) => `<option value="${s.id}">${s.label}</option>`).join("");
+    $("#qmRegion").value = "on13";
+    $("#qm-run").addEventListener("click", () => {
+      const q = quickCompare({ sales: $("#qmSales").value, costs: $("#qmCosts").value, region: $("#qmRegion").value, kind: $("#qmKind").value });
+      if (!q.ok) { $("#qm-msg").textContent = q.errors.join(" "); $("#qm-out").hidden = true; return; }
+      $("#qm-msg").textContent = "";
+      const rows = [["Sales including tax", q.gross, q.gross], ["Tax collected", q.collected, q.collected], ["Input tax credits", -q.itc, 0], ["Quick Method rate", "n/a", `${(q.qmRate * 100).toFixed(1)}%`], ["1% credit on first CAD 30,000", 0, -q.credit], ["You remit", q.regularPay, q.quickPay]];
+      $("#qm-lines").innerHTML = rows.map(([l, a, b]) => `<tr><td>${esc(l)}</td><td class="n">${typeof a === "number" ? cad(Math.round(a)) : esc(a)}</td><td class="n">${typeof b === "number" ? cad(Math.round(b)) : esc(b)}</td></tr>`).join("");
+      $("#qm-findings").innerHTML = q.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span><strong>${esc(f.title)}</strong> ${esc(f.detail)}</div>`).join("");
+      $("#qm-out").hidden = false;
+      record("quick_method_run");
+    });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

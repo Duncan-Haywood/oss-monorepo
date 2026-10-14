@@ -1,0 +1,52 @@
+name: pip-audit-triage
+description: 'Free tool that ranks pip-audit -f json findings by reachability -- whether your Python source imports the vulnerable package (with distribution-to-import-name mapping), imports it only from test/tooling files, or never references it -- in the browser (paste the audit output and source) or as a zero-dependency Node CLI that can fail CI when a runtime-imported package is vulnerable. No upload, no network calls of its own. A static text scan and heuristic ranking, not a security audit.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, sibling of npm-audit-triage (same pattern, the Python
+# ecosystem). pip-audit prints no severity and no reachability, so a flat list
+# on a service with hundreds of transitive dependencies is unactionable.
+# duplicate_check.py was run before graduating; the nearest ventures
+# (pypi-provenance-check, requirements-pin-check) audit provenance and pinning,
+# not pip-audit output.
+#
+# Where the first real visitor would come from: the search phrases "pip-audit
+# false positives", "pip-audit too many vulnerabilities", "is pip-audit
+# vulnerability reachable"; r/Python and r/devops threads on audit noise.
+# Paid category it undercuts: reachability analysis in Snyk and Endor Labs.
+# Natural upgrade path: a GitHub Action that comments the ranked list on
+# Dependabot PRs.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# medium-high. It reads files the user already holds and sends nothing off the
+# device. The risk is being read as a security guarantee, so the page, guide
+# and README say it is a heuristic, "not imported" is not "safe", and it is not
+# a security audit.
+hypotheses:
+  - claim: 'A Python developer facing a long pip-audit report will paste it with their source, find that the imported vulnerable packages are a small subset, and upgrade those first.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will add pip-audit-triage.mjs --fail-on-imported to CI so a newly vulnerable imported package blocks the merge while unreferenced noise does not.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using pip-audit-triage.mjs or triage.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pip-audit-triage/
+  analytics: null

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>New Zealand GST Registration Checker — Do You Have to Register at $60,000?</title>
+  <meta name="description" content="Free New Zealand GST registration checker: enter your last 12 months of sales to see whether taxable turnover has passed NZD 60,000, test your expected turnover, and get your registration deadline. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="New Zealand GST registration checker: do you have to register? Free, private">
+  <meta property="og:description" content="Current and projected tests against the NZD 60,000 line, plus the registration deadline.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "New Zealand GST Registration Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "NZD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When do I have to register for GST in New Zealand?", "acceptedAnswer": {"@type": "Answer", "text": "When your taxable turnover in the last 12 months has gone over NZD 60,000, or you expect it to go over in the next 12 months. Taxi and ride-share drivers must be registered whatever their turnover."}}, {"@type": "Question", "name": "How is taxable turnover counted?", "acceptedAnswer": {"@type": "Answer", "text": "Add your sales for the current month and the previous 11 (the current test), or the current month and the next 11 (the projected test). It leaves out the GST itself, exempt supplies such as residential rent and financial services, and the sale of private assets."}}, {"@type": "Question", "name": "How long do I have to register?", "acceptedAnswer": {"@type": "Answer", "text": "This tool models the window as 21 days from the day your turnover went over the line, or the day you could tell it would. Confirm the current window with Inland Revenue; registering late can mean owing GST you did not charge."}}, {"@type": "Question", "name": "Do I need an IRD number first?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. You need an IRD number before you can register for GST."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">NEW ZEALAND GST REGISTRATION CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Has your turnover passed NZD 60,000, and when must you register for GST?</h1>
+    <p>Enter your sales for the last 12 months, oldest first, and optionally what you expect over the next 11. You get the current and projected tests against the threshold and your 21-day deadline.</p>
+    <p class="note">A first read written from Inland Revenue's published rules without a live lookup. Guidance changes; confirm the current text. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="lastYear">Year of your most recent month</label><input id="lastYear" type="number" min="2000" max="2100" step="1"></div>
+      <div><label for="lastMonth">Your most recent month</label><select id="lastMonth"><option value="">Choose</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select></div>
+      <div><label for="m1">Sales, <span id="ml1">month 1</span> (NZD)</label><input id="m1" type="number" min="0" step="1"></div>
+      <div><label for="m2">Sales, <span id="ml2">month 2</span> (NZD)</label><input id="m2" type="number" min="0" step="1"></div>
+      <div><label for="m3">Sales, <span id="ml3">month 3</span> (NZD)</label><input id="m3" type="number" min="0" step="1"></div>
+      <div><label for="m4">Sales, <span id="ml4">month 4</span> (NZD)</label><input id="m4" type="number" min="0" step="1"></div>
+      <div><label for="m5">Sales, <span id="ml5">month 5</span> (NZD)</label><input id="m5" type="number" min="0" step="1"></div>
+      <div><label for="m6">Sales, <span id="ml6">month 6</span> (NZD)</label><input id="m6" type="number" min="0" step="1"></div>
+      <div><label for="m7">Sales, <span id="ml7">month 7</span> (NZD)</label><input id="m7" type="number" min="0" step="1"></div>
+      <div><label for="m8">Sales, <span id="ml8">month 8</span> (NZD)</label><input id="m8" type="number" min="0" step="1"></div>
+      <div><label for="m9">Sales, <span id="ml9">month 9</span> (NZD)</label><input id="m9" type="number" min="0" step="1"></div>
+      <div><label for="m10">Sales, <span id="ml10">month 10</span> (NZD)</label><input id="m10" type="number" min="0" step="1"></div>
+      <div><label for="m11">Sales, <span id="ml11">month 11</span> (NZD)</label><input id="m11" type="number" min="0" step="1"></div>
+      <div><label for="m12">Sales, <span id="ml12">month 12</span> (NZD)</label><input id="m12" type="number" min="0" step="1"></div>
+      <div><label for="next11">Expected sales, next 11 months in total (NZD, optional)</label><input id="next11" type="number" min="0" step="1"></div>
+      <div><label for="taxi">You drive a taxi or ride-share</label><select id="taxi"><option value="no">No</option><option value="yes">Yes</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check my GST registration</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Check my GST registration.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>Month by month</h2>
+    <div class="scroll"><table><thead><tr><th>Month</th><th class="n">Sales</th></tr></thead><tbody id="tests"></tbody></table></div>
+    <h2>What you must do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the NZD 60,000 current and expected turnover tests, the taxi and ride-share rule and a 21-day registration window.</li>
+      <li><strong>Gives:</strong> your 12-month turnover, a projected figure, a deadline and a checklist.</li>
+      <li><strong>Not decided:</strong> which of your sales count as taxable turnover, sales of associated businesses, the date your turnover actually went over the line (a deadline earlier than shown means you should register now), voluntary registration advice, filing frequency, penalties, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>When do I have to register for GST in New Zealand?</h3>
+    <p>When your taxable turnover in the last 12 months has gone over NZD 60,000, or you expect it to go over in the next 12 months. Taxi and ride-share drivers must be registered whatever their turnover.</p>
+    <h3>How is taxable turnover counted?</h3>
+    <p>Add your sales for the current month and the previous 11 (the current test), or the current month and the next 11 (the projected test). It leaves out the GST itself, exempt supplies such as residential rent and financial services, and the sale of private assets.</p>
+    <h3>How long do I have to register?</h3>
+    <p>This tool models the window as 21 days from the day your turnover went over the line, or the day you could tell it would. Confirm the current window with Inland Revenue; registering late can mean owing GST you did not charge.</p>
+    <h3>Do I need an IRD number first?</h3>
+    <p>Yes. You need an IRD number before you can register for GST.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+    </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or Inland Revenue before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../nz-sole-trader-tax-set-aside-calculator/">New Zealand self-employed tax set-aside calculator</a>, the <a href="../au-gst-registration-checker/">Australia GST registration checker</a>, the <a href="../ca-gst-hst-small-supplier-checker/">Canada GST/HST small supplier checker</a>, the <a href="../uk-vat-registration-checker/">UK VAT registration checker</a> and the <a href="../eu-vat-oss-calculator/">EU VAT OSS calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, MONTH_NAMES } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const aud = (n) => "NZD " + Number(n).toLocaleString("en-NZ");
+    let last = null;
+    const map = { lastYear: "lastYear", lastMonth: "lastMonth", m1: "m1", m2: "m2", m3: "m3", m4: "m4", m5: "m5", m6: "m6", m7: "m7", m8: "m8", m9: "m9", m10: "m10", m11: "m11", m12: "m12", next11: "next11", taxi: "taxi" };
+    const IDLE = "Fill in the figures, then click Check my GST registration.";
+    const DEFAULTS = { taxi: "no" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      const t = r.trigger;
+      $("#due").textContent = !t ? "Not required on these figures" : t.kind === "taxi" ? "Required before your first fare" : `Register within 21 days; latest ${t.registerBy} if the line was met in ${t.label}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#tests").innerHTML = r.months.map((x) => `<tr><td>${esc(x.label)}</td><td class="n">${aud(x.amount)}</td></tr>`).join("") + `<tr class="total"><td>12-month GST turnover</td><td class="n">${aud(r.current)}</td></tr>`;
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    function labels() {
+      const y = Number($("#lastYear").value), n = Number($("#lastMonth").value);
+      if (!Number.isInteger(y) || !(n >= 1 && n <= 12)) return;
+      for (let k = 1; k <= 12; k++) { const idx = y * 12 + (n - 1) - (12 - k); $("#ml" + k).textContent = `${MONTH_NAMES[idx % 12]} ${Math.floor(idx / 12)}`; }
+    }
+    $("#lastYear").addEventListener("input", labels);
+    $("#lastMonth").addEventListener("change", labels);
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      labels(); run(); record("example_loaded");
+      status.textContent = "Worked example: a freelancer whose monthly sales grew from NZD 4,200 to NZD 8,600.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("nz-gst-registration-check.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

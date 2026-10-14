@@ -3048,7 +3048,27 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `rv-boat-storage-lot-calculator` graduated (browser RV and boat storage lot: acres, land, site cost, rent and occupancy to spaces, NOI, yield on cost, debt coverage, lease-up cash and equity IRR).
     # +1: `arcade-game-payback-calculator` graduated (browser arcade and family-entertainment-center worksheet: per-game plays, credits and tickets to weekly profit, payback, break-even plays and a keep, watch or cut verdict).
     # +1: `self-serve-dog-wash-profit-calculator` graduated (browser dog wash pro forma: tub capacity, traffic by weekday and season, break-even washes per day, ramp and payback).
-    total = 1112  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1112 tools" wording.
+    # +1: `convenience-store-gas-station-profit-calculator` graduated (browser c-store and gas station P&L: fuel margin after card fees, inside sales, labor, loan, break-even gallons and debt coverage).
+    # +1: `nis2-scope-checker` graduated (browser EU NIS2 scope check: sector and size to essential, important or out of scope, with the Article).
+    # +1: `eaa-accessibility-act-checker` graduated (browser European Accessibility Act check: product or service, role and size to in scope, microenterprise-exempt or out, with the Article).
+    # +1: `indoor-play-center-profit-calculator` graduated (browser indoor play centre pro forma: visits, memberships, parties, cafe and staffing to profit, break-even visits, ramp-up reserve and payback).
+    # +1: `gpsr-product-safety-checker` graduated (browser EU General Product Safety Regulation check).
+    # +1: `eu-battery-regulation-checker` graduated (browser EU Batteries Regulation duty timeline).
+    # +1: `padel-club-profit-calculator` graduated (browser padel club pro forma: courts, peak and off-peak utilisation, members, coaching, food and drink and staffing to profit, break-even utilisation, ramp-up reserve and payback).
+    # +1: `pay-transparency-directive-checker` graduated (browser EU Pay Transparency Directive check).
+    # +1: `eu-whistleblower-channel-checker` graduated (browser EU Whistleblower Directive channel check and report clocks).
+    # +1: `eu-einvoicing-mandate-checker` graduated (browser EU e-invoicing mandate dates by country).
+    # +1: `eu-product-liability-directive-checker` graduated (browser EU Product Liability Directive scope, liability chain and time limits).
+    # +1: `dac7-seller-reporting-checker` graduated (browser EU DAC7 platform seller reporting check).
+    # +1: `eu-platform-work-directive-checker` graduated (browser EU Platform Work Directive scope, employment presumption and algorithmic-management check).
+    # +1: `eu-price-reduction-claim-checker` graduated (browser EU 30-day lowest price rule check for sale prices).
+    # +1: `eu-dora-readiness-checker` graduated (browser EU DORA scope, duty areas, Article 30 contract terms and major-incident report clocks).
+    # +1: `ugc-creator-rate-calculator` graduated (browser UGC creator rate calculator: content plus ad usage rights, whitelisting, exclusivity).
+    # +1: `uk-sole-trader-vs-limited-company-calculator` graduated (browser UK sole trader vs limited company take-home, best salary and dividend split, 2026/27).
+    # +1: `eu-espr-readiness-checker` graduated (browser EU ESPR unsold-apparel destruction ban, disclosure table and Digital Product Passport data checklist).
+    # +1: `uk-tax-free-childcare-calculator` graduated (browser UK Tax-Free Childcare, 15/30 free hours and Universal Credit childcare comparison for England).
+    # +1: `uk-savings-interest-tax-calculator` graduated (browser UK savings interest tax, starting rate, Personal Savings Allowance and cash ISA saving).
+    total = 1220  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1220 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).

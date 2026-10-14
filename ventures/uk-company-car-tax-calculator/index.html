@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Company Car Tax Calculator 2026/27 (BiK, electric vs petrol, fuel benefit)</title>
+  <meta name="description" content="Free UK company car tax calculator for 2026/27: benefit in kind for electric, plug-in hybrid and petrol or diesel cars, monthly tax at your rate, employer Class 1A, free-fuel charge, the 4% to 9% electric schedule to 2029/30 and a side-by-side with a second car. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Company car tax calculator: what will this car cost me in tax? Free, private">
+  <meta property="og:description" content="See the monthly tax on an electric, hybrid or petrol company car, and compare two cars side by side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Company Car Tax Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the company car tax (benefit in kind) rate for an electric car in 2026/27?", "acceptedAnswer": {"@type": "Answer", "text": "Fully electric company cars are taxed on 4% of their list price in 2026/27. The rate is scheduled to rise to 5% in 2027/28, 7% in 2028/29 and 9% in 2029/30. On a \u00a345,000 car and a 40% taxpayer that is \u00a3720 a year, or \u00a360 a month, in 2026/27."}}, {"@type": "Question", "name": "How is company car tax worked out?", "acceptedAnswer": {"@type": "Answer", "text": "The taxable benefit is the car's P11D list price (plus optional accessories, less up to \u00a35,000 of capital contribution) multiplied by a percentage set by its CO2 emissions or, for plug-in hybrids, its electric range. You pay income tax on that benefit at your own rate, usually collected through your tax code."}}, {"@type": "Question", "name": "Do I pay National Insurance on a company car?", "acceptedAnswer": {"@type": "Answer", "text": "No. Employees pay no National Insurance on a company car. Your employer pays Class 1A National Insurance, at 15%, on the benefit."}}, {"@type": "Question", "name": "Is free fuel worth it?", "acceptedAnswer": {"@type": "Answer", "text": "Rarely. If your employer pays for private fuel, a fuel benefit of \u00a329,200 multiplied by the same percentage is added. On a car taxed at 28% that is \u00a38,176 of extra taxable income, so unless your private mileage is very high you will pay less by buying your own fuel. Electricity for an electric company car is not a taxable fuel benefit."}}, {"@type": "Question", "name": "What percentage applies to a petrol or diesel car?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the car's CO2 figure and rises through a table to a 37% maximum, with a 4 point supplement for diesels that do not meet the RDE2 standard. Because published tables differ between guides, this calculator asks you to enter the percentage printed on the car's quote or P11D rather than guessing it."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK COMPANY CAR TAX CALCULATOR · 2026/27 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What will this company car cost me in tax?</h1>
+    <p>Enter the car's list price and type. You get the taxable benefit, the income tax you pay each year and month, what your employer pays in Class 1A National Insurance, the extra charge for free private fuel, how the electric rate climbs to 2029/30, and a side-by-side against a second car.</p>
+    <p class="note">Rates for 2026/27 from HMRC and GOV.UK guidance. For petrol and diesel you enter the percentage from your quote. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="listPrice">Car list price, P11D (&pound;)</label><input id="listPrice" type="number" min="0" step="1"></div>
+      <div><label for="accessories">Optional accessories added later (&pound;)</label><input id="accessories" type="number" min="0" step="1"></div>
+      <div><label for="capContribution">Your one-off capital contribution (&pound;, up to 5,000 counts)</label><input id="capContribution" type="number" min="0" step="1"></div>
+      <div><label for="carType">Type of car</label><select id="carType"><option value="zev">Fully electric</option><option value="hybrid">Plug-in hybrid (1 to 50 g/km)</option><option value="other">Petrol, diesel or other (51 g/km and over)</option></select></div>
+      <div><label for="range">Plug-in hybrid: official electric range (miles)</label><input id="range" type="number" min="0" step="1"></div>
+      <div><label for="otherPct">Petrol or diesel: the company car tax % on your quote or P11D</label><input id="otherPct" type="number" min="1" step="1"></div>
+      <div><label for="diesel">Diesel that does not meet RDE2?</label><select id="diesel"><option value="no">No</option><option value="yes">Yes (adds 4 points)</option></select></div>
+      <div><label for="privateContribution">What you pay each year to use the car privately (&pound;)</label><input id="privateContribution" type="number" min="0" step="1"></div>
+      <div><label for="fuel">Does your employer pay for private fuel?</label><select id="fuel"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="days">Days in the year the car is available to you</label><input id="days" type="number" min="1" step="1"></div>
+      <div><label for="taxRate">Your highest rate of income tax</label><select id="taxRate"><option value="20">20% basic (England, Wales, NI)</option><option value="40">40% higher</option><option value="45">45% additional</option><option value="19">19% Scottish starter</option><option value="21">21% Scottish intermediate</option><option value="42">42% Scottish higher</option><option value="48">48% Scottish top</option></select></div>
+      <div><label for="bPrice">Compare with a second car: list price (&pound;, optional)</label><input id="bPrice" type="number" min="0" step="1"></div>
+      <div><label for="bPct">Second car: company car tax %</label><input id="bPct" type="number" min="1" step="1"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the tax</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out the tax.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>Year by year (electric and 130-mile hybrids)</h2>
+    <div class="scroll"><table><thead><tr><th>Tax year</th><th class="n">Rate</th><th class="n">Taxable benefit</th><th class="n">Your tax</th></tr></thead><tbody id="schedule"></tbody></table></div>
+    <h2>What to do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> one company car for one employee in 2026/27: the benefit from list price, accessories, capital contribution, private-use payments and days available; the fuel benefit; income tax at the rate you pick; employer Class 1A; and the scheduled zero-emission rates to 2029/30.</li>
+      <li><strong>Gives:</strong> the yearly and monthly tax, the employer cost, and the difference against a second car at today's rates.</li>
+      <li><strong>Not decided:</strong> the percentage for a petrol or diesel car (you enter it from your quote or P11D), vans, salary sacrifice car schemes, other tax years, tax on a benefit that crosses a band, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is the company car tax (benefit in kind) rate for an electric car in 2026/27?</h3>
+    <p>Fully electric company cars are taxed on 4% of their list price in 2026/27. The rate is scheduled to rise to 5% in 2027/28, 7% in 2028/29 and 9% in 2029/30. On a £45,000 car and a 40% taxpayer that is £720 a year, or £60 a month, in 2026/27.</p>
+<h3>How is company car tax worked out?</h3>
+    <p>The taxable benefit is the car's P11D list price (plus optional accessories, less up to £5,000 of capital contribution) multiplied by a percentage set by its CO2 emissions or, for plug-in hybrids, its electric range. You pay income tax on that benefit at your own rate, usually collected through your tax code.</p>
+<h3>Do I pay National Insurance on a company car?</h3>
+    <p>No. Employees pay no National Insurance on a company car. Your employer pays Class 1A National Insurance, at 15%, on the benefit.</p>
+<h3>Is free fuel worth it?</h3>
+    <p>Rarely. If your employer pays for private fuel, a fuel benefit of £29,200 multiplied by the same percentage is added. On a car taxed at 28% that is £8,176 of extra taxable income, so unless your private mileage is very high you will pay less by buying your own fuel. Electricity for an electric company car is not a taxable fuel benefit.</p>
+<h3>What percentage applies to a petrol or diesel car?</h3>
+    <p>It depends on the car's CO2 figure and rises through a table to a 37% maximum, with a 4 point supplement for diesels that do not meet the RDE2 standard. Because published tables differ between guides, this calculator asks you to enter the percentage printed on the car's quote or P11D rather than guessing it.</p>
+<h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or HMRC before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-take-home-pay-calculator/">UK take-home pay calculator</a>, the <a href="../uk-salary-sacrifice-calculator/">UK salary sacrifice calculator</a>, the <a href="../uk-scottish-income-tax-calculator/">Scottish income tax calculator</a> and, for employers, the <a href="../uk-employer-hiring-cost-calculator/">UK cost of hiring an employee calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(Number(n)).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { listPrice: "listPrice", accessories: "accessories", capContribution: "capContribution", carType: "carType", range: "range", otherPct: "otherPct", diesel: "diesel", privateContribution: "privateContribution", fuel: "fuel", days: "days", taxRate: "taxRate", bPrice: "bPrice", bPct: "bPct" };
+    const IDLE = "Fill in the figures, then click Work out the tax.";
+    const DEFAULTS = { carType: "zev", diesel: "no", fuel: "no", days: "365", taxRate: "40" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `This car costs you ${gbp(r.a.totalTax)} a year in tax (${gbp(r.a.monthlyTax)} a month) at ${r.pct}%.`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#schedule").innerHTML = r.schedule ? r.schedule.map((s) => `<tr><td>${esc(s.year)}</td><td class="n">${s.pct}%</td><td class="n">${gbp(s.benefit)}</td><td class="n">${gbp(s.totalTax)}</td></tr>`).join("") + `<tr class="total"><td>Four years</td><td></td><td></td><td class="n">${gbp(r.scheduleTotal)}</td></tr>` : `<tr><td colspan="4">Shown for electric cars and plug-in hybrids with 130 miles or more of electric range.</td></tr>`;
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a £45,000 electric car against a £32,000 petrol car taxed at 28%, 40% taxpayer.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("company-car-tax.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

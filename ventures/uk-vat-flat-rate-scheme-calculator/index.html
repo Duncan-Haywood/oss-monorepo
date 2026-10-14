@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK VAT Flat Rate Scheme Calculator (flat rate vs standard VAT, limited cost trader test)</title>
+  <meta name="description" content="Free UK VAT Flat Rate Scheme calculator: compare the flat rate for your trade, the 16.5% limited cost trader rate and the 1% first-year discount with standard VAT accounting and see which leaves you more. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Flat Rate Scheme or standard VAT? Which is cheaper for a UK small business">
+  <meta property="og:description" content="Check the limited cost trader test and compare both VAT methods.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK VAT Flat Rate Scheme Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How does the VAT Flat Rate Scheme work?", "acceptedAnswer": {"@type": "Answer", "text": "You still charge your customers 20% VAT, but you pay HMRC a fixed percentage of your VAT-inclusive turnover, set by your trade sector, instead of output VAT minus input VAT. You generally cannot reclaim VAT on purchases, except single capital assets costing \u00a32,000 or more including VAT."}}, {"@type": "Question", "name": "What is a limited cost trader?", "acceptedAnswer": {"@type": "Answer", "text": "A business whose VAT-inclusive spend on relevant goods is under 2% of its VAT-inclusive turnover, or under \u00a31,000 a year. It must use a flat rate of 16.5% instead of its sector rate, which usually makes the scheme worse than standard accounting for service businesses."}}, {"@type": "Question", "name": "Who can join the Flat Rate Scheme?", "acceptedAnswer": {"@type": "Answer", "text": "Businesses expecting VAT-taxable turnover of \u00a3150,000 or less excluding VAT in the next 12 months. You must leave when total income including VAT passes \u00a3230,000."}}, {"@type": "Question", "name": "What is the 1% first-year discount?", "acceptedAnswer": {"@type": "Answer", "text": "In your first year of VAT registration you can take 1 percentage point off your sector flat rate. This tool does not apply it to the 16.5% limited cost trader rate; verify on GOV.UK."}}, {"@type": "Question", "name": "Is the Flat Rate Scheme always cheaper?", "acceptedAnswer": {"@type": "Answer", "text": "No. If you buy a lot of standard-rated goods and services you can reclaim VAT on, standard accounting often leaves you better off, and it also gives refunds when your input VAT exceeds your output VAT."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK VAT FLAT RATE SCHEME CALCULATOR · SMALL BUSINESSES · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Flat Rate Scheme or standard VAT: which leaves you more?</h1>
+    <p>Pick your trade, enter your turnover and what you spend, and see what you would pay HMRC under each method, including whether the 16.5% limited cost trader rate catches you.</p>
+    <p class="note">Percentages and thresholds are built in; check them on GOV.UK. Assumes sales are standard-rated. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="sector">Your trade sector</label><select id="sector"></select></div>
+      <div><label for="turnover">Annual turnover excluding VAT (&pound;)</label><input id="turnover" type="number" min="0" step="1"></div>
+      <div><label for="goodsSpend">Spend on goods for the business, excluding VAT (&pound;)</label><input id="goodsSpend" type="number" min="0" step="1"></div>
+      <div><label for="otherPurchases">Other purchases with VAT on them, excluding VAT (&pound;): services, software, travel</label><input id="otherPurchases" type="number" min="0" step="1"></div>
+      <div><label for="capitalSpend">Single capital asset bought this year, excluding VAT (&pound;)</label><input id="capitalSpend" type="number" min="0" step="1"></div>
+      <div><label for="firstYear">In your first year of VAT registration?</label><select id="firstYear"><option value="no">No</option><option value="yes">Yes</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Compare the two methods</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in your figures, then click Compare the two methods.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div class="scroll"><table><thead><tr><th>Method</th><th class="n">VAT paid to HMRC</th><th>How it was worked out</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div id="report-findings"></div>
+    <h2>What to keep in mind</h2>
+    <div class="scroll"><table><thead><tr><th>Point</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the sector flat rate, the 16.5% limited cost trader test, the 1% first-year discount, capital asset reclaim, and the join and leave turnover limits.</li>
+      <li><strong>Gives:</strong> annual VAT paid under each method and the difference.</li>
+      <li><strong>Not decided:</strong> zero-rated or exempt sales, mixed trades, partial exemption, annual accounting timing, and whether a given purchase counts as relevant goods.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How does the VAT Flat Rate Scheme work?</h3>
+    <p>You still charge your customers 20% VAT, but you pay HMRC a fixed percentage of your VAT-inclusive turnover, set by your trade sector, instead of output VAT minus input VAT. You generally cannot reclaim VAT on purchases, except single capital assets costing £2,000 or more including VAT.</p>
+    <h3>What is a limited cost trader?</h3>
+    <p>A business whose VAT-inclusive spend on relevant goods is under 2% of its VAT-inclusive turnover, or under £1,000 a year. It must use a flat rate of 16.5% instead of its sector rate, which usually makes the scheme worse than standard accounting for service businesses.</p>
+    <h3>Who can join the Flat Rate Scheme?</h3>
+    <p>Businesses expecting VAT-taxable turnover of £150,000 or less excluding VAT in the next 12 months. You must leave when total income including VAT passes £230,000.</p>
+    <h3>What is the 1% first-year discount?</h3>
+    <p>In your first year of VAT registration you can take 1 percentage point off your sector flat rate. This tool does not apply it to the 16.5% limited cost trader rate; verify on GOV.UK.</p>
+    <h3>Is the Flat Rate Scheme always cheaper?</h3>
+    <p>No. If you buy a lot of standard-rated goods and services you can reclaim VAT on, standard accounting often leaves you better off, and it also gives refunds when your input VAT exceeds your output VAT.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or GOV.UK before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-vat-registration-checker/">UK VAT registration checker</a>, the <a href="../uk-self-assessment-tax-calculator/">UK Self Assessment tax calculator</a> and the <a href="../uk-money-tools-finder/">UK money tools finder</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, SECTORS, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { sector: "sector", turnover: "turnover", goodsSpend: "goodsSpend", otherPurchases: "otherPurchases", capitalSpend: "capitalSpend", firstYear: "firstYear" };
+    const IDLE = "Fill in your figures, then click Compare the two methods.";
+    $("#sector").innerHTML = SECTORS.map((s) => `<option value="${s.id}">${esc(s.label)} (${s.rate}%)</option>`).join("");
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.better === "frs" ? `Flat Rate Scheme wins by ${gbp(r.saving)} a year.` : r.better === "standard" ? `Standard VAT accounting wins by ${gbp(-r.saving)} a year.` : "The two methods come out the same.";
+      $("#rows").innerHTML = [
+        `<tr><td>Flat Rate Scheme</td><td class="n">${gbp(r.frsNet)}</td><td>${r.frsRate}%${r.isLct ? " (limited cost trader)" : ""} of ${gbp(r.grossTurnover)} VAT-inclusive turnover${r.capitalReclaim ? `, less ${gbp(r.capitalReclaim)} capital reclaim` : ""}</td></tr>`,
+        `<tr><td>Standard accounting</td><td class="n">${gbp(r.stdNet)}</td><td>${gbp(r.outputVat)} output VAT less ${gbp(r.inputVat)} input VAT on purchases</td></tr>`,
+      ].join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify the percentages on GOV.UK before you register for the scheme.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: an IT consultant turning over £60,000 with £300 of goods spend, so the limited cost trader rate applies.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = id === "firstYear" ? "no" : ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("vat-flat-rate-scheme.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

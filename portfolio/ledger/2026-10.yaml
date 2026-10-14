@@ -3824,3 +3824,194 @@ entries:
         existed in ventures/. Also fixed coworking-space-profit-calculator, whose results panel threw on a nonexistent r.cfByYear and never
         displayed (now r.yearCash; verified in Chromium). First visitor: people searching hydroponic farm break-even; volume unmeasured.
     mrr_end: 0
+  - venture: kombucha-brewery-profit-calculator
+  - venture: ice-cream-shop-seasonal-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built kombucha-brewery-profit-calculator: a browser-only pro forma for kombucha brewers. Fermenter capacity, batch fill,
+        brew days, loss, wholesale/taproom mix, per-gallon inputs and labour, chilling and brewhouse energy, rent, fit-out and a loan become
+        gallons a week, monthly profit, break-even gallons (operating and with the loan), the price change that reaches a target margin,
+        output, price and electricity sweeps, and a sixty-month ramp-up with cash reserve and payback, with text summary and CSV. Hand-computed
+        unit tests plus page and usage tests. No kombucha-brewery economics tool existed in ventures/. First visitor: people searching
+        kombucha business break-even; volume unmeasured.
+        Graduated and built ice-cream-shop-seasonal-profit-calculator: a browser-only twelve-month P&L for seasonal ice cream, frozen-dessert
+        and snow-cone shops. Days open and customers per day by month, spend, product cost, card fees, traffic-sized labor with a minimum
+        crew, utilities, fixed costs and a loan become monthly profit, break-even customers per day (solved by bisection), an open, close or
+        closed verdict per month, loan coverage, a winter cash reserve over two repeating years, payback and price and traffic sweeps, with
+        text summary and CSV. 11 hand-computed unit tests plus page and usage tests. Screened with duplicate_check.py (nearest venture 0.32,
+        vocabulary match only); shaved-ice-stand-profit-calculator is the event-stand sibling and is cross-linked. First visitor: people
+        searching ice cream shop break-even or closing in winter; volume unmeasured.
+    mrr_end: 0
+  - venture: boba-tea-shop-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built boba-tea-shop-profit-calculator: a browser-only pro forma for bubble tea and specialty drink shops. Price,
+        topping attach, cup costs and waste, card, delivery-app commission and royalty, volume, staff hours, rent, owner pay, startup
+        cost, equity, loan and a ramp-up become contribution per cup, monthly profit, break-even cups a day with and without the loan,
+        the drink price that reaches a target net margin (closed form, round-trip tested), volume and ingredient-cost sweeps, and a
+        sixty-month ramp with working-capital reserve and payback, with CSV. 14 hand-computed unit tests plus page and usage tests.
+        cafe-drink-margin-calculator covers per-drink margin only; no store-level break-even or ramp tool existed. First visitor: people
+        searching boba shop break-even; volume unmeasured.
+    mrr_end: 0
+  - venture: convenience-store-gas-station-profit-calculator
+  - venture: pip-audit-triage
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built convenience-store-gas-station-profit-calculator: a browser-only monthly P&L for independent convenience store and
+        gas station owners and buyers. Gallons, pump price, delivered cost and card fees (percentage plus per-transaction) become net fuel
+        margin in cents a gallon; inside sales by category with margin, card fees and shrink, labor, fixed costs and loan payments become
+        operating profit, debt coverage, break-even gallons (closed form, round-trip tested), the net fuel margin needed at current volume,
+        fuel's share of profit, and margin and volume sweeps, with text summary and CSV. Hand-computed unit tests plus page and usage tests,
+        checked in Chromium. portfolio/pipeline/duplicate_check.py top score 0.28; no c-store or gas-station tool existed in ventures/.
+        An earlier attempt this session (tow-truck-call-profit-calculator) was dropped after finding tow-truck-rate-calculator and
+        tow-motor-club-call-calculator already on main. First visitor: people searching gas station profit per gallon; volume unmeasured.
+        Graduated and built pip-audit-triage, the Python counterpart of npm-audit-triage: paste pip-audit -f json plus Python source in
+        the browser, or run a zero-dependency Node CLI that exits 1 on a vulnerable package your runtime code imports. Findings are
+        bucketed imported / test-only / not-referenced using PEP 503 names, a distribution-to-import-name table (PyYAML -> yaml,
+        Pillow -> PIL) and import, from-import, import_module and __import__ parsing with comments and docstrings ignored. pip-audit
+        prints no severity, so reachability is the ranking signal. 18 unit and page tests, guide page, sibling link from
+        requirements-pin-check. Known gap: no dependency graph, so transitive-only packages read not-referenced. First visitor:
+        searches for pip-audit noise; volume unmeasured. Natural paid upgrade is a GitHub Action commenting on Dependabot PRs.
+    mrr_end: 0
+  - venture: cargo-audit-triage
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built cargo-audit-triage, the Rust counterpart of npm-audit-triage and pip-audit-triage: paste cargo audit --json
+        plus Rust source in the browser, or run a zero-dependency Node CLI that exits 1 on a vulnerable crate your runtime code uses.
+        Findings are bucketed imported / test-only / not-referenced (src/ versus tests, benches, examples and build.rs) by reading use
+        declarations including brace groups, extern crate and crate::path expressions with comments and string literals stripped, and
+        dashes in crate names read as underscores. Real vulnerabilities rank above unmaintained, unsound and yanked warnings, which
+        cargo audit mixes into the same list. 11 unit tests plus page tests, guide page, CLI smoke-tested. Known gaps: no dependency
+        graph, so transitive-only crates read not-referenced; renamed dependencies, macro-generated paths and feature gates are not
+        seen. First visitor: searches for cargo audit noise; volume unmeasured. Natural paid upgrade is a GitHub Action commenting on
+        Dependabot PRs.
+    mrr_end: 0
+  - venture: nis2-scope-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built nis2-scope-checker: a browser-only first read of whether the EU NIS2 Directive (2022/2555) applies to a company. Sector
+        (Annex I and II types) plus whole-group staff, turnover and balance sheet become a size class on the Recommendation 2003/361 ceilings, an
+        essential, important or out-of-scope result with the Article it rests on, regardless-of-size types, CER and Member State designation flags,
+        the result at other sizes, and the main duties, with text summary and CSV. 21 hand-checked unit tests plus page and usage tests.
+        portfolio/pipeline/duplicate_check.py top score 0.12; no NIS2 tool existed in ventures/. First visitor: EU SME staff asked "are you NIS2
+        in scope?" by a customer; volume unmeasured. National transposition is not modelled and the page says so.
+    mrr_end: 0
+  - venture: dry-cleaner-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built dry-cleaner-profit-calculator: a browser-only monthly P&L for independent dry cleaner owners and buyers. Dry-clean and
+        laundered pieces, prices, supplies per piece, claims and card fees, labor, fixed costs and loan payments become contribution per piece,
+        operating profit, debt coverage, break-even pieces (closed form, round-trip tested), the average price change per piece that reaches
+        zero profit (round-trip tested), and price and volume sweeps, with text summary and CSV. Hand-computed unit tests plus page and usage
+        tests. portfolio/pipeline/duplicate_check.py top score 0.29; no dry-cleaner tool existed in ventures/. First visitor: people searching
+        dry cleaner break-even; volume unmeasured.
+    mrr_end: 0
+  - venture: eu-ai-act-risk-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built eu-ai-act-risk-checker: a browser-only first read of Regulation (EU) 2024/1689. Role (provider, deployer, importer,
+        distributor) plus ticked Article 2 exclusions, Article 5 prohibited practices, Annex III headings, Annex I products, Article 50
+        transparency triggers and general-purpose model status become a tier (outside, prohibited, high-risk, transparency only, minimal), the
+        Article behind it, duties by role, fines and dates, with the Art 6(3) exception and its profiling override, text summary and CSV.
+        18 hand-checked unit tests plus page and usage tests; page smoke-tested in Chromium. portfolio/pipeline/duplicate_check.py top score
+        0.12; no AI Act tool existed in ventures/. First visitor: a founder or compliance lead asked "is this high-risk?" by a customer or
+        investor; volume unmeasured. Dates are Art 113 as adopted and the page flags the proposed postponement.
+    mrr_end: 0
+  - venture: eudr-scope-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built eudr-scope-checker: a browser-only first read of the EU Deforestation Regulation (2023/1115, as amended through
+        December 2025). Role, size, commodity, country risk and out-of-scope product types become scope, duties by Article (statement,
+        geolocation, risk assessment, records, Art 25 penalties) and the application date with a day count, plus a pasted customs-code screen
+        against Annex I headings with CSV export. 25 tests including page and usage guards. No EUDR tool existed in ventures/. First visitor:
+        an importer or trader asked by a customer "what do you file under EUDR?"; volume unmeasured. Application date 30 Dec 2026, so demand
+        is rising now. Scope screen is heading-level and says the 8-digit code decides.
+    mrr_end: 0
+  - venture: cbam-cost-estimator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built cbam-cost-estimator: a browser-only estimate of EU CBAM (Regulation 2023/956) cost for importers of steel, aluminium,
+        cement, fertilisers and hydrogen. Tonnes, embedded emissions (illustrative presets, overridable) and a carbon price become certificates,
+        euro cost and cost per tonne, with the 2026-2034 free-allocation phase-out, the 50-tonne threshold, default-value mark-up, foreign carbon
+        price deduction, and year and price sensitivity tables. 14 unit tests plus page and usage tests. portfolio/pipeline/duplicate_check.py
+        top score 0.18; no CBAM tool existed in ventures/. First visitor: an EU importer or buyer who has received a CBAM supplier questionnaire;
+        volume unmeasured. Preset emission figures are labelled illustrative.
+    mrr_end: 0
+  - venture: eaa-accessibility-act-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built eaa-accessibility-act-checker: a browser-only first read of whether the European Accessibility Act (Directive 2019/882,
+        applying since 28 June 2025) covers a business. A product or service from Article 2, a role (manufacturer, importer, distributor, service
+        provider), whole-group size on the Recommendation 2003/361 microenterprise ceilings, B2C versus B2B and Union-market answers give an in-scope,
+        microenterprise-exempt (Art 4(5), services only) or out-of-scope result with the Article it rests on, the result at the other size class,
+        role-specific duties, and text and CSV downloads. Rejects roles that do not fit the category. 13 hand-checked unit tests plus page and usage
+        tests. No EAA tool existed in ventures/. First visitor: EU online-shop owners and agencies asked "does the Accessibility Act apply to us?";
+        volume unmeasured. National transposition is not modelled and the page says so.
+    mrr_end: 0
+  - venture: indoor-play-center-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built indoor-play-center-profit-calculator: a browser-only pro forma for an indoor playground or soft-play cafe. Weekday and
+        weekend child visits, walk-in and member prices, birthday parties, cafe spend, staff hours with payroll load, rent, fit-out, equipment and a loan
+        give monthly profit, break-even visits a week (operating and with the loan), the admission and party price factor that reaches a target margin,
+        attendance, price and wage sensitivity tables, a sixty-month ramp-up with the cash reserve and payback, and text and CSV downloads. 15 hand-checked
+        unit tests plus page and usage tests. Nearest sibling trampoline-park-profit-calculator models jumper capacity and sessions, not attendance with
+        cafe and ramp-up. First visitor: first-time owners sizing a lease and loan; volume unmeasured. Every figure is the user's own; the example is
+        labelled illustrative.
+    mrr_end: 0
+  - venture: padel-club-profit-calculator
+  - venture: eu-data-act-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built padel-club-profit-calculator: a browser-only pro forma for a padel club. Courts, opening hours, peak and off-peak court-hour prices and
+        utilisation, member discount, coaching with a coach share, food and drink, pro shop, staff hours with payroll load, rent, court and fit-out cost
+        and a loan give monthly profit, break-even booked court-hours and utilisation (reported only when the courts can hold them), the court and lesson
+        price factor that reaches a target margin, booking, price and wage sensitivity tables, a sixty-month ramp-up with the cash reserve and payback,
+        and text and CSV downloads. 17 hand-checked unit tests plus page and usage tests. No padel tool existed in ventures/; nearest siblings are
+        pickleball-facility-pro-forma and golf-simulator-bay-profit-calculator. First visitor: would-be club owners sizing a lease and loan; volume
+        unmeasured. Every figure is the user's own; the example is labelled illustrative.
+        Graduated and built eu-data-act-checker: a browser-only first read of whether the EU Data Act (Regulation 2023/2854, applying since 12 September
+        2025) covers a business. A role (connected-product maker, related-service provider, data holder, third-party recipient, cloud or SaaS provider),
+        whole-group size on the Recommendation 2003/361 micro and small ceilings, a larger-partner flag and a subcontracting flag give an in-scope,
+        micro-or-small-exempt (Art 7) or out-of-scope result with the Article it rests on, the result at each size class, role-specific duties with the
+        Art 3(1) (12 Sep 2026) and switching-charge (12 Jan 2027) dates, and text and CSV downloads. Cloud switching duties carry no size exemption.
+        12 hand-checked unit tests plus page and usage tests. No Data Act tool existed in ventures/. First visitor: EU hardware and SaaS vendors asked
+        "does the Data Act apply to us, are we exempt as an SME?"; volume unmeasured. National enforcement is not modelled and the page says so.
+    mrr_end: 0
+  - venture: bowling-center-profit-calculator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built bowling-center-profit-calculator: a browser-only pro forma for a bowling center. Lanes, opening hours, peak and off-peak
+        lane-hour prices and utilization, league share and discount, birthday parties with their cost share, food and bar, arcade and shoe rental,
+        staff hours with payroll load, rent, refurbishment cost and a loan give monthly profit, break-even booked lane-hours and utilization (reported
+        only when the lanes can hold them), the price factor that reaches a target margin, booking, price and wage sensitivity tables, a sixty-month
+        ramp-up with the cash reserve and payback, and text and CSV downloads. Hand-checked unit tests plus page and usage tests. No bowling tool existed
+        in ventures/; nearest siblings are padel-club-profit-calculator and trampoline-park-profit-calculator. First visitor: buyers and operators of
+        independent centers sizing a lease and loan; volume unmeasured. Every figure is the user's own; the example is labelled illustrative.
+    mrr_end: 0

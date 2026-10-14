@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Making Tax Digital Checker — Do You Need MTD for Income Tax and When?</title>
+  <meta name="description" content="Free UK Making Tax Digital for Income Tax checker: enter your gross self-employment and property income to see if you must join, from which date (April 2026, 2027 or 2028), and your quarterly and final declaration deadlines. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Making Tax Digital checker: your start date and deadlines. Free, private">
+  <meta property="og:description" content="Gross income test against the GBP 50k, 30k and 20k MTD steps.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Making Tax Digital Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Who has to use Making Tax Digital for Income Tax?", "acceptedAnswer": {"@type": "Answer", "text": "Sole traders and landlords whose gross self-employment plus property income is more than GBP 50,000 (tax year 2024-25) from 6 April 2026, more than GBP 30,000 (2025-26) from 6 April 2027, and more than GBP 20,000 (2026-27) from 6 April 2028."}}, {"@type": "Question", "name": "Is the threshold profit or turnover?", "acceptedAnswer": {"@type": "Answer", "text": "Gross income before expenses. Employment income, dividends, interest and partnership profit do not count; for jointly held property only your share counts."}}, {"@type": "Question", "name": "What do I have to do?", "acceptedAnswer": {"@type": "Answer", "text": "Keep digital records, send four quarterly updates through compatible software (due 7 August, 7 November, 7 February and 7 May), and submit a final declaration by 31 January after the tax year, which replaces the Self Assessment return."}}, {"@type": "Question", "name": "Can I join early?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Voluntary sign-up is open to anyone with self-employment or property income."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+
+</head>
+<body>
+  <header>
+    <p class="note">UK MAKING TAX DIGITAL CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Do you have to use Making Tax Digital for Income Tax, and when?</h1>
+    <p>Enter your gross self-employment and property income for the three test years. You get your mandatory start date, the quarterly update deadlines and your final declaration date.</p>
+    <p class="note">A first read written from HMRC's announced rules without a live lookup. Guidance and penalties change; confirm the current text. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="se2425">Self-employment gross income 2024-25 (GBP)</label><input id="se2425" type="number" min="0" step="1"></div>
+      <div><label for="prop2425">Property gross income 2024-25 (GBP, your share)</label><input id="prop2425" type="number" min="0" step="1"></div>
+      <div><label for="se2526">Self-employment gross income 2025-26</label><input id="se2526" type="number" min="0" step="1"></div>
+      <div><label for="prop2526">Property gross income 2025-26</label><input id="prop2526" type="number" min="0" step="1"></div>
+      <div><label for="se2627">Self-employment gross income 2026-27 (estimate)</label><input id="se2627" type="number" min="0" step="1"></div>
+      <div><label for="prop2627">Property gross income 2026-27 (estimate)</label><input id="prop2627" type="number" min="0" step="1"></div>
+      <div><label for="partner">You are also a partner in a partnership</label><select id="partner"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="joint">Some property is jointly held</label><select id="joint"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="digitalExcluded">Digital tools are not reasonably practical for you</label><select id="digitalExcluded"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="calendar">Use calendar quarters</label><select id="calendar"><option value="no">No</option><option value="yes">Yes</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check my start date</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Check my start date.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>Threshold tests</h2>
+    <div class="scroll"><table><thead><tr><th>Starts</th><th>Test year</th><th class="n">Income</th><th class="n">Must exceed</th><th>Result</th></tr></thead><tbody id="tests"></tbody></table></div>
+    <h2>Deadlines</h2>
+    <div class="scroll"><table><thead><tr><th>Period</th><th>Due</th></tr></thead><tbody id="dates"></tbody></table></div>
+    <h2>What you must do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the three announced thresholds (GBP 50,000, 30,000, 20,000), quarterly update dates for standard and calendar quarters, and the final declaration date.</li>
+      <li><strong>Gives:</strong> your start date, a deadline table and a checklist.</li>
+      <li><strong>Not decided:</strong> exemptions HMRC grants individually, trusts, personal representatives, non-resident cases, partnership timing, penalty amounts and soft-landing terms, and anything that changed after this page was written. HMRC or your accountant decides these.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Who has to use Making Tax Digital for Income Tax?</h3>
+    <p>Sole traders and landlords whose gross self-employment plus property income is more than GBP 50,000 (tax year 2024-25) from 6 April 2026, more than GBP 30,000 (2025-26) from 6 April 2027, and more than GBP 20,000 (2026-27) from 6 April 2028.</p>
+    <h3>Is the threshold profit or turnover?</h3>
+    <p>Gross income before expenses. Employment income, dividends, interest and partnership profit do not count; for jointly held property only your share counts.</p>
+    <h3>What do I have to do?</h3>
+    <p>Keep digital records, send four quarterly updates through compatible software (due 7 August, 7 November, 7 February and 7 May), and submit a final declaration by 31 January after the tax year, which replaces the Self Assessment return.</p>
+    <h3>Can I join early?</h3>
+    <p>Yes. Voluntary sign-up is open to anyone with self-employment or property income.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or HMRC before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-sole-trader-vs-limited-company-calculator/">UK sole trader vs limited company calculator</a>, the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a> and, for travelling self-employed, the <a href="../schengen-90-180-day-calculator/">Schengen 90/180 day calculator</a>.</p>
+    <p>Approaching the VAT threshold? Try the <a href="../uk-vat-registration-checker/">UK VAT registration checker</a>.</p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "GBP " + Number(n).toLocaleString("en-GB");
+    let last = null;
+    const map = { se2425: "se2425", prop2425: "prop2425", se2526: "se2526", prop2526: "prop2526", se2627: "se2627", prop2627: "prop2627", partner: "partner", joint: "joint", digitalExcluded: "digitalExcluded", calendar: "calendar" };
+    const IDLE = "Fill in the figures, then click Check my start date.";
+    const DEFAULTS = { partner: "no", joint: "no", digitalExcluded: "no", calendar: "no" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.first ? `Required from ${r.first.start}` : "Not mandatory on these figures";
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#tests").innerHTML = r.checks.map((c) => `<tr><td>${esc(c.start)}</td><td>${esc(c.basis)}</td><td class="n">${gbp(c.income)}</td><td class="n">${gbp(c.threshold)}</td><td>${c.applies ? "Required" : "Not required"}</td></tr>`).join("");
+      $("#dates").innerHTML = r.schedule ? r.schedule.quarters.map((x) => `<tr><td>${esc(x.period)}</td><td>${esc(x.due)}</td></tr>`).join("") + `<tr class="total"><td>Final declaration ${esc(r.schedule.taxYear)}</td><td>${esc(r.schedule.finalDeclaration)}</td></tr>` : `<tr><td colspan="2">No deadlines until you join.</td></tr>`;
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a sole trader with GBP 42,000 of turnover and GBP 12,000 of rent.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("mtd-income-tax-check.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

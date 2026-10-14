@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Unfair Dismissal Compensation Calculator 2026/27 — Basic and Compensatory Award</title>
+  <meta name="description" content="Free UK unfair dismissal compensation estimate: basic award, compensatory award, the 52-week cap, Polkey and ACAS adjustments, and your claim deadline. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK Unfair Dismissal Compensation Calculator 2026/27. Free, private">
+  <meta property="og:description" content="Estimate basic and compensatory awards, the cap, and the three-months-less-a-day deadline.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Unfair Dismissal Compensation Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is unfair dismissal compensation calculated?", "acceptedAnswer": {"@type": "Answer", "text": "A basic award (weeks of pay by age and service, with the weekly pay capped) plus a compensatory award for lost earnings and rights, limited by a cap of the lower of a fixed amount and 52 weeks' gross pay. Adjustments can raise or lower it."}}, {"@type": "Question", "name": "How long do I have to claim?", "acceptedAnswer": {"@type": "Answer", "text": "Normally three months less a day from your last day of employment. You must contact ACAS for early conciliation before that date, which pauses the clock but does not remove it."}}, {"@type": "Question", "name": "Do I need two years of service?", "acceptedAnswer": {"@type": "Answer", "text": "For most claims today, yes. Some automatically unfair dismissals need no qualifying service, and the Employment Rights Act 2025 is expected to change the rule, so check the date that applies to you."}}, {"@type": "Question", "name": "Is the cap always applied?", "acceptedAnswer": {"@type": "Answer", "text": "No. The compensatory cap does not apply to automatically unfair dismissals such as some whistleblowing cases. Tick the box to remove it from the estimate."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK UNFAIR DISMISSAL COMPENSATION CALCULATOR 2026/27 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What might an unfair dismissal claim be worth?</h1>
+    <p>Enter your dates and pay. You get the basic award, a compensatory award built from lost earnings, the statutory cap, and the date by which you must start the claim (three months less a day from your last day of employment).</p>
+    <p class="note">Written from the published rules without a live lookup. GOV.UK and the tribunal decide. Not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="dob">Date of birth</label><input id="dob" type="date" placeholder=""></div>
+      <div><label for="start">Job start date</label><input id="start" type="date" placeholder=""></div>
+      <div><label for="end">Last day of employment</label><input id="end" type="date" placeholder=""></div>
+      <div><label for="weeklyGross">Gross pay, normal week (£)</label><input id="weeklyGross" type="text" inputmode="decimal" placeholder="900"></div>
+      <div><label for="weeklyNet">Take-home pay, normal week (£)</label><input id="weeklyNet" type="text" inputmode="decimal" placeholder="680"></div>
+      <div><label for="weeksToHearing">Weeks of lost pay to new job or hearing</label><input id="weeksToHearing" type="text" inputmode="decimal" placeholder="30"></div>
+      <div><label for="earnedSince">Earned elsewhere in that period (£)</label><input id="earnedSince" type="text" inputmode="decimal" placeholder="6000"></div>
+      <div><label for="newWeeklyNet">New job take-home per week (£)</label><input id="newWeeklyNet" type="text" inputmode="decimal" placeholder="600"></div>
+      <div><label for="futureWeeks">Weeks of future loss to claim</label><input id="futureWeeks" type="text" inputmode="decimal" placeholder="12"></div>
+      <div><label for="pensionLoss">Pension loss (£)</label><input id="pensionLoss" type="text" inputmode="decimal" placeholder="1500"></div>
+      <div><label for="expenses">Job-search expenses (£)</label><input id="expenses" type="text" inputmode="decimal" placeholder="250"></div>
+      <div><label for="redundancyPaid">Redundancy payment already received (£)</label><input id="redundancyPaid" type="text" inputmode="decimal" placeholder="0"></div>
+      <div><label for="polkey">Chance dismissed fairly anyway, Polkey (%)</label><input id="polkey" type="text" inputmode="decimal" placeholder="0"></div>
+      <div><label for="contributory">Contributory fault (%)</label><input id="contributory" type="text" inputmode="decimal" placeholder="0"></div>
+      <div><label for="acas">ACAS Code adjustment (-25 to 25 %)</label><input id="acas" type="text" inputmode="decimal" placeholder="0"></div>
+      <div><label for="compCap">Compensatory cap override (£, optional)</label><input id="compCap" type="text" inputmode="decimal" placeholder=""></div>
+      <div><label for="automatic"><input id="automatic" type="checkbox" style="width:auto"> Automatically unfair reason (no cap, no qualifying service)</label></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Calculate</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Enter your details, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the basic award by age band and service, the weekly pay cap, a redundancy payment set against it, a compensatory award from lost earnings and future loss, Polkey, ACAS Code and contributory-fault adjustments, the 52-week and fixed cap, and the claim deadline.</li>
+      <li><strong>Not decided:</strong> whether the dismissal was unfair, injury to feelings, notice pay, tax and grossing-up, benefit recoupment, Northern Ireland, and whether the caps have changed since this was written. A tribunal or an adviser decides these.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How is unfair dismissal compensation calculated?</h3>
+    <p>A basic award (weeks of pay by age and service, with the weekly pay capped) plus a compensatory award for lost earnings and rights, limited by a cap of the lower of a fixed amount and 52 weeks' gross pay. Adjustments can raise or lower it.</p>
+    <h3>How long do I have to claim?</h3>
+    <p>Normally three months less a day from your last day of employment. You must contact ACAS for early conciliation before that date, which pauses the clock but does not remove it.</p>
+    <h3>Do I need two years of service?</h3>
+    <p>For most claims today, yes. Some automatically unfair dismissals need no qualifying service, and the Employment Rights Act 2025 is expected to change the rule, so check the date that applies to you.</p>
+    <h3>Is the cap always applied?</h3>
+    <p>No. The compensatory cap does not apply to automatically unfair dismissals such as some whistleblowing cases. Tick the box to remove it from the estimate.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or accounting advice. You are responsible for verifying its output on GOV.UK or with ACAS, Citizens Advice or a solicitor before you rely on it or start a claim.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-redundancy-pay-calculator/">UK redundancy pay calculator</a>, the <a href="../uk-holiday-pay-calculator/">UK holiday pay calculator</a> and the <a href="../uk-take-home-pay-calculator/">UK take-home pay calculator</a>.</p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + Math.round(n).toLocaleString("en-GB");
+    let last = null;
+    const map = { dob: "dob", start: "start", end: "end", weeklyGross: "weeklyGross", weeklyNet: "weeklyNet", weeksToHearing: "weeksToHearing", earnedSince: "earnedSince", newWeeklyNet: "newWeeklyNet", futureWeeks: "futureWeeks", pensionLoss: "pensionLoss", expenses: "expenses", redundancyPaid: "redundancyPaid", polkey: "polkey", contributory: "contributory", acas: "acas", compCap: "compCap", automatic: "automatic" };
+    const IDLE = "Enter your details, then click Calculate.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) { const el = $("#" + id); o[key] = el.type === "checkbox" ? el.checked : el.value; } return o; };
+    const write = (id, v) => { const el = $("#" + id); if (el.type === "checkbox") el.checked = !!v; else el.value = v; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `About ${gbp(r.total)} · claim by ${r.deadline}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify the caps on GOV.UK before relying on them.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) write(id, SAMPLE[key]);
+      run(); record("example_loaded");
+      status.textContent = "Worked example: eight years' service, £900 a week, 30 weeks out of work.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) write(id, ""); report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-unfair-dismissal-estimate.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Triage cargo audit Findings Without Ignoring Real Risk</title>
+  <meta name="description" content="A practical order of operations for a long cargo audit report: what to upgrade first, what is test or build-script noise, and why not used does not mean safe.">
+  <link rel="canonical" href="./how-to-triage-cargo-audit-findings.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to triage cargo audit findings without ignoring real risk","about":"Prioritising cargo audit vulnerabilities by whether Rust code uses the crate","author":{"@type":"Organization","name":"cargo-audit Triage"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← cargo-audit Triage</a></p>
+  <h1>How to triage cargo audit findings without ignoring real risk</h1>
+  <p><code>cargo audit</code> checks every crate in your <code>Cargo.lock</code> against the RustSec advisory database and prints them in lockfile order, with no sense of which ones your code touches. On a workspace with a few hundred transitive crates that is a list nobody can act on in one sitting, and it also mixes real vulnerabilities with unmaintained, unsound and yanked warnings. Sorting it by whether your code uses the crate turns it into a short first pass.</p>
+
+  <h2>The three buckets this tool uses</h2>
+  <ul>
+    <li><strong>imported</strong> — runtime code (<code>src/</code>) names the flagged crate directly, in a <code>use</code>, <code>extern crate</code> or path expression. Read these first; the exposure depends on whether you call the affected function, but this is where a real code path can exist.</li>
+    <li><strong>test-only</strong> — only <code>tests/</code>, <code>benches/</code>, <code>examples/</code> or <code>build.rs</code> use it. The risk is mostly to developer machines and CI, not to the shipped binary (though a build script runs arbitrary code at build time).</li>
+    <li><strong>not-referenced</strong> — nothing scanned names it. It is usually a transitive dependency of something you do use, so it can still be compiled into your binary.</li>
+  </ul>
+
+  <h2>A sensible order</h2>
+  <ol>
+    <li>Run <code>cargo audit --json</code> in the workspace you ship, then feed it and your source to the triage.</li>
+    <li>Upgrade the used crates first, using the patched ranges cargo audit lists. When a crate has several advisories, pick a version that clears all of them. Unmaintained and yanked warnings have no patch: plan a replacement or an update instead.</li>
+    <li>Use <code>--fail-on-imported</code> in CI so a newly vulnerable package your code imports blocks the merge while unreferenced noise does not.</li>
+    <li>For not-referenced packages, find the parent with <code>cargo tree -i &lt;crate&gt;</code>. If the parent is something you use, treat the finding as reachable.</li>
+    <li>Batch the test-only upgrades into your normal dependency-update cadence. Do not defer one that runs in CI with deploy secrets.</li>
+  </ol>
+
+  <h2>What this ranking cannot tell you</h2>
+  <p>It reads <code>use</code> and path expressions as text. It cannot see macros that expand to a crate path, a crate re-exported under another name, a renamed dependency (<code>package = "..."</code> in Cargo.toml), feature-gated code, or whether the vulnerable function is ever called. It also cannot see the dependency graph, so a crate your code reaches only through another crate is labelled not-referenced. Not used lowers the urgency; it is not a certificate of safety, and this is not a security audit.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. It is not security advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the triage</a>.</p>
+  </footer>
+</body>
+</html>

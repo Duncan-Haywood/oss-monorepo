@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Rent a Room Relief Calculator 2025/26 and 2026/27</title>
+  <meta name="description" content="Free UK Rent a Room Relief calculator for 2025/26 and 2026/27: enter your rent, expenses and other income to see whether the £7,500 relief or the normal rules costs less tax. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK Rent a Room Relief calculator: relief or expenses, which is cheaper? Free, private">
+  <meta property="og:description" content="Price both routes on your own income and see which costs less tax.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Rent a Room Relief Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is Rent a Room Relief?", "acceptedAnswer": {"@type": "Answer", "text": "If you let furnished accommodation in your own home, the first £7,500 of the rent you receive in a tax year is tax-free. If you share the income with someone else, such as a partner, the limit is £3,750 each."}}, {"@type": "Question", "name": "Do I have to tell HMRC?", "acceptedAnswer": {"@type": "Answer", "text": "Not if your rent is at or below the limit and you have nothing else to report. Above the limit you must report the income on a Self Assessment return."}}, {"@type": "Question", "name": "What if I earn more than £7,500?", "acceptedAnswer": {"@type": "Answer", "text": "You choose the cheaper of two routes: pay tax on the rent minus £7,500 with no expenses deducted, or pay tax on rent minus your actual expenses. The calculator prices both."}}, {"@type": "Question", "name": "When should I use the normal rules instead?", "acceptedAnswer": {"@type": "Answer", "text": "When your allowable expenses for the room are more than the limit, because deducting them beats the flat £7,500."}}, {"@type": "Question", "name": "Does it apply to Airbnb or a separate flat?", "acceptedAnswer": {"@type": "Answer", "text": "It applies to furnished rooms in your only or main home, including short lets of a room. It does not cover a separate self-contained property you let out; check GOV.UK."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK RENT A ROOM RELIEF CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Rent a Room Relief or claim expenses: which costs less tax?</h1>
+    <p>Enter the rent from your lodger, your expenses for the room and your other income. You get whether the rent is tax-free, the tax under each route above the £7,500 limit, and which to choose.</p>
+    <p class="note">A first read written from HMRC's published rules without a live lookup. Rules change; confirm the current text. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="year">Tax year</label><select id="year"><option value="2025">2025/26</option><option value="2026">2026/27</option></select></div>
+      <div><label for="receipts">Rent received in the year (&pound;)</label><input id="receipts" type="number" min="0" step="1"></div>
+      <div><label for="expenses">Expenses for the room (&pound;)</label><input id="expenses" type="number" min="0" step="1"></div>
+      <div><label for="other">Your other taxable income (&pound;)</label><input id="other" type="number" min="0" step="1"></div>
+      <div><label for="shared">Is the rent shared with someone else?</label><select id="shared"><option value="no">No, it is all mine</option><option value="yes">Yes, shared (limit &pound;3,750 each)</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Compare the routes</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Compare the routes.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>The numbers</h2>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Amount</th></tr></thead><tbody id="tests"></tbody></table></div>
+    <h2>What to do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the £7,500 (or £3,750 shared) Rent a Room limit for 2025/26 and 2026/27 and the extra income tax under the relief route and the normal rules, using England, Wales and Northern Ireland bands and the £100,000 allowance taper.</li>
+      <li><strong>Gives:</strong> whether the rent is covered, the tax each route costs, the cheaper one and a short checklist.</li>
+      <li><strong>Not decided:</strong> Scottish bands, National Insurance on profits, the £1,000 property allowance, losses carried forward, savings and dividend income, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is Rent a Room Relief?</h3>
+    <p>If you let furnished accommodation in your own home, the first £7,500 of the rent you receive in a tax year is tax-free. If you share the income with someone else, such as a partner, the limit is £3,750 each.</p>
+    <h3>Do I have to tell HMRC?</h3>
+    <p>Not if your rent is at or below the limit and you have nothing else to report. Above the limit you must report the income on a Self Assessment return.</p>
+    <h3>What if I earn more than £7,500?</h3>
+    <p>You choose the cheaper of two routes: pay tax on the rent minus £7,500 with no expenses deducted, or pay tax on rent minus your actual expenses. The calculator prices both.</p>
+    <h3>When should I use the normal rules instead?</h3>
+    <p>When your allowable expenses for the room are more than the limit, because deducting them beats the flat £7,500.</p>
+    <h3>Does it apply to Airbnb or a separate flat?</h3>
+    <p>It applies to furnished rooms in your only or main home, including short lets of a room. It does not cover a separate self-contained property you let out; check GOV.UK.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or HMRC before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-landlord-section-24-calculator/">UK landlord Section 24 calculator</a>, the <a href="../uk-trading-allowance-calculator/">UK trading allowance calculator</a>, the <a href="../uk-100k-tax-trap-calculator/">UK &pound;100k tax trap calculator</a>, the <a href="../uk-take-home-pay-calculator/">UK take-home pay calculator</a> and the <a href="../uk-self-assessment-late-penalty-calculator/">UK Self Assessment late penalty calculator</a>.</p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(Number(n)).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { year: "year", receipts: "receipts", expenses: "expenses", other: "other", shared: "shared" };
+    const IDLE = "Fill in the figures, then click Compare the routes.";
+    const DEFAULTS = { year: "2025", shared: "no" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.automatic ? `Tax-free: your rent is within the limit in ${r.label}` : r.best === "relief" ? `Use the relief: extra tax ${gbp(r.taxRelief)} in ${r.label}, ${gbp(r.choiceSaving)} less than the normal rules` : `Use the normal rules: extra tax ${gbp(r.taxNormal)} in ${r.label}, ${gbp(r.choiceSaving)} less than the relief`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      const rows = [["Rent received", r.receipts], ["Rent a Room limit", r.limit], ["Taxable under the relief route", r.taxableRelief], ["Extra tax, relief route", r.taxRelief], ["Taxable profit, normal rules", r.taxableNormal], ["Extra tax, normal rules", r.taxNormal], ["Extra tax with no relief and no expenses", r.taxNothing], ["Saving from the cheaper route", r.choiceSaving]];
+      $("#tests").innerHTML = rows.map((x, i) => `<tr><td>${esc(x[0])}</td><td class="n">${gbp(x[1])}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("") || `<tr><td colspan="2">Nothing to do on these figures.</td></tr>`;
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: £11,000 of rent, £3,200 of expenses and £45,000 of other income.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-rent-a-room-relief.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

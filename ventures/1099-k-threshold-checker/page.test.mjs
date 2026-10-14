@@ -104,3 +104,8 @@ test("both pages carry FAQPage JSON-LD that parses as valid JSON", () => {
     }
   }
 });
+
+test('links to the EU DAC7 seller reporting checker', async () => {
+  const { readFileSync } = await import('node:fs');
+  assert.match(readFileSync(new URL('./index.html', import.meta.url), 'utf8'), /href="\.\.\/dac7-seller-reporting-checker\/"/);
+});

@@ -1,0 +1,44 @@
+name: cbam-cost-estimator
+description: >-
+  Free browser tool for EU importers of steel, aluminium, cement, fertilisers and hydrogen: estimates the CBAM (Regulation 2023/956) certificates and euro cost from tonnes, embedded emissions and a carbon price, applies the 2026-2034 free-allocation phase-out, flags the 50-tonne threshold, and shows the cost by year and by carbon price. Nothing is uploaded. An estimate from illustrative or user-supplied figures, not customs or legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; portfolio/pipeline/duplicate_check.py top score 0.18 (no CBAM tool in ventures/; nearest was
+# import-landed-cost-calculator, which covers duty and tariffs, not carbon certificates). Not in screened-out.md.
+#
+# First visitor: an importer, buyer or finance lead at an EU metalworking, construction or farm-input business whose supplier has sent a CBAM
+# questionnaire or price surcharge; search phrases "CBAM cost calculator", "CBAM certificate price per tonne steel", "do I need CBAM authorised declarant".
+# Volume not measured with an external tool. The definitive period began 1 January 2026, so the question is live now.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. A paid version, not built, would be a supplier emissions-data request
+# pack and a CN-code lookup for goods coverage, behind an env-var switch.
+#
+# Liability: estimates only, from user figures; presets are labelled illustrative, the page states what it does not decide (CN coverage, verified
+# emissions, certificate price, foreign carbon price recognition) and carries the no-warranty and not-advice clauses. Ethical risk is
+# under-budgeting from the presets; the page tells the user to replace them with verified data.
+
+hypotheses:
+  - claim: >-
+      EU importers who have just received a CBAM supplier questionnaire or surcharge will use a free estimator to size the cost per tonne and the year-by-year ramp, instead of waiting for a consultant's quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the phase-out schedule or the certificate formula differs from Regulation 2023/956 on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cbam-cost-estimator/
+  analytics: null

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Self Assessment Tax Calculator 2025/26 (employed, self-employed, rental, dividends, payments on account)</title>
+  <meta name="description" content="Free UK Self Assessment tax calculator for 2025/26: combine employment, self-employed profit, rental income, savings and dividends. See income tax, Class 4 NIC, student loan, the 31 January bill and your payments on account. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Self Assessment tax calculator: what will I owe on 31 January? Free, private">
+  <meta property="og:description" content="One estimate for all your income: salary, side business, rent, interest and dividends, with the payments-on-account schedule.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Self Assessment Tax Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I work out my Self Assessment tax bill for 2025/26?", "acceptedAnswer": {"@type": "Answer", "text": "Add up your income: employment pay, self-employed profit (income less expenses or the £1,000 trading allowance), property profit, savings interest and dividends. Take off the personal allowance, tax non-savings income first, then savings, then dividends, add Class 4 National Insurance on self-employed profit and any student loan, then subtract the tax already paid through PAYE. The result is due by 31 January 2027."}}, {"@type": "Question", "name": "What are payments on account?", "acceptedAnswer": {"@type": "Answer", "text": "If your Self Assessment bill (income tax and Class 4 National Insurance, after tax paid at source) is £1,000 or more and less than 80% of your liability was collected at source, HMRC asks for two advance payments towards next year, each half of this year's bill, on 31 January and 31 July. The first falls on the same day as the balance, so the January bill can be about 150% of your tax."}}, {"@type": "Question", "name": "Do I pay tax on the first £1,000 of side income?", "acceptedAnswer": {"@type": "Answer", "text": "No, if it is trading income. The £1,000 trading allowance relieves your first £1,000 of self-employed income instead of your actual expenses, whichever is better. Property income has its own separate £1,000 allowance."}}, {"@type": "Question", "name": "How much is Class 4 National Insurance?", "acceptedAnswer": {"@type": "Answer", "text": "6% on self-employed profit between £12,570 and £50,270 and 2% above that for 2025/26. Class 2 is no longer compulsory."}}, {"@type": "Question", "name": "How are savings interest and dividends taxed?", "acceptedAnswer": {"@type": "Answer", "text": "After your other income. You can have up to £5,000 of savings interest at 0% if your other taxable income is small, a Personal Savings Allowance of £1,000 (basic rate) or £500 (higher rate), and a £500 Dividend Allowance. Dividends above that are taxed at 8.75%, 33.75% or 39.35%."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SELF ASSESSMENT TAX CALCULATOR · 2025/26 · ENGLAND, WALES AND NORTHERN IRELAND · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What will my Self Assessment bill be on 31 January?</h1>
+    <p>Put every source of income in one place: your job, a side business, rent, savings interest and dividends. You get income tax in the right order, Class 4 National Insurance, student loan, what PAYE has already paid, the balance due, and the two payments on account that follow it.</p>
+    <p class="note">2025/26 rates (tax year ending 5 April 2026; return and payment due 31 January 2027). Rates change every year; confirm the current text. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="employment">Employment pay for the year (£, gross, incl. taxable benefits)</label><input id="employment" type="number" min="0" step="1"></div>
+      <div><label for="paye">Income tax already deducted by PAYE (£)</label><input id="paye" type="number" min="0" step="1"></div>
+      <div><label for="tradingIncome">Self-employed income, turnover (£)</label><input id="tradingIncome" type="number" min="0" step="1"></div>
+      <div><label for="tradingExpenses">Self-employed expenses (£)</label><input id="tradingExpenses" type="number" min="0" step="1"></div>
+      <div><label for="rent">Property rental income (£)</label><input id="rent" type="number" min="0" step="1"></div>
+      <div><label for="rentExpenses">Property expenses, not mortgage interest (£)</label><input id="rentExpenses" type="number" min="0" step="1"></div>
+      <div><label for="mortgageInterest">Residential mortgage interest (£)</label><input id="mortgageInterest" type="number" min="0" step="1"></div>
+      <div><label for="interest">Savings interest (£)</label><input id="interest" type="number" min="0" step="1"></div>
+      <div><label for="dividends">Dividends (£)</label><input id="dividends" type="number" min="0" step="1"></div>
+      <div><label for="pensionNet">Personal pension contributions you paid, net (£)</label><input id="pensionNet" type="number" min="0" step="1"></div>
+      <div><label for="giftAidNet">Gift Aid donations you paid, net (£)</label><input id="giftAidNet" type="number" min="0" step="1"></div>
+      <div><label for="slPaid">Student loan already deducted by payroll (£)</label><input id="slPaid" type="number" min="0" step="1"></div>
+      <div><label for="plan">Student loan</label><select id="plan"><option value="none">None</option><option value="1">Plan 1</option><option value="2">Plan 2</option><option value="4">Plan 4</option><option value="5">Plan 5</option></select></div>
+      <div><label for="pgl">Postgraduate Loan?</label><select id="pgl"><option value="no">No</option><option value="yes">Yes</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out my bill</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in what applies, then click Work out my bill. Leave the rest blank.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>The numbers</h2>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Amount</th></tr></thead><tbody id="tests"></tbody></table></div>
+    <h2>What to do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> employment pay with PAYE already deducted, self-employed profit with the trading allowance or real expenses, UK property profit with the property allowance or the mortgage interest credit, savings (starting rate and Personal Savings Allowance), dividends (Dividend Allowance), personal pension and Gift Aid band extension, the personal allowance taper, Class 4 NIC, student and postgraduate loans, and payments on account.</li>
+      <li><strong>Gives:</strong> total income, tax by type, the 31 January balance, the payments on account, effective and marginal rate, and what an extra pension contribution or donation would save.</li>
+      <li><strong>Not decided:</strong> Scotland, capital gains, losses, foreign income, the marriage allowance, the High Income Child Benefit Charge, tax codes, other tax years, and anything that changed after this was written. Your return is yours to file; have an accountant or HMRC check it.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How do I work out my Self Assessment tax bill for 2025/26?</h3>
+    <p>Add up your income: employment pay, self-employed profit (income less expenses or the £1,000 trading allowance), property profit, savings interest and dividends. Take off the personal allowance, tax non-savings income first, then savings, then dividends, add Class 4 National Insurance on self-employed profit and any student loan, then subtract the tax already paid through PAYE. The result is due by 31 January 2027.</p>
+    <h3>What are payments on account?</h3>
+    <p>If your Self Assessment bill (income tax and Class 4 National Insurance, after tax paid at source) is £1,000 or more and less than 80% of your liability was collected at source, HMRC asks for two advance payments towards next year, each half of this year's bill, on 31 January and 31 July. The first falls on the same day as the balance, so the January bill can be about 150% of your tax.</p>
+    <h3>Do I pay tax on the first £1,000 of side income?</h3>
+    <p>No, if it is trading income. The £1,000 trading allowance relieves your first £1,000 of self-employed income instead of your actual expenses, whichever is better. Property income has its own separate £1,000 allowance.</p>
+    <h3>How much is Class 4 National Insurance?</h3>
+    <p>6% on self-employed profit between £12,570 and £50,270 and 2% above that for 2025/26. Class 2 is no longer compulsory.</p>
+    <h3>How are savings interest and dividends taxed?</h3>
+    <p>After your other income. You can have up to £5,000 of savings interest at 0% if your other taxable income is small, a Personal Savings Allowance of £1,000 (basic rate) or £500 (higher rate), and a £500 Dividend Allowance. Dividends above that are taxed at 8.75%, 33.75% or 39.35%.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or HMRC before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: claiming mileage or home-working costs? See the <a href="../uk-simplified-expenses-calculator/">UK simplified expenses calculator</a>. Client not paying? See the <a href="../uk-late-payment-interest-calculator/">UK late payment interest calculator</a>. Also the <a href="../uk-payments-on-account-calculator/">UK payments on account calculator</a>, the <a href="../uk-self-assessment-late-penalty-calculator/">UK Self Assessment late penalty calculator</a>, the <a href="../uk-trading-allowance-calculator/">UK trading allowance calculator</a>, the <a href="../uk-dividend-tax-calculator/">UK dividend tax calculator</a>, the <a href="../uk-capital-gains-tax-calculator/">UK capital gains tax calculator</a>, the <a href="../uk-landlord-section-24-calculator/">UK landlord Section 24 calculator</a> and the <a href="../uk-take-home-pay-calculator/">UK take-home pay calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(Number(n)).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { employment: "employment", paye: "paye", tradingIncome: "tradingIncome", tradingExpenses: "tradingExpenses", rent: "rent", rentExpenses: "rentExpenses", mortgageInterest: "mortgageInterest", interest: "interest", dividends: "dividends", pensionNet: "pensionNet", giftAidNet: "giftAidNet", slPaid: "slPaid", plan: "plan", pgl: "pgl" };
+    const IDLE = "Fill in what applies, then click Work out my bill. Leave the rest blank.";
+    const DEFAULTS = { plan: "none", pgl: "no" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.total >= 0 ? (r.paymentsOnAccountDue ? `Balance ${gbp(r.total)}; with the first payment on account, ${gbp(r.jan)} is due on 31 January 2027` : `Balance due by 31 January 2027: ${gbp(r.total)}`) : `Refund due: ${gbp(-r.total)}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      const rows = [["Total income", r.totalIncome], ["Personal allowance", r.allowance], ["Taxable income", r.taxable], ["Income tax", r.incomeTax]];
+      if (r.class4Nic) rows.push(["Class 4 National Insurance", r.class4Nic]);
+      if (r.slBalance) rows.push(["Student loan still to pay", r.slBalance]);
+      rows.push(["Less PAYE already paid", -r.input.paye], ["Balance to pay with your return", r.total]);
+      if (r.paymentsOnAccountDue) rows.push(["First payment on account (31 Jan 2027)", r.poaEach], ["Total due 31 Jan 2027", r.jan], ["Second payment on account (31 Jul 2027)", r.jul]);
+      $("#tests").innerHTML = rows.map((x) => `<tr><td>${esc(x[0])}</td><td class="n">${gbp(x[1])}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: £38,000 salary with £4,700 PAYE, a side business with £22,000 income and £4,000 expenses, £900 interest and £1,500 dividends.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("self-assessment-estimate.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

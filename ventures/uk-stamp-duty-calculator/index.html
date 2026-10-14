@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Stamp Duty Calculator 2025/26 and 2026/27 (England and NI)</title>
+  <meta name="description" content="Free UK Stamp Duty (SDLT) calculator for England and Northern Ireland from April 2025: standard rates, first-time buyer relief, the 5% second home and buy-to-let rate and the 2% non-UK resident surcharge, with a band-by-band breakdown. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK Stamp Duty calculator: how much SDLT on my house? Free, private">
+  <meta property="og:description" content="Band-by-band Stamp Duty for main homes, first-time buyers, second homes and non-UK residents.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Stamp Duty Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much Stamp Duty will I pay on a house in England?", "acceptedAnswer": {"@type": "Answer", "text": "From 1 April 2025 a main home pays 0% on the first £125,000, 2% on £125,001 to £250,000, 5% on £250,001 to £925,000, 10% on £925,001 to £1.5 million and 12% above. Only the slice in each band is taxed at that band's rate."}}, {"@type": "Question", "name": "How does first-time buyer relief work?", "acceptedAnswer": {"@type": "Answer", "text": "First-time buyers pay 0% up to £300,000 and 5% on the part from £300,001 to £500,000. If the price is above £500,000 there is no relief at all and standard rates apply to the whole price."}}, {"@type": "Question", "name": "What is the extra rate for second homes and buy-to-let?", "acceptedAnswer": {"@type": "Answer", "text": "Buying an additional residential property of £40,000 or more adds 5 percentage points to every band, which in practice is 5% of the whole price on top of standard Stamp Duty."}}, {"@type": "Question", "name": "What is the non-UK resident surcharge?", "acceptedAnswer": {"@type": "Answer", "text": "Buyers who are not UK resident for Stamp Duty purposes pay an extra 2% of the price on residential purchases, on top of any other rates. Residence depends on the days you spent in the UK in the 12 months before purchase."}}, {"@type": "Question", "name": "Does this cover Scotland and Wales?", "acceptedAnswer": {"@type": "Answer", "text": "No. Scotland charges LBTT and Wales charges LTT, with different bands. This calculator covers England and Northern Ireland only."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK STAMP DUTY CALCULATOR · ENGLAND AND NORTHERN IRELAND · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much Stamp Duty will I pay on this house?</h1>
+    <p>Enter the price and what kind of buyer you are. You get the Stamp Duty Land Tax band by band, your effective and marginal rate, and the same price as a main home, a first-time buyer and an additional property so you can see what each status costs.</p>
+    <p class="note">A first read written from HMRC's published rates (in force from 1 April 2025) without a live lookup. Rates change; confirm the current text. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="price">Purchase price (&pound;)</label><input id="price" type="number" min="0" step="1"></div>
+      <div><label for="buyer">Buyer type</label><select id="buyer"><option value="main">Home to live in (only property)</option><option value="ftb">First-time buyer</option><option value="additional">Additional property (buy-to-let or second home)</option></select></div>
+      <div><label for="nonResident">Non-UK resident for Stamp Duty?</label><select id="nonResident"><option value="no">No</option><option value="yes">Yes</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out my Stamp Duty</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out my Stamp Duty.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>The numbers</h2>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Amount</th></tr></thead><tbody id="tests"></tbody></table></div>
+    <h2>What to do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> residential purchases in England and Northern Ireland at the rates from 1 April 2025: standard bands, first-time buyer relief, the 5% additional dwelling rate and the 2% non-UK resident surcharge.</li>
+      <li><strong>Gives:</strong> the tax by band, effective and marginal rate, a side-by-side of buyer types and a completion checklist.</li>
+      <li><strong>Not decided:</strong> Scotland (LBTT) and Wales (LTT), companies and trusts as buyers, leases, mixed-use or commercial land, linked transactions, shared ownership, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much Stamp Duty will I pay on a house in England?</h3>
+    <p>From 1 April 2025 a main home pays 0% on the first £125,000, 2% on £125,001 to £250,000, 5% on £250,001 to £925,000, 10% on £925,001 to £1.5 million and 12% above. Only the slice in each band is taxed at that band's rate.</p>
+    <h3>How does first-time buyer relief work?</h3>
+    <p>First-time buyers pay 0% up to £300,000 and 5% on the part from £300,001 to £500,000. If the price is above £500,000 there is no relief at all and standard rates apply to the whole price.</p>
+    <h3>What is the extra rate for second homes and buy-to-let?</h3>
+    <p>Buying an additional residential property of £40,000 or more adds 5 percentage points to every band, which in practice is 5% of the whole price on top of standard Stamp Duty.</p>
+    <h3>What is the non-UK resident surcharge?</h3>
+    <p>Buyers who are not UK resident for Stamp Duty purposes pay an extra 2% of the price on residential purchases, on top of any other rates. Residence depends on the days you spent in the UK in the 12 months before purchase.</p>
+    <h3>Does this cover Scotland and Wales?</h3>
+    <p>No. Scotland charges LBTT and Wales charges LTT, with different bands. This calculator covers England and Northern Ireland only.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or HMRC before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-landlord-section-24-calculator/">UK landlord Section 24 calculator</a>, the <a href="../uk-capital-gains-tax-calculator/">UK Capital Gains Tax calculator</a>, the <a href="../uk-inheritance-tax-calculator/">UK Inheritance Tax calculator</a> and the <a href="../uk-sole-trader-vs-limited-company-calculator/">UK sole trader vs limited company calculator</a>.</p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(Number(n)).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { price: "price", buyer: "buyer", nonResident: "nonResident" };
+    const IDLE = "Fill in the figures, then click Work out my Stamp Duty.";
+    const DEFAULTS = { buyer: "main", nonResident: "no" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `Stamp Duty to pay: ${gbp(r.tax)} (${r.effective}% of the price)`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      const rows = [...r.rows.map((x) => [`${gbp(x.from)} to ${gbp(x.to)} at ${Math.round(x.rate * 10000) / 100}%`, x.tax]), ["Stamp Duty to pay", r.tax], ["Same price as a main home", r.standardTax], ["Same price as an additional property", r.additionalTax]];
+      if (r.ftbTax !== null) rows.push(["Same price as a first-time buyer", r.ftbTax]);
+      $("#tests").innerHTML = rows.map((x) => `<tr><td>${esc(x[0])}</td><td class="n">${gbp(x[1])}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a £450,000 purchase as a UK-resident main home buyer.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-stamp-duty.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

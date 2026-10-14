@@ -1,0 +1,42 @@
+name: retirement-plan-startup-credit-calculator
+description: >-
+  Free browser tool for small employers and their CPAs: enter headcount, setup cost and employer contributions to see the SECURE 2.0 retirement plan startup credit, employer-contribution credit and auto-enrollment credit for each of the first five plan years, and the after-tax benefit. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session. Gap: solo-401k and SEP-vs-solo calculators cover owner contributions; nothing in ventures/ answers
+# "how much of setting up a plan for my employees does the IRS pay for". Gusto/Guideline/Human Interest/Ubiquity market this credit ("your plan may be free")
+# as a lead magnet; this is the free private version for any provider.
+#
+# First visitor: owner or bookkeeper of a 5-50 person business, searching "SECURE 2.0 startup credit calculator", "Form 8881", "401k tax credit small business".
+# Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet into the payroll/retirement tools; GitHub Sponsors. Paid version, not built: multi-year amortised
+# plan-cost comparison across providers, a prefilled Form 8881 worksheet export.
+#
+# Liability: rules as generally published for post-2022 plans; the indexed pay cap is editable, the page names sources, says what it leaves to the CPA, and carries
+# no-warranty and not-tax-advice clauses. Risk is mis-stating a credit; mitigated by editable fields and a kill criterion on any reported rule error.
+hypotheses:
+  - claim: >-
+      Small employers will use a free private calculator that shows the credit year by year and net of the lost deduction, and share it with their CPA.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a credit rule or cap differs from IRS Form 8881 instructions for the stated year.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/retirement-plan-startup-credit-calculator/
+  analytics: null

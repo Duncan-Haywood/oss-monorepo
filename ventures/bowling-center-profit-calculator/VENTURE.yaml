@@ -1,0 +1,49 @@
+name: bowling-center-profit-calculator
+description: >-
+  Free browser tool for people planning, buying or running a bowling center: enter lanes, opening hours, peak and off-peak lane-hour prices and utilization, league share and discount, birthday parties, food and bar, arcade and shoe rental, staff hours, rent, refurbishment cost and a loan, and see monthly profit at planned bookings, break-even lane utilization, the price change that reaches a target margin, booking, price and wage sensitivity tables, a sixty-month ramp-up with the lowest cash point and payback, and loan coverage. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session. Nearest in ventures/ are padel-club-profit-calculator (court-hours), trampoline-park-profit-calculator,
+# axe-throwing-bar-profit-calculator and arcade-game-payback-calculator. None models a bowling center's lane-hours with peak and off-peak utilization,
+# league nights at a discount, parties, a food and bar line that often outsells the lanes, break-even utilization, ramp-up reserve and payback.
+# No bowling tool in ventures/; not in screened-out.md.
+#
+# First visitor: someone buying an existing center, a family-entertainment operator adding lanes, or a manager testing a league discount; search phrases
+# "bowling alley profit calculator", "how much does a bowling alley make", "bowling center business plan", "bowling alley break even". Volume not measured with an external tool.
+#
+# Who: small independent operators and buyers raising money. Utilization by peak and off-peak, the league discount and the food and bar share are the
+# numbers a generic startup template leaves out, and weekday afternoons are the hours that decide whether the building carries its rent.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. Saved scenarios, seasonal league calendars and a lender-ready
+# export behind an env-var switch is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with every rule visible on the page. No price, utilization or market is claimed, sample figures
+# are labelled illustrative, bad input is rejected instead of clamped, and the page carries the no-warranty and not-advice clauses and lists what
+# it does not decide (catchment demand, seasonality, zoning, building and fire codes, noise, liquor licensing, equipment condition, insurance, tax, lender terms).
+
+hypotheses:
+  - claim: >-
+      A prospective buyer or current operator of a bowling center will enter lane, price and utilization figures before signing a lease or borrowing,
+      because break-even utilization and the ramp-up cash reserve are hard to see in a generic spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the profit, break-even or payback arithmetic differs from the stated rules on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bowling-center-profit-calculator/
+  analytics: null

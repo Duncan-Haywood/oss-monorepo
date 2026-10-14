@@ -1,0 +1,37 @@
+name: uk-state-pension-ni-years-checker
+description: >-
+  Free browser tool for UK adults with gaps in their National Insurance record: State Pension age, projected qualifying years, and whether buying voluntary Class 3 years pays back (cost, extra weekly pension, payback, 10-year minimum, six-year deadlines). Nothing is uploaded. Not advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no State Pension or National Insurance years tool existed in ventures/ (nearest: uk-pension-annual-allowance-calculator, which covers private pension tax relief only).
+#
+# First visitor: UK adult searching "should I buy national insurance years", "voluntary national insurance contributions worth it", "state pension gaps", "how many years do I need for full state pension". Evergreen, with demand spikes before each deadline; volume not measured. Existing results are mostly GOV.UK pages and press articles, with few interactive payback tools.
+#
+# Path to revenue (payment rails stay off): lead magnet into the other 30 UK tax and pay tools; GitHub Sponsors. Not built: reading the personal tax account record, behind an env-var switch.
+#
+# Liability: rates and rules written from memory without network access; every result tells the reader to confirm on GOV.UK and with the Future Pension Centre, carries no-warranty and not-advice clauses, and lists what it does not decide. Ethical risk is nudging someone to pay for years that bring them nothing (already at 35, means-tested benefits); mitigated by the 35-year cap, a benefit warning on every result and conservative wording.
+hypotheses:
+  - claim: >-
+      UK adults with National Insurance gaps will use a free private checker that says whether buying voluntary years pays back and by when, and download the result to take to the Future Pension Centre.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: GBP
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that State Pension age, the 35/10-year rule or a rate differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-state-pension-ni-years-checker/
+  analytics: null

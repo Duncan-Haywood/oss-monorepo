@@ -1,0 +1,39 @@
+name: uk-inheritance-tax-calculator
+description: >-
+  Free browser tool for UK families and executors: enter the estate, debts, home and gifts to a spouse or charity to see Inheritance Tax for deaths from April 2025, with the nil-rate band, residence nil-rate band and its 2 million pound taper, transferred spouse allowances and the 36 percent charity rate. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no inheritance tax tool in ventures/ (checked by name for inherit, iht, probate).
+#
+# First visitor: a UK adult planning an estate or an executor searching "inheritance tax calculator", "residence nil rate band", "inheritance tax 2025".
+# High-volume UK money query (volume not measured). Sibling audience to the stamp duty, CGT and pension tools; lead magnet for will-writing, estate-planning and probate-cost comparisons.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: an estate-planning workbook with gifting schedules behind an env-var switch.
+#
+# Liability: rates written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (7-year gifts, trusts, reliefs, pensions). Ethical risk is an understated or overstated bill; mitigated by naming the unmodelled items and sourcing.
+hypotheses:
+  - claim: >-
+      UK families and executors will use a free calculator to see their Inheritance Tax and test the effect of the residence band and charity gifts.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, rate or date differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-inheritance-tax-calculator/
+  analytics: null

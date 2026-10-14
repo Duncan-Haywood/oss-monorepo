@@ -359,6 +359,26 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'bowling-center-profit-calculator':
+    'the hourly wage prices paid front-desk, bar, kitchen and mechanic hours across the open week of a bowling center, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net center revenue.',
+  'padel-club-profit-calculator':
+    'the hourly wage prices paid front-desk, bar and cleaning hours across the open week of a padel club, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net club revenue.',
+  'indoor-play-center-profit-calculator':
+    'the hourly wage prices paid floor and cafe staff hours across the open week of a children\'s play centre, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net centre revenue.',
+  'dry-cleaner-profit-calculator':
+    'the hourly wage prices paid staff hours across a whole plant month, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the price change is an average per piece.',
+  'convenience-store-gas-station-profit-calculator':
+    'the hourly wage prices paid staff hours across a whole open store day, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and fuel margin is cents a gallon after card fees.',
+  'pet-boarding-daycare-profit-calculator':
+    'the attendant wage and payroll-extras percentage price staffed hours across every open day of a kennel, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollars, and the target margin is a pricing goal for nightly and daycare prices.',
+  'kombucha-brewery-profit-calculator':
+    'the hourly labour cost prices minutes per gallon of kombucha for a production brewery sold by the gallon, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are a monthly dollar total, and the target margin is a share of net brewery revenue.',
+  'pizzeria-profit-calculator':
+    'the hourly wage prices paid staff hours across a whole open day of a pizzeria, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net shop revenue.',
+  'boba-tea-shop-profit-calculator':
+    'the hourly wage prices paid staff hours across a whole open day of a drink shop, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net shop revenue.',
+  'ice-cream-shop-seasonal-profit-calculator':
+    'the hourly wage and payroll-extras percentage price counter staff across every open day of a seasonal ice cream shop, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are a monthly dollar total, and there is no target margin.',
   'hydroponic-farm-profit-calculator':
     'the hourly labour cost prices minutes per head of lettuce for a farm sold by the head, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are a monthly dollar total, and the target margin is a share of net farm revenue.',
   'self-serve-dog-wash-profit-calculator':

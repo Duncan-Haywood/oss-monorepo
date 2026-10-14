@@ -1,0 +1,37 @@
+name: uk-tax-free-childcare-calculator
+description: >-
+  Free browser tool for working parents in England: enter childcare hours, hourly rates and each parent's income to see whether you qualify for the 15/30 free hours and Tax-Free Childcare, the value of free hours, the 20% government top-up (capped £2,000 a child), the monthly bill and the Universal Credit childcare alternative. Flags the £100,000 income cliff. Nothing is uploaded. Not advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; duplicate_check.py closest matches were dependent-care-fsa-vs-credit-calculator (0.28, US) and uk-100k-tax-trap-calculator (0.28, mentions the childcare cliff but not the schemes) -- neither covers the English free-hours and Tax-Free Childcare regime.
+#
+# First visitor: a UK parent with a nursery bill searching "tax free childcare calculator", "30 hours free childcare calculator", "tax free childcare vs universal credit childcare", plus r/UKPersonalFinance and r/beyondthebump_UK threads on nursery costs. Very high, evergreen search volume (GOV.UK's own calculator is the main incumbent and does not model hours, rates or the Universal Credit comparison); volume not measured here.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: household childcare planner with year-ahead term dates behind an env-var switch.
+#
+# Liability: 2025/26 minimum wage and the top-up rules are from GOV.UK; 2026/27 minimum wage (12.71) and Universal Credit caps are flagged unverified in the tool, and the user can override the wage. Every result names GOV.UK as the source to verify, carries no-warranty and not-advice clauses, and refuses Scotland, Wales and Northern Ireland free-hours rules rather than guess.
+hypotheses:
+  - claim: >-
+      UK working parents will use a free calculator to see their childcare bill after free hours and the 20% top-up, and to compare it with Universal Credit childcare.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, cap or rule differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-tax-free-childcare-calculator/
+  analytics: null
