@@ -1608,6 +1608,11 @@
      "slug": "selfrep-reconcile",
      "title": "Why do two exact extinction chains of the same printer shop disagree?",
      "summary": "Two sibling chains of the lone replicating printer shop, one on fleet size and one on machines and vitamin kits, give different mean extinction times for the same inputs. Stylised, with assumed inputs, the fleet-size chain is longer by 1.5 to 7 times because its birth law min(n/W, a) lets machines and kits never wait for each other. A fixed-in-advance repair that adds the two waits matches the kit chain within 5% when the fleet stays at 1 to 3 machines, but falls 24 to 60% below it for larger fleets, where kits pool in stock. No law right in both regimes was derived."
+    },
+    {
+     "slug": "selfrep-redesign",
+     "title": "Which part substitutions cut a printer's vitamins most, within a performance budget?",
+     "summary": "Follow-up to selfrep-closure that changes the machine instead of the shop. Seven assumed substitutions (printed bushings and nuts, wooden rods, a printed drive) are searched exhaustively, greedily and at random under an assumed penalty budget. All seven together take the Prusa Mendel&rsquo;s vitamin lines from 29 to 19 and closure from 43/22/16% to 60/36/48% (lines/mass/cost) for the printer, router and laser shop; mass closure stays below 36% because motors, electronics and threaded rods remain. Cost closure responds most, and the best set depends on the assumed penalties. Stylised: substitutions, masses and penalties are all assumed and no part was tested."
     }
    ]
   },
