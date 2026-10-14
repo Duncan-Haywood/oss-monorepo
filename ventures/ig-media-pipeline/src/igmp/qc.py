@@ -7,17 +7,24 @@ recommend reels that are "muted or contain borders", low-resolution, mostly text
 audiences) over 3 minutes. check_reel() measures those things; a reel that fails is revised
 without spending a critic call, and the critic only sees reels that are technically fit to post.
 
-    report = qc.check_reel(video, cfg, allow_silent=plan.music is None, plan=plan, kinds=kinds)
+    problems = qc.check_plan(plan)                         # before rendering: list[Finding]
+    report = qc.check_reel(draft_video, cfg, band=None, allow_silent=plan.music is None, draft=True)
     if not report.passed:
-        ...revise from report.notes(), no critic call...
+        ...revise from report.summary_for_llm(), no critic call...
+
+check_plan(plan) and check_reel(path, cfg, band=None, *, allow_silent=False, draft=False) are
+the interface the renderer calls (it imports this module lazily; this module imports nothing from
+render). cfg may be the package Config or None: only cfg.ffmpeg / cfg.ffprobe are read, if they
+exist. summary_for_llm() lists only the failed and warned rules, one bullet each with numbers;
+findings_for_llm() does the same for check_plan()'s list.
 
 Rules (Finding.rule; severity "fail" blocks, "warn" and "info" are reported only):
   format.video       fail  a video stream exists
   format.resolution  fail  1080x1920 (720x1280 is a warn: accepted, but soft on a phone)
   format.fps         fail  29.97-60 fps
-  format.pix_fmt     fail  yuv420p
-  format.codec       fail  h264 or hevc
-  format.bitrate     warn  video 6-25 Mb/s
+  format.pix_fmt     fail  yuv420p                          (info with draft=True)
+  format.codec       fail  h264 or hevc                     (info with draft=True)
+  format.bitrate     warn  video 6-25 Mb/s                  (info with draft=True)
   audio_present      fail  an audio stream exists           (warn with allow_silent=True)
   audio_silent       fail  it is not silent: max_volume > -60 dB and integrated > -60 LUFS
                            (warn with allow_silent=True: the user adds an Instagram sound)
@@ -94,15 +101,30 @@ night sky move almost no mean energy (0.1-0.3 levels), so a Ken Burns over a sta
 frozen. So a frame has changed when the means of its 4x4 blocks moved by > FREEZE_MAD on average
 (keyframe noise and grain average out, moving structure does not: keyframe jumps measure
 0.17/0.28/0.49 at CRF 18/23/28, a push-in on a hazy picture passes 0.6 within a quarter second),
-or when more than FREEZE_PIX_SHARE of its pixels changed by > FREEZE_PIX_DELTA (stars; keyframe
-noise never does). After the first second frames are read at 15 fps, so a stretch is measured as
+or when, inside dark blocks (mean < FREEZE_DARK), more than FREEZE_PIX_SHARE of the pixels
+changed by > FREEZE_PIX_DELTA (drifting stars: 0.18-0.7% of pixels, and 0.08-0.10% for the faint
+stars of a fit shot; a low-bitrate encoder refining a photo stays under 0.02%, because that
+happens on texture, not on black sky; sharp synthetic edges on black at 2 Mb/s reach 0.06%). After the first second frames are read at 15 fps, so a stretch is measured as
 a lower bound (exact at 30 fps): a still held for exactly 1.5 s never reads as longer.
 Calibration on render_reel output: a photo with zoom_from == zoom_to is frozen for its whole
 2 s; the default push on a busy, a hazy and a night-sky photo, a fit shot of each, a pan and a
 video are not. Known limit: a starfield of only very faint stars (under ~8 levels above the sky
 at 270x480, no Milky Way, horizon or glow) zooming slowly can still read as frozen.
 
-CLI: python -m igmp.qc <file-or-dir> [--band short|medium|long] [--allow-silent] [--json]
+Drafts
+------
+The renderer checks a draft (h264_videotoolbox, 1x work scale, maybe a lower bitrate). With
+draft=True the encoder's own choices (pix_fmt, codec, bitrate) are info. The picture checks were
+re-run on soft, low-bitrate stand-ins (x264 without adaptive quantisation or psy tuning, strong
+deblocking, 2 and 4 Mb/s, also blurred first, and CRF 35). Borders: the same bars to within 8 px,
+and no bar on a starfield, a fit background or a gradient. Hook: Ken Burns pushes 0.07-0.32 on
+photos (not a hook); pans 0.95-1.00, testsrc2 0.56-0.65 and cuts are hooks. Frozen: held stills and photos read frozen,
+pushes and pans do not. One miss at 2 Mb/s: a held frame of sharp detail on black is refined by the
+encoder in its dark blocks (0.06%) until the stretch splits at a keyframe. At 4 Mb/s it reads
+frozen. A miss costs a critic call; the alternative, a frozen fail on a faint night sky, would cost a
+pointless revision. So encode drafts at 4 Mb/s or more (videotoolbox: 6-8 Mb/s).
+
+CLI: python -m igmp.qc <file-or-dir> [--band short|medium|long] [--allow-silent] [--draft] [--json]
 Exit status 0 when every reel passed, 1 when one failed, 2 when one could not be read.
 """
 from __future__ import annotations
@@ -119,14 +141,15 @@ import time
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, computed_field
 
-from .config import Config
 from .media import MediaError
-from .render import FPS, OUT_H, OUT_W, frames_for, parse_ebur128
+
+if TYPE_CHECKING:
+    from .config import Config
 
 Severity = Literal["fail", "warn", "info"]
 Band = Literal["short", "medium", "long"]
@@ -135,20 +158,25 @@ Band = Literal["short", "medium", "long"]
 # Starting points, calibrated on synthetic clips (tests/test_qc.py). Tune them on real reels:
 # run `python -m igmp.qc reels/ --json` over shipped and set-aside reels and look at the values.
 
+# render.py's output, restated so that importing qc never imports the renderer (render imports
+# qc lazily, and is being refactored): 1080x1920 at 30 fps, a shot gets round(duration * 30) frames
+OUT_W, OUT_H, FPS = 1080, 1920, 30
+
 ANALYSIS_LONG_EDGE = 480      # analysis frames: grey, long edge 480 px (270x480 for a reel)
 HOOK_FPS = 30                 # the first second (the hook) is read at 30 fps...
 HOOK_SECONDS = 1.0
 FREEZE_STEP = 2               # ...the rest at every 2nd frame (15 fps): half the scaling work
 SAMPLE_FPS = 2.0              # frames kept for borders
 
-# format
+# format (with draft=True the encoder-dependent ones, marked *, are reported as info only)
 SIZE = (OUT_W, OUT_H)         # 1080x1920
 SIZE_SOFT = (720, 1280)       # accepted with a warning
 FPS_MIN, FPS_MAX = 29.97, 60.0
 FPS_TOL = 0.01
-PIX_FMT = "yuv420p"
-CODECS = ("h264", "hevc")
-BITRATE_KBPS = (6000.0, 25000.0)
+PIX_FMT = "yuv420p"            # *
+CODECS = ("h264", "hevc")     # *
+BITRATE_KBPS = (6000.0, 25000.0)   # *
+DRAFT_INFO_RULES = ("format.pix_fmt", "format.codec", "format.bitrate")
 
 # sound
 SILENT_MAX_DB = -60.0         # volumedetect max_volume at or below this is silence
@@ -180,8 +208,9 @@ CUT_RATIO = 4.0               # ...and by this many times the typical pair
 # frozen (each frame against the FIRST frame of the stretch, so slow moves accumulate)
 FREEZE_BLOCK = 4              # coarse comparison on 4x4-px block means (16 px at 1080 wide)...
 FREEZE_MAD = 0.6              # ...changed when their mean |difference| is over this (grey levels)
-FREEZE_PIX_DELTA = 8          # or when more than FREEZE_PIX_SHARE of the pixels move this much
-FREEZE_PIX_SHARE = 0.0005     # (0.05%, 65 px of 270x480: a few drifting stars)
+FREEZE_PIX_DELTA = 8          # or when, inside dark blocks (mean < FREEZE_DARK), more than
+FREEZE_PIX_SHARE = 0.0005     # FREEZE_PIX_SHARE of all pixels moved this much (0.05%, 65 px of 270x480:
+FREEZE_DARK = 48              # a few drifting stars; low-bitrate codec steps on texture stay out)
 FREEZE_MAX_S = 1.5
 FREEZE_REPORT_S = 1.0         # stretches this long are listed in the finding
 
@@ -224,6 +253,7 @@ class QCReport(BaseModel):
     bitrate_kbps: float | None
     audio: dict[str, Any]
     findings: list[Finding]
+    draft: bool = False
     elapsed_s: float = 0.0
 
     @computed_field
@@ -247,6 +277,15 @@ class QCReport(BaseModel):
         bad = self.failures + (self.warnings if warnings else [])
         return [f"{f.rule}: {f.detail}" for f in bad]
 
+    def summary_for_llm(self) -> str:
+        """The failed and warned rules only, one bullet each with its numbers, under a one-line
+        head: for pasting into a revision prompt as facts. Info findings are left out."""
+        bad = self.failures + self.warnings
+        head = (f"Reel QC {'passed' if self.passed else 'FAILED'}: {len(self.failures)} failed, "
+                f"{len(self.warnings)} warned ({self.width}x{self.height}, {self.duration_s:.2f} s, "
+                f"{self.fps:g} fps{', draft' if self.draft else ''})")
+        return head if not bad else head + "\n" + findings_for_llm(bad)
+
     def summary(self) -> str:
         head = (f"{'PASS' if self.passed else 'FAIL'}  {self.path}  {self.width}x{self.height} "
                 f"{self.fps:.2f} fps {self.duration_s:.2f} s  ({self.elapsed_s:.1f} s)")
@@ -257,18 +296,43 @@ class QCReport(BaseModel):
         return "\n".join(lines)
 
 
+def frames_for(seconds: float) -> int:
+    """Frames a shot of this length gets at 30 fps (at least one): render.frames_for."""
+    return max(1, round(seconds * FPS))
+
+
+def parse_ebur128(stderr: str) -> tuple[float, float]:
+    """(integrated LUFS, true peak dBTP) from ebur128's summary: render.parse_ebur128."""
+    summary = stderr[stderr.rfind("Summary:"):]
+    i = re.search(r"I:\s+(-?[\d.]+|-inf) LUFS", summary)
+    tp = re.search(r"Peak:\s+(-?[\d.]+|-?inf) dBFS", summary)
+    if not i or not tp:
+        raise RuntimeError("no ebur128 summary in ffmpeg output")
+    return float(i.group(1)), float(tp.group(1))
+
+
 def _f(rule: str, ok: bool, severity: Severity, detail: str, value: Any = None) -> Finding:
     return Finding(rule=rule, ok=ok, severity=severity, detail=detail, value=value)
+
+
+def findings_for_llm(findings: Iterable[Finding]) -> str:
+    """Bullets for the failed and warned findings, failures first ("" when there are none). Works
+    on check_plan()'s list as well as on QCReport.findings."""
+    bad = [f for f in findings if not f.ok and f.severity in ("fail", "warn")]
+    bad.sort(key=lambda f: f.severity != "fail")
+    return "\n".join(f"- {f.severity.upper()} {f.rule}: {f.detail}" for f in bad)
 
 
 # --------------------------------------------------------------------------- probing
 
 
-def _tools(cfg: Config | None) -> tuple[str, str]:
-    if cfg is not None:
-        return cfg.ffmpeg, cfg.ffprobe
-
+def _tools(cfg: Any) -> tuple[str, str]:
+    """ffmpeg and ffprobe: cfg.ffmpeg / cfg.ffprobe when cfg has them (the package Config does),
+    else from PATH or Homebrew. No other config field is read."""
     def find(name: str) -> str:
+        given = getattr(cfg, name, None)
+        if given:
+            return str(given)
         return shutil.which(name) or next(
             (p for p in (f"/opt/homebrew/bin/{name}", f"/usr/local/bin/{name}") if Path(p).exists()), name)
     return find("ffmpeg"), find("ffprobe")
@@ -384,8 +448,9 @@ class FreezeTracker:
     ffmpeg freezedetect, each frame is compared with the FIRST frame of the current stretch, so a
     slow move adds up until it shows. Two tests instead of freezedetect's one mean difference:
     block means (codec noise, such as the small jump at every keyframe of a still, and grain
-    average out; structure that moves does not), and a count of pixels that changed a lot (stars
-    drifting in a night sky move almost no mean energy).
+    average out; structure that moves does not), and a count of pixels that changed a lot inside
+    dark blocks (stars drifting in a night sky move almost no mean energy; counting only dark
+    blocks keeps a low-bitrate encoder's refinement of textured detail out).
 
     A stretch runs from its first frame to the last frame that still matched, plus one 30 fps
     frame: with frames sampled every 1/15 s that is a lower bound, exact at 30 fps, so a still
@@ -394,6 +459,7 @@ class FreezeTracker:
     def __init__(self) -> None:
         self.ref: np.ndarray | None = None              # uint8 frame (kept, not copied: do not modify)
         self.ref_blocks: np.ndarray | None = None
+        self.ref_dark: np.ndarray | None = None          # blocks dark enough for the sparse test
         self.ref_t = 0.0
         self.same_t = 0.0                               # time of the last frame that matched ref
         self.frames = 0
@@ -412,8 +478,11 @@ class FreezeTracker:
         mad = np.abs(blocks.astype(np.int32) - self.ref_blocks).mean() / FREEZE_BLOCK ** 2
         if mad > FREEZE_MAD:
             return True
+        if not self.ref_dark.any():
+            return False
         diff = np.maximum(frame, self.ref) - np.minimum(frame, self.ref)    # |a - b| in uint8
-        return np.count_nonzero(diff > FREEZE_PIX_DELTA) > FREEZE_PIX_SHARE * frame.size
+        moved = self.blocks(diff > FREEZE_PIX_DELTA)                        # per block
+        return int(moved[self.ref_dark].sum()) > FREEZE_PIX_SHARE * frame.size
 
     def _close(self) -> None:
         end = self.same_t + 1 / HOOK_FPS
@@ -426,6 +495,7 @@ class FreezeTracker:
             if self.ref is not None:
                 self._close()
             self.ref, self.ref_blocks, self.ref_t = frame, blocks, t
+            self.ref_dark = blocks < FREEZE_DARK * FREEZE_BLOCK ** 2
         self.same_t = t
         self.frames += 1
 
@@ -655,9 +725,17 @@ def _in_band(seconds: float, band: str) -> bool:
 # --------------------------------------------------------------------------- rules
 
 
-def _format_findings(v: dict | None) -> list[Finding]:
+def _format_findings(v: dict | None, draft: bool = False) -> list[Finding]:
     if not v:
         return [_f("format.video", False, "fail", "no video stream")]
+    out = _format_rules(v)
+    if draft:      # a draft's encoder (videotoolbox, lower bitrate) is not the final one
+        out = [f.model_copy(update={"severity": "info", "detail": f.detail + ("" if f.ok else " (draft)")})
+               if f.rule in DRAFT_INFO_RULES else f for f in out]
+    return out
+
+
+def _format_rules(v: dict) -> list[Finding]:
     out = [_f("format.video", True, "fail", f"{v['codec']} video stream")]
     size = (v["width"], v["height"])
     if size == SIZE:
@@ -818,7 +896,7 @@ def _xy(p: Any) -> tuple[float, float] | None:
     return float(_get(p, "x", 0.5)), float(_get(p, "y", 0.5))
 
 
-def check_plan(plan: Any, kinds: Mapping[str, Any] | None = None) -> list[Finding]:
+def check_plan(plan: Any, *, kinds: Mapping[str, Any] | None = None) -> list[Finding]:
     """Checks on a ReelPlan (or anything with .shots[*].layout / .duration_s): fit shots at most
     FIT_MAX_SHARE of the runtime and none starting before FIT_EARLIEST_S; a warning for a fill
     photo shot that does not move. kinds maps asset_id to a kind ("photo", "video", ...) or to
@@ -876,14 +954,16 @@ def check_plan(plan: Any, kinds: Mapping[str, Any] | None = None) -> list[Findin
 # --------------------------------------------------------------------------- entry points
 
 
-def check_reel(path: str | Path, cfg: Config | None = None, *, band: Band | None = None,
-               allow_silent: bool = False, plan: Any = None,
+def check_reel(path: str | Path, cfg: Config | None = None, band: Band | None = None, *,
+               allow_silent: bool = False, draft: bool = False, plan: Any = None,
                kinds: Mapping[str, Any] | None = None) -> QCReport:
     """Run every rule on a rendered reel (read-only; temp files go to a private temp dir).
+    cfg: the package Config or None; only its ffmpeg/ffprobe paths are read, if present.
     band: "short" | "medium" | "long" to require that duration band. allow_silent: silence (or
     no audio stream) is a warning, for reels whose sound is added in the Instagram app.
-    plan / kinds: also run check_plan() and add its findings. Raises MediaError when the file
-    cannot be read at all."""
+    draft: a draft render (h264_videotoolbox, 1x work scale, maybe a lower bitrate): pix_fmt,
+    codec and bitrate findings become info. plan / kinds: also run check_plan() and add its
+    findings. Raises MediaError when the file cannot be read at all."""
     if band is not None and band not in BANDS:
         raise ValueError(f"band must be one of {', '.join(BANDS)}")
     t0 = time.perf_counter()
@@ -892,7 +972,7 @@ def check_reel(path: str | Path, cfg: Config | None = None, *, band: Band | None
     facts = probe_reel(p, ffprobe)
     v = facts["video"]
     dec = decode(p, facts, ffmpeg)
-    findings = _format_findings(v)
+    findings = _format_findings(v, draft)
     audio_findings, audio = _audio_findings(facts["audio"], dec, allow_silent)
     findings += audio_findings
     duration = (v["duration"] if v else None) or facts["format_duration"]
@@ -902,12 +982,13 @@ def check_reel(path: str | Path, cfg: Config | None = None, *, band: Band | None
     if v:
         findings.append(_loop_finding(dec))
     if plan is not None:
-        findings += check_plan(plan, kinds)
+        findings += check_plan(plan, kinds=kinds)
     return QCReport(path=str(p), duration_s=round(duration, 3), width=v["width"] if v else 0,
                     height=v["height"] if v else 0, fps=round(v["fps"], 3) if v else 0.0,
                     video_codec=v["codec"] if v else "",
                     bitrate_kbps=round(v["bitrate"] / 1000, 1) if v and v["bitrate"] else None,
-                    audio=audio, findings=findings, elapsed_s=round(time.perf_counter() - t0, 3))
+                    audio=audio, findings=findings, draft=draft,
+                    elapsed_s=round(time.perf_counter() - t0, 3))
 
 
 def _targets(arg: Path) -> list[Path]:
@@ -924,6 +1005,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     ap.add_argument("--band", choices=list(BANDS), help="require this duration band")
     ap.add_argument("--allow-silent", action="store_true",
                     help="silence is a warning (a sound is added in the Instagram app)")
+    ap.add_argument("--draft", action="store_true", help="a draft render: pix_fmt, codec and bitrate are info")
     ap.add_argument("--json", action="store_true", help="print JSON reports")
     args = ap.parse_args(list(argv) if argv is not None else None)
     targets = _targets(args.path)
@@ -933,7 +1015,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     reports, status = [], 0
     for t in targets:
         try:
-            r = check_reel(t, band=args.band, allow_silent=args.allow_silent)
+            r = check_reel(t, None, args.band, allow_silent=args.allow_silent, draft=args.draft)
         except (MediaError, OSError) as e:
             print(f"ERROR {t}: {e}", file=sys.stderr)
             status = 2

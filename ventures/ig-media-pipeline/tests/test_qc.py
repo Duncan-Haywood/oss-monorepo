@@ -2,6 +2,7 @@
 (both the passing and the failing side), check_plan, and the command line."""
 from __future__ import annotations
 
+import inspect
 import json
 import os
 import shutil
@@ -24,6 +25,12 @@ HAVE_FFMPEG = Path(FFMPEG).exists() and Path(FFPROBE).exists()
 needs_ffmpeg = pytest.mark.skipif(not HAVE_FFMPEG, reason="ffmpeg not installed")
 
 X264 = ["-c:v", "libx264", "-preset", "ultrafast", "-crf", "23", "-pix_fmt", "yuv420p"]
+# a stand-in for the Mac's draft encode (h264_videotoolbox, maybe a low bitrate): 2 Mb/s at 1080x1920
+# with no adaptive quantisation or psy tuning and strong deblocking, so detail is soft and smeared
+SOFT = ["-c:v", "libx264", "-preset", "veryfast", "-b:v", "2M", "-maxrate", "2M", "-bufsize", "4M",
+        "-x264-params", "aq-mode=0:psy=0:deblock=2,2", "-g", "60", "-pix_fmt", "yuv420p"]
+SOFT_4M = ["-c:v", "libx264", "-preset", "veryfast", "-b:v", "4M", "-maxrate", "4M", "-bufsize", "8M",
+           "-x264-params", "aq-mode=0:psy=0:deblock=2,2", "-g", "60", "-pix_fmt", "yuv420p"]
 TONE = "aevalsrc={a}*sin(2*PI*1000*t)|{a}*sin(2*PI*1000*t):s=48000:d={d}"   # 0.2 -> -14.0 LUFS
 
 
@@ -237,7 +244,7 @@ def _rules(findings):
 def test_check_plan_fit_share_and_start():
     ok = plan_of(Shot(asset_id="v", duration_s=4), Shot(asset_id="w", duration_s=2, layout="fit"),
                  Shot(asset_id="p", duration_s=4, zoom_from=1.0, zoom_to=1.08))
-    r = _rules(qc.check_plan(ok, {"v": "video", "w": "photo", "p": "photo"}))
+    r = _rules(qc.check_plan(ok, kinds={"v": "video", "w": "photo", "p": "photo"}))
     assert r["plan.fit_share"].ok and r["plan.fit_share"].value == 0.2     # exactly 20% passes
     assert r["plan.fit_start"].ok and r["plan.static_photo"].ok
     too_much = plan_of(Shot(asset_id="v", duration_s=4), Shot(asset_id="w", duration_s=3, layout="fit"),
@@ -258,10 +265,10 @@ def test_check_plan_static_photos():
              Shot(asset_id="v", duration_s=2, zoom_from=1.0, zoom_to=1.0),                        # video
              Shot(asset_id="f", duration_s=2, zoom_from=1.0, zoom_to=1.0, layout="fit")]          # not fill
     kinds = {"p": "photo", "q": "photo", "v": "video", "f": "photo"}
-    f = _rules(qc.check_plan(plan_of(*shots), kinds))["plan.static_photo"]
+    f = _rules(qc.check_plan(plan_of(*shots), kinds=kinds))["plan.static_photo"]
     assert not f.ok and f.severity == "warn" and f.value == [0]
     assets = {k: SimpleNamespace(kind=v) for k, v in kinds.items()}        # Assets work as kinds too
-    assert _rules(qc.check_plan(plan_of(*shots), assets))["plan.static_photo"].value == [0]
+    assert _rules(qc.check_plan(plan_of(*shots), kinds=assets))["plan.static_photo"].value == [0]
     unknown = _rules(qc.check_plan(plan_of(*shots)))["plan.static_photo"]
     assert unknown.ok and unknown.severity == "info" and unknown.value == [0, 2]
 
@@ -285,8 +292,8 @@ def ff(*args) -> None:
 class Media:
     """Test reels, each made on first use in one temp dir for the whole module."""
 
-    def __init__(self, root: Path):
-        self.root = root
+    def __init__(self, root: Path, enc: list[str] = X264):
+        self.root, self.enc = root, enc
 
     def image(self, name: str, img: np.ndarray) -> Path:
         p = self.root / f"{name}.bmp"         # BMP: ffmpeg's -loop 1 decodes the file for every frame
@@ -300,7 +307,8 @@ class Media:
             getattr(self, "make_" + name)(out)
         return out
 
-    def _testsrc(self, out, size="1080x1920", rate=30, d=8, audio=0.2, vf=None, enc=X264):
+    def _testsrc(self, out, size="1080x1920", rate=30, d=8, audio=0.2, vf=None, enc=None):
+        enc = enc or self.enc
         args = ["-f", "lavfi", "-i", f"testsrc2=size={size}:rate={rate}:duration={d}"]
         if audio is not None:
             args += ["-f", "lavfi", "-i", TONE.format(a=audio, d=d)]
@@ -314,7 +322,7 @@ class Media:
 
     def make_silent(self, out):          # what render_reel makes without music: a silent AAC track
         ff("-f", "lavfi", "-i", "testsrc2=size=1080x1920:rate=30:duration=8", "-f", "lavfi", "-i",
-           "anullsrc=r=48000:cl=stereo", "-t", 8, *X264, "-c:a", "aac", out)
+           "anullsrc=r=48000:cl=stereo", "-t", 8, *self.enc, "-c:a", "aac", out)
 
     def make_quiet(self, out):           # -50 LUFS: not silent, but far off -14
         self._testsrc(out, audio=0.003)
@@ -351,7 +359,7 @@ class Media:
         self._testsrc(out, size="1080x1872", d=3, vf="pad=1080:1920:0:24:black")
 
     def _loop(self, out, still: Path, d: float = 2.0, vf: str | None = None):
-        ff("-loop", 1, "-framerate", 30, "-t", d, "-i", still, *(["-vf", vf] if vf else []), *X264, out)
+        ff("-loop", 1, "-framerate", 30, "-t", d, "-i", still, *(["-vf", vf] if vf else []), *self.enc, out)
 
     def make_starfield(self, out):       # a still night sky: dark edges everywhere, stars
         self._loop(out, self.image("stars", starfield(1920, 1080, 3)))
@@ -368,7 +376,7 @@ class Media:
         ff("-loop", 1, "-framerate", 30, "-t", 2, "-i", self.image("photo32", photo), "-filter_complex",
            "[0]split[a][b];[a]scale=-2:480,crop=270:480,gblur=sigma=8,scale=1080:1920:flags=bicubic,"
            "colorchannelmixer=rr=0.78:gg=0.78:bb=0.78[bg];[b]scale=1080:720[fg];[bg][fg]overlay=0:523",
-           *X264, out)
+           *self.enc, out)
 
     def make_still(self, out):           # a photo held 2 s, no move
         self._loop(out, self.image("tall", pink(1920, 1080, 61)))
@@ -376,12 +384,12 @@ class Media:
     def make_kenburns(self, out):        # render's default push: zoom 1.00 -> 1.08 over 2 s (zoompan at 2x)
         ff("-i", self.image("tall", pink(1920, 1080, 61)), "-vf",
            "scale=2160:3840:flags=bicubic,zoompan=z='pow(1.08,on/59)':d=60:s=1080x1920:fps=30:"
-           "x='iw/2-iw/zoom/2':y='ih/2-ih/zoom/2'", "-frames:v", 60, *X264, out)
+           "x='iw/2-iw/zoom/2':y='ih/2-ih/zoom/2'", "-frames:v", 60, *self.enc, out)
 
     def make_night_kenburns(self, out):  # the same push over a night sky
         ff("-i", self.image("stars", starfield(1920, 1080, 3)), "-vf",
            "scale=2160:3840:flags=bicubic,zoompan=z='pow(1.08,on/59)':d=60:s=1080x1920:fps=30:"
-           "x='iw/2-iw/zoom/2':y='ih/2-ih/zoom/2'", "-frames:v", 60, *X264, out)
+           "x='iw/2-iw/zoom/2':y='ih/2-ih/zoom/2'", "-frames:v", 60, *self.enc, out)
 
     def make_pan(self, out):             # a slow pan across a wide photo: 4 px/frame at 1080
         self._loop(out, self.image("wide", pink(1920, 2880, 62)), vf="crop=1080:1920:x='120*t':y=0")
@@ -389,11 +397,11 @@ class Media:
     def make_cut(self, out):             # still A for 0.5 s, hard cut, still B for 1.5 s
         a, b = self.image("tall", pink(1920, 1080, 61)), self.image("other", pink(1920, 1080, 63, contrast=30))
         ff("-loop", 1, "-framerate", 30, "-t", 0.5, "-i", a, "-loop", 1, "-framerate", 30, "-t", 1.5, "-i", b,
-           "-filter_complex", "[0][1]concat=n=2:v=1:a=0", *X264, out)
+           "-filter_complex", "[0][1]concat=n=2:v=1:a=0", *self.enc, out)
 
     def make_hold(self, out):            # a clip that ends early and holds its last frame for 2 s
         ff("-f", "lavfi", "-i", "testsrc2=size=1080x1920:rate=30:duration=1",
-           "-vf", "tpad=stop_mode=clone:stop_duration=2", *X264, out)
+           "-vf", "tpad=stop_mode=clone:stop_duration=2", *self.enc, out)
 
 
 @pytest.fixture(scope="module")
@@ -401,6 +409,21 @@ def media(tmp_path_factory) -> Media:
     if not HAVE_FFMPEG:
         pytest.skip("ffmpeg not installed")
     return Media(tmp_path_factory.mktemp("qc-media"))
+
+
+@pytest.fixture(scope="module")
+def soft(tmp_path_factory) -> Media:
+    """The same reels encoded like a soft, low-bitrate draft."""
+    if not HAVE_FFMPEG:
+        pytest.skip("ffmpeg not installed")
+    return Media(tmp_path_factory.mktemp("qc-soft"), SOFT)
+
+
+@pytest.fixture(scope="module")
+def soft4(tmp_path_factory) -> Media:
+    if not HAVE_FFMPEG:
+        pytest.skip("ffmpeg not installed")
+    return Media(tmp_path_factory.mktemp("qc-soft4"), SOFT_4M)
 
 
 @pytest.fixture(scope="module")
@@ -583,6 +606,102 @@ def test_inputs_are_left_alone(media, cfg):
     assert (p.stat().st_mtime_ns, p.stat().st_size, sorted(p.parent.iterdir())) == before
 
 
+# --------------------------------------------------------------------------- the renderer's interface
+
+
+def test_interface_the_renderer_calls():
+    """The Mac renderer imports qc lazily and calls check_plan(plan) before rendering and
+    check_reel(path, cfg, band=None, *, allow_silent=..., draft=...) on the draft."""
+    plan_params = list(inspect.signature(qc.check_plan).parameters.values())
+    assert plan_params[0].name == "plan" and all(p.kind is p.KEYWORD_ONLY for p in plan_params[1:])
+    reel = inspect.signature(qc.check_reel).parameters
+    assert list(reel)[:3] == ["path", "cfg", "band"] and reel["band"].default is None
+    assert reel["cfg"].kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
+    for name in ("allow_silent", "draft"):
+        assert reel[name].kind is inspect.Parameter.KEYWORD_ONLY and reel[name].default is False
+    assert all(isinstance(f, qc.Finding) for f in qc.check_plan(plan_of(Shot(asset_id="a", duration_s=6))))
+    # importing qc must not import the renderer, which imports qc
+    root = Path(__file__).resolve().parents[1]
+    out = subprocess.run([sys.executable, "-c", "import sys, igmp.qc; print('igmp.render' in sys.modules)"],
+                         capture_output=True, text=True, check=True, cwd=root,
+                         env={**os.environ, "PYTHONPATH": str(root / "src")})
+    assert out.stdout.strip() == "False"
+
+
+@needs_ffmpeg
+def test_cfg_may_be_none_or_have_no_fields(media):
+    p = media("good")
+    for cfg in (None, SimpleNamespace(), SimpleNamespace(ffmpeg=FFMPEG, ffprobe=FFPROBE),
+                Config(library_roots=[], output_dir=Path("/nonexistent"), ffmpeg=FFMPEG, ffprobe=FFPROBE)):
+        assert qc.check_reel(p, cfg, None).passed
+
+
+@needs_ffmpeg
+def test_summary_for_llm(media, cfg):
+    good = qc.check_reel(media("good"), cfg)
+    assert good.summary_for_llm() == "Reel QC passed: 0 failed, 0 warned (1080x1920, 8.00 s, 30 fps)"
+    quiet = qc.check_reel(media("quiet"), cfg).summary_for_llm().splitlines()
+    assert quiet[0].startswith("Reel QC passed: 0 failed, 1 warned")
+    assert quiet[1:] == ["- WARN loudness: -50.5 LUFS integrated; target -14 +-2"]
+    text = qc.check_reel(media("still"), cfg).summary_for_llm()
+    head, *bullets = text.splitlines()
+    assert head.startswith("Reel QC FAILED: 5 failed")
+    severities = [b.split()[1] for b in bullets]
+    assert all(b.startswith("- ") for b in bullets) and severities == sorted(severities)   # FAILs first
+    rules = {b.split()[2].rstrip(":") for b in bullets}
+    assert {"audio_present", "audio_silent", "hook_motion", "frozen", "duration_band"} <= rules
+    assert not rules & {"borders", "loop", "format.codec"}                                  # only what is wrong
+    assert "speed 0.00 px/frame" in text and "0.00-2.00 s (2.00 s)" in text and "2.0 s: under 5 s" in text
+    plan = plan_of(Shot(asset_id="v", duration_s=4), Shot(asset_id="w", duration_s=3, layout="fit"),
+                   Shot(asset_id="p", duration_s=3))
+    assert qc.findings_for_llm(qc.check_plan(plan)) == (
+        "- FAIL plan.fit_share: fit shots 3.00 s of 10.00 s (30%); at most 20%: crop some to fill")
+    assert qc.findings_for_llm([]) == ""
+
+
+@needs_ffmpeg
+def test_draft_makes_encoder_findings_info(soft, media, cfg):
+    p = soft("good")                                             # 2 Mb/s: under the 6 Mb/s floor
+    by = {f.rule: f for f in qc.check_reel(p, cfg).findings}
+    assert not by["format.bitrate"].ok and by["format.bitrate"].severity == "warn"
+    d = qc.check_reel(p, cfg, draft=True)
+    f = d.finding("format.bitrate")
+    assert not f.ok and f.severity == "info" and f.detail.endswith("(draft)")
+    assert d.passed and d.draft and not d.warnings
+    assert d.summary_for_llm() == "Reel QC passed: 0 failed, 0 warned (1080x1920, 8.00 s, 30 fps, draft)"
+    wrong = qc.check_reel(media("wrong"), cfg, draft=True)                  # yuv444p, 1280x720, 24 fps
+    assert wrong.finding("format.pix_fmt").severity == "info"
+    assert {f.rule for f in wrong.failures} >= {"format.resolution", "format.fps"}  # the picture still counts
+    assert qc.check_reel(media("mpeg4"), cfg, draft=True).finding("format.codec").severity == "info"
+
+
+@needs_ffmpeg
+@pytest.mark.parametrize("name,border,hook,frozen", [
+    ("letterbox", True, True, False), ("starfield", False, False, True), ("fit", False, False, True),
+    ("still", False, False, True), ("kenburns", False, False, False), ("night_kenburns", False, False, False),
+    ("pan", False, True, False), ("cut", False, True, False)])
+def test_soft_low_bitrate_drafts_read_the_same(soft, cfg, name, border, hook, frozen):
+    """At 2 Mb/s with soft, smeared detail the encoder refines stills over a few frames and jumps at
+    keyframes; none of that may read as motion, and stars must still count as change."""
+    r = qc.check_reel(soft(name), cfg, draft=True)
+    by = {f.rule: f for f in r.findings}
+    assert (not by["borders"].ok, by["hook_motion"].ok, not by["frozen"].ok) == (border, hook, frozen), r.summary()
+    if border:
+        assert all(abs(v["px"] - 656) <= 8 for v in by["borders"].value.values())
+
+
+@needs_ffmpeg
+def test_soft_draft_held_frame(soft, soft4, cfg):
+    """A held frame of sharp detail on black: at 4 Mb/s it reads frozen. At 2 Mb/s the encoder keeps
+    refining it in the dark blocks (0.06% of pixels by > 8 levels at the 2 s keyframe, against the
+    0.08-0.10% that faint drifting stars measure) and the stretch splits: a miss, which costs a
+    critic call, rather than a false fail on a night sky, which would cost a pointless revision."""
+    by = {f.rule: f for f in qc.check_reel(soft4("hold"), cfg, draft=True).findings}
+    assert not by["frozen"].ok and by["frozen"].value[-1][1] == 3.0
+    by = {f.rule: f for f in qc.check_reel(soft("hold"), cfg, draft=True).findings}
+    assert by["frozen"].ok and by["hook_motion"].ok
+
+
 # --------------------------------------------------------------------------- command line
 
 
@@ -617,4 +736,4 @@ def test_python_dash_m():
     env = {**os.environ, "PYTHONPATH": str(root / "src")}
     out = subprocess.run([sys.executable, "-m", "igmp.qc", "--help"], capture_output=True, text=True, check=False,
                          cwd=root, env=env)
-    assert out.returncode == 0 and "--band" in out.stdout and "--allow-silent" in out.stdout
+    assert out.returncode == 0 and all(f in out.stdout for f in ("--band", "--allow-silent", "--draft", "--json"))

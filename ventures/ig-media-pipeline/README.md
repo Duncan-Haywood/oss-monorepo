@@ -81,11 +81,13 @@ silent, -14 LUFS, at most -1 dBTP), letterbox and pillarbox bars (a starry night
 count as a bar), real motion or a cut in the first second, no stretch over 1.5 s without visible
 change, the length (5-180 s, plus an optional band), and how well the last frame loops to the
 first. `check_plan` also checks the plan: fit-layout shots take at most 20% of the runtime and
-none starts before 3 s. Each reel is decoded once. The method and the calibration numbers are
-in the module docstring.
+none starts before 3 s. Each reel is decoded once. The renderer calls `check_plan(plan)` and
+`check_reel(path, cfg, band=None, draft=True)` on its draft. In a draft, the encoder settings are
+informational only. `report.summary_for_llm()` lists only what failed or warned, as facts for the
+revision prompt. The method and the calibration numbers are in the module docstring.
 
 ```bash
-.venv/bin/python -m igmp.qc reels/ [--band short|medium|long] [--allow-silent] [--json]
+.venv/bin/python -m igmp.qc reels/ [--band short|medium|long] [--allow-silent] [--draft] [--json]
 ```
 
 ## Tests
