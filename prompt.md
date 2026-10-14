@@ -41,7 +41,7 @@ Robotics & autonomy (priority):
 - Never imply affiliation with, or endorsement by, any lab, professor or company. Say "builds on" or "reproduces", never "with" or "for".
 
 ## Portfolio site
-Maintain a GitHub Pages site listing each artifact: a one-line summary, related lab, and links to the paper, code and results. Keep it current as work merges.
+Maintain a GitHub Pages site listing each artifact: a one-line summary, related lab, and links to the paper, code and results. Keep it current as work merges. The site is how all the work is checked out visually, so every project also gets its own home page there by default: what it asks and found, a figure from its own output, and the paper, code and results links (`PROJECTS.md`, milestone 9).
 
 ## Landing work
 A run is done when its work is on `main`. A pushed branch or an open pull request is not done: nobody sees the work, and the next run redoes it. Dozens of branches here never landed: the same project built by parallel runs in the same minute, finished projects pushed with no pull request, and run logs committed after the merge.
