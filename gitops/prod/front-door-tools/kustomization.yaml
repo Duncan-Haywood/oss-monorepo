@@ -33,50 +33,50 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548309 bytes
-#   portfolio-front-tools-1: 92 files, 555586 bytes
-#   portfolio-front-tools-2: 144 files, 553640 bytes
-#   portfolio-front-tools-3: 128 files, 549917 bytes
-#   portfolio-front-tools-4: 136 files, 554186 bytes
-#   portfolio-front-tools-5: 130 files, 549910 bytes
-#   portfolio-front-tools-6: 127 files, 556862 bytes
-#   portfolio-front-tools-7: 121 files, 556388 bytes
-#   portfolio-front-tools-8: 130 files, 554748 bytes
-#   portfolio-front-tools-9: 137 files, 554869 bytes
-#   portfolio-front-tools-10: 136 files, 554971 bytes
-#   portfolio-front-tools-11: 136 files, 556354 bytes
-#   portfolio-front-tools-12: 127 files, 549574 bytes
-#   portfolio-front-tools-13: 131 files, 554503 bytes
+#   portfolio-front-tools-0: 145 files, 548307 bytes
+#   portfolio-front-tools-1: 92 files, 555583 bytes
+#   portfolio-front-tools-2: 144 files, 553636 bytes
+#   portfolio-front-tools-3: 128 files, 549911 bytes
+#   portfolio-front-tools-4: 136 files, 554182 bytes
+#   portfolio-front-tools-5: 130 files, 549909 bytes
+#   portfolio-front-tools-6: 127 files, 556857 bytes
+#   portfolio-front-tools-7: 121 files, 556392 bytes
+#   portfolio-front-tools-8: 130 files, 554749 bytes
+#   portfolio-front-tools-9: 137 files, 554846 bytes
+#   portfolio-front-tools-10: 136 files, 554927 bytes
+#   portfolio-front-tools-11: 136 files, 556376 bytes
+#   portfolio-front-tools-12: 127 files, 549576 bytes
+#   portfolio-front-tools-13: 131 files, 554508 bytes
 #   portfolio-front-tools-14: 119 files, 556664 bytes
-#   portfolio-front-tools-15: 140 files, 556911 bytes
-#   portfolio-front-tools-16: 116 files, 546656 bytes
-#   portfolio-front-tools-17: 133 files, 556868 bytes
-#   portfolio-front-tools-18: 124 files, 556700 bytes
-#   portfolio-front-tools-19: 126 files, 556966 bytes
-#   portfolio-front-tools-20: 122 files, 556254 bytes
-#   portfolio-front-tools-21: 126 files, 555084 bytes
-#   portfolio-front-tools-22: 117 files, 554224 bytes
-#   portfolio-front-tools-23: 117 files, 551553 bytes
-#   portfolio-front-tools-24: 130 files, 556501 bytes
-#   portfolio-front-tools-25: 128 files, 556648 bytes
-#   portfolio-front-tools-26: 134 files, 556071 bytes
-#   portfolio-front-tools-27: 133 files, 551240 bytes
-#   portfolio-front-tools-28: 121 files, 552900 bytes
-#   portfolio-front-tools-29: 127 files, 556701 bytes
+#   portfolio-front-tools-15: 140 files, 556936 bytes
+#   portfolio-front-tools-16: 116 files, 546658 bytes
+#   portfolio-front-tools-17: 133 files, 556917 bytes
+#   portfolio-front-tools-18: 124 files, 556667 bytes
+#   portfolio-front-tools-19: 126 files, 556976 bytes
+#   portfolio-front-tools-20: 122 files, 556267 bytes
+#   portfolio-front-tools-21: 126 files, 555074 bytes
+#   portfolio-front-tools-22: 117 files, 554269 bytes
+#   portfolio-front-tools-23: 117 files, 551546 bytes
+#   portfolio-front-tools-24: 130 files, 556594 bytes
+#   portfolio-front-tools-25: 128 files, 556528 bytes
+#   portfolio-front-tools-26: 134 files, 556057 bytes
+#   portfolio-front-tools-27: 133 files, 551275 bytes
+#   portfolio-front-tools-28: 121 files, 552905 bytes
+#   portfolio-front-tools-29: 127 files, 556759 bytes
 #   portfolio-front-tools-30: 138 files, 555168 bytes
-#   portfolio-front-tools-31: 125 files, 553686 bytes
-#   portfolio-front-tools-32: 125 files, 554936 bytes
-#   portfolio-front-tools-33: 135 files, 552593 bytes
-#   portfolio-front-tools-34: 109 files, 554835 bytes
-#   portfolio-front-tools-35: 100 files, 552234 bytes
-#   portfolio-front-tools-36: 128 files, 549675 bytes
-#   portfolio-front-tools-37: 118 files, 554105 bytes
-#   portfolio-front-tools-38: 130 files, 553246 bytes
-#   portfolio-front-tools-39: 124 files, 555429 bytes
-#   portfolio-front-tools-40: 135 files, 554262 bytes
-#   portfolio-front-tools-41: 123 files, 555010 bytes
-#   portfolio-front-tools-42: 118 files, 553950 bytes
-#   portfolio-front-tools-43: 67 files, 357247 bytes
+#   portfolio-front-tools-31: 125 files, 553645 bytes
+#   portfolio-front-tools-32: 125 files, 555081 bytes
+#   portfolio-front-tools-33: 135 files, 552692 bytes
+#   portfolio-front-tools-34: 109 files, 554784 bytes
+#   portfolio-front-tools-35: 100 files, 552237 bytes
+#   portfolio-front-tools-36: 128 files, 549701 bytes
+#   portfolio-front-tools-37: 118 files, 554142 bytes
+#   portfolio-front-tools-38: 130 files, 553250 bytes
+#   portfolio-front-tools-39: 124 files, 555488 bytes
+#   portfolio-front-tools-40: 136 files, 550933 bytes
+#   portfolio-front-tools-41: 122 files, 556021 bytes
+#   portfolio-front-tools-42: 118 files, 556685 bytes
+#   portfolio-front-tools-43: 70 files, 368194 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -5423,6 +5423,9 @@ configMapGenerator:
       - uk-ir35-inside-outside-calculator__calc.mjs.gz=uk-ir35-inside-outside-calculator__calc.mjs.gz
       - uk-ir35-inside-outside-calculator__index.html.gz=uk-ir35-inside-outside-calculator__index.html.gz
       - uk-ir35-inside-outside-calculator__usage.mjs.gz=uk-ir35-inside-outside-calculator__usage.mjs.gz
+      - uk-landlord-section-24-calculator__calc.mjs.gz=uk-landlord-section-24-calculator__calc.mjs.gz
+      - uk-landlord-section-24-calculator__index.html.gz=uk-landlord-section-24-calculator__index.html.gz
+      - uk-landlord-section-24-calculator__usage.mjs.gz=uk-landlord-section-24-calculator__usage.mjs.gz
       - uk-mtd-income-tax-checker__calc.mjs.gz=uk-mtd-income-tax-checker__calc.mjs.gz
       - uk-mtd-income-tax-checker__index.html.gz=uk-mtd-income-tax-checker__index.html.gz
       - uk-mtd-income-tax-checker__usage.mjs.gz=uk-mtd-income-tax-checker__usage.mjs.gz
@@ -5497,13 +5500,13 @@ configMapGenerator:
       - vegetable-garden-planting-calendar__when-to-start-seeds-indoors.html.gz=vegetable-garden-planting-calendar__when-to-start-seeds-indoors.html.gz
       - vehicle-wrap-bid-calculator__calc.mjs.gz=vehicle-wrap-bid-calculator__calc.mjs.gz
       - vehicle-wrap-bid-calculator__how-much-to-charge-for-a-vehicle-wrap.html.gz=vehicle-wrap-bid-calculator__how-much-to-charge-for-a-vehicle-wrap.html.gz
-      - vehicle-wrap-bid-calculator__index.html.gz=vehicle-wrap-bid-calculator__index.html.gz
-      - vehicle-wrap-bid-calculator__usage.mjs.gz=vehicle-wrap-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-41
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vehicle-wrap-bid-calculator__index.html.gz=vehicle-wrap-bid-calculator__index.html.gz
+      - vehicle-wrap-bid-calculator__usage.mjs.gz=vehicle-wrap-bid-calculator__usage.mjs.gz
       - vehicle-wrap-bid-calculator__vs-quoting-from-bare-vehicle-surface-area.html.gz=vehicle-wrap-bid-calculator__vs-quoting-from-bare-vehicle-surface-area.html.gz
       - vehicle-wrap-bid-calculator__vs-shopvox.html.gz=vehicle-wrap-bid-calculator__vs-shopvox.html.gz
       - vending-machine-planogram-optimizer__calc.mjs.gz=vending-machine-planogram-optimizer__calc.mjs.gz
@@ -5624,14 +5627,14 @@ configMapGenerator:
       - water-heater-bid-calculator__index.html.gz=water-heater-bid-calculator__index.html.gz
       - water-heater-bid-calculator__share.mjs.gz=water-heater-bid-calculator__share.mjs.gz
       - water-heater-bid-calculator__usage.mjs.gz=water-heater-bid-calculator__usage.mjs.gz
-      - water-heater-bid-calculator__vs-a-flat-rate-water-heater-special.html.gz=water-heater-bid-calculator__vs-a-flat-rate-water-heater-special.html.gz
-      - water-heater-bid-calculator__vs-servicetitan.html.gz=water-heater-bid-calculator__vs-servicetitan.html.gz
-      - water-softener-bid-calculator__calc.mjs.gz=water-softener-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-42
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - water-heater-bid-calculator__vs-a-flat-rate-water-heater-special.html.gz=water-heater-bid-calculator__vs-a-flat-rate-water-heater-special.html.gz
+      - water-heater-bid-calculator__vs-servicetitan.html.gz=water-heater-bid-calculator__vs-servicetitan.html.gz
+      - water-softener-bid-calculator__calc.mjs.gz=water-softener-bid-calculator__calc.mjs.gz
       - water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz=water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz
       - water-softener-bid-calculator__index.html.gz=water-softener-bid-calculator__index.html.gz
       - water-softener-bid-calculator__share.mjs.gz=water-softener-bid-calculator__share.mjs.gz
@@ -5747,14 +5750,14 @@ configMapGenerator:
       - window-cleaning-bid-calculator__index.html.gz=window-cleaning-bid-calculator__index.html.gz
       - window-cleaning-bid-calculator__usage.mjs.gz=window-cleaning-bid-calculator__usage.mjs.gz
       - window-cleaning-bid-calculator__vs-a-flat-price-per-window.html.gz=window-cleaning-bid-calculator__vs-a-flat-price-per-window.html.gz
-      - window-cleaning-bid-calculator__vs-servicemonster.html.gz=window-cleaning-bid-calculator__vs-servicemonster.html.gz
-      - window-replacement-bid-calculator__calc.mjs.gz=window-replacement-bid-calculator__calc.mjs.gz
-      - window-replacement-bid-calculator__how-much-to-charge.html.gz=window-replacement-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-43
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - window-cleaning-bid-calculator__vs-servicemonster.html.gz=window-cleaning-bid-calculator__vs-servicemonster.html.gz
+      - window-replacement-bid-calculator__calc.mjs.gz=window-replacement-bid-calculator__calc.mjs.gz
+      - window-replacement-bid-calculator__how-much-to-charge.html.gz=window-replacement-bid-calculator__how-much-to-charge.html.gz
       - window-replacement-bid-calculator__index.html.gz=window-replacement-bid-calculator__index.html.gz
       - window-replacement-bid-calculator__share.mjs.gz=window-replacement-bid-calculator__share.mjs.gz
       - window-replacement-bid-calculator__usage.mjs.gz=window-replacement-bid-calculator__usage.mjs.gz

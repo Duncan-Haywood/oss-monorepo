@@ -1813,6 +1813,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-student-loan-repayment-calculator'
       // `uk-100k-tax-trap-calculator` joined 2026-10-13 on its first commit: UK GBP 100k personal-allowance taper and pension/childcare planning, sibling of the Child Benefit tool.
       || slug === 'uk-100k-tax-trap-calculator'
+      // `uk-landlord-section-24-calculator` joined 2026-10-14 on its first commit: UK personal-tax arithmetic for landlords, sibling of the capital-gains and dividend tools.
+      || slug === 'uk-landlord-section-24-calculator'
       // `uk-payments-on-account-calculator` joined 2026-10-13 on its first commit: UK Self Assessment payment-schedule arithmetic, sibling of the trading-allowance and CIS tools.
       || slug === 'uk-payments-on-account-calculator'
       // `uk-ir35-inside-outside-calculator` joined 2026-10-13 on its first commit: UK contractor tax arithmetic, sibling of the sole-trader-vs-company and trading-allowance tools.
