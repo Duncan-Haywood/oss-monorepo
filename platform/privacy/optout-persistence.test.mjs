@@ -1658,7 +1658,8 @@ const RELATIVE_SELF = relative(
 // +1: `uk-emi-share-option-tax-calculator` graduated.
 // +1: `uk-gift-aid-higher-rate-relief-calculator` graduated.
 // +1: `uk-eis-seis-relief-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1184;
+// +1: `uk-mortgage-overpayment-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1185;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
