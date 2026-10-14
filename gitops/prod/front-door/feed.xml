@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1182 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1183 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -62,6 +62,14 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK Stamp Duty (SDLT) calculator for England and Northern Ireland from April 2025: standard rates, first-time buyer relief, the 5% second home and buy-to-let rate and the 2% non-UK resident surcharge, with a band-by-band breakdown. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>UK Statutory Maternity Pay Calculator 2026/27 — SMP, Eligibility and SPP</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-statutory-maternity-pay-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-statutory-maternity-pay-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free UK SMP calculator for 2026/27: enter the due date, average weekly earnings and employment start to check eligibility, the qualifying week, the 39-week pay schedule and Statutory Paternity Pay. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>UK Take-Home Pay Calculator 2025/26 and 2026/27 (after tax, NI, pension and student loan)</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Restaurant, bar &amp; food truck pricing"/>
     <summary type="text">Free dry cleaner profit calculator: pieces, price, supplies, claims, card fees, labor and rent become monthly profit, break-even pieces, the price increase that covers your costs and debt coverage. Private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>European Accessibility Act Checker — Does the EAA Apply to You?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eaa-accessibility-act-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/eaa-accessibility-act-checker</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free European Accessibility Act checker: pick what you make or sell, your role and your size to see whether Directive (EU) 2019/882 likely applies, whether the microenterprise exemption covers you, and the main duties. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
