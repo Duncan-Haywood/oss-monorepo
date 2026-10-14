@@ -1503,6 +1503,11 @@
      "summary": "A stylised follow-up to <em>ambient-labelmatch</em>. Doubly robust pseudo-labels (an outcome model plus an inverse-propensity correction on the windows where the assistant spoke) are fitted on every window and compared with biased, IPS, clipped and self-normalised fits on the same logged history. A negative result: with an uninformed prior all three variants are far worse than the biased fit (utility per hour below &minus;15 against 12.71 for the oracle) and have huge variance, and with an informed prior they are level with or above the biased fit at they match the biased fit at &epsilon; = 0.005 and 0.02 butepsilon; = 0.005 and 0.02 but are not better than clipped IPS. Simulated windows chosen by me; nothing is claimed about real users."
     },
     {
+     "slug": "ambient-drclip",
+     "title": "Does capping the inverse-propensity correction rescue doubly robust learning from an assistant&rsquo;s own feedback?",
+     "summary": "A stylised follow-up to <em>ambient-dr</em>, which left clipping untested. Capping the correction weight at 1, 5, 20 or 100 (instead of 1/&epsilon; up to 500) removes the collapse with an informed prior: at &epsilon; = 0.002 the unclipped fit scores 0.26 utility per hour and the capped ones 11.7&ndash;12.2, against 10.6 for the biased fit and 12.71 for the oracle. With an uninformed prior it does not help: capped fits that use the clipped-IPS outcome model stay between &minus;17 and &minus;50, and those that use the prior as outcome model score 4&ndash;8 at best, still below the random-subset control (about 12). Simulated windows chosen by me; one cap grid, 20 seeds, nothing claimed about real users."
+    },
+    {
      "slug": "ambient-wearable",
      "title": "What limits the battery life of a pendant-style always-on audio wearable?",
      "summary": "A stylised average-current model for an nRF52840-class pendant with a 150 mAh cell, built from a few vendor figures read on 2026-10-13 plus labelled assumptions. The always-on microphone is the floor (about 170 h alone); gating codec and radio on speech at a 30% speech fraction gives about 105 h against 59 h for always streaming. A 74-byte energy-gate routine compiles for Cortex-M4. Nothing is measured on hardware, the datasheets were not read in full and there is no numeric comparison with Omi."
