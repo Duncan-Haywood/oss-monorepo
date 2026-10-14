@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1201 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1202 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,14 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK company car tax calculator for 2026/27: benefit in kind for electric, plug-in hybrid and petrol or diesel cars, monthly tax at your rate, employer Class 1A, free-fuel charge, the 4% to 9% electric schedule to 2029/30 and a side-by-side with a second car. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>UK EMI Share Option Tax Calculator (BADR, income tax, net proceeds)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-emi-share-option-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-emi-share-option-tax-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free UK EMI option tax calculator: income tax on any discount, Capital Gains Tax with Business Asset Disposal Relief, what you keep after a sale, and a comparison with an unapproved option. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>UK Cost of Hiring an Employee Calculator 2026</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK Self Assessment tax calculator for 2025/26: combine employment, self-employed profit, rental income, savings and dividends. See income tax, Class 4 NIC, student loan, the 31 January bill and your payments on account. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>UK Simplified Expenses Calculator (45p/25p mileage and use of home vs actual costs)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-simplified-expenses-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/uk-simplified-expenses-calculator</id>
-    <updated>2026-10-14T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free UK simplified expenses calculator for sole traders: compare HMRC&#39;s 45p/25p mileage rate and £10/£18/£26 use-of-home flat rate with your actual costs and see which claim is bigger and what it saves in tax. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
