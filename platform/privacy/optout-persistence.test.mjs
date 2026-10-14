@@ -1637,7 +1637,8 @@ const RELATIVE_SELF = relative(
 // +1: `uk-redundancy-pay-calculator` graduated.
 // +1: `uk-statutory-maternity-pay-calculator` graduated.
 // +1: `uk-holiday-pay-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1162;
+// +1: `uk-scottish-income-tax-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1163;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
