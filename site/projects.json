@@ -1342,6 +1342,11 @@
      "slug": "chip-systolic-hidden",
      "title": "Does the array/MAC-engine gap change when the hidden width is fixed at 8 and only the input fan-in grows?",
      "summary": "The quantised-MLP comparison of <em>chip-systolic-fanin</em> on an F-8-4 network (F = 8, 16, 32; 4-bit weights), all 12 array configurations matched to an integer NumPy reference in Icarus Verilog and scored with Yosys against MAC-lane engines. A negative result: the best MAC engine wins at every F, by 1.35&times;, 1.22&times; and 1.20&times; in cells&times;cycles per vector, so the gap narrows but does not close. One network family, one seed, gate counts only; no layout or power."
+    },
+    {
+     "slug": "chip-systolic-hidewide",
+     "title": "Does the MAC-engine lead survive a wider hidden layer (H = 16) and more MAC lanes?",
+     "summary": "The <em>chip-systolic-hidden</em> comparison repeated on an F-16-4 quantised network (F = 16, 32; 4-bit weights), all 8 array configurations matched to an integer NumPy reference in Icarus Verilog and scored with Yosys against MAC-lane engines up to P = 16. A negative result: the best MAC engine wins at both F, by 1.30&times; and 1.27&times; in cells&times;cycles per vector. At F = 32 the best lane count (P = 16, 3% ahead of P = 8) is again the largest tried, so its optimum may lie further out. One network family, one seed, gate counts only; no layout or power."
     }
    ]
   },
@@ -1842,6 +1847,11 @@
      "slug": "garment-twonodesteady",
      "title": "Do the fabric-optics effects on thermal comfort change once the two-node model reaches steady state?",
      "summary": "Re-runs the switchable two-node comparison of fabric optics (infrared transmittance, emissivity, solar absorptance, insulation) for 24&nbsp;h of model time instead of one hour (stylised, preliminary). In the 28&nbsp;C room, with hot walls and in sun the one-hour effects are already steady. In the 16&nbsp;C room the one-hour disagreement between the repository&rsquo;s design choices and those of <code>pythermalcomfort</code> (ratio 1.9&ndash;2.7) shrinks to 0.89&ndash;0.98 at steady state, so it was mostly a transient-speed difference. A model fixed point, not a claim about people; no fabric or person was measured."
+    },
+    {
+     "slug": "garment-twonodegate",
+     "title": "Do the closed and open bounds of an infrared-gating textile survive other two-node design choices and steady state?",
+     "summary": "Re-runs the two fixed states of a gated textile (infrared transmittance 0.15 closed, 0.8 open) from an earlier model in the switchable two-node comparison, under two sets of design choices and at 3&nbsp;h and steady state (stylised, preliminary). Opening the gate lowers skin temperature by 0.20&ndash;0.25&nbsp;C in a 31&nbsp;C room and 1.4&ndash;1.5&nbsp;C in a 16&nbsp;C room, and moves 5.5&ndash;6.2&nbsp;W/m<sup>2</sup> from evaporation to dry loss at 31&nbsp;C; the choice sets differ by about 0.05&nbsp;C there. Limits: two fixed states with no switching dynamics, evaporative heat loss rather than sweat mass, no validation against people."
     },
     {
      "slug": "garment-comfortcost",
