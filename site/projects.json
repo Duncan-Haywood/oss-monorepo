@@ -1481,6 +1481,11 @@
      "summary": "A follow-up to <code>robofab-scurvefine</code> (stylised). Re-solving the time-optimal carry at 400, 1600 and 6400 nodes lowers the six-part total by 0.01 to 0.46%, and the edge over a ramp-resolved trapezoid, negative in 7 of 12 rows at 400 nodes, becomes +0.11 to +0.88% in every row at 6400. A one-step extrapolation moves it by at most 0.03 percentage points. The trapezoid's own ramp grid is not re-converged, which can only shrink the edge, and every parameter is assumed."
     },
     {
+     "slug": "robofab-rampopt",
+     "title": "Does tuning the trapezoid's ramp fraction beyond a grid shrink the time-optimal carry's edge, and is it still positive?",
+     "summary": "A follow-up to <code>robofab-edgeconv</code> (stylised). Golden-section refinement of the trapezoid's ramp fraction lowers its six-part total by 0.00 to 0.60% across the twelve speed-limited rows. With the solver at 6400 nodes the time-optimal edge, +0.11 to +0.88% over the grid-tuned trapezoid, falls to +0.05 to +0.28% over the refined one, still positive in every row. The smallest edges are comparable to the solver's residual discretisation error, so their sign is not firmly established. One planar arm, assumed parameters, no motor dynamics; simulated only."
+    },
+    {
      "slug": "robofab-graspmove",
      "title": "How hard must the jaws squeeze while the arm moves?",
      "summary": "A follow-up to <code>robofab-grasp</code>: the jaw assembly accelerates upward or sideways at up to 40&nbsp;m/s<sup>2</sup> and the smallest holding force is compared with the bound <em>m</em>&radic;((<em>g</em>+<em>a</em><sub>up</sub>)<sup>2</sup>+<em>a</em><sub>side</sub><sup>2</sup>)/(2&mu;) at &mu;&nbsp;=&nbsp;0.5. Over 77 cases the two agree to within 7%, and the heaviest part needs at most 0.3&nbsp;N, so friction is still not the constraint. A fidelity finding: the contact time constant used for the static test (0.004&nbsp;s) reports slip at any force once the jaws accelerate; 0.0005&nbsp;s is needed. Stylised: boxes, rigid pads, assumed density and friction."
