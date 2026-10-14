@@ -1631,8 +1631,9 @@ const RELATIVE_SELF = relative(
 // +1: `uk-student-loan-repayment-calculator` graduated.
 // +1: `uk-100k-tax-trap-calculator` graduated.
 // +1: `uk-landlord-section-24-calculator` graduated.
+// +1: `uk-stamp-duty-calculator` graduated.
 // +1: `uk-pension-annual-allowance-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1155;
+const SWITCHES_IN_THE_CATALOGUE = 1156;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
