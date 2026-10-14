@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1191 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1192 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -120,6 +120,14 @@
     <summary type="text">Free UK Stamp Duty (SDLT) calculator for England and Northern Ireland from April 2025: standard rates, first-time buyer relief, the 5% second home and buy-to-let rate and the 2% non-UK resident surcharge, with a band-by-band breakdown. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>UK State Pension NI Years Checker 2026/27 — Is Buying Voluntary Class 3 Worth It?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-state-pension-ni-years-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-state-pension-ni-years-checker</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free UK State Pension checker for 2026/27: your State Pension age, projected qualifying years, whether to buy voluntary Class 3 National Insurance years, the cost, the extra weekly pension and the payback. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>UK Statutory Maternity Pay Calculator 2026/27 — SMP, Eligibility and SPP</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-statutory-maternity-pay-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/uk-statutory-maternity-pay-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Australian redundancy pay calculator: enter pay, start and end dates, age and employer size to see NES redundancy weeks, notice pay and accrued leave. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Boba Tea Shop Profit Calculator — Break-Even and Ramp-Up</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/boba-tea-shop-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/boba-tea-shop-profit-calculator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free pro forma for boba, bubble tea and specialty drink shops: profit per cup, break-even cups a day with the loan, the price for your target margin, delivery-app cost, and a 60-month ramp-up with the cash reserve you need. Runs in your browser.</summary>
   </entry>
 </feed>
