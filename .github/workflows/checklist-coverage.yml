@@ -65,7 +65,7 @@ permissions:
 
 jobs:
   coverage:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # Seconds in practice; the cap is here because every job needs one and an
     # uncapped job on a metered account is a standing risk, not because this
     # one is expected to come near it.

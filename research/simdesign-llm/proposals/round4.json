@@ -1,0 +1,2 @@
+{"round": 4, "notes": "After round 3: stress is not smooth in the fillet (mesh effects), 12.5 and 14-14.5 pass at b = 5.5; 14 at 5.45 misses by 0.5%. Last round: try b 5.42-5.48 at fillets that passed, plus a few fillet values between.",
+ "designs": [[25,12.5,5.48],[25,12.5,5.45],[25,14.5,5.45],[25,14.5,5.42],[25,15,5.45],[25,12.5,5.42],[25,12.8,5.46],[25,14.2,5.44],[25,13.8,5.47],[25,12.2,5.5]]}

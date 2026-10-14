@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "twin-certification"
+version = "0.1.0"
+description = "Certifying a failure rate with real trials when a digital twin supplies the prior: exact false-certification rate and the price of a wrong twin"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

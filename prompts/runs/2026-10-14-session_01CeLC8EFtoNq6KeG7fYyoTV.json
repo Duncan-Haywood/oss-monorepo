@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-14",
+  "session": "https://claude.ai/code/session_01CeLC8EFtoNq6KeG7fYyoTV",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-14T01:17:00Z",
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "simdesign-gaugefine"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/391",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 3,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "only open PR (#389) was a live claim 9 min old; left alone"
+  ],
+  "integrity_issues": [],
+  "notes": "Track 5 by random draw; grid instead of DE search; patch rule insensitive to fillet radius.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

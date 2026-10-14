@@ -1,0 +1,42 @@
+setup: d=10, eigenvalues geometric in [1/100,1], eta=0.1, noise s=0.3; SGD stationary floor = 0.02279
+
+1. exact risk vs Monte Carlo (20000 runs, seed 1), cold start e0=1 in every direction
+   k    exact     sim      ratio
+     5  0.69292  0.69356  1.0009
+    20  0.24031  0.24051  1.0008
+    80  0.06926  0.06907  0.9972
+   320  0.02962  0.02955  0.9976
+
+2. steps to reach 2x the floor, cold start |e0|=1 per direction, twin error b per direction
+   target 0.04558; cold start needs 141 real steps
+   b/e0   steps   saved   saved/cold
+   0.03       0     141  +1.000
+   0.10       0     141  +1.000
+   0.30      11     130  +0.922
+   0.60      51      90  +0.638
+   1.00     141       0  +0.000
+   1.50     279    -138  -0.979
+   3.00     664    -523  -3.709
+   (b/e0 = 1 saves exactly 0; b > e0 is negative transfer: the twin start is worse than a cold start)
+
+3. where the twin error sits (|b|^2 = 1 fixed, noise-free): loss left after k steps
+   k     stiffest(lam=1)   flattest(lam=.01)   isotropic   worst single lam (lam*=1/(2 eta k))   bound |b|^2/(4e eta k)
+     10  6.079e-02        4.901e-03         4.342e-02    8.962e-02 (lam*=0.500)            9.197e-02
+     50  1.328e-05        4.524e-03         8.954e-03    1.830e-02 (lam*=0.100)            1.839e-02
+    200  2.489e-19        3.351e-03         1.790e-03    4.593e-03 (lam*=0.025)            4.598e-03
+   1000  1.528e-92        6.760e-04         1.027e-04    9.195e-04 (lam*=0.005)            9.197e-04
+   Stiff errors vanish geometrically, flat errors cost little because lam is small; the damage peaks at
+   lam* ~ 1/(2 eta k), so for ANY spectrum the twin-error loss after k real steps is <= |b|^2/(4e eta k): a 1/k law, not geometric.
+
+4. the saving is a near-constant fraction (0.64-0.67) of the cold-start steps at every target: same rate, shorter by ln(e0/b)/(2 eta lam_min)-type head start
+   target multiple of floor   cold steps   twin(b=0.6) steps   saved
+     8.0x                         27            9                 18
+     4.0x                         58           21                 37
+     2.0x                        141           51                 90
+     1.5x                        231           84                147
+     1.2x                        406          148                258
+
+5. twin error with the same initial real loss (0.5) but placed differently, steps to 2x floor
+   stiff-heavy        initial loss 0.500  steps to 2x floor: 13
+   flat-heavy         initial loss 0.500  steps to 2x floor: 1541
+   isotropic-in-loss  initial loss 0.500  steps to 2x floor: 599

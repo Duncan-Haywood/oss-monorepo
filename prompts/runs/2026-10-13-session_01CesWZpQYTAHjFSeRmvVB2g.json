@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-13",
+  "session": "https://claude.ai/code/session_01CesWZpQYTAHjFSeRmvVB2g",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-13T07:05:00Z",
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "simdesign-llm"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/307",
+  "commits": [
+    "a1b724b",
+    "613749c"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "no routing.json on main, so champion prompt used; landing queue had only duplicate branches (robofab-selfparts, ambient-pipeline) left unmerged"
+  ],
+  "integrity_issues": [],
+  "notes": "Proposer was the session agent (no API key); n=1, disclosed prior-knowledge advantage in README. Optimisation-paper citations checked on Crossref; scikit-fem citation carried over.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

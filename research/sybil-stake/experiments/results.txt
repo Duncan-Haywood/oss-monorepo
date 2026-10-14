@@ -1,0 +1,27 @@
+E1. per-head pool (alpha=0), R=100, n=20 honest, attacker cost c per identity: best k vs sqrt(Rn/c)-n
+  c=0.05  best k=180  closed form= 180.00  pool share=0.900  net payoff=81.00 (honest one identity: 4.71)
+  c=0.5   best k=43   closed form=  43.25  pool share=0.683  net payoff=46.75 (honest one identity: 4.26)
+  c=2.0   best k=12   closed form=  11.62  pool share=0.375  net payoff=13.50 (honest one identity: 2.76)
+  c=4.0   best k=2    closed form=   2.36  pool share=0.091  net payoff=1.09 (honest one identity: 0.76)
+E2. sharp deterrence fee R n/((n+1)(n+2)) (alpha=0)
+  n=4   fee=13.333  best k at 1.02f=1  at 0.98f=2
+  n=9   fee=8.182  best k at 1.02f=1  at 0.98f=2
+  n=20  fee=4.329  best k at 1.02f=1  at 0.98f=2
+E3. stake exponent alpha: attacker (stake 1 vs 20 honest of stake 1) share at k identities, no identity cost
+  alpha=0.0  k=1:0.048 k=4:0.167 k=64:0.762 k=4096:0.995
+  alpha=0.5  k=1:0.048 k=4:0.091 k=64:0.286 k=4096:0.762
+  alpha=0.9  k=1:0.048 k=4:0.054 k=64:0.070 k=4096:0.103
+  alpha=1.0  k=1:0.048 k=4:0.048 k=64:0.048 k=4096:0.048
+  alpha=1.1  k=1:0.048 k=4:0.042 k=64:0.032 k=4096:0.021
+  alpha=1.5  k=1:0.048 k=4:0.024 k=64:0.006 k=4096:0.001
+E4. merging: 4 honest stakes of 1 among others of total weight 20; gain in pooled share from merging
+  alpha=0.5  merge gain=-0.0758
+  alpha=1.0  merge gain=+0.0000
+  alpha=1.25 merge gain=+0.0538
+  alpha=1.5  merge gain=+0.1190
+  alpha=2.0  merge gain=+0.2778
+E5. Monte Carlo lottery (200k draws) vs formula, alpha=0.7, k=5, S=2, n=12
+  mc=0.1806 formula=0.1799
+E6. weighted-score wagering (Brier), coalition wager 3 with belief 0.7 vs two other wagerers
+  one identity truthful net=0.005000;  3 identities truthful net=0.005000
+  best of 361 split-report pairs (grid 0.05..0.95) net=0.005000 (<= truthful)

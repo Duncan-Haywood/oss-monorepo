@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "challenge-window"
+version = "0.1.0"
+description = "Optimistic-verification challenge windows against censorship: exact adaptive-attacker value, gamble-then-bribe deterrence window, and why stake buys out the bribe constraint only with bounty-funded priority fees"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

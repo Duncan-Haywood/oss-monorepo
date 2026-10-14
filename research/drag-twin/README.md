@@ -1,0 +1,13 @@
+# Drag twin: a linear-drag twin fitted at one speed of a quadratic-drag vehicle, what does it say about braking, terminal speed and the safe speed under a stopping-distance limit?
+
+Pure Python, no dependencies. Truth: unit mass with quadratic drag, `v' = −c v|v| + u`, `c = 0.05`, all closed form (checked against RK4). Twin: linear drag `v' = −k v + u`, with `k` matched to the drag force at a fit speed or fitted to data. Results (all from `experiments/results.txt`): (1) coast-down time to fall to `v0/10` is `9/(c v0)` for the truth and `ln 10/k` for the twin, so the twin is independent of the entry speed: matched at 5 m/s it is 0.05×, 0.26×, 0.51×, 1.02× the truth at `v0` = 1, 5, 10, 20; (2) terminal speed under thrust `F` is `√(F/c)` vs `F/k`, ratio `v_term/v_fit` (10× too fast if fitted at a tenth of the terminal speed, 0.5× if fitted at twice); (3) a least-squares linear fit over speeds uniform in `[0, vmax]` has `k = 3c·vmax/4`, so it is exact only at `0.75·vmax`, 25% under at `vmax` and 3× over at `vmax/4`; (4) the safe speed under a 10 m stopping-distance limit (brake 4, real 11.72 m/s) is mis-stated by −20.8%, −8.9%, +7.0%, +41.1% for fit speeds 1, 5, 10, 20 m/s, and the error changes sign, so a twin cannot be called "conservative" or "optimistic" without saying where it was fitted; (5) stopping distance matched at 5 m/s is −4.5% at 5 m/s and +10%, +57%, +109% at 10, 20, 30 m/s; (6) a coast-down trace fitted by least squares returns a `k` that falls as the trace lengthens (0.382, 0.258, 0.223 for T = 2, 10, 40 s at `v0` = 10) because the fit weights the slow tail; noise (σ = 0.2) moves it by 0.5%. Stylised: one dimension, pure quadratic drag, noiseless closed-form truth; see `paper/whitepaper.md`.
+
+```bash
+cd research/drag-twin
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, under 1 s
+PYTHONPATH=src python3 experiments/run.py                 # a second; output in experiments/results.txt
+```
+
+**Builds on.** The digital-twin simulation-fidelity and sim-to-real direction of the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>) and RECUV (<https://www.colorado.edu/recuv/>) on UAV and field-robot simulation and safe autonomy, and ARPG (<https://arpg.colorado.edu/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. Quadratic drag and linearisation are classical (Anderson 2016; Khalil 2002; Ljung 1999 for system identification). Companion to `timestep-twin`, `uav-energy-twin`, `friction-twin` and `impact-twin` in this repository.
+
+Stylised: simulated "real" system, no field data. MIT.

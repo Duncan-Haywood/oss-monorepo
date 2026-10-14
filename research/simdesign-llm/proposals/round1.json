@@ -1,0 +1,2 @@
+{"round": 1, "notes": "No feedback yet. Written by the session agent from beam mechanics (tip deflection ~ 1/(b w^3), stress ~ 1/(b w^2) with a fillet concentration) and from having read simdesign-bracket's README, whose limits were looser (20 MPa, 4 mm). Spread over thick-and-thin and large-and-small fillets.",
+ "designs": [[25,10,8],[25,10,6],[22,8,10],[20,12,10],[25,15,7],[25,5,8],[18,10,15],[25,12,5],[15,8,25],[25,15,10]]}

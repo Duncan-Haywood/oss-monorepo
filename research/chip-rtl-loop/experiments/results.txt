@@ -1,0 +1,16 @@
+asr         round 0: FAIL at sim  lint_warnings=0
+asr         round 1: PASS         lint_warnings=0
+edge_det    round 0: FAIL at sim  lint_warnings=0
+edge_det    round 1: PASS         lint_warnings=0
+gray2bin    round 0: FAIL at sim  lint_warnings=0
+gray2bin    round 1: PASS         lint_warnings=1
+lfsr        round 0: PASS         lint_warnings=0
+popcount    round 0: PASS         lint_warnings=16
+prio_enc    round 0: PASS         lint_warnings=0
+sat_add     round 0: PASS         lint_warnings=0
+seq_1011    round 0: PASS         lint_warnings=0
+updown_ctr  round 0: PASS         lint_warnings=0
+
+tasks=9
+cumulative pass after 0 feedback round(s): 6/9
+cumulative pass after 1 feedback round(s): 9/9

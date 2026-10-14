@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gyro-twin"
+version = "0.1.0"
+description = "Gyro twin calibrated on white angle-random-walk noise: heading variance N^2 t versus the real N^2 t + K^2 t^3/3 once the bias random-walks, re-alignment interval and cross-track dead-reckoning error, and what a single-tau Allan fit does and does not fix"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

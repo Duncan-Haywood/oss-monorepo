@@ -1,0 +1,17 @@
+== VCG payment vs cost, U[0,1], no reserve (exact) ==
+n= 10 k=  1 payment=0.1818 k(k+1)/(n+1)=0.1818 cost=0.0909 ratio=2.000
+n= 10 k=  5 payment=2.7273 k(k+1)/(n+1)=2.7273 cost=1.3636 ratio=2.000
+n= 50 k= 10 payment=2.1569 k(k+1)/(n+1)=2.1569 cost=1.0784 ratio=2.000
+n=100 k= 50 payment=25.2475 k(k+1)/(n+1)=25.2475 cost=12.6238 ratio=2.000
+== optimal reserve vs v/2 (n=20, k=8) ==
+v=0.4: r*=0.200 (v/2=0.200)  utility no-reserve=-0.2286 reserve=0.7994 gain=1.0279
+v=0.8: r*=0.400 (v/2=0.400)  utility no-reserve=2.9714 reserve=3.0911 gain=0.1197
+v=1.2: r*=0.600 (v/2=0.600)  utility no-reserve=6.1714 reserve=6.1736 gain=0.0022
+v=1.6: r*=0.800 (v/2=0.800)  utility no-reserve=9.3714 reserve=9.3714 gain=0.0000
+v=2.5: r*=0.967 (v/2=1.250)  utility no-reserve=16.5714 reserve=16.5714 gain=0.0000
+== exact vs Monte Carlo, n=10 k=3 r=0.4 ==
+payment exact=0.8806 mc=0.8808; cost exact=0.4403 mc=0.4404
+== first-price equilibrium (n=8, k=3) ==
+bids at c=0,.2,.4,.6,.8: [0.375, 0.415, 0.531, 0.677, 0.835]
+first-price payment mc=1.3334  VCG=1.3333
+max deviation gain (n=6,k=2,c=0.3) = 0.00054

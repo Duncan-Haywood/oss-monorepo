@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robofab-insert"
+version = "0.1.0"
+description = "Learned planar peg-in-hole insertion in MuJoCo with domain randomisation, tested across simulator fidelity levels"
+requires-python = ">=3.9"
+dependencies = ["mujoco>=3.0", "numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

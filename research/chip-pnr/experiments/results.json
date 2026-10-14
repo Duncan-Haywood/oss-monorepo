@@ -1,0 +1,514 @@
+{
+ "openroad": "26Q2",
+ "yosys": "Yosys 0.33 (git sha1 2584903a060)",
+ "runs": [
+  {
+   "name": "adder_ripple_W8",
+   "top": "adder_ripple",
+   "params": {
+    "W": 8
+   },
+   "period_ns": 5.0,
+   "util_pct": 40,
+   "gen_cells": 37,
+   "gen_depth": 15,
+   "synth_area_um2": 207.6992,
+   "synth_cells": 25,
+   "synth_netlist_area": 208.0,
+   "synth_netlist_wns": 2.51,
+   "global_place_area": 214.0,
+   "global_place_wns": 2.47,
+   "detail_place_area": 214.0,
+   "detail_place_wns": 2.43,
+   "final_area": 214.0,
+   "final_wns": 2.3,
+   "final_cells": 25,
+   "final_area_notap": 207.7,
+   "tap_area": 6.26,
+   "buffers_added": 0,
+   "cell_usage": {
+    "Multi-Input combinational cell": [
+     25,
+     207.7
+    ]
+   },
+   "power_w": 2.45e-05,
+   "synth_netlist_period_ns": 2.49,
+   "final_period_ns": 2.7
+  },
+  {
+   "name": "adder_op_W8",
+   "top": "adder_op",
+   "params": {
+    "W": 8
+   },
+   "period_ns": 5.0,
+   "util_pct": 40,
+   "gen_cells": 38,
+   "gen_depth": 15,
+   "synth_area_um2": 207.6992,
+   "synth_cells": 25,
+   "synth_netlist_area": 208.0,
+   "synth_netlist_wns": 2.51,
+   "global_place_area": 214.0,
+   "global_place_wns": 2.47,
+   "detail_place_area": 214.0,
+   "detail_place_wns": 2.41,
+   "final_area": 214.0,
+   "final_wns": 2.29,
+   "final_cells": 25,
+   "final_area_notap": 207.7,
+   "tap_area": 6.26,
+   "buffers_added": 0,
+   "cell_usage": {
+    "Multi-Input combinational cell": [
+     25,
+     207.7
+    ]
+   },
+   "power_w": 2.47e-05,
+   "synth_netlist_period_ns": 2.49,
+   "final_period_ns": 2.71
+  },
+  {
+   "name": "adder_ripple_W16",
+   "top": "adder_ripple",
+   "params": {
+    "W": 16
+   },
+   "period_ns": 5.0,
+   "util_pct": 40,
+   "gen_cells": 77,
+   "gen_depth": 31,
+   "synth_area_um2": 427.9104,
+   "synth_cells": 49,
+   "synth_netlist_area": 428.0,
+   "synth_netlist_wns": -0.63,
+   "global_place_area": 444.0,
+   "global_place_wns": -0.76,
+   "detail_place_area": 444.0,
+   "detail_place_wns": -0.84,
+   "final_area": 482.0,
+   "final_wns": 0.0,
+   "final_cells": 51,
+   "final_area_notap": 465.44,
+   "tap_area": 16.27,
+   "buffers_added": 2,
+   "cell_usage": {
+    "Timing Repair Buffer": [
+     2,
+     15.01
+    ],
+    "Multi-Input combinational cell": [
+     49,
+     450.43
+    ]
+   },
+   "power_w": 5.81e-05,
+   "synth_netlist_period_ns": 5.63,
+   "final_period_ns": 5.0
+  },
+  {
+   "name": "adder_op_W16",
+   "top": "adder_op",
+   "params": {
+    "W": 16
+   },
+   "period_ns": 5.0,
+   "util_pct": 40,
+   "gen_cells": 82,
+   "gen_depth": 31,
+   "synth_area_um2": 427.9104,
+   "synth_cells": 49,
+   "synth_netlist_area": 428.0,
+   "synth_netlist_wns": -0.63,
+   "global_place_area": 444.0,
+   "global_place_wns": -0.77,
+   "detail_place_area": 444.0,
+   "detail_place_wns": -0.86,
+   "final_area": 482.0,
+   "final_wns": 0.01,
+   "final_cells": 51,
+   "final_area_notap": 465.44,
+   "tap_area": 16.27,
+   "buffers_added": 2,
+   "cell_usage": {
+    "Timing Repair Buffer": [
+     2,
+     15.01
+    ],
+    "Multi-Input combinational cell": [
+     49,
+     450.43
+    ]
+   },
+   "power_w": 5.9e-05,
+   "synth_netlist_period_ns": 5.63,
+   "final_period_ns": 4.99
+  },
+  {
+   "name": "adder_ripple_W32",
+   "top": "adder_ripple",
+   "params": {
+    "W": 32
+   },
+   "period_ns": 5.0,
+   "util_pct": 40,
+   "gen_cells": 157,
+   "gen_depth": 63,
+   "synth_area_um2": 868.3328,
+   "synth_cells": 97,
+   "synth_netlist_area": 868.0,
+   "synth_netlist_wns": -6.9,
+   "global_place_area": 902.0,
+   "global_place_wns": -7.09,
+   "detail_place_area": 902.0,
+   "detail_place_wns": -7.29,
+   "final_area": 1104.0,
+   "final_wns": -4.88,
+   "final_cells": 113,
+   "final_area_notap": 1069.78,
+   "tap_area": 33.78,
+   "buffers_added": 16,
+   "cell_usage": {
+    "Timing Repair Buffer": [
+     16,
+     120.12
+    ],
+    "Multi-Input combinational cell": [
+     97,
+     949.66
+    ]
+   },
+   "power_w": 0.000145,
+   "synth_netlist_period_ns": 11.9,
+   "final_period_ns": 9.88
+  },
+  {
+   "name": "adder_op_W32",
+   "top": "adder_op",
+   "params": {
+    "W": 32
+   },
+   "period_ns": 5.0,
+   "util_pct": 40,
+   "gen_cells": 170,
+   "gen_depth": 63,
+   "synth_area_um2": 868.3328,
+   "synth_cells": 97,
+   "synth_netlist_area": 868.0,
+   "synth_netlist_wns": -6.9,
+   "global_place_area": 902.0,
+   "global_place_wns": -7.09,
+   "detail_place_area": 902.0,
+   "detail_place_wns": -7.31,
+   "final_area": 1141.0,
+   "final_wns": -4.86,
+   "final_cells": 116,
+   "final_area_notap": 1107.31,
+   "tap_area": 33.78,
+   "buffers_added": 19,
+   "cell_usage": {
+    "Timing Repair Buffer": [
+     19,
+     142.64
+    ],
+    "Multi-Input combinational cell": [
+     97,
+     964.68
+    ]
+   },
+   "power_w": 0.000152,
+   "synth_netlist_period_ns": 11.9,
+   "final_period_ns": 9.86
+  },
+  {
+   "name": "mult_op_W4",
+   "top": "mult_op",
+   "params": {
+    "W": 4
+   },
+   "period_ns": 5.0,
+   "util_pct": 40,
+   "gen_cells": 63,
+   "gen_depth": 12,
+   "synth_area_um2": 341.5776,
+   "synth_cells": 49,
+   "synth_netlist_area": 342.0,
+   "synth_netlist_wns": 3.66,
+   "global_place_area": 357.0,
+   "global_place_wns": 3.6,
+   "detail_place_area": 357.0,
+   "detail_place_wns": 3.58,
+   "final_area": 357.0,
+   "final_wns": 3.5,
+   "final_cells": 49,
+   "final_area_notap": 341.58,
+   "tap_area": 15.01,
+   "buffers_added": 0,
+   "cell_usage": {
+    "Multi-Input combinational cell": [
+     49,
+     341.58
+    ]
+   },
+   "power_w": 4.14e-05,
+   "synth_netlist_period_ns": 1.34,
+   "final_period_ns": 1.5
+  },
+  {
+   "name": "mult_op_W8",
+   "top": "mult_op",
+   "params": {
+    "W": 8
+   },
+   "period_ns": 5.0,
+   "util_pct": 40,
+   "gen_cells": 332,
+   "gen_depth": 30,
+   "synth_area_um2": 1926.848,
+   "synth_cells": 234,
+   "synth_netlist_area": 1927.0,
+   "synth_netlist_wns": 1.43,
+   "global_place_area": 1994.0,
+   "global_place_wns": 0.91,
+   "detail_place_area": 1994.0,
+   "detail_place_wns": 0.86,
+   "final_area": 1994.0,
+   "final_wns": 0.59,
+   "final_cells": 234,
+   "final_area_notap": 1926.85,
+   "tap_area": 67.56,
+   "buffers_added": 0,
+   "cell_usage": {
+    "Inverter": [
+     1,
+     3.75
+    ],
+    "Multi-Input combinational cell": [
+     233,
+     1923.09
+    ]
+   },
+   "power_w": 0.00058,
+   "synth_netlist_period_ns": 3.57,
+   "final_period_ns": 4.41
+  },
+  {
+   "name": "fifo_W8_AW2",
+   "top": "fifo",
+   "params": {
+    "W": 8,
+    "AW": 2
+   },
+   "period_ns": 5.0,
+   "util_pct": 40,
+   "gen_cells": 90,
+   "gen_depth": 6,
+   "synth_area_um2": 1558.9952,
+   "synth_cells": 114,
+   "synth_netlist_area": 1559.0,
+   "synth_netlist_wns": 2.75,
+   "global_place_area": 1619.0,
+   "global_place_wns": 2.16,
+   "detail_place_area": 1685.0,
+   "detail_place_wns": 2.45,
+   "final_area": 1685.0,
+   "final_wns": 2.19,
+   "final_cells": 122,
+   "final_area_notap": 1625.31,
+   "tap_area": 60.06,
+   "buffers_added": 7,
+   "cell_usage": {
+    "Clock buffer": [
+     7,
+     52.55
+    ],
+    "Inverter": [
+     2,
+     7.51
+    ],
+    "Clock inverter": [
+     1,
+     3.75
+    ],
+    "Sequential cell": [
+     40,
+     800.77
+    ],
+    "Multi-Input combinational cell": [
+     72,
+     760.73
+    ]
+   },
+   "power_w": 0.000824,
+   "synth_netlist_period_ns": 2.25,
+   "final_period_ns": 2.81
+  },
+  {
+   "name": "fifo_W8_AW3",
+   "top": "fifo",
+   "params": {
+    "W": 8,
+    "AW": 3
+   },
+   "period_ns": 5.0,
+   "util_pct": 40,
+   "gen_cells": 173,
+   "gen_depth": 8,
+   "synth_area_um2": 2972.8512,
+   "synth_cells": 210,
+   "synth_netlist_area": 2973.0,
+   "synth_netlist_wns": 2.45,
+   "global_place_area": 3097.0,
+   "global_place_wns": 1.52,
+   "detail_place_area": 3278.0,
+   "detail_place_wns": 1.97,
+   "final_area": 3278.0,
+   "final_wns": 1.82,
+   "final_cells": 225,
+   "final_area_notap": 3154.27,
+   "tap_area": 123.87,
+   "buffers_added": 12,
+   "cell_usage": {
+    "Clock buffer": [
+     11,
+     82.58
+    ],
+    "Timing Repair Buffer": [
+     1,
+     7.51
+    ],
+    "Inverter": [
+     2,
+     7.51
+    ],
+    "Clock inverter": [
+     3,
+     65.06
+    ],
+    "Sequential cell": [
+     75,
+     1501.44
+    ],
+    "Multi-Input combinational cell": [
+     133,
+     1490.18
+    ]
+   },
+   "power_w": 0.00138,
+   "synth_netlist_period_ns": 2.55,
+   "final_period_ns": 3.18
+  },
+  {
+   "name": "adder_op_W16_T2",
+   "top": "adder_op",
+   "params": {
+    "W": 16
+   },
+   "period_ns": 2.0,
+   "util_pct": 40,
+   "gen_cells": 82,
+   "gen_depth": 31,
+   "synth_area_um2": 427.9104,
+   "synth_cells": 49,
+   "synth_netlist_area": 428.0,
+   "synth_netlist_wns": -3.63,
+   "global_place_area": 444.0,
+   "global_place_wns": -3.77,
+   "detail_place_area": 444.0,
+   "detail_place_wns": -3.86,
+   "final_area": 528.0,
+   "final_wns": -2.72,
+   "final_cells": 55,
+   "final_area_notap": 511.74,
+   "tap_area": 16.27,
+   "buffers_added": 6,
+   "cell_usage": {
+    "Timing Repair Buffer": [
+     6,
+     45.04
+    ],
+    "Multi-Input combinational cell": [
+     49,
+     466.7
+    ]
+   },
+   "power_w": 0.000162,
+   "synth_netlist_period_ns": 5.63,
+   "final_period_ns": 4.72
+  },
+  {
+   "name": "adder_op_W16_T3",
+   "top": "adder_op",
+   "params": {
+    "W": 16
+   },
+   "period_ns": 3.0,
+   "util_pct": 40,
+   "gen_cells": 82,
+   "gen_depth": 31,
+   "synth_area_um2": 427.9104,
+   "synth_cells": 49,
+   "synth_netlist_area": 428.0,
+   "synth_netlist_wns": -2.63,
+   "global_place_area": 444.0,
+   "global_place_wns": -2.77,
+   "detail_place_area": 444.0,
+   "detail_place_wns": -2.86,
+   "final_area": 528.0,
+   "final_wns": -1.72,
+   "final_cells": 55,
+   "final_area_notap": 511.74,
+   "tap_area": 16.27,
+   "buffers_added": 6,
+   "cell_usage": {
+    "Timing Repair Buffer": [
+     6,
+     45.04
+    ],
+    "Multi-Input combinational cell": [
+     49,
+     466.7
+    ]
+   },
+   "power_w": 0.000108,
+   "synth_netlist_period_ns": 5.63,
+   "final_period_ns": 4.72
+  },
+  {
+   "name": "adder_op_W16_T8",
+   "top": "adder_op",
+   "params": {
+    "W": 16
+   },
+   "period_ns": 8.0,
+   "util_pct": 40,
+   "gen_cells": 82,
+   "gen_depth": 31,
+   "synth_area_um2": 427.9104,
+   "synth_cells": 49,
+   "synth_netlist_area": 428.0,
+   "synth_netlist_wns": 2.37,
+   "global_place_area": 444.0,
+   "global_place_wns": 2.23,
+   "detail_place_area": 444.0,
+   "detail_place_wns": 2.14,
+   "final_area": 444.0,
+   "final_wns": 1.92,
+   "final_cells": 49,
+   "final_area_notap": 427.91,
+   "tap_area": 16.27,
+   "buffers_added": 0,
+   "cell_usage": {
+    "Multi-Input combinational cell": [
+     49,
+     427.91
+    ]
+   },
+   "power_w": 3.31e-05,
+   "synth_netlist_period_ns": 5.63,
+   "final_period_ns": 6.08
+  }
+ ]
+}

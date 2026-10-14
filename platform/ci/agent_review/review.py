@@ -478,11 +478,35 @@ def submit_review(
     )
 
 
+# The repository is public, so anyone can open a pull request from a fork. The
+# agent reviewers and the auto-merge only ever act on branches pushed to this
+# repository by someone with write access; a fork PR or an outside author is
+# left for the owner to review and merge by hand.
+TRUSTED_AUTHOR_ASSOCIATIONS = frozenset({"OWNER", "MEMBER", "COLLABORATOR"})
+
+
+def untrusted_reason(pr: dict[str, Any]) -> str | None:
+    """Why agents must not review or merge this PR, or None if they may."""
+    head_repo = ((pr.get("head") or {}).get("repo") or {}).get("full_name")
+    base_repo = ((pr.get("base") or {}).get("repo") or {}).get("full_name")
+    if not head_repo or head_repo != base_repo:
+        return f"head is {head_repo or 'a deleted fork'}, not {base_repo} — human-gated; owner must review"
+    association = pr.get("author_association")
+    author = (pr.get("user") or {}).get("login", "")
+    if association not in TRUSTED_AUTHOR_ASSOCIATIONS and not author.endswith("[bot]"):
+        return f"author_association={association} — human-gated; owner must review"
+    return None
+
+
 def review_pull_request(pr_number: int, reviewer_key: str) -> str:
     config = load_config()
     reviewer = config.reviewers[reviewer_key]
     pr = fetch_pull_request(pr_number)
     author = (pr.get("user") or {}).get("login", "")
+
+    untrusted = untrusted_reason(pr)
+    if untrusted:
+        return f"skip: PR #{pr_number}: {untrusted}"
 
     if author_matches_skip(author, reviewer.author_skip):
         return f"skip: PR #{pr_number} authored by {author} (self-review)"
@@ -503,6 +527,9 @@ def merge_eligible(pr_number: int) -> tuple[bool, list[str]]:
     pr = fetch_pull_request(pr_number)
     reasons: list[str] = []
 
+    untrusted = untrusted_reason(pr)
+    if untrusted:
+        return False, [untrusted]
     if pr.get("draft"):
         return False, ["draft PR"]
     if pr.get("merged"):

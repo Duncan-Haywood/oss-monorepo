@@ -59,6 +59,8 @@ on:
     paths:
       - "ventures/**"
       - "platform/pages/**"
+      - "research/_homepage/**"
+      - "research/README.md"
       - ".github/workflows/publish-pages-branch.yml"
   workflow_dispatch:
 
@@ -78,7 +80,7 @@ permissions:
 
 jobs:
   publish:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # The build is ~2000 files and `check.mjs` crawls the whole artifact for
     # dead links; it takes a couple of minutes on a warm runner. Fifteen is
     # generous without letting a wedged build ride the 360-minute default.

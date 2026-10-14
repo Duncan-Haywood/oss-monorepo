@@ -1,0 +1,49 @@
+A twin run started away from steady state: exact AR(1) bias/MSE, M/M/1 empty start, MSER-5, false certification.
+
+== 0. AR(1): exact bias and variance of the run mean from start offset delta=3 (marginal sd 1) vs simulation (20000 runs) ==
+phi   n    d   bias exact   bias simulated   Var exact   Var simulated
+0.5   50   0   0.1200       0.1228           0.05680     0.05671
+0.9   100  0   0.3000       0.3002           0.16200     0.16144
+0.9   100  20  0.0456       0.0469           0.20915     0.20645
+0.99  400  0   0.7365       0.7453           0.31570     0.31676
+0.99  400  200 0.1740       0.1769           0.56295     0.55741
+
+== 1. AR(1) delta=3: MSE-optimal warm-up d* and the MSE it saves (exact) ==
+phi   n      bias(d=0)   sd(d=0)   MSE(d=0)   d*     MSE(d*)   MSE ratio   relaxation time 1/(1-phi)
+0.5   100    0.0600      0.1709    0.03280    2      0.03040   1.079       2
+0.5   1000   0.0060      0.0547    0.00303    2      0.00300   1.008       2
+0.5   10000  0.0006      0.0173    0.00030    2      0.00030   1.001       2
+0.9   100    0.3000      0.4025    0.25200    11     0.20070   1.256       10
+0.9   1000   0.0300      0.1368    0.01962    10     0.01911   1.027       10
+0.9   10000  0.0030      0.0436    0.00191    10     0.00190   1.003       10
+0.99  100    1.9019      0.5769    3.95006    50     2.67912   1.474       100
+0.99  1000   0.3000      0.4113    0.25919    111    0.20967   1.236       100
+0.99  10000  0.0300      0.1400    0.02050    104    0.02001   1.025       100
+
+== 2. M/M/1 empty start: bias of the mean wait over the first n jobs (2000 runs; true mean rho/(1-rho)) ==
+rho   true   n       mean of run means   bias   (s.e.)   bias/true
+0.5   1.00   500     0.991               -0.009 0.006    -0.009
+0.5   1.00   2000    0.999               -0.001 0.003    -0.001
+0.5   1.00   10000   1.002               0.002  0.001    0.002
+0.7   2.33   500     2.281               -0.052 0.018    -0.022
+0.7   2.33   2000    2.298               -0.035 0.009    -0.015
+0.7   2.33   10000   2.325               -0.008 0.004    -0.003
+0.9   9.00   500     7.118               -1.882 0.095    -0.209
+0.9   9.00   2000    8.443               -0.557 0.078    -0.062
+0.9   9.00   10000   8.895               -0.105 0.041    -0.012
+
+== 3. rho=0.9, n=5000 jobs from an empty queue, 2000 runs: what to discard? ==
+rule            mean discarded   bias   RMSE   batch(30) cover   batch half-width
+none            0                -0.142 2.419  0.717             2.695
+fixed 10%       500              0.021  2.597  0.721             2.769
+fixed 30%       1500             0.045  2.930  0.683             2.821
+MSER-5          376              -0.773 2.436  0.607             2.387
+
+== 4. False certification: true mean wait 9 (rho=0.9), SLA 8 (violated); certify if mean + half-width < 8 ==
+n       rule        certified (violating system passes)
+3000    none        0.181
+3000    fixed 30%   0.177
+3000    MSER-5      0.281
+10000   none        0.055
+10000   fixed 30%   0.079
+10000   MSER-5      0.131

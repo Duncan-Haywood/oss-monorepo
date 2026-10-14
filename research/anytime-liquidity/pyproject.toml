@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anytime-liquidity"
+version = "0.1.0"
+description = "LMSR with time-varying liquidity as anytime Hedge: exact price of an unknown horizon, doubling-trick cost, and self-tuning (AdaHedge) liquidity whose subsidy tracks the data"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

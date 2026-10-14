@@ -1,0 +1,21 @@
+gauge-2 feasible designs from simdesign-gaugescatter, re-solved at h in (2.5, 1.5, 1.0, 0.75) mm; stress limit 100 MPa
+rules: n=19
+  centroid peak      median MPa by h:   99.3  109.9  117.0  120.9 | h0.75/h1.0 ratio min 1.007 median 1.033 max 1.092
+  patch rho=1.0 mm   median MPa by h:   99.0  100.5  111.0  110.9 | h0.75/h1.0 ratio min 0.972 median 1.001 max 1.044
+  patch rho=2.0 mm   median MPa by h:   91.1   94.3   95.1   98.2 | h0.75/h1.0 ratio min 0.983 median 1.007 max 1.033
+  patch rho=3.0 mm   median MPa by h:   81.1   84.2   85.2   86.3 | h0.75/h1.0 ratio min 0.991 median 1.006 max 1.022
+  patch rho=5.0 mm   median MPa by h:   68.6   72.0   72.3   72.7 | h0.75/h1.0 ratio min 0.990 median 1.000 max 1.014
+  h=2.5: feasible under patch(rho=3): 19/19
+  h=1.5: feasible under patch(rho=3): 19/19
+  h=1.0: feasible under patch(rho=3): 19/19
+  h=0.75: feasible under patch(rho=3): 19/19
+free: n=20
+  centroid peak      median MPa by h:   99.7  107.9  117.9  121.1 | h0.75/h1.0 ratio min 1.007 median 1.036 max 1.097
+  patch rho=1.0 mm   median MPa by h:   99.3  100.2  107.7  107.8 | h0.75/h1.0 ratio min 0.972 median 1.001 max 1.042
+  patch rho=2.0 mm   median MPa by h:   91.5   91.2   92.8   94.8 | h0.75/h1.0 ratio min 0.983 median 1.009 max 1.033
+  patch rho=3.0 mm   median MPa by h:   80.9   82.8   83.6   84.2 | h0.75/h1.0 ratio min 0.995 median 1.006 max 1.022
+  patch rho=5.0 mm   median MPa by h:   69.2   70.2   71.2   71.2 | h0.75/h1.0 ratio min 0.991 median 0.999 max 1.014
+  h=2.5: feasible under patch(rho=3): 20/20
+  h=1.5: feasible under patch(rho=3): 20/20
+  h=1.0: feasible under patch(rho=3): 20/20
+  h=0.75: feasible under patch(rho=3): 20/20

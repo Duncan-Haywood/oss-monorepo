@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fusion-twin"
+version = "0.1.0"
+description = "How many redundant sensors a twin with independent errors says a robot needs, when real errors share a common component: exact equicorrelated variance, a sensor-count floor, gate false alarms, and a bootstrap repair from calibration logs"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

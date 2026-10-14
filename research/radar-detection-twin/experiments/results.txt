@@ -1,0 +1,56 @@
+N=16 reference cells, independent gamma texture per cell (shape nu), twin = Gaussian clutter, OS ranks k=(8, 12, 14)
+
+== 1. Real Pfa when the threshold is set in the Gaussian twin ==
+design Pfa  nu    CA                OS k=8            OS k=12           OS k=14         
+0.01        2     3.03e-02 (3.0x)   4.76e-02 (4.8x)   3.64e-02 (3.6x)   2.89e-02 (2.9x) 
+0.01        5     1.95e-02 (2.0x)   2.37e-02 (2.4x)   2.15e-02 (2.1x)   1.90e-02 (1.9x) 
+0.01        20    1.26e-02 (1.3x)   1.32e-02 (1.3x)   1.30e-02 (1.3x)   1.25e-02 (1.3x) 
+0.0001      2     3.01e-03 (30.1x)  4.20e-03 (42.0x)  3.49e-03 (34.9x)  2.62e-03 (26.2x)
+0.0001      5     9.16e-04 (9.2x)   8.49e-04 (8.5x)   9.20e-04 (9.2x)   8.14e-04 (8.1x) 
+0.0001      20    2.37e-04 (2.4x)   2.03e-04 (2.0x)   2.25e-04 (2.3x)   2.22e-04 (2.2x) 
+1e-06       2     3.58e-04 (358.4x)  3.22e-04 (322.0x)  3.61e-04 (360.6x)  2.75e-04 (274.9x)
+1e-06       5     5.02e-05 (50.2x)  2.58e-05 (25.8x)  4.11e-05 (41.1x)  3.92e-05 (39.2x)
+1e-06       20    4.86e-06 (4.9x)   2.87e-06 (2.9x)   3.97e-06 (4.0x)   4.16e-06 (4.2x) 
+
+== 2. Exact laws vs direct Monte Carlo (design Pfa 1e-2, 400k trials) ==
+nu=2 CA       MC Pfa 0.0299 exact 0.0303 | shared texture MC 0.0101 (twin design 0.0100)
+nu=2 OS k=12  MC Pfa 0.0361 exact 0.0364 | shared texture MC 0.0102 (twin design 0.0100)
+nu=2 CA       target SNR 8 (9.0 dB): MC Pd 0.4752 exact 0.4743
+nu=2 OS k=12  target SNR 8 (9.0 dB): MC Pd 0.4889 exact 0.4877
+nu=5 CA       MC Pfa 0.0193 exact 0.0195 | shared texture MC 0.0102 (twin design 0.0100)
+nu=5 OS k=12  MC Pfa 0.0214 exact 0.0215 | shared texture MC 0.0103 (twin design 0.0100)
+nu=5 CA       target SNR 8 (9.0 dB): MC Pd 0.5193 exact 0.5194
+nu=5 OS k=12  target SNR 8 (9.0 dB): MC Pd 0.5149 exact 0.5159
+
+== 3. Threshold multiplier restoring design Pfa in real clutter (vs the twin's), design 1e-4 ==
+nu   CA                    OS k=8                OS k=12               OS k=14             
+2    2.34x (3.70 dB)       2.87x (4.58 dB)       2.55x (4.07 dB)       2.33x (3.67 dB)     
+5    1.56x (1.93 dB)       1.63x (2.12 dB)       1.60x (2.05 dB)       1.55x (1.91 dB)     
+20   1.15x (0.61 dB)       1.15x (0.60 dB)       1.15x (0.62 dB)       1.15x (0.59 dB)     
+
+== 4. SNR needed for Pd=0.9 at Pfa 1e-4 (dB, relative to local clutter mean) ==
+twin promise = threshold and Pd both computed in the Gaussian twin; real = repaired threshold (real Pfa 1e-4) and real Pd
+detector    twin promise   real nu=2       real nu=5       real nu=20       shortfall (real - promise) dB
+CA          20.67          26.96          23.51          21.50           6.28  2.84  0.82
+OS k=8      22.15          27.95          24.64          22.83           5.80  2.49  0.68
+OS k=12     21.30          27.39          24.03          22.07           6.09  2.73  0.77
+OS k=14     21.17          27.42          24.02          21.99           6.25  2.85  0.81
+
+== 5. Detector ranking: best detector by SNR needed for Pd=0.9 at Pfa 1e-4 (dB relative to CA in the same world) ==
+world       CA         OS k=8     OS k=12    OS k=14    best
+twin        0.00       1.48       0.62       0.50       CA
+nu=20       0.00       1.33       0.57       0.49       CA
+nu=5        0.00       1.13       0.51       0.51       CA
+nu=2        0.00       0.99       0.43       0.46       CA
+nu=1.5      0.00       0.93       0.33       0.36       CA
+
+== 6. What the uncalibrated twin threshold does to Pd (Pd 0.9 target SNR from the twin promise, design Pfa 1e-4) ==
+detector   nu   real Pfa      real Pd at promised SNR
+CA         2    3.01e-03      0.839
+CA         5    9.16e-04      0.879
+OS k=8     2    4.20e-03      0.873
+OS k=8     5    8.49e-04      0.892
+OS k=12    2    3.49e-03      0.853
+OS k=12    5    9.20e-04      0.885
+OS k=14    2    2.62e-03      0.836
+OS k=14    5    8.14e-04      0.878

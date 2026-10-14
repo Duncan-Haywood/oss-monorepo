@@ -1,0 +1,27 @@
+E1 symmetric swarm, a/c=3.0, theta=0.5: effort and welfare, Nash vs efficient
+  N=   1  total effort Nash   2.000 eff     2.00 (ratio   1.00)  learning level y Nash 2.00 eff 2.00  welfare/agent Nash 1.296 eff 1.296  eff/Nash 1.00
+  N=   2  total effort Nash   2.667 eff     4.67 (ratio   1.75)  learning level y Nash 2.00 eff 3.50  welfare/agent Nash 1.963 eff 2.179  eff/Nash 1.11
+  N=   4  total effort Nash   3.200 eff    10.40 (ratio   3.25)  learning level y Nash 2.00 eff 6.50  welfare/agent Nash 2.496 eff 3.445  eff/Nash 1.38
+  N=   8  total effort Nash   3.556 eff    22.22 (ratio   6.25)  learning level y Nash 2.00 eff 12.50  welfare/agent Nash 2.851 eff 5.030  eff/Nash 1.76
+  N=  16  total effort Nash   3.765 eff    46.12 (ratio  12.25)  learning level y Nash 2.00 eff 24.50  welfare/agent Nash 3.061 eff 6.834  eff/Nash 2.23
+  N=  64  total effort Nash   3.938 eff   190.03 (ratio  48.25)  learning level y Nash 2.00 eff 96.50  welfare/agent Nash 3.234 eff 10.770  eff/Nash 3.33
+  N= 256  total effort Nash   3.984 eff   766.01 (ratio 192.25)  learning level y Nash 2.00 eff 384.50  welfare/agent Nash 3.280 eff 14.871  eff/Nash 4.53
+  limits: Nash total -> (a/c-1)/theta = 4.0
+E2 heterogeneous costs, N=20, a=3, log-cost sigma s (100 draws): contributors, welfare, subsidy
+  theta=0.3 s=0.25: contributors at Nash  8.34/20, Nash/efficient welfare 0.468 (min 0.427), mean subsidy/cost 0.604, subsidy budget / efficient welfare 0.372
+  theta=0.3 s=0.5: contributors at Nash  5.05/20, Nash/efficient welfare 0.491 (min 0.427), mean subsidy/cost 0.399, subsidy budget / efficient welfare 0.316
+  theta=0.7 s=0.25: contributors at Nash  3.26/20, Nash/efficient welfare 0.417 (min 0.378), mean subsidy/cost 0.610, subsidy budget / efficient welfare 0.290
+  theta=0.7 s=0.5: contributors at Nash  2.26/20, Nash/efficient welfare 0.472 (min 0.392), mean subsidy/cost 0.433, subsidy budget / efficient welfare 0.258
+  theta=1.0 s=0.25: contributors at Nash  1.00/20, Nash/efficient welfare 0.424 (min 0.375), mean subsidy/cost 0.622, subsidy budget / efficient welfare 0.264
+  theta=1.0 s=0.5: contributors at Nash  1.00/20, Nash/efficient welfare 0.491 (min 0.409), mean subsidy/cost 0.433, subsidy budget / efficient welfare 0.235
+E3 symmetric Pigouvian subsidy tau/c = theta(N-1)/k, a/c=3, theta=0.5
+  N=   2  tau/c 0.333  budget     1.56  budget/welfare 0.357
+  N=   4  tau/c 0.600  budget     6.24  budget/welfare 0.453
+  N=   8  tau/c 0.778  budget    17.28  budget/welfare 0.429
+  N=  32  tau/c 0.939  budget    88.36  budget/welfare 0.315
+  N= 128  tau/c 0.984  budget   376.09  budget/welfare 0.229
+E4 audit deterrence p >= (c-eps)/(tau+F), c=1, eps=0.1, tau=0.8 (MC 4e5 draws)
+  F=0.0  p*=1.000  honest -0.200  junk at p* -0.100  junk at p*/2 +0.300
+  F=1.0  p*=0.500  honest -0.200  junk at p* -0.201  junk at p*/2 +0.249
+  F=2.0  p*=0.321  honest -0.200  junk at p* -0.200  junk at p*/2 +0.250
+  F=5.0  p*=0.155  honest -0.200  junk at p* -0.202  junk at p*/2 +0.247

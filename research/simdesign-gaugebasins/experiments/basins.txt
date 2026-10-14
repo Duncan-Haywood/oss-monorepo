@@ -1,0 +1,13 @@
+gauge b=2 mm, peak measure, h=2.5 mm; bounds w (2.0, 25.0), r (0.0, 15.0); lower group < 34.65 g
+base   rules lower: n=10 w 14.36-14.79 r 9.28-13.88 mass 33.32-34.02
+base   rules upper: n= 9 w 15.30-15.63 r 7.55-13.59 mass 35.29-35.62
+base   free  lower: n=10 w 14.33-14.79 r 9.28-14.55 mass 33.32-34.02
+base   free  upper: n=10 w 15.27-15.60 r 7.64-13.59 mass 35.31-35.57
+bigpop rules lower: n=17 w 14.32-14.86 r 10.37-14.75 mass 33.30-34.58
+bigpop rules upper: n= 3 w 15.20-15.39 r 10.60-14.58 mass 35.27-35.32
+bigpop free  lower: n=19 w 14.32-14.52 r 10.37-14.56 mass 33.30-33.55
+bigpop free  upper: n= 1 w 15.39-15.39 r 10.60-10.60 mass 35.32-35.32
+grid rules: 15 of 441 points feasible; min mass 33.75 g
+grid rules: 1 connected feasible component(s), sizes [15]
+grid free: 15 of 441 points feasible; min mass 33.75 g
+grid free: 1 connected feasible component(s), sizes [15]

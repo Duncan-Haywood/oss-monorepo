@@ -1,0 +1,30 @@
+E1  replicas needed for drop rate <= 1e-3 (L=48, worker availability a=0.9); exact vs Poisson-tail approx
+  skip budget s=0: r = 5  approx 4.68  workers 240
+  skip budget s=1: r = 4  approx 3.03  workers 192
+  skip budget s=2: r = 3  approx 2.42  workers 144
+  skip budget s=4: r = 2  approx 1.87  workers 96
+  skip budget s=8: r = 2  approx 1.40  workers 96
+
+E2  correlated outages: replicas cannot beat the domain floor (L=48, a=0.9, target drop <= 1e-2)
+  rho=0.0     floor(s=0) success 1.0000   s=0: r=4   s=1: r=3   s=2: r=3   s=3: r=2
+  rho=0.0001  floor(s=0) success 0.9952   s=0: r=4   s=1: r=3   s=2: r=3   s=3: r=2
+  rho=0.001   floor(s=0) success 0.9531   s=0: infeasible   s=1: r=3   s=2: r=3   s=3: r=2
+  rho=0.005   floor(s=0) success 0.7862   s=0: infeasible   s=1: infeasible   s=2: r=3   s=3: r=2
+  rho=0.01    floor(s=0) success 0.6173   s=0: infeasible   s=1: infeasible   s=2: infeasible   s=3: r=3
+
+E3  cost-optimal (r, s): workers per unit useful throughput (a=0.9)
+  L= 16 kappa=0.02: best r=1 s=16 cost    16.5   no-skip best    37.6   ratio 2.275
+  L= 16 kappa=0.10: best r=1 s=15 cost    18.8   no-skip best    37.6   ratio 2.000
+  L= 16 kappa=0.40: best r=1 s=14 cost    30.7   no-skip best    37.6   ratio 1.222
+  L= 48 kappa=0.02: best r=1 s=24 cost    52.8   no-skip best   151.1   ratio 2.859
+  L= 48 kappa=0.10: best r=1 s=24 cost    77.8   no-skip best   151.1   ratio 1.943
+  L= 48 kappa=0.40: best r=2 s=12 cost   116.4   no-skip best   151.1   ratio 1.298
+  L=128 kappa=0.02: best r=1 s=24 cost   165.5   no-skip best   436.5   ratio 2.637
+  L=128 kappa=0.10: best r=2 s=18 cost   291.0   no-skip best   436.5   ratio 1.500
+  L=128 kappa=0.40: best r=3 s=9 cost   404.2   no-skip best   436.5   ratio 1.080
+
+E4  Monte Carlo check (L=20, r=2, a=0.8, rho=0.01, 40000 trials)
+  s=0: success sim 0.3602 exact 0.3615   mean skips|ok 0.000
+  s=1: success sim 0.7397 exact 0.7389   mean skips|ok 0.513
+  s=2: success sim 0.9264 exact 0.9259   mean skips|ok 0.813
+  s=4: success sim 0.9972 exact 0.9975   mean skips|ok 0.980

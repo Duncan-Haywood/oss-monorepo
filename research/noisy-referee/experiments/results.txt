@@ -1,0 +1,34 @@
+E1  raw score elicits the noisy probability: report = e0 + gamma p; raw Brier excess = gamma^2 (r'-p)^2
+  e0=0.1 e1=0.1 gamma=0.80: truthful p=0.8 is paid as if p~=0.740; incentive to fix a 0.1 error shrinks 1.56x
+  e0=0.05 e1=0.3 gamma=0.65: truthful p=0.8 is paid as if p~=0.570; incentive to fix a 0.1 error shrinks 2.37x
+  e0=0.2 e1=0.2 gamma=0.60: truthful p=0.8 is paid as if p~=0.680; incentive to fix a 0.1 error shrinks 2.78x
+
+E2  ranking reversal under raw scores (truthful verifiers, symmetric noise eta)
+  A: beliefs {0.05,0.95}, B: {0.3,0.7}, clean Brier A 0.0475, B 0.2100
+  eta=0.05  raw Brier A 0.0880  B 0.2180  ok
+  eta=0.10  raw Brier A 0.1285  B 0.2260  ok
+  eta=0.20  raw Brier A 0.2095  B 0.2420  ok
+  eta=0.30  raw Brier A 0.2905  B 0.2580  REVERSED
+  reversal threshold eta* = 0.2500 (Brier), 0.17842298130080259(log)
+  surrogate expected loss of A at eta=0.1: 0.0475  (clean 0.0475)
+  surrogate expected loss of A at eta=0.3: 0.0475  (clean 0.0475)
+
+E3  price of the unbiased surrogate: Brier payment range and sample-size inflation (pi=0.5, r1=0.3 vs r2=0.5)
+  eta=0.0 gamma=1.0  payment spread 1.000 (1/gamma=1.000)  n inflation 1.00  1/gamma^2 1.00
+  eta=0.1 gamma=0.8  payment spread 1.250 (1/gamma=1.250)  n inflation 1.56  1/gamma^2 1.56
+  eta=0.2 gamma=0.6  payment spread 1.667 (1/gamma=1.667)  n inflation 2.78  1/gamma^2 2.78
+  eta=0.3 gamma=0.4  payment spread 2.500 (1/gamma=2.500)  n inflation 6.25  1/gamma^2 6.25
+  eta=0.4 gamma=0.2  payment spread 5.000 (1/gamma=5.000)  n inflation 25.00  1/gamma^2 25.00
+
+E4  misestimated rates: optimal report bias = ((gamma-gamma_hat)p + e0-eh0)/gamma_hat (true e0=e1=0.1)
+  assumed (0.1,0.1)  p=0.2 -> 0.2000   p=0.8 -> 0.8000
+  assumed (0.15,0.1)  p=0.2 -> 0.1467   p=0.8 -> 0.7867
+  assumed (0.1,0.2)  p=0.2 -> 0.2286   p=0.8 -> 0.9143
+  assumed (0.2,0.2)  p=0.2 -> 0.1000   p=0.8 -> 0.9000
+  assumed (0.0,0.0)  p=0.2 -> 0.2600   p=0.8 -> 0.7400
+
+E5  gold-check budget: mean true-Brier excess from estimating rates on m items per class (e0=0.1, e1=0.2), Monte Carlo vs delta method
+  m=   25  measured 0.00720  predicted 0.00680  ratio 1.058   x m = 0.180
+  m=  100  measured 0.00170  predicted 0.00170  ratio 0.997   x m = 0.170
+  m=  400  measured 0.00041  predicted 0.00043  ratio 0.966   x m = 0.164
+  m= 1600  measured 0.00010  predicted 0.00011  ratio 0.965   x m = 0.164

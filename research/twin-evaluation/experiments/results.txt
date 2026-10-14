@@ -1,0 +1,53 @@
+== E1  bias: twin-only vs real-only vs control variate (n=30 real, N=3000 twin, twin bias b=+0.7, true mean 1.0)
+  twin-only        mean error +0.700   sd 0.026
+  real-only        mean error -0.005   sd 0.255
+  control variate  mean error +0.001   sd 0.231
+
+== E2  what sets the correlation: twin execution noise tau (context share eta = 0.5, g = 1)
+  tau   rho   rho^2  var ratio vs real-only (N->inf): formula 1-rho^2 | simulated (n=50, N=5000, plug-in lambda)
+  2.0  0.316 0.100   0.900 | 0.928
+  1.0  0.500 0.250   0.750 | 0.775
+  0.5  0.632 0.400   0.600 | 0.624
+  0.0  0.707 0.500   0.500 | 0.516
+  context share eta -> rho of faithful twin (tau=se) vs noise-free twin (tau=0):
+  eta=0.20: faithful rho=0.200 (equiv. real-sample gain 1.04x)   noise-free rho=0.447 (1.25x)
+  eta=0.50: faithful rho=0.500 (equiv. real-sample gain 1.33x)   noise-free rho=0.707 (2.00x)
+  eta=0.80: faithful rho=0.800 (equiv. real-sample gain 2.78x)   noise-free rho=0.894 (5.00x)
+
+== E3  cost of estimating lambda from n pairs (noise-free twin, rho=0.707, N=20n): variance vs optimal fixed lambda, and 95% interval coverage
+  n=  6: var/optimal 1.326   (n-2)/(n-3)=1.333   coverage 0.940
+  n= 10: var/optimal 1.113   (n-2)/(n-3)=1.143   coverage 0.941
+  n= 20: var/optimal 1.067   (n-2)/(n-3)=1.059   coverage 0.941
+  n= 50: var/optimal 1.027   (n-2)/(n-3)=1.021   coverage 0.940
+
+== E4  cost-optimal allocation, budget C=1000 (real rollout cost 1); sigma_R^2=2
+  faithful (rho=0.5): worth-it threshold c_T/c_R < 0.072
+    c_T/c_R=0.001: n*= 982.1 N*=   17930  var 0.00156 (0.778x real-only)  simulated at rounded (982,18000): 0.00145
+    c_T/c_R=0.01 : n*= 945.4 N*=    5458  var 0.00168 (0.839x real-only)  simulated at rounded (945,5500): 0.00172
+    c_T/c_R=0.05 : n*= 885.7 N*=    2287  var 0.00191 (0.956x real-only)  simulated at rounded (886,2280): 0.00186
+    c_T/c_R=0.1  : twin not worth it; real-only n=1000, var 0.00200
+    c_T/c_R=0.5  : twin not worth it; real-only n=1000, var 0.00200
+  noise-free (rho=0.707): worth-it threshold c_T/c_R < 0.172
+    c_T/c_R=0.001: n*= 969.3 N*=   30653  var 0.00106 (0.532x real-only)  simulated at rounded (969,31000): nan
+    c_T/c_R=0.01 : n*= 909.1 N*=    9091  var 0.00121 (0.605x real-only)  simulated at rounded (909,9100): 0.00116
+    c_T/c_R=0.05 : n*= 817.3 N*=    3655  var 0.00150 (0.749x real-only)  simulated at rounded (817,3660): 0.00155
+    c_T/c_R=0.1  : n*= 759.7 N*=    2403  var 0.00173 (0.866x real-only)  simulated at rounded (760,2400): 0.00176
+    c_T/c_R=0.5  : twin not worth it; real-only n=1000, var 0.00200
+
+== E5  ranking two policies: twin favours the wrong one (true gap A-B = +0.20; twin bias b_A=0, b_B=+0.40 so twin gap = -0.20)
+  faithful twin (rho=0.500); twin-only picks A with prob ~0 as N grows (twin gap -0.20); real-only vs control variate, N=20n:
+    n= 20: P(wrong) real-only 0.327 (sim 0.327)   control variate 0.304 (sim 0.302)
+    n= 50: P(wrong) real-only 0.240 (sim 0.251)   control variate 0.209 (sim 0.205)
+    n=100: P(wrong) real-only 0.159 (sim 0.151)   control variate 0.126 (sim 0.119)
+    n=200: P(wrong) real-only 0.079 (sim 0.079)   control variate 0.053 (sim 0.053)
+    real episodes per policy for 90% correct order: real-only 164, control variate 125
+  noise-free twin (rho=0.707); twin-only picks A with prob ~0 as N grows (twin gap -0.20); real-only vs control variate, N=20n:
+    n= 20: P(wrong) real-only 0.327 (sim 0.327)   control variate 0.269 (sim 0.277)
+    n= 50: P(wrong) real-only 0.240 (sim 0.251)   control variate 0.165 (sim 0.174)
+    n=100: P(wrong) real-only 0.159 (sim 0.151)   control variate 0.084 (sim 0.078)
+    n=200: P(wrong) real-only 0.079 (sim 0.079)   control variate 0.025 (sim 0.021)
+    real episodes per policy for 90% correct order: real-only 164, control variate 86
+
+== E6  binary success (latent difficulty u shared; R=1[u+0.8e<0.3], T=1[u+0.8e'<0.0]; twin is pessimistic)
+  real success 0.592, twin success 0.500 (bias -0.092); rho=0.412; formula variance ratio 1-rho^2 = 0.830
+  n=50, N=2000: mean 0.5940 (truth 0.5920); var 0.004096 vs formula 0.004031; real-only 0.004831

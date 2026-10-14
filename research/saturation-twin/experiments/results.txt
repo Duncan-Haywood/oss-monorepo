@@ -1,0 +1,45 @@
+plant a=1.2, b=1.0, limit U=1.0, loss-of-control radius L=U/(a-1)=5.000; twin LQR gain K=1.1026 (pole +0.0974)
+
+== E1  mean steps to loss of control from x=0: twin (no limit) vs real (limit U), by noise sd s
+  s     twin T        real T      twin/real     twin sat. rate P(|Kx|>U)
+  0.5    >1e10 (n/r)   2.173e+07          n/r   0.0710
+  0.6    >1e10 (n/r)   1.957e+05          n/r   0.1325
+  0.7    >1e10 (n/r)   1.172e+04          n/r   0.1972
+  0.8      2.024e+09        1936    1.046e+06   0.2592
+  1.0      1.545e+06       245.5         6295   0.3667
+  1.2       2.97e+04       81.48        364.5   0.4519
+  1.5           1102       31.98        34.46   0.5473
+  2.0          78.15       13.79        5.666   0.6518
+
+== E2  discretisation check (s=1.0, real): N cells
+  N=60   T=245.836
+  N=120  T=245.522
+  N=240  T=245.482
+  N=480  T=245.472
+
+== E3  Monte Carlo vs exact (2,000 runs)
+  real s=1.5: exact 31.98  simulated 32.58 +- 0.68
+  real s=2.0: exact 13.79  simulated 13.89 +- 0.26
+  twin s=1.5: exact 1102.14  simulated 1077.79 +- 24.71
+  twin s=2.0: exact 78.15  simulated 74.45 +- 1.62
+
+== E4  twin-tuned gain vs gain tuned for the real limit (maximise mean exit time; grid K in 0.30..2.40 step 0.10)
+  s     twin-best K   real T at twin-best K   real-best K   real T at real-best K   gain factor
+  0.8       1.20               1948            1.20                 1948               1
+  1.0       1.20              246.1            1.20                246.1               1
+  1.5       1.20                 32            1.20                   32               1
+
+== E5  T at each gain, s=1.0 (real vs twin)
+  K=0.4    real      121.3   twin          560
+  K=0.8    real      228.7   twin    2.184e+05
+  K=1.1026 real      245.5   twin    1.545e+06
+  K=1.5    real      242.7   twin     5.43e+05
+  K=1.8    real      236.6   twin    1.644e+04
+  K=2.0    real      232.6   twin          560
+  K=2.2    real      228.8   twin        31.42
+
+== E6  d ln T / d(1/s^2): large-deviation exponent (twin prediction L^2(1-m^2)/2 = 12.381, m=a-bK)
+  s=1.2: real 3.741  twin 13.175
+  s=1.0: real 3.609  twin 12.934
+  s=0.9: real 3.637  twin 12.807
+  s=0.8: real 3.696  twin 12.727

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "order-flow-liquidity"
+version = "0.1.0"
+description = "Glosten-Milgrom market maker vs LMSR for a verification market: informed-verifier fraction fixes the LMSR liquidity b* = 1/(2 atanh(mu(2q-1))), exact misspecification regret, exact market-maker P&L, unknown-flow mixture"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

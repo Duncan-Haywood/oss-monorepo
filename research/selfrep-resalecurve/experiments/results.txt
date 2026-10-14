@@ -1,0 +1,22 @@
+assumed inputs: a=1.0 per machine-hour; W=50.0 h per copy (selfrep-growth); horizon T=600 h; fleet starts at 1; failure 0, k=1/W=0.0200/h; cash never binds
+resale S(n) = s m (1 - exp(-n/m)); s = price of the first machine offered, m = used-machine market depth (machines), total proceeds capped at s m; s* = a/k = 50.0
+bang-bang = best single switch (1 h grid); DP = 400 log-spaced fleet points, 21 control levels, policy simulated with the shared Euler integrator
+
+== goods market capacity c = inf, first-machine price s = 0.5 s* = 25.0
+m= inf: bang-bang ts= 574 J=    4406246.3 N_T=   96761.1 | DP J=    4406246.3 (table     4652795.0) N_T=   87692.9 u<0.5 from t=575
+m=1e+06: bang-bang ts= 572 J=    4317368.0 N_T=   92967.0 | DP J=    4317360.6 (table     4547389.7) N_T=   84256.2 u<0.5 from t=573
+m=100000: bang-bang ts= 562 J=    3823710.4 N_T=   76115.0 | DP J=    3823574.4 (table     3989648.6) N_T=   68487.9 u<0.5 from t=562
+m=10000: bang-bang ts= 550 J=    2934581.3 N_T=   59874.1 | DP J=    2934562.8 (table     3082391.2) N_T=   53556.9 u<0.5 from t=550
+m=1000: bang-bang ts= 549 J=    2710743.1 N_T=   58688.6 | DP J=    2710743.1 (table     2860148.4) N_T=   53451.6 u<0.5 from t=550
+
+== goods market capacity c = 10000, first-machine price s = 0.5 s* = 25.0
+m= inf: bang-bang ts= 600 J=    3614457.0 N_T=  162754.8 | DP J=    3625081.4 (table     3442518.0) N_T=  138566.4 u<0.5 from t=600
+m=1e+06: bang-bang ts= 600 J=    3365320.8 N_T=  162754.8 | DP J=    3391906.4 (table     3248587.5) N_T=  137558.7 u<0.5 from t=600
+m=100000: bang-bang ts= 600 J=    1911096.0 N_T=  162754.8 | DP J=    2170720.2 (table     2161290.5) N_T=  110010.9 u<0.5 from t=600
+m=10000: bang-bang ts= 492 J=    1087825.1 N_T=   18769.7 | DP J=    1148642.4 (table     1149384.6) N_T=   22518.1 u<0.5 from t=500
+m=1000: bang-bang ts= 485 J=     913949.3 N_T=   16317.6 | DP J=     955880.4 (table      958196.7) N_T=   18301.1 u<0.5 from t=492
+
+== grid check: c=inf, m=1e4, s=0.5 s*; DP policy value by grid size
+n_points=200: DP J=2934009.3 (table 3537357.0)
+n_points=400: DP J=2934562.8 (table 3082391.2)
+n_points=800: DP J=2934581.3 (table 2970715.3)

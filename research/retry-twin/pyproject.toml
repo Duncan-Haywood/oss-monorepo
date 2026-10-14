@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "retry-twin"
+version = "0.1.0"
+description = "Retry budgets for a manipulation skill planned in an independent-attempt twin: exact Beta-mixture failure law, polynomial tail, give-up rule, and a pair-moment repair"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,11 @@
+gauge b=2 mm, peak measure, h=2.5 mm, seeds 0-19; mass in g, n_fe = finite-element solves
+base      rules: missed 1 of 20; mean n_fe 113; lower group (<34.65 g) 10, upper 9; masses 33.32 33.32 33.46 33.49 33.52 33.60 33.60 33.65 33.70 34.02 35.29 35.29 35.34 35.37 35.42 35.55 35.57 35.59 35.62
+base      free : missed 0 of 20; mean n_fe 117; lower group (<34.65 g) 10, upper 10; masses 33.32 33.32 33.44 33.46 33.48 33.49 33.50 33.60 33.60 34.02 35.31 35.34 35.34 35.34 35.37 35.38 35.42 35.49 35.51 35.57
+restart2  rules: missed 0 of 20; mean n_fe 228; lower group (<34.65 g) 14, upper 6; masses 33.32 33.32 33.44 33.44 33.46 33.48 33.49 33.52 33.52 33.55 33.60 33.60 33.75 34.02 35.29 35.33 35.37 35.37 35.39 35.43
+restart2  free : missed 0 of 20; mean n_fe 229; lower group (<34.65 g) 15, upper 5; masses 33.29 33.32 33.32 33.44 33.44 33.46 33.48 33.49 33.50 33.52 33.55 33.60 33.60 33.67 34.02 35.31 35.33 35.37 35.37 35.39
+bigpop    rules: missed 0 of 20; mean n_fe 235; lower group (<34.65 g) 17, upper 3; masses 33.30 33.31 33.37 33.38 33.39 33.39 33.43 33.44 33.44 33.46 33.47 33.47 33.49 33.51 33.60 33.61 34.58 35.27 35.29 35.32
+bigpop    free : missed 0 of 20; mean n_fe 242; lower group (<34.65 g) 19, upper 1; masses 33.30 33.32 33.33 33.36 33.38 33.38 33.39 33.39 33.39 33.41 33.43 33.43 33.44 33.44 33.45 33.47 33.47 33.49 33.55 35.32
+price at gauge 2 (rules/free, same seed), seeds where both feasible
+base     : n=19 mean 1.002 sd 0.026 range 0.944-1.061
+restart2 : n=20 mean 1.003 sd 0.012 range 0.996-1.054
+bigpop   : n=20 mean 1.008 sd 0.019 range 0.994-1.057

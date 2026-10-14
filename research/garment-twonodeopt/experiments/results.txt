@@ -1,0 +1,42 @@
+== choice set ours: mean |tsk-33.7| C over 180 min (lower is better) ==
+-- hot->cool: 31 C then 16 C   best fixed 2.829   gate lag 0 2.855   gate lag 10 3.040
+   best with <= 0 toggles 2.829  start closed, toggle at [] min
+   best with <= 1 toggles 2.741  start open, toggle at [80] min
+   best with <= 2 toggles 2.741  start open, toggle at [80] min
+   best with <= 3 toggles 2.741  start open, toggle at [80] min
+-- cool->hot: 16 C then 31 C   best fixed 3.326   gate lag 0 3.259   gate lag 10 3.270
+   best with <= 0 toggles 3.326  start closed, toggle at [] min
+   best with <= 1 toggles 3.240  start closed, toggle at [90] min
+   best with <= 2 toggles 3.240  start closed, toggle at [90] min
+   best with <= 3 toggles 3.240  start closed, toggle at [90] min
+-- mild->hot: 24 C then 31 C   best fixed 0.797   gate lag 0 0.696   gate lag 10 0.707
+   best with <= 0 toggles 0.797  start closed, toggle at [] min
+   best with <= 1 toggles 0.690  start closed, toggle at [90] min
+   best with <= 2 toggles 0.690  start closed, toggle at [90] min
+   best with <= 3 toggles 0.690  start closed, toggle at [90] min
+-- hot->mild: 31 C then 24 C   best fixed 0.817   gate lag 0 0.737   gate lag 10 0.857
+   best with <= 0 toggles 0.817  start closed, toggle at [] min
+   best with <= 1 toggles 0.680  start open, toggle at [100] min
+   best with <= 2 toggles 0.680  start open, toggle at [100] min
+   best with <= 3 toggles 0.680  start open, toggle at [100] min
+== choice set ref: mean |tsk-33.7| C over 180 min (lower is better) ==
+-- hot->cool: 31 C then 16 C   best fixed 2.144   gate lag 0 2.141   gate lag 10 2.291
+   best with <= 0 toggles 2.144  start closed, toggle at [] min
+   best with <= 1 toggles 2.064  start open, toggle at [80] min
+   best with <= 2 toggles 2.064  start open, toggle at [80] min
+   best with <= 3 toggles 2.064  start open, toggle at [80] min
+-- cool->hot: 16 C then 31 C   best fixed 2.639   gate lag 0 2.594   gate lag 10 2.603
+   best with <= 0 toggles 2.639  start closed, toggle at [] min
+   best with <= 1 toggles 2.579  start closed, toggle at [90] min
+   best with <= 2 toggles 2.579  start closed, toggle at [90] min
+   best with <= 3 toggles 2.578  start closed, toggle at [90, 110, 120] min
+-- mild->hot: 24 C then 31 C   best fixed 0.637   gate lag 0 0.553   gate lag 10 0.561
+   best with <= 0 toggles 0.637  start closed, toggle at [] min
+   best with <= 1 toggles 0.548  start closed, toggle at [90] min
+   best with <= 2 toggles 0.548  start closed, toggle at [90] min
+   best with <= 3 toggles 0.548  start closed, toggle at [90] min
+-- hot->mild: 31 C then 24 C   best fixed 0.637   gate lag 0 0.576   gate lag 10 0.662
+   best with <= 0 toggles 0.637  start closed, toggle at [] min
+   best with <= 1 toggles 0.542  start open, toggle at [90] min
+   best with <= 2 toggles 0.542  start open, toggle at [90] min
+   best with <= 3 toggles 0.542  start open, toggle at [90] min

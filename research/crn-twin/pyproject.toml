@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crn-twin"
+version = "0.1.0"
+description = "Seed-paired (common random numbers) policy comparison in a digital twin: exact correlation lost to random-stream desynchronisation, sizing trap, and the counter-based-stream repair"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

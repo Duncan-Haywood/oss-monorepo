@@ -1,0 +1,27 @@
+E1 plain Brier (tau_s=1/2) with reserve c0: decision loss of accept-iff-report<=tau_d, q~U[0,1]
+ tau_d  optimum   no reserve(c0=0)   best reserve c0*  loss at c0*   recentred(tau_s=tau_d) loss
+ 0.2   0.1800   0.5000 (2.78x)      0.840          0.1800 (1.000x)   0.1800 (1.000x)
+ 0.3   0.2550   0.5000 (1.96x)      0.790          0.2550 (1.000x)   0.2550 (1.000x)
+ 0.5   0.3750   0.5000 (1.33x)      0.750          0.3750 (1.000x)   0.3750 (1.000x)
+ 0.7   0.4550   0.5000 (1.10x)      0.000          0.5000 (1.099x)   0.4550 (1.000x)
+ 0.9   0.4950   0.5000 (1.01x)      0.000          0.5000 (1.010x)   0.4950 (1.000x)
+
+E2 feasibility: reserve interval [lo,hi] (truthful iff lo<=c0<=hi), tau_d=0.7
+ tau_s=0.3: lo=1.3100 hi=0.9100  INFEASIBLE
+ tau_s=0.5: lo=0.9100 hi=0.7500  INFEASIBLE
+ tau_s=0.7: lo=0.5100 hi=0.5100  feasible, c0=0.5100
+ tau_s=0.8: lo=0.3700 hi=0.3700  feasible, c0=0.3700
+ tau_s=1.0: lo=0.0900 hi=0.0900  feasible, c0=0.0900
+
+E3 information rent (E excess over the reserve, q~U[0,1]) as tau_s rises above tau_d=0.5
+ tau_s=0.5: rent=0.0417   (tau_d^3/3 = 0.0417 at tau_s=tau_d)
+ tau_s=0.6: rent=0.0667   (tau_d^3/3 = 0.0417 at tau_s=tau_d)
+ tau_s=0.8: rent=0.1167   (tau_d^3/3 = 0.0417 at tau_s=tau_d)
+ tau_s=1.0: rent=0.1667   (tau_d^3/3 = 0.0417 at tau_s=tau_d)
+
+E4 exploration variant (accept w.p. eps in the reject region, pay S/eps): tau=0.7, r=q=0.9, plain Brier
+ eps    payment mean  payment std  extra decision loss  (reserve approach: std of S alone, loss 0)
+ 1.0   0.9100        0.2400       0.04500
+ 0.3   0.9100        1.4575       0.01350
+ 0.1   0.9100        2.8335       0.00450
+ 0.03  0.9100        5.3568       0.00135

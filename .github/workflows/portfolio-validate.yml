@@ -147,7 +147,7 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # This job runs on every PR that touches any of the paths above and chains
     # roughly fifty checks and unit-test modules in sequence; it has taken
     # 3-4 minutes in recent runs. Uncapped, a hung pip install or a stalled

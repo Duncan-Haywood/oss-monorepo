@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "delayed-outer"
+version = "0.1.0"
+description = "Overlapping communication with computation in DiLoCo-style local SGD: exact stability limit 2 sin(pi/(4 tau+2)), exact noise floor of the delayed outer update, optimal step, and the wall-clock trade-off between hiding latency and shrinking the step"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,70 @@
+Along-track odometry: per-step error s1=0.02 m (sb^2+sw^2), persistent bias fraction rho=sb^2/s1^2; closure noise nu=0.05 m, gate g=3 sigma (nominal recall 0.9973), tolerance 0.5 m, target miss 0.05.
+Twin: fitted to one-step increments, treats them as white, Var(T)=T s1^2.  Real: Var(T)=s1^2 (rho T^2 + (1-rho) T).
+
+== 1. Variance growth: twin vs real (checked against 30000 simulated traversals) ==
+rho    T     twin sd (m)  real sd (m)  exact ratio  simulated ratio
+0.01   10    0.063        0.066        1.09         1.09
+0.01   100   0.200        0.282        1.99         1.99
+0.01   400   0.400        0.894        4.99         4.95
+0.05   10    0.063        0.076        1.45         1.45
+0.05   100   0.200        0.488        5.95         5.96
+0.05   400   0.400        1.831        20.95         20.81
+0.2    10    0.063        0.106        2.80         2.81
+0.2    100   0.200        0.912        20.80         20.61
+0.2    400   0.400        3.596        80.80         80.70
+
+== 2. Relocalisation interval for P(|E|>0.5 m) <= 0.05 ==
+twin interval T_twin = 163 steps
+rho    real interval  T_twin/T_real  real miss prob at T_twin (twin claims 0.05)
+0.01   87             1.9            0.226
+0.05   48             3.4            0.516
+0.2    27             6.1            0.734
+1      13             12.8           0.878
+
+== 3. Loop-closure recall of a gate tuned in the twin (true closures accepted) ==
+rho=0.05 unless stated; nominal 0.9973
+T      twin gate   calibrated gate   | rho=0.01 twin   rho=0.2 twin
+10     0.992       0.9973            | 0.997           0.961
+50     0.908       0.9973            | 0.988           0.664
+100    0.793       0.9973            | 0.969           0.502
+200    0.642       0.9973            | 0.920           0.366
+400    0.491       0.9973            | 0.823           0.263
+1000   0.327       0.9973            | 0.636           0.168
+4000   0.168       0.9973            | 0.361           0.084
+Aliased closure (place-recognition mismatch) shifted by d=1.0 m, rho=0.05:
+T      twin gate accepts   calibrated gate accepts
+50     0.020               0.230
+200    0.418               0.973
+1000   0.319               0.997
+
+== 4. Closed loop: repeated segments, filter belief P, closure at each segment end (400 segments x 200 runs) ==
+rho=0.05, alias prob q=0.1, alias offset d=1.0 m; metric: share of segments with |x|>0.5 m after the update; RMS x; share of true / aliased closures accepted
+T     gate         exceed   rms(m)   true acc  alias acc
+50    twin         0.221    0.838    0.767     0.139
+50    calibrated   0.075    0.324    0.956     0.318
+200   twin         0.760    9.499    0.258     0.211
+200   calibrated   0.105    0.425    0.994     0.978
+800   twin         0.927    45.179    0.081     0.077
+800   calibrated   0.102    0.692    0.997     0.995
+no aliasing (q=0):
+50    twin         0.183    0.761    0.797
+50    calibrated   0.003    0.070    0.997
+200   twin         0.723    8.759    0.277
+200   calibrated   0.003    0.170    0.997
+800   twin         0.916    42.283    0.084
+800   calibrated   0.003    0.570    0.997
+
+== 5. Repair: inflate the twin variance by a ratio fitted from n real ground-truth traversals at lag T (T=200, rho=0.05, ratio 10.95) ==
+n     mean recall   mean alias accept (d=1.0)   [twin: 0.642 / 0.418, calibrated: 0.9973 / 0.973]
+1     0.8047        0.706
+2     0.9047        0.815
+5     0.9701        0.907
+10    0.9864        0.939
+20    0.9928        0.957
+50    0.9959        0.967
+100   0.9966        0.970
+500   0.9971        0.973
+Lag mismatch: ratio fitted at T=50 then used at other T (n=100, rho=0.05); the fitted constant is not a law in T
+T=50    recall with constant ratio 3.45: 0.997 (calibrated 0.9973)
+T=200   recall with constant ratio 3.45: 0.909 (calibrated 0.9973)
+T=1000  recall with constant ratio 3.45: 0.565 (calibrated 0.9973)

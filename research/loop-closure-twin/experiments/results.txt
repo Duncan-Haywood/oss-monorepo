@@ -1,0 +1,50 @@
+Scalar loop-closure filter. Twin drift variance per cycle T=0.25, landmark noise m=1, real drift R=rho^2 T; gate: nu^2 <= g (P^- + m^2), g=chi2_1 quantile at 0.99 = 6.6349
+Twin stationary prior variance 0.6404, gain K=0.3904, claimed posterior variance 0.3904
+
+== 1. Ungated: exact real posterior variance vs simulation (400 chains x 300 cycles, gate off) ==
+rho   claimed  real (exact)  real (sim)  real/claim  P(genuine closure passes gate), exact  simulated (gated, first 300 cycles)
+1     0.3904   0.3904        0.3935      1.00x       0.9900                                     0.9899
+1.5   0.3904   0.5752        0.5783      1.47x       0.9760                                     0.9673
+2     0.3904   0.8339        0.8370      2.14x       0.9500                                     0.8893
+3     0.3904   1.5732        1.5766      4.03x       0.8669                                     0.5649
+4     0.3904   2.6082        2.6123      6.68x       0.7683                                     0.3184
+
+== 2. Genuine closures only, gate on: lock-out and its dependence on horizon (400 chains, burn = cycles/5) ==
+rho   horizon  real MSE gated   real MSE ungated   genuine passed  fraction of time with |error| > 5m   twin's claimed variance
+1     150      0.430            0.391              0.989           0.0000                               0.395
+1     600      0.429            0.393              0.989           0.0000                               0.395
+1.5   150      0.957            0.576              0.967           0.0032                               0.412
+1.5   600      0.997            0.578              0.967           0.0035                               0.415
+2     150      7.853            0.835              0.888           0.0482                               0.700
+2     600      13.059           0.838              0.883           0.0542                               0.997
+3     150      88.220           1.574              0.598           0.2983                               2.660
+3     600      287.147          1.578              0.517           0.3934                               9.357
+4     150      244.578          2.608              0.386           0.5228                               4.804
+4     600      925.726          2.615              0.279           0.6525                               19.164
+
+== 3. Aliased closures (pi=0.1, offset sd D=6m), 400 chains x 300 cycles ==
+rho   configuration                     real MSE   lost fraction  genuine passed  aliased passed
+1     no gate, twin tuning              1.274      0.0048         1.000           1.000
+1     twin gate, twin tuning            0.524      0.0000         0.987           0.412
+1     no gate, real tuning              1.274      0.0048         1.000           1.000
+1     real gate, real tuning            0.524      0.0000         0.987           0.412
+1.5   no gate, twin tuning              1.459      0.0051         1.000           1.000
+1.5   twin gate, twin tuning            1.328      0.0059         0.960           0.409
+1.5   no gate, real tuning              1.800      0.0129         1.000           1.000
+1.5   real gate, real tuning            0.832      0.0012         0.984           0.455
+2     no gate, twin tuning              1.717      0.0058         1.000           1.000
+2     twin gate, twin tuning            13.931     0.0633         0.868           0.396
+2     no gate, real tuning              2.249      0.0195         1.000           1.000
+2     real gate, real tuning            1.520      0.0064         0.979           0.500
+3     no gate, twin tuning              2.453      0.0073         1.000           1.000
+3     twin gate, twin tuning            167.545    0.3671         0.538           0.309
+3     no gate, real tuning              2.937      0.0280         1.000           1.000
+3     real gate, real tuning            3.487      0.0210         0.973           0.582
+
+== 4. Repair: fit the drift variance from n measured ground-truth cycle drifts, then tune the filter with it (rho=2, pi=0.1, D=6m) ==
+oracle (knows R): MSE 1.316, lost 0.0058;  unrepaired twin: MSE 11.567, lost 0.0675
+n     mean R_hat/R  P(R_hat < R/2)  mean MSE   median MSE  90th pct MSE  P(lost fraction > 0.02)
+3     1.004         0.310           10.085     1.602       21.504        0.280
+10    1.003         0.150           1.990      1.359       3.333         0.135
+30    0.996         0.005           1.615      1.302       2.398         0.025
+100   1.009         0.000           1.557      1.266       2.131         0.020

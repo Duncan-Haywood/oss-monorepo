@@ -1,0 +1,13 @@
+[project]
+name = "garment-twonodegate"
+version = "0.1.0"
+description = "Infrared-gating textile bounds of garment-thermal under two sets of two-node choices, at 3 h and at steady state"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

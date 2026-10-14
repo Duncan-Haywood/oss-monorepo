@@ -141,6 +141,14 @@ VERIFICATION_ONLY = {
     # starved.
     "link-contrast-ci.yml",
     "page-integrity-ci.yml",
+    # Added 2026-10-12 with the research fold-in and the prompt system. Both
+    # are `contents: read` with no secrets: one builds the research homepage
+    # into a gitignored directory, the other validates prompts/ and runs its
+    # unit tests. Both guard committed data that must agree with itself (every
+    # research project listed; every routed prompt version and run record
+    # valid), which is the question `--tree` exists to ask.
+    "research-ci.yml",
+    "prompts-ci.yml",
 }
 
 # Commands that change something outside this working tree. A verification

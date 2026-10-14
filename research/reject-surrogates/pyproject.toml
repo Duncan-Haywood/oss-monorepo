@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reject-surrogates"
+version = "0.1.0"
+description = "Polyhedral surrogates for accept/reject/escalate verifiers: exact minimisers, linear regret transfer 2d, and logistic failure"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

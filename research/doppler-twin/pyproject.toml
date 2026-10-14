@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "doppler-twin"
+version = "0.1.0"
+description = "Radar ego-velocity from Doppler returns: least squares vs median chosen in a static-world twin, exact real variance and interval coverage under moving-target contamination, and the band where the twin's choice is wrong"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

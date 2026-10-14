@@ -1,0 +1,36 @@
+E1 GM-consistent LMSR liquidity b* = 1/(2 atanh m), m = mu(2q-1)
+ mu    q     m       k=1/b*   b*      trades to 95% (Wald)
+ 0.05  1.0   0.050   0.1001   9.992   588.4
+ 0.1   1.0   0.100   0.2007   4.983   146.7
+ 0.2   1.0   0.200   0.4055   2.466   36.3
+ 0.2   0.8   0.120   0.2412   4.147   101.7
+ 0.5   0.8   0.300   0.6190   1.615   15.9
+ 0.9   1.0   0.900   2.9444   0.340   1.1
+ check: max |GM posterior from raw trade likelihoods - logit-linear price| over 60 histories: 2.2e-16
+
+E2 peak-over-horizon excess log loss of LMSR liquidity b* / lam (lam>1 overconfident), n up to 1500
+ m      lam=0.25   lam=0.5    lam=0.7    lam=1.4    lam=2      lam=4    
+ 0.05   0.1683@700  0.0521@529  0.0152@460  0.0167@348  0.0789@263  0.3966@229
+ 0.1    0.1686@175  0.0522@132  0.0153@115  0.0167@75   0.0791@65   0.3975@57 
+ 0.3    0.1709@19   0.0531@14   0.0156@12   0.0171@8    0.0814@7    0.4182@5  
+
+E3 exact market-maker expected profit over n trades, m=0.3, prior 1/2 (per state; GM is 0 in each)
+ n     GM|s=1   LMSR(b*)|s=1  LMSR(b*)|s=0   b* ln2   LMSR fee/trade to break even
+ 5     9.3e-17  -0.313        -0.313        1.120    0.0625
+ 20    3.9e-16  -0.788        -0.788        1.120    0.0394
+ 80    6.3e-16  -1.106        -1.106        1.120    0.0138
+ 320   4.5e-16  -1.120        -1.120        1.120    0.0035
+ GM with prior 0.2 (n=80): profit given s=1 -1.130 given s=0 0.283 prior-weighted 2.8e-16
+ LMSR profit against pure noise flow (m=0), b=3.33: n=5: 0.18 n=20: 0.64 n=80: 1.98 n=320: 5.22
+
+E4 not knowing the informed share: excess log loss of the mixture price over the known-m Bayes price
+ true m   n=10     n=40     n=160    n=640
+ 0.1      0.0928    0.0163    0.0102    0.0168  
+ 0.3      0.0033    0.0352    0.0024    0.0000  
+ 0.6      0.0440    0.0017    0.0000    0.0000  
+ (a fixed LMSR with b* for the wrong m=0.1 when truth is m=0.3, n=40: 0.0830; truth 0.1 with b*(0.3): 0.2317)
+
+E5 trades to 95% confidence: Wald approximation vs Monte-Carlo mean (4000 runs)
+ m=0.1: approx 146.7  MC 151.2
+ m=0.3: approx 15.9  MC 16.6
+ m=0.6: approx 3.5  MC 4.9

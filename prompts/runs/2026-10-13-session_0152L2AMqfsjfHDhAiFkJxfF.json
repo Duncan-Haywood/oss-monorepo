@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-13",
+  "session": "https://claude.ai/code/session_0152L2AMqfsjfHDhAiFkJxfF",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-13T03:05:00Z",
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "robofab-cell-bound"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/288",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": 0,
+  "tests_added": 8,
+  "build_ok": true,
+  "outcome": "partial",
+  "errors": [
+    "slug collision: a parallel run merged research/robofab-cell while this run built the same milestone; renamed to robofab-cell-bound and kept the non-overlapping throughput-bound view"
+  ],
+  "integrity_issues": [],
+  "notes": "No open PRs at start; ~80 stale claude/* branches hold only already-merged projects or run-log lines, left alone. Track 4 drawn at random; robofab-cell was the next free milestone. Reference Little (1961) not re-checked (no web).",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robofab-cell"
+version = "0.1.0"
+description = "Discrete-event digital twin of a robot-arm, 3D-printer and inspection cell: job-shop dispatching, bottleneck and what-if analysis"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

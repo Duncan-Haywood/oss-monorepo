@@ -1,0 +1,1883 @@
+{
+ "session_written": [
+  {
+   "stage": "drafts",
+   "task": "move",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "premature_move"
+   ],
+   "L2_violations": [
+    "premature_move"
+   ]
+  },
+  {
+   "stage": "drafts",
+   "task": "wall",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "collision"
+   ],
+   "L2_violations": [
+    "collision"
+   ]
+  },
+  {
+   "stage": "drafts",
+   "task": "heavy",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": false,
+   "REF_violations": [
+    "premature_move"
+   ],
+   "L2_violations": []
+  },
+  {
+   "stage": "drafts",
+   "task": "far",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": false,
+   "REF_violations": [
+    "payload"
+   ],
+   "L2_violations": []
+  },
+  {
+   "stage": "revised",
+   "task": "move",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": [],
+   "L2_violations": []
+  },
+  {
+   "stage": "revised",
+   "task": "wall",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": [],
+   "L2_violations": []
+  },
+  {
+   "stage": "revised",
+   "task": "heavy",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": [],
+   "L2_violations": []
+  },
+  {
+   "stage": "revised",
+   "task": "far",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": false,
+   "REF_violations": [
+    "payload"
+   ],
+   "L2_violations": []
+  }
+ ],
+ "mutants": [
+  {
+   "task": "move",
+   "kind": "low_lift",
+   "label": "0:z=0.02",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "low_lift",
+   "label": "0:z=0.04",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "low_lift",
+   "label": "0:z=0.07",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "0:x0.25",
+   "L0": true,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "joint_speed"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "0:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "0:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "delete_step",
+   "label": "0:MOVE",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "xy_shift",
+   "label": "1:x+3mm",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "xy_shift",
+   "label": "1:x+7mm",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "xy_shift",
+   "label": "1:y-7mm",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "xy_shift",
+   "label": "1:x+15mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grip_miss",
+    "not_placed",
+    "release_empty"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "xy_shift",
+   "label": "1:x+100mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grip_miss",
+    "not_placed",
+    "release_empty"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "1:x0.25",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "1:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "1:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "delete_step",
+   "label": "1:MOVE",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grip_miss",
+    "not_placed",
+    "release_empty"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "delete_step",
+   "label": "2:GRIP",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "not_placed",
+    "release_empty"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "low_lift",
+   "label": "4:z=0.02",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "low_lift",
+   "label": "4:z=0.04",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "low_lift",
+   "label": "4:z=0.07",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "4:x0.25",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "4:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "4:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "delete_step",
+   "label": "4:MOVE",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "low_lift",
+   "label": "5:z=0.02",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "low_lift",
+   "label": "5:z=0.04",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "low_lift",
+   "label": "5:z=0.07",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "5:x0.25",
+   "L0": true,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "joint_speed"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "5:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "5:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "delete_step",
+   "label": "5:MOVE",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "xy_shift",
+   "label": "6:x+3mm",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "xy_shift",
+   "label": "6:x+7mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "xy_shift",
+   "label": "6:y-7mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "xy_shift",
+   "label": "6:x+15mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "xy_shift",
+   "label": "6:x+100mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "6:x0.25",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "6:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "6:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "delete_step",
+   "label": "6:MOVE",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "drop"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "delete_step",
+   "label": "7:RELEASE",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "not_placed",
+    "still_held"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "low_lift",
+   "label": "8:z=0.02",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "low_lift",
+   "label": "8:z=0.04",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "low_lift",
+   "label": "8:z=0.07",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "8:x0.25",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "8:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "speed",
+   "label": "8:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "delete_step",
+   "label": "8:MOVE",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "grip_wait",
+   "label": "wait=None",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "premature_move"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "grip_wait",
+   "label": "wait=0.05",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "premature_move"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "grip_wait",
+   "label": "wait=0.12",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": false,
+   "REF_violations": [
+    "premature_move"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "grip_wait",
+   "label": "wait=0.14",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": false,
+   "REF_violations": [
+    "premature_move"
+   ]
+  },
+  {
+   "task": "move",
+   "kind": "grip_wait",
+   "label": "wait=0.16",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "move",
+   "kind": "grip_wait",
+   "label": "wait=0.25",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "low_lift",
+   "label": "0:z=0.02",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "collision"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "low_lift",
+   "label": "0:z=0.04",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "low_lift",
+   "label": "0:z=0.07",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "0:x0.25",
+   "L0": true,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "joint_speed"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "0:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "0:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "delete_step",
+   "label": "0:MOVE",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "collision"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "xy_shift",
+   "label": "1:x+3mm",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "xy_shift",
+   "label": "1:x+7mm",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "xy_shift",
+   "label": "1:y-7mm",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "xy_shift",
+   "label": "1:x+15mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grip_miss",
+    "not_placed",
+    "release_empty"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "xy_shift",
+   "label": "1:x+100mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grip_miss",
+    "not_placed",
+    "release_empty"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "1:x0.25",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "1:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "1:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "delete_step",
+   "label": "1:MOVE",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grip_miss",
+    "not_placed",
+    "release_empty"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "delete_step",
+   "label": "2:GRIP",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "not_placed",
+    "release_empty"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "low_lift",
+   "label": "4:z=0.02",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "collision"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "low_lift",
+   "label": "4:z=0.04",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "collision"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "low_lift",
+   "label": "4:z=0.07",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "4:x0.25",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "4:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "4:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "delete_step",
+   "label": "4:MOVE",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "collision"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "low_lift",
+   "label": "5:z=0.02",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "collision"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "low_lift",
+   "label": "5:z=0.04",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "collision"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "low_lift",
+   "label": "5:z=0.07",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "5:x0.25",
+   "L0": true,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "joint_speed"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "5:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "5:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "delete_step",
+   "label": "5:MOVE",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "collision"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "xy_shift",
+   "label": "6:x+3mm",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "xy_shift",
+   "label": "6:x+7mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "xy_shift",
+   "label": "6:y-7mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "xy_shift",
+   "label": "6:x+15mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "xy_shift",
+   "label": "6:x+100mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "6:x0.25",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "6:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "6:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "delete_step",
+   "label": "6:MOVE",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "drop"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "delete_step",
+   "label": "7:RELEASE",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "not_placed",
+    "still_held"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "low_lift",
+   "label": "8:z=0.02",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "low_lift",
+   "label": "8:z=0.04",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "low_lift",
+   "label": "8:z=0.07",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "8:x0.25",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "8:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "speed",
+   "label": "8:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "delete_step",
+   "label": "8:MOVE",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "grip_wait",
+   "label": "wait=None",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "premature_move"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "grip_wait",
+   "label": "wait=0.05",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "premature_move"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "grip_wait",
+   "label": "wait=0.12",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": false,
+   "REF_violations": [
+    "premature_move"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "grip_wait",
+   "label": "wait=0.14",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": false,
+   "REF_violations": [
+    "premature_move"
+   ]
+  },
+  {
+   "task": "wall",
+   "kind": "grip_wait",
+   "label": "wait=0.16",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "wall",
+   "kind": "grip_wait",
+   "label": "wait=0.25",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "low_lift",
+   "label": "0:z=0.02",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "low_lift",
+   "label": "0:z=0.04",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "low_lift",
+   "label": "0:z=0.07",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "0:x0.25",
+   "L0": true,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "joint_speed"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "0:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "0:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "delete_step",
+   "label": "0:MOVE",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "xy_shift",
+   "label": "1:x+3mm",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "xy_shift",
+   "label": "1:x+7mm",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "xy_shift",
+   "label": "1:y-7mm",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "xy_shift",
+   "label": "1:x+15mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grip_miss",
+    "not_placed",
+    "release_empty"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "xy_shift",
+   "label": "1:x+100mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grip_miss",
+    "not_placed",
+    "release_empty"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "1:x0.25",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "1:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "1:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "delete_step",
+   "label": "1:MOVE",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grip_miss",
+    "not_placed",
+    "release_empty"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "delete_step",
+   "label": "2:GRIP",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "not_placed",
+    "release_empty"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "low_lift",
+   "label": "4:z=0.02",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "low_lift",
+   "label": "4:z=0.04",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "low_lift",
+   "label": "4:z=0.07",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "4:x0.25",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "slip"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "4:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "4:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "delete_step",
+   "label": "4:MOVE",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "low_lift",
+   "label": "5:z=0.02",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "low_lift",
+   "label": "5:z=0.04",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "low_lift",
+   "label": "5:z=0.07",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "5:x0.25",
+   "L0": true,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "joint_speed",
+    "slip"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "5:x0.5",
+   "L0": true,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "joint_speed"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "5:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "delete_step",
+   "label": "5:MOVE",
+   "L0": true,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "joint_speed"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "xy_shift",
+   "label": "6:x+3mm",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "xy_shift",
+   "label": "6:x+7mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "xy_shift",
+   "label": "6:y-7mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "xy_shift",
+   "label": "6:x+15mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "xy_shift",
+   "label": "6:x+100mm",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "grasp_or_place_error"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "6:x0.25",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "slip"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "6:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "6:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "delete_step",
+   "label": "6:MOVE",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "drop"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "delete_step",
+   "label": "7:RELEASE",
+   "L0": false,
+   "L1": false,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "not_placed",
+    "still_held"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "low_lift",
+   "label": "8:z=0.02",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "low_lift",
+   "label": "8:z=0.04",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "low_lift",
+   "label": "8:z=0.07",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "8:x0.25",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "8:x0.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "speed",
+   "label": "8:x2.5",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "delete_step",
+   "label": "8:MOVE",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "grip_wait",
+   "label": "wait=None",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "premature_move"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "grip_wait",
+   "label": "wait=0.05",
+   "L0": true,
+   "L1": true,
+   "L2": false,
+   "REF": false,
+   "REF_violations": [
+    "premature_move"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "grip_wait",
+   "label": "wait=0.12",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": false,
+   "REF_violations": [
+    "premature_move"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "grip_wait",
+   "label": "wait=0.14",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": false,
+   "REF_violations": [
+    "premature_move"
+   ]
+  },
+  {
+   "task": "heavy",
+   "kind": "grip_wait",
+   "label": "wait=0.16",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  },
+  {
+   "task": "heavy",
+   "kind": "grip_wait",
+   "label": "wait=0.25",
+   "L0": true,
+   "L1": true,
+   "L2": true,
+   "REF": true,
+   "REF_violations": []
+  }
+ ]
+}

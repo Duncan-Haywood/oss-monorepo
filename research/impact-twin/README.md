@@ -1,0 +1,13 @@
+# Impact twin: a fixed-step twin of a bouncing ball, what does it say about restitution and time to rest, and does fitting e on the first bounce fix it?
+
+Pure Python, no dependencies. Truth: point mass dropped from 1 m with Newton restitution `e`, closed form, infinitely many impacts in the finite Zeno time `T = (v1/g)(1+e)/(1−e)`. Twin: fixed-step semi-implicit Euler with a penetration test (clamp, mirror, and a crude interpolated "locate" variant). Results (all from `experiments/results.txt`): (1) the rest time is hypersensitive to `e`, `d ln T/de = 2/(1−e²)` (10.5 at e = 0.9, 100 at 0.99), checked against the exact formula; (2) the twin's apparent restitution is biased by the step with scheme-dependent sign (true 0.9: clamp 0.886, mirror 0.895, locate 0.879 at dt = 10⁻²); (3) time to last exceed 1 cm is off by −19.6%, +4.0%, −30.8% at dt = 10⁻² (e = 0.9; −34.8%, +46.3%, −47.1% at e = 0.95), first-order in dt (log-log slopes 1.0–1.1), 0.1–0.3% at 10⁻⁴; (4) the restitution bias explains most of the clamp error (predicted −14.9%, measured −19.6%); (5) calibrating `e` on the first bounce is not a reliable repair: it helps clamp at dt = 10⁻² (−19.6 → −4.8%), does nothing at 10⁻³–3·10⁻³, and makes the mirror twin worse (+4.0 → +53% at 10⁻²); (6) twin impact counts (238–688) are mostly floor chatter against 43–87 resolvable bounces, so they are not a fidelity metric; (7) impact-time errors are irregular (up to tens of steps), mechanism not derived. The "locate" variant is the worst here; that is a statement about this crude implementation. Stylised: one dimension, constant restitution, rigid contact, closed-form "real" system; see `paper/whitepaper.md`.
+
+```bash
+cd research/impact-twin
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, under 1 s
+PYTHONPATH=src python3 experiments/run.py                 # a few seconds; output in experiments/results.txt
+```
+
+**Builds on.** The digital-twin simulation-fidelity and sim-to-real direction of ARPG (<https://arpg.colorado.edu/>), HIRO Group (<https://hiro-group.ronc.one/>, manipulation and contact), and the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>) and RECUV (<https://www.colorado.edu/recuv/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. Rigid impact and Zeno behaviour are classical (Brogliato 2016; Zhang, Johansson, Lygeros & Sastry 2001; Goebel, Sanfelice & Teel 2012; Stewart 2000). Companion to `timestep-twin`, `friction-twin`, `stiction-twin` and `windup-twin` in this repository.
+
+Stylised: simulated "real" system, no field data. MIT.
