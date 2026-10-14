@@ -1,0 +1,37 @@
+name: za-freelancer-provisional-tax-set-aside-calculator
+description: >-
+  Free browser tool for South African freelancers and sole proprietors: enter income and expenses to see SARS income tax after rebates and medical credits, a provisional tax guide and how much of every invoice to set aside. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; sibling set-aside tools exist for Australia, Canada, New Zealand and Ireland, none for South Africa (largest English-speaking freelance market in Africa; duplicate_check closest 0.40).
+#
+# First visitor: South African freelancers, remote contractors paid in foreign currency and side-hustlers searching "how much tax should I set aside freelancer South Africa" and "provisional tax calculator freelancer". Peaks around the end-August and end-February provisional deadlines and the July-October filing season; volume not measured. Rivals are accounting-firm blog calculators and SARS's own PAYE-oriented tools.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: interest and dividend exemptions, home office, travel logbook, additional medical expenses credit, 2026/27 tables, invoice-by-invoice tracker behind an env-var switch.
+#
+# Liability: 2025/26 SARS brackets, rebates and medical credits written from published tables and memory; every result tells the reader to verify on sars.gov.za, carries no-warranty and not-tax-advice clauses and says what it does not decide.
+hypotheses:
+  - claim: >-
+      South African freelancers will use a free private calculator to learn what share of each invoice to set aside, because rules of thumb ignore their own expenses, age rebate, medical credits and retirement annuity.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: ZAR
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a SARS figure differs from the official source.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/za-freelancer-provisional-tax-set-aside-calculator/
+  analytics: null

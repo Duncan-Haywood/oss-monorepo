@@ -33,51 +33,51 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548304 bytes
-#   portfolio-front-tools-1: 92 files, 555578 bytes
-#   portfolio-front-tools-2: 144 files, 553620 bytes
-#   portfolio-front-tools-3: 128 files, 549942 bytes
-#   portfolio-front-tools-4: 136 files, 554214 bytes
-#   portfolio-front-tools-5: 130 files, 549941 bytes
-#   portfolio-front-tools-6: 128 files, 555602 bytes
-#   portfolio-front-tools-7: 120 files, 554994 bytes
-#   portfolio-front-tools-8: 130 files, 556644 bytes
-#   portfolio-front-tools-9: 137 files, 553708 bytes
-#   portfolio-front-tools-10: 136 files, 556884 bytes
-#   portfolio-front-tools-11: 136 files, 552265 bytes
-#   portfolio-front-tools-12: 129 files, 556484 bytes
-#   portfolio-front-tools-13: 131 files, 557031 bytes
-#   portfolio-front-tools-14: 119 files, 544440 bytes
-#   portfolio-front-tools-15: 137 files, 551755 bytes
-#   portfolio-front-tools-16: 119 files, 552719 bytes
-#   portfolio-front-tools-17: 131 files, 554754 bytes
-#   portfolio-front-tools-18: 123 files, 550764 bytes
-#   portfolio-front-tools-19: 124 files, 557013 bytes
-#   portfolio-front-tools-20: 126 files, 551074 bytes
-#   portfolio-front-tools-21: 120 files, 545096 bytes
-#   portfolio-front-tools-22: 117 files, 556402 bytes
-#   portfolio-front-tools-23: 121 files, 556417 bytes
+#   portfolio-front-tools-0: 145 files, 548289 bytes
+#   portfolio-front-tools-1: 92 files, 555560 bytes
+#   portfolio-front-tools-2: 144 files, 553616 bytes
+#   portfolio-front-tools-3: 128 files, 549938 bytes
+#   portfolio-front-tools-4: 136 files, 554212 bytes
+#   portfolio-front-tools-5: 130 files, 549933 bytes
+#   portfolio-front-tools-6: 128 files, 555592 bytes
+#   portfolio-front-tools-7: 120 files, 554991 bytes
+#   portfolio-front-tools-8: 130 files, 556636 bytes
+#   portfolio-front-tools-9: 137 files, 553701 bytes
+#   portfolio-front-tools-10: 136 files, 556878 bytes
+#   portfolio-front-tools-11: 136 files, 552261 bytes
+#   portfolio-front-tools-12: 129 files, 556476 bytes
+#   portfolio-front-tools-13: 131 files, 557032 bytes
+#   portfolio-front-tools-14: 119 files, 544435 bytes
+#   portfolio-front-tools-15: 137 files, 551757 bytes
+#   portfolio-front-tools-16: 119 files, 552713 bytes
+#   portfolio-front-tools-17: 131 files, 554747 bytes
+#   portfolio-front-tools-18: 123 files, 550766 bytes
+#   portfolio-front-tools-19: 124 files, 557009 bytes
+#   portfolio-front-tools-20: 126 files, 551065 bytes
+#   portfolio-front-tools-21: 120 files, 545100 bytes
+#   portfolio-front-tools-22: 117 files, 556400 bytes
+#   portfolio-front-tools-23: 121 files, 556421 bytes
 #   portfolio-front-tools-24: 130 files, 556750 bytes
-#   portfolio-front-tools-25: 125 files, 555310 bytes
-#   portfolio-front-tools-26: 132 files, 556504 bytes
-#   portfolio-front-tools-27: 139 files, 554421 bytes
-#   portfolio-front-tools-28: 118 files, 553441 bytes
-#   portfolio-front-tools-29: 128 files, 556770 bytes
-#   portfolio-front-tools-30: 138 files, 556680 bytes
-#   portfolio-front-tools-31: 130 files, 555501 bytes
-#   portfolio-front-tools-32: 120 files, 551310 bytes
-#   portfolio-front-tools-33: 134 files, 553474 bytes
-#   portfolio-front-tools-34: 111 files, 554440 bytes
-#   portfolio-front-tools-35: 101 files, 555537 bytes
-#   portfolio-front-tools-36: 131 files, 552086 bytes
-#   portfolio-front-tools-37: 116 files, 555544 bytes
-#   portfolio-front-tools-38: 130 files, 554856 bytes
-#   portfolio-front-tools-39: 123 files, 553364 bytes
-#   portfolio-front-tools-40: 137 files, 554289 bytes
-#   portfolio-front-tools-41: 134 files, 551822 bytes
+#   portfolio-front-tools-25: 125 files, 555307 bytes
+#   portfolio-front-tools-26: 132 files, 556497 bytes
+#   portfolio-front-tools-27: 139 files, 554424 bytes
+#   portfolio-front-tools-28: 118 files, 553443 bytes
+#   portfolio-front-tools-29: 128 files, 556768 bytes
+#   portfolio-front-tools-30: 138 files, 556673 bytes
+#   portfolio-front-tools-31: 130 files, 555506 bytes
+#   portfolio-front-tools-32: 120 files, 551307 bytes
+#   portfolio-front-tools-33: 134 files, 553465 bytes
+#   portfolio-front-tools-34: 111 files, 554438 bytes
+#   portfolio-front-tools-35: 101 files, 555539 bytes
+#   portfolio-front-tools-36: 131 files, 552082 bytes
+#   portfolio-front-tools-37: 116 files, 555548 bytes
+#   portfolio-front-tools-38: 130 files, 554858 bytes
+#   portfolio-front-tools-39: 123 files, 553362 bytes
+#   portfolio-front-tools-40: 137 files, 554282 bytes
+#   portfolio-front-tools-41: 134 files, 551823 bytes
 #   portfolio-front-tools-42: 122 files, 556073 bytes
-#   portfolio-front-tools-43: 118 files, 554194 bytes
-#   portfolio-front-tools-44: 61 files, 326195 bytes
+#   portfolio-front-tools-43: 118 files, 554181 bytes
+#   portfolio-front-tools-44: 64 files, 336703 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -5954,6 +5954,9 @@ configMapGenerator:
       - youtube-revenue-rpm-analyzer__calc.mjs.gz=youtube-revenue-rpm-analyzer__calc.mjs.gz
       - youtube-revenue-rpm-analyzer__index.html.gz=youtube-revenue-rpm-analyzer__index.html.gz
       - youtube-revenue-rpm-analyzer__usage.mjs.gz=youtube-revenue-rpm-analyzer__usage.mjs.gz
+      - za-freelancer-provisional-tax-set-aside-calculator__calc.mjs.gz=za-freelancer-provisional-tax-set-aside-calculator__calc.mjs.gz
+      - za-freelancer-provisional-tax-set-aside-calculator__index.html.gz=za-freelancer-provisional-tax-set-aside-calculator__index.html.gz
+      - za-freelancer-provisional-tax-set-aside-calculator__usage.mjs.gz=za-freelancer-provisional-tax-set-aside-calculator__usage.mjs.gz
       - zoho-crm-import-csv-check__calc.mjs.gz=zoho-crm-import-csv-check__calc.mjs.gz
       - zoho-crm-import-csv-check__index.html.gz=zoho-crm-import-csv-check__index.html.gz
       - zoho-crm-import-csv-check__usage.mjs.gz=zoho-crm-import-csv-check__usage.mjs.gz
