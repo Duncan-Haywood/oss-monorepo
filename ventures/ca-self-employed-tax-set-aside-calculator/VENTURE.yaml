@@ -1,0 +1,37 @@
+name: ca-self-employed-tax-set-aside-calculator
+description: >-
+  Free browser tool for Canadian freelancers and sole proprietors: enter revenue and expenses to see CPP and CPP2 (both halves), federal income tax, a provincial estimate, and how much of every invoice to set aside, with instalment and GST/HST flags. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; the portfolio has US self-employed and UK tax tools and a Canadian GST/HST checker, but no Canadian income-tax and CPP set-aside tool.
+#
+# First visitor: Canadian freelancers searching "how much to set aside for taxes self employed Canada", "self-employed CPP calculator". Evergreen, peaks Feb-April and around instalment dates; volume not measured. Rivals are accountant blog calculators and TurboTax estimators, which want sign-up.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: province-by-province brackets and an invoice-by-invoice set-aside tracker behind an env-var switch.
+#
+# Liability: 2025 and 2026 CRA figures written from memory (YMPE, YAMPE, brackets, basic personal amount, blended lowest rate); provincial tax is a user-entered flat rate; every result tells the reader to verify on canada.ca, carries no-warranty and not-tax-advice clauses and says what it does not decide (provincial brackets, Quebec, RRSP, other income).
+hypotheses:
+  - claim: >-
+      Canadian freelancers will use a free private calculator to learn what share of each invoice to set aside, because accountant rules of thumb ignore CPP on both halves and their own expense level.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: CAD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a CRA figure differs from canada.ca.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ca-self-employed-tax-set-aside-calculator/
+  analytics: null
