@@ -1650,9 +1650,12 @@ const RELATIVE_SELF = relative(
 // +1: `uk-late-payment-interest-calculator` graduated.
 // +1: `uk-tax-free-childcare-calculator` graduated.
 // +1: `uk-simplified-expenses-calculator` graduated.
+// +1: `uk-vat-flat-rate-scheme-calculator` graduated.
 // +1: `uk-capital-allowances-calculator` graduated.
 // +1: `uk-directors-loan-s455-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1178;
+// +1: `uk-savings-interest-tax-calculator` graduated.
+// +1: `uk-rd-tax-relief-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1181;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
