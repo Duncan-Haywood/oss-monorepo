@@ -24,13 +24,14 @@ SBC = 5.6697e-8
 
 
 def run(met, clo, ta, rh, v=0.1, opts=None, mass=70.0, height=1.7, tr=None, solar=0.0,
-        eps=0.95, tau=0.0, alpha=0.5, minutes=60, gate=None, trace=None, env=None):
+        eps=0.95, tau=0.0, alpha=0.5, minutes=60, gate=None, trace=None, env=None, met_fn=None):
     """Optics (this project's extension, identical in intent for both `rad` choices): `tr` radiant
     temperature (default ta), `solar` absorbed-by-body-surface irradiance W/m2, `eps` outer-surface
     emissivity, `tau` infrared transmittance, `alpha` solar absorptance. Optional `gate(minute, tsk, tcr)`
     returns the transmittance to use for that minute (a switching textile); `trace` is a list that collects
     (minute, tau, tsk, tcr). Optional `env(minute)` returns the air temperature for that minute (a changing
-    room; radiant temperature follows it when `tr` was not given, and humidity stays at `rh` percent). Neutral values
+    room; radiant temperature follows it when `tr` was not given, and humidity stays at `rh` percent). Optional `met_fn(minute)` returns the metabolic rate in met for that minute
+    (a change of activity; `met` is then only the start value). Neutral values
     (tr=ta, solar=0, eps=0.95, tau=0) reproduce the garment-twonodealign model exactly."""
     o = dict(OURS, **(opts or {}))
     tr_follows = tr is None
@@ -115,6 +116,10 @@ def run(met, clo, ta, rh, v=0.1, opts=None, mass=70.0, height=1.7, tr=None, sola
             ta = env(minute)
             tr = ta if tr_follows else tr
             pa = rh / 100.0 * p_sat_kpa(ta)
+            res = 0.0023 * m0 * (44.0 - pa * 7.5) + 0.0014 * m0 * (34.0 - ta)
+        if met_fn is not None:
+            met = met_fn(minute)
+            m0 = met * mf
             res = 0.0023 * m0 * (44.0 - pa * 7.5) + 0.0014 * m0 * (34.0 - ta)
         if gate is not None:
             tau = gate(minute, tsk, tcr)
