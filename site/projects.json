@@ -1633,6 +1633,11 @@
      "slug": "selfrep-rodmodes",
      "title": "What natural-frequency target does a printer&rsquo;s rod have to meet, and what does a wooden rod cost?",
      "summary": "Follow-up to selfrep-rodbeam that derives the rod spec from a vibration target instead of an assumed sag limit. A carriage mass on a simply supported rod (Rayleigh estimate with the 17/35 effective rod mass) gives a first mode of 42&nbsp;Hz for 8&nbsp;mm steel but 10&nbsp;Hz for hardwood and 5&nbsp;Hz for printed PLA, for an assumed 0.3&nbsp;kg carriage. Matching steel&rsquo;s frequency needs about 16&nbsp;mm of hardwood, close to the sag-matching 17&nbsp;mm; at equal frequency the dowel is 1.9&ndash;2.1&times; the steel diameter. Stylised: carriage mass and material constants are assumptions, one mode, no damping or bushing play."
+    },
+    {
+     "slug": "selfrep-alurod",
+     "title": "Does an aluminium rod fit the printer where a wooden one cannot?",
+     "summary": "Follow-up to selfrep-rodbeam that adds aluminium bar, cut to length on the router, as a rod substitution in selfrep-redesign. To match the sag of the 8&nbsp;mm steel rod (0.19&nbsp;mm at the assumed 5&nbsp;N) aluminium needs 10.4&nbsp;mm, inside the assumed 12&nbsp;mm holder limit, while hardwood needs 16.9&nbsp;mm and does not fit. Mass closure of the all-substitutions redesign is 39.5% with aluminium at a 0.2&nbsp;mm spec, 37.8% with wood and 28.7% with steel rods kept as vitamins; the shop imports about 170&nbsp;g more stock than with wood. Stylised: moduli, load and limit are assumed, and the surface of cut aluminium bar is taken to be adequate for the bushings."
     }
    ]
   },
