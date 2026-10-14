@@ -56,3 +56,13 @@ test("sibling tools linked from the page exist", () => {
   const html = page("index.html");
   for (const m of html.matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)) assert.ok(readFileSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
 });
+
+test("the ItemList and every printed tool count match the catalogue", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  const n = TOOLS.length;
+  const ld = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)]
+    .map((m) => JSON.parse(m[1]))
+    .find((j) => j["@type"] === "ItemList");
+  assert.equal(ld.itemListElement.length, n);
+  for (const m of html.matchAll(/\b(\d+) (?:free tools|UK tools)/g)) assert.equal(Number(m[1]), n, m[0]);
+});
