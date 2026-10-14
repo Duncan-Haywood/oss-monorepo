@@ -1929,6 +1929,11 @@
      "summary": "Adds a skin-temperature-triggered gate (hysteresis band, first-order actuation lag) to the switchable two-node comfort model (stylised, preliminary). In constant 31, 24 and 16&nbsp;C rooms over 3&nbsp;h the gate settles into one of the two fixed states with at most one change, so it cannot beat the best fixed state; a 10&nbsp;min lag only delays the start (open 94% vs 98% of minutes at 31&nbsp;C). Threshold placement matters more: a 32&ndash;35&nbsp;C band opens under one set of design choices and never under the other. A mostly null result; it needs changing conditions to show value. No fabric or person was measured."
     },
     {
+     "slug": "garment-twonodestep",
+     "title": "When the room temperature steps, does a thermostat-driven infrared-gating textile beat its fixed states and approach an oracle?",
+     "summary": "A stylised, preliminary follow-up to <em>garment-twonodeswitch</em>. One step in room temperature at minute 90 of 180 in the switchable two-node model, scored by mean |skin temperature &minus; 33.7&nbsp;C| (a proxy, not a comfort index). After a step to a hotter room the gate beats both fixed states and lies within about 0.02within about 0.02&ndash;0.07&nbsp;C of an oraclenbsp;C of an oracle that knows the schedule; after a step to a cooler room it gains little, and a 10&nbsp;min actuation lag can make it worse than staying closed. Transmittances are assumptions; no fabric or person was measured."
+    },
+    {
      "slug": "garment-comfortcost",
      "title": "What does a degree of comfort cost in fabric?",
      "summary": "Joins the thermal comfort model to the garment cost chain for five fabric levers (infrared transmittance, low emissivity, white, thinner, thicker cloth). Levers combine sub-additively (infrared-transparent plus thin: +2.58&nbsp;&deg;C jointly, +3.25 summed), and in each scenario only one treatment helps, so a price premium sets cost, not ranking. At assumed premiums the treatments cost $0.5 to $19 per &deg;C on a $20&ndash;50 replica trench and $3 to $114 on a designer one, because the retail chain multiplies the premium about 6&times;. Stylised: every premium and the thickness pricing are assumed, not quoted, and the comfort model has no reference for its optical extension."
