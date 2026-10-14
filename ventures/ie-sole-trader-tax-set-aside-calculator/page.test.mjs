@@ -60,3 +60,10 @@ test("sibling tools linked from the page exist", () => {
   const html = page("index.html");
   for (const m of html.matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)) assert.ok(readFileSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
 });
+
+test("sibling tools link back to this page", () => {
+  for (const slug of ["nz-sole-trader-tax-set-aside-calculator", "uk-self-assessment-tax-calculator"]) {
+    const html = readFileSync(new URL(`../${slug}/index.html`, import.meta.url), "utf8");
+    assert.match(html, /href="\.\.\/ie-sole-trader-tax-set-aside-calculator\/"/, slug);
+  }
+});
