@@ -1,0 +1,37 @@
+name: in-freelancer-advance-tax-set-aside-calculator
+description: >-
+  Free browser tool for Indian freelancers and professionals: enter receipts and expenses to see new-regime income tax with the 87A rebate and cess, compare section 44ADA presumptive taxation, get the advance tax schedule and how much of every invoice to set aside. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; sibling set-aside tools exist for Australia, Canada, New Zealand, Ireland and South Africa, none for India (the largest freelancer population in the set, much of it paid in foreign currency).
+#
+# First visitor: Indian freelancers, consultants and remote contractors searching "freelancer tax calculator india", "44ADA calculator" and "advance tax calculator freelancer". Peaks around the 15 June, 15 September, 15 December and 15 March advance tax dates and the July filing deadline; volume not measured. Rivals are CA-firm and fintech blog calculators that mostly model salaried employees.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: old regime with 80C/80D, TDS credit from Form 26AS, surcharge amounts, 44AD businesses, GST export rules, invoice-by-invoice tracker behind an env-var switch.
+#
+# Liability: FY 2025-26 slabs, rebate and 44ADA limits written from the Union Budget 2025 and memory; every result tells the reader to verify on incometax.gov.in, carries no-warranty and not-tax-advice clauses and says what it does not decide.
+hypotheses:
+  - claim: >-
+      Indian freelancers will use a free private calculator to learn what share of each invoice to set aside and whether section 44ADA saves tax, because rules of thumb ignore the 87A rebate, cess and presumptive scheme.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: INR
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that an income tax figure differs from the official source.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/in-freelancer-advance-tax-set-aside-calculator/
+  analytics: null
