@@ -8,6 +8,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import mirror
 
@@ -59,6 +60,11 @@ UPSTREAM_FILES = {
 
 class MirrorTest(unittest.TestCase):
     def setUp(self) -> None:
+        # mirror.py calls git itself (the merge needs a committer), and CI
+        # runners have no identity configured.
+        env = mock.patch.dict(os.environ, {k: v for k, v in ENV.items() if k.startswith("GIT_")})
+        env.start()
+        self.addCleanup(env.stop)
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         base = Path(tmp.name)
