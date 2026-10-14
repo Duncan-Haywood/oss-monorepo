@@ -41,6 +41,18 @@ class T(unittest.TestCase):
                 self.assertTrue((out == ref).all(), (f, p))
                 self.assertEqual(set(cs), {baseline_gen.cycles(p, f)})
 
+    def test_p32_engine_and_4x8_array_match_numpy_at_f16(self):
+        x, y = model.make_data(0, 300, 16)
+        q = model.quantise(model.train_float(x, y), x, 4)
+        xi = q["xq"](x[:8])
+        ref = model.int_forward(q, xi)
+        out, cs = flow.simulate(q, 0, 1, xi, mac_lanes=32)
+        self.assertTrue((out == ref).all())
+        self.assertEqual(set(cs), {baseline_gen.cycles(32, 16)})
+        out, cs = flow.simulate(q, 8, 4, xi)
+        self.assertTrue((out == ref).all())
+        self.assertEqual(set(cs), {gen.cycles(8, 4, 16)})
+
     def test_cycle_formula(self):
         self.assertEqual([gen.cycles(4, r) for r in (1, 2, 4)], [70, 75, 85])
         self.assertEqual(gen.cycles(4, 1, 32), 2 + 4 * (1 + 4 + 31) + 1 * (1 + 4 + 15))   # H = 16 hidden units
