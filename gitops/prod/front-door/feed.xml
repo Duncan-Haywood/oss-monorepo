@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1202 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1204 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,12 +24,28 @@
     <summary type="text">Free UK company car tax calculator for 2026/27: benefit in kind for electric, plug-in hybrid and petrol or diesel cars, monthly tax at your rate, employer Class 1A, free-fuel charge, the 4% to 9% electric schedule to 2029/30 and a side-by-side with a second car. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>UK Director&#39;s Loan Tax Calculator (s455, due date, bonus vs dividend)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-directors-loan-s455-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-directors-loan-s455-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free UK director&#39;s loan calculator: the s455 tax on an overdrawn director&#39;s loan account, the date it is due, the benefit-in-kind on loans over £10,000, and whether a dividend, a bonus or repaying is the cheapest way to clear it. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>UK EIS and SEIS Tax Relief Calculator (loss relief, CGT deferral)</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-eis-seis-relief-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/uk-eis-seis-relief-calculator</id>
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK EIS and SEIS calculator: income tax relief you can actually use, CGT deferral or reinvestment relief, loss relief if the company fails, and the break-even sale price. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>UK EMI Share Option Tax Calculator (BADR, income tax, net proceeds)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-emi-share-option-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-emi-share-option-tax-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free UK EMI option tax calculator: income tax on any discount, Capital Gains Tax with Business Asset Disposal Relief, what you keep after a sale, and a comparison with an unapproved option. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>UK Cost of Hiring an Employee Calculator 2026</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK savings interest tax calculator: how much tax you owe on bank and building society interest after the personal allowance, the 0% starting rate for savings and the Personal Savings Allowance, how much you can earn tax-free, and what a cash ISA would save. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Scottish Income Tax Calculator 2026/27 (take-home pay after tax, NI, pension and student loan)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-scottish-income-tax-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/uk-scottish-income-tax-calculator</id>
-    <updated>2026-10-14T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Scottish income tax calculator for 2026/27: the six Scottish bands (19% to 48%), National Insurance, student loan and pension, with monthly and weekly take-home pay and a comparison with the rest of the UK. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Self Assessment Tax Calculator 2025/26 (employed, self-employed, rental, dividends, payments on account)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-self-assessment-tax-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/uk-self-assessment-tax-calculator</id>
-    <updated>2026-10-14T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free UK Self Assessment tax calculator for 2025/26: combine employment, self-employed profit, rental income, savings and dividends. See income tax, Class 4 NIC, student loan, the 31 January bill and your payments on account. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
