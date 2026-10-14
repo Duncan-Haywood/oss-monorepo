@@ -8,6 +8,14 @@
   <updated>2026-10-14T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
+    <title>UK Inheritance Tax Calculator 2025/26: nil-rate band, residence band, taper</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-inheritance-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-inheritance-tax-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free UK Inheritance Tax calculator for deaths from April 2025: £325,000 nil-rate band, £175,000 residence nil-rate band with the £2 million taper, transferred spouse allowances, charity gifts and the 36% rate. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>UK Landlord Section 24 Calculator 2025/26 and 2026/27</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-landlord-section-24-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/uk-landlord-section-24-calculator</id>
@@ -22,6 +30,14 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK pension annual allowance calculator: your tapered allowance for incomes over £260,000, carry forward from the last three years, how much you can still pay in, and the tax charge on any excess. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>UK Stamp Duty Calculator 2025/26 and 2026/27 (England and NI)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-stamp-duty-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-stamp-duty-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free UK Stamp Duty (SDLT) calculator for England and Northern Ireland from April 2025: standard rates, first-time buyer relief, the 5% second home and buy-to-let rate and the 2% non-UK resident surcharge, with a band-by-band breakdown. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Australia GST Registration Checker — Do You Have to Register at $75,000?</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free EU CSRD scope checker: are you in mandatory sustainability reporting under the original CSRD and under the Omnibus thresholds (1,000 employees and EUR 450M turnover), from which financial year, and what to do if you are only squeezed by customer data requests. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EU Data Act Checker — Does the Data Act Apply to You?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-data-act-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/eu-data-act-checker</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free EU Data Act checker: pick your role and size to see whether Regulation (EU) 2023/2854 likely applies, whether the micro and small enterprise exemption covers you, the Article behind it, the dates and the main duties. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EU DORA Readiness Checker — Are You in Scope, What Is Open, When Is the Incident Report Due?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-dora-readiness-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/eu-dora-readiness-checker</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free EU DORA checker for financial entities and the software vendors that sell to them: whether Regulation (EU) 2022/2554 reaches you, which duty areas and Article 30 contract terms are still open, and the 4-hour, 72-hour and one-month major-incident report deadlines. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

@@ -1817,6 +1817,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-landlord-section-24-calculator'
       // `uk-pension-annual-allowance-calculator` joined 2026-10-14 on its first commit: UK pension tapered annual allowance and carry forward, sibling of the 100k tax trap tool.
       || slug === 'uk-pension-annual-allowance-calculator'
+      // `uk-inheritance-tax-calculator` joined 2026-10-14 on its first commit: UK estate tax (nil-rate bands, residence band taper), sibling of the stamp duty and CGT tools.
+      || slug === 'uk-inheritance-tax-calculator'
       // `uk-payments-on-account-calculator` joined 2026-10-13 on its first commit: UK Self Assessment payment-schedule arithmetic, sibling of the trading-allowance and CIS tools.
       || slug === 'uk-payments-on-account-calculator'
       // `uk-ir35-inside-outside-calculator` joined 2026-10-13 on its first commit: UK contractor tax arithmetic, sibling of the sole-trader-vs-company and trading-allowance tools.
