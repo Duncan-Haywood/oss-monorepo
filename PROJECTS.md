@@ -304,8 +304,7 @@ This track builds the loop as a reusable tool, makes the algorithmic proposers s
 track 3 the baselines it compares against. Reuse track 3's designs and wrappers rather than
 rebuilding them. LLM proposers belong to track 3 and plug into this track's harness.
 
-**Prior work.** Ajayi et al. (2019), on OpenROAD's aim of a flow with no human in the loop,
-DAC. Brayton and Mishchenko (2010), ABC, CAV. Yu, Xiao and De Micheli (2018), synthesis flows
+**Prior work.** Ajayi et al. (2019), on OpenROAD's aim of a self-driving open flow, DAC. Brayton and Mishchenko (2010), ABC, CAV. Yu, Xiao and De Micheli (2018), synthesis flows
 developed without human knowledge, DAC. Hosny et al. (2020), DRiLLS, ASP-DAC. Neto et al.
 (2023), FlowTune, *IEEE TCAD*. Jung et al. (2021), METRICS2.1 and OpenROAD's AutoTuner, ICCAD.
 Huang et al. (2021), a survey of machine learning for EDA, *ACM TODAES*. On search and fidelity:
@@ -413,7 +412,10 @@ on microcontrollers. Horowitz (2014), energy per operation, ISSCC.
 - *Like with like.* Compare with a published accelerator only after normalising for process
   node, bit width and task, or not at all.
 - *Datasets.* Check each dataset's licence before using it, and cite it.
-- *Vendor back ends.* FINN_HLS4ML_NOTE
+- *Vendor back ends.* FINN's hardware flow needs AMD Vivado or Vitis. Every released hls4ml
+  back end also synthesises with a vendor HLS tool, though its bit-accurate C++ emulation needs
+  only a compiler. Under "In-house", use them as references, or only the parts that run without
+  a vendor tool, and say so wherever a result leans on them.
 
 ## 9. Open-source purpose-built robots (`osrobot`)
 
@@ -432,8 +434,9 @@ Gazebo, IROS. Todorov et al. (2012), MuJoCo (track 4). Meier, Honegger and Polle
 PX4, ICRA. Grimminger et al. (2020), the Open Dynamic Robot Initiative's open legged robots,
 *IEEE RA-L*. Ha (2019), learning a body and its policy together, *Artificial Life*. Zhao et al.
 (2020), RoboGrammar, *ACM TOG*. Burger et al. (2020), a mobile robotic chemist, *Nature*.
-Erickson et al. (2020), Assistive Gym, ICRA. Open projects: FarmBot, Opentrons, ArduPilot and
-LeRobot.
+Erickson et al. (2020), Assistive Gym, ICRA. Open projects: FarmBot (open software and
+hardware), ArduPilot, PX4, LeRobot, and Opentrons (open software; the OT-2's hardware is only
+partly published, with no licence stated).
 
 **Milestones.**
 1. `osrobot-specialise`: specialised against general. Take two or three tasks, such as pipetting,
@@ -445,7 +448,8 @@ LeRobot.
    lengths, joint count and layout, with the controller tuned in the loop in MuJoCo, against a
    fixed off-the-shelf body at the same budget, in the spirit of Ha (2019) and RoboGrammar.
 3. `osrobot-lab`: build a digital twin of a liquid-handling bench (an Opentrons-class robot) that
-   checks protocols for collisions, volume errors and scheduling before they run. It builds on
+   checks protocols for collisions, volume errors and scheduling before they run, using
+   Opentrons' Apache-2.0 protocol software but not claiming the hardware is open. It builds on
    HIRO and on `workcell-twin`.
 4. `osrobot-uav`: size a purpose-built UAV (frame, motors, battery) for targeted observation,
    then fly the mission in PX4 or ArduPilot software-in-the-loop simulation if it installs. It
@@ -463,8 +467,9 @@ LeRobot.
 - *Open-hardware licences.* Check each design's licence before reusing it (CERN-OHL-S, -W or -P,
   or another), and credit it.
 - *Simulation is not a safety case.* A robot that works near people needs the owner's risk
-  assessment, against the relevant standard, before any hardware test. ISO 10218 covers
-  industrial robots and ISO 13482 covers personal-care robots.
+  assessment, against the relevant standard, before any hardware test. ISO 10218-1 and -2
+  (2025) cover industrial robots, and ISO 13482 (2014, under revision) covers personal-care
+  robots.
 - *Flying is an owner step.* Flying outdoors falls under FAA rules: 14 CFR Part 107, or the
   exception for recreational flyers in 49 U.S.C. § 44809.
 - *No weapons.* Build no weapons and no payloads meant to harm.
@@ -534,3 +539,50 @@ citing one, as `prompt.md` requires.
 - Regulation (EU) 2024/2822, amending Council Regulation (EC) No 6/2002 on designs. <https://eur-lex.europa.eu/eli/reg/2024/2822/oj>
 - NIJ Standard 0101.07, Ballistic Resistance of Body Armor (2023) <https://nij.ojp.gov/library/publications/ballistic-resistance-body-armor-nij-standard-010107>; NIJ Standard 0115.00, Stab Resistance of Personal Body Armor (2000) <https://www.ojp.gov/pdffiles1/nij/183652.pdf>
 - New York Penal Law § 270.21. <https://www.nysenate.gov/legislation/laws/PEN/270.21>
+
+**Track 7.**
+- Ajayi et al. (2019). Toward an Open-Source Digital Flow: First Learnings from the OpenROAD Project. DAC, 1–4. <https://doi.org/10.1145/3316781.3326334>
+- Brayton and Mishchenko (2010). ABC: An Academic Industrial-Strength Verification Tool. CAV, LNCS 6174, 24–40. <https://doi.org/10.1007/978-3-642-14295-6_5>
+- Yu, Xiao and De Micheli (2018). Developing synthesis flows without human knowledge. DAC, 1–6. <https://doi.org/10.1145/3195970.3196026>
+- Hosny, Hashemi, Shalan and Reda (2020). DRiLLS: Deep Reinforcement Learning for Logic Synthesis. ASP-DAC, 581–586. <https://doi.org/10.1109/ASP-DAC47756.2020.9045559>
+- Neto, Li, Gaillardon and Yu (2023). FlowTune: End-to-End Automatic Logic Optimization Exploration via Domain-Specific Multiarmed Bandit. *IEEE TCAD* 42(6):1912–1925. <https://doi.org/10.1109/TCAD.2022.3213611>. An earlier conference version: Yu (2020), FlowTune: Practical Multi-armed Bandits in Boolean Optimization, ICCAD, 1–9. <https://doi.org/10.1145/3400302.3415615>
+- Jung, Kahng, Kim and Varadarajan (2021). METRICS2.1 and Flow Tuning in the IEEE CEDA Robust Design Flow and OpenROAD. ICCAD, 1–9. <https://doi.org/10.1109/ICCAD51958.2021.9643541>
+- Huang et al. (2021). Machine Learning for Electronic Design Automation: A Survey. *ACM TODAES* 26(5), 1–46. <https://doi.org/10.1145/3451179>
+- Deb, Pratap, Agarwal and Meyarivan (2002). A fast and elitist multiobjective genetic algorithm: NSGA-II. *IEEE Trans. Evol. Comput.* 6(2):182–197. <https://doi.org/10.1109/4235.996017>
+- Li et al. (2018). Hyperband: A Novel Bandit-Based Approach to Hyperparameter Optimization. *JMLR* 18(185):1–52. <https://jmlr.org/papers/v18/16-558.html>
+- Peherstorfer, Willcox and Gunzburger (2018). Survey of Multifidelity Methods in Uncertainty Propagation, Inference, and Optimization. *SIAM Review* 60(3):550–591. <https://doi.org/10.1137/16M1082469>
+- Fine and Ziv (2003). Coverage directed test generation for functional verification using Bayesian networks. DAC, 286–291. <https://doi.org/10.1145/775832.775907>
+- Akiba et al. (2019). Optuna: A Next-generation Hyperparameter Optimization Framework. KDD, 2623–2631. <https://doi.org/10.1145/3292500.3330701>
+- OpenROAD-flow-scripts and its AutoTuner <https://openroad-flow-scripts.readthedocs.io/en/latest/user/InstructionsForAutoTuner.html>; SymbiYosys <https://github.com/YosysHQ/sby>; Optuna <https://github.com/optuna/optuna> (MIT)
+
+**Track 8.**
+- Jouppi et al. (2017). In-Datacenter Performance Analysis of a Tensor Processing Unit. ISCA, 1–12. <https://doi.org/10.1145/3079856.3080246>
+- Chen, Emer and Sze (2016). Eyeriss: A Spatial Architecture for Energy-Efficient Dataflow for Convolutional Neural Networks. ISCA, 367–379. <https://doi.org/10.1109/ISCA.2016.40>
+- Sze, Chen, Yang and Emer (2017). Efficient Processing of Deep Neural Networks: A Tutorial and Survey. *Proc. IEEE* 105(12):2295–2329. <https://doi.org/10.1109/JPROC.2017.2761740>
+- Parashar et al. (2019). Timeloop: A Systematic Approach to DNN Accelerator Evaluation. ISPASS, 304–315. <https://doi.org/10.1109/ISPASS.2019.00042>
+- Wu, Emer and Sze (2019). Accelergy: An Architecture-Level Energy Estimation Methodology for Accelerator Designs. ICCAD, 1–8. <https://doi.org/10.1109/ICCAD45719.2019.8942149>
+- Samajdar et al. (2020). A Systematic Methodology for Characterizing Scalability of DNN Accelerators using SCALE-Sim. ISPASS, 58–68. <https://doi.org/10.1109/ISPASS48437.2020.00016>
+- Genc et al. (2021). Gemmini: Enabling Systematic Deep-Learning Architecture Evaluation via Full-Stack Integration. DAC, 769–774. <https://doi.org/10.1109/DAC18074.2021.9586216>
+- Umuroglu et al. (2017). FINN: A Framework for Fast, Scalable Binarized Neural Network Inference. FPGA, 65–74. <https://doi.org/10.1145/3020078.3021744>
+- Duarte et al. (2018). Fast inference of deep neural networks in FPGAs for particle physics. *JINST* 13(07):P07027. <https://doi.org/10.1088/1748-0221/13/07/P07027>
+- Jacob et al. (2018). Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference. CVPR, 2704–2713. <https://doi.org/10.1109/CVPR.2018.00286>
+- Lin et al. (2020). MCUNet: Tiny Deep Learning on IoT Devices. NeurIPS 33, 11711–11722. <https://proceedings.neurips.cc/paper/2020/hash/86c51678350f656dcc7f490a43946ee5-Abstract.html>
+- Lin, Yang and Han (2021). NAAS: Neural Accelerator Architecture Search. DAC, 1051–1056. <https://doi.org/10.1109/DAC18074.2021.9586250>
+- Banbury et al. (2021). MLPerf Tiny Benchmark. NeurIPS Datasets and Benchmarks Track. <https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/da4fb5c6e93e74d3df8527599fa62642-Abstract-round1.html>
+- Warden (2018). Speech Commands: A Dataset for Limited-Vocabulary Speech Recognition. arXiv. <https://arxiv.org/abs/1804.03209>. The dataset is released under CC BY 4.0.
+- Zhang, Suda, Lai and Chandra (2017). Hello Edge: Keyword Spotting on Microcontrollers. arXiv. <https://arxiv.org/abs/1711.07128>
+- Horowitz (2014). Computing's energy problem (and what we can do about it). ISSCC, 10–14. <https://doi.org/10.1109/ISSCC.2014.6757323>
+- Timeloop <https://github.com/NVlabs/timeloop> (BSD-3-Clause); Accelergy <https://github.com/Accelergy-Project/accelergy> (MIT); SCALE-Sim v2 <https://github.com/scalesim-project/scale-sim-v2> (MIT); hls4ml <https://github.com/fastmachinelearning/hls4ml> (Apache-2.0); FINN <https://github.com/Xilinx/finn> (BSD-3-Clause); nextpnr <https://github.com/YosysHQ/nextpnr> (ISC)
+
+**Track 9.**
+- Macenski, Foote, Gerkey, Lalancette and Woodall (2022). Robot Operating System 2: Design, architecture, and uses in the wild. *Science Robotics* 7(66):eabm6074. <https://doi.org/10.1126/scirobotics.abm6074>
+- Koenig and Howard (2004). Design and use paradigms for Gazebo, an open-source multi-robot simulator. IROS, vol. 3, 2149–2154. <https://doi.org/10.1109/IROS.2004.1389727>
+- Meier, Honegger and Pollefeys (2015). PX4: A node-based multithreaded open source robotics framework for deeply embedded platforms. ICRA, 6235–6240. <https://doi.org/10.1109/ICRA.2015.7140074>
+- Grimminger et al. (2020). An Open Torque-Controlled Modular Robot Architecture for Legged Locomotion Research. *IEEE RA-L* 5(2):3650–3657. <https://doi.org/10.1109/LRA.2020.2976639>
+- Ha (2019). Reinforcement Learning for Improving Agent Design. *Artificial Life* 25(4):352–365. <https://doi.org/10.1162/artl_a_00301>
+- Zhao et al. (2020). RoboGrammar: Graph Grammar for Terrain-Optimized Robot Design. *ACM TOG* 39(6), 1–16. <https://doi.org/10.1145/3414685.3417831>
+- Burger et al. (2020). A mobile robotic chemist. *Nature* 583(7815):237–241. <https://doi.org/10.1038/s41586-020-2442-2>
+- Erickson, Gangaram, Kapusta, Liu and Kemp (2020). Assistive Gym: A Physics Simulation Framework for Assistive Robotics. ICRA, 10169–10176. <https://doi.org/10.1109/ICRA40945.2020.9197411>
+- FarmBot, licensing (software MIT, hardware CAD and docs CC0) <https://meta.farm.bot/v2025/farmbot/intro/licensing>; Opentrons <https://github.com/Opentrons/opentrons> (Apache-2.0; OT-2 hardware files partly published at <https://cadlab.io/projects/ot2>, no licence stated); ArduPilot <https://github.com/ArduPilot/ardupilot> (GPL-3.0); PX4-Autopilot <https://github.com/PX4/PX4-Autopilot> (BSD-3-Clause); Assistive Gym <https://github.com/Healthcare-Robotics/assistive-gym> (MIT); CERN-OHL v2 <https://ohwr.org/cern_ohl_s_v2.txt>
+- ISO 10218-1:2025, Robotics — Safety requirements — Part 1: Industrial robots <https://www.iso.org/standard/73933.html>; ISO 10218-2:2025, Part 2: Industrial robot applications and robot cells <https://www.iso.org/standard/73934.html>; ISO 13482:2014, Safety requirements for personal care robots <https://www.iso.org/standard/53820.html>, under revision as ISO/FDIS 13482 <https://www.iso.org/standard/83498.html>
+- 14 CFR Part 107, Small Unmanned Aircraft Systems <https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107>; 49 U.S.C. § 44809 <https://www.law.cornell.edu/uscode/text/49/44809>
