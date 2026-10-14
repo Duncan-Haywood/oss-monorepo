@@ -68,3 +68,7 @@ test("links the Scottish income tax calculator", () => {
 test("links to the employer hiring cost calculator", () => {
   assert.match(page("index.html"), /href="\.\.\/uk-employer-hiring-cost-calculator\/"/);
 });
+
+test("links the salary sacrifice calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/uk-salary-sacrifice-calculator\/"/);
+});
