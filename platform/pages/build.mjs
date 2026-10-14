@@ -1854,6 +1854,8 @@ const CATEGORY_RULES = [
       // `uk-pension-withdrawal-tax-calculator` joined 2026-10-14: UK pension withdrawal tax, sibling of the annual allowance and 100k trap tools.
       || slug === 'uk-pension-withdrawal-tax-calculator'
       // `uk-holiday-pay-calculator` joined 2026-10-14 on its first commit: UK employment-pay arithmetic, sibling of the redundancy and sick pay tools.
+      // `uk-rd-tax-relief-calculator` joined 2026-10-14 on its first commit: UK R&D relief (merged scheme, ERIS), sibling of the capital allowances and sole-trader tools.
+      || slug === 'uk-rd-tax-relief-calculator'
       || slug === 'uk-holiday-pay-calculator'
       // `uk-employer-hiring-cost-calculator` joined 2026-10-14 on its first commit: UK employer cost arithmetic (NIC, pension, allowance), sibling of the take-home pay and holiday pay tools.
       || slug === 'uk-employer-hiring-cost-calculator'

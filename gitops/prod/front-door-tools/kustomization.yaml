@@ -33,51 +33,51 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548158 bytes
-#   portfolio-front-tools-1: 92 files, 555469 bytes
-#   portfolio-front-tools-2: 144 files, 553495 bytes
-#   portfolio-front-tools-3: 128 files, 549785 bytes
-#   portfolio-front-tools-4: 136 files, 554072 bytes
-#   portfolio-front-tools-5: 130 files, 549799 bytes
-#   portfolio-front-tools-6: 127 files, 556737 bytes
-#   portfolio-front-tools-7: 121 files, 556306 bytes
-#   portfolio-front-tools-8: 131 files, 556976 bytes
-#   portfolio-front-tools-9: 136 files, 552393 bytes
-#   portfolio-front-tools-10: 136 files, 554908 bytes
-#   portfolio-front-tools-11: 136 files, 556311 bytes
-#   portfolio-front-tools-12: 127 files, 549386 bytes
-#   portfolio-front-tools-13: 131 files, 554300 bytes
-#   portfolio-front-tools-14: 119 files, 556641 bytes
-#   portfolio-front-tools-15: 140 files, 556812 bytes
-#   portfolio-front-tools-16: 116 files, 546509 bytes
-#   portfolio-front-tools-17: 133 files, 556852 bytes
-#   portfolio-front-tools-18: 124 files, 556592 bytes
-#   portfolio-front-tools-19: 126 files, 556850 bytes
-#   portfolio-front-tools-20: 122 files, 556106 bytes
-#   portfolio-front-tools-21: 126 files, 554911 bytes
-#   portfolio-front-tools-22: 117 files, 554237 bytes
-#   portfolio-front-tools-23: 117 files, 551403 bytes
-#   portfolio-front-tools-24: 130 files, 556496 bytes
-#   portfolio-front-tools-25: 128 files, 556527 bytes
-#   portfolio-front-tools-26: 134 files, 555951 bytes
-#   portfolio-front-tools-27: 133 files, 551188 bytes
-#   portfolio-front-tools-28: 121 files, 552809 bytes
-#   portfolio-front-tools-29: 127 files, 556633 bytes
-#   portfolio-front-tools-30: 138 files, 555200 bytes
-#   portfolio-front-tools-31: 125 files, 553484 bytes
-#   portfolio-front-tools-32: 125 files, 554833 bytes
-#   portfolio-front-tools-33: 135 files, 552431 bytes
-#   portfolio-front-tools-34: 109 files, 554647 bytes
-#   portfolio-front-tools-35: 100 files, 552146 bytes
-#   portfolio-front-tools-36: 128 files, 549532 bytes
-#   portfolio-front-tools-37: 118 files, 554066 bytes
-#   portfolio-front-tools-38: 130 files, 553203 bytes
-#   portfolio-front-tools-39: 124 files, 555533 bytes
-#   portfolio-front-tools-40: 137 files, 554481 bytes
-#   portfolio-front-tools-41: 135 files, 552011 bytes
-#   portfolio-front-tools-42: 120 files, 553835 bytes
-#   portfolio-front-tools-43: 79 files, 413043 bytes
-#   portfolio-front-tools-44: 50 files, 263449 bytes
+#   portfolio-front-tools-0: 145 files, 548265 bytes
+#   portfolio-front-tools-1: 92 files, 555558 bytes
+#   portfolio-front-tools-2: 144 files, 553599 bytes
+#   portfolio-front-tools-3: 128 files, 549877 bytes
+#   portfolio-front-tools-4: 136 files, 554162 bytes
+#   portfolio-front-tools-5: 130 files, 549873 bytes
+#   portfolio-front-tools-6: 127 files, 556825 bytes
+#   portfolio-front-tools-7: 121 files, 556359 bytes
+#   portfolio-front-tools-8: 131 files, 557051 bytes
+#   portfolio-front-tools-9: 136 files, 552449 bytes
+#   portfolio-front-tools-10: 136 files, 555001 bytes
+#   portfolio-front-tools-11: 136 files, 556400 bytes
+#   portfolio-front-tools-12: 127 files, 549425 bytes
+#   portfolio-front-tools-13: 131 files, 554324 bytes
+#   portfolio-front-tools-14: 119 files, 556669 bytes
+#   portfolio-front-tools-15: 140 files, 556887 bytes
+#   portfolio-front-tools-16: 116 files, 546527 bytes
+#   portfolio-front-tools-17: 133 files, 556938 bytes
+#   portfolio-front-tools-18: 124 files, 556700 bytes
+#   portfolio-front-tools-19: 126 files, 556852 bytes
+#   portfolio-front-tools-20: 122 files, 556157 bytes
+#   portfolio-front-tools-21: 126 files, 554951 bytes
+#   portfolio-front-tools-22: 117 files, 554331 bytes
+#   portfolio-front-tools-23: 117 files, 551515 bytes
+#   portfolio-front-tools-24: 130 files, 556585 bytes
+#   portfolio-front-tools-25: 128 files, 556580 bytes
+#   portfolio-front-tools-26: 134 files, 555997 bytes
+#   portfolio-front-tools-27: 133 files, 551294 bytes
+#   portfolio-front-tools-28: 121 files, 552825 bytes
+#   portfolio-front-tools-29: 127 files, 556701 bytes
+#   portfolio-front-tools-30: 138 files, 555264 bytes
+#   portfolio-front-tools-31: 125 files, 553648 bytes
+#   portfolio-front-tools-32: 125 files, 554976 bytes
+#   portfolio-front-tools-33: 135 files, 552499 bytes
+#   portfolio-front-tools-34: 109 files, 554855 bytes
+#   portfolio-front-tools-35: 100 files, 552199 bytes
+#   portfolio-front-tools-36: 128 files, 549629 bytes
+#   portfolio-front-tools-37: 118 files, 554120 bytes
+#   portfolio-front-tools-38: 130 files, 553159 bytes
+#   portfolio-front-tools-39: 124 files, 555612 bytes
+#   portfolio-front-tools-40: 137 files, 555652 bytes
+#   portfolio-front-tools-41: 136 files, 554444 bytes
+#   portfolio-front-tools-42: 120 files, 553393 bytes
+#   portfolio-front-tools-43: 81 files, 421872 bytes
+#   portfolio-front-tools-44: 50 files, 263554 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -5466,6 +5466,9 @@ configMapGenerator:
       - uk-pension-withdrawal-tax-calculator__calc.mjs.gz=uk-pension-withdrawal-tax-calculator__calc.mjs.gz
       - uk-pension-withdrawal-tax-calculator__index.html.gz=uk-pension-withdrawal-tax-calculator__index.html.gz
       - uk-pension-withdrawal-tax-calculator__usage.mjs.gz=uk-pension-withdrawal-tax-calculator__usage.mjs.gz
+      - uk-rd-tax-relief-calculator__calc.mjs.gz=uk-rd-tax-relief-calculator__calc.mjs.gz
+      - uk-rd-tax-relief-calculator__index.html.gz=uk-rd-tax-relief-calculator__index.html.gz
+      - uk-rd-tax-relief-calculator__usage.mjs.gz=uk-rd-tax-relief-calculator__usage.mjs.gz
       - uk-redundancy-pay-calculator__calc.mjs.gz=uk-redundancy-pay-calculator__calc.mjs.gz
       - uk-redundancy-pay-calculator__index.html.gz=uk-redundancy-pay-calculator__index.html.gz
       - uk-redundancy-pay-calculator__usage.mjs.gz=uk-redundancy-pay-calculator__usage.mjs.gz
@@ -5499,14 +5502,14 @@ configMapGenerator:
       - uk-state-pension-ni-years-checker__calc.mjs.gz=uk-state-pension-ni-years-checker__calc.mjs.gz
       - uk-state-pension-ni-years-checker__index.html.gz=uk-state-pension-ni-years-checker__index.html.gz
       - uk-state-pension-ni-years-checker__usage.mjs.gz=uk-state-pension-ni-years-checker__usage.mjs.gz
-      - uk-statutory-maternity-pay-calculator__calc.mjs.gz=uk-statutory-maternity-pay-calculator__calc.mjs.gz
-      - uk-statutory-maternity-pay-calculator__index.html.gz=uk-statutory-maternity-pay-calculator__index.html.gz
-      - uk-statutory-maternity-pay-calculator__usage.mjs.gz=uk-statutory-maternity-pay-calculator__usage.mjs.gz
   - name: portfolio-front-tools-41
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - uk-statutory-maternity-pay-calculator__calc.mjs.gz=uk-statutory-maternity-pay-calculator__calc.mjs.gz
+      - uk-statutory-maternity-pay-calculator__index.html.gz=uk-statutory-maternity-pay-calculator__index.html.gz
+      - uk-statutory-maternity-pay-calculator__usage.mjs.gz=uk-statutory-maternity-pay-calculator__usage.mjs.gz
       - uk-statutory-sick-pay-calculator__calc.mjs.gz=uk-statutory-sick-pay-calculator__calc.mjs.gz
       - uk-statutory-sick-pay-calculator__index.html.gz=uk-statutory-sick-pay-calculator__index.html.gz
       - uk-statutory-sick-pay-calculator__usage.mjs.gz=uk-statutory-sick-pay-calculator__usage.mjs.gz
@@ -5640,13 +5643,13 @@ configMapGenerator:
       - voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz=voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz
       - voiceover-project-rate-calculator__index.html.gz=voiceover-project-rate-calculator__index.html.gz
       - voiceover-project-rate-calculator__usage.mjs.gz=voiceover-project-rate-calculator__usage.mjs.gz
-      - voiceover-project-rate-calculator__vs-a-flat-rate-regardless-of-usage.html.gz=voiceover-project-rate-calculator__vs-a-flat-rate-regardless-of-usage.html.gz
-      - voiceover-project-rate-calculator__vs-voices-com.html.gz=voiceover-project-rate-calculator__vs-voices-com.html.gz
   - name: portfolio-front-tools-42
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - voiceover-project-rate-calculator__vs-a-flat-rate-regardless-of-usage.html.gz=voiceover-project-rate-calculator__vs-a-flat-rate-regardless-of-usage.html.gz
+      - voiceover-project-rate-calculator__vs-voices-com.html.gz=voiceover-project-rate-calculator__vs-voices-com.html.gz
       - volunteer-shift-scheduler__calc.mjs.gz=volunteer-shift-scheduler__calc.mjs.gz
       - volunteer-shift-scheduler__how-to-schedule-volunteers-fairly.html.gz=volunteer-shift-scheduler__how-to-schedule-volunteers-fairly.html.gz
       - volunteer-shift-scheduler__index.html.gz=volunteer-shift-scheduler__index.html.gz
@@ -5765,13 +5768,13 @@ configMapGenerator:
       - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
       - well-pump-bid-calculator__share.mjs.gz=well-pump-bid-calculator__share.mjs.gz
       - well-pump-bid-calculator__usage.mjs.gz=well-pump-bid-calculator__usage.mjs.gz
-      - well-pump-bid-calculator__vs-a-flat-well-pump-special.html.gz=well-pump-bid-calculator__vs-a-flat-well-pump-special.html.gz
-      - well-pump-bid-calculator__vs-servicetitan.html.gz=well-pump-bid-calculator__vs-servicetitan.html.gz
   - name: portfolio-front-tools-43
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - well-pump-bid-calculator__vs-a-flat-well-pump-special.html.gz=well-pump-bid-calculator__vs-a-flat-well-pump-special.html.gz
+      - well-pump-bid-calculator__vs-servicetitan.html.gz=well-pump-bid-calculator__vs-servicetitan.html.gz
       - whatnot-sales-report-analyzer__calc.mjs.gz=whatnot-sales-report-analyzer__calc.mjs.gz
       - whatnot-sales-report-analyzer__index.html.gz=whatnot-sales-report-analyzer__index.html.gz
       - whatnot-sales-report-analyzer__usage.mjs.gz=whatnot-sales-report-analyzer__usage.mjs.gz

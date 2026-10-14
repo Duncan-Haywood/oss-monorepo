@@ -1,0 +1,37 @@
+name: uk-rd-tax-relief-calculator
+description: >-
+  Free browser tool for UK companies doing software or technical R&D: enter qualifying costs and profit or loss to see the merged-scheme R&D expenditure credit, the enhanced support for R&D-intensive loss makers, the cash or tax saved, the PAYE/NIC cap on payable credits and what an adviser's percentage fee takes. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; duplicate_check.py found no R&D relief tool (closest 0.16, unrelated UK tools).
+#
+# First visitor: a UK startup founder or software-company director searching "R&D tax credits calculator", "how much R&D tax relief will I get", "RDEC vs ERIS", often prompted by a claims agency cold-pitching a 15-20% fee. Evergreen, peaks around accounts and CT600 filing; volume not measured. Rivals are claims-agency calculators that exist to capture a lead, and static explainers.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: claim-narrative and cost-apportionment worksheet behind an env-var switch.
+#
+# Liability: April 2024 merged-scheme rates (20% credit, 19%/25% notional tax, ERIS 86% extra deduction and 14.5% payable credit, 30% intensity test, 65% subcontractor/EPW factor, 20,000 + 300% PAYE/NIC cap) were written from memory without network access and are flagged for GOV.UK verification on the page. Group, connected-party, grant and overseas-cost rules are refused and named. The page states it is not tax advice.
+hypotheses:
+  - claim: >-
+      UK companies with software or technical staff will use a free calculator to size an R&D claim before engaging an adviser.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or threshold differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-rd-tax-relief-calculator/
+  analytics: null
