@@ -1660,7 +1660,8 @@ const RELATIVE_SELF = relative(
 // +1: `uk-lifetime-isa-vs-pension-calculator` graduated.
 // +1: `uk-eis-seis-relief-calculator` graduated.
 // +1: `uk-shared-parental-pay-planner` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1186;
+// +1: `uk-mileage-allowance-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1187;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
