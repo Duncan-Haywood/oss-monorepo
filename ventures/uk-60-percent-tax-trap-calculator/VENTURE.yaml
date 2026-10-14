@@ -1,0 +1,39 @@
+name: uk-60-percent-tax-trap-calculator
+description: >-
+  Free browser tool for UK earners between 100,000 and 125,140 GBP: see the personal allowance you lose, your real marginal tax rate (60 percent, 62 with employee NI) and what a pension contribution by relief at source or salary sacrifice would cost to win it back, for 2025/26 and 2026/27. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no UK allowance-taper tool in ventures/ (closest: uk-child-benefit-charge-calculator, a different cliff; uk-dividend-tax-calculator, which only mentions the taper). Sibling in the UK personal-tax cluster.
+#
+# First visitor: a UK higher earner (or a director, or a contractor) searching "60% tax trap calculator", "how much pension to avoid the 100k tax trap", "personal allowance taper calculator".
+# High-intent evergreen search, fixed thresholds frozen to 2028, and the audience is high-income so a future paid planning product has real value. Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a household optimiser (two incomes, childcare cliff, Child Benefit charge, salary sacrifice, bonus timing) behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (Scottish bands, student loans, Gift Aid, childcare). Ethical risk is an understated bill or overstated pension saving; mitigated by naming the unmodelled items and sourcing.
+hypotheses:
+  - claim: >-
+      UK higher earners will use a free calculator to see their marginal rate and the pension payment that avoids the 100,000 allowance taper.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, rate or date differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-60-percent-tax-trap-calculator/
+  analytics: null

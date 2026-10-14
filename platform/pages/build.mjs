@@ -1821,6 +1821,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-capital-gains-tax-calculator'
       // `uk-dividend-tax-calculator` joined 2026-10-13 on its first commit: UK personal-tax arithmetic for directors and investors, sibling of the capital-gains and sole-trader tools.
       || slug === 'uk-dividend-tax-calculator'
+      // `uk-60-percent-tax-trap-calculator` joined 2026-10-13 on its first commit: UK personal-tax arithmetic for higher earners, sibling of the dividend and child-benefit tools.
+      || slug === 'uk-60-percent-tax-trap-calculator'
       // `tfsa-over-contribution-checker` joined 2026-10-13 on its first commit: Canadian personal-tax room and penalty arithmetic, a sibling of the Canada GST/HST checker.
       || slug === 'tfsa-over-contribution-checker'
       // `uk-statutory-sick-pay-calculator` joined 2026-10-13 on its first commit: UK employer payroll-compliance arithmetic, same back-office job.
