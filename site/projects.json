@@ -2064,6 +2064,18 @@
      "summary": "Synthetic chest, thigh and wrist accelerometers and knee and elbow strain channels, six activities, a softmax classifier on spectral features and unseen simulated people. Two sensors reach about 99% and all five 99.9%, because the invented classes are easy to separate. A model trained on clean data falls to 81, 61 and 45% when the IMUs rotate by 0.3, 0.6 and 1.0&nbsp;rad (a garment slipping), while training with 0.6&nbsp;rad of slip holds 94&ndash;99%. Strain-only stays at 97% under slip by construction. Stylised: sinusoidal signals, no real dataset, no drift or hysteresis."
     }
    ]
+  },
+  {
+   "id": "accel",
+   "name": "Task-specific AI accelerators",
+   "blurb": "Small accelerators designed together with the model for one task: accuracy, cycles, area and energy per inference, checked in open RTL flows.",
+   "projects": [
+    {
+     "slug": "accel-kws",
+     "title": "How small can a keyword-spotting accelerator get, and what does each bit of precision cost?",
+     "summary": "A one-hidden-layer MLP on pooled MFCC features of Speech Commands v0.02 (10 keywords plus unknown), quantised to 2&ndash;8 bit weights, mapped to a serial-MAC RTL engine that matches an integer NumPy reference bit for bit on all 40 swept configurations. Test accuracy saturates near 75% (0.752 at 128 hidden units, 4 bits); 4-bit weights are within 0.4 points of 8-bit at 64 and 128 units, 2 bits collapses at small width, and a 64-unit 4-bit design (0.722) uses about 31% of the best design&rsquo;s modelled energy. Modelled classifier energy is 0.0045&ndash;0.19&nbsp;&micro;W at 4 inferences per second, far below the 1.8&nbsp;mW microphone floor in <em>ambient-wearable</em>. Stylised: assumed 45&nbsp;nm energy constants not re-checked, generic-gate area without memories, no front end, a third-party dataset mirror, and a weak feature set."
+    }
+   ]
   }
  ],
  "featured": [
