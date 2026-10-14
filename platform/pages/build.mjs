@@ -1821,6 +1821,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-redundancy-pay-calculator'
       // `uk-tax-code-checker` joined 2026-10-14 on its first commit: PAYE tax code decoding and payslip tax checking, sibling of the take-home pay and Scottish income tax tools.
       || slug === 'uk-tax-code-checker'
+      // `uk-state-pension-ni-years-checker` joined 2026-10-14 on its first commit: UK pension-record arithmetic, sibling of the pension annual allowance tool.
+      || slug === 'uk-state-pension-ni-years-checker'
       // `uk-minimum-wage-checker` joined 2026-10-14 on its first commit: UK employment-pay arithmetic, sibling of the holiday pay and sick pay tools.
       || slug === 'uk-minimum-wage-checker'
       // `uk-statutory-maternity-pay-calculator` joined 2026-10-14 on its first commit: UK employment-payment arithmetic, sibling of the sick pay and redundancy tools.
