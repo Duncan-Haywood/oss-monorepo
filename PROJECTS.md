@@ -1,15 +1,123 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 9 added on 2026-10-14. Runs
-started from `prompt.md` take their new work from here. There are nine tracks. Each one is
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14. Runs
+started from `prompt.md` take their new work from here. There are eleven tracks. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
 README bullet, a `site/projects.json` entry and a passing `python site/build.py`, as `CLAUDE.md`
 says. Every rule in `prompt.md` still applies, research integrity above all.
 
+## Repository merge (before the tracks)
+
+Set on 2026-10-14. All work is moving to `Duncan-Haywood/oss-monorepo`, under `research/`, and
+until it does the two repositories are mirrored, with no history lost. `prompt.md` (Repository
+merge) has the rules. This is the action list. It is not a track and makes no `research/<slug>/`
+project.
+
+**Before you pick a track,** take the first milestone below that is not done, not claimed by an
+open pull request in either repository, and not on a branch pushed in the last three hours. Put
+the milestone's name first in the pull request title, so the next run sees the claim. If every
+milestone is done or claimed, pick a track as usual. Milestones marked *oss-monorepo* push there.
+If your session cannot add that repository (`add_repo`, push access), skip them. Its
+`CLAUDE.md` governs those pull requests, except that a mirror pull request merges with a merge
+commit.
+
+**The path map.** It is fixed, so every sync places every file the same way:
+`research/<slug>/` here stays `research/<slug>/` there. Every other top-level entry `E` here goes
+to `research/E` there, so `site/` becomes `research/site/` and `prompt.md` becomes
+`research/prompt.md`. Projects keep their paths, so `git log -- research/<slug>` shows their
+original commits there with no `--follow`.
+
+**The sync.** It was dry-run on 2026-10-14 against both `main`s, and a second sync after a new
+commit here brought in only that commit. Run it in `oss-monorepo`:
+
+```
+git fetch https://github.com/Duncan-Haywood/oss-research-monorepo main
+R=$(git rev-parse FETCH_HEAD)
+git merge -s ours --no-commit --allow-unrelated-histories "$R"
+git rm -r -q --cached --ignore-unmatch research && rm -rf research
+git read-tree --prefix=research/ "$R:research"
+git ls-tree "$R" | while read -r mode type sha name; do
+  [ "$name" = research ] && continue
+  if [ "$type" = tree ]; then git read-tree --prefix="research/$name/" "$sha"
+  else git update-index --add --cacheinfo "$mode,$sha,research/$name"; fi
+done
+git ls-files -z research | xargs -0 git checkout-index -f --
+git commit -m "Mirror oss-research-monorepo@${R:0:12} into research/"
+```
+
+**Milestones.**
+1. `mirror-movable` (here): make this repository run unchanged at `oss-monorepo/research/`.
+   `site/build.py` finds projects in `research/` here and beside `site/` there, and skips
+   `site`, `prompts` and dot-directories. Test both layouts. Make every project's tests pass
+   from either root. Make sure no project slug can collide with a top-level name here.
+2. `mirror-tool` (*oss-monorepo*): turn the sync into a script, such as
+   `platform/ci/research_mirror.py`, with unit tests on a throwaway pair of repositories.
+   - `sync` makes the merge above, and refuses on a slug that collides with a top-level name.
+   - `--check` exits 1 when `research/` differs from the path map of the commit that the latest
+     mirror merge recorded, which means someone edited the copy, and reports how many commits
+     and hours the mirror lags this `main`.
+3. `mirror-guards` (*oss-monorepo*): make that repository's tree-wide checks treat `research/` as
+   foreign. Root pytest collection, `check_duplicate_symbols`, `checklist_coverage`, the workflow
+   validators and the usage buckets either skip `research/` or run it under these rules; #6143
+   found most of them. Mirror pull requests must never be squashed: today `land-your-work.md`
+   and the auto-merge in `platform/ci/agent_review` both squash, so make the auto-merge skip a
+   mirror pull request or merge it with a merge commit. Add a CI job that runs `--check` and
+   `python research/site/build.py`.
+4. `mirror-import` (*oss-monorepo*): the first sync, from oss-monorepo's `main` rather than
+   #6143's branch. Merge with a merge commit. If GitHub refuses one, the setting is the owner's:
+   comment the blocker on the pull request and stop, and never squash instead. Confirm all three:
+   - `git merge-base --is-ancestor <R> origin/main` there.
+   - For a few slugs, `git log --oneline -- research/<slug>` lists the same hashes in both.
+   - `python research/site/build.py` prints `ok`.
+5. `mirror-retire-6143` (*oss-monorepo*): split what #6143 still has worth landing into pull
+   requests of their own: the agent-review fork hardening, the Hetzner clean-up, and the Pages
+   wiring that serves the research homepage at `/research/`. Then close it with a pointer.
+   Checked on 2026-10-14: every research commit in it is an ancestor of this `main`, so the
+   mirror already holds them, and its 14 other commits are that session's own. Its edits inside
+   `research/`, such as the moved homepage builder, are redone here by milestone 1.
+6. `mirror-sync` (*oss-monorepo*, recurring): whenever the mirror is a day or more behind this
+   `main`, sync and land it. Then automate it with a workflow there that opens and merges the
+   sync pull request on a schedule. It pushes unattended, so it stays off until the owner sets
+   its gating variable (oss-monorepo `CLAUDE.md`, Automation).
+7. `mirror-cutover` (both): write the cutover checklist and the "moved" notices for this
+   README, `CLAUDE.md` and the Pages homepage, ready to merge in the last sync. Make sure
+   `oss-monorepo`'s Pages build serves the research homepage. The owner steps, in order:
+   1. Make `oss-monorepo` public.
+   2. Point the scheduled research runs at it.
+   3. Archive this repository after the last sync, and never delete it.
+8. `site-redesign` (both): give the two GitHub Pages homepages a comprehensive, modern,
+   professional redesign, with one super homepage that routes to both. Added on 2026-10-14 at the
+   owner's request. It is independent of milestones 1 to 7, so a run may take it while they are
+   claimed.
+   - **The two sites.** The research homepage
+     (<https://duncan-haywood.github.io/oss-research-monorepo/>) is built here by
+     `site/build.py` from `site/template.html` and `site/projects.json`. The product catalogue
+     (<https://duncan-haywood.github.io/monorepo-projects/>) is built in `oss-monorepo` by
+     `platform/pages/build.mjs`.
+   - **The super homepage.** One landing page introduces the whole portfolio and routes visitors
+     to the products and to the research. It must not be a third, thin page that each side
+     forgets to update. Prefer making it the `oss-monorepo` Pages root, with the catalogue and
+     the research homepage (`/research/`, milestone 7) under it, and keep the old URLs working
+     with redirects or links.
+   - **Better HTML, CSS and JS.** Use semantic HTML and a shared design system: tokens for
+     colour, type and spacing, light and dark themes, and a responsive layout from phone width
+     up. Add a sticky header with navigation, a hero, featured work, theme or category sections,
+     and fast client-side search and filtering. Use no framework and no build step beyond the
+     existing builders, and no third-party tracking. Make it accessible (WCAG AA contrast,
+     labelled controls, keyboard navigation) and fast, with no layout shift.
+   - **Keep what already works.** Every project and product card, the per-project test counts,
+     the disclaimers, usage tracking, sitemaps and SEO metadata all stay. `python site/build.py`
+     still prints `ok`. In `oss-monorepo`, run the starvation checklist from its `CLAUDE.md`,
+     including `regen.mjs --verify` and the browser checks (`contrast.mjs`).
+   - **Done when** both homepages and the super homepage ship the new design, each links to the
+     other two, and before and after screenshots at phone and desktop widths are in the pull
+     request. Restyle the research side here, where the mirror sync carries it across. Do the
+     catalogue and the super homepage in `oss-monorepo`.
+
 ## Picking work
 
-1. **Pick a track at random.** Draw a uniform random number and map it to the nine tracks. Four
+1. **Pick a track at random.** Draw a uniform random number and map it to the eleven tracks. Four
    runs start in the same minute, and a random pick spreads them out.
 2. **Take the track's next free milestone.** That is the first one that is not on `main` (check
    `research/` for the slug), not claimed by an open pull request, and not on a branch pushed
@@ -30,6 +138,8 @@ says. Every rule in `prompt.md` still applies, research integrity above all.
 | 7. Automated algorithmic chip-design loops | `eda` |
 | 8. Task-specific AI accelerators | `accel` |
 | 9. Open-source purpose-built robots | `osrobot` |
+| 10. The software-engineering loop | `swe` |
+| 11. Adversarial human imitation | `mimic` |
 
 ## Rules for every track
 
@@ -474,9 +584,249 @@ partly published, with no licence stated).
   exception for recreational flyers in 49 U.S.C. § 44809.
 - *No weapons.* Build no weapons and no payloads meant to harm.
 
+## 10. The software-engineering loop (`swe`)
+
+**Goal.** The agents that build this portfolio form a loop of their own. The brief
+(`prompt.md` and this file) is the design, each run is an evaluation, and the merged projects
+are the output. Optimise that loop for one number: the throughput of useful, valuable and
+correct projects within a fixed compute budget. The budget is several Claude Code Max 20x
+subscriptions ($200 a month each on 2026-10-14). Each one's usage limit resets every five hours,
+a weekly limit sits on top, and Claude Code shares both with chat. Those limits, not dollars,
+are the binding constraint, so cost is measured in tokens and in time against them. Which
+brief, task mix, model, schedule and review policy land the most valuable correct work per
+subscription-week? This is an operations-research problem in its own right (budgeted
+experimentation, allocation, queueing), and it fits the portfolio's operations-research and
+industrial-engineering strand.
+
+**The metric.** A project counts when it is all of the following:
+- *Correct.* It merged with CI green. When audited, its README numbers match a re-run of its
+  code and its citations check out. It needed no revert or fix-up within 14 days, and it has no
+  integrity issue.
+- *Useful.* It ships something usable on its own (a tool, a dataset, a printable part, a
+  pattern), a later project builds on it, or it answers a question its track asked.
+- *Valuable.* It moves its track forward. A listed milestone or a substantive new question
+  scores higher than a parameter variation of the previous project, and a duplicate scores
+  zero. A reviewer run scores value against a written rubric, blind to the prompt version that
+  produced the project wherever it can be.
+
+Throughput is the value-weighted count of such projects per subscription-week, reported with
+the tokens and wall time behind it.
+
+**Prior work.** Forsgren, Humble and Kim (2018), *Accelerate*, on measuring delivery throughput
+and stability together (the DORA metrics). Little (1961), on throughput and work in progress.
+Badanidiyuru, Kleinberg and Slivkins (2018), bandits with knapsacks, for learning under a
+budget. Russo et al. (2018), a tutorial on Thompson sampling. Johari et al. (2017) and Kohavi,
+Tang and Xu (2020), on controlled experiments and the cost of peeking at them. Kapoor et al.
+(2025), "AI Agents That Matter", on judging agents by cost as well as accuracy. Jimenez et al.
+(2024), SWE-bench, and Yang et al. (2024), SWE-agent. Yang et al. (2024), OPRO, and Khattab et
+al. (2024), DSPy, on optimising prompts. Strathern (1997), on what happens when a measure
+becomes a target. Cohen (1960), kappa, for agreement between raters.
+
+**Milestones.**
+1. `swe-ledger`: build the measurement. Backfill `prompts/runs.jsonl` from git history, pull
+   requests and CI. That is the first review session `prompt.md` describes, which has not run
+   yet. Fill in tokens, cost and wall time from session metadata wherever it can still be read.
+   Claude Code's `/usage` command shows plan usage for the owner to read. Then write a script
+   that computes the metric per run, prompt version, model, track and task type, with counts and
+   intervals. On 2026-10-14 the log held 159 runs, and none recorded
+   tokens or cost.
+2. `swe-audit`: estimate the correctness term. Re-run a random sample of merged projects, check
+   their README numbers against fresh output and their citations, and report the defect rate
+   with a confidence interval, by track and model. Choose the sample size from the precision
+   wanted.
+3. `swe-value`: write the value rubric and test it. Two independent scoring passes over the same
+   projects give an agreement score (Cohen's kappa), and the disagreements sharpen the rubric.
+   Then ask the log questions. For example, on 2026-10-14 `research/` held ten
+   `garment-twonode*`, nine `chip-systolic*` and eight `simdesign-gauge*` projects. Are runs of
+   follow-ups like these worth as much per token as new milestones?
+4. `swe-allocate`: allocate the budget. Fit a simple model of each run's cost and value, by
+   track and task type, from the ledger. Compare policies offline: the current uniform pick of a
+   track, a greedy value-per-token rule, Thompson sampling, and a bandits-with-knapsacks policy.
+   Adopt a policy only if it wins both in the model and in a live trial.
+5. `swe-schedule`: schedule across subscriptions. Four runs start in the same minute, so
+   duplicate projects, merge conflicts on `README.md` and `site/projects.json`, and run-log
+   races all cost budget. Measure each from history. Model the runs as a queue against each
+   subscription's usage limits, and test staggered starts, claim protocols and limits on work in
+   progress in simulation.
+6. `swe-prompt`: run prompt experiments on this metric. Put candidate briefs through
+   `prompt.md`'s experiment process with a sequential test that can stop early safely. Report
+   what each change did to valuable correct throughput, not only to the success rate.
+7. Later: the model and effort level per kind of task (a cheaper model for landing and logging,
+   a stronger one for new milestones), subagents against a single agent, and how often review
+   sessions should run.
+
+**Guardrails.**
+- *Integrity is a constraint, not a trade.* No throughput gain excuses an integrity issue. A run
+  that has one counts against its prompt version, and its project is fixed or withdrawn.
+- *Guard the metric.* A separate review pass scores correctness and value from git, CI and
+  re-runs, never from a run's own report. Change a metric's definition only through a logged
+  experiment, and keep the old definition computable so trends stay comparable.
+- *Stay inside the plans.* Use each subscription within its usage limits and its terms.
+  Scheduling work into unused capacity is in scope; working around a limit is not. Anthropic's
+  terms do not directly address one person holding several subscriptions. The Usage Policy
+  taking effect on 2026-11-12 bars creating multiple accounts to circumvent product guardrails.
+  Confirming that the setup complies is an owner step. A run never splits one task across
+  accounts to get past a limit.
+- *Projects, not process notes.* Every milestone here is a normal `research/` project with code
+  and tests. Changes to `prompt.md` itself go through its experiment process, or come from the
+  owner.
+- *Privacy.* Redact recorded inputs as `prompt.md` requires, and publish no tokens, email
+  addresses or other personal data. This track builds on none of the groups in `prompt.md`.
+
+## 11. Adversarial human imitation (`mimic`)
+
+**Goal.** Two frozen LLMs play the imitation game in a loop. The *imitator* writes what a person
+would write in a given context. The *detector* reads a text, or a human text and an imitator
+text side by side, and says which one a person wrote. Neither model's weights change: the only
+thing either side may change is its own prompt. Between rounds, each side's prompt is rewritten
+to beat the other side's latest one. A context is data, not code: a situation, any earlier
+turns, format limits and human-written examples from that setting. So one loop serves a forum
+reply, a product review, an answer to a question, a chat turn, a recipe or a poem, and adding a
+context means adding rows. Can prompts alone make an LLM indistinguishable from people across
+contexts, against a detector that adapts through prompts alone? Which side wins at an equal
+budget? Does the game settle or cycle? Does a prompt that wins in one context carry over to
+others?
+
+The imitator is a simulated human, a digital twin of how people write in a context. The
+detector's accuracy is a fidelity score for that twin, as a discriminator's is for a GAN, and a
+classifier two-sample test is for any simulator. That is the track's tie to the portfolio's
+theme. Whether a twin that fools a detector is also more useful, for example as the simulated
+speakers in `ambient-interject` (track 2), is a question for the later milestones. Text comes
+first because it fits the container's CPU. Speech, images and video follow only as far as their
+measured compute cost allows (milestone 7).
+
+**What is free and what is fixed.**
+- *Free:* the imitator's prompt and the detector's prompt. A prompt may hold instructions, a
+  persona and few-shot examples, but examples come only from the training split.
+- *Fixed for a run:* the model weights, the decoding settings, the contexts and their splits,
+  the optimiser that rewrites the prompts and its own instructions, and the number of model
+  calls per round, which is the same for both sides.
+- *Scored:* the detector gives a probability, read from its answer tokens' log-probabilities
+  where the model exposes them, so results report AUROC as well as accuracy. It runs in two
+  modes: one text at a time, and paired, with a human text and an imitator text for the same
+  context in random order, where chance is 50%.
+- *Models:* the imitator and the detector are open-weight models run locally, sized to finish on
+  the container's CPU (llama.cpp or transformers), so the results can be reproduced. The
+  optimiser follows the "LLMs in the loop" rule above. A closed model behind an environment
+  variable is at most a labelled extra, never the source of a headline number.
+
+**Prior work.** Turing (1950), the imitation game. Goodfellow et al. (2014), generative
+adversarial nets. Lopez-Paz and Oquab (2017), classifier two-sample tests. Jones and Bergen
+(2024; 2026), Turing tests of LLMs in which the witness prompt drove the pass rate: in the
+three-party test, GPT-4.5 given a humanlike persona prompt was judged to be the human 73% of the
+time, and 36% without it. Jannai et al. (2023), "Human or Not?", ran a Turing test as an online
+game. Ippolito et al. (2020) and Clark et al. (2021), on people and machines judging generated
+text. On detectors: Mitchell et al. (2023), DetectGPT; Hans et al. (2024), Binoculars; Dugan et
+al. (2024), the RAID benchmark; Sadasivan et al. (2025), on the limits of detection; and Liang
+et al. (2023), on detectors' bias against non-native English writers. On evasion and adversarial
+training: Krishna et al. (2023), on paraphrasing; Lu et al. (2024), SICO, which evades detectors
+by optimising only the prompt, against a fixed proxy detector; and Hu, Chen and Ho (2023),
+RADAR, which trains a paraphraser and a detector against each other by updating weights. This
+track's set-up, where both sides adapt and only through prompts, sits between those two. On
+prompt optimisation: Zhou et al. (2023), APE; Yang et al. (2024), OPRO; Pryzant et al. (2023);
+Prasad et al. (2023), GrIPS; Fernando et al. (2024), Promptbreeder; and Yuksekgonul et al.
+(2025), TextGrad. On game dynamics: Lanctot et al. (2017), PSRO, and Balduzzi et al. (2019), on
+strategic cycles in non-transitive games. On simulated humans: Argyle et al. (2023), on
+"algorithmic fidelity"; Aher, Arriaga and Kalai (2023); and Park et al. (2023), generative
+agents. Pillutla et al. (2021), MAUVE, compares model and human text as distributions.
+
+**Milestones.**
+1. `mimic-contexts`: build the context suite and the reference detectors. Gather human-written
+   text from licence-checked corpora in at least six context families, each item stored with the
+   context that produced it. RAID (MIT) comes first. HC3 and M4 keep each source's licence, some
+   of them non-commercial or unknown, so use only the parts whose licence is known and
+   compatible. Split by family, not by item, so later milestones can hold whole families out.
+   Fit reference detectors that use no prompt: a logistic regression on character and word
+   n-grams, and a zero-shot score from a small open model's perplexity (Binoculars-style if two
+   related models fit on the CPU). Score them against an imitator given only a plain prompt
+   ("Write a reply to this post."). The suite and the detectors are useful on their own.
+2. `mimic-loop`: run the loop on two or three context families, with one small open instruct
+   model as both imitator and detector. Alternate rounds: optimise the detector's prompt against
+   the imitator's current one, then the reverse. Compare proposers at the same budget of model
+   calls: an LLM optimiser that reads scores and failures (OPRO- or TextGrad-style) against
+   baselines with no LLM proposer, namely random search and a genetic algorithm over a fixed
+   bank of prompt fragments, and GrIPS-style edits without its paraphrase step. Report AUROC and
+   paired accuracy per round. Check that the texts still do their job, with a judge prompt the
+   loop never changes, and check their length and n-gram overlap with the human references. An
+   imitator that copies people, or says almost nothing, can fool a detector without imitating
+   anyone.
+3. `mimic-crossplay`: does the game settle, cycle or tip? Score every imitator prompt from a run
+   against every detector prompt to get the full payoff matrix. Look for cycles, where a later
+   imitator prompt loses to an earlier detector prompt. Solve the matrix game for its Nash
+   mixture, one of PSRO's meta-solvers, and compare it with the last round's pair: a prompt that beats only
+   its latest opponent has overfitted to it. Then vary the two sides' model sizes. Who wins at
+   an equal budget, and does the larger model always win?
+4. `mimic-anycontext`: test "any context". Optimise on some context families and score on
+   held-out ones. Compare one universal imitator prompt, a prompt per family, and a prompt the
+   imitator writes for itself from the context, and do the same for detectors. Report the gap
+   between seen and held-out families. A universal prompt that holds up on held-out families is
+   the track's main claim; one that does not is a negative result worth reporting.
+5. `mimic-transfer`: indistinguishable to whom? Score the best imitator prompts against
+   detectors the loop never saw: milestone 1's reference detectors, a larger open model as the
+   detector, and detector prompts from other runs. Score the best detector prompts on text from
+   other models, such as RAID's generations. Check at the level of distributions too: a detector
+   that sees a batch can catch an imitator whose texts are each plausible but too much alike, so
+   compare imitator and human diversity per context with MAUVE and distinct n-grams. MAUVE's
+   package is GPL-3.0, so install it as a dependency and do not vendor it. The detector is the
+   defence, as in RADAR. Do detector prompts hardened in the loop generalise better than prompts
+   tuned on plain LLM text?
+6. `mimic-dialogue`: multi-turn contexts. The imitator continues real conversations from
+   licence-checked dialogue corpora for several turns, and the detector judges one turn or the
+   whole thread. A live Turing test, where the detector questions a witness, needs real people
+   on the human side, so it is an owner step (see the guardrails).
+7. `mimic-media`: speech, images and video, compute first. Before running any loop, time each
+   candidate generator and detector per sample on the container's CPU, and work out how many
+   rounds fit in a run. Run the modalities that fit, cheapest first. The prompt stays the only
+   free parameter: the text description that steers a speech model such as Parler-TTS, Hugging
+   Face's open reproduction of Lyth and King (2024), the text prompt of an image model, and the
+   prompt of an open audio- or vision-language model as the detector. Human references come from
+   licence-checked corpora, such as LibriSpeech and Common Voice for speech. Compare with
+   detectors from the deepfake-detection literature, such as the ASVspoof 2019 baselines for
+   speech and Wang et al. (2020) for images. Video will probably not fit on a CPU. Give its GPU
+   cost as an owner step, with a priced estimate and a source and date for the price.
+8. Later: is a twin that fools the detector more useful? Use imitators at several detector
+   scores as the simulated speakers in `ambient-interject`, or as simulated users of an
+   assistant, and check whether what is tuned against the better twin does better on held-out
+   human data. The same score works for the portfolio's physical twins: a classifier that tells
+   simulated from real trajectories measures any simulator's fidelity. And how much of the gain
+   from updating weights, as in RADAR, does prompt-only adaptation reach? Fine-tuning on a GPU
+   is an owner step.
+
+**Guardrails: research on detection, not an evasion service.**
+- *Both sides ship.* Every imitator result ships with the detector prompts and the cross-play
+  results that answer it. The detector is a deliverable, not a foil.
+- *Labelled, never passed off.* Generated text, audio and images stay in this repository,
+  labelled as generated in file names and metadata. Nothing a run generates is posted, submitted
+  or sent anywhere as if a person made it: not to forums, social media, reviews, schools,
+  journals, job applications or customer channels.
+- *No real people.* Imitate contexts, genres and registers, never a named or identifiable
+  person. No voice cloning, and no images or video of real or identifiable people. Human
+  references come from published corpora whose licence allows the use, never from private
+  messages or scraped personal accounts.
+- *No third-party detectors.* Test only detectors built here, or open models run locally. Never
+  test against commercial or institutional detectors, plagiarism checkers, proctoring tools or a
+  platform's bot filters.
+- *Human judges are an owner step.* A Turing test with people is human-subjects research. It
+  needs informed consent, a debrief that reveals the deception, and review by an institutional
+  review board or its equivalent where one applies. In the US that is the Common Rule (Subpart A
+  of 45 CFR 46) for research a federal agency conducts or supports. A run never recruits or
+  tests people.
+- *Fairness.* Report each detector's false-positive rate on human text by group wherever the
+  corpus records it, such as native and non-native writers. A detector that wins by flagging a
+  group of people is a harm, not a result.
+- *Say who was fooled.* "Indistinguishable" always means indistinguishable to something: name
+  the detectors, contexts, models and mode. Chance accuracy against the loop's own detector is
+  the weakest form of the claim.
+- *Synthetic media.* Before generated audio, images or video leave the repository, check the
+  disclosure duties that apply, such as Article 50 of the EU AI Act, which applies from 2 August
+  2026.
+- *Lab tags.* Milestones that use the imitator as a simulated partner build on CAIRO's and
+  HIRO's directions in `prompt.md`, simulated human models and social intelligence. The others
+  build on none of the groups, so say so.
+
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12 and tracks 7 to 9 on 2026-10-14. Check them again before
+Tracks 1 to 6 were checked on 2026-10-12 and tracks 7 to 11 on 2026-10-14. Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**
@@ -586,3 +936,59 @@ citing one, as `prompt.md` requires.
 - FarmBot, licensing (software MIT, hardware CAD and docs CC0) <https://meta.farm.bot/v2025/farmbot/intro/licensing>; Opentrons <https://github.com/Opentrons/opentrons> (Apache-2.0; OT-2 hardware files partly published at <https://cadlab.io/projects/ot2>, no licence stated); ArduPilot <https://github.com/ArduPilot/ardupilot> (GPL-3.0); PX4-Autopilot <https://github.com/PX4/PX4-Autopilot> (BSD-3-Clause); Assistive Gym <https://github.com/Healthcare-Robotics/assistive-gym> (MIT); CERN-OHL v2 <https://ohwr.org/cern_ohl_s_v2.txt>
 - ISO 10218-1:2025, Robotics — Safety requirements — Part 1: Industrial robots <https://www.iso.org/standard/73933.html>; ISO 10218-2:2025, Part 2: Industrial robot applications and robot cells <https://www.iso.org/standard/73934.html>; ISO 13482:2014, Safety requirements for personal care robots <https://www.iso.org/standard/53820.html>, under revision as ISO/FDIS 13482 <https://www.iso.org/standard/83498.html>
 - 14 CFR Part 107, Small Unmanned Aircraft Systems <https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107>; 49 U.S.C. § 44809 <https://www.law.cornell.edu/uscode/text/49/44809>
+
+**Track 10.**
+- Forsgren, Humble and Kim (2018). *Accelerate: The Science of Lean Software and DevOps*. IT Revolution Press. ISBN 978-1-942788-33-1.
+- Little (1961). A Proof for the Queuing Formula: L = λW. *Operations Research* 9(3):383–387. <https://doi.org/10.1287/opre.9.3.383>
+- Badanidiyuru, Kleinberg and Slivkins (2018). Bandits with Knapsacks. *J. ACM* 65(3), 1–55. <https://doi.org/10.1145/3164539>. Conference version: FOCS 2013, 207–216. <https://doi.org/10.1109/FOCS.2013.30>
+- Russo, Van Roy, Kazerouni, Osband and Wen (2018). A Tutorial on Thompson Sampling. *Foundations and Trends in Machine Learning* 11(1):1–96. <https://doi.org/10.1561/2200000070>
+- Johari, Koomen, Pekelis and Walsh (2017). Peeking at A/B Tests: Why it matters, and what to do about it. KDD, 1517–1525. <https://doi.org/10.1145/3097983.3097992>
+- Kohavi, Tang and Xu (2020). *Trustworthy Online Controlled Experiments: A Practical Guide to A/B Testing*. Cambridge University Press. <https://doi.org/10.1017/9781108653985>
+- Kapoor, Stroebl, Siegel, Nadgir and Narayanan (2025). AI Agents That Matter. *TMLR*. <https://openreview.net/forum?id=Zy4uFzMviZ>
+- Jimenez et al. (2024). SWE-bench: Can Language Models Resolve Real-World GitHub Issues? ICLR. <https://openreview.net/forum?id=VTF8yNQM66>
+- Yang et al. (2024). SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering. NeurIPS 37, 50528–50652. <https://doi.org/10.52202/079017-1601>
+- Yang et al. (2024). Large Language Models as Optimizers. ICLR. <https://openreview.net/forum?id=Bb4VGOWELI>
+- Khattab et al. (2024). DSPy: Compiling Declarative Language Model Calls into State-of-the-Art Pipelines. ICLR. <https://openreview.net/forum?id=sY5N0zY5Od>
+- Strathern (1997). 'Improving ratings': audit in the British University system. *European Review* 5(3):305–321. <https://doi.org/10.1002/(SICI)1234-981X(199707)5:3<305::AID-EURO184>3.0.CO;2-4>
+- Cohen (1960). A Coefficient of Agreement for Nominal Scales. *Educational and Psychological Measurement* 20(1):37–46. <https://doi.org/10.1177/001316446002000104>
+- Anthropic help centre, read 2026-10-14: Max plan <https://support.claude.com/en/articles/11049741-what-is-the-max-plan>; Claude Code with a Pro or Max plan <https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-or-max-plan>; usage limits <https://support.claude.com/en/articles/11647753-understanding-usage-and-length-limits>; Claude Code `/usage` <https://code.claude.com/docs/en/costs>. Terms: Consumer Terms <https://www.anthropic.com/legal/consumer-terms>; Usage Policy <https://www.anthropic.com/legal/aup>
+
+**Track 11.**
+- Turing (1950). Computing Machinery and Intelligence. *Mind* 59(236):433–460. <https://doi.org/10.1093/mind/LIX.236.433>
+- Goodfellow et al. (2014). Generative Adversarial Nets. NeurIPS 27. <https://proceedings.neurips.cc/paper_files/paper/2014/hash/f033ed80deb0234979a61f95710dbe25-Abstract.html>
+- Lopez-Paz and Oquab (2017). Revisiting Classifier Two-Sample Tests. ICLR. <https://openreview.net/forum?id=SJkXfE5xx>
+- Jones and Bergen (2024). Does GPT-4 pass the Turing test? NAACL, 5183–5210. <https://doi.org/10.18653/v1/2024.naacl-long.290>. A two-player test.
+- Jones and Bergen (2026). Large language models pass a standard three-party Turing test. *PNAS* 123(21):e2524472123. <https://doi.org/10.1073/pnas.2524472123>. Preprint: arXiv:2503.23674 (2025).
+- Jannai, Meron, Lenz, Levine and Shoham (2023). Human or Not? A Gamified Approach to the Turing Test. arXiv. <https://arxiv.org/abs/2305.20010>
+- Ippolito, Duckworth, Callison-Burch and Eck (2020). Automatic Detection of Generated Text is Easiest when Humans are Fooled. ACL, 1808–1822. <https://doi.org/10.18653/v1/2020.acl-main.164>
+- Clark et al. (2021). All That's 'Human' Is Not Gold: Evaluating Human Evaluation of Generated Text. ACL-IJCNLP, 7282–7296. <https://doi.org/10.18653/v1/2021.acl-long.565>
+- Mitchell et al. (2023). DetectGPT: Zero-Shot Machine-Generated Text Detection using Probability Curvature. ICML, PMLR 202:24950–24962. <https://proceedings.mlr.press/v202/mitchell23a.html>
+- Hans et al. (2024). Spotting LLMs With Binoculars: Zero-Shot Detection of Machine-Generated Text. ICML, PMLR 235:17519–17537. <https://proceedings.mlr.press/v235/hans24a.html>
+- Dugan et al. (2024). RAID: A Shared Benchmark for Robust Evaluation of Machine-Generated Text Detectors. ACL, 12463–12492. <https://doi.org/10.18653/v1/2024.acl-long.674>. Code <https://github.com/liamdugan/raid> and data <https://huggingface.co/datasets/liamdugan/raid> are MIT.
+- Sadasivan et al. (2025). Can AI-Generated Text be Reliably Detected? Stress Testing AI Text Detectors Under Various Attacks. *TMLR*. <https://openreview.net/forum?id=OOgsAZdFOt>
+- Liang et al. (2023). GPT detectors are biased against non-native English writers. *Patterns* 4(7):100779. <https://doi.org/10.1016/j.patter.2023.100779>. An opinion article: seven detectors on 91 TOEFL essays and 88 US eighth-grade essays.
+- Krishna et al. (2023). Paraphrasing evades detectors of AI-generated text, but retrieval is an effective defense. NeurIPS 36, 27469–27500. <https://doi.org/10.52202/075280-1195>
+- Lu et al. (2024). Large Language Models can be Guided to Evade AI-generated Text Detection. *TMLR*. <https://openreview.net/forum?id=lLE0mWzUrr>
+- Hu, Chen and Ho (2023). RADAR: Robust AI-Text Detection via Adversarial Learning. NeurIPS 36, 15077–15095. <https://doi.org/10.52202/075280-0662>
+- Zhou et al. (2023). Large Language Models are Human-Level Prompt Engineers. ICLR. <https://openreview.net/forum?id=92gvk82DE->
+- Yang et al. (2024). Large Language Models as Optimizers. ICLR. <https://openreview.net/forum?id=Bb4VGOWELI>
+- Pryzant et al. (2023). Automatic Prompt Optimization with "Gradient Descent" and Beam Search. EMNLP, 7957–7968. <https://doi.org/10.18653/v1/2023.emnlp-main.494>
+- Prasad, Hase, Zhou and Bansal (2023). GrIPS: Gradient-free, Edit-based Instruction Search for Prompting Large Language Models. EACL, 3845–3864. <https://doi.org/10.18653/v1/2023.eacl-main.277>. Its paraphrase edit uses a PEGASUS model, and all edits act on phrases from a constituency parser.
+- Fernando et al. (2024). Promptbreeder: Self-Referential Self-Improvement via Prompt Evolution. ICML, PMLR 235:13481–13544. <https://proceedings.mlr.press/v235/fernando24a.html>
+- Yuksekgonul et al. (2025). Optimizing generative AI by backpropagating language model feedback. *Nature* 639(8055):609–616. <https://doi.org/10.1038/s41586-025-08661-4>
+- Lanctot et al. (2017). A Unified Game-Theoretic Approach to Multiagent Reinforcement Learning. NeurIPS 30. <https://proceedings.neurips.cc/paper_files/paper/2017/hash/3323fe11e9595c09af38fe67567a9394-Abstract.html>
+- Balduzzi et al. (2019). Open-ended learning in symmetric zero-sum games. ICML, PMLR 97:434–443. <https://proceedings.mlr.press/v97/balduzzi19a.html>
+- Argyle et al. (2023). Out of One, Many: Using Language Models to Simulate Human Samples. *Political Analysis* 31(3):337–351. <https://doi.org/10.1017/pan.2023.2>
+- Aher, Arriaga and Kalai (2023). Using Large Language Models to Simulate Multiple Humans and Replicate Human Subject Studies. ICML, PMLR 202:337–371. <https://proceedings.mlr.press/v202/aher23a.html>
+- Park et al. (2023). Generative Agents: Interactive Simulacra of Human Behavior. UIST, 1–22. <https://doi.org/10.1145/3586183.3606763>
+- Pillutla et al. (2021). MAUVE: Measuring the Gap Between Neural Text and Human Text using Divergence Frontiers. NeurIPS 34, 4816–4828. <https://proceedings.neurips.cc/paper_files/paper/2021/hash/260c2432a0eecc28ce03c10dadc078a4-Abstract.html>. Package <https://github.com/krishnap25/mauve> (GPL-3.0).
+- Guo et al. (2023). How Close is ChatGPT to Human Experts? Comparison Corpus, Evaluation, and Detection. arXiv. <https://arxiv.org/abs/2301.07597>. HC3 data <https://huggingface.co/datasets/Hello-SimpleAI/HC3>: CC BY-SA 4.0 on the card, but a stricter source licence overrides it, and one split is CC BY-NC 4.0.
+- Wang et al. (2024). M4: Multi-generator, Multi-domain, and Multi-lingual Black-Box Machine-Generated Text Detection. EACL, 1369–1407. <https://doi.org/10.18653/v1/2024.eacl-long.83>. Data <https://github.com/mbzuai-nlp/M4>: no single licence; human text keeps each source's.
+- Panayotov, Chen, Povey and Khudanpur (2015). Librispeech: An ASR corpus based on public domain audio books. ICASSP, 5206–5210. <https://doi.org/10.1109/ICASSP.2015.7178964>. Data <https://www.openslr.org/12/> (CC BY 4.0).
+- Ardila et al. (2020). Common Voice: A Massively-Multilingual Speech Corpus. LREC, 4218–4222. <https://aclanthology.org/2020.lrec-1.520/>. Data (CC0), distributed since October 2025 through Mozilla Data Collective <https://datacollective.mozillafoundation.org>; read its terms before downloading.
+- Wang et al. (2020). ASVspoof 2019: A large-scale public database of synthesized, converted and replayed speech. *Computer Speech & Language* 64:101114. <https://doi.org/10.1016/j.csl.2020.101114>. Data <https://doi.org/10.7488/ds/2555> (ODC-By).
+- Wang, Wang, Zhang, Owens and Efros (2020). CNN-Generated Images Are Surprisingly Easy to Spot… for Now. CVPR, 8692–8701. <https://doi.org/10.1109/CVPR42600.2020.00872>
+- Lyth and King (2024). Natural language guidance of high-fidelity text-to-speech with synthetic annotations. arXiv. <https://arxiv.org/abs/2402.01912>. Parler-TTS, Hugging Face's reproduction: code <https://github.com/huggingface/parler-tts> and parler-tts-mini-v1 weights <https://huggingface.co/parler-tts/parler-tts-mini-v1> (both Apache-2.0).
+- Open models that fit a CPU, all Apache-2.0: Qwen2.5-0.5B-Instruct <https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct>; Qwen2.5-1.5B-Instruct <https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct>; SmolLM2-1.7B-Instruct <https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct>; SmolVLM-256M-Instruct <https://huggingface.co/HuggingFaceTB/SmolVLM-256M-Instruct>. llama.cpp <https://github.com/ggml-org/llama.cpp> (MIT).
+- Regulation (EU) 2024/1689 (the AI Act), Article 50, transparency obligations for synthetic audio, image, video and text; applies from 2 August 2026 under Article 113. Amended by Regulation (EU) 2026/1744 (the Digital Omnibus on AI), which leaves Article 50's text unchanged. <https://eur-lex.europa.eu/eli/reg/2024/1689/oj>; <https://eur-lex.europa.eu/eli/reg/2026/1744/oj>
+- 45 CFR part 46, Protection of Human Subjects; Subpart A is the Common Rule (IRB review in § 46.109, informed consent in § 46.116). <https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-A/part-46>

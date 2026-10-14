@@ -1,10 +1,14 @@
 # Repo instructions
 
-**Active; the move is on hold.** The owner lifted the freeze on 2026-10-12. The portfolio was
-due to move to `Duncan-Haywood/oss-monorepo` (formerly `fp-monorepo`) under `research/`, in
-<https://github.com/Duncan-Haywood/oss-monorepo/pull/6143>. That pull request is still open, and
-its copy of `research/` dates from 2026-10-01. Work lands here, on this repository's `main`. If
-the move resumes, re-sync that copy from here first.
+**Active; mirroring into `oss-monorepo`.** All work is moving to `Duncan-Haywood/oss-monorepo`
+(formerly `fp-monorepo`), under `research/`, with no history lost. Until the owner's cutover,
+work lands here, on this repository's `main`, and `oss-monorepo/research/` is a mirror of it that
+a sync refreshes. Building that mirror is standing work: the rules are under Repository merge in
+`prompt.md`, and the action list is the "Repository merge" section of `PROJECTS.md`.
+
+If you are reading this as `research/CLAUDE.md` inside `oss-monorepo`, you are in the mirror.
+Until cutover, edit nothing under `research/` there, because the next sync overwrites it. Make
+the change in `oss-research-monorepo`, then sync.
 
 New projects come from the priority tracks in [`PROJECTS.md`](PROJECTS.md).
 

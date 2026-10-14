@@ -9,7 +9,7 @@ Build a public research portfolio (MIT-licensed) that supports PhD applications 
 Simulating and training with digital clones (digital twins) of physical-world systems, including sim-to-real transfer, simulation fidelity, and learning in simulation for real benefit. Every project should connect to this theme where it reasonably can.
 
 ## Priority projects
-The owner's priority projects are in [`PROJECTS.md`](PROJECTS.md): nine tracks, each with milestones, a slug prefix and its own guardrails. New projects come from there. Once Landing work steps 1 to 3 are done, pick a track and milestone as `PROJECTS.md` says. The research groups below remain the list to build on, cite and tag where a project fits them.
+The owner's priority projects are in [`PROJECTS.md`](PROJECTS.md): eleven tracks, each with milestones, a slug prefix and its own guardrails. New projects come from there. Once Landing work steps 1 to 3 are done, pick a track and milestone as `PROJECTS.md` says. The research groups below remain the list to build on, cite and tag where a project fits them.
 
 ## Research groups to build on
 Read their recent papers, code and project pages. Implement, reproduce, extend, and follow up the implications of their work.
@@ -58,13 +58,15 @@ This brief is the owner's explicit request to open a pull request for every bran
 8. **Never push to a merged branch.** Anything after the merge goes on a new branch from `main`, with its own pull request.
 9. **Check before you stop.** List every branch you pushed this run. Each one must either be merged into `main` or have an open pull request with a blocker comment. Put that list in your final message.
 
-## End state: one repository
-The goal is a single repository: `Duncan-Haywood/oss-monorepo` (formerly `fp-monorepo`), with this portfolio living under `research/`. Both commit histories must survive. Nothing gets squashed or re-committed as a fresh copy.
-- Until the move lands, work continues here on `main`, as `CLAUDE.md` says. Keep the tree movable: every project stays self-contained under `research/<slug>/`, and nothing hardcodes this repository's name, URL or root paths where a relative path would do.
-- The move is a history-preserving merge. Rewrite this repository's history into `research/` (`git filter-repo --to-subdirectory-filter research`, or the equivalent subtree merge). Then merge it into `oss-monorepo` with `--allow-unrelated-histories` and a merge commit. Afterwards, `git log -- research/<slug>` in `oss-monorepo` shows that project's original commits.
-- That is what <https://github.com/Duncan-Haywood/oss-monorepo/pull/6143> does, but its copy dates from 2026-10-01. When the move resumes, redo the import from this repository's current `main`, or merge the newer history into that branch. Do not hand-copy files.
-- After the merge lands, this repository is archived, not deleted, so its pull requests and links keep working. Its README points to the new home. Work then continues in `oss-monorepo/research/`.
-- The owner decides when the move resumes. A run here does not start it unasked, but nothing a run does should make it harder.
+## Repository merge: mirror, then move
+All work is moving to one repository, `Duncan-Haywood/oss-monorepo` (formerly `fp-monorepo`), where this portfolio lives under `research/`. Until the move, the two repositories are mirrored. Building and keeping that mirror is standing work now, not something to wait for. The action list is "Repository merge" in [`PROJECTS.md`](PROJECTS.md). Once Landing work steps 1 to 3 are done, take its first free milestone before picking a track.
+- **One writer at a time.** Until cutover, this repository's `main` is the source, and `oss-monorepo/research/` is a copy that a sync refreshes. Nobody edits that copy, because the next sync overwrites it: make the change here, then sync. After cutover, `oss-monorepo` is the source and this repository is archived. The two never both take new work.
+- **No history loss.** Every commit made here reaches `oss-monorepo` with its original hash, so the commits in `prompts/runs.jsonl`, the `Prompt-Version` trailers and old links still resolve there, and `git log -- research/<slug>` there lists the same commits as here. A sync is a merge commit whose second parent is this repository's `main`, with the files placed under `research/` by a fixed path map (`PROJECTS.md` gives it).
+- **Never** squash, rebase, cherry-pick or hand-copy research work into `oss-monorepo`, and merge a mirror pull request only with a merge commit. Never rewrite this repository's history either: no force-push to `main`, and no `git filter-repo` or rebase of anything already pushed here.
+- **Keep the tree movable.** Every project stays self-contained under `research/<slug>/`. Nothing hardcodes this repository's name, URL or root paths where a relative path would do. `site/build.py` and the tests must run both here and at `oss-monorepo/research/`.
+- **In `oss-monorepo`, its rules govern the pull request.** Follow its `CLAUDE.md` for checks and landing, with one exception: a mirror pull request merges with a merge commit, never a squash.
+- **Cutover is the owner's.** These steps need the owner. `oss-monorepo` must be public first, because this portfolio has to stay public. The scheduled runs must point at `oss-monorepo`. And this repository is then archived, never deleted, so its pull requests, branches, links and Pages site keep working. Prepare everything else, and list what is left for the owner in your final message.
+- <https://github.com/Duncan-Haywood/oss-monorepo/pull/6143> imported a copy from 2026-10-01 through a one-off move commit, which later syncs cannot build on. The sync replaces it; `PROJECTS.md` says how to retire it without losing anything.
 
 ## Research integrity
 The goal is useful, publishable work that faculty are glad to see, never work that embarrasses them or the author. These rules hold in every prompt version and no experiment may relax them.
@@ -78,6 +80,8 @@ The goal is useful, publishable work that faculty are glad to see, never work th
 
 ## Prompt experiments (about 5% of effort)
 Improve this brief by measuring what works. Spend about 5% of each session on this, and no more: a few minutes logging the run, plus one fuller review session roughly every 20 runs.
+
+Objective: the most useful, valuable and correct projects per unit of compute budget. The budget is several Claude Code Max 20x subscriptions, and their usage limits, not dollars, are what binds. `PROJECTS.md` track 10 defines the three terms and builds the tools that measure them. Integrity is a hard constraint, never a term to trade against throughput.
 
 Files:
 - `prompt.md` is the current champion, prompt 0 or its latest promoted successor.
@@ -97,27 +101,28 @@ Before you merge, append a line to `prompts/runs.jsonl` as the last commit on yo
  "follow_up_inputs": ["<later user messages in the session, verbatim>"],
  "model": "<model id that made the commits>", "models_seen": ["<every model that served a turn, incl. fallbacks>"],
  "started": "<ISO time>", "ended": "<ISO time>", "wall_minutes": 0,
- "tokens_in": null, "tokens_out": null, "cost_usd": null, "tool_calls": null,
- "task": "new-project|extend|fix|merge|meta", "projects": ["<slug>"], "pr": "<url or null>",
+ "tokens_in": null, "tokens_out": null, "cost_usd": null, "usage": null, "tool_calls": null,
+ "task": "new-project|extend|fix|merge|mirror|meta", "projects": ["<slug>"], "pr": "<url or null>",
  "commits": ["<sha>"], "lines_added": 0, "lines_removed": 0,
  "merged": null, "ci_failures_before_green": 0, "review_findings": 0, "tests_added": 0, "build_ok": true,
  "outcome": "success|partial|failed",
  "errors": ["short description of anything that went wrong"], "integrity_issues": [], "notes": ""}
 ```
-Record every field you can observe; use `null` for anything unavailable rather than guessing (token counts and cost may only be visible to the owner). Take the model from the session metadata, not from memory. Redact secrets, tokens and personal data from recorded inputs.
+Record every field you can observe; use `null` for anything unavailable rather than guessing. Take the model, token counts and cost from the session metadata, not from memory. In a cloud session the `get_session` tool returns them: copy its `usage` block into `usage`, set `tokens_in` to input plus cache-read plus cache-write tokens, and `tokens_out` to output tokens. Its `cost_usd` is the API-equivalent price, not a charge on the subscription. Read it as late in the run as you can, and say in `notes` when you read it. Redact secrets, tokens and personal data from recorded inputs.
 
 Report honestly: a failed or abandoned run is data. Never edit past lines except to append a correction line that references the original.
 
 Measures, in order of importance:
 1. Integrity issues (fabricated or unverifiable numbers, wrong or invented citations, missing attribution, overclaiming). Target zero; any single issue outweighs every other metric.
-2. Success rate: runs whose PR merged with CI green and a complete README.
-3. Error rates: CI failures per PR, review findings per PR, reverts or follow-up fixes within two weeks, abandoned runs, and leaked work. Leaked work is a branch or pull request a run pushed that was not on `main` 24 hours later. At each review, count leaked work per run, then land or close it.
-4. Quality: in each review session, audit a random sample of about five recent projects. Re-run their code, check that README numbers match the output, and check every citation. Log what you find as integrity issues or errors against the run that produced the project.
+2. Valuable correct throughput: value-weighted merged projects per subscription-week, as track 10 of `PROJECTS.md` defines them, with the tokens and wall time behind them.
+3. Success rate: runs whose PR merged with CI green and a complete README.
+4. Error rates: CI failures per PR, review findings per PR, reverts or follow-up fixes within two weeks, abandoned runs, and leaked work. Leaked work is a branch or pull request a run pushed that was not on `main` 24 hours later. At each review, count leaked work per run, then land or close it.
+5. Quality: in each review session, audit a random sample of about five recent projects. Re-run their code, check that README numbers match the output, and check every citation. Log what you find as integrity issues or errors against the run that produced the project.
 
 Review session (about every 20 runs, or when `runs.jsonl` gains 20 lines since the last review):
 1. On the first review, backfill `runs.jsonl` from prior runs, one line per `Claude-Session` trailer in git history. Take the model from each commit's `Co-Authored-By` trailer, timing and diff size from the commits, and outcomes from merged PRs, CI history, review comments and fix-up commits. Where a session's transcript is still readable, recover its prompt inputs, models served, duration and token use from it. Mark backfilled lines `"backfilled": true`, use `prompt_version: 0`, and leave unrecoverable fields `null`.
 2. Group runs by input as well as by prompt version: the same brief with different starting messages is a different treatment, so note which inputs led to the best and worst outcomes and to the most tokens or time per merged project.
-3. Compute success and error rates, and tokens, time and cost per merged project, per prompt version and per model, with counts. Do not draw conclusions from fewer than about 10 runs per version, and say how uncertain the comparison is.
+3. Compute valuable correct throughput, success and error rates, and tokens, time and cost per merged project, per prompt version and per model, with counts. Do not draw conclusions from fewer than about 10 runs per version, and say how uncertain the comparison is.
 4. Decide the active candidate's fate: promote it (copy it to `prompt.md`) if it has no more integrity issues than the champion and is clearly better on success or error rate; retire it if it is worse; otherwise keep collecting runs.
 5. If no candidate is active, write `prompts/prompt-<n+1>.md` targeting the most common failure in the log, make one focused change so its effect can be measured, log the hypothesis in `prompts/experiments.md`, and route about 20% of runs to it.
 6. Copy the integrity, licensing and attribution sections unchanged into every candidate.
