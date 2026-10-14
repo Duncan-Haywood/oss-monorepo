@@ -1,0 +1,39 @@
+name: uk-redundancy-pay-calculator
+description: >-
+  Free browser tool for UK employees facing redundancy: enter date of birth, start and last day and weekly pay to see statutory redundancy pay (weeks by age and service, the weekly cap), minimum notice, whether an offer meets the statutory minimum, and how much is inside the 30,000 pound tax-free limit. Nothing is uploaded. Not tax or legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no UK redundancy tool in ventures/ (au-redundancy-pay-calculator is Australian, severance-package-calculator is a US-style negotiation tool).
+#
+# First visitor: a UK employee told they are at risk of redundancy, searching "redundancy pay calculator", "statutory redundancy pay 2026", "is redundancy pay taxable".
+# High-intent, high-volume, evergreen, with spikes around layoff news; volume not measured. Adjacent to the other UK tax tools here for cross-links.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Competes with free GOV.UK calculator by adding age-band breakdown, offer check, notice and tax in one result.
+#
+# Liability: rules written from memory without network access; the 2026/27 weekly cap (751 pounds) is the least certain figure and is selectable. Every result names GOV.UK as the source to verify,
+# carries no-warranty and not-tax-or-legal-advice clauses, and says what it does not decide (Northern Ireland, enhanced terms, notice-pay tax). Ethical risk is a wrong amount relied on in a negotiation; mitigated by sourcing and "get it in writing" steps.
+hypotheses:
+  - claim: >-
+      UK employees facing redundancy will use a free calculator to check their statutory amount and an offer against it before negotiating or signing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a cap, rate or date differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-redundancy-pay-calculator/
+  analytics: null
