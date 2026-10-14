@@ -1623,6 +1623,11 @@
      "slug": "selfrep-rodbeam",
      "title": "What does a wooden rod cost a printer in stiffness?",
      "summary": "Replaces the assumed penalty of selfrep-redesign&rsquo;s wooden-rod substitution with Euler&ndash;Bernoulli beam theory. At 8&nbsp;mm a hardwood rod sags 20&times; a steel one (the modulus ratio) and a printed PLA rod 80&times;; matching steel stiffness needs about 17&nbsp;mm of hardwood, outside the printer&rsquo;s 8&nbsp;mm hardware, while a 1&ndash;2&nbsp;mm sag tolerance needs 9&ndash;11&nbsp;mm. The earlier 30&nbsp;g per dowel was about twice the geometric 13.8&nbsp;g, moving mass closure from 35.8% to 34.6%; thicker dowels raise closure again, a quirk of counting imported feedstock as makeable. Stylised: properties and the 5&nbsp;N load are assumed and no rod was tested."
+    },
+    {
+     "slug": "selfrep-rodmodes",
+     "title": "What natural-frequency target does a printer&rsquo;s rod have to meet, and what does a wooden rod cost?",
+     "summary": "Follow-up to selfrep-rodbeam that derives the rod spec from a vibration target instead of an assumed sag limit. A carriage mass on a simply supported rod (Rayleigh estimate with the 17/35 effective rod mass) gives a first mode of 42&nbsp;Hz for 8&nbsp;mm steel but 10&nbsp;Hz for hardwood and 5&nbsp;Hz for printed PLA, for an assumed 0.3&nbsp;kg carriage. Matching steel&rsquo;s frequency needs about 16&nbsp;mm of hardwood, close to the sag-matching 17&nbsp;mm; at equal frequency the dowel is 1.9&ndash;2.1&times; the steel diameter. Stylised: carriage mass and material constants are assumptions, one mode, no damping or bushing play."
     }
    ]
   },
