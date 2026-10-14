@@ -1877,6 +1877,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-vat-registration-checker'
       // `uk-vat-flat-rate-scheme-calculator` joined 2026-10-14 on its first commit: UK VAT scheme choice, the next step after the registration checker above.
       || slug === 'uk-vat-flat-rate-scheme-calculator'
+      // `uk-pension-withdrawal-tax-calculator` landed in the catch-all on its own merge (red on main); filed here beside its UK siblings.
+      || slug === 'uk-pension-withdrawal-tax-calculator'
       // `iolta-three-way-reconciliation-checker` joined 2026-10-13 on its first commit: a lawyer's monthly trust-account reconciliation, the same back-office bookkeeping job.
       || slug === 'iolta-three-way-reconciliation-checker'
       // `client-concentration-risk-analyzer` joined 2026-10-02 on its first commit: it reads the same invoice
