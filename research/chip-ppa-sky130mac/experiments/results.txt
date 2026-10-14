@@ -1,0 +1,40 @@
+== mac4 on SKY130 HD (tt_025C_1v80): 17 candidates, 1 rejected by the RTL gate (P:p3_dropped_carry_bug); 64 (candidate, script) pairs mapped; 0 mapped netlists NOT equivalent to the reference 
+every candidate: area um2 / ABC delay ps / area*delay (um2*ns) | generic cells*depth, per script:
+candidate               strash_map                        dc2_map                           dch_map                           resyn2_map                        
+reference               975/1768/1723 | 1972              805/1812/1458 | 1995              890/1670/1485 | 1938              711/1679/1193 | 1908              
+P:p0_csa                966/1565/1512 | 2193              815/1714/1396 | 2242              847/1503/1273 | 1936              795/1596/1268 | 1872              
+P:p1_flat_sum           1046/1832/1917 | 2057             747/1806/1349 | 2200              886/1542/1366 | 2006              830/1859/1542 | 2006              
+P:p2_balanced_tree      1046/1832/1917 | 2057             747/1806/1349 | 2200              886/1542/1366 | 2006              830/1859/1542 | 2006              
+S:chain_first_mux       1046/1832/1917 | 2057             747/1806/1349 | 2200              886/1542/1366 | 2006              830/1859/1542 | 2006              
+S:chain_first_and       1046/1832/1917 | 2057             747/1806/1349 | 2200              886/1542/1366 | 2006              830/1859/1542 | 2006              
+S:chain_last_mux        1046/1832/1917 | 2057             747/1806/1349 | 2200              886/1542/1366 | 2006              830/1859/1542 | 2006              
+S:chain_last_and        1046/1832/1917 | 2057             747/1806/1349 | 2200              886/1542/1366 | 2006              830/1859/1542 | 2006              
+S:tree_first_mux        1046/1832/1917 | 2057             747/1806/1349 | 2200              886/1542/1366 | 2006              830/1859/1542 | 2006              
+S:tree_first_and        1046/1832/1917 | 2057             747/1806/1349 | 2200              886/1542/1366 | 2006              830/1859/1542 | 2006              
+S:tree_last_mux         1046/1832/1917 | 2057             747/1806/1349 | 2200              886/1542/1366 | 2006              830/1859/1542 | 2006              
+S:tree_last_and         1046/1832/1917 | 2057             747/1806/1349 | 2200              886/1542/1366 | 2006              830/1859/1542 | 2006              
+S:csa_first_mux         963/1726/1663 | 2193              764/1907/1458 | 2400              861/1424/1225 | 1904              827/1756/1452 | 2023              
+S:csa_first_and         963/1726/1663 | 2193              817/1920/1569 | 2360              907/1452/1317 | 1770              827/1756/1452 | 2023              
+S:csa_last_mux          1032/1895/1956 | 2112             828/1955/1619 | 2124              873/1762/1539 | 1920              821/1615/1325 | 1800              
+S:csa_last_and          1032/1895/1956 | 2112             828/1955/1619 | 2124              873/1762/1539 | 1920              821/1615/1325 | 1800              
+
+best area*delay (um2*ns) per group and script (lower is better):
+group             strash_map    dc2_map       dch_map       resyn2_map    
+reference         1723          1458          1485          1193          
+proposer files    1512          1349          1273          1268          
+sweep             1663          1349          1225          1325          
+proposer files-best / reference, same script: strash_map 0.88, dc2_map 0.93, dch_map 0.86, resyn2_map 1.06
+sweep-best / reference, same script: strash_map 0.97, dc2_map 0.93, dch_map 0.83, resyn2_map 1.11
+generic-gate (chip-ppa-mac metric) sweep-best / reference, same script: strash_map 1.04, dc2_map 1.06, dch_map 0.91, resyn2_map 0.94
+
+Spearman rank correlation over all 64 (candidate, script) pairs, generic cells*depth vs SKY130 area*delay: 0.20
+  generic cells vs SKY130 area: 0.74
+  generic depth vs SKY130 delay: 0.26
+  within script strash_map: generic cells*depth vs SKY130 area*delay -0.22
+  within script dc2_map: generic cells*depth vs SKY130 area*delay -0.10
+  within script dch_map: generic cells*depth vs SKY130 area*delay 0.11
+  within script resyn2_map: generic cells*depth vs SKY130 area*delay 0.50
+best by generic metric: S:csa_first_and under dch_map; its SKY130 area*delay 1317 um2*ns
+best by SKY130 area*delay: reference under resyn2_map = 1193 um2*ns (area 711 um2, delay 1679 ps)
+reference best across scripts: 1193 um2*ns; overall best / reference best = 1.00
+tool: Yosys 0.33 (git sha1 2584903a060); PDK commit e5cc6e799f5ddf36e6bdf2d8c5db73373b88f52c (ORFS sky130hd, tt_025C_1v80)
