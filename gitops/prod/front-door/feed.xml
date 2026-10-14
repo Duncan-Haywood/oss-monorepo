@@ -8,6 +8,14 @@
   <updated>2026-10-14T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
+    <title>Business Mileage Tax Relief Calculator (UK, 45p a Mile)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-business-mileage-tax-relief-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-business-mileage-tax-relief-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free UK calculator: claim tax back when your employer pays less than the 45p a mile approved rate for using your own car at work. Refund per year and claim deadlines. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>UK Capital Allowances Calculator (AIA, full expensing, writing-down)</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-capital-allowances-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/uk-capital-allowances-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK R&amp;D tax relief calculator: what the merged scheme credit or R&amp;D-intensive loss-maker relief is worth in cash or tax, the PAYE and NIC cap, and what a claims agency&#39;s percentage fee would cost you. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>UK Redundancy Pay Calculator 2025/26 and 2026/27</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-redundancy-pay-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/uk-redundancy-pay-calculator</id>
-    <updated>2026-10-14T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free UK statutory redundancy pay calculator: enter your dates and weekly pay to see your redundancy pay, the weekly cap, your minimum notice and how much of it is tax-free. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
