@@ -1,0 +1,39 @@
+name: uk-redundancy-pay-calculator
+description: >-
+  Free browser tool for UK employees facing redundancy: enter age, years of service and weekly pay to see statutory redundancy pay (age bands, weekly cap, 20-year limit), whether your employer's offer is below the statutory minimum, statutory notice, and the tax on anything above 30,000 pounds. Nothing is uploaded. Not legal or tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no UK redundancy tool in ventures/ (au-redundancy-pay-calculator is the Australian rules, a different law).
+#
+# First visitor: a UK employee told they are at risk of redundancy searching "redundancy pay calculator", "statutory redundancy pay 2025", "is my redundancy offer fair".
+# High intent and urgent; steady year-round volume that rises in economic downturns; volume not measured. Cross-links to the UK take-home pay and tax tools here.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Incumbent calculators are GOV.UK's own (statutory only) and advice-firm lead-gen pages; the edge is the offer-vs-statutory check and the after-tax figure.
+#
+# Liability: rules written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-legal-or-tax-advice clauses,
+# and says what it does not decide (Northern Ireland, NI contributions, contractual terms). Ethical risk is a wrong amount relied on in a negotiation; mitigated by sourcing and by pointing to ACAS.
+hypotheses:
+  - claim: >-
+      UK employees facing redundancy will use a free calculator to check statutory pay and test an employer's offer before accepting or negotiating.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a cap, rate or age band differs from GOV.UK on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-redundancy-pay-calculator/
+  analytics: null
