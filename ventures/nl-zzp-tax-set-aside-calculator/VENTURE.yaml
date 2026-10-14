@@ -1,0 +1,37 @@
+name: nl-zzp-tax-set-aside-calculator
+description: >-
+  Free browser tool for Dutch ZZP'ers and freelancers: enter turnover and expenses to see Box 1 income tax after zelfstandigenaftrek, MKB-winstvrijstelling and heffingskortingen, the Zvw contribution, and how much of every invoice to set aside. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; sibling set-aside tools exist for Australia, Canada, Ireland and New Zealand, none for the Netherlands (about 1.2 million ZZP'ers, a large English-speaking expat freelancer population).
+#
+# First visitor: Dutch and expat freelancers searching "how much tax should I set aside ZZP Netherlands". Evergreen, peaks around the 1 May aangifte deadline; volume not measured. Rivals are accountant and bookkeeping-app blog calculators, mostly Dutch-language.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: fiscal partner, fiscale oudedagsreserve, pension relief, BTW tracker, Dutch-language page, invoice-by-invoice tracker behind an env-var switch.
+#
+# Liability: 2026 rates (brackets 35.75/37.56/49.50, zelfstandigenaftrek 1,200, MKB 12.7%, AHK 3,115, arbeidskorting table, Zvw 4.85% to 79,412) taken from secondary 2026 summaries; the Zvw rate and ceiling could not be confirmed on an official page. Every result tells the reader to verify on belastingdienst.nl, carries no-warranty and not-tax-advice clauses and says what it does not decide.
+hypotheses:
+  - claim: >-
+      Dutch ZZP'ers and expat freelancers will use a free private calculator to learn what share of each invoice to set aside, because rules of thumb ignore their own profit, the 1,225-hour test and the heffingskortingen.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: EUR
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a Belastingdienst figure differs from the official source.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/nl-zzp-tax-set-aside-calculator/
+  analytics: null
