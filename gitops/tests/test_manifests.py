@@ -3066,7 +3066,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `ugc-creator-rate-calculator` graduated (browser UGC creator rate calculator: content plus ad usage rights, whitelisting, exclusivity).
     # +1: `uk-sole-trader-vs-limited-company-calculator` graduated (browser UK sole trader vs limited company take-home, best salary and dividend split, 2026/27).
     # +1: `eu-espr-readiness-checker` graduated (browser EU ESPR unsold-apparel destruction ban, disclosure table and Digital Product Passport data checklist).
-    total = 1194  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1194 tools" wording.
+    # +1: `uk-tax-free-childcare-calculator` graduated (browser UK Tax-Free Childcare, 15/30 free hours and Universal Credit childcare comparison for England).
+    total = 1195  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1195 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
