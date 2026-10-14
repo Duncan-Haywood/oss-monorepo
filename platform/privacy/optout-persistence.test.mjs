@@ -1669,7 +1669,8 @@ const RELATIVE_SELF = relative(
 // +1: `au-sole-trader-tax-set-aside-calculator` graduated.
 // +1: `ie-self-employed-tax-set-aside-calculator` graduated.
 // +1: `nl-zzp-tax-set-aside-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1197;
+// +1: `za-freelancer-provisional-tax-set-aside-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1199;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
