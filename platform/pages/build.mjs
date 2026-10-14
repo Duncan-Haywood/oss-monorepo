@@ -1817,6 +1817,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-landlord-section-24-calculator'
       // `uk-marriage-allowance-calculator` joined 2026-10-14 on its first commit: UK household tax arithmetic, sibling of the Child Benefit and 100k-trap tools.
       || slug === 'uk-marriage-allowance-calculator'
+      // `uk-redundancy-pay-calculator` joined 2026-10-14 on its first commit: UK employment-payment arithmetic, sibling of the take-home pay and student loan tools.
+      || slug === 'uk-redundancy-pay-calculator'
       // `uk-pension-annual-allowance-calculator` joined 2026-10-14 on its first commit: UK pension tapered annual allowance and carry forward, sibling of the 100k tax trap tool.
       || slug === 'uk-pension-annual-allowance-calculator'
       // `uk-payments-on-account-calculator` joined 2026-10-13 on its first commit: UK Self Assessment payment-schedule arithmetic, sibling of the trading-allowance and CIS tools.
