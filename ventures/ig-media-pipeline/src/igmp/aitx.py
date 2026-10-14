@@ -1,23 +1,40 @@
 """Transitions between reel shots, AI and not, and the reference assembler that uses them.
 
-Contract (what the renderer integrates against)
-  Shots render as individual segment files: 1080x1920, 30 fps, yuv420p (all-intra x264 `-g 1 -crf 12`
-  or ProRes). Between segments A and B a TransitionSpec says how to get from one to the other.
+How the renderer calls it
+  render.py renders each shot as a segment file (1080x1920, 30 fps; ProRes, or all-intra x264
+  `-crf 10 -g 1`; each with the shot's natural sound as a stem) and keeps its own xfade kinds
+  (BUILTIN_KINDS: cut, crossfade, whip-left/right, zoom-in, dip-black). For a spec whose kind is in
+  SUPPORTED and for which supports(spec, cfg) is True, it delegates to
 
-  render_transition(a_seg, b_seg, spec, out, cfg) writes ONLY the transition clip: n =
-  round(spec.duration_s * 30) frames that stand in for the last n//2 frames of A and the first
-  n - n//2 frames of B, in A's format (x264 all-intra, or ProRes 422 HQ for a ProRes A). The cut
-  point stays where it was, so the reel's length and its beat grid do not change.
+    render_transition(a_seg, b_seg, spec, out, cfg)
 
-  join(segments, specs, out, cfg) is the reference assembler: it renders the transitions in a process
-  pool (cached by a content hash of A's tail, B's head and the spec), trims each segment by the
-  halves its neighbours took, concatenates, and does the one final libx264 encode (optionally
-  muxing a finished sound track, copied when it is already AAC).
+  which writes ONLY the transition clip: n = round(duration_s * 30) frames standing in for the last
+  n//2 frames of A and the first n - n//2 frames of B, in A's codec family (ProRes 422 HQ, else
+  all-intra x264 crf 10), with a sound stem of exactly n frames (A's tail then B's head, 15 ms fades
+  at the cut; silence where there is none). The cut point stays where it was, so the reel's length
+  and its beat grid do not change. spec is duck-typed (as_spec): this module's TransitionSpec or
+  Transition, the renderer's own pydantic spec, any object with .kind, .duration_s and an optional
+  .params (dict or object) or the parameters as attributes, or a plain dict. The director
+  (direction.py) returns the same wire shape: Transition(kind, duration_s, params, reason).
+
+  join(segments, specs, out, cfg) is the reference assembler: transitions in a process pool, cached
+  by a content hash of A's tail, B's head, the spec and the backend; segments trimmed by the halves
+  their neighbours took; one concat and one final libx264 encode, with either a finished sound
+  track (copied when AAC) or the pieces' natural-sound stems joined exactly as the pictures are.
 
   Segments carry no handles (no frames past the cut), so inside a transition the side that leaves
   plays to the cut point and then holds its last frame, and the side that arrives holds its first
   frame until the cut point and then plays. The first transition frame is A's frame at the trim
   point and the last is B's frame just before B resumes, so both joins are seamless.
+
+Quality gating
+  A kind is only rendered as itself when its real backend is here: morph and speed_ramp_cut need
+  RIFE, depth_parallax_through needs Depth Anything, generative needs its pipeline (enabled,
+  installed, downloaded). Otherwise render_transition renders a clean stand-in (effective_kind):
+  morph -> match_dissolve, speed_ramp_cut -> a straight cut, depth_parallax_through ->
+  zoom_through, generative -> depth_parallax_through -> zoom_through; supports() says False and the
+  director never offers it. The weaker backends (ffmpeg minterpolate, the heuristic depth) are used
+  only with allow_fallback in the spec's params or cfg.extra aitx_allow_fallback = true.
 
 Kinds (TransitionSpec.kind)
   cut                     zero length: a straight cut on the beat (the default; most cuts).
@@ -59,12 +76,13 @@ Settings (cfg.extra, all optional)
   aitx_interpolator  "auto" (RIFE when found, else minterpolate) | "rife" | "minterpolate"
   aitx_rife          path to rife-ncnn-vulkan (default: PATH, ~/bin, ~/Applications, /opt/homebrew/bin)
   aitx_rife_model    "rife-v4.6" (a directory next to the binary, or a path)
-  aitx_rife_gpu      None: auto; -1: CPU
+  aitx_rife_gpu      None: auto (use this); -1: CPU (gave corrupted frames in a Linux build)
   aitx_depth         "auto" (Depth Anything when installed and downloaded, else heuristic)
                      | "depth-anything" | "heuristic" | "flat"
   aitx_depth_model   "depth-anything/Depth-Anything-V2-Small-hf"
   aitx_device        "auto" (mps, cuda, cpu) or a torch device string
   aitx_allow_downloads  False: models load from the local Hugging Face cache only
+  aitx_allow_fallback   False: no minterpolate morphs or ramps, no heuristic-depth parallax (above)
   aitx_generative    False; aitx_generative_model ("Lightricks/LTX-Video-0.9.5"),
                      aitx_generative_steps (30), aitx_generative_budget_s (420),
                      aitx_generative_size ([576, 1024]), aitx_generative_max_frames (49)
@@ -106,21 +124,38 @@ log = logging.getLogger(__name__)
 
 FPS = 30
 OUT_W, OUT_H = 1080, 1920
-AITX_VERSION = "1"
+AITX_VERSION = "2"
 
 Kind = Literal["cut", "morph", "depth_parallax_through", "generative", "whip", "zoom_through",
                "match_dissolve", "luma_dip", "flash", "speed_ramp_cut"]
 KINDS: tuple[str, ...] = ("cut", "morph", "depth_parallax_through", "generative", "whip", "zoom_through",
                           "match_dissolve", "luma_dip", "flash", "speed_ramp_cut")
 AI_KINDS = frozenset({"morph", "depth_parallax_through", "generative"})
+# what render.py hands to aitx (render_transition here renders every one of them)
+SUPPORTED: frozenset[str] = frozenset({"morph", "depth_parallax_through", "generative", "whip", "zoom_through",
+                                       "match_dissolve", "luma_dip", "flash", "speed_ramp_cut"})
+# the renderer's own xfade-based kinds; the director may choose them too, and render_transition maps
+# them onto the nearest aitx kind if it is ever handed one
+BUILTIN_KINDS: frozenset[str] = frozenset({"cut", "crossfade", "whip-left", "whip-right", "zoom-in", "dip-black"})
+ALIASES: dict[str, tuple[str, dict]] = {
+    "none": ("cut", {}),
+    "crossfade": ("match_dissolve", {"focus_a": (0.5, 0.5), "focus_b": (0.5, 0.5)}),   # no alignment
+    # whip-left / whip-right name the way the picture slides (as xfade's slideleft does): the
+    # content moves left, so the camera swings right
+    "whip-left": ("whip", {"direction": "right"}),
+    "whip-right": ("whip", {"direction": "left"}),
+    "zoom-in": ("zoom_through", {}),
+    "dip-black": ("luma_dip", {"color": "dark"}),
+}
+PARAM_KEYS = ("direction", "focus_a", "focus_b", "color", "strength", "prompt", "seed", "allow_fallback")
 DEPTH_MODEL = "depth-anything/Depth-Anything-V2-Small-hf"
 LTX_MODEL = "Lightricks/LTX-Video-0.9.5"
 
 __all__ = [
-    "AI_KINDS", "KINDS", "TransitionSpec", "Boundary", "SegInfo", "ClipWriter", "RifeInterpolator",
-    "MinterpInterpolator", "parallax_scene", "parallax_frames", "parallax_still", "render_transition",
-    "transition_key", "cached_transition", "join", "contact_sheet", "probe_segment", "read_frames",
-    "backends_report",
+    "AI_KINDS", "BUILTIN_KINDS", "KINDS", "SUPPORTED", "Transition", "TransitionSpec", "as_spec", "supports",
+    "available_kinds", "Boundary", "SegInfo", "ClipWriter", "RifeInterpolator", "MinterpInterpolator",
+    "parallax_scene", "parallax_frames", "parallax_still", "render_transition", "transition_key",
+    "cached_transition", "join", "contact_sheet", "probe_segment", "read_frames", "backends_report",
 ]
 
 
@@ -128,8 +163,8 @@ __all__ = [
 
 
 class TransitionSpec(BaseModel):
-    """How to get from one segment to the next. The clip covers the last n//2 frames of A and the
-    first n - n//2 of B, n = round(duration_s * 30)."""
+    """How to get from one segment to the next (the normalised form every renderer here takes). The
+    clip covers the last n//2 frames of A and the first n - n//2 of B, n = round(duration_s * 30)."""
     kind: Kind = "cut"
     duration_s: float = Field(0.0, ge=0, le=3.0)
     direction: Literal["left", "right", "up", "down"] | None = Field(
@@ -141,6 +176,7 @@ class TransitionSpec(BaseModel):
     strength: float = Field(1.0, ge=0.1, le=2.0, description="effect intensity, 1 = the tuned default")
     prompt: str = Field("", description="generative: what the in-between should show")
     seed: int = 0
+    allow_fallback: bool = Field(False, description="accept a visibly weaker backend (minterpolate, heuristic depth)")
     reason: str = Field("", description="why this transition (not part of the cache key)")
 
     def frames(self) -> int:
@@ -152,6 +188,74 @@ class TransitionSpec(BaseModel):
 
     def key_fields(self) -> dict:
         return self.model_dump(exclude={"reason"}, mode="json")
+
+    @property
+    def params(self) -> dict:
+        """The non-default parameters, as the wire format carries them."""
+        d = self.model_dump(include=set(PARAM_KEYS), mode="json")
+        default = TransitionSpec().model_dump(include=set(PARAM_KEYS), mode="json")
+        return {k: v for k, v in d.items() if v != default[k]}
+
+    def wire(self) -> "Transition":
+        return Transition(kind=self.kind, duration_s=self.duration_s, params=self.params, reason=self.reason)
+
+
+class Transition(BaseModel):
+    """The shape transitions travel in between the director, reels.py and render.py: kind,
+    duration_s, params, reason. kind is an aitx kind (SUPPORTED) or one of the renderer's built-ins
+    (BUILTIN_KINDS); params holds direction, focus_a / focus_b ([x, y] in 0..1), color, strength,
+    prompt, seed, allow_fallback."""
+    kind: str = "cut"
+    duration_s: float = 0.0
+    params: dict = Field(default_factory=dict)
+    reason: str = ""
+
+
+def _point(v) -> tuple[float, float] | None:
+    if v is None:
+        return None
+    if isinstance(v, dict):
+        return float(v["x"]), float(v["y"])
+    if hasattr(v, "x") and hasattr(v, "y"):
+        return float(v.x), float(v.y)
+    x, y = v
+    return float(x), float(y)
+
+
+def as_spec(spec) -> TransitionSpec:
+    """Any transition description -> TransitionSpec: a TransitionSpec, a Transition, a dict, or any
+    object with .kind and .duration_s and optionally .params (a dict or an object) and/or the
+    parameters as attributes (direction, focus_a, focus_b, color, strength, prompt, seed,
+    allow_fallback). Kinds may use hyphens; the renderer's built-ins map through ALIASES."""
+    if isinstance(spec, TransitionSpec):
+        return spec
+    if isinstance(spec, dict):
+        top = dict(spec)
+    else:
+        top = {k: getattr(spec, k) for k in ("kind", "duration_s", "reason", "params", *PARAM_KEYS)
+               if hasattr(spec, k)}
+    params = top.pop("params", None) or {}
+    if not isinstance(params, dict):
+        params = params.model_dump() if hasattr(params, "model_dump") else dict(vars(params))
+    merged = {k: v for k, v in {**top, **params}.items() if v is not None}
+    kind = merged.get("kind", "cut")
+    kind = str(getattr(kind, "value", kind)).strip().lower()
+    extra: dict = {}
+    if kind in ALIASES:
+        kind, extra = ALIASES[kind]
+    elif kind.replace("-", "_") in KINDS:
+        kind = kind.replace("-", "_")
+    if kind not in KINDS:
+        raise ValueError(f"unknown transition kind {kind!r}")
+    fields = {**extra, **{k: merged[k] for k in PARAM_KEYS if k in merged}}
+    for k in ("focus_a", "focus_b"):
+        if k in fields:
+            fields[k] = _point(fields[k])
+    unknown = set(merged) - {"kind", "duration_s", "reason", *PARAM_KEYS}
+    if unknown:
+        log.debug("transition params ignored: %s", sorted(unknown))
+    return TransitionSpec(kind=kind, duration_s=float(merged.get("duration_s", 0.0) or 0.0),
+                          reason=str(merged.get("reason", "") or ""), **fields)
 
 
 # =========================================================================== settings
@@ -170,6 +274,7 @@ def settings(cfg: Config) -> dict:
         "depth_model": str(x.get("aitx_depth_model", DEPTH_MODEL)),
         "device": str(x.get("aitx_device", "auto")),
         "downloads": bool(x.get("aitx_allow_downloads", False)),
+        "allow_fallback": bool(x.get("aitx_allow_fallback", False)),
         "generative": bool(x.get("aitx_generative", False)),
         "gen_model": str(x.get("aitx_generative_model", LTX_MODEL)),
         "gen_steps": int(x.get("aitx_generative_steps", 30)),
@@ -260,15 +365,63 @@ def _fmt_for(info: SegInfo, cfg: Config) -> str:
 def _encode_args(fmt: str) -> list[str]:
     if fmt == "prores":
         return ["-c:v", "prores_ks", "-profile:v", "3", "-vendor", "apl0", "-pix_fmt", "yuv422p10le"]
-    return ["-c:v", "libx264", "-preset", "fast", "-crf", "12", "-g", "1", "-keyint_min", "1", "-bf", "0",
+    return ["-c:v", "libx264", "-preset", "fast", "-crf", "10", "-g", "1", "-keyint_min", "1", "-bf", "0",
             "-pix_fmt", "yuv420p"]
+
+
+@dataclass(frozen=True)
+class AudioInfo:
+    codec: str
+    rate: int
+    channels: int
+
+
+def probe_audio(path: str | Path, cfg: Config) -> AudioInfo | None:
+    """The first audio stream (the segment's natural-sound stem), or None."""
+    out = _run([cfg.ffprobe, "-v", "error", "-select_streams", "a:0", "-show_entries",
+                "stream=codec_name,sample_rate,channels", "-of", "json", str(path)], timeout=60).stdout
+    streams = json.loads(out or b"{}").get("streams") or []
+    if not streams:
+        return None
+    s = streams[0]
+    return AudioInfo(s.get("codec_name", ""), int(s.get("sample_rate") or 48000), int(s.get("channels") or 2))
+
+
+AUDIO_KEEP = ("pcm_s16le", "pcm_s24le", "pcm_s32le", "pcm_f32le", "aac", "alac")
+
+
+def _audio_out(info: AudioInfo | None) -> tuple[list[str], int, str]:
+    """(codec args, rate, channel layout) for a stem: the source's codec when it is PCM, AAC or ALAC
+    (so a transition stem concatenates with the segments' own), else 16-bit PCM; 48 kHz stereo silence
+    when there is no source."""
+    if info is None:
+        return ["-c:a", "pcm_s16le"], 48000, "stereo"
+    codec = info.codec if info.codec in AUDIO_KEEP else "pcm_s16le"
+    args = ["-c:a", codec] + (["-b:a", "256k"] if codec == "aac" else [])
+    layout = {1: "mono", 2: "stereo"}.get(info.channels, f"{info.channels}c")
+    return args, info.rate, layout
+
+
+@dataclass
+class AudioPart:
+    """Seconds [start, start + duration) of a file's first audio stream; path None (or a file with no
+    audio) is silence."""
+    path: str | None
+    start: float
+    duration: float
+
+
+FADE_S = 0.015          # at a join inside a stem: no click, still reads as a cut
 
 
 class ClipWriter:
     """Encodes float RGB frames (H, W, 3, 0..1) into a segment-format clip. Writes a hidden temp file
-    next to `out` and renames it into place on close; refuses to replace an existing file."""
+    next to `out` and renames it into place on close; refuses to replace an existing file.
+    audio: parts laid end to end into one stem of exactly n frames' length (a 15 ms fade either
+    side of each join), in the codec of audio_info (see _audio_out); None: no audio stream."""
 
-    def __init__(self, out: str | Path, cfg: Config, fmt: str, n: int, size: tuple[int, int]):
+    def __init__(self, out: str | Path, cfg: Config, fmt: str, n: int, size: tuple[int, int],
+                 audio: list[AudioPart] | None = None, audio_info: AudioInfo | None = None):
         self.out, self.n, self.size, self.count = Path(out), n, size, 0
         if self.out.exists():
             raise FileExistsError(self.out)
@@ -277,10 +430,36 @@ class ClipWriter:
         self.err = tempfile.TemporaryFile()
         w, h = size
         args = [cfg.ffmpeg, "-hide_banner", "-nostdin", "-v", "error", "-n",
-                "-f", "rawvideo", "-pix_fmt", "rgb48le", "-s", f"{w}x{h}", "-r", str(FPS), "-i", "-",
-                "-vf", "scale=out_color_matrix=bt709:out_range=tv:flags=accurate_rnd+full_chroma_int",
-                *_encode_args(fmt), "-r", str(FPS), "-color_range", "tv", "-colorspace", "bt709",
-                "-color_primaries", "bt709", "-color_trc", "bt709", "-frames:v", str(n), "-an", str(self.tmp)]
+                "-f", "rawvideo", "-pix_fmt", "rgb48le", "-s", f"{w}x{h}", "-r", str(FPS), "-i", "-"]
+        graph = ["[0:v]scale=out_color_matrix=bt709:out_range=tv:flags=accurate_rnd+full_chroma_int[vout]"]
+        amap: list[str] = ["-an"]
+        if audio:
+            codec_args, rate, layout = _audio_out(audio_info)
+            fmt_a = f"aresample={rate},aformat=sample_fmts=fltp:sample_rates={rate}:channel_layouts={layout}"
+            labels = []
+            for j, part in enumerate(audio):
+                d = part.duration
+                fades = []
+                if j > 0:
+                    fades.append(f"afade=t=in:st=0:d={min(FADE_S, d / 4):.4f}")
+                if j < len(audio) - 1:
+                    f = min(FADE_S, d / 4)
+                    fades.append(f"afade=t=out:st={max(0.0, d - f):.6f}:d={f:.4f}")
+                tail = ",".join([f"atrim=duration={d:.6f}", f"apad=whole_dur={d:.6f}", f"atrim=duration={d:.6f}", *fades])
+                if part.path:
+                    k = 1 + len(labels)
+                    args += ["-ss", f"{part.start:.6f}", "-t", f"{d + 0.2:.6f}", "-i", part.path]
+                    graph.append(f"[{k}:a:0]asetpts=PTS-STARTPTS,{fmt_a},{tail}[a{j}]")
+                    labels.append(j)
+                else:
+                    graph.append(f"anullsrc=r={rate}:cl={layout},{fmt_a},{tail}[a{j}]")
+            total = n / FPS
+            graph.append("".join(f"[a{j}]" for j in range(len(audio)))
+                         + f"concat=n={len(audio)}:v=0:a=1,atrim=duration={total:.6f}[aout]")
+            amap = ["-map", "[aout]", *codec_args]
+        args += ["-filter_complex", ";".join(graph), "-map", "[vout]", *_encode_args(fmt), "-r", str(FPS),
+                 "-color_range", "tv", "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
+                 "-frames:v", str(n), *amap, str(self.tmp)]
         self.proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=self.err)
 
     def write(self, frame: np.ndarray) -> None:
@@ -1074,11 +1253,12 @@ def parallax_still(image, depth: np.ndarray | None = None, duration: float = 3.0
                    *, out: str | Path, cfg: Config, strength: float = 1.0,
                    focus: tuple[float, float] = (0.5, 0.5), center: tuple[float, float] = (0.5, 0.5),
                    fmt: str = "x264") -> Path:
-    """parallax_frames written as a segment (1080x1920, 30 fps, all-intra x264 or ProRes). Without a
-    depth map it uses the configured depth backend (Depth Anything when available)."""
+    """parallax_frames written as a segment (1080x1920, 30 fps, all-intra x264 or ProRes, with a silent
+    stem). Without a depth map it uses the configured depth backend (Depth Anything when available;
+    the heuristic otherwise, so check supports()/depth_available() before choosing this for a hook)."""
     n = max(1, int(round(duration * FPS)))
     fn = None if depth is not None else depth_for(cfg)
-    w = ClipWriter(out, cfg, fmt, n, (OUT_W, OUT_H))
+    w = ClipWriter(out, cfg, fmt, n, (OUT_W, OUT_H), audio=[AudioPart(None, 0.0, n / FPS)])   # a silent stem
     try:
         for frame in parallax_frames(image, depth, duration, move, strength=strength, focus=focus, center=center,
                                      depth_fn=fn):
@@ -1552,7 +1732,14 @@ def _speed_ramp_cut(bd: Boundary, spec: TransitionSpec, ctx: _Ctx) -> Iterator[n
         yield bd.B(i)
 
 
+def _passthrough(bd: Boundary, spec: TransitionSpec, ctx: _Ctx) -> Iterator[np.ndarray]:
+    """The frames the clip replaces, untouched: a straight cut inside a clip the timeline expects."""
+    for i in range(bd.n):
+        yield bd.A(i) if i < bd.ha else bd.B(i)
+
+
 RENDERERS: dict[str, Callable[[Boundary, TransitionSpec, _Ctx], Iterator[np.ndarray]]] = {
+    "cut": _passthrough,
     "morph": _morph,
     "depth_parallax_through": _parallax_through,
     "generative": _generative,
@@ -1563,18 +1750,102 @@ RENDERERS: dict[str, Callable[[Boundary, TransitionSpec, _Ctx], Iterator[np.ndar
     "flash": _flash,
     "speed_ramp_cut": _speed_ramp_cut,
 }
-FALLBACK = {"generative": "depth_parallax_through"}
+# the clean stand-in when a kind's real backend is missing (and fallbacks are not allowed), or when
+# a generation fails at run time
+STAND_IN = {"generative": "depth_parallax_through", "depth_parallax_through": "zoom_through",
+            "morph": "match_dissolve", "speed_ramp_cut": "cut"}
+
+
+# =========================================================================== quality gating
+
+
+def _cfg_or_default(cfg: Config | None) -> Config:
+    return cfg if cfg is not None else Config(library_roots=[], output_dir=Path(tempfile.gettempdir()) / "igmp")
+
+
+def _has_rife(cfg: Config, interpolator=None) -> bool:
+    if interpolator is not None:
+        return isinstance(interpolator, RifeInterpolator)
+    return settings(cfg)["interp"] != "minterpolate" and find_rife(cfg) is not None
+
+
+def _has_real_depth(cfg: Config, depth=None) -> bool:
+    if depth is not None:
+        return str(getattr(depth, "name", "")).startswith("depth-anything")
+    return depth_available(cfg).startswith("depth-anything")
+
+
+def effective_kind(spec, cfg: Config | None = None, *, interpolator=None, depth=None, generative=None) -> str:
+    """The kind that will actually be rendered. A transition whose real backend is missing renders
+    its clean stand-in instead of a visibly weaker version of itself: morph without RIFE ->
+    match_dissolve, speed_ramp_cut without RIFE -> a straight cut, depth_parallax_through without
+    Depth Anything -> zoom_through, generative without its pipeline -> depth_parallax_through (and
+    on down). spec.allow_fallback or cfg.extra aitx_allow_fallback = true accepts the weaker
+    backends (minterpolate, heuristic depth) instead."""
+    cfg = _cfg_or_default(cfg)
+    s = as_spec(spec)
+    weak_ok = s.allow_fallback or settings(cfg)["allow_fallback"]
+    kind = s.kind
+    for _ in range(4):
+        if kind == "generative" and generative is None and not generative_available(cfg).startswith("ltx"):
+            kind = STAND_IN[kind]
+        elif kind == "depth_parallax_through" and not (weak_ok or _has_real_depth(cfg, depth)):
+            kind = STAND_IN[kind]
+        elif kind in ("morph", "speed_ramp_cut") and not (weak_ok or _has_rife(cfg, interpolator)):
+            kind = STAND_IN[kind]
+        else:
+            break
+    return kind
+
+
+def supports(spec, cfg: Config | None = None) -> bool:
+    """True when aitx renders this transition at full quality with the backends at hand: its kind is
+    in SUPPORTED and no stand-in would replace it (see effective_kind). morph and speed_ramp_cut
+    need RIFE, depth_parallax_through needs Depth Anything, generative needs its pipeline enabled,
+    installed and downloaded; allow_fallback (in the spec's params or cfg) accepts the weaker
+    backends."""
+    raw = spec.get("kind") if isinstance(spec, dict) else getattr(spec, "kind", None)
+    raw = str(getattr(raw, "value", raw)).strip().lower()
+    if raw not in SUPPORTED and raw.replace("-", "_") not in SUPPORTED:
+        return False                              # the renderer's built-ins (crossfade, ...) stay its own
+    try:
+        s = as_spec(spec)
+    except (ValueError, TypeError, KeyError):
+        return False
+    return effective_kind(s, cfg) == s.kind
+
+
+def available_kinds(cfg: Config | None = None) -> frozenset[str]:
+    """The SUPPORTED kinds that render at full quality here (what the director may offer)."""
+    cfg = _cfg_or_default(cfg)
+    return frozenset(k for k in SUPPORTED if effective_kind(TransitionSpec(kind=k, duration_s=0.5), cfg) == k)
 
 
 # =========================================================================== the contract
 
 
-def render_transition(a_seg: str | Path, b_seg: str | Path, spec: TransitionSpec, out: str | Path, cfg: Config,
+def _stem_parts(a_seg, b_seg, ia: SegInfo, ib: SegInfo, ha: int, hb: int, cfg: Config):
+    """The natural-sound stem of a transition: A's audio under its last ha frames, then B's under its
+    first hb (the very samples the clip stands in for, so the sound runs on unbroken from the
+    trimmed segments), with 15 ms fades at the cut; silence where a side has none."""
+    aa, ab = probe_audio(a_seg, cfg), probe_audio(b_seg, cfg)
+    parts = [AudioPart(str(a_seg) if aa else None, (ia.frames - ha) / FPS, ha / FPS),
+             AudioPart(str(b_seg) if ab else None, 0.0, hb / FPS)]
+    return [p for p in parts if p.duration > 0], aa or ab
+
+
+def render_transition(a_seg: str | Path, b_seg: str | Path, spec, out: str | Path, cfg: Config,
                       *, interpolator=None, depth=None, generative=None) -> Path | None:
-    """Write the transition clip between segments A and B to `out` (which must not exist): n =
-    round(duration_s * 30) frames standing in for A's last n//2 and B's first n - n//2 frames, in
-    A's format. A cut has no clip: returns None. A generative transition that is off, not
-    installed or over budget falls back to depth_parallax_through (logged)."""
+    """Write the transition clip between segments A and B to `out` (which must not exist).
+
+    spec: anything as_spec() takes (this module's TransitionSpec or Transition, the renderer's own
+    pydantic spec, a dict): .kind, .duration_s and optional .params. The clip has exactly n =
+    round(duration_s * 30) frames standing in for A's last n//2 and B's first n - n//2 frames, in A's
+    codec family (ProRes 422 HQ for ProRes, else all-intra x264 crf 10), with a natural-sound stem
+    of exactly that length (A's tail then B's head; silence where there is none). A cut has no clip:
+    returns None. A kind whose real backend is missing renders its clean stand-in (effective_kind);
+    a generation that fails or runs over budget does the same. Both are logged."""
+    spec = as_spec(spec)
     if spec.kind == "cut":
         return None
     out = Path(out)
@@ -1583,15 +1854,19 @@ def render_transition(a_seg: str | Path, b_seg: str | Path, spec: TransitionSpec
     ia, ib = probe_segment(a_seg, cfg), probe_segment(b_seg, cfg)
     bd = load_boundary(a_seg, b_seg, spec, cfg, ia, ib)
     ctx = _Ctx(cfg, interpolator, depth, generative)
-    kind = spec.kind
+    kind = effective_kind(spec, cfg, interpolator=interpolator, depth=depth, generative=generative)
+    if kind != spec.kind:
+        log.warning("%s: full-quality backend unavailable; rendering %s instead", spec.kind, kind)
     frames: list[np.ndarray] | None = None
     if kind == "generative":
         try:
             frames = list(_generative(bd, spec, ctx))
         except (GenerativeUnavailable, GenerationBudgetExceeded, RuntimeError, ValueError, MemoryError) as e:
-            kind = FALLBACK["generative"]
-            log.warning("generative transition unavailable (%s); using %s", e, kind)
-    w = ClipWriter(out, cfg, _fmt_for(ia, cfg), bd.n, bd.size)
+            kind = effective_kind(spec.model_copy(update={"kind": STAND_IN["generative"]}), cfg,
+                                  interpolator=interpolator, depth=depth)
+            log.warning("generative transition failed (%s); using %s", e, kind)
+    parts, ainfo = _stem_parts(a_seg, b_seg, ia, ib, bd.ha, bd.hb, cfg)
+    w = ClipWriter(out, cfg, _fmt_for(ia, cfg), bd.n, bd.size, audio=parts, audio_info=ainfo)
     try:
         for frame in frames if frames is not None else RENDERERS[kind](bd, spec, ctx):
             w.write(frame)
@@ -1615,6 +1890,15 @@ def _packet_hashes(path: str | Path, cfg: Config) -> list[tuple[str, bool]]:
     return rows
 
 
+def _audio_hash(path: str | Path, start: float, dur: float, cfg: Config) -> str:
+    """md5 of the decoded audio a stem takes from a file ("" when it has none)."""
+    if probe_audio(path, cfg) is None:
+        return ""
+    out = _run([cfg.ffmpeg, "-hide_banner", "-nostdin", "-v", "error", "-ss", f"{start:.6f}", "-t", f"{dur:.6f}",
+                "-i", str(path), "-map", "0:a:0", "-f", "md5", "-"], timeout=120).stdout
+    return out.decode().strip()
+
+
 def _backend_tag(kind: str, cfg: Config) -> str:
     if kind in ("morph", "speed_ramp_cut"):
         return getattr(interpolator_for(cfg), "tag", "?")
@@ -1627,17 +1911,22 @@ def _backend_tag(kind: str, cfg: Config) -> str:
     return ""
 
 
-def transition_key(a_seg: str | Path, b_seg: str | Path, spec: TransitionSpec, cfg: Config) -> str:
-    """Content hash of (A's tail, B's head, spec, backend, output format, code version). The tail and
-    head are packet hashes (no decoding): just the frames used when every packet is a keyframe
-    (all-intra x264, ProRes), else the whole stream."""
+def transition_key(a_seg: str | Path, b_seg: str | Path, spec, cfg: Config) -> str:
+    """Content hash of (A's tail, B's head, spec, the kind and backend that will render it, output
+    format, code version). The pictures are packet hashes (no decoding): just the frames used when
+    every packet is a keyframe (all-intra x264, ProRes), else the whole stream; the sound is the
+    decoded samples the stem takes."""
+    spec = as_spec(spec)
     ha, hb = spec.halves()
+    ia = probe_segment(a_seg, cfg)
     pa, pb = _packet_hashes(a_seg, cfg), _packet_hashes(b_seg, cfg)
     tail = [h for h, _ in pa[-ha:]] if all(k for _, k in pa) else [h for h, _ in pa]
     head = [h for h, _ in pb[:hb]] if all(k for _, k in pb) else [h for h, _ in pb]
-    blob = json.dumps({"v": AITX_VERSION, "spec": spec.key_fields(), "a": tail, "b": head,
-                       "backend": _backend_tag(spec.kind, cfg),
-                       "fmt": _fmt_for(probe_segment(a_seg, cfg), cfg)}, sort_keys=True)
+    kind = effective_kind(spec, cfg)
+    blob = json.dumps({"v": AITX_VERSION, "spec": spec.key_fields(), "a": tail, "b": head, "kind": kind,
+                       "backend": _backend_tag(kind, cfg), "fmt": _fmt_for(ia, cfg),
+                       "sound": [_audio_hash(a_seg, (len(pa) - ha) / FPS, ha / FPS, cfg),
+                                 _audio_hash(b_seg, 0.0, hb / FPS, cfg)]}, sort_keys=True)
     return hashlib.sha256(blob.encode()).hexdigest()[:32]
 
 
@@ -1646,10 +1935,11 @@ def _cache_dir(cfg: Config) -> Path:
     return Path(st["cache"]).expanduser() if st["cache"] else cfg.state_dir / "aitx-cache"
 
 
-def cached_transition(a_seg: str | Path, b_seg: str | Path, spec: TransitionSpec, cfg: Config,
+def cached_transition(a_seg: str | Path, b_seg: str | Path, spec, cfg: Config,
                       cache_dir: Path | None = None) -> tuple[Path | None, bool, float]:
     """(clip, cache hit, seconds) for a transition, rendered into the cache when it is not there."""
     t0 = time.monotonic()
+    spec = as_spec(spec)
     if spec.kind == "cut":
         return None, True, 0.0
     cache = Path(cache_dir) if cache_dir else _cache_dir(cfg)
@@ -1672,10 +1962,10 @@ def _job(args: tuple) -> tuple[str | None, bool, float]:
     return (str(path) if path else None), hit, secs
 
 
-def fit_specs(frames: list[int], specs: list[TransitionSpec]) -> list[TransitionSpec]:
+def fit_specs(frames: list[int], specs: list) -> list[TransitionSpec]:
     """Shorten transitions that would eat a whole segment: every segment keeps at least one frame of
     its own and a transition never takes more than a segment has (even frame counts are kept)."""
-    out = list(specs)
+    out = [as_spec(s) for s in specs]
     for i, s in enumerate(out):
         if s.kind == "cut":
             continue
@@ -1694,13 +1984,14 @@ def fit_specs(frames: list[int], specs: list[TransitionSpec]) -> list[Transition
     return out
 
 
-def join(segments: list[str | Path], specs: list[TransitionSpec], out: str | Path, cfg: Config, *,
+def join(segments: list[str | Path], specs: list, out: str | Path, cfg: Config, *,
          audio: str | Path | None = None, audio_start: float = 0.0, workers: int | None = None,
          cache_dir: Path | None = None) -> dict:
     """Reference assembler: transitions (parallel, cached) + trimmed segments, concatenated, one final
-    encode (libx264 High, as render.py; reel_encoder videotoolbox for hardware). audio: a finished
-    sound track muxed from audio_start, copied when it is AAC, else AAC 256k; without it a silent
-    track. The result is exactly as long as the segments together. Returns timings and cache use."""
+    encode (libx264 High, as render.py; reel_encoder videotoolbox for hardware). specs: anything
+    as_spec() takes. Sound: `audio` (a finished track, muxed from audio_start, copied when it is
+    AAC); else the natural-sound stems of the pieces, joined exactly as the pictures are (AAC 256k);
+    else silence. The result is exactly as long as the segments together. Returns timings and cache use."""
     out = Path(out)
     if out.exists():
         raise FileExistsError(out)
@@ -1725,31 +2016,45 @@ def join(segments: list[str | Path], specs: list[TransitionSpec], out: str | Pat
         results = dict(zip(idx, done))
     t_trans = time.monotonic() - t0
 
-    total = sum(i.frames for i in infos)
-    args = [cfg.ffmpeg, "-hide_banner", "-nostdin", "-v", "error", "-n"]
-    chains, labels, k = [], [], 0
+    # the pieces in order: (file, first frame, frame count)
+    pieces: list[tuple[str, int, int]] = []
     for i, info in enumerate(infos):
         head = specs[i - 1].halves()[1] if i > 0 else 0
         tail = specs[i].halves()[0] if i < len(specs) else 0
-        args += ["-i", str(segments[i])]
-        chains.append(f"[{k}:v:0]trim=start_frame={head}:end_frame={info.frames - tail},setpts=PTS-STARTPTS,"
+        pieces.append((str(segments[i]), head, info.frames - head - tail))
+        if i < len(specs) and specs[i].kind != "cut":
+            pieces.append((results[i][0], 0, specs[i].frames()))
+    total = sum(n for _, _, n in pieces)
+    seconds = total / FPS
+    has_audio = {f: probe_audio(f, cfg) is not None for f in {f for f, _, _ in pieces}}
+    natural = audio is None and any(has_audio.values())
+    args = [cfg.ffmpeg, "-hide_banner", "-nostdin", "-v", "error", "-n"]
+    chains, labels = [], []
+    for k, (f, first, n) in enumerate(pieces):
+        args += ["-i", f]
+        chains.append(f"[{k}:v:0]trim=start_frame={first}:end_frame={first + n},setpts=PTS-STARTPTS,"
                       f"format=yuv420p,setsar=1[v{k}]")
         labels.append(f"[v{k}]")
-        k += 1
-        if i < len(specs) and specs[i].kind != "cut":
-            args += ["-i", results[i][0]]
-            chains.append(f"[{k}:v:0]setpts=PTS-STARTPTS,format=yuv420p,setsar=1[v{k}]")
-            labels.append(f"[v{k}]")
-            k += 1
-    seconds = total / FPS
-    graph = ";".join(chains) + ";" + "".join(labels) + f"concat=n={len(labels)}:v=1:a=0,fps={FPS}[vout]"
+        if natural:
+            d, s0 = n / FPS, first / FPS
+            src = (f"[{k}:a:0]atrim=start={s0:.6f}:duration={d:.6f},asetpts=PTS-STARTPTS,"
+                   if has_audio[f] else "anullsrc=r=48000:cl=stereo,")
+            chains.append(f"{src}aresample=48000,aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,"
+                          f"apad=whole_dur={d:.6f},atrim=duration={d:.6f}[a{k}]")
+            labels.append(f"[a{k}]")
+    n_in = len(pieces)
+    graph = ";".join(chains) + ";" + "".join(labels) + \
+        (f"concat=n={n_in}:v=1:a=1[vcat][aout];[vcat]fps={FPS}[vout]" if natural
+         else f"concat=n={n_in}:v=1:a=0,fps={FPS}[vout]")
     if audio is not None:
         args += ["-ss", f"{audio_start:.3f}", "-t", f"{seconds + 0.5:.3f}", "-i", str(audio)]
         copy = _audio_codec(audio, cfg) == "aac"
-        amap = ["-map", f"{k}:a:0", "-c:a", "copy"] if copy else ["-map", f"{k}:a:0", "-c:a", "aac", "-b:a", "256k"]
+        amap = ["-map", f"{n_in}:a:0", "-c:a", "copy"] if copy else ["-map", f"{n_in}:a:0", "-c:a", "aac", "-b:a", "256k"]
+    elif natural:
+        amap = ["-map", "[aout]", "-c:a", "aac", "-b:a", "256k"]
     else:
         args += ["-f", "lavfi", "-t", f"{seconds:.3f}", "-i", "anullsrc=channel_layout=stereo:sample_rate=48000"]
-        amap = ["-map", f"{k}:a", "-c:a", "aac", "-b:a", "128k"]
+        amap = ["-map", f"{n_in}:a", "-c:a", "aac", "-b:a", "128k"]
     args += ["-filter_complex", graph, "-map", "[vout]", *amap]
     if st["encoder"] == "videotoolbox":
         args += ["-c:v", "h264_videotoolbox", "-profile:v", "high", "-b:v", "24M", "-maxrate", "30M", "-bufsize", "60M"]
@@ -1774,9 +2079,11 @@ def join(segments: list[str | Path], specs: list[TransitionSpec], out: str | Pat
         tmp.unlink(missing_ok=True)
     return {"out": str(out), "frames": total, "seconds": seconds, "transitions_s": round(t_trans, 2),
             "encode_s": round(time.monotonic() - t1, 2), "workers": n_workers,
-            "transitions": [{"index": i, "kind": specs[i].kind, "frames": specs[i].frames(), "clip": results[i][0],
-                             "cached": results[i][1], "seconds": round(results[i][2], 2)} for i in idx],
-            "specs": [s.model_dump(mode="json") for s in specs]}
+            "sound": "track" if audio is not None else "natural" if natural else "silent",
+            "transitions": [{"index": i, "kind": specs[i].kind, "rendered_as": effective_kind(specs[i], cfg),
+                             "frames": specs[i].frames(), "clip": results[i][0], "cached": results[i][1],
+                             "seconds": round(results[i][2], 2)} for i in idx],
+            "specs": [s.wire().model_dump(mode="json") for s in specs]}
 
 
 def _audio_codec(path: str | Path, cfg: Config) -> str:
@@ -1789,6 +2096,8 @@ def backends_report(cfg: Config) -> dict:
     rife = find_rife(cfg)
     return {"interpolator": f"rife ({rife})" if rife and settings(cfg)["interp"] != "minterpolate" else "minterpolate",
             "depth": depth_available(cfg), "generative": generative_available(cfg),
+            "full_quality_kinds": sorted(available_kinds(cfg)),
+            "allow_fallback": settings(cfg)["allow_fallback"],
             "workers": settings(cfg)["workers"], "cache": str(_cache_dir(cfg))}
 
 
@@ -2107,7 +2416,8 @@ def demo(out_dir: str | Path, cfg: Config, kinds: list[str] | None = None, paral
         render_transition(sa, sb, spec, clip, cfg)
         dt = time.monotonic() - t0
         sheet = contact_sheet(sa, sb, clip, spec, sheets / f"{kind}.png", cfg)
-        report["transitions"][kind] = {"seconds": round(dt, 2), "frames": spec.frames(),
+        report["transitions"][kind] = {"rendered_as": effective_kind(spec, cfg), "seconds": round(dt, 2),
+                                       "frames": spec.frames(),
                                        "per_frame_s": round(dt / spec.frames(), 3), "sheet": str(sheet)}
         log.info("%s: %.1fs", kind, dt)
     if reel:
@@ -2118,7 +2428,7 @@ def demo(out_dir: str | Path, cfg: Config, kinds: list[str] | None = None, paral
         feats = direction.reel_features(files, cfg)
         cuts = [direction.PlanCut(at_s=2.0 * (i + 1), beat_strength=1.0 if i % 2 == 0 else 0.6)
                 for i in range(len(files) - 1)]
-        specs = direction.auto_direct(cuts, feats, beat_s=0.5, reel_seconds=14.0)
+        specs = direction.auto_direct(cuts, feats, beat_s=0.5, reel_seconds=14.0, cfg=cfg)
         t_dir = time.monotonic() - t0
         runs = []
         for name in ("reel.mp4", "reel_cached.mp4"):
@@ -2130,8 +2440,8 @@ def demo(out_dir: str | Path, cfg: Config, kinds: list[str] | None = None, paral
                          "transitions_s": rep["transitions_s"], "encode_s": rep["encode_s"],
                          "cached": [t["cached"] for t in rep["transitions"]]})
         report["reel"] = {"direction_s": round(t_dir, 2), "workers": settings(cfg)["workers"],
-                          "specs": [f"{s.kind} {s.duration_s:.2f}s{' ' + s.direction if s.direction else ''}"
-                                    for s in specs], "features": [f.summary() for f in feats], "runs": runs}
+                          "specs": [s.model_dump(mode="json") for s in specs],
+                          "features": [f.summary() for f in feats], "runs": runs}
     if parallax:
         for name, img, depth, move in (("land_golden", land, land_depth, "dolly_in"),
                                        ("stars", stars, stars_depth, "truck_right"),
@@ -2163,6 +2473,8 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m igmp.aitx", description=__doc__.split("\n")[0])
     ap.add_argument("--config", help="igmp config.toml (default: none; built-in settings)")
     ap.add_argument("-v", "--verbose", action="store_true")
+    ap.add_argument("--allow-fallback", action="store_true",
+                    help="accept minterpolate and the heuristic depth (aitx_allow_fallback)")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("doctor", help="which backends are available")
     d = sub.add_parser("demo", help="render every kind on synthetic footage, with contact sheets")
@@ -2187,6 +2499,8 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING, format="%(levelname)s %(message)s")
     cfg = _cfg_from(args)
+    if args.allow_fallback:
+        cfg.extra = {**(cfg.extra or {}), "aitx_allow_fallback": True}
     if args.cmd == "doctor":
         print(json.dumps(backends_report(cfg), indent=2))
     elif args.cmd == "demo":
@@ -2201,7 +2515,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.sheet:
             contact_sheet(args.a, args.b, args.out, spec, args.sheet, cfg)
     elif args.cmd == "join":
-        specs = [TransitionSpec.model_validate(s) for s in json.loads(Path(args.specs).read_text())]
+        specs = json.loads(Path(args.specs).read_text())         # any shape as_spec() takes
         print(json.dumps(join(args.segments, specs, args.out, cfg, audio=args.audio), indent=2))
     return 0
 

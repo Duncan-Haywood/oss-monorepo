@@ -22,6 +22,7 @@ FFMPEG = shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"
 FFPROBE = shutil.which("ffprobe") or "/opt/homebrew/bin/ffprobe"
 needs_ffmpeg = pytest.mark.skipif(not (Path(FFMPEG).exists() and Path(FFPROBE).exists()), reason="no ffmpeg")
 W, H = 216, 384
+ALL = aitx.SUPPORTED
 
 
 def cfg_for(tmp: Path) -> Config:
@@ -181,7 +182,8 @@ def test_direct_one_call_for_all_cuts(tmp_path):
     judge = FakeJudge(answer)
     sheet = tmp_path / "pairs.jpg"
     Image.new("RGB", (8, 8)).save(sheet)
-    specs = direction.direct(cuts, feats, judge, "GUIDE TEXT\nline", key="2026-10-03_Mesa", beat_s=0.5, sheet=sheet)
+    specs = direction.direct(cuts, feats, judge, "GUIDE TEXT\nline", key="2026-10-03_Mesa", beat_s=0.5, sheet=sheet,
+                             available=ALL)
     assert len(judge.tasks) == 1, "one call for the whole reel"
     task = judge.tasks[0]
     assert task.output is TransitionPlan and task.images == [sheet] and "GUIDE TEXT" in task.instructions
@@ -191,7 +193,7 @@ def test_direct_one_call_for_all_cuts(tmp_path):
     kinds = [s.kind for s in specs]
     assert kinds[0] == "morph" and specs[0].reason == "match"
     assert kinds[1] == "cut", "over the budget of 3 effects: the weakest beat goes"
-    assert kinds[2] == "whip" and specs[2].direction == "right", "the measured direction wins"
+    assert kinds[2] == "whip" and specs[2].params["direction"] == "right", "the measured direction wins"
     assert kinds[3] == "cut", "never the same effect twice in a row"
     assert kinds[4] == "match_dissolve", "one AI hero per short reel: the second becomes a dissolve"
     assert sum(k != "cut" for k in kinds) <= 3
@@ -210,7 +212,7 @@ def test_direct_holds_to_shortlist_hero_and_budget():
         CutChoice(cut=4, kind="zoom_through", duration_s=0.5, reason="d"),
         CutChoice(cut=5, kind="depth_parallax_through", duration_s=1.0, reason="e"),
     ])
-    specs = direction.direct(cuts, feats, FakeJudge(answer), "g", reel_seconds=15, generative=False)
+    specs = direction.direct(cuts, feats, FakeJudge(answer), "g", reel_seconds=15, generative=False, available=ALL)
     kinds = [s.kind for s in specs]
     assert kinds[1] == "cut"
     assert specs[2].kind != "match_dissolve" or specs[2].duration_s <= 0.8 + 1e-9
@@ -221,7 +223,7 @@ def test_direct_holds_to_shortlist_hero_and_budget():
 
 def test_direct_falls_back_to_rules_on_judge_error():
     cuts, feats = reel()
-    specs = direction.direct(cuts, feats, FakeJudge(error=JudgeError("plan limit")), "g")
+    specs = direction.direct(cuts, feats, FakeJudge(error=JudgeError("plan limit")), "g", available=ALL)
     assert len(specs) == 5 and specs[0].kind == "morph"            # matching frames on a downbeat
     assert sum(s.kind in aitx.AI_KINDS for s in specs) <= 1
     assert all(specs[i].kind == "cut" or specs[i].kind != specs[i - 1].kind for i in range(1, 5))
@@ -231,7 +233,8 @@ def test_direct_many_batches_reels():
     cuts, feats = reel(3)
     judge = FakeJudge(lambda task: TransitionPlan(notes="", cuts=[CutChoice(cut=0, kind="cut", duration_s=0,
                                                                                 reason="calm")]))
-    out = direction.direct_many({"a": (cuts, feats), "b": (cuts, feats)}, judge, "g", beat_s={"a": 0.5})
+    out = direction.direct_many({"a": (cuts, feats), "b": (cuts, feats)}, judge, "g", beat_s={"a": 0.5},
+                                available=ALL)
     assert set(out) == {"a", "b"} and len(judge.tasks) == 2
     assert [s.kind for s in out["a"]] == ["cut", "cut", "cut"]
 
@@ -272,3 +275,36 @@ def test_guide_exists_and_names_every_kind():
     text = direction.guide_text()
     for kind in aitx.KINDS:
         assert f"**{kind}**" in text
+
+
+def test_director_never_offers_a_degraded_kind():
+    """Without RIFE (morph not available at full quality) a matching cut gets a match dissolve."""
+    cuts, feats = reel(1)
+    avail = aitx.SUPPORTED - {"morph", "speed_ramp_cut", "depth_parallax_through", "generative"}
+    kinds = [s.kind for s, _ in direction.candidates(feats[0], 1.0, available=avail)]
+    assert "morph" not in kinds and "match_dissolve" in kinds and "depth_parallax_through" not in kinds
+    answer = TransitionPlan(notes="", cuts=[CutChoice(cut=0, kind="morph", duration_s=0.6, reason="match")])
+    out = direction.direct(cuts, feats, FakeJudge(answer), "g", available=avail)
+    assert out[0].kind == "cut", "an unavailable choice is not rendered degraded"
+    rules = direction.auto_direct(cuts, feats, available=avail)
+    assert rules[0].kind == "match_dissolve"
+
+
+def test_director_output_is_the_wire_shape_and_keeps_builtins():
+    cuts = [PlanCut(at_s=1.0, beat_strength=1.0), PlanCut(at_s=2.0, beat_strength=1.0),
+            PlanCut(at_s=3.0, beat_strength=1.0)]
+    feats = [feat(similarity=0.5, ssim=0.5, edge_corr=0.4), feat(motion_a=(-14, 0)), feat(motion_a=(-14, 0))]
+    answer = TransitionPlan(notes="", cuts=[
+        CutChoice(cut=0, kind="crossfade", duration_s=0.5, reason="calm"),
+        CutChoice(cut=1, kind="whip-left", duration_s=0.33, reason="picture slides left = camera right"),
+        CutChoice(cut=2, kind="whip-right", duration_s=0.33, reason="wrong way"),
+    ])
+    out = direction.direct(cuts, feats, FakeJudge(answer), "g", available=ALL, reel_seconds=30)
+    assert [type(t) for t in out] == [aitx.Transition] * 3
+    assert set(out[0].model_dump()) == {"kind", "duration_s", "params", "reason"}
+    assert out[0].kind == "crossfade" and out[0].reason == "calm"
+    assert out[1].kind == "whip-left"
+    assert out[2].kind == "cut" or (out[2].kind == "whip" and out[2].params["direction"] == "right")
+    # every output goes straight back into the renderer
+    for t in out:
+        assert aitx.as_spec(t).kind in aitx.KINDS

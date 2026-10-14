@@ -28,7 +28,7 @@ W, H = 216, 384
 
 def cfg_for(tmp: Path, **extra) -> Config:
     extra = {"aitx_interpolator": "minterpolate", "aitx_depth": "heuristic", "reel_preset": "veryfast",
-             "aitx_workers": 2, **extra}
+             "aitx_workers": 2, "aitx_allow_fallback": True, **extra}
     return Config(library_roots=[], output_dir=tmp, ffmpeg=FFMPEG, ffprobe=FFPROBE, extra=extra)
 
 
@@ -502,6 +502,7 @@ def test_contact_sheet(media, tmp_path):
 def test_backends_report(tmp_path):
     rep = aitx.backends_report(cfg_for(tmp_path))
     assert rep["interpolator"] == "minterpolate" and rep["depth"] == "heuristic"
+    assert set(rep["full_quality_kinds"]) == aitx.SUPPORTED - {"generative"}      # fallbacks allowed here
 
 
 def test_prores_segments_get_prores_transitions(media, tmp_path):
@@ -517,3 +518,145 @@ def test_prores_segments_get_prores_transitions(media, tmp_path):
     assert (info.codec, info.pix_fmt, info.frames) == ("prores", "yuv422p10le", 12)
     t = decode(out, cfg)
     assert float(np.abs(t[0] - frames[len(frames) - 6]).mean()) < 0.005
+
+
+
+# --------------------------------------------------------------------------- the renderer's interface
+
+
+def tone(path: Path, freq: int, seconds: float) -> Path:
+    subprocess.run([FFMPEG, "-v", "error", "-f", "lavfi", "-i", f"sine=f={freq}:d={seconds}:sample_rate=48000",
+                    "-ac", "2", "-c:a", "pcm_s16le", str(path)], check=True)
+    return path
+
+
+@pytest.fixture(scope="module")
+def stems(media, tmp_path_factory):
+    """Segments that carry a natural-sound stem (PCM, as the renderer's intermediates do)."""
+    tmp = tmp_path_factory.mktemp("stems")
+    cfg = media.cfg
+    out = {}
+    for name, seg, freq in (("a", media.segs["land"], 440), ("b", media.segs["city"], 1000)):
+        frames = decode(seg, cfg)
+        wav = tone(tmp / f"{name}.wav", freq, 1.0)
+        w = aitx.ClipWriter(tmp / f"{name}.mov", cfg, "x264", len(frames), (W, H),
+                            audio=[aitx.AudioPart(str(wav), 0.0, len(frames) / 30)],
+                            audio_info=aitx.probe_audio(wav, cfg))
+        for f in frames:
+            w.write(f)
+        out[name] = w.close()
+    return out
+
+
+def audio_of(path: Path, cfg: Config) -> tuple[dict, np.ndarray]:
+    info = json.loads(subprocess.run([FFPROBE, "-v", "error", "-select_streams", "a:0", "-show_entries",
+                                      "stream=codec_name,duration,sample_rate", "-of", "json", str(path)],
+                                     capture_output=True, check=True).stdout)["streams"][0]
+    pcm = np.frombuffer(subprocess.run([FFMPEG, "-v", "error", "-i", str(path), "-map", "0:a:0", "-ac", "1",
+                                        "-f", "f32le", "-"], capture_output=True, check=True).stdout, np.float32)
+    return info, pcm
+
+
+def zero_crossings_hz(x: np.ndarray, sr: int = 48000) -> float:
+    return float(np.sum(np.abs(np.diff(np.signbit(x).astype(np.int8)))) / 2 / (len(x) / sr))
+
+
+def test_transition_carries_the_natural_sound_stem(stems, media, tmp_path):
+    cfg = media.cfg
+    spec = TransitionSpec(kind="whip", duration_s=0.4, direction="right")       # 12 frames: 6 of A, 6 of B
+    out = aitx.render_transition(stems["a"], stems["b"], spec, tmp_path / "t.mov", cfg)
+    info, pcm = audio_of(out, cfg)
+    assert info["codec_name"] == "pcm_s16le"
+    assert len(pcm) == 12 * 1600, "exactly round(duration * 30) frames of sound"
+    first, second = pcm[: 6 * 1600 - 800], pcm[6 * 1600 + 800:]
+    assert abs(zero_crossings_hz(first) - 440) < 30 and abs(zero_crossings_hz(second) - 1000) < 60
+    assert b"crf=10.0" in out.read_bytes(), "all-intra x264 at crf 10, as the renderer's intermediates"
+
+
+def test_transition_without_sound_gets_exact_silence(media, tmp_path):
+    out = aitx.render_transition(media.segs["land"], media.segs["city"],
+                                 TransitionSpec(kind="flash", duration_s=0.4), tmp_path / "t.mp4", media.cfg)
+    info, pcm = audio_of(out, media.cfg)
+    assert len(pcm) == 12 * 1600 and float(np.abs(pcm).max()) == 0.0
+
+
+def test_join_keeps_the_natural_sound(stems, media, tmp_path):
+    cfg = media.cfg
+    rep = aitx.join([stems["a"], stems["b"]], [{"kind": "luma_dip", "duration_s": 0.4}], tmp_path / "r.mp4", cfg,
+                    cache_dir=tmp_path / "c")
+    assert rep["sound"] == "natural" and rep["frames"] == 60
+    info, pcm = audio_of(tmp_path / "r.mp4", cfg)
+    assert info["codec_name"] == "aac" and abs(float(info["duration"]) - 2.0) < 0.05
+    assert abs(zero_crossings_hz(pcm[4800:24000]) - 440) < 30
+    assert abs(zero_crossings_hz(pcm[-24000:-4800]) - 1000) < 60
+
+
+class OtherSpec:
+    """The renderer's own spec type: only .kind, .duration_s and .params."""
+    def __init__(self, kind, duration_s, params=None):
+        self.kind, self.duration_s, self.params = kind, duration_s, params
+
+
+@pytest.mark.parametrize("spec,kind,check", [
+    ({"kind": "whip", "duration_s": 0.3, "params": {"direction": "left"}}, "whip", {"direction": "left"}),
+    (OtherSpec("flash", 0.4, {"color": "white"}), "flash", {"color": "white"}),
+    (SimpleNamespace(kind="match_dissolve", duration_s=0.5, focus_a={"x": 0.3, "y": 0.4}, focus_b=[0.6, 0.5]),
+     "match_dissolve", {"focus_a": (0.3, 0.4), "focus_b": (0.6, 0.5)}),
+    ({"kind": "whip-left", "duration_s": 0.3}, "whip", {"direction": "right"}),
+    ({"kind": "dip-black", "duration_s": 0.6}, "luma_dip", {"color": "dark"}),
+    ({"kind": "zoom-through", "duration_s": 0.5, "params": {"strength": 1.2}}, "zoom_through", {"strength": 1.2}),
+])
+def test_specs_are_duck_typed(spec, kind, check):
+    s = aitx.as_spec(spec)
+    assert s.kind == kind
+    for k, v in check.items():
+        assert getattr(s, k) == v
+
+
+def test_render_transition_takes_a_foreign_spec(media, tmp_path):
+    out = aitx.render_transition(media.segs["land"], media.segs["city"], OtherSpec("whip", 0.3, {"direction": "up"}),
+                                 tmp_path / "t.mp4", media.cfg)
+    assert aitx.probe_segment(out, media.cfg).frames == 9
+    with pytest.raises(ValueError):
+        aitx.as_spec({"kind": "spin", "duration_s": 0.3})
+
+
+def test_wire_round_trip():
+    s = TransitionSpec(kind="whip", duration_s=0.3, direction="left", focus_a=(0.2, 0.3), reason="go")
+    w = s.wire()
+    assert w.model_dump() == {"kind": "whip", "duration_s": 0.3, "params": {"direction": "left", "focus_a": [0.2, 0.3]},
+                              "reason": "go"}
+    assert aitx.as_spec(w) == s and aitx.as_spec(w.model_dump()) == s
+
+
+def test_quality_gating(tmp_path):
+    strict = cfg_for(tmp_path, aitx_allow_fallback=False)
+    assert not aitx.supports({"kind": "morph", "duration_s": 0.5}, strict)
+    assert aitx.supports({"kind": "morph", "duration_s": 0.5, "params": {"allow_fallback": True}}, strict)
+    assert aitx.effective_kind({"kind": "morph", "duration_s": 0.5}, strict) == "match_dissolve"
+    assert aitx.effective_kind({"kind": "speed_ramp_cut", "duration_s": 0.5}, strict) == "cut"
+    assert aitx.effective_kind({"kind": "depth_parallax_through", "duration_s": 1}, strict) == "zoom_through"
+    assert aitx.effective_kind({"kind": "generative", "duration_s": 1}, strict) == "zoom_through"
+    assert not aitx.supports({"kind": "generative", "duration_s": 1}, strict)
+    for kind in ("whip", "zoom_through", "match_dissolve", "luma_dip", "flash"):
+        assert aitx.supports({"kind": kind, "duration_s": 0.5}, strict)
+    assert not aitx.supports({"kind": "crossfade", "duration_s": 0.5}, strict)    # the renderer's own
+    assert not aitx.supports({"kind": "nonsense"}, strict)
+    assert aitx.available_kinds(strict) == frozenset({"whip", "zoom_through", "match_dissolve", "luma_dip", "flash"})
+    binary = tmp_path / "rife-ncnn-vulkan"
+    binary.write_text("#!/bin/sh\n")
+    binary.chmod(0o755)
+    with_rife = cfg_for(tmp_path, aitx_allow_fallback=False, aitx_interpolator="auto", aitx_rife=str(binary))
+    assert aitx.supports(OtherSpec("morph", 0.5), with_rife) and aitx.supports(OtherSpec("speed_ramp_cut", 0.5), with_rife)
+
+
+def test_gated_kinds_render_their_clean_stand_in(media, tmp_path):
+    cfg = cfg_for(media.tmp, aitx_allow_fallback=False)
+    a, b = media.segs["pan"], media.segs["land"]
+    ramp = decode(aitx.render_transition(a, b, {"kind": "speed_ramp_cut", "duration_s": 0.4}, tmp_path / "r.mp4", cfg), cfg)
+    fa, fb = decode(a, cfg), decode(b, cfg)
+    original = np.concatenate([fa[-6:], fb[:6]])
+    assert float(np.abs(ramp - original).mean()) < 0.01, "no RIFE: a straight cut, not a juddery ramp"
+    morph = decode(aitx.render_transition(media.segs["land"], media.segs["land2"], {"kind": "morph", "duration_s": 0.4},
+                                          tmp_path / "m.mp4", cfg), cfg)
+    assert morph.shape[0] == 12

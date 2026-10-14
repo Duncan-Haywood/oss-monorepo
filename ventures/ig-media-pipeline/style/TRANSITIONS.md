@@ -3,6 +3,35 @@
 How shots join in a reel. The transition director reads this guide with the measurements of every
 cut, so edit it to change the house style.
 
+## Kinds
+
+These are the exact spellings; a plan carries them as `kind`, `duration_s`, `params`, `reason`.
+
+- Rendered by `igmp.aitx` (`aitx.SUPPORTED`): `morph`, `depth_parallax_through`, `generative`,
+  `whip`, `zoom_through`, `match_dissolve`, `luma_dip`, `flash`, `speed_ramp_cut`.
+- The renderer's own xfade moves: `cut`, `crossfade`, `whip-left`, `whip-right`, `zoom-in`,
+  `dip-black`. The director may name them where the matching aitx kind was on offer: `crossfade` for
+  a `match_dissolve`, `whip-left`/`whip-right` for a `whip` the same way (the picture slides left: the
+  camera swings right), `zoom-in` for a `zoom_through`, and `dip-black` for a dark `luma_dip`.
+- `params`: `direction` (whip: the way the camera swings), `focus_a` / `focus_b` (subject points,
+  `[x, y]` in 0..1), `color` (`dark` or `light` for a dip, `warm` or `white` for a flash), `strength`
+  (1 is the tuned default), `prompt` and `seed` (generative), and `allow_fallback`.
+
+## Only at full quality
+
+An AI transition is used only when its real backend is installed. A weaker stand-in for the same
+effect looks worse than a simpler transition done well.
+
+- `morph` and `speed_ramp_cut` need RIFE. Without it a morph becomes a `match_dissolve` and a ramp
+  becomes a straight cut. ffmpeg's own interpolation smears ridgelines and leaves block artefacts.
+- `depth_parallax_through` needs Depth Anything. Without it the move becomes a `zoom_through`; the
+  no-model depth guess tears on star fields.
+- `generative` needs its model downloaded and switched on. Without it the move becomes
+  `depth_parallax_through`, and failing that a `zoom_through`.
+- The director is only offered what will render at full quality.
+- `allow_fallback` (per transition, or `aitx_allow_fallback` in the config) accepts the weaker
+  backends anyway.
+
 ## The default is a cut
 
 Most cuts in a good reel are straight cuts on the beat. A cut is invisible when it lands on the

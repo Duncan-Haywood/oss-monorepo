@@ -33,7 +33,7 @@ from PIL import Image, ImageDraw
 from pydantic import BaseModel, Field
 
 from . import aitx
-from .aitx import AI_KINDS, FPS, TransitionSpec, box_blur, phase_shift
+from .aitx import AI_KINDS, FPS, SUPPORTED, Transition, TransitionSpec, box_blur, phase_shift
 from .config import Config
 from .judge import JudgeError, JudgeTask
 
@@ -56,8 +56,10 @@ DURATIONS = {
     "depth_parallax_through": (0.8, 1.0, 1.27),
     "generative": (0.8, 1.07, 1.6),
 }
+# aitx's kinds and the renderer's own built-ins (crossfade, whip-left/right, zoom-in, dip-black)
 EffectKind = Literal["cut", "morph", "depth_parallax_through", "generative", "whip", "zoom_through",
-                     "match_dissolve", "luma_dip", "flash", "speed_ramp_cut"]
+                     "match_dissolve", "luma_dip", "flash", "speed_ramp_cut",
+                     "crossfade", "whip-left", "whip-right", "zoom-in", "dip-black"]
 
 
 # =========================================================================== features
@@ -225,16 +227,19 @@ def _camera_direction(m: tuple[float, float]) -> str:
 
 
 def candidates(f: CutFeatures, beat_strength: float | None = None, *, beat_s: float | None = None,
-               chapter: bool = False, generative: bool = False) -> list[tuple[TransitionSpec, str]]:
+               chapter: bool = False, generative: bool = False,
+               available: frozenset[str] | set[str] | None = None) -> list[tuple[TransitionSpec, str]]:
     """What could work at this cut, best first after the cut (which is always offered first: most
-    cuts in a good reel are straight cuts on the beat)."""
+    cuts in a good reel are straight cuts on the beat). available: the kinds that render at full
+    quality here (aitx.available_kinds); others are never offered, so a missing RIFE means a match
+    dissolve is offered where a morph would have been. None: every kind."""
     strong = (beat_strength or 0) >= 0.8 or chapter
     room = 2 * max(0, min(f.frames_a, f.frames_b) - 1) if f.frames_a and f.frames_b else None
     out: list[tuple[TransitionSpec, str]] = [(TransitionSpec(kind="cut"), "a straight cut on the beat (the default)")]
     seen: set[str] = set()
 
     def add(kind: str, reason: str, **kw):
-        if kind in seen:
+        if kind in seen or (available is not None and kind not in available):
             return
         seen.add(kind)
         out.append((TransitionSpec(kind=kind, duration_s=snap_duration(kind, beat_s, room),
@@ -352,8 +357,10 @@ def direction_task(key: str, plan_cuts: list[PlanCut], features: list[CutFeature
         f"{reel_seconds:g}s reel, placed on the strongest beats or chapter changes; never the same effect on two "
         "consecutive cuts; at most one AI hero transition (morph, depth_parallax_through, generative) in a reel "
         f"under 20 s; {'a generative transition only for the single hero moment' if generative else 'no generative transitions (disabled)'}. "
-        "Choose only from each cut's options; keep their durations unless the tempo argues for a "
-        "neighbouring beat fraction. A whip keeps the listed direction (it continues the measured motion).")
+        "Choose only from each cut's options (the renderer's own crossfade, whip-left, whip-right, zoom-in and "
+        "dip-black may stand for a listed match_dissolve, whip, zoom_through or dark luma_dip); keep their "
+        "durations unless the tempo argues for a neighbouring beat fraction. A whip keeps the listed direction "
+        "(it continues the measured motion).")
     instructions = (
         "You are choosing the transitions for one Instagram reel, every cut at once. "
         f"{'Tempo ' + format(tempo_bpm, '.0f') + ' bpm. ' if tempo_bpm else ''}"
@@ -363,16 +370,32 @@ def direction_task(key: str, plan_cuts: list[PlanCut], features: list[CutFeature
                      images=[sheet] if sheet else [], effort="medium", max_tokens=6000)
 
 
+def _available(available, cfg: Config | None) -> frozenset[str]:
+    """The kinds the director may offer: given, or what renders at full quality here."""
+    return frozenset(available) if available is not None else aitx.available_kinds(cfg)
+
+
 def enforce(choices: list[CutChoice | None], plan_cuts: list[PlanCut],
             shortlists: list[list[tuple[TransitionSpec, str]]], *, reel_seconds: float = 15.0,
-            generative: bool = False) -> list[TransitionSpec]:
+            generative: bool = False) -> list[Transition]:
     """Hold the director's choices to the rules: shortlisted kinds only (durations within half to one
     and a half times the shortlisted one), generative only when enabled, the effect budget (kept on
-    the strongest beats), no effect twice in a row, one AI hero per reel under 20 s."""
+    the strongest beats), no effect twice in a row, one AI hero per reel under 20 s. A renderer
+    built-in (crossfade, whip-left/right, zoom-in, dip-black) is kept when its aitx equivalent was
+    shortlisted (a whip only in the measured direction). Returns the wire shape: kind, duration_s,
+    params, reason."""
     specs: list[TransitionSpec] = []
+    builtin: list[str | None] = []
     for i, sl in enumerate(shortlists):
         c = choices[i] if i < len(choices) else None
         allowed = {s.kind: s for s, _ in sl}
+        name = None
+        if c is not None and c.kind in aitx.ALIASES and c.kind != "none":
+            target, extra = aitx.ALIASES[c.kind]
+            if target in allowed and extra.get("direction", allowed[target].direction) == allowed[target].direction:
+                name = c.kind
+            c = c.model_copy(update={"kind": target})
+        builtin.append(name)
         if c is None or c.kind not in allowed or (c.kind == "generative" and not generative):
             if c is not None and c.kind == "generative" and "depth_parallax_through" in allowed:
                 c = c.model_copy(update={"kind": "depth_parallax_through"})
@@ -413,15 +436,28 @@ def enforce(choices: list[CutChoice | None], plan_cuts: list[PlanCut],
     effects = [i for i, s in enumerate(specs) if s.kind != "cut"]
     for i in sorted(effects, key=lambda i: (-strength(i), i))[budget:]:
         demote(i, "over the effect budget")
-    return specs
+    out = []
+    for s, name in zip(specs, builtin):
+        if name and s.kind == aitx.ALIASES[name][0]:
+            out.append(Transition(kind=name, duration_s=s.duration_s, reason=s.reason))
+        else:
+            out.append(s.wire())
+    return out
+
+
+def _shortlists(plan_cuts, features, beat_s, generative, avail):
+    return [candidates(f, pc.beat_strength, beat_s=beat_s, chapter=pc.chapter,
+                       generative=generative and "generative" in avail, available=avail)
+            for pc, f in zip(plan_cuts, features)]
 
 
 def auto_direct(plan_cuts: list[PlanCut], features: list[CutFeatures], *, beat_s: float | None = None,
-                reel_seconds: float = 15.0, generative: bool = False) -> list[TransitionSpec]:
+                reel_seconds: float = 15.0, generative: bool = False, available=None,
+                cfg: Config | None = None) -> list[Transition]:
     """Rules only (no Claude): the first shortlisted effect where the beat is strong or the measured
     reason is compelling (matching frames, a fast exit, a big brightness jump), else a cut."""
-    shortlists = [candidates(f, pc.beat_strength, beat_s=beat_s, chapter=pc.chapter, generative=generative)
-                  for pc, f in zip(plan_cuts, features)]
+    avail = _available(available, cfg)
+    shortlists = _shortlists(plan_cuts, features, beat_s, generative, avail)
     choices = []
     for i, (pc, f, sl) in enumerate(zip(plan_cuts, features, shortlists)):
         pick = sl[0][0]
@@ -433,57 +469,63 @@ def auto_direct(plan_cuts: list[PlanCut], features: list[CutFeatures], *, beat_s
             pick = effects[0]
         choices.append(CutChoice(cut=i, kind=pick.kind, duration_s=pick.duration_s, direction=pick.direction,
                                  reason="rules"))
-    return enforce(choices, plan_cuts, shortlists, reel_seconds=reel_seconds, generative=generative)
+    return enforce(choices, plan_cuts, shortlists, reel_seconds=reel_seconds,
+                   generative=generative and "generative" in avail)
 
 
 def direct(plan_cuts: list[PlanCut], features: list[CutFeatures], judge, style: str | Path | None = None, *,
            key: str = "reel", reel_seconds: float = 15.0, beat_s: float | None = None, generative: bool = False,
-           sheet: Path | None = None) -> list[TransitionSpec]:
+           sheet: Path | None = None, available=None, cfg: Config | None = None) -> list[Transition]:
     """One Claude call for every cut of the reel: measured features, the shortlist per cut and the
-    story beats in; a TransitionSpec per cut (with a reason) out, held to the rules by enforce().
+    story beats in; one Transition per cut (kind, duration_s, params, reason) out, held to the rules
+    by enforce(). Only kinds that render at full quality are offered (available, default
+    aitx.available_kinds(cfg)): without RIFE a morph is never offered and a match dissolve is.
     A failed call falls back to auto_direct (rules only), so a reel never waits on this."""
     if len(plan_cuts) != len(features):
         raise ValueError(f"{len(plan_cuts)} cuts but {len(features)} feature sets")
     if not plan_cuts:
         return []
-    shortlists = [candidates(f, pc.beat_strength, beat_s=beat_s, chapter=pc.chapter, generative=generative)
-                  for pc, f in zip(plan_cuts, features)]
+    avail = _available(available, cfg)
+    gen = generative and "generative" in avail
+    shortlists = _shortlists(plan_cuts, features, beat_s, generative, avail)
     task = direction_task(key, plan_cuts, features, shortlists, style=style, reel_seconds=reel_seconds,
-                          tempo_bpm=60 / beat_s if beat_s else None, generative=generative, sheet=sheet)
+                          tempo_bpm=60 / beat_s if beat_s else None, generative=gen, sheet=sheet)
     try:
         answer: TransitionPlan = judge.judge(task)
     except JudgeError as e:
         log.warning("transition direction failed (%s); using the rules", e)
-        return auto_direct(plan_cuts, features, beat_s=beat_s, reel_seconds=reel_seconds, generative=generative)
+        return auto_direct(plan_cuts, features, beat_s=beat_s, reel_seconds=reel_seconds, generative=generative,
+                           available=avail)
     by_cut = {c.cut: c for c in answer.cuts}
     return enforce([by_cut.get(i) for i in range(len(plan_cuts))], plan_cuts, shortlists,
-                   reel_seconds=reel_seconds, generative=generative)
+                   reel_seconds=reel_seconds, generative=gen)
 
 
 def direct_many(reels: dict[str, tuple[list[PlanCut], list[CutFeatures]]], judge, style: str | Path | None = None,
                 *, reel_seconds: float = 15.0, beat_s: dict[str, float | None] | None = None,
-                generative: bool = False) -> dict[str, list[TransitionSpec]]:
+                generative: bool = False, available=None, cfg: Config | None = None) -> dict[str, list[Transition]]:
     """direct() for several reels in one judge_many: still one call per reel, but the API backend
     sends them as a single Message Batch and the plan backend runs them in parallel."""
     beat_s = beat_s or {}
+    avail = _available(available, cfg)
+    gen = generative and "generative" in avail
     tasks, shortlists = [], {}
     for key, (pcs, feats) in reels.items():
-        sl = [candidates(f, pc.beat_strength, beat_s=beat_s.get(key), chapter=pc.chapter, generative=generative)
-              for pc, f in zip(pcs, feats)]
-        shortlists[key] = sl
         b = beat_s.get(key)
-        tasks.append(direction_task(key, pcs, feats, sl, style=style, reel_seconds=reel_seconds,
-                                    tempo_bpm=60 / b if b else None, generative=generative))
+        shortlists[key] = _shortlists(pcs, feats, b, generative, avail)
+        tasks.append(direction_task(key, pcs, feats, shortlists[key], style=style, reel_seconds=reel_seconds,
+                                    tempo_bpm=60 / b if b else None, generative=gen))
     answers = judge.judge_many(tasks) if tasks else {}
     out = {}
     for key, (pcs, feats) in reels.items():
         ans = answers.get(f"transitions:{key}")
         if not isinstance(ans, TransitionPlan):
-            out[key] = auto_direct(pcs, feats, beat_s=beat_s.get(key), reel_seconds=reel_seconds, generative=generative)
+            out[key] = auto_direct(pcs, feats, beat_s=beat_s.get(key), reel_seconds=reel_seconds,
+                                   generative=generative, available=avail)
             continue
         by_cut = {c.cut: c for c in ans.cuts}
         out[key] = enforce([by_cut.get(i) for i in range(len(pcs))], pcs, shortlists[key],
-                           reel_seconds=reel_seconds, generative=generative)
+                           reel_seconds=reel_seconds, generative=gen)
     return out
 
 
