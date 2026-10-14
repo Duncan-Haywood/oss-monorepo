@@ -61,6 +61,10 @@ test("sibling tools linked from the page exist", () => {
   for (const m of html.matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)) assert.ok(readFileSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
 });
 
+test("links the Scottish income tax calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/uk-scottish-income-tax-calculator\/"/);
+});
+
 test("links to the employer hiring cost calculator", () => {
   assert.match(page("index.html"), /href="\.\.\/uk-employer-hiring-cost-calculator\/"/);
 });
