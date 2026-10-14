@@ -1613,6 +1613,11 @@
      "slug": "selfrep-redesign",
      "title": "Which part substitutions cut a printer's vitamins most, within a performance budget?",
      "summary": "Follow-up to selfrep-closure that changes the machine instead of the shop. Seven assumed substitutions (printed bushings and nuts, wooden rods, a printed drive) are searched exhaustively, greedily and at random under an assumed penalty budget. All seven together take the Prusa Mendel&rsquo;s vitamin lines from 29 to 19 and closure from 43/22/16% to 60/36/48% (lines/mass/cost) for the printer, router and laser shop; mass closure stays below 36% because motors, electronics and threaded rods remain. Cost closure responds most, and the best set depends on the assumed penalties. Stylised: substitutions, masses and penalties are all assumed and no part was tested."
+    },
+    {
+     "slug": "selfrep-rodbeam",
+     "title": "What does a wooden rod cost a printer in stiffness?",
+     "summary": "Replaces the assumed penalty of selfrep-redesign&rsquo;s wooden-rod substitution with Euler&ndash;Bernoulli beam theory. At 8&nbsp;mm a hardwood rod sags 20&times; a steel one (the modulus ratio) and a printed PLA rod 80&times;; matching steel stiffness needs about 17&nbsp;mm of hardwood, outside the printer&rsquo;s 8&nbsp;mm hardware, while a 1&ndash;2&nbsp;mm sag tolerance needs 9&ndash;11&nbsp;mm. The earlier 30&nbsp;g per dowel was about twice the geometric 13.8&nbsp;g, moving mass closure from 35.8% to 34.6%; thicker dowels raise closure again, a quirk of counting imported feedstock as makeable. Stylised: properties and the 5&nbsp;N load are assumed and no rod was tested."
     }
    ]
   },
