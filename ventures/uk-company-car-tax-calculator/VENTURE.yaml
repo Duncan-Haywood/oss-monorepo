@@ -1,0 +1,38 @@
+name: uk-company-car-tax-calculator
+description: >-
+  Free browser tool for UK employees choosing a company car: enter list price, car type (electric, plug-in hybrid by electric range, or petrol/diesel with its quoted percentage) and tax rate to see the 2026/27 benefit in kind, monthly income tax, employer Class 1A, free-fuel charge, the scheduled zero-emission rise to 2029/30 and a side-by-side against a second car. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no company car tax tool existed in ventures/ (the UK payroll tools cover pay, pension and redundancy but not benefits in kind).
+#
+# First visitor: an employee offered a company car or an electric-car scheme, searching "company car tax calculator", "BiK calculator 2026/27", "electric vs petrol company car tax".
+# Large evergreen query family that spikes at each Budget and at the April rate change; volume not measured. Sibling of the UK take-home pay, salary sacrifice and employer hiring cost tools.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a fleet-manager sheet (many drivers, Class 1A bill, P11D prep) behind an env-var switch.
+#
+# Liability: ZEV and plug-in hybrid percentages, the fuel multiplier and Class 1A were checked against several published guides in the building session, and the CO2 band table for petrol and diesel was NOT hard-coded because sources disagree on some rows; the user enters the percentage from their quote or P11D. Every result names the sources to verify and carries no-warranty and not-tax-advice clauses.
+hypotheses:
+  - claim: >-
+      Employees offered a company car, and people weighing an electric car scheme, will use a free calculator to see the monthly tax and the four-year cost against a petrol alternative.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or rule differs from GOV.UK or HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-company-car-tax-calculator/
+  analytics: null
