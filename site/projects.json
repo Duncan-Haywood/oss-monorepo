@@ -1722,6 +1722,11 @@
      "summary": "A small diagnostic (stylised, preliminary). The lighter and heavier groups of gauge-2 search results differ in web width (about 14.3&ndash;14.9 against 15.2&ndash;15.6&nbsp;mm), not in fillet radius. A coarse grid shows one connected feasible region, but a 0.1&nbsp;mm scan shows the feasible set is ragged in width: isolated feasible pockets lie below a contiguous region, and the lighter group matches those pockets. This is consistent with a coarse-mesh stress artefact rather than two broad basins, a mechanism not tested here. Twenty seeds, one process, one mesh; nothing was built."
     },
     {
+     "slug": "simdesign-gaugepockets",
+     "title": "Do the isolated feasible pockets of the 2&nbsp;mm laser-cut bracket survive mesh refinement?",
+     "summary": "A small mesh-refinement scan (stylised, preliminary). The isolated feasible web widths below 15&nbsp;mm that appear at 2.5&nbsp;mm element size vanish at 2.0 and 1.5&nbsp;mm, and the smallest feasible width moves up (14.4 to 15.6&nbsp;mm at fillet radius 14&nbsp;mm). Mesh convergence was not reached, and a stress peak at a corner is itself mesh-sensitive, so the least-mass design on the search mesh is optimistic."
+    },
+    {
      "slug": "simdesign-gaugemesh",
      "title": "Is the narrow 2&nbsp;mm laser-cut bracket region a mesh artefact?",
      "summary": "A negative result for the search mesh (stylised). All 39 gauge-2 bracket designs that were feasible on the 2.5&nbsp;mm search mesh (19 under laser rules, 20 for the no-rules twin) are infeasible on finer meshes (1.5, 1.0, 0.75&nbsp;mm): the peak von Mises stress is 1.09&ndash;1.27&times; higher at 0.75&nbsp;mm and is still rising, at the point where the fillet meets the arm. Tip deflection is unchanged and the fillet facet count is not the cause. Earlier mass prices in the bracket chain are therefore conditional on the coarse mesh; no fine-mesh optimum was searched."
