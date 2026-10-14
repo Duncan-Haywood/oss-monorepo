@@ -1803,6 +1803,8 @@ const CATEGORY_RULES = [
       || slug === 'ca-self-employed-tax-set-aside-calculator'
       // `au-sole-trader-tax-set-aside-calculator` joined 2026-10-14 on its first commit: Australian sole-trader income tax and Medicare set-aside, sibling of the GST registration checker, same compliance-arithmetic job.
       || slug === 'au-sole-trader-tax-set-aside-calculator'
+      // `nz-self-employed-tax-set-aside-calculator` joined 2026-10-14 on its first commit: New Zealand self-employed income tax and ACC set-aside, sibling of the NZ GST registration checker, same compliance-arithmetic job.
+      || slug === 'nz-self-employed-tax-set-aside-calculator'
       // `au-gst-registration-checker` joined 2026-10-13 on its first commit: the Australian sibling of the GST/HST small-supplier test, same compliance-arithmetic job.
       || slug === 'au-gst-registration-checker'
       // `uk-cis-deduction-refund-calculator` joined 2026-10-13 on its first commit: UK construction subcontractors' CIS deduction and refund, sibling of the UK VAT and sole-trader tools.

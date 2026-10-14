@@ -33,51 +33,51 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548282 bytes
-#   portfolio-front-tools-1: 92 files, 555563 bytes
-#   portfolio-front-tools-2: 144 files, 553607 bytes
-#   portfolio-front-tools-3: 128 files, 549933 bytes
-#   portfolio-front-tools-4: 136 files, 554207 bytes
+#   portfolio-front-tools-0: 145 files, 548279 bytes
+#   portfolio-front-tools-1: 92 files, 555567 bytes
+#   portfolio-front-tools-2: 144 files, 553620 bytes
+#   portfolio-front-tools-3: 128 files, 549935 bytes
+#   portfolio-front-tools-4: 136 files, 554208 bytes
 #   portfolio-front-tools-5: 130 files, 549918 bytes
-#   portfolio-front-tools-6: 128 files, 555622 bytes
-#   portfolio-front-tools-7: 120 files, 554996 bytes
-#   portfolio-front-tools-8: 130 files, 556708 bytes
-#   portfolio-front-tools-9: 137 files, 553671 bytes
-#   portfolio-front-tools-10: 136 files, 556885 bytes
-#   portfolio-front-tools-11: 136 files, 552295 bytes
-#   portfolio-front-tools-12: 129 files, 556471 bytes
-#   portfolio-front-tools-13: 131 files, 557026 bytes
-#   portfolio-front-tools-14: 119 files, 544404 bytes
-#   portfolio-front-tools-15: 137 files, 551743 bytes
-#   portfolio-front-tools-16: 119 files, 552723 bytes
-#   portfolio-front-tools-17: 131 files, 554756 bytes
-#   portfolio-front-tools-18: 123 files, 550744 bytes
-#   portfolio-front-tools-19: 124 files, 556920 bytes
-#   portfolio-front-tools-20: 126 files, 551092 bytes
-#   portfolio-front-tools-21: 120 files, 553623 bytes
-#   portfolio-front-tools-22: 117 files, 550469 bytes
-#   portfolio-front-tools-23: 119 files, 547701 bytes
-#   portfolio-front-tools-24: 130 files, 554798 bytes
-#   portfolio-front-tools-25: 124 files, 554504 bytes
-#   portfolio-front-tools-26: 132 files, 556484 bytes
-#   portfolio-front-tools-27: 136 files, 545043 bytes
-#   portfolio-front-tools-28: 118 files, 553391 bytes
-#   portfolio-front-tools-29: 128 files, 556626 bytes
-#   portfolio-front-tools-30: 138 files, 556763 bytes
-#   portfolio-front-tools-31: 130 files, 555471 bytes
-#   portfolio-front-tools-32: 120 files, 551454 bytes
-#   portfolio-front-tools-33: 134 files, 553583 bytes
-#   portfolio-front-tools-34: 111 files, 554504 bytes
-#   portfolio-front-tools-35: 101 files, 555518 bytes
-#   portfolio-front-tools-36: 131 files, 551854 bytes
-#   portfolio-front-tools-37: 116 files, 555385 bytes
-#   portfolio-front-tools-38: 130 files, 554932 bytes
-#   portfolio-front-tools-39: 123 files, 553551 bytes
-#   portfolio-front-tools-40: 137 files, 554254 bytes
-#   portfolio-front-tools-41: 134 files, 551709 bytes
-#   portfolio-front-tools-42: 122 files, 556245 bytes
-#   portfolio-front-tools-43: 118 files, 554234 bytes
-#   portfolio-front-tools-44: 61 files, 326282 bytes
+#   portfolio-front-tools-6: 128 files, 555591 bytes
+#   portfolio-front-tools-7: 120 files, 554987 bytes
+#   portfolio-front-tools-8: 130 files, 556638 bytes
+#   portfolio-front-tools-9: 137 files, 553697 bytes
+#   portfolio-front-tools-10: 136 files, 556877 bytes
+#   portfolio-front-tools-11: 136 files, 552263 bytes
+#   portfolio-front-tools-12: 129 files, 556476 bytes
+#   portfolio-front-tools-13: 131 files, 557037 bytes
+#   portfolio-front-tools-14: 119 files, 544429 bytes
+#   portfolio-front-tools-15: 137 files, 551756 bytes
+#   portfolio-front-tools-16: 119 files, 552710 bytes
+#   portfolio-front-tools-17: 131 files, 554746 bytes
+#   portfolio-front-tools-18: 123 files, 550759 bytes
+#   portfolio-front-tools-19: 124 files, 557011 bytes
+#   portfolio-front-tools-20: 126 files, 551062 bytes
+#   portfolio-front-tools-21: 120 files, 553537 bytes
+#   portfolio-front-tools-22: 117 files, 550470 bytes
+#   portfolio-front-tools-23: 119 files, 547681 bytes
+#   portfolio-front-tools-24: 130 files, 554775 bytes
+#   portfolio-front-tools-25: 124 files, 554509 bytes
+#   portfolio-front-tools-26: 132 files, 556510 bytes
+#   portfolio-front-tools-27: 139 files, 554279 bytes
+#   portfolio-front-tools-28: 118 files, 553366 bytes
+#   portfolio-front-tools-29: 128 files, 556772 bytes
+#   portfolio-front-tools-30: 138 files, 556710 bytes
+#   portfolio-front-tools-31: 130 files, 555453 bytes
+#   portfolio-front-tools-32: 120 files, 551321 bytes
+#   portfolio-front-tools-33: 134 files, 553549 bytes
+#   portfolio-front-tools-34: 111 files, 554517 bytes
+#   portfolio-front-tools-35: 101 files, 555503 bytes
+#   portfolio-front-tools-36: 131 files, 552042 bytes
+#   portfolio-front-tools-37: 116 files, 555441 bytes
+#   portfolio-front-tools-38: 130 files, 554817 bytes
+#   portfolio-front-tools-39: 123 files, 553606 bytes
+#   portfolio-front-tools-40: 137 files, 554228 bytes
+#   portfolio-front-tools-41: 134 files, 551814 bytes
+#   portfolio-front-tools-42: 122 files, 556119 bytes
+#   portfolio-front-tools-43: 118 files, 554168 bytes
+#   portfolio-front-tools-44: 61 files, 326292 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -3717,6 +3717,9 @@ configMapGenerator:
       - nz-gst-registration-checker__calc.mjs.gz=nz-gst-registration-checker__calc.mjs.gz
       - nz-gst-registration-checker__index.html.gz=nz-gst-registration-checker__index.html.gz
       - nz-gst-registration-checker__usage.mjs.gz=nz-gst-registration-checker__usage.mjs.gz
+      - nz-self-employed-tax-set-aside-calculator__calc.mjs.gz=nz-self-employed-tax-set-aside-calculator__calc.mjs.gz
+      - nz-self-employed-tax-set-aside-calculator__index.html.gz=nz-self-employed-tax-set-aside-calculator__index.html.gz
+      - nz-self-employed-tax-set-aside-calculator__usage.mjs.gz=nz-self-employed-tax-set-aside-calculator__usage.mjs.gz
       - object-storage-pricing-calculator__cli.mjs.gz=object-storage-pricing-calculator__cli.mjs.gz
       - object-storage-pricing-calculator__engine.mjs.gz=object-storage-pricing-calculator__engine.mjs.gz
       - object-storage-pricing-calculator__how-to-choose-object-storage-by-egress.html.gz=object-storage-pricing-calculator__how-to-choose-object-storage-by-egress.html.gz
