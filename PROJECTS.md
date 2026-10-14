@@ -86,6 +86,34 @@ git commit -m "Mirror oss-research-monorepo@${R:0:12} into research/"
    1. Make `oss-monorepo` public.
    2. Point the scheduled research runs at it.
    3. Archive this repository after the last sync, and never delete it.
+8. `site-redesign` (both): give the two GitHub Pages homepages a comprehensive, modern,
+   professional redesign, with one super homepage that routes to both. Added on 2026-10-14 at the
+   owner's request. It is independent of milestones 1 to 7, so a run may take it while they are
+   claimed.
+   - **The two sites.** The research homepage
+     (<https://duncan-haywood.github.io/oss-research-monorepo/>) is built here by
+     `site/build.py` from `site/template.html` and `site/projects.json`. The product catalogue
+     (<https://duncan-haywood.github.io/monorepo-projects/>) is built in `oss-monorepo` by
+     `platform/pages/build.mjs`.
+   - **The super homepage.** One landing page introduces the whole portfolio and routes visitors
+     to the products and to the research. It must not be a third, thin page that each side
+     forgets to update. Prefer making it the `oss-monorepo` Pages root, with the catalogue and
+     the research homepage (`/research/`, milestone 7) under it, and keep the old URLs working
+     with redirects or links.
+   - **Better HTML, CSS and JS.** Use semantic HTML and a shared design system: tokens for
+     colour, type and spacing, light and dark themes, and a responsive layout from phone width
+     up. Add a sticky header with navigation, a hero, featured work, theme or category sections,
+     and fast client-side search and filtering. Use no framework and no build step beyond the
+     existing builders, and no third-party tracking. Make it accessible (WCAG AA contrast,
+     labelled controls, keyboard navigation) and fast, with no layout shift.
+   - **Keep what already works.** Every project and product card, the per-project test counts,
+     the disclaimers, usage tracking, sitemaps and SEO metadata all stay. `python site/build.py`
+     still prints `ok`. In `oss-monorepo`, run the starvation checklist from its `CLAUDE.md`,
+     including `regen.mjs --verify` and the browser checks (`contrast.mjs`).
+   - **Done when** both homepages and the super homepage ship the new design, each links to the
+     other two, and before and after screenshots at phone and desktop widths are in the pull
+     request. Restyle the research side here, where the mirror sync carries it across. Do the
+     catalogue and the super homepage in `oss-monorepo`.
 
 ## Picking work
 
