@@ -101,3 +101,24 @@ def min_time(arm, qa, qb, tau_max, tmax=10.0, dt=0.01):
             return round(T, 10)
         T += dt
     return None
+
+
+def min_time_capped(arm, qa, qb, tau_max, mass, fcap, mu=0.5, tmax=20.0, tol=1e-4):
+    """Shortest min-jerk duration (bisection to `tol`; both limits are assumed to loosen as T grows) with joint
+    torques within `tau_max` and the peak jaw force bound within `fcap`, or None if even `tmax` fails
+    (e.g. fcap below the static hold force m g / (2 mu))."""
+    def ok(T):
+        r = move(arm, qa, qb, T, n=100, mu=mu, mass=mass)
+        return max(r["tau1"], r["tau2"]) <= tau_max and r["force"] <= fcap
+    if not ok(tmax):
+        return None
+    lo, hi = 1e-3, tmax
+    if ok(lo):
+        return lo
+    while hi - lo > tol:
+        mid = 0.5 * (lo + hi)
+        if ok(mid):
+            hi = mid
+        else:
+            lo = mid
+    return hi
