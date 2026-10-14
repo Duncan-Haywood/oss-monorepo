@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sync-twin"
+version = "0.1.0"
+description = "Sensor clock offset and jitter that a digital twin does not simulate: exact fused-estimate error, break-even timing error, and the cost of randomizing the wrong clock range"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

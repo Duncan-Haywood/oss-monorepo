@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-14",
+  "session": "https://claude.ai/code/session_011xRXbz1NKCLoKCdzJgK8o9",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-14T14:02:00Z",
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "selfrep-terminal"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/439",
+  "commits": [
+    "b47bc6b"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "Random track pick 1 (selfrep). Landing queue empty (selfrep-rodbeam duplicate branch already on main). Took the terminal-fleet-value next step; no routing.json so prompt 0.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

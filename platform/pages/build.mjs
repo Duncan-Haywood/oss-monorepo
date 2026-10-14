@@ -21,6 +21,7 @@
 // opt-out.
 
 import { promises as fs, existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -1810,9 +1811,13 @@ const CATEGORY_RULES = [
       // `ie-self-employed-tax-set-aside-calculator` and `za-freelancer-provisional-tax-set-aside-calculator` joined 2026-10-14: Irish and South African self-employed tax set-aside, siblings of the AU/CA/NZ tools, same compliance-arithmetic job.
       || slug === 'ie-self-employed-tax-set-aside-calculator'
       || slug === 'za-freelancer-provisional-tax-set-aside-calculator'
+      // `sg-freelancer-tax-set-aside-calculator` joined 2026-10-14 on its first commit: Singapore freelancer income tax set-aside, sibling of the AU/CA/NZ/IE/ZA tools.
+      || slug === 'sg-freelancer-tax-set-aside-calculator'
       // `in-freelancer-advance-tax-set-aside-calculator` joined 2026-10-14 on its first commit: Indian freelancer income tax, 44ADA and advance tax set-aside, sibling of the AU/CA/NZ/IE/ZA tools.
       || slug === 'in-freelancer-advance-tax-set-aside-calculator'
       || slug === 'nl-zzp-tax-set-aside-calculator'
+      || slug === 'de-freiberufler-tax-set-aside-calculator'
+      || slug === 'uk-self-employed-tax-set-aside-calculator'
       // `au-gst-registration-checker` joined 2026-10-13 on its first commit: the Australian sibling of the GST/HST small-supplier test, same compliance-arithmetic job.
       || slug === 'au-gst-registration-checker'
       // `uk-cis-deduction-refund-calculator` joined 2026-10-13 on its first commit: UK construction subcontractors' CIS deduction and refund, sibling of the UK VAT and sole-trader tools.
@@ -4040,6 +4045,19 @@ export async function discoverComparisons(surfaces) {
  * cannot introduce a claim the page it links to does not already carry.
  */
 export const GUIDES_PATH = 'guides/';
+
+// The research portfolio (`research/`, MIT licensed) has its own homepage
+// builder; the site publishes its output here so the repository has one front
+// door. Not a venture: no launch date, no card, linked from the hub footer.
+export const RESEARCH_PATH = 'research/';
+export const RESEARCH_BUILDER = path.join('research', '_homepage', 'build.py');
+
+function buildResearchPage(outDir, baseUrl) {
+  const args = [path.join(REPO_ROOT, RESEARCH_BUILDER), '--out', path.join(outDir, RESEARCH_PATH), '--base-url', baseUrl];
+  execFileSync('python3', args, {
+    stdio: ['ignore', 'ignore', 'inherit'],
+  });
+}
 
 /**
  * Pages the guides index deliberately does not list.
@@ -6981,6 +6999,7 @@ ${disclaimerHtml('', surfaces)}
         <a href="${ABOUT_PATH}">About &amp; press kit</a> ·
         <a href="${GUIDES_PATH}">Guides</a> ·
         <a href="${COMPARE_PATH}">Comparisons</a> ·
+        <a href="${RESEARCH_PATH}">Research</a> ·
         <a href="catalog.json">Machine-readable catalog</a> ·
         <a href="llms.txt">llms.txt</a> ·
         <a href="sitemap.xml">Sitemap</a> ·
@@ -8902,6 +8921,7 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
     .concat([`  <url><loc>${baseUrl}${COMPARE_PATH}</loc></url>`])
+    .concat([`  <url><loc>${baseUrl}${RESEARCH_PATH}</loc></url>`])
     // And the guides index, for the same reason. See `GUIDES_PATH`: it is the
     // only page on the site that is *about* the 342 informational pages the
     // ventures wrote, which is the half of the catalogue organic search
@@ -9087,6 +9107,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     '## Optional',
     '',
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (it never leaves the browser${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [Research](${baseUrl}${RESEARCH_PATH}): the open research portfolio built in the same repository — white papers with reproducible code on mechanism design for verifiable decentralised ML, and digital twins and sim-to-real gaps.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
     // Named individually rather than left behind the index, because the
     // question an assistant is actually asked is about one product ("a free
@@ -9533,6 +9554,8 @@ export async function buildSite({
     path.join(aboutDir, 'index.html'),
     renderAboutPage({ surfaces, groups: categoryGroups, baseUrl: base }),
   );
+
+  buildResearchPage(outDir, base);
 
   // The comparison index. After the categories because it links every one of
   // them, and before the sitemaps for the same reason they are.

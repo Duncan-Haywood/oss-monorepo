@@ -1,0 +1,23 @@
+E1  normal: interval-score regret of a scale misreport lam (symmetric [-lam z, lam z]), alpha = 0.05 / 0.32
+  alpha=0.05  z=1.9600  lam=0.5: 4.2076  lam=0.8: 0.4647  lam=0.9: 0.1021  lam=1.1: 0.0791  lam=1.25: 0.4113  lam=2.0: 3.1651
+  alpha=0.32  z=0.9945  lam=0.5: 0.4362  lam=0.8: 0.0641  lam=0.9: 0.0155  lam=1.1: 0.0145  lam=1.25: 0.0863  lam=2.0: 1.0458
+E2  Cauchy: expected interval score is infinite (no mean) but regret is finite; alpha=0.1, symmetric shrink/inflate
+  q = [-6.314, 6.314]  lam=0.5: 2.3577  lam=0.8: 0.2863  lam=1.25: 0.3347  lam=2.0: 3.8416
+E3  lognormal(0,1): equal-tailed vs shortest interval at the same coverage
+  cov=0.8: ET [0.278,3.602] width 3.325 | HPD [0.058,2.338] width 2.281 (31% shorter) lam=8.41 | H-regret of ET 1.0441 | IS-regret of HPD 0.6549
+  cov=0.9: ET [0.193,5.180] width 4.987 | HPD [0.037,3.613] width 3.575 (28% shorter) lam=20.66 | H-regret of ET 1.4119 | IS-regret of HPD 0.7592
+  cov=0.95: ET [0.141,7.099] width 6.958 | HPD [0.026,5.187] width 5.161 (26% shorter) lam=50.40 | H-regret of ET 1.7974 | IS-regret of HPD 0.8881
+  cov=0.99: ET [0.076,13.142] width 13.066 | HPD [0.013,10.243] width 10.230 (22% shorter) lam=384.59 | H-regret of ET 2.8359 | IS-regret of HPD 1.2859
+E4  detection: tasks to detect (z=1.645) a 20% understatement of a symmetric N(0,1) tolerance, matched coverage
+    alpha  z     IS: n     H(lam=1/f(z)): n     payment range IS(>)  H
+    0.5    0.674     324.0     15729.9            unbounded   4.5
+    0.32   0.994     219.6      2848.8            unbounded   6.1
+    0.2    1.282     183.7      1090.7            unbounded   8.3
+    0.1    1.645     174.6       525.3            unbounded   13.0
+    0.05   1.960     191.6       380.5            unbounded   21.0
+    0.01   2.576     319.8       369.7            unbounded   74.3
+E5  curvature: regret ~ k*delta^2 for a widening of BOTH ends by delta:
+   IS  k=(2/alpha) phi(z)   H  k=z
+    alpha=0.32: IS regret/d^2=1.516 (theory 1.521)   H regret/d^2=0.994 (theory 0.994)
+    alpha=0.1: IS regret/d^2=2.051 (theory 2.063)   H regret/d^2=1.639 (theory 1.645)
+    alpha=0.05: IS regret/d^2=2.323 (theory 2.338)   H regret/d^2=1.951 (theory 1.960)

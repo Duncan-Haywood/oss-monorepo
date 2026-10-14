@@ -1,0 +1,36 @@
+E1: mean regret vs N (uniform prior). uniform-midpoint grid vs optimal compander vs prediction
+div        N   uniform*N^2   optimal*N^2    pred*N^2
+brier     16       0.08333       0.08333     0.08333
+brier     64       0.08333       0.08333     0.08333
+brier    256       0.08333       0.08333     0.08333
+brier   1024       0.08333       0.08333     0.08333
+log       16       0.41270       0.35062     0.36062
+log       64       0.52746       0.35811     0.36062
+log      256       0.64280       0.36004     0.36062
+log     1024       0.75815       0.36052     0.36062
+
+E2: same, arcsine (confident) prior
+brier     16       0.09413       0.07821     0.07458
+brier     64       0.08874       0.07549     0.07458
+brier    256       0.08604       0.07481     0.07458
+brier   1024       0.08469       0.07464     0.07458
+log       16       1.09507       0.40515     0.40973
+log       64       2.18465       0.40944     0.40973
+log      256       4.36687       0.41071     0.40973
+log     1024       8.73257       0.41240     0.40973
+
+E3: minifloat formats (uniform prior, log score): raw vs symmetrised, vs uniform grid with same #points
+fmt         #pts         raw        symm   uniform N       opt N
+e4m3          57   1.517e-03   1.143e-04   5.973e-05   3.815e-05
+e5m2          61   5.760e-03   4.473e-04   4.501e-05   2.813e-05
+e3m4          49   4.927e-04   2.075e-04   1.251e-04   8.477e-05
+e5m6         961   2.851e-05   1.746e-06   2.502e-07   1.122e-07
+
+E3b: same under Brier
+e4m3          57   1.860e-04   4.651e-05   8.857e-06
+e5m2          61   7.440e-04   1.860e-04   6.526e-06
+e3m4          49   5.086e-05   2.035e-05   1.972e-05
+e5m6         961   2.906e-06   7.266e-07   2.592e-08
+
+E4: argmin_r KL(q||r) is not the nearest grid point (log score, N=8 uniform grid)
+fraction of q where best report != nearest: 0.030

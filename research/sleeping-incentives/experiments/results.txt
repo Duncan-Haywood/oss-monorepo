@@ -1,0 +1,29 @@
+E1  leave-one-out identity: transfer_i = eta W_A (1-p_i) S_i  (exact; see tests, 300 random rounds)
+    max abs error 2.36e-16
+
+E2  post-hoc threshold sleeping vs honest equal-skill rival (eta=.25, s0=.1): rounds until A's share > 0.9 (median of 60 seeds)
+    theta  kappa   predicted  measured  realised router loss
+     1.0  0.0000        inf     never  0.5000
+     0.8  0.0800        220       204  0.4999
+     0.6  0.1200        146       137  0.4998
+     0.5  0.1250        141       131  0.4998
+     0.4  0.1200        146       136  0.4998
+     0.2  0.0800        220       208  0.4999
+
+E3  ex-ante sleeping on a noisy own-loss signal, router serves the awake mixture (theta optimal per nu)
+    nu     theta*   g*      ledger growth eta*g (s=.5: eta s(1-s)g)   real router saving s*g at s=.5
+     0.0    0.50   0.1250   0.00781                              0.06250
+     0.1    0.50   0.1200   0.00750                              0.06000
+     0.3    0.50   0.0873   0.00545                              0.04364
+     1.0    0.50   0.0324   0.00203                              0.01622
+     3.0    0.50   0.0111   0.00069                              0.00553
+    simulated saving at nu=0, s=.5: 0.0621 (formula 0.0625); contrast E2: post-hoc saving is 0.000
+
+E4  sleeping tax deterrence (eta=.25): best threshold for A, and cost to an honest specialist asleep 90% of rounds
+    p_B    tau*=eta p_B/2   best theta at .9 tau*   at 1.1 tau*
+    1.0    0.1250           0.950                   1.000
+    0.5    0.0625           0.950                   1.000
+    0.1    0.0125           0.950                   1.000
+    tau=0.125: honest specialist (phi=.9) halves its wealth in 5.8 rounds
+    tau=0.0625: honest specialist (phi=.9) halves its wealth in 11.9 rounds
+    tau=0.0125: honest specialist (phi=.9) halves its wealth in 61.2 rounds

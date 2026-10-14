@@ -1,0 +1,13 @@
+# Rain twin: a clear-air or mean-rain-rate radar twin vs real storm-cell attenuation, and what a rain ensemble fixes
+
+Pure Python, no dependencies. Real system: a radar whose clear-air detection range is 20 km; the path is cut into 1 km cells, each wet with probability 0.2 (exponential rain rate, mean 10 mm/h, so mean rate 2 mm/h), two-way attenuation `2kR^γ` dB/km with stylised `k = 0.012`, `γ = 1.2`. Detection iff `40 log10(r_fs/r) ≥ A(r)`; since `A` is non-decreasing the detection set is an interval `[0, r_det]` with a random `r_det`. Results (all from `experiments/results.txt`): (1) the rain-rate power law has a Jensen gap `E[R^γ]/(E R)^γ = p^{1−γ}Γ(1+γ) = 1.52`, so a mean-rain-rate twin underestimates mean attenuation (0.055 vs 0.084 dB/km); (2) the mean-rate twin's range has a closed form via Lambert W, `r = W(βr_fs)/β` with `β = 2kR̄^γ ln10/40`: 18.84 km, but only 39% of real storm fields reach it (real median 18.56 km, 5th percentile 16.31 km); (3) a mean-matched twin (rate chosen so the mean attenuation is right) gives 18.31 km and 59% — fixing the mean does not make a deterministic range right; (4) Brier score against real outcomes over 4–20 km: clear air 0.101, mean-rate twin 0.055, mean-matched 0.054 (a negligible gain), rain ensemble with the true model 0.038 (the irreducible level is 0.038); ensembles with the wrong intermittency but the right mean rate still score 0.040 and 0.046; (5) at fixed marginals, longer rain cells widen the spread of `r_det` (sd 0.81 → 2.27 km for cells of 0.5 → 10 km) and flip the mean-rate twin from optimistic (30% of fields reach its range) to pessimistic (75%), while the ensemble stays ahead (0.028–0.060 vs 0.043–0.104).
+
+```bash
+cd research/rain-twin
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, under 1 s
+PYTHONPATH=src python3 experiments/run.py                 # about 6 s; output in experiments/results.txt
+```
+
+**Builds on.** The radar sensor-simulation and sim-to-real direction of ARPG (<https://arpg.colorado.edu/>) and the digital-twin simulation-fidelity and severe-weather observation directions of RECUV (<https://www.colorado.edu/recuv/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. The power-law specific attenuation `kR^γ` and radar range equation are classical (Skolnik 2008; ITU-R P.838 gives coefficients of this form). Companion to `multipath-twin`, `radar-clutter-twin` and `radar-detection-twin`.
+
+Stylised: simulated "real" system, no radar or rain data; `k`, `γ` are illustrative, not ITU-calibrated; i.i.d. wet/dry cells with exponential rates, no rain-cell advection, no frequency dependence, no wet-radome loss, deterministic threshold detection, a single point target.  MIT.

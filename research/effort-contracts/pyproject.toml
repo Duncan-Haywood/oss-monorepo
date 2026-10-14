@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "effort-contracts"
+version = "0.1.0"
+description = "Scoring-rule payments as effort contracts: limited liability, shirking thresholds, and score/value mismatch"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

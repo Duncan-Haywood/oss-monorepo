@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-13",
+  "session": "https://claude.ai/code/session_015DU9Vsj7xRWUMECnvF4aL8",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": "2026-10-13T04:12:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "ambient-interject"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/291",
+  "commits": [
+    "61ffcf1",
+    "03ae37e"
+  ],
+  "lines_added": 504,
+  "lines_removed": 0,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 9,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "pytest was only importable under /usr/bin/python3, not the default python"
+  ],
+  "integrity_issues": [],
+  "notes": "Queue was empty: sag-twin and ambient-pipeline branches were already on main. cool-cori-cym3m3 (unmerged, no PR) says the move landed in oss-monorepo, contradicting CLAUDE.md (move on hold); left alone for the owner.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

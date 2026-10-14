@@ -1,0 +1,23 @@
+carriage mass 0.3 kg, longest rod 420 mm, holder limit 12 mm (assumptions)
+== rod diameter for a first-mode target; all seven redesign substitutions, printer+router+laser shop
+target Hz  material     d mm  fits  mass-closure  stock-to-import g  vitamin g
+     10   hardwood      7.9  yes      34.6%           1908         3608
+     10   aluminium     4.9  yes      35.0%           1946         3608
+     20   hardwood     11.2  yes      35.5%           1989         3608
+     20   aluminium     6.9  yes      36.4%           2067         3608
+     30   hardwood     13.8  NO       36.5%           2073         3608
+     30   aluminium     8.6  yes      37.8%           2193         3608
+     40   hardwood     16.0  NO       37.4%           2158         3608
+     40   aluminium    10.0  yes      39.2%           2323         3608
+     60   hardwood     19.8  NO       39.3%           2335         3608
+     60   aluminium    12.4  NO       41.8%           2596         3608
+
+== highest first-mode frequency reachable within the holder limit, by carriage mass (Hz)
+M kg   steel  aluminium  hardwood
+ 0.1     109.0      84.3      37.9
+ 0.3      83.3      56.4      23.0
+ 0.6      65.4      41.7      16.5
+ 1.0      53.2      32.9      12.8
+
+== aluminium vs steel 8 mm at equal frequency
+steel 8 mm: 41.6 Hz; aluminium needs d = 10.2 mm

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sidelobe-twin"
+version = "0.1.0"
+description = "Sidelobe twin: an ideal point-response radar twin has no range sidelobes; a real matched filter ghosts a strong target into false alarms out to a radius growing as sqrt(SNR), and tapering trades that for width and loss"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

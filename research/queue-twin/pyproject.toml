@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "queue-twin"
+version = "0.1.0"
+description = "Load a shared lab instrument can carry within a wait SLA when its twin has exponential service but real service times are heavy-tailed: exact Pollaczek-Khinchine capacity, infinite-variance failure, and a plug-in repair from n service logs"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

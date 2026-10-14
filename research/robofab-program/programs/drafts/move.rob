@@ -1,0 +1,9 @@
+# draft 1 (session-written): move the cube to the goal
+MOVE 0.30 0.10 0.10 1.0
+MOVE 0.30 0.10 0.015 0.5
+GRIP
+MOVE 0.30 0.10 0.10 0.5
+MOVE 0.15 0.30 0.10 1.0
+MOVE 0.15 0.30 0.015 0.5
+RELEASE
+MOVE 0.15 0.30 0.10 0.5

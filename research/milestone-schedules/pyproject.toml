@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "milestone-schedules"
+version = "0.1.0"
+description = "Self-enforcing milestone schedules for jobs paid without external enforcement: two-sided pay split, geometric front-loaded milestones, logarithmic milestone count"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

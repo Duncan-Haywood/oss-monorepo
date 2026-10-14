@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+_site/
+MUJOCO_LOG.TXT

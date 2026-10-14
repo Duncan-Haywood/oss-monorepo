@@ -1,0 +1,56 @@
+E1: closed form a*=n/(1+(n-1)rho) vs numerical argmin of exact expected log-loss (s2=2)
+  n   rho        a*    argmin      bayes     single
+  2  0.00    2.0000    2.0000    0.35632    0.49180
+  2  0.20    1.6667    1.6667    0.39609    0.49180
+  2  0.50    1.3333    1.3333    0.44097    0.49180
+  2  0.80    1.1111    1.1111    0.47413    0.49180
+  5  0.00    5.0000    5.0000    0.14354    0.49180
+  5  0.20    2.7778    2.7778    0.27967    0.49180
+  5  0.50    1.6667    1.6667    0.39609    0.49180
+  5  0.80    1.1905    1.1905    0.46197    0.49180
+ 10  0.00   10.0000   10.0000    0.03441    0.49180
+ 10  0.20    3.5714    3.5714    0.21961    0.49180
+ 10  0.50    1.8182    1.8182    0.37742    0.49180
+ 10  0.80    1.2195    1.2195    0.45760    0.49180
+
+E2: saturation. Bayes log-loss vs n, and loss gain over one expert (rho=0.2, s2=2); limit n_eff -> 1/rho=5
+n=   1 n_eff= 1.000 bayes=0.49180  gain=0.00000
+n=   2 n_eff= 1.667 bayes=0.39609  gain=0.09571
+n=   5 n_eff= 2.778 bayes=0.27967  gain=0.21213
+n=  10 n_eff= 3.571 bayes=0.21961  gain=0.27220
+n=  50 n_eff= 4.630 bayes=0.16011  gain=0.33170
+n=1000 n_eff= 4.980 bayes=0.14439  gain=0.34742
+
+E3: pooling rules, Monte Carlo (n=8, T=40000, s2=2): mean log-loss
+  rho    linear   geo a=1   sum a=n      a=a*     bayes
+ 0.00    0.4014    0.3377    0.0611    0.0611    0.0604
+ 0.30    0.4231    0.3896    0.5113    0.3022    0.2972
+ 0.60    0.4493    0.4374    1.0263    0.4185    0.4127
+ 0.90    0.4836    0.4828    1.5163    0.4822    0.4765
+
+E4: robustness to misspecified extremization (n=8, rho=0.3): excess loss at a = k*a*
+k=0.25 a= 0.645 excess=0.15992
+k=0.50 a= 1.290 excess=0.05208
+k=0.75 a= 1.935 excess=0.01000
+k=1.00 a= 2.581 excess=0.00000
+k=1.50 a= 3.871 excess=0.02265
+k=2.00 a= 5.161 excess=0.06955
+k=3.00 a= 7.742 excess=0.18899
+k=4.00 a=10.323 excess=0.32135
+
+E5: n*rho assumed 0 when true rho>0 (naive independence a=n) vs ignoring extremization (a=1)
+rho=0.05 a*=5.926  excess a=n: 0.00615   excess a=1: 0.23637
+rho=0.10 a*=4.706  excess a=n: 0.02558   excess a=1: 0.19766
+rho=0.20 a*=3.333  excess a=n: 0.09836   excess a=1: 0.13454
+rho=0.40 a*=2.105  excess a=n: 0.32318   excess a=1: 0.05770
+
+E6: estimating rho from labelled logits (n=5, s2=2): estimate vs T
+T=   100 mean=0.409 sd=0.051
+T=  1000 mean=0.402 sd=0.019
+T= 10000 mean=0.400 sd=0.006
+
+E7: online gradient descent on a (n=5, rho=0.4, a*=1.923): average regret vs best fixed a
+T=   100 a_T=1.236 avg regret=-0.00091
+T=  1000 a_T=1.632 avg regret=0.00024
+T= 10000 a_T=1.881 avg regret=0.00030
+T=100000 a_T=1.926 avg regret=0.00007

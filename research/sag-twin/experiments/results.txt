@@ -1,0 +1,93 @@
+Sag twin: battery OCV e(s) = 1 - 0.25(1-s), cutoff vc = 0.70 (units of E0), constant power u0 = 4 R0 P/E0^2, time in units R0 Q/E0.
+Twin: same OCV curve, no internal resistance (i = u0/(4e)).  Real: i = (e - sqrt(e^2 - r u0))/(2r), dropped at v < vc.
+
+== 1. Flat EMF (d = 0, no cutoff): endurance ratio real/twin = eta(u) = (1+sqrt(1-u))/2, fold at u = 1 ==
+u0     twin T      real T (quadrature)  real/twin  eta(u)     twin overstates by 1/eta
+0.05   80.000      78.987               0.9873     0.9873     1.013
+0.2    20.000      18.944               0.9472     0.9472     1.056
+0.4    10.000      8.873                0.8873     0.8873     1.127
+0.6    6.667       5.442                0.8162     0.8162     1.225
+0.8    5.000       3.618                0.7236     0.7236     1.382
+0.95   4.211       2.576                0.6118     0.6118     1.635
+1      4.000       2.000                0.5000     0.5000     2.000
+u0 = 1.05: real current = None (no steady delivery); twin endurance = 3.810
+
+== 2. With OCV droop and cutoff (rho = 0): stranded charge and endurance ==
+u0     twin T   real T   real/twin  s_cut (stranded charge)  Euler sim T (dt=2e-4)
+0.05   70.000   68.829   0.9833     0.0000                   68.829
+0.1    35.000   33.807   0.9659     0.0000                   33.808
+0.2    17.500   15.079   0.8616     0.0857                   15.079
+0.3    11.667   8.336    0.7145     0.2286                   8.336
+0.4    8.750    4.998    0.5712     0.3714                   4.998
+0.6    5.833    1.735    0.2975     0.6571                   1.735
+0.8    4.375    0.203    0.0465     0.9429                   0.204
+largest power that can start from full charge 4 vc (1-vc) = 0.8400; u0 = 0.9 starts: None (twin endurance 3.889)
+
+== 3. Burst reserve: lowest state of charge from which a burst u2 can still be delivered (rho = 0) ==
+burst u2   max-power fraction of full-charge limit   s_floor (burst fails below)   twin floor
+0.1        0.119                                        0.0000                       0.0
+0.2        0.238                                        0.0857                       0.0
+0.28       0.333                                        0.2000                       0.0
+0.4        0.476                                        0.3714                       0.0
+0.5        0.595                                        0.5143                       0.0
+0.6        0.714                                        0.6571                       0.0
+0.7        0.833                                        0.8000                       0.0
+0.8        0.952                                        0.9429                       0.0
+max deliverable power at s = 1, 0.8, 0.6, 0.4, 0.2, 0: 0.840, 0.700, 0.560, 0.420, 0.280, 0.140
+a flat 20% charge reserve covers bursts up to u2 = 0.280 (33% of the full-charge limit)
+
+== 4. Cruise u1 = 0.2 then a final burst u2: cruise time before the burst can no longer be guaranteed ==
+twin cruise T to empty 17.500; real cruise T to its own cutoff 15.079
+u2     s_floor  real cruise T down to s_floor  /twin T  /real-to-cutoff T
+0.28   0.2000   13.443                          0.768    0.891
+0.4    0.3714   10.853                          0.620    0.720
+0.5    0.5143   8.573                           0.490    0.569
+0.6    0.6571   6.183                           0.353    0.410
+0.7    0.8000   3.683                           0.210    0.244
+
+== 5. Cold cell: R0 multiplied by k at a fixed physical power (u0 -> k u0), base u0 = 0.2 ==
+k      u0_eff  starts?  real T   twin T (blind to k)  real/twin  max power from full (units E0^2/(4 R0 warm))
+1      0.20    yes      15.079   17.500                        0.8616     0.840
+1.5    0.30    yes      8.336    17.500                        0.4764     0.560
+2      0.40    yes      4.998    17.500                        0.2856     0.420
+3      0.60    yes      1.735    17.500                        0.0992     0.280
+4      0.80    yes      0.203    17.500                        0.0116     0.210
+4.5    0.90    NO       0.000    17.500                        0.0000     0.187
+
+== 6. Constant-derate refit: fit eta_fit = real/twin endurance at u_fit, predict T = eta_fit * twin T elsewhere (rho = 0) ==
+fit at u_fit = 0.10: eta_fit = 0.9659
+   u0     real T   refit T   refit error
+   0.05   68.829   67.615    -1.8%
+   0.1    33.807   33.807    +0.0%
+   0.2    15.079   16.904    +12.1%
+   0.3    8.336    11.269    +35.2%
+   0.5    3.024    6.761     +123.6%
+   0.7    0.843    4.830     +473.0%
+   0.8    0.203    4.226     +1977.7%
+   u0 = 0.90 (cannot start): real T = 0, refit predicts 3.756
+fit at u_fit = 0.30: eta_fit = 0.7145
+   u0     real T   refit T   refit error
+   0.05   68.829   50.017    -27.3%
+   0.1    33.807   25.009    -26.0%
+   0.2    15.079   12.504    -17.1%
+   0.3    8.336    8.336     +0.0%
+   0.5    3.024    5.002     +65.4%
+   0.7    0.843    3.573     +323.9%
+   0.8    0.203    3.126     +1436.9%
+   u0 = 0.90 (cannot start): real T = 0, refit predicts 2.779
+
+== 7. Identifying R0 from a short logged segment (noise sd 0.005 E0 on v, currents from the u0 = 0.1 and 0.4 segments, s in [0.9, 1]) ==
+n samples  mean R-hat/R0  sd R-hat/R0 (Monte Carlo, 2000 reps)  predicted sd = sigma/sqrt(sum i^2)
+10         0.9996         0.0187                                0.0190
+40         0.9999         0.0094                                0.0095
+160        1.0000         0.0048                                0.0048
+(one short high-power segment identifies R0: unlike thermal-twin or stiction-twin the sag shows at once in the terminal voltage)
+
+== 8. Out-of-model: resistance rising as the cell empties R(s) = R0(1 + rho(1-s)); a twin with constant R0 fitted at full charge ==
+rho  u0    real s_cut  const-R twin s_cut  real T   const-R twin T  twin error   real floor for burst 0.5   const-R twin floor
+0    0.1   0.0000      0.0000              33.807   33.807              +0.0%   0.5143                     0.5143
+0    0.3   0.2286      0.2286              8.336    8.336               +0.0%   0.5143                     0.5143
+1    0.1   0.0750      0.0000              31.068   33.807              +8.8%   0.7167                     0.5143
+1    0.3   0.4600      0.2286              5.858    8.336              +42.3%   0.7167                     0.5143
+2    0.1   0.1778      0.0000              27.667   33.807             +22.2%   0.8000                     0.5143
+2    0.3   0.5846      0.2286              4.516    8.336              +84.6%   0.8000                     0.5143

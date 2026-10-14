@@ -1,0 +1,83 @@
+== 1. Stability limit c_max = 2 sin(pi/(4 tau+2)) (c = alpha s); radius 1 exactly there ==
+tau  c_max    pi/(2tau+1)  radius(0.999 c_max)  radius(1.001 c_max)  alpha_max (s=0.590)
+0    2.0000   3.1416       0.99800              1.00200              3.388
+1    1.0000   1.0472       0.99950              1.00050              1.694
+2    0.6180   0.6283       0.99971              1.00029              1.047
+3    0.4450   0.4488       0.99979              1.00021              0.754
+5    0.2846   0.2856       0.99987              1.00013              0.482
+8    0.1845   0.1848       0.99992              1.00008              0.313
+16   0.0952   0.0952       0.99996              1.00004              0.161
+
+== 2. Exact stationary variance (closed forms tau<=1, Yule-Walker beyond): Var x / e2 ==
+c      tau=0      tau=1      tau=2      tau=4      ratio tau=1/tau=0
+0.05      10.256     10.783     11.339     12.552   1.051
+0.20       2.778      3.409      4.240      7.226   1.227
+0.50       1.333      2.400      6.667        inf   1.800
+0.80       1.042      4.018        inf        inf   3.857
+0.95       1.003     13.916        inf        inf   13.881
+
+== 3. Exact floor vs literal delayed DiLoCo simulation (one mode a=0.5, eta=.2, N=4, H=3; 300k rounds) ==
+tau  alpha   exact     sim       ratio
+0    0.40    0.00481  0.00481  1.000
+1    0.40    0.00537  0.00535  0.997
+2    0.40    0.00600  0.00599  1.000
+2    0.80    0.01622  0.01619  0.999
+4    0.40    0.00758  0.00757  0.999
+
+== 4. Floor at fixed step, three modes a=1,.25,.05, H=4, N=8 ==
+alpha   tau=0     tau=1     tau=2     tau=3     tau=5
+0.10    0.00171   0.00175   0.00180   0.00185   0.00195
+0.30    0.00526   0.00571   0.00624   0.00691   0.00916
+0.50    0.00903   0.01044   0.01253   0.01640    unstable
+0.80    0.01516   0.01984   0.03318    unstable    unstable
+alpha_max: tau=0: 3.388  tau=1: 1.694  tau=2: 1.047  tau=3: 0.754  tau=5: 0.482
+
+== 5. Fastest deterministic rate of a single mode: c* = tau^tau/(tau+1)^(tau+1), radius tau/(tau+1) ==
+tau  c*        radius(c*)  radius(0.7c*)  radius(1.3c*)  rounds for x1e-3 at c*
+1    0.25000   0.5000      0.7739         0.5701         10.0
+2    0.14815   0.6667      0.8597         0.7173         17.0
+3    0.10547   0.7500      0.8981         0.7895         24.0
+5    0.06698   0.8333      0.9341         0.8606         37.9
+8    0.04330   0.8889      0.9569         0.9075         58.6
+
+== 6. Iso-floor wall-clock: largest step with stationary loss <= F, time to shrink the slowest mode 1000x ==
+target floor F = 0.00526 (tau=0 at alpha=0.3)   Tc = 1
+latency L/Tc  tau  alpha   round time  rounds  wall-clock
+0             0    0.300   1.00        581     581       <-- best
+0             1    0.279   1.00        617     617     
+0             2    0.261   1.00        654     654     
+0             4    0.230   1.00        731     731     
+0             8    0.183   1.00        899     899     
+0             16   0.124   1.00        1290    1290    
+  no-overlap wall-clock 581, best overlapped 581 (tau=0), speedup 1.00x
+1             0    0.300   2.00        581     1162    
+1             1    0.279   1.00        617     617       <-- best
+1             2    0.261   1.00        654     654     
+1             4    0.230   1.00        731     731     
+1             8    0.183   1.00        899     899     
+1             16   0.124   1.00        1290    1290    
+  no-overlap wall-clock 1162, best overlapped 617 (tau=1), speedup 1.88x
+3             0    0.300   4.00        581     2324    
+3             1    0.279   2.00        617     1235    
+3             2    0.261   1.33        654     873     
+3             3    0.245   1.00        692     692       <-- best
+3             4    0.230   1.00        731     731     
+3             8    0.183   1.00        899     899     
+3             16   0.124   1.00        1290    1290    
+  no-overlap wall-clock 2324, best overlapped 692 (tau=3), speedup 3.36x
+7             0    0.300   8.00        581     4647    
+7             1    0.279   4.00        617     2470    
+7             2    0.261   2.67        654     1745    
+7             4    0.230   1.60        731     1169    
+7             7    0.193   1.00        855     855       <-- best
+7             8    0.183   1.00        899     899     
+7             16   0.124   1.00        1290    1290    
+  no-overlap wall-clock 4647, best overlapped 855 (tau=7), speedup 5.44x
+15            0    0.300   16.00        581     9294    
+15            1    0.279   8.00        617     4940    
+15            2    0.261   5.33        654     3490    
+15            4    0.230   3.20        731     2339    
+15            8    0.183   1.78        899     1598    
+15            15   0.130   1.00        1238    1238      <-- best
+15            16   0.124   1.00        1290    1290    
+  no-overlap wall-clock 9294, best overlapped 1238 (tau=15), speedup 7.51x

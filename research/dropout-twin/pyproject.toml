@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dropout-twin"
+version = "0.1.0"
+description = "Thin-obstacle detection width certified in an i.i.d.-dropout lidar twin vs clustered real dropout: exact Markov miss law, width and range ratios, and a fitted-persistence repair"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

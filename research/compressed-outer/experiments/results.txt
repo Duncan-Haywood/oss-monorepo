@@ -1,0 +1,61 @@
+== 1. Stationary variance vs literal simulation (M=6, alpha=0.8; 300k rounds) ==
+compressor          exact     sim       ratio
+none                0.02778   0.02781   1.001
+sparse r=0.5        0.06250   0.06264   1.002
+sparse r=0.2        0.25000   0.25025   1.001
+dither D=1.0        0.03704   0.03705   1.000
+dither D=2.0        0.06481   0.06481   1.000
+
+== 2. Participation is sparsification of a whole worker (N=12, alpha=0.6) ==
+p=1.00  omega=0.00  floor=0.00893  partial-participation Rule B=0.00893
+p=0.50  omega=1.00  floor=0.01852  partial-participation Rule B=0.01852
+p=0.25  omega=3.00  floor=0.04000  partial-participation Rule B=0.04000
+
+== 3. Stability and speed: c = 1+omega/M; largest step 2/(s c); best contraction 1-1/c ==
+M    r      omega   c       alpha_s max   best rho   rounds to 1e-6 at best
+8    1.00   0.0     1.000   2.000         0.000      1.0
+8    0.50   1.0     1.125   1.778         0.111      6.3
+8    0.10   9.0     2.125   0.941         0.529      21.7
+32   0.10   9.0     1.281   1.561         0.220      9.1
+32   0.02   49.0    2.531   0.790         0.605      27.5
+256  0.02   49.0    1.191   1.679         0.161      7.6
+
+== 4. Fixed bandwidth B (in units of d coordinates per round), sparsification split over M workers ==
+B/d=4 alpha s=0.8; small-step floor is the same (alpha Vw d/(B s (2-alpha s c)) -> Vw/(B/d) as alpha->0)
+M     r=B/(Md)  c       floor
+4     1.0000    1.0000  0.04167
+8     0.5000    1.1250  0.04545
+16    0.2500    1.1875  0.04762
+64    0.0625    1.2344  0.04938
+1024  0.0039    1.2490  0.04996
+c -> 1 + d/B = 1.250; largest M before alpha s c = 2 at alpha s = 1.8, B/d=4: 7.2; at alpha s = 1.2: inf
+
+== 5. Dithered quantisation: bits (exact entropy) vs noise, Gaussian report of std 1 ==
+R bits  delta    Vq/Vw     high-res Vq/Vw  entropy check(sim)
+0.5     9.4929   7.5097    0.7116          0.490
+1.0     3.5151   1.0296    0.3558          0.995
+2.0     1.1395   0.1082    0.0890          1.994
+3.0     0.5285   0.0233    0.0222          2.996
+4.0     0.2597   0.0056    0.0056          3.996
+6.0     0.0646   0.0003    0.0003          5.996
+high-resolution formula understates the noise below ~2 bits: at R=1 it says 0.356, exact 1.030 (2.9x)
+
+== 6. Fixed bandwidth B, M = B/(R d) workers each sending R bits/coordinate; small-step floor = (d/B) * R (1+Vq/Vw) ==
+R bits  factor R(1+Vq/Vw)   vs 8 bits   vs sparse at 16-bit values (16)
+0.25    11.3803             1.423       0.711
+0.50    4.2548              0.532       0.266
+1.00    2.0296              0.254       0.127
+1.50    1.9139              0.239       0.120
+2.00    2.2164              0.277       0.139
+3.00    3.0698              0.384       0.192
+4.00    4.0225              0.503       0.251
+8.00    8.0002              1.000       0.500
+16.00   16.0000             2.000       1.000
+minimum: R=1.30 bits, factor 1.8703 (8 bits: 8.000, 16 bits: 16.000)
+with only M<=N workers available, R = B/(N d): the floor is (d/B) R(1+Vq/Vw) as above, so spare workers should be used first
+
+== 7. Simulation check at exactly matched bandwidth M R = B/d = 4 (alpha=0.05, report std sqrt(Vw)) ==
+M=1  R=4.00 delta=0.130  exact 0.00645  sim 0.00665  ratio 1.031
+M=2  R=2.00 delta=0.570  exact 0.00355  sim 0.00360  ratio 1.015
+M=4  R=1.00 delta=1.758  exact 0.00325  sim 0.00328  ratio 1.008
+M=8  R=0.50 delta=4.746  exact 0.00682  sim 0.00683  ratio 1.001

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stop-twin"
+version = "0.1.0"
+description = "When to stop a twin run that counts rare failures: sequential Wald stopping stops on zero failures, inverse sampling with the exact-unbiased (m-1)/(N-1) estimator and exact interval repairs it"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

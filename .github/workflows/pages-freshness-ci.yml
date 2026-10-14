@@ -65,7 +65,7 @@ concurrency:
 
 jobs:
   pages-freshness:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # One repository read and one compare. Capped like every other job here
     # because minutes on this account are metered.
     timeout-minutes: 10

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "glint-twin"
+version = "0.1.0"
+description = "Glint twin: a point-target (power-centroid) monopulse radar twin of two unresolved scatterers gets the median right but the mean wrong; the real angle estimate averages to the strong scatterer, falls outside the target span with probability arccos(r)/pi, and averaging looks does not converge to the centroid"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

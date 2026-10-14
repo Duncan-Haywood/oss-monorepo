@@ -1,0 +1,32 @@
+w12 r2: nominal bending stress 61.7 MPa
+  h(mm) elems  peak  patch1  patch2  patch3
+   2.50    632   80.1   78.2    53.2    48.1
+   1.80   1062   92.2   89.6    56.1    47.7
+   1.20   2374   97.5   73.0    58.5    48.5
+   0.80   5744  109.3   78.4    59.4    49.7
+   0.55  11506  112.6   82.3    59.9    50.8
+  last-step change: peak 3.0%  patch1 4.8%  patch2 0.9%  patch3 2.3%
+w12 r6: nominal bending stress 61.7 MPa
+  h(mm) elems  peak  patch1  patch2  patch3
+   2.50    632   63.9   61.8    53.1    47.7
+   1.80   1062   63.7   63.1    54.7    47.0
+   1.20   2490   75.7   68.1    58.0    50.6
+   0.80   5758   78.5   66.3    56.4    49.7
+   0.55  11546   80.4   69.1    56.7    50.0
+  last-step change: peak 2.4%  patch1 4.0%  patch2 0.5%  patch3 0.5%
+w12 r12: nominal bending stress 61.7 MPa
+  h(mm) elems  peak  patch1  patch2  patch3
+   2.50    638   58.3   57.1    53.0    47.8
+   1.80   1074   60.5   58.2    54.4    47.5
+   1.20   2512   69.7   61.7    57.2    50.2
+   0.80   6022   71.5   63.4    56.2    50.3
+   0.55  11714   71.8   63.9    55.4    49.5
+  last-step change: peak 0.4%  patch1 0.7%  patch2 1.5%  patch3 1.5%
+w8 r6: nominal bending stress 142.5 MPa
+  h(mm) elems  peak  patch1  patch2  patch3
+   2.50    502  135.3  134.1   117.2    95.5
+   1.80    750  135.0  124.4   107.8    96.7
+   1.20   1676  152.0  128.7   111.3    94.1
+   0.80   3992  161.6  131.7   114.2    97.8
+   0.55   7966  160.2  135.4   111.9    96.6
+  last-step change: peak 0.9%  patch1 2.7%  patch2 2.1%  patch3 1.3%

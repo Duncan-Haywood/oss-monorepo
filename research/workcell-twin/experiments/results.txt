@@ -1,0 +1,62 @@
+Workcell: W=64 min of work split over k parallel stations, one arm pays handover a=1 min per branch (serial), makespan = W/k*max(branch)+a*k.
+Deterministic twin: cost(k)=W/k+a k, optimum k_twin=sqrt(W/a)=8, promised makespan 16.0 min
+
+== 1. Exactness: E[max of k unit-mean Gamma(kappa)] by quadrature vs Monte Carlo (40000 draws) and harmonic numbers ==
+k  kappa  quadrature  Monte Carlo +- s.e.   H_k (kappa=1)
+8  1      2.7179      2.7199 +- 0.0062     2.7179
+8  4      1.8079      1.8051 +- 0.0023     -
+8  0.5    3.4574      3.4729 +- 0.0104     -
+16 16     1.4893      1.4894 +- 0.0009     -
+64 1      4.7439      4.7411 +- 0.0064     4.7439
+
+== 2. Claim vs delivery at the twin's choice k=8 ==
+Model A (task-level variability: each branch is Gamma(kappa) with mean W/k, CV = kappa^-1/2 whatever k)
+kappa  CV     twin claims  real mean  real/claim  P(all branches within their mean)  real 95% quantile  quantile/claim
+1      1.00   16.0         29.74     1.86x       0.0255                             48.4              3.03x
+4      0.50   16.0         22.46     1.40x       0.0106                             29.3              1.83x
+16     0.25   16.0         19.06     1.19x       0.0065                             21.8              1.36x
+64     0.12   16.0         17.48     1.09x       0.0051                             18.7              1.17x
+Model B (chain of N=64 unit steps, each Gamma(1/c^2) mean 1; a branch is N/k steps so its shape is N/(k c^2))
+c     branch shape  twin claims  real mean  real/claim  P(all branches within their mean)  real 95% quantile  quantile/claim
+0.25  128           16.0         17.03     1.06x       0.0047                             17.9              1.12x
+0.5   32            16.0         18.12     1.13x       0.0056                             20.0              1.25x
+1     8             16.0         20.44     1.28x       0.0080                             24.7              1.55x
+2     2             16.0         25.44     1.59x       0.0155                             36.6              2.29x
+
+== 3. Does the twin buy the right number of stations? ==
+Model A: kappa  k_real  regret of k_twin  k_95%-quantile-optimal  regret of k_twin on the 95% quantile
+         1      12       4.2%             18                       24.7%
+         4      10       1.6%             13                        8.9%
+         16     9        0.5%             10                        2.8%
+         64     8        0.0%             9                         0.8%
+Exponential branches (kappa=1), continuous stationarity (k/k_twin)^2 = H_k - 1 with H_k ~ ln k + gamma: root k=11.33 vs discrete argmin 12
+Model B: c     k_real  regret of k_twin (cost curve is flat: real cost at k=6, 8, 10)
+         0.25  8       0.00%   17.72, 17.03, 17.41
+         0.5   8       0.00%   18.82, 18.12, 18.48
+         1     8       0.00%   21.10, 20.44, 20.80
+         2     8       0.00%   25.93, 25.44, 25.91
+
+== 4. Repair: fit kappa from n observed branch durations (moment fit), choose k with the fitted model (Model A, W=64, a=1) ==
+300 replications per n; regret = real cost at chosen k over real optimum; 'claim err' = fitted-model predicted cost at chosen k over real cost at chosen k - 1
+true kappa=1 (k_real=12, twin regret 4.2%)
+n     mean kappa_hat (sd)   mean chosen k   mean regret   claim err (deterministic twin: -46%)
+3     3.75 (10.06)          10.9            0.47%        -10.0%
+5     1.84 (1.72)          11.2            0.24%        -5.8%
+10    1.53 (1.21)          11.3            0.16%        -4.4%
+20    1.20 (0.51)          11.5            0.08%        -1.8%
+50    1.09 (0.29)          11.6            0.05%        -0.8%
+200   1.02 (0.13)          11.7            0.02%        -0.1%
+true kappa=4 (k_real=10, twin regret 1.6%)
+n     mean kappa_hat (sd)   mean chosen k   mean regret   claim err (deterministic twin: -29%)
+3     27.51 (176.87)          9.6            0.29%        -4.0%
+5     7.40 (12.90)          9.7            0.18%        -2.9%
+10    5.30 (2.91)          9.8            0.11%        -1.3%
+20    4.52 (1.54)          9.9            0.05%        -0.6%
+50    4.23 (1.02)          10.0            0.01%        -0.2%
+200   4.09 (0.46)          10.0            0.00%        -0.2%
+
+== 5. Robustness: real branches lognormal with unit mean and CV 1 (Model A shape), twin = gamma fitted from n=50 samples ==
+k=8  real lognormal mean cost 29.20 +- 0.07   exponential-branch (kappa=1) prediction 29.74   twin claim 16.0
+k=12 real lognormal mean cost 28.59 +- 0.05   exponential-branch (kappa=1) prediction 28.55   twin claim 17.3
+moment-fitted kappa from n=50 lognormal samples: mean 1.26 (a gamma with the same CV has kappa=1)
+lognormal real optimum among k=6..16: k=11 (28.50); k_twin=8 costs 29.36 (3.0% over)

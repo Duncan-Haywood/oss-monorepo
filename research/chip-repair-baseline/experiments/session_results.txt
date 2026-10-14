@@ -1,0 +1,11 @@
+task       round stage    sim_fail/total lint_warn formal  feedback
+absdiff8   1     pass     0/65536                1 True    all checks pass (1 lint warnings)
+bcd_add2   1     pass     0/20000                3 None    all checks pass (3 lint warnings)
+clz8       1     pass     0/256                  1 True    all checks pass (1 lint warnings)
+div8       1     pass     0/65536                1 True    all checks pass (1 lint warnings)
+gray2bin8  1     pass     0/256                  2 True    all checks pass (2 lint warnings)
+popcount8  1     pass     0/256                  9 True    all checks pass (9 lint warnings)
+prio_enc8  1     pass     0/256                  1 True    all checks pass (1 lint warnings)
+rr_arb4    1     pass     0/3999                 1 None    all checks pass (1 lint warnings)
+sat_add_s8 1     pass     0/65536                1 True    all checks pass (1 lint warnings)
+satcnt4    1     pass     0/4000                 1 None    all checks pass (1 lint warnings)

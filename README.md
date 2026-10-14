@@ -6,8 +6,9 @@ platform that works on it.
 **Strategy:** [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) — build
 products people use (free, full-feature, usage-tracked), ship fast, minimize
 variable cost. **Current priority:** deploy what is already on `main` before
-building another product. **Host:** GitHub Pages for static tools, existing
-Hetzner boxes for processes — [`portfolio/hosting/`](portfolio/hosting/README.md).
+building another product. **Host:** GitHub Pages for static tools; the Hetzner
+boxes for processes were deleted 2026-10-01, so processes need a new host
+decision — [`portfolio/hosting/`](portfolio/hosting/README.md).
 Agent instructions: [`AGENTS.md`](AGENTS.md). How to build one:
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). What to count and where it
 lands: [`portfolio/usage/`](portfolio/usage/README.md).
@@ -28,16 +29,24 @@ directory that inherits the platform automatically.
 
 ```
 ventures/     one directory per business; each has a VENTURE.yaml
+research/     the open research portfolio (MIT), formerly oss-research-monorepo;
+              its homepage is published at /research/ on the Pages site
 platform/     shared agent definitions, skills, and CI — versioned once
+prompts/      the prompt system: prompt.md (the master prompt) routes each run to
+              a sub-prompt here, run records measure it, and a review track
+              improves the prompts and docs from the records (prompts/README.md)
 portfolio/    the ledger, the router that allocates agent effort, and the
               candidate pipeline of researched-but-not-started businesses
-infra/        OpenTofu for the existing hel1 pair (cpx52 + cpx22)
-bootstrap/    one-time k3s + Argo CD (laptop SSH, not cloud-init)
-gitops/       App-of-Apps, AppProjects, prod/staging/agents
+infra/        RETIRED: OpenTofu for the hel1 pair (servers deleted 2026-10-01)
+bootstrap/    RETIRED: k3s + Argo CD install scripts (servers deleted 2026-10-01)
+gitops/       RETIRED as a deploy target: App-of-Apps, prod/staging/agents
+              manifests, kept for offline validation only (no cluster since 2026-10-01)
 ```
 
-Actions secrets for that stack (names only): `HETZNERSSHKEY`,
-`HETZNERREADAPIKEY`. `CLAUDETRIGGERAPIKEY` is the Claude routine
+The hel1 servers (89.167.29.39, 157.180.80.188) were deleted by the owner on
+2026-10-01; the k3s/Argo route is retired, not down. Do not SSH to those
+addresses or ask for `HETZNERSSHKEY` again. Actions secrets that stack used
+(names only): `HETZNERSSHKEY`, `HETZNERREADAPIKEY`. `CLAUDETRIGGERAPIKEY` is the Claude routine
 trigger, not GitOps. Table: [`infra/OWNER_CHECKLIST.md`](infra/OWNER_CHECKLIST.md).
 
 ### ventures/

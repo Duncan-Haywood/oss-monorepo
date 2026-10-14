@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ordinal-scores"
+version = "0.1.0"
+description = "Ranked probability score for ordered verifier reports (fault severity): exact regret, distance sensitivity, worst case and threshold-error transfer versus Brier"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

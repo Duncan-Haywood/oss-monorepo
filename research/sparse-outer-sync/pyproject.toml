@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sparse-outer-sync"
+version = "0.1.0"
+description = "Sparsified outer synchronisation in local SGD: unbiased rescaling costs 1/p in noise floor, error feedback costs only 1+alpha*s*(1/p-1) but caps the contraction at sqrt(1-p); exact closed forms and stability limits"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

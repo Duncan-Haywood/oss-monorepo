@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "twin-transfer"
+version = "0.1.0"
+description = "Sim-to-real transfer from a digital twin in the scalar linear-quadratic setting: exact deployment regret, why predictive validation of a twin does not certify control, and the worth of a twin in real-sample units"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,36 @@
+E1 total drift admitted: sum of per-layer (Sidak) tolerances vs one tolerance on the total, units of sigma, a=0.05
+ L    L*c(L,a)   z_a*sqrt(L)   ratio
+ 2        3.91        2.33   1.68
+ 4        8.94        3.29   2.72
+ 8       19.92        4.65   4.28
+ 16      43.62        6.58   6.63
+ 32      94.32        9.30   10.14
+ 64     201.95       13.16   15.35
+ 128    429.10       18.61   23.06
+
+E2 power vs how many layers k the cheat is spread over (total shift D=8 sigma, L=16, a=0.05)
+ k     sum      max      combined(lb)  combined(MC)
+ 1    0.639    1.000    1.000         1.000
+ 2    0.639    0.990    0.979         0.983
+ 4    0.639    0.668    0.536         0.716
+ 8    0.639    0.309    0.516         0.571
+ 16   0.639    0.189    0.516         0.542
+
+E3 hidden budget: largest total shift (sigma) pushed through with detection <= 1/2 by the best spread k*
+ L    sum(k*)      max(k*)       combined(k*)
+ 4      3.29( 1)      4.94( 4)      3.92( 3)
+ 8      4.65( 1)      8.84( 8)      5.54( 3)
+ 16     6.58(13)     16.05(16)      7.84(11)
+ 32     9.30(18)     29.52(32)     11.09(30)
+ 64    13.16(61)     54.86(64)     15.68(60)
+
+E4 sizes detected half the time when the cheat sits in ONE layer (k=1) vs ALL layers (k=L), sigma units
+ L    sum k=1   max k=1   sum k=L   max k=L
+ 4       3.29      2.18      3.29      4.94
+ 16      6.58      2.66      6.58     16.05
+ 64     13.16      3.09     13.16     54.86
+
+E5 empirical level under the null (60000 trials, a=0.05)
+ L=4   sum=0.0474  max=0.0511  combined=0.0432
+ L=16  sum=0.0496  max=0.0509  combined=0.0469
+ L=64  sum=0.0503  max=0.0497  combined=0.0477

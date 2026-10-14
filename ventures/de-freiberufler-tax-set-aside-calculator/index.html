@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Germany Freelancer Tax Set-Aside Calculator — Einkommensteuer, Soli, Gewerbesteuer (2026)</title>
+  <meta name="description" content="Free German freelancer tax calculator (Freiberufler and Gewerbe): enter turnover and expenses to see Einkommensteuer under the 2026 tariff, Soli, Kirchensteuer, Gewerbesteuer and how much of every invoice to set aside. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Germany Freelancer Tax Set-Aside Calculator. Free, private">
+  <meta property="og:description" content="Einkommensteuer, Soli and Gewerbesteuer: how much of each invoice a German freelancer should set aside.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Germany Freelancer Tax Set-Aside Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much of my freelance income should I set aside for tax in Germany?", "acceptedAnswer": {"@type": "Answer", "text": "Often 15% to 30% of profit for a single freelancer, rising towards 42% at the margin, but it depends on your profit, your insurance contributions and whether you pay Gewerbesteuer. Enter your turnover and expenses here for a number built from the 2026 tariff."}}, {"@type": "Question", "name": "What is the Grundfreibetrag in 2026?", "acceptedAnswer": {"@type": "Answer", "text": "The tax-free allowance in the income tax tariff (section 32a EStG): €12,348 of taxable income for a single person in 2026. The tax rate then rises from 14% to 42% (and 45% above €277,826)."}}, {"@type": "Question", "name": "Do Freiberufler pay Gewerbesteuer?", "acceptedAnswer": {"@type": "Answer", "text": "No. Freiberufler under section 18 EStG (for example many consultants, designers, translators and software developers) pay no Gewerbesteuer. Commercial businesses pay it above a €24,500 allowance, but section 35 EStG credits most of it against income tax."}}, {"@type": "Question", "name": "When does the Solidaritaetszuschlag apply?", "acceptedAnswer": {"@type": "Answer", "text": "Only when your annual income tax is above €20,350 for a single person in 2026, phased in over a transition zone up to 5.5% of the tax."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GERMANY FREELANCER TAX SET-ASIDE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much of what you earn should you set aside for tax?</h1>
+    <p>Enter your turnover and expenses. You get Einkommensteuer under the 2026 tariff, Solidaritätszuschlag, optional Kirchensteuer and Gewerbesteuer, and the share of every invoice to put away.</p>
+    <p class="note">Written from the 2026 tariff in section 32a EStG and published Soli figures, without a live lookup. The Finanzamt decides. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="year">Tax year (calendar year)</label><select id="year"><option>2026</option></select></div>
+      <div><label for="kind">Type of income</label><select id="kind"><option value="freiberufler">Freiberufler (no Gewerbesteuer)</option><option value="gewerbe">Gewerbebetrieb (pays Gewerbesteuer)</option></select></div>
+      <div><label for="church">Kirchensteuer</label><select id="church"><option value="none">None</option><option value="8">8% (Bayern, Baden-Württemberg)</option><option value="9">9% (other states)</option></select></div>
+      <div><label for="revenue">Turnover, excluding Umsatzsteuer (€)</label><input id="revenue" type="text" inputmode="decimal" placeholder="90000"></div>
+      <div><label for="expenses">Business expenses (€)</label><input id="expenses" type="text" inputmode="decimal" placeholder="20000"></div>
+      <div><label for="insurance">Health, care and pension contributions paid in the year (€)</label><input id="insurance" type="text" inputmode="decimal" placeholder="9000"></div>
+      <div><label for="hebesatz">Gewerbesteuer Hebesatz of your municipality (%)</label><input id="hebesatz" type="text" inputmode="decimal" placeholder="400"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Calculate</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Enter your income, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Amount</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div id="report-findings"></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the section 32a EStG Grundtarif (0%, then 14% rising to 42% and 45%), the Grundfreibetrag of €12,348, Solidaritätszuschlag with its Freigrenze and transition zone, Kirchensteuer, Gewerbesteuer with the €24,500 allowance and the section 35 credit, and flags for quarterly Vorauszahlungen and the Kleinunternehmer limit.</li>
+      <li><strong>Not decided:</strong> whether you are Freiberufler or gewerblich, other income, married couples and children, health insurance amounts, pension deductions in detail, Umsatzsteuer amounts, losses, foreign income, partnerships and GmbHs. The Finanzamt or your Steuerberater decide these.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much of my freelance income should I set aside for tax in Germany?</h3>
+    <p>Often 15% to 30% of profit for a single freelancer, rising towards 42% at the margin, but it depends on your profit, your insurance contributions and whether you pay Gewerbesteuer. Enter your turnover and expenses here for a number built from the 2026 tariff.</p>
+    <h3>What is the Grundfreibetrag in 2026?</h3>
+    <p>The tax-free allowance in the income tax tariff (section 32a EStG): €12,348 of taxable income for a single person in 2026. The tax rate then rises from 14% to 42% (and 45% above €277,826).</p>
+    <h3>Do Freiberufler pay Gewerbesteuer?</h3>
+    <p>No. Freiberufler under section 18 EStG (for example many consultants, designers, translators and software developers) pay no Gewerbesteuer. Commercial businesses pay it above a €24,500 allowance, but section 35 EStG credits most of it against income tax.</p>
+    <h3>When does the Solidaritaetszuschlag apply?</h3>
+    <p>Only when your annual income tax is above €20,350 for a single person in 2026, phased in over a transition zone up to 5.5% of the tax.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or accounting advice. You are responsible for verifying its output on the Finanzamt or a qualified Steuerberater before you rely on it or file a return.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../nl-zzp-tax-set-aside-calculator/">Netherlands ZZP tax set-aside calculator</a>, the <a href="../uk-self-employed-tax-set-aside-calculator/">UK self-employed tax set-aside calculator</a> and the <a href="../ie-self-employed-tax-set-aside-calculator/">Ireland self-employed tax set-aside calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const eur = (n) => "€" + (Math.round(n * 100) / 100).toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { year: "year", revenue: "revenue", expenses: "expenses", kind: "kind", church: "church", hebesatz: "hebesatz", insurance: "insurance" };
+    const IDLE = "Enter your income, then click Calculate.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `Set aside ${eur(r.total)} · ${r.setAsidePct}% of turnover · ${eur(r.monthly)} a month`;
+      const rows = [["Profit", r.profit], ["Taxable income after insurance", r.zve], ["Einkommensteuer", r.incomeTax], ["Section 35 credit for Gewerbesteuer", -r.credit35], ["Solidaritätszuschlag", r.soli], ["Kirchensteuer", r.church], ["Gewerbesteuer", r.gewerbesteuer], ["Total to set aside", r.total], ["Left after tax", r.afterTax]];
+      $("#rows").innerHTML = rows.map(([k, v], i) => `<tr class="${i === 7 ? "total" : ""}"><td>${esc(k)}</td><td class="n">${eur(v)}</td></tr>`).join("");
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify the figures with the Finanzamt or a Steuerberater before relying on them.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: €90,000 turnover, €20,000 expenses, €9,000 insurance.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) if (id !== "year" && id !== "kind" && id !== "church") $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("de-freiberufler-tax-set-aside-summary.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

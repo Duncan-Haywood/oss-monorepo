@@ -1,0 +1,13 @@
+# Validation of a twin's failure rate: how many real trials before "the twin passed" means anything?
+
+Pure Python, no dependencies. A twin states a per-trial failure probability `q` (collision, dropped grasp, missed obstacle); the real system fails with `p = c·q`. The validator runs `n` real trials and counts failures. Everything is exact binomial enumeration (matched to simulation: pass probability 0.816 vs 0.815, 0.445 vs 0.446, 0.866 vs 0.865). A **difference test** (exact two-sided test of `p = q`, twin "passes" if not rejected) validates a twin that is wrong by 3× with probability 0.81 at 500 trials and by 5× with probability 0.54 (q = 10⁻³); 80% power to reject needs `n·q ≈ 10.7 / 3.5 / 26 / 38` real failures for `c = 2 / 3 / ½ / 1.5`, independent of `q` (Poisson regime; normal approximation 9.9 / 2.9 / 26.1 / 35.8). Passing is weak evidence: with a prior sd of `ln c` of 0.7, `P(off by ≥2× | passed)` is 0.31 at 0.3 expected failures, 0.14 at 10, 0.013 at 30. An **equivalence test** (exact TOST for `p ∈ [q/D, qD]`, false validation ≤ 5% by construction) validates a perfect twin with 80% power only with `n·q ≈ 10.5 / 20 / 58 / 178` real failures for `D = 3 / 2 / 1.5 / 1.25` (`≈ ((z₀.₀₅+z₀.₂)/ln D)²` in the large-count limit), so a rare-failure twin needs `≈ 20/q` real trials to be certified within a factor 2 (20 000 at `q = 10⁻³`). See `paper/whitepaper.md`.
+
+```bash
+cd research/validate-twin
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, <1 s
+PYTHONPATH=src python3 experiments/run.py                 # ~7 s; output in experiments/results.txt
+```
+
+**Builds on.** The digital-twin validation and safe-autonomy direction of the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>) and RECUV (<https://www.colorado.edu/recuv/>), and the sim-to-real manipulation and workcell twins of the HIRO Group (<https://hiro-group.ronc.one/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. Methods are classical: exact binomial tests (Clopper & Pearson 1934), two one-sided tests for equivalence (Schuirmann 1987), and the rare-event validation problem for autonomous vehicles (Zhao et al. 2016; Kalra & Paddock 2016). Companion to `twin-audit` (sequential closed-loop audit), `twin-certification` and `tilt-twin` in this repository.
+
+Stylised: one Bernoulli failure per independent trial, known `q`, no covariates or scenario shift, exact tests at α = 0.05, prior over `c` chosen for illustration, margins `D` are examples (nobody has justified a factor-2 margin for a real safety case). No real twin or trial data. MIT.

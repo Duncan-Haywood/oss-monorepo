@@ -1,0 +1,45 @@
+Rare failure of a twin (S = sum of n N(0,1) disturbances > b): exact mean-shift importance-sampling variance, mis-tuned shifts, coverage.
+
+== 0. Exact formulas vs simulation (n=10, p=1e-4, 400000 IS runs) ==
+theta   mean/p (want 1)   rel.var exact   rel.var simulated
+0.5     1.0038            69.4783         69.2773
+1       0.9996            5.5321          5.5052
+1.5     0.9989            6.7385          6.7189
+2       0.9983            114.4068        113.6869
+
+== 1. Gain from the optimal shift (n=10); runs for 10% relative standard error ==
+p        b       theta*   b/n     relvar naive   relvar IS    runs naive   runs IS   speedup
+1e-03    9.772   1.0249   0.9772  999            3.434        9.99e+04     343.4     290.9
+1e-06    15.032  1.5354   1.5032  1e+06          5.353        1e+08        535.3     1.868e+05
+1e-09    18.967  1.9225   1.8967  1e+09          6.839        1e+11        683.9     1.462e+08
+1e-12    22.245  2.2466   2.2245  1e+12          8.095        1e+14        809.5     1.235e+11
+
+== 2. Mis-tuned shift at p=1e-6 (n=10): relvar / relvar(optimal) as the shift moves off theta* ==
+theta/theta*   theta    relvar IS     ratio to best
+0              0.000    1e+06         1.868e+05
+0.25           0.384    5264          983.2
+0.5            0.768    124.4         23.24
+0.75           1.152    12.38         2.313
+1              1.535    5.353         1
+1.5            2.303    123.2         23.01
+2              3.071    9.162e+05     1.711e+05
+3              4.606    2.567e+21     4.796e+20
+4              6.142    1.328e+47     2.48e+46
+
+== 3. Shift tuned for p0=1e-6 but the true threshold moved (design drift): relvar with fixed theta vs re-tuned ==
+b/b0   true p        relvar fixed   relvar re-tuned   ratio
+0.6    2.172e-03    22.56          3.17              7.116
+0.8    7.155e-05    7.109          4.243             1.675
+1      1.000e-06    5.353          5.353             1
+1.2    5.848e-09    10.62          6.486             1.638
+1.5    5.013e-13    144.8          8.211             17.63
+
+== 4. Coverage of the 95% normal interval, p=1e-6, n=10, N=1000 runs per estimate, 2000 estimates ==
+theta/theta*  P(no failure)  coverage   median est/p   median ESS   RMS rel.err   exact rel.err (1 run/sqrt N)
+0             0.999          0.001      0.000          0.0          31.607        31.623
+0.5           0.000          0.917      0.958          7.8          0.352         0.353
+0.75          0.000          0.960      1.000          74.9         0.109         0.111
+1             0.000          0.949      0.997          157.2        0.072         0.073
+1.5           0.000          0.890      0.971          8.9          0.346         0.351
+2             0.000          0.028      0.000          1.5          32.719        30.269
+3             0.000          0.000      0.000          1.1          1.000         1602335025.112

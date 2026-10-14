@@ -1,0 +1,32 @@
+assumed inputs: print 25.0 g/h, assembly 6.0 h; from selfrep-closure (printer alone, LM8UU): work/copy W=50.0 h, vitamins/copy V=170.3 (assumed units), cost closure 11.4% of 192.3
+fleet grows 1 -> 64 units (6 doublings); 300 stochastic runs per row, seed 0; lognormal build time CV 0.2
+effective doubling time = time(1 -> 64) / 6, hours. DES = discrete-event median [5th-95th pct]; fluid = closed-form ODE.
+
+== A. import budget sweep (fail=0)
+budget 0.25/h          N*=    0.1  DES   7162.4 [  7160.2-  7166.1]  fluid   7154.3  free   34.7
+budget 0.5/h           N*=    0.1  DES   3585.2 [  3583.0-  3588.9]  fluid   3577.1  free   34.7
+budget 1/h             N*=    0.3  DES   1796.7 [  1794.4-  1800.3]  fluid   1788.6  free   34.7
+budget 2/h             N*=    0.6  DES    902.4 [   900.2-   906.1]  fluid    894.3  free   34.7
+budget 4/h             N*=    1.2  DES    455.2 [   453.0-   458.7]  fluid    447.2  free   34.7
+budget 8/h             N*=    2.3  DES    232.0 [   229.6-   234.5]  fluid    225.9  free   34.7
+budget 16/h            N*=    4.7  DES    120.2 [   118.2-   122.1]  fluid    118.1  free   34.7
+budget 32/h            N*=    9.4  DES     64.3 [    63.0-    65.7]  fluid     67.1  free   34.7
+budget 64/h            N*=   18.8  DES     53.5 [    49.5-    58.2]  fluid     44.5  free   34.7
+budget 1e+09/h         N*=293530585.9  DES     53.1 [    49.1-    57.8]  fluid     34.7  free   34.7
+
+== B. build failure probability (budget 4/h and 64/h; a failed build loses its hours and vitamins)
+budget 4/h fail 0.0    N*=    1.2  DES    455.2 [   453.0-   458.7]  fluid    447.2  free   34.7
+budget 4/h fail 0.1    N*=    1.2  DES    504.6 [   476.0-   545.6]  fluid    496.9  free   38.5
+budget 4/h fail 0.3    N*=    1.2  DES    649.3 [   582.5-   718.7]  fluid    638.9  free   49.5
+budget 4/h fail 0.5    N*=    1.2  DES    903.4 [   770.1-  1026.1]  fluid    894.5  free   69.3
+budget 64/h fail 0.0   N*=   18.8  DES     53.5 [    49.5-    58.2]  fluid     44.5  free   34.7
+budget 64/h fail 0.1   N*=   18.8  DES     57.0 [    52.8-    66.0]  fluid     49.4  free   38.5
+budget 64/h fail 0.3   N*=   18.8  DES     69.6 [    60.2-    85.1]  fluid     63.6  free   49.5
+budget 64/h fail 0.5   N*=   18.8  DES     91.9 [    73.9-   117.8]  fluid     89.0  free   69.3
+
+== C. what a higher vitamin-free share buys (budget 4/h; V = (1-closure) x total cost, W held fixed)
+cost closure 11%       N*=    1.2  DES    457.4 [   455.3-   460.7]  fluid    449.5  free   34.7
+cost closure 25%       N*=    1.4  DES    386.5 [   384.5-   390.2]  fluid    379.1  free   34.7
+cost closure 50%       N*=    2.1  DES    260.7 [   258.5-   263.6]  fluid    254.2  free   34.7
+cost closure 75%       N*=    4.2  DES    134.4 [   132.5-   136.2]  fluid    131.8  free   34.7
+cost closure 90%       N*=   10.4  DES     58.9 [    57.5-    60.5]  fluid     62.5  free   34.7

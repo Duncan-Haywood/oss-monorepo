@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-13",
+  "session": "https://claude.ai/code/session_011kMKRwEr6WKraJ52kSZuUG",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "garment-stacklayers"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/380",
+  "commits": [
+    "2438d18",
+    "13cc323"
+  ],
+  "lines_added": 226,
+  "lines_removed": 0,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 4,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "Queue empty (no open PRs; stale chip-systolic-batch branch superseded on main). Track 6 random pick; layer-count follow-up.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

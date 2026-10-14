@@ -1,0 +1,33 @@
+E1  exact identity: attacker profit == eps * victim fair cost (fee-free), grid of 216 instances
+  max |profit - eps*C0| = 1.42e-14
+
+E2  front-run size and capital (q=0, v=5, eps=0.02): x* ~ eps*b/(1-p) is the drift the victim tolerates
+  b=   5  x*=   0.270  first-order    0.200  capital    0.137  profit 0.0620  return on capital 0.453
+  b=  20  x*=   0.856  first-order    0.800  capital    0.432  profit 0.0531  return on capital 0.123
+  b= 100  x*=   4.052  first-order    4.000  capital    2.047  profit 0.0506  return on capital 0.025
+  b= 500  x*=  20.054  first-order   20.000  capital   10.127  profit 0.0501  return on capital 0.005
+
+E3  break-even proportional fee vs first-order v(1-p)/(2b) (q=0, b=100)
+  v= 10.0 v/b=0.100  phi*(eps=1e-4,1e-2,1e-1) = 0.02437, 0.02424, 0.02307   first-order 0.02500  ratio 0.975
+  v=  5.0 v/b=0.050  phi*(eps=1e-4,1e-2,1e-1) = 0.01234, 0.01228, 0.01170   first-order 0.01250  ratio 0.987
+  v=  1.0 v/b=0.010  phi*(eps=1e-4,1e-2,1e-1) = 0.00249, 0.00248, 0.00237   first-order 0.00250  ratio 0.997
+  v=  0.1 v/b=0.001  phi*(eps=1e-4,1e-2,1e-1) = 0.00025, 0.00025, 0.00024   first-order 0.00025  ratio 1.000
+
+E4  victim's optimal tolerance (drift sd sigma, opportunity value G, attacker always present)
+  b=  10 v=5 sigma=  3 G= 50  eps* closed 0.4166  numeric 0.3430  loss 1.048 vs eps=0 24.920
+  b= 100 v=5 sigma= 10 G= 50  eps* closed 0.1591  numeric 0.1560  loss 0.430 vs eps=0 24.920
+  b= 100 v=5 sigma= 10 G=  5  eps* closed 0.1174  numeric 0.1170  loss 0.339 vs eps=0 2.492
+  b= 100 v=2 sigma=  5 G= 20  eps* closed 0.0849  numeric 0.0840  loss 0.091 vs eps=0 9.968
+  b= 400 v=5 sigma= 10 G= 50  eps* closed 0.0449  numeric 0.0450  loss 0.120 vs eps=0 24.920
+
+E5  batching (q=0, v=5, b=10) : pro-rata average price, attacker unwinds next batch
+  no victim limit: profit -> v - C0 = 2.1907 (x=1e8 gives 2.1907); sequential sandwich profit at x=400 is 2.1907
+  average-price limit eps=0.01: batch profit 0.0278 = 0.9894 x eps*C0 using x=0.46 (sequential x*=0.23, profit 0.0281)
+  average-price limit eps=0.05: batch profit 0.1395 = 0.9932 x eps*C0 using x=2.34 (sequential x*=1.16, profit 0.1405)
+  average-price limit eps=0.20: batch profit 0.5613 = 0.9989 x eps*C0 using x=10.20 (sequential x*=4.81, profit 0.5619)
+
+E6  random ordering of {attacker buy, victim, attacker sell} (x=20): expected profit / sequential profit
+  x=   1  ratio 0.333333
+  x=   5  ratio 0.333333
+  x=  20  ratio 0.333333
+  x= 100  ratio 0.333333

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chip-systolic"
+version = "0.1.0"
+description = "Output-stationary systolic-array engine for a tiny quantised MLP vs a MAC-lane engine: cycle-exact RTL, gate counts"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

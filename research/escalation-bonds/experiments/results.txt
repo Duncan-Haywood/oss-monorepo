@@ -1,0 +1,47 @@
+Setup: claim value V=1000, oracle error eps=0.02.
+
+E1. Deterrence: largest opening bond b* at which a false challenge still pays, and the attacker's TOTAL outlay at b*
+R          g=1.5 b*    outlay    g=2.0 b*    outlay    g=4.0 b*    outlay
+1          20.40816     20.41    20.40816     20.41    20.40816     20.41
+3           6.33914     20.60     4.11523     20.58     1.20627     20.51
+5           2.48486     20.66     0.98135     20.61     0.07514     20.51
+9           0.45626     20.68     0.06046     20.62     0.00029     20.51
+15          0.03943     20.69     0.00094     20.62     0.00000     20.51
+21          0.00346     20.69     0.00001     20.62     0.00000     20.51
+Large-R limit of the outlay: eps V / (1 - eps (1 + 1/g)) = g=1.5: 20.69, g=2.0: 20.62, g=4.0: 20.51  (vs one-shot eps V/(1-eps) = 20.41)
+
+E2. Budget race (eps=0, b=1, R=40): defender capital needed to survive an attacker with capital BC
+Worst case over BC in [10, 10^6] of  safe_BD / BC  (sharp bound is gamma), and the average over log-uniform BC
+gamma=1.1  worst=1.100 mean=0.370   (attacker needs only 0.91 of the defender's capital in the worst case)
+gamma=1.25 worst=1.250 mean=0.735   (attacker needs only 0.80 of the defender's capital in the worst case)
+gamma=1.5  worst=1.500 mean=1.023   (attacker needs only 0.67 of the defender's capital in the worst case)
+gamma=2.0  worst=2.000 mean=1.080   (attacker needs only 0.50 of the defender's capital in the worst case)
+gamma=3.0  worst=2.998 mean=1.267   (attacker needs only 0.33 of the defender's capital in the worst case)
+gamma=4.0  worst=3.999 mean=1.320   (attacker needs only 0.25 of the defender's capital in the worst case)
+A concrete instance, gamma=2, b=1: attacker capital 21 -> defender must hold 42.0 ; 20.9 -> 10.0
+
+E3. Cheap opening vs latency: fix the deterrence outlay (g=2) and vary rounds R; opening bond shrinks geometrically
+required attacker outlay PC = 20.41
+R      opening bond   final bond    defender total bonds
+1          20.40816         20.41          0.00
+3           4.08163         16.33          8.16
+5           0.97182         15.55          9.72
+9           0.05985         15.32         10.17
+15          0.00093         15.31         10.20
+21          0.00001         15.31         10.20
+
+E4. Choosing gamma: cheapest (capital + latency) design with opening bond <= 0.10, PC as above
+time cost per round 0.1  : gamma*=2.35, R=7, defender capital 9
+time cost per round 1.0  : gamma*=3.75, R=5, defender capital 5
+time cost per round 10.0 : gamma*=3.75, R=5, defender capital 5
+
+E5. Griefing: honest defender's lock-up cost / false challenger's loss, gamma=2, PC fixed, rate per round r
+R      r=0.0001   r=0.001    r=0.01     
+3      0.0001     0.0008     0.0080     
+9      0.0001     0.0013     0.0132     
+21     0.0001     0.0014     0.0134     
+
+E6. Validation
+SPE outcome is a Nash equilibrium of the stop-round strategic form: 300/300
+budget-race closed form matches the exact game: 500/500
+deterrence-bond closed form matches bisection on the exact game: 400/400

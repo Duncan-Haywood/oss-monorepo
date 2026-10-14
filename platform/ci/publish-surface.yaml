@@ -1762,6 +1762,9 @@ workflows:
 - workflow: prometheus-cardinality-cost-ci.yml
   classification: none
   publishes: []
+- workflow: prompts-ci.yml
+  classification: none
+  publishes: []
 - workflow: propane-delivery-route-margin-ci.yml
   classification: none
   publishes: []
@@ -1903,6 +1906,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: requirements-pin-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: research-ci.yml
   classification: none
   publishes: []
 - workflow: restaurant-delivery-commission-analyzer-ci.yml
@@ -2223,9 +2229,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: sri-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: ssh-key-smoke.yml
   classification: none
   publishes: []
 - workflow: staffing-markup-calculator-ci.yml

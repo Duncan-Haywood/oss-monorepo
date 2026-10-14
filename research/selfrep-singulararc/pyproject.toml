@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "selfrep-singulararc"
+version = "0.1.0"
+description = "Closed-form optimal reinvestment for a replicating shop with a saturating goods market (singular arc), checked against dynamic programming"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

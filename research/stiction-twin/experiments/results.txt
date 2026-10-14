@@ -1,0 +1,84 @@
+Stiction twin: unit mass, kinetic friction Fc, static friction Fs >= Fc; twin has no friction. PID kp=10, dt=0.01.
+dF = Fs - Fc; 'norm amp' = tail half peak-to-peak * kp / dF.
+
+== 1. Twin vs real, x0 = 1, Fc = 1 (tail of 1000 s) ==
+kd   ki   twin stable  Fs    twin max|x|   real max|x|   real amp   norm amp
+1    2    True         1     6.4e-82       2.449e-15     0.0000     -
+1    2    True         1.5   6.4e-82       4.171e-02     0.0416     0.832
+1    2    True         2     6.4e-82       8.347e-02     0.0833     0.833
+1    5    True         1     9.3e-96       8.989e-16     0.0000     -
+1    5    True         1.5   9.3e-96       4.429e-02     0.0443     0.886
+1    5    True         2     9.3e-96       8.866e-02     0.0886     0.886
+4    2    True         1     7.7e-87       2.278e-15     0.0000     -
+4    2    True         1.5   7.7e-87       3.317e-02     0.0276     0.552
+4    2    True         2     7.7e-87       5.433e-02     0.0543     0.543
+4    5    True         1     3.9e-249      7.798e-16     0.0000     -
+4    5    True         1.5   3.9e-249      7.800e-16     0.0000     0.000
+4    5    True         2     3.9e-249      7.800e-16     0.0000     0.000
+0.5  2    True         1     8.9e-59       2.415e-15     0.0000     -
+0.5  2    True         1.5   8.9e-59       4.663e-02     0.0465     0.930
+0.5  2    True         2     8.9e-59       9.296e-02     0.0929     0.929
+
+== 2. Exact scaling (kd=1, ki=2, Fc=1, Fs=2, x0=0.7): max |s*x(t) - x_s(t)| / s over 20000 steps ==
+s = 0.0078125  0.0e+00
+s = 1024       0.0e+00
+s = 0.01       1.8e-08
+s = 100        7.0e-08
+tail amp / (dF/kp) at s = 0.01, 1, 100 (x0 = 10 dF/kp * s):
+s = 0.01   0.831831
+s = 1      0.833332
+s = 100    0.832706
+
+== 3. Time-step convergence (kd=1, ki=2, Fc=1, Fs=2, x0=1, 600 s): tail amp ==
+dt = 0.01     0.08319
+dt = 0.005    0.08324
+dt = 0.0025   0.08328
+dt = 0.00125  0.08333
+
+== 4. Dependence on Fc/dF (kd=1, ki=2, dF=1, x0=1): norm amp by start x0 ==
+Fc    x0=0.1   x0=1   x0=10
+0     0.833/8.3e-02  0.833/8.3e-02  0.833/8.3e-02
+0.1   0.833/8.3e-02  0.833/8.3e-02  0.833/8.3e-02
+0.5   0.833/8.3e-02  0.833/8.3e-02  0.832/8.3e-02
+1     0.832/8.3e-02  0.833/8.3e-02  0.832/8.3e-02
+2     0.832/8.3e-02  0.832/8.3e-02  0.832/8.3e-02
+5     0.833/8.5e-02  0.833/8.4e-02  0.832/8.3e-02
+20    0.000/9.1e-02  0.000/5.2e-02  0.000/5.7e-02
+(entries: norm amp / tail max|x|)
+
+== 5. Damping sweep (ki=2, Fc=1, dF=1, x0=1): norm amp ==
+kd = 0.25  stable=True   norm amp 0.988
+kd = 0.5   stable=True   norm amp 0.929
+kd = 1     stable=True   norm amp 0.833
+kd = 2     stable=True   norm amp 0.693
+kd = 3     stable=True   norm amp 0.602
+kd = 4     stable=True   norm amp 0.543
+
+Integral sweep (kd=1, Fc=1, dF=1, x0=1): norm amp
+ki = 0.1   norm amp 0.000
+ki = 0.5   norm amp 0.813
+ki = 1     norm amp 0.821
+ki = 2     norm amp 0.833
+ki = 5     norm amp 0.886
+ki = 9     norm amp 0.973
+
+== 6. Pure Coulomb (Fs = Fc): does the loop converge? tail max|x| after 1000 s (x0=1) ==
+kd   ki    Fc=0.2    Fc=1     Fc=5
+4    2     5.7e-16  2.3e-15  1.8e-14
+1    2     6.1e-16  2.4e-15  2.0e-14
+1    5     1.5e-16  9.0e-16  3.9e-15
+0.5  2     5.9e-16  2.4e-15  2.0e-14
+0.25 1     1.3e-15  5.1e-15  4.1e-14
+
+== 7. Proportional-only stall band (ki=0, kd=1, Fc=1, Fs=2): final |x| vs x0 (band Fs/kp = 0.2) ==
+x0 = 0.15  final x = 0.1500
+x0 = 0.25  final x = 0.0094
+x0 = 0.5   final x = -0.1416
+x0 = 1     final x = 0.1075
+x0 = 5     final x = -0.0294
+
+== 8. Is a zero tail amplitude convergence or a long stick? (kd=1, dF=1, x0=1, 20000 s, tail = last 10%) ==
+ki    Fc    tail amp   tail max|x|   breakaways in tail (x changes after a stuck stretch of >= 5 s)
+0.1   1     0.0807     9.83e-02      7
+2     20    0.0832     8.33e-02      8
+2     5     0.0834     8.34e-02      32

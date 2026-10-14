@@ -1,0 +1,39 @@
+Gust twin: x'' = -kp x - kd x' + d, kp=1 kd=1.4 (wn=1, zeta=0.7), gust variance s2=1; real gust = OU with rate a; twin step dt=0.01
+
+== 1. Stationary Var(x): real OU gust vs three twins (exact formulas) ==
+   a   real       variance-matched twin (dt=0.01)   ratio real/twin   spectrum-matched white   ratio real/psd
+ 0.05    0.9657      0.00357 (closed form  0.00357)       270.4           14.2857             0.068
+ 0.20    0.8658      0.00357 (closed form  0.00357)       242.4            3.5714             0.242
+ 1.00    0.5042      0.00357 (closed form  0.00357)       141.2            0.7143             0.706
+ 3.00    0.2213      0.00357 (closed form  0.00357)        62.0            0.2381             0.930
+10.00    0.0708      0.00357 (closed form  0.00357)        19.8            0.0714             0.991
+50.00    0.0143      0.00357 (closed form  0.00357)         4.0            0.0143             1.000
+closed-form ratio check real/twin (continuum): ['270.4', '242.4', '141.2', '62.0', '19.8', '4.0']
+step at which the variance-matched twin would be exact, a=1: dt* = 1.412 s
+
+== 2. The variance-matched twin's answer depends on its own step (a=1): std of x ==
+   dt       twin std    real std   ratio real/twin
+  0.100     0.1889     0.7101      3.76
+  0.030     0.1035     0.7101      6.86
+  0.010     0.0598     0.7101     11.88
+  0.003     0.0327     0.7101     21.69
+  0.001     0.0189     0.7101     37.57
+
+== 3. Monte Carlo check (exact discretisations, 4e5 steps each, seed 7) ==
+   a   dt     real MC / closed form   twin MC / exact
+ 0.20  0.05       0.965                  1.005
+ 1.00  0.05       0.989                  1.005
+ 5.00  0.02       0.968                  1.000
+
+== 4. Safety margin for P(|x| > m) <= 1e-3 (Gaussian x), a=1 ==
+variance-matched twin margin 0.1966  real margin 2.3365  spectrum-matched margin 2.7810
+real exceedance probability at the twin's margin: 0.782 (target 0.001)
+real exceedance probability at the spectrum-matched margin: 8.98e-05
+margin ratio real/twin-variance-matched 11.88, spectrum-matched/real 1.19
+
+== 5. Fixing it: fit (a, s2) of an OU gust from logged wind at spacing 0.1 s; true a=1, s2=1 ==
+log length   a_hat    s2_hat   Var_twin(fit)/Var_real
+      100   1.027    1.061      1.045
+     1000   1.187    0.896      0.807
+    10000   0.926    1.055      1.103
+   100000   1.005    0.992      0.989

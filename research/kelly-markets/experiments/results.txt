@@ -1,0 +1,41 @@
+E1  static experts, y~Bern(0.7), N=10, T=2000, 20 seeds: mean regret vs best expert vs bound ln N / lam
+lam    mean_regret  bound   ratio
+1.0         2.303     2.30  1.00
+0.5         2.082     4.61  0.45
+0.2         3.638    11.51  0.32
+0.1         5.102    23.03  0.22
+0.05        5.954    46.05  0.13
+0.02        9.040   115.13  0.08
+
+E2  cost of moving the price from p0=0.5 (rest calibrated); Kelly V=1 vs LMSR b=2V (same small-shift depth)
+p     kelly V*chi2  lmsr b*KL   ratio  lam-weight needed (q=1)
+0.55       0.0101     0.0101   1.01     0.111
+0.6        0.0417     0.0408   1.02     0.250
+0.7        0.1905     0.1744   1.09     0.667
+0.8        0.5625     0.4463   1.26     1.500
+0.9        1.7778     1.0217   1.74     4.000
+0.95       4.2632     1.6607   2.57     9.000
+0.99      24.2525     3.2289   7.51    49.000
+enumeration check (p=0.8): expected manipulator wealth change under truth 0.5 = -0.5625  -V*chi2 = -0.5625
+
+E3  switching truth (0.8 <-> 0.2 every P rounds), experts q=0.8 and 0.2, T=4000, 20 seeds
+(P<=600 keeps full-Kelly wealth ratios above float underflow, about e^-745)
+regret is vs the oracle that picks the right expert in every segment; best lam per period P
+P      lam=1.0   lam=0.5   lam=0.3   lam=0.2   lam=0.1   lam=0.05  lam=0.02  lam=0.01   best
+25     1631.2    933.1     793.3     772.4     781.1     782.7     776.8     773.3      0.2
+50     1632.4    857.5     674.2     645.5     697.8     750.6     770.4     771.4      0.2
+100    1644.7    816.2     585.5     521.8     562.7     672.4     758.4     776.0      0.2
+250    1634.9    753.3     490.7     386.6     356.8     448.9     631.7     718.7      0.1
+400    1631.5    727.1     459.4     343.0     278.3     336.4     520.6     656.0      0.1
+600    1500.5    735.8     456.9     332.8     245.1     273.1     432.8     592.0      0.1
+
+E4  overconfident trader: price p=0.7, belief q=0.95, truth pi=0.8 -> growth-optimal lam*=(pi-p)/(q-p)
+lam*  = 0.4
+lam    growth/round   MC log-wealth/round (T=200000)
+0.1    +0.01067      +0.01060
+0.2    +0.01873      +0.01858
+0.4    +0.02573      +0.02541
+0.6    +0.01670      +0.01617
+0.8    -0.01867      -0.01947
+1.0    -0.11405      -0.11528
+belief-truth gap: full Kelly (lam=1) growth is -0.11405 ; growth is negative for lam beyond 0.72

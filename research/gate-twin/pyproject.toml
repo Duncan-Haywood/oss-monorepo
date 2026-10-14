@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gate-twin"
+version = "0.1.0"
+description = "Gate twin: a Gaussian-sensor twin says an innovation gate only discards good data; with outlier-contaminated real measurements the gate cuts the error by a large factor, the worst outlier scale is finite, and a gate locks out recovery from a jump for a time growing as D squared"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sample-twin"
+version = "0.1.0"
+description = "Sampled-data control a twin does not model: a continuous-time twin certifies PD at every gain, the real zero-order-hold loop is stable iff kp T/2 < kd < 2/T, so wn T < min(4 zeta, 1/zeta), and the fastest real settling is 2 samples (deadbeat)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

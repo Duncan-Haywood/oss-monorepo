@@ -1,0 +1,46 @@
+== E0  worked scenario: brake from 15 m/s, obstacle 35 m ahead, friction mu = 0.7 exp(-0.25 x), x ~ N(0,1) (real)
+  failure iff x > a = 3.0365;  real P = Q(a) = 1.197e-03;  plain Monte Carlo needs 83459 runs for 10% standard error
+  critical friction 0.3277; stepped twin (dt=1 ms) stopping distance at it: 35.008 m (gap 35.0 m)
+
+== E1  twin scenario width s (real = 1), a = 3.036: unweighted twin claim, real P, and reweighted cost
+  s      claim Q(a/s)   P/claim        rel.var/sample   runs for 10% s.e.
+  0.5     6.278e-10     1.91e+06         infinite     infinite
+  0.6     2.087e-07     5.73e+03         infinite     infinite
+  0.7     7.194e-06          166         infinite     infinite
+  0.75    2.576e-05         46.5          84596.8      8459683
+  0.8     7.364e-05         16.3          18829.1      1882910
+  1.0     1.197e-03            1            834.6        83459
+  1.25    7.566e-03        0.158            148.1        14809
+  1.5     2.147e-02       0.0557             63.0         6298
+  2.0     6.448e-02       0.0186             30.1         3012
+  2.5     1.123e-01       0.0107             23.5         2349
+  3.0     1.557e-01      0.00768             21.9         2188
+  3.25    1.751e-01      0.00684             21.8         2179
+  4.0     2.239e-01      0.00535             22.8         2280
+
+== E2  optimal width s* and the saving over plain Monte Carlo (s=1), by real failure probability
+  a      P            s*      s*/a    rel.var(s*)   rel.var(1)     saving
+  2.0    2.275e-02   2.239   1.120       10.74           43.0         4.0x
+  3.0    1.350e-03   3.163   1.054       21.32          739.8        34.7x
+  3.0902  1.000e-03   3.249   1.051       22.47          998.9        44.4x
+  4.0    3.167e-05   4.123   1.031       35.93        31573.4       878.8x
+  5.0    2.867e-07   5.099   1.020       54.60      3488554.8     63887.7x
+  6.0    9.866e-10   6.083   1.014       77.38   1013594690.8   13098126.2x
+
+== E3  simulation: n=2000 twin runs, a=3.036, 4000 repetitions; Wald 95% interval on the reweighted estimate
+  s      mean/P    sd/P (sim)  sd/P (law)   zero-failure runs   coverage   median ESS
+  0.6     0.000       0.000         inf            1.000            0.000        0.0
+  0.8     1.031       3.421       3.068            0.865            0.135        0.0
+  1.0     0.989       0.641       0.646            0.091            0.905        2.0
+  1.5     0.997       0.178       0.177            0.000            0.940       31.2
+  2.0     1.000       0.122       0.123            0.000            0.942       64.5
+  3.25    1.002       0.102       0.104            0.000            0.951       88.0
+
+== E4  repair: defensive mixture q = (1-lam) N(0,s^2) + lam N(0,1) with a too-narrow twin s=0.6 (a=3.036)
+  lam    exact rel.var   bound 1/(lam P)-1   runs for 10% s.e.   sim coverage (n=2000)   zero runs
+  0.05        16655.8            16710.9            1665577              0.121          0.879
+  0.1          8341.8             8354.9             834184              0.223          0.777
+  0.2          4174.1             4177.0             417405              0.389          0.612
+  0.5          1669.9             1670.2             166989              0.710          0.290
+  (plain Monte Carlo on the real prior: rel.var 834.6, 83459 runs)
+  wide twin s=3.25 with lam=0.2: rel.var 27.2 (pure s=3.25: 21.8)

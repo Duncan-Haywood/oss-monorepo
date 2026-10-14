@@ -1,0 +1,50 @@
+E1  closed form vs exact recursion (5000 random instances)
+  mismatches: 0
+
+E2  Monte Carlo of the optimal policy vs recursion value (G=60,S=25,rho=.25,b=6)
+  w= 3  V=  46.500  MC=  46.483 +- 0.010
+  w= 6  V=  33.000  MC=  32.964 +- 0.014
+  w= 9  V=  19.500  MC=  19.482 +- 0.017
+  w=12  V=   6.000  MC=   6.002 +- 0.020
+
+E3  deterrence window vs stake (G=100, rho=.2, exogenous bribe price b=2)
+   S   luck-only  bribe-only  exact
+     10         2         63      63
+     25         1         63      63
+     50         1         63      63
+    100         1         63      63
+    200         1         63      63
+    400         1         63      63
+   1600         1         63      63
+
+E4  bounty-funded priority fee: b = theta*S, theta=0.5 (G=100, rho=.2); S*w should be ~ G/((1-rho)theta)=250
+   S   window   S*w
+     10      25      250
+     25      10      250
+     50       5      250
+    100       3      300
+    200       2      400
+    400       1      400
+
+E5  ignoring bribes (luck-only window) vs exact, G=S=100, b=1
+  rho   luck  exact  underestimate
+  0.05     1    106  x106.0
+  0.10     1    112  x112.0
+  0.20     1    125  x125.0
+  0.40     1    167  x167.0
+  0.60     2    250  x125.0
+
+E6  adaptive gamble-then-bribe vs non-adaptive prefix plan: attacker value at w (G=100,S=50,rho=.6,b=80)
+  w= 1  adaptive    68.00   prefix    68.00
+  w= 2  adaptive    36.00   prefix    36.00
+  w= 3  adaptive     4.00   prefix     4.00
+  w= 4  adaptive   -17.60   prefix   -28.00
+  w= 5  adaptive   -30.56   prefix   -38.34
+  w= 6  adaptive   -38.34   prefix   -43.00
+  w= 8  adaptive   -45.80   prefix   -47.48
+  deterrence window: adaptive 4; prefix plan would say 4
+
+E7  stake needed for a 10-block window (G=100, rho=.2)
+  exogenous b=2      S* =       inf
+  fee-funded b=S/2   S* =      25.0
+  fee-funded b=S     S* =      12.5

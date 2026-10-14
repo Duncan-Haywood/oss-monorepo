@@ -1,0 +1,29 @@
+world: prevalence 0.03, d'=2.0, benefit 3.0, false cost 1 (x2.0 if others talk)
+oracle weights [score, keyword, others, intercept] = [1.998, 2.263, -0.019, -6.002]; oracle utility/h on held-out streams 12.71
+20 seeds, 100 h streams, refit every 10 min; '+-' is the std over seeds
+
+== 1. Online utility per hour (hours 20-100, includes the cost of exploring) and dismissals per hour
+== 2. Learned-model quality: utility per hour of the model snapshot at hour 20 / 100 applied WITHOUT exploration to held-out streams
+prior          eps weighting   online h20-100 dismiss/h        model@20h       model@100h
+uninformed   0.002      none   -1.74 +-  2.06       5.5    2.97 +-  1.35    1.59 +-  5.70
+uninformed   0.002       ips  -19.34 +- 35.15      26.3   -6.91 +- 27.36  -24.77 +- 52.88
+uninformed   0.005      none   -2.04 +-  1.19       5.8   -0.64 +-  5.88   -0.15 +-  6.29
+uninformed   0.005       ips  -26.27 +- 35.52      34.8    6.75 +- 11.92  -26.89 +- 57.89
+uninformed   0.020      none  -23.27 +-  3.06      24.0  -18.95 +- 12.57  -13.08 +-  8.66
+uninformed   0.020       ips  -30.53 +- 44.04      40.3  -20.55 +- 48.93  -10.87 +- 57.61
+informed     0.002      none    9.65 +-  0.89       9.8   10.69 +-  0.99   10.62 +-  0.77
+informed     0.002       ips    4.46 +- 13.64      10.1    8.05 +-  7.42    6.74 +- 14.03
+informed     0.005      none    8.50 +-  0.90      10.6   10.92 +-  1.02   10.84 +-  0.81
+informed     0.005       ips    6.29 +-  8.91       8.8    9.32 +-  5.30   10.63 +-  1.96
+informed     0.020      none    2.67 +-  0.89      14.8   11.42 +-  0.83   11.42 +-  0.77
+informed     0.020       ips    3.16 +-  1.03      12.4   11.23 +-  1.44   12.23 +-  0.52
+
+== 3. Drift: at hour 50 d' falls 2.0 -> 1.0 (informed prior, eps 0.005). Utility per hour, hours 50-100
+stale offline weights             4.38 +-  0.66
+post-drift oracle                 5.63 +-  0.69
+online none, forget None         -0.91 +-  0.69
+online ips, forget None           0.68 +-  3.57
+online none, forget 20           -0.26 +-  0.35
+online ips, forget 20            -7.79 +- 13.85
+
+runtime 201 s

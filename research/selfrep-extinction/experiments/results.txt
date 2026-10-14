@@ -1,0 +1,13 @@
+inputs from selfrep-growth/selfrep-closure (assumed): W=50.0 h, V=170.3 units per copy; import budget B=4 units/h; no failures, no recycling
+exact = solved mean extinction time of the birth-death chain; chain MC = 150 Gillespie paths of that chain; DES = 150 runs of selfrep-wearout.simulate (exponential life), fleet sampled every 10 h, horizon 40000 h
+exact+int = the same chain with birth rates scaled by exp(-W/L), the chance a build outlives its machine; **added after seeing the DES die out faster than the plain chain, so a post-hoc fit checked on the same runs.** MC and DES means are exponential-MLE (total observed time / extinctions), so runs that did not die by the horizon are censored, not dropped; 'ext' = extinctions seen. All times in hours. The single-exponential MLE is unreliable when few extinctions are seen (rows with ext < 30) and when n0 is small and early die-out mixes with a rare late one.
+
+     L  n0  equil     exact  exact+int   chain MC  ext  DES cv=0.2  ext   DES cv=1  ext
+   100   1    2.3       358        203        378  150         151  150        154  150
+   100   4    2.3       598        373        594  150         383  150        359  150
+   200   1    4.7      3967       1789       4520  150        2177  150       1577  150
+   200   4    4.7      5454       2652       5226  150        2905  150       3085  150
+   300   1    7.0     41602      16664      41347   88       19848  119      18240  123
+   300   4    7.0     51169      21384      56111   77       40117   94      35539   98
+   500   1   11.7   4557172    1647715     314224   17      161118   30     141873   33
+   500   4   11.7   5110194    1873602        inf    0     5960230    1    1976150    3
