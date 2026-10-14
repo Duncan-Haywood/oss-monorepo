@@ -76,6 +76,7 @@ export const TOOLS = [
   ["Employing people", "uk-minimum-wage-checker", "UK minimum wage checker", "Effective hourly rate against the National Living Wage and NMW, shortfall, arrears and HMRC penalty exposure.", ["employer", "employed"]],
   ["Employing people", "uk-holiday-pay-calculator", "UK holiday pay calculator", "Statutory holiday for part-year and irregular-hours workers and the value of unpaid leave.", ["employer", "leave", "employed"]],
   ["Employing people", "uk-redundancy-pay-calculator", "UK redundancy pay calculator", "Statutory redundancy pay, notice and whether an offer beats the statutory minimum.", ["leave", "employer", "employed"]],
+  ["Employing people", "uk-unfair-dismissal-compensation-calculator", "UK unfair dismissal compensation calculator", "Estimate the basic and compensatory award for an unfair dismissal claim, the cap, and the three-months-less-a-day deadline.", ["leave", "employed"]],
 ];
 
 export const SAMPLE = { picked: ["selfemployed", "landlord"] };
