@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1186 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1188 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -48,6 +48,14 @@
     <summary type="text">Free UK Marriage Allowance calculator for 2025/26 and 2026/27: enter both partners&#39; incomes to see if you qualify, how much tax you save (up to £252 a year) and what a four-year backdated claim is worth. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>UK Minimum Wage Checker 2026/27 — Are You Paying National Living Wage?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-minimum-wage-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-minimum-wage-checker</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free UK minimum wage checker for 2026/27: enter pay, hours worked, deductions and accommodation to see the effective hourly rate against the National Living Wage and NMW, the shortfall, and the arrears and HMRC penalty exposure. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>UK Pension Annual Allowance Calculator — Taper and Carry Forward</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-pension-annual-allowance-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/uk-pension-annual-allowance-calculator</id>
@@ -62,6 +70,14 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK statutory redundancy pay calculator: enter your dates and weekly pay to see your redundancy pay, the weekly cap, your minimum notice and how much of it is tax-free. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>UK Salary Sacrifice Calculator 2026/27 (pension, NI saving, and the April 2029 cap)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-salary-sacrifice-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-salary-sacrifice-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free UK salary sacrifice pension calculator for 2026/27: the same contribution by salary sacrifice, net pay and relief at source side by side, with income tax, National Insurance, student loan, employer NI saving and the April 2029 NI cap. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Scottish Income Tax Calculator 2026/27 (take-home pay after tax, NI, pension and student loan)</title>
@@ -150,21 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste cargo audit --json and your Rust source: see which flagged crates your code actually uses and which are test-only or unreferenced noise. Free cargo audit triage, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>CBAM Cost Estimator — What Will the EU Carbon Border Levy Cost on My Imports?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cbam-cost-estimator/"/>
-    <id>tag:marisstella.dev,2026:tool/cbam-cost-estimator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free CBAM cost estimator for EU importers of steel, aluminium, cement, fertilisers and hydrogen: embedded emissions, free-allocation phase-out 2026 to 2034, certificates needed, cost per tonne, and the 50-tonne threshold. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Commercial Property Cap Rate Calculator — NOI, Value, DSCR</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/commercial-property-cap-rate-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/commercial-property-cap-rate-calculator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free commercial real estate calculator: enter rent, vacancy and expenses to get NOI, property value at a cap rate, DSCR, cash-on-cash return, break-even occupancy and a cap-rate sensitivity grid. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

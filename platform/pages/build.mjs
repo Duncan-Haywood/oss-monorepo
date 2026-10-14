@@ -1819,12 +1819,16 @@ const CATEGORY_RULES = [
       || slug === 'uk-marriage-allowance-calculator'
       // `uk-redundancy-pay-calculator` joined 2026-10-14 on its first commit: UK employment-payment arithmetic, sibling of the take-home pay and student loan tools.
       || slug === 'uk-redundancy-pay-calculator'
+      // `uk-minimum-wage-checker` joined 2026-10-14 on its first commit: UK employment-pay arithmetic, sibling of the holiday pay and sick pay tools.
+      || slug === 'uk-minimum-wage-checker'
       // `uk-statutory-maternity-pay-calculator` joined 2026-10-14 on its first commit: UK employment-payment arithmetic, sibling of the sick pay and redundancy tools.
       || slug === 'uk-statutory-maternity-pay-calculator'
       // `uk-scottish-income-tax-calculator` joined 2026-10-14 on its first commit: Scottish income tax bands, sibling of the UK take-home pay and student loan tools.
       || slug === 'uk-scottish-income-tax-calculator'
       // `uk-self-assessment-tax-calculator` joined 2026-10-14 on its first commit: combined Self Assessment estimate, hub for the narrower UK tax tools.
       || slug === 'uk-self-assessment-tax-calculator'
+      // `uk-salary-sacrifice-calculator` joined 2026-10-14 on its first commit: salary sacrifice vs net pay vs relief at source, with the April 2029 NI cap; sibling of the UK take-home and annual allowance tools.
+      || slug === 'uk-salary-sacrifice-calculator'
       // `uk-holiday-pay-calculator` joined 2026-10-14 on its first commit: UK employment-pay arithmetic, sibling of the redundancy and sick pay tools.
       || slug === 'uk-holiday-pay-calculator'
       // `uk-employer-hiring-cost-calculator` joined 2026-10-14 on its first commit: UK employer cost arithmetic (NIC, pension, allowance), sibling of the take-home pay and holiday pay tools.
