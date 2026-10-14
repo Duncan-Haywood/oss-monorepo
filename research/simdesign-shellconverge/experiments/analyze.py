@@ -4,8 +4,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 rows = collections.defaultdict(dict)
 for ln in open(os.path.join(HERE, "scan.txt")):
     p = ln.split()
-    if len(p) == 9 and p[0] in ("horizontal", "vertical"):
-        rows[(p[0], float(p[1]))][p[2]] = float(p[7])
+    if len(p) == 10 and p[0] in ("horizontal", "vertical"):
+        rows[(p[0], float(p[1]))][p[2]] = float(p[8])
 out = ["arm w base thick2 len72 wid8 all  d_thick d_len d_wid sum_d base+sum_d all-base"]
 for (arm, w), r in sorted(rows.items()):
     if "base" not in r:
