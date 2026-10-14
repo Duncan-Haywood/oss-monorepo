@@ -100,6 +100,7 @@ def run(met, clo, ta, rh, v=0.1, opts=None, mass=70.0, height=1.7):
             if ref("alfa"):
                 alfa = 0.0417737 + 0.7451833 / (bf + 0.585417)
         d, tcl = dry(tsk)
+        d_last = d              # both codes report the dry loss of the last step, before its update
         if not lag:
             esk, wet = evap(tsk, tcl, ersw)
         k = 5.28 + 1.163 * bf
@@ -114,5 +115,4 @@ def run(met, clo, ta, rh, v=0.1, opts=None, mass=70.0, height=1.7):
             esk, wet = evap(tsk, dry(tsk)[1], ersw)
             if ref("alfa"):
                 alfa = 0.0417737 + 0.7451833 / (bf + 0.585417)
-    d, tcl = dry(tsk)
-    return dict(tsk=tsk, tcr=tcr, wet=wet, dry=d, evap=esk)
+    return dict(tsk=tsk, tcr=tcr, wet=wet, dry=d_last, evap=esk)
