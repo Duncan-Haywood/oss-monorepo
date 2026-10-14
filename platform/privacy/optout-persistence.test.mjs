@@ -1666,7 +1666,8 @@ const RELATIVE_SELF = relative(
 // +1: `uk-mileage-allowance-calculator` graduated.
 // +1: `uk-unfair-dismissal-compensation-calculator` graduated.
 // +1: `ca-self-employed-tax-set-aside-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1193;
+// +1: `au-sole-trader-tax-set-aside-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1194;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
