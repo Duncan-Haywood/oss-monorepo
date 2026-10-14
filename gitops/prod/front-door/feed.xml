@@ -40,6 +40,14 @@
     <summary type="text">Free UK pension annual allowance calculator: your tapered allowance for incomes over £260,000, carry forward from the last three years, how much you can still pay in, and the tax charge on any excess. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>UK Redundancy Pay Calculator 2025/26 and 2026/27</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-redundancy-pay-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-redundancy-pay-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free UK redundancy pay calculator: statutory redundancy pay by age and years of service with the 2025/26 weekly cap, a check on your employer&#39;s enhanced offer, notice weeks and the tax on anything over £30,000. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>UK Stamp Duty Calculator 2025/26 and 2026/27 (England and NI)</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-stamp-duty-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/uk-stamp-duty-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free employer payroll tax calculator: enter a salary and state to see Social Security, Medicare, FUTA, state unemployment, workers&#39; comp, match and health cost, and the true cost of a hire. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EU AI Act Risk Checker — Is My AI System High-Risk?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-ai-act-risk-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/eu-ai-act-risk-checker</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free EU AI Act risk checker: tick what your AI system does and your role to see whether it is prohibited, high-risk, or only has transparency duties under Regulation (EU) 2024/1689, with the Articles, your duties and the dates. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
