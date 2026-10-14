@@ -1638,6 +1638,11 @@
      "slug": "selfrep-alurod",
      "title": "Does an aluminium rod fit the printer where a wooden one cannot?",
      "summary": "Follow-up to selfrep-rodbeam that adds aluminium bar, cut to length on the router, as a rod substitution in selfrep-redesign. To match the sag of the 8&nbsp;mm steel rod (0.19&nbsp;mm at the assumed 5&nbsp;N) aluminium needs 10.4&nbsp;mm, inside the assumed 12&nbsp;mm holder limit, while hardwood needs 16.9&nbsp;mm and does not fit. Mass closure of the all-substitutions redesign is 39.5% with aluminium at a 0.2&nbsp;mm spec, 37.8% with wood and 28.7% with steel rods kept as vitamins; the shop imports about 170&nbsp;g more stock than with wood. Stylised: moduli, load and limit are assumed, and the surface of cut aluminium bar is taken to be adequate for the bushings."
+    },
+    {
+     "slug": "selfrep-alufreq",
+     "title": "How stiff a rod does a frequency target need, in aluminium and in wood?",
+     "summary": "Follow-up to selfrep-alurod and selfrep-rodmodes: rods of the printer redesign are sized to a first-mode frequency target (Rayleigh estimate, assumed 0.3&nbsp;kg carriage) instead of a sag spec. Aluminium reaches 40&nbsp;Hz with 10.0&nbsp;mm, inside the assumed 12&nbsp;mm holder limit, where hardwood needs 16.0&nbsp;mm; within 12&nbsp;mm the highest reachable frequency is 56&nbsp;Hz for aluminium and 23&nbsp;Hz for hardwood. Closure by mass rises with the target only because thicker stock counts as makeable, while imported stock grows from 1946&nbsp;g to 2596&nbsp;g. Stylised: one mode, assumed carriage mass, moduli and holder limit."
     }
    ]
   },
