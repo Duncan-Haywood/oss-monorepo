@@ -24,7 +24,7 @@ SBC = 5.6697e-8
 
 
 def run(met, clo, ta, rh, v=0.1, opts=None, mass=70.0, height=1.7, tr=None, solar=0.0,
-        eps=0.95, tau=0.0, alpha=0.5):
+        eps=0.95, tau=0.0, alpha=0.5, minutes=60):
     """Optics (this project's extension, identical in intent for both `rad` choices): `tr` radiant
     temperature (default ta), `solar` absorbed-by-body-surface irradiance W/m2, `eps` outer-surface
     emissivity, `tau` infrared transmittance, `alpha` solar absorptance. Neutral values
@@ -104,7 +104,7 @@ def run(met, clo, ta, rh, v=0.1, opts=None, mass=70.0, height=1.7, tr=None, sola
     res = 0.0023 * m0 * (44.0 - pa * 7.5) + 0.0014 * m0 * (34.0 - ta)
     tsk, tcr, alfa, bf = 33.7, 36.8, 0.10, 6.3
     esk, wet, shiv, ersw = 0.1 * met, 0.0, 0.0, 0.0
-    n = 59 if ref("steps") else 60
+    n = minutes - 1 if ref("steps") else minutes
     lag = ref("order")
     for _ in range(n):
         if not lag:

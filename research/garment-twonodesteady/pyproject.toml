@@ -1,0 +1,13 @@
+[project]
+name = "garment-twonodesteady"
+version = "0.1.0"
+description = "Do garment-thermal fabric-optics conclusions change at steady state rather than after one hour?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
