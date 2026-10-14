@@ -24,10 +24,12 @@ SBC = 5.6697e-8
 
 
 def run(met, clo, ta, rh, v=0.1, opts=None, mass=70.0, height=1.7, tr=None, solar=0.0,
-        eps=0.95, tau=0.0, alpha=0.5, minutes=60):
+        eps=0.95, tau=0.0, alpha=0.5, minutes=60, gate=None, trace=None):
     """Optics (this project's extension, identical in intent for both `rad` choices): `tr` radiant
     temperature (default ta), `solar` absorbed-by-body-surface irradiance W/m2, `eps` outer-surface
-    emissivity, `tau` infrared transmittance, `alpha` solar absorptance. Neutral values
+    emissivity, `tau` infrared transmittance, `alpha` solar absorptance. Optional `gate(minute, tsk, tcr)`
+    returns the transmittance to use for that minute (a switching textile); `trace` is a list that collects
+    (minute, tau, tsk, tcr). Neutral values
     (tr=ta, solar=0, eps=0.95, tau=0) reproduce the garment-twonodealign model exactly."""
     o = dict(OURS, **(opts or {}))
     tr = ta if tr is None else tr
@@ -106,7 +108,11 @@ def run(met, clo, ta, rh, v=0.1, opts=None, mass=70.0, height=1.7, tr=None, sola
     esk, wet, shiv, ersw = 0.1 * met, 0.0, 0.0, 0.0
     n = minutes - 1 if ref("steps") else minutes
     lag = ref("order")
-    for _ in range(n):
+    for minute in range(n):
+        if gate is not None:
+            tau = gate(minute, tsk, tcr)
+            if trace is not None:
+                trace.append((minute, tau, tsk, tcr))
         if not lag:
             bf, ersw, shiv = controls(tsk, tcr, alfa)
             if ref("alfa"):
