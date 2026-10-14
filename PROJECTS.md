@@ -1,7 +1,7 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 9 added on 2026-10-14. Runs
-started from `prompt.md` take their new work from here. There are nine tracks. Each one is
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 10 added on 2026-10-14. Runs
+started from `prompt.md` take their new work from here. There are ten tracks. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
 README bullet, a `site/projects.json` entry and a passing `python site/build.py`, as `CLAUDE.md`
@@ -9,7 +9,7 @@ says. Every rule in `prompt.md` still applies, research integrity above all.
 
 ## Picking work
 
-1. **Pick a track at random.** Draw a uniform random number and map it to the nine tracks. Four
+1. **Pick a track at random.** Draw a uniform random number and map it to the ten tracks. Four
    runs start in the same minute, and a random pick spreads them out.
 2. **Take the track's next free milestone.** That is the first one that is not on `main` (check
    `research/` for the slug), not claimed by an open pull request, and not on a branch pushed
@@ -30,6 +30,7 @@ says. Every rule in `prompt.md` still applies, research integrity above all.
 | 7. Automated algorithmic chip-design loops | `eda` |
 | 8. Task-specific AI accelerators | `accel` |
 | 9. Open-source purpose-built robots | `osrobot` |
+| 10. The software-engineering loop | `swe` |
 
 ## Rules for every track
 
@@ -474,9 +475,91 @@ partly published, with no licence stated).
   exception for recreational flyers in 49 U.S.C. § 44809.
 - *No weapons.* Build no weapons and no payloads meant to harm.
 
+## 10. The software-engineering loop (`swe`)
+
+**Goal.** The agents that build this portfolio form a loop of their own. The brief
+(`prompt.md` and this file) is the design, each run is an evaluation, and the merged projects
+are the output. Optimise that loop for one number: the throughput of useful, valuable and
+correct projects within a fixed compute budget. The budget is several Claude Code Max 20x
+subscriptions. Their usage limits, not dollars, are the binding constraint, so cost is
+measured in tokens and in time against those limits. Which brief, task mix, model, schedule
+and review policy land the most valuable correct work per subscription-week? This is an operations-research problem in
+its own right (budgeted experimentation, allocation, queueing), and it fits the portfolio's
+operations-research and industrial-engineering strand.
+
+**The metric.** A project counts when it is all of the following:
+- *Correct.* It merged with CI green. When audited, its README numbers match a re-run of its
+  code and its citations check out. It needed no revert or fix-up within 14 days, and it has no
+  integrity issue.
+- *Useful.* It ships something usable on its own (a tool, a dataset, a printable part, a
+  pattern), a later project builds on it, or it answers a question its track asked.
+- *Valuable.* It moves its track forward. A listed milestone or a substantive new question
+  scores higher than a parameter variation of the previous project, and a duplicate scores
+  zero. A reviewer run scores value against a written rubric, blind to the prompt version that
+  produced the project wherever it can be.
+
+Throughput is the value-weighted count of such projects per subscription-week, reported with
+the tokens and wall time behind it.
+
+**Prior work.** Forsgren, Humble and Kim (2018), *Accelerate*, on measuring delivery throughput
+and stability together (the DORA metrics). Little (1961), on throughput and work in progress.
+Badanidiyuru, Kleinberg and Slivkins (2018), bandits with knapsacks, for learning under a
+budget. Russo et al. (2018), a tutorial on Thompson sampling. Johari et al. (2017) and Kohavi,
+Tang and Xu (2020), on controlled experiments and the cost of peeking at them. Kapoor et al.
+(2024), "AI Agents That Matter", on judging agents by cost as well as accuracy. Jimenez et al.
+(2024), SWE-bench, and Yang et al. (2024), SWE-agent. Yang et al. (2024), OPRO, and Khattab et
+al. (2024), DSPy, on optimising prompts. Strathern (1997), on what happens when a measure
+becomes a target. Cohen (1960), kappa, for agreement between raters.
+
+**Milestones.**
+1. `swe-ledger`: build the measurement. Backfill `prompts/runs.jsonl` from git history, pull
+   requests and CI. That is the first review session `prompt.md` describes, which has not run
+   yet. Fill in tokens, cost and wall time from session metadata wherever it can still be read.
+   Then write a script that computes the metric per run, prompt version, model, track and task
+   type, with counts and intervals. On 2026-10-14 the log held 159 runs, and none recorded
+   tokens or cost.
+2. `swe-audit`: estimate the correctness term. Re-run a random sample of merged projects, check
+   their README numbers against fresh output and their citations, and report the defect rate
+   with a confidence interval, by track and model. Choose the sample size from the precision
+   wanted.
+3. `swe-value`: write the value rubric and test it. Two independent scoring passes over the same
+   projects give an agreement score (Cohen's kappa), and the disagreements sharpen the rubric.
+   Then ask the log questions. For example, on 2026-10-14 `research/` held ten
+   `garment-twonode*`, nine `chip-systolic*` and eight `simdesign-gauge*` projects. Are runs of
+   follow-ups like these worth as much per token as new milestones?
+4. `swe-allocate`: allocate the budget. Fit a simple model of each run's cost and value, by
+   track and task type, from the ledger. Compare policies offline: the current uniform pick of a
+   track, a greedy value-per-token rule, Thompson sampling, and a bandits-with-knapsacks policy.
+   Adopt a policy only if it wins both in the model and in a live trial.
+5. `swe-schedule`: schedule across subscriptions. Four runs start in the same minute, so
+   duplicate projects, merge conflicts on `README.md` and `site/projects.json`, and run-log
+   races all cost budget. Measure each from history. Model the runs as a queue against each
+   subscription's usage limits, and test staggered starts, claim protocols and limits on work in
+   progress in simulation.
+6. `swe-prompt`: run prompt experiments on this metric. Put candidate briefs through
+   `prompt.md`'s experiment process with a sequential test that can stop early safely. Report
+   what each change did to valuable correct throughput, not only to the success rate.
+7. Later: the model and effort level per kind of task (a cheaper model for landing and logging,
+   a stronger one for new milestones), subagents against a single agent, and how often review
+   sessions should run.
+
+**Guardrails.**
+- *Integrity is a constraint, not a trade.* No throughput gain excuses an integrity issue. A run
+  that has one counts against its prompt version, and its project is fixed or withdrawn.
+- *Guard the metric.* A separate review pass scores correctness and value from git, CI and
+  re-runs, never from a run's own report. Change a metric's definition only through a logged
+  experiment, and keep the old definition computable so trends stay comparable.
+- *Stay inside the plans.* Use each subscription within its usage limits and its terms.
+  Scheduling work into unused capacity is in scope; working around a limit is not.
+- *Projects, not process notes.* Every milestone here is a normal `research/` project with code
+  and tests. Changes to `prompt.md` itself go through its experiment process, or come from the
+  owner.
+- *Privacy.* Redact recorded inputs as `prompt.md` requires, and publish no tokens, email
+  addresses or other personal data. This track builds on none of the groups in `prompt.md`.
+
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12 and tracks 7 to 9 on 2026-10-14. Check them again before
+Tracks 1 to 6 were checked on 2026-10-12 and tracks 7 to 10 on 2026-10-14. Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**
