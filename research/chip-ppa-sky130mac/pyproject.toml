@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chip-ppa-sky130mac"
+version = "0.1.0"
+description = "MAC rewrites mapped to SKY130 HD cells: area and delay after liberty-based ABC"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
