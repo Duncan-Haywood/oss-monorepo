@@ -1337,6 +1337,11 @@
      "slug": "chip-systolic-edge",
      "title": "Do the optima of the fan-in sweep move when columns and MAC lanes go past 8?",
      "summary": "The F-F-4 quantised-MLP comparison of <em>chip-systolic-fanin</em> with wider grids (C up to 16, P up to 32, F = 16 and 32), all 12 array configurations matched to an integer NumPy reference in Icarus Verilog and scored with Yosys. A negative result: the earlier optima were at the sweep edge and move inward (best array 2&times;8, best MAC engine P = 16 at F = 32), but the best array still costs 1.25&times; (F = 16) and 1.20&times; (F = 32) the cells&times;cycles per vector of the best MAC engine. Stylised: one network family, one seed, generic-gate counts, no layout."
+    },
+    {
+     "slug": "chip-systolic-hidden",
+     "title": "Does the array/MAC-engine gap change when the hidden width is fixed at 8 and only the input fan-in grows?",
+     "summary": "The quantised-MLP comparison of <em>chip-systolic-fanin</em> on an F-8-4 network (F = 8, 16, 32; 4-bit weights), all 12 array configurations matched to an integer NumPy reference in Icarus Verilog and scored with Yosys against MAC-lane engines. A negative result: the best MAC engine wins at every F, by 1.35&times;, 1.22&times; and 1.20&times; in cells&times;cycles per vector, so the gap narrows but does not close. One network family, one seed, gate counts only; no layout or power."
     }
    ]
   },
