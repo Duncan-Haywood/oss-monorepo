@@ -1,0 +1,19 @@
+laser cutting, gauge 2 mm, peak, slenderness limit 12.5; w 15-20 mm step 0.5
+h=1.5 r= 8.0: feasible w=[16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0]; lightest=16.5 (37.4 g)
+    lowest peak 68.2 MPa at w=20.0; tip at that w 0.15 mm
+h=1.5 r=12.0: feasible w=[16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0]; lightest=16.0 (36.7 g)
+    lowest peak 63.3 MPa at w=20.0; tip at that w 0.14 mm
+h=1.5 r=14.0: feasible w=[16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0]; lightest=16.0 (36.8 g)
+    lowest peak 62.5 MPa at w=20.0; tip at that w 0.14 mm
+h=1.0 r= 8.0: feasible w=[17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0]; lightest=17.0 (38.4 g)
+    lowest peak 74.1 MPa at w=20.0; tip at that w 0.15 mm
+h=1.0 r=12.0: feasible w=[16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0]; lightest=16.5 (37.7 g)
+    lowest peak 67.5 MPa at w=20.0; tip at that w 0.14 mm
+h=1.0 r=14.0: feasible w=[16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0]; lightest=16.5 (37.8 g)
+    lowest peak 65.9 MPa at w=20.0; tip at that w 0.14 mm
+h=0.75 r= 8.0: feasible w=[17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0]; lightest=17.0 (38.4 g)
+    lowest peak 74.2 MPa at w=20.0; tip at that w 0.15 mm
+h=0.75 r=12.0: feasible w=[16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0]; lightest=16.5 (37.7 g)
+    lowest peak 68.4 MPa at w=20.0; tip at that w 0.14 mm
+h=0.75 r=14.0: feasible w=[16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0]; lightest=16.0 (36.8 g)
+    lowest peak 65.8 MPa at w=20.0; tip at that w 0.14 mm
