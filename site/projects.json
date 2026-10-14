@@ -1473,6 +1473,11 @@
      "summary": "A stylised expected-utility model chooses between speech, a glanceable display and silence by noise, other talkers, free eyes and message length; a Monte Carlo check agrees with the closed form to 0.001. A glance wins in about half of 84 grid contexts, and the look rate, the number a simulator is least able to supply, drives the twin gap (up to 0.036 utility per message). Every parameter is a round figure of mine: nothing is fitted or measured."
     },
     {
+     "slug": "ambient-urgency",
+     "title": "Does urgency, and a chime-plus-glance mode, change how an always-on assistant should deliver a message?",
+     "summary": "A stylised expected-utility model adds three urgency classes (deadlines of 120, 20 and 6 s) and a chime-plus-glance mode to the speech, glance and silence choice. Chime-plus-glance is the best mode in 62% of normal and high-urgency contexts and raises mean utility per message from 0.351 to 0.417 (partly by construction, since high-urgency messages carry twice the weight); a Monte Carlo check agrees with the closed form to 0.002. The look and reaction rates drive the twin gap (up to 0.018 utility per message). Every parameter is a round figure of mine: nothing is fitted or measured."
+    },
+    {
      "slug": "ambient-bandit",
      "title": "Can an always-on assistant learn when to speak from accept/dismiss feedback alone, and what does it cost in dismissals?",
      "summary": "A simulated assistant learns an interruption policy online (greedy, &epsilon;-greedy or Thompson-sampled logistic model) from the user&rsquo;s reaction only when it speaks. With an uninformed prior none of the three learns a useful policy in 100&nbsp;h; with a prior that the intent score is informative, greedy reaches 90% of an offline oracle&rsquo;s rate after a median 22.5&nbsp;h and about 185 dismissals, and Thompson sampling takes 32.5&nbsp;h. It still earns 10.4 against the oracle&rsquo;s 12.7 per hour, and after a drop in classifier quality it does far worse than frozen offline weights (0.3 vs 4.4 per hour). Stylised: independent windows, instant noise-free feedback, picked costs."
@@ -1697,6 +1702,11 @@
      "slug": "garment-thermal",
      "title": "How much comfort can an infrared-transparent or gating textile buy, and which fabric properties matter?",
      "summary": "A Fanger/ISO 7730 PMV model and a Gagge-style two-node model extended with fabric infrared emissivity and transmittance, solar absorptance and vapour permeability. The no-optics PMV matches an open-source ISO implementation to 0.006 over 144 cases. Indoors without sun, infrared transmittance (0 to 0.8) is worth about 2.4&nbsp;&deg;C of comfort at 28&nbsp;&deg;C, more than cutting insulation from 0.7 to 0.3&nbsp;clo (1.8&nbsp;&deg;C), but makes a 16&nbsp;&deg;C room feel 7.3&nbsp;&deg;C colder; in sun, solar absorptance (7.7&nbsp;&deg;C span) dominates the infrared properties. Stylised: assumed fabric properties, a parallel-path radiation model with no reference data, and recalled two-node constants."
+    },
+    {
+     "slug": "garment-twonodecheck",
+     "title": "How far is the repository's two-node thermal model from an open-source implementation of the Gagge model?",
+     "summary": "Runs the two-node model from the thermal-comfort project against <code>pythermalcomfort</code> over 108 conditions (18&ndash;36&nbsp;&deg;C, 30&ndash;80% humidity, 1&ndash;2 met, 0.3&ndash;1 clo). Core temperature agrees within 0.25&nbsp;&deg;C everywhere; skin temperature differs by 0.58&nbsp;&deg;C on average and up to 2.1&nbsp;&deg;C, mostly in cool air; evaporative loss differs by up to 14&nbsp;W/m<sup>2</sup> in hot humid air. The direction of change with insulation and humidity agrees in 23 of 24 cases. This compares two implementations, not either against people; causes of the skin-temperature gap are untested and the optical extension is not covered."
     },
     {
      "slug": "garment-comfortcost",
