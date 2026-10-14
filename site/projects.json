@@ -1327,6 +1327,11 @@
      "slug": "chip-systolic-small",
      "title": "Does a small systolic array reused over a stream of vectors beat a MAC-lane engine on a tiny quantised MLP?",
      "summary": "Output-stationary arrays with R = 1, 2 and 4 rows, each reused for 32 vectors, simulated in Icarus Verilog and matched to an integer NumPy reference and the cycle formula in all 6 configurations, then scored with Yosys against the MAC-lane engine of <em>chip-accel</em>. A negative result: the best array (1&times;4) has 1.35&times; the cells&times;cycles per vector of 4 MAC lanes (65702 against 48546), and per-vector cost rises with the number of rows. Stylised: fan-in 8, one network, gate counts rather than area, no clock, power or layout."
+    },
+    {
+     "slug": "chip-systolic-fanin",
+     "title": "Does a wider fan-in let a small systolic array catch a MAC-lane engine on a tiny quantised MLP?",
+     "summary": "In progress: fan-in sweep (F = 8, 16, 32) of the small systolic arrays of <em>chip-systolic-small</em>. Stylised."
     }
    ]
   },
