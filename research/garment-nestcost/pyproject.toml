@@ -1,0 +1,13 @@
+[project]
+name = "garment-nestcost"
+version = "0.1.0"
+description = "Marker efficiency of a stylised coat from polygon nesting, fed into the garment-teardown cost model"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
