@@ -10,7 +10,8 @@ from typing import Iterator, TypeVar
 
 from pydantic import BaseModel
 
-TABLES = ("assets", "metrics", "scores", "curation", "edits", "reels", "meta", "geo", "jobs")
+# edit_plans: director settings and critic rounds of edits still in progress
+TABLES = ("assets", "metrics", "scores", "curation", "edit_plans", "edits", "reels", "meta", "geo", "jobs")
 M = TypeVar("M", bound=BaseModel)
 
 

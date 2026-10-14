@@ -16,11 +16,11 @@ import os
 import re
 import subprocess
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Generic, Protocol, TypeVar
+from typing import Callable, Generic, Protocol, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
@@ -59,9 +59,13 @@ class NotOnPlan(JudgeError):
     """Headless Claude Code would bill API usage instead of the Claude plan."""
 
 
+OnResult = Callable[[str, "BaseModel | JudgeError"], None]
+
+
 class Backend(Protocol):
     def judge(self, task: JudgeTask[M]) -> M: ...
-    def judge_many(self, tasks: list[JudgeTask[M]]) -> dict[str, M | JudgeError]: ...
+    def judge_many(self, tasks: list[JudgeTask[M]], on_result: OnResult | None = None
+                   ) -> dict[str, M | JudgeError]: ...
 
 
 def system_prompt(cfg: Config) -> str:
@@ -124,7 +128,8 @@ class ApiBackend:
             **self._params(task), betas=[self.FALLBACK_BETA], extra_body={"fallbacks": "default"})
         return _parse(task, self._text(message))
 
-    def judge_many(self, tasks: list[JudgeTask[M]]) -> dict[str, M | JudgeError]:
+    def judge_many(self, tasks: list[JudgeTask[M]], on_result: OnResult | None = None
+                   ) -> dict[str, M | JudgeError]:
         from anthropic.types.message_create_params import MessageCreateParamsNonStreaming
         from anthropic.types.messages.batch_create_params import Request
 
@@ -156,6 +161,8 @@ class ApiBackend:
                         out[t.key] = self.judge(t)
                     except JudgeError as e:
                         out[t.key] = e
+                if on_result:
+                    on_result(t.key, out[t.key])
         return out
 
 
@@ -291,15 +298,24 @@ class ClaudeCodeBackend:
                 self.sleep(min(600, 15 * 2 ** attempt))
         raise JudgeError(f"{task.key}: gave up after repeated limits")
 
-    def judge_many(self, tasks: list[JudgeTask[M]]) -> dict[str, M | JudgeError]:
+    def judge_many(self, tasks: list[JudgeTask[M]], on_result: OnResult | None = None
+                   ) -> dict[str, M | JudgeError]:
+        """Answers in parallel. on_result(key, answer or error) runs in this thread as each one
+        arrives, so a caller can save every answer the moment it exists."""
         def one(t):
             try:
-                return t.key, self.judge(t)
+                return self.judge(t)
             except JudgeError as e:
-                return t.key, e
+                return e
 
+        out: dict[str, M | JudgeError] = {}
         with ThreadPoolExecutor(self.cfg.parallel) as pool:
-            return dict(pool.map(one, tasks))
+            futures = {pool.submit(one, t): t.key for t in tasks}
+            for f in as_completed(futures):
+                out[futures[f]] = f.result()
+                if on_result:
+                    on_result(futures[f], out[futures[f]])
+        return out
 
 
 def backend(cfg: Config) -> Backend:

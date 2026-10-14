@@ -162,3 +162,12 @@ def test_subscription_login_passes_and_paid_env_is_dropped(tmp_path, monkeypatch
     ClaudeCodeBackend(cfg(tmp_path), runner=fake_run(status, seen=seen)).check_plan_login()
     env = seen[0][1]["env"]
     assert "ANTHROPIC_API_KEY" not in env and "ANTHROPIC_AUTH_TOKEN" not in env
+
+
+def test_judge_many_reports_each_answer_as_it_arrives(tmp_path):
+    out = json.dumps({"subtype": "success", "structured_output": SCORE})
+    tasks = [JudgeTask(key=f"k{i}", instructions="x", output=Score) for i in range(3)]
+    seen = []
+    result = ClaudeCodeBackend(cfg(tmp_path), runner=fake_run(out)).judge_many(
+        tasks, on_result=lambda k, r: seen.append(k))
+    assert sorted(seen) == ["k0", "k1", "k2"] == sorted(result)

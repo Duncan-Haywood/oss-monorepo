@@ -10,6 +10,7 @@ import logging
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import Callable
 
 from . import media, rawedit
 from .config import Config
@@ -75,12 +76,20 @@ def curate(cfg: Config, store: Store, judge: Backend, picks: list[tuple[Asset, S
     by_event: dict[str, list[tuple[Asset, Score]]] = defaultdict(list)
     for a, s in picks:
         by_event[a.event_key].append((a, s))
-    tasks = [curate_task(k, v, cfg) for k, v in by_event.items() if len(v) > 1 and not store.has("curation", k)]
-    for key, result in judge.judge_many(tasks).items():
+    # An event is curated again when its picks change (more of it was scored since), so late
+    # frames don't skip the curator; "meta" keeps the ids each verdict was given for.
+    seen = {k: sorted(a.id for a, _ in v) for k, v in by_event.items()}
+    tasks = [curate_task(k, v, cfg) for k, v in by_event.items()
+             if len(v) > 1 and not (store.has("curation", k) and store.get("meta", f"curated:{k}") == seen[k])]
+
+    def save(key: str, result) -> None:
         if isinstance(result, JudgeError):
             store.put("jobs", f"curate:{key}", {"error": str(result)})
         else:
             store.put("curation", key, result)
+            store.put("meta", f"curated:{key}", seen[key])
+
+    judge.judge_many(tasks, on_result=save)
     dropped: set[str] = set()
     for _, c in store.all("curation", Curation):
         dropped |= set(c.drop)
@@ -114,9 +123,14 @@ def critic(a: Asset, params: EditParams, rendered: Path, cfg: Config) -> JudgeTa
             "'revise' with complete revised settings if it can be fixed; 'reject' if the frame can't be saved."))
 
 
-def finish(a: Asset, params: EditParams, cfg: Config, judge: Backend) -> dict:
-    notes = []
-    for round_ in range(REVISIONS + 1):
+def finish(a: Asset, params: EditParams, cfg: Config, judge: Backend, *, start_round: int = 0,
+           notes: list[str] | None = None,
+           checkpoint: Callable[[EditParams, int, list[str]], None] | None = None) -> dict:
+    """Render, critique, revise. checkpoint(params, next_round, notes) saves each revision, so a
+    stopped run picks up at the round it was on (start_round, notes) instead of starting over."""
+    notes = list(notes or [])
+    round_ = start_round
+    for round_ in range(start_round, REVISIONS + 1):
         result = rawedit.render_raw(a.raw, params, edit_dir(cfg, a), cfg, aspect=params.aspect,
                                     camera_jpeg=a.preview if a.preview != a.raw else None)
         verdict = judge.judge(critic(a, params, Path(result["ig"]), cfg))
@@ -128,30 +142,47 @@ def finish(a: Asset, params: EditParams, cfg: Config, judge: Backend) -> dict:
             status = "rejected" if verdict.verdict == "reject" else "held"
             break
         params = verdict.revised
+        if checkpoint:
+            checkpoint(params, round_ + 1, notes)
     return {"status": status, "params": params.model_dump(), "notes": notes, "rounds": round_ + 1,
             **{k: (v if isinstance(v, (dict, int, float)) or v is None else str(v)) for k, v in result.items()}}
 
 
 def edit_all(cfg: Config, store: Store, judge: Backend, assets: list[Asset]) -> int:
+    """Every step is saved on the way: the director's settings as each arrives, each critic
+    revision, then the finished edit. A stopped run resumes from the last saved step."""
     picks = keepers(store, assets)
     dropped = curate(cfg, store, judge, picks)
-    todo = [(a, s) for a, s in picks if a.id not in dropped and not store.has("edits", a.id)]
-    log.info("editing %d keepers (%d dropped by the curator)", len(todo), len(dropped))
-    by_id = {a.id: a for a, _ in todo}
-    plans = judge.judge_many([direct(a, s, cfg) for a, s in todo])
+    todo = [a for a, s in picks if a.id not in dropped and not store.has("edits", a.id)]
+    unplanned = [(a, s) for a, s in picks if a in todo and not store.has("edit_plans", a.id)]
+    log.info("editing %d keepers (%d dropped by the curator, %d already directed)",
+             len(todo), len(dropped), len(todo) - len(unplanned))
 
-    def one(item) -> bool:
-        key, params = item
+    def planned(key: str, params) -> None:
         if isinstance(params, JudgeError):
             store.put("jobs", f"edit:{key}", {"error": str(params)})
+        else:
+            store.put("edit_plans", key, {"params": params.model_dump(), "round": 0, "notes": []})
+
+    judge.judge_many([direct(a, s, cfg) for a, s in unplanned], on_result=planned)
+
+    def one(a: Asset) -> bool:
+        wip = store.get("edit_plans", a.id)
+        if wip is None:                  # the director failed; recorded in jobs, retried next run
             return False
+
+        def checkpoint(params: EditParams, next_round: int, notes: list[str]) -> None:
+            store.put("edit_plans", a.id, {"params": params.model_dump(), "round": next_round, "notes": notes})
+
         try:
-            record = finish(by_id[key], params, cfg, judge)
+            record = finish(a, EditParams.model_validate(wip["params"]), cfg, judge,
+                            start_round=wip["round"], notes=wip["notes"], checkpoint=checkpoint)
         except (JudgeError, RuntimeError, OSError) as e:
-            store.put("jobs", f"edit:{key}", {"error": str(e)})
+            store.put("jobs", f"edit:{a.id}", {"error": str(e)})
             return False
-        store.put("edits", key, record)
+        store.put("edits", a.id, record)
+        store.delete("edit_plans", a.id)
         return record["status"] == "shipped"
 
     with ThreadPoolExecutor(cfg.parallel) as pool:
-        return sum(pool.map(one, plans.items()))
+        return sum(pool.map(one, todo))

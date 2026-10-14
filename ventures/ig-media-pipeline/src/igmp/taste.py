@@ -11,7 +11,7 @@ from .models import Asset, Metrics, Score
 from .store import Store
 
 log = logging.getLogger(__name__)
-CHUNK = 200          # results are saved after every chunk, so a stopped run loses little
+CHUNK = 200          # previews are made a chunk at a time; every answer is saved as it arrives
 
 
 def describe(a: Asset) -> str:
@@ -71,11 +71,15 @@ def score_all(cfg: Config, store: Store, judge: Backend, assets: list[Asset]) ->
                                        instructions=instructions(a), effort="low", max_tokens=6000))
             except (media.MediaError, OSError) as e:      # unplugged drive or damaged file: next run
                 store.put("jobs", f"score:{a.id}", {"error": f"no preview: {e}"})
-        for key, result in judge.judge_many(tasks).items():
+
+        def save(key: str, result) -> None:
+            nonlocal done
             if isinstance(result, JudgeError):
                 store.put("jobs", f"score:{key}", {"error": str(result)})
-                continue
-            store.put("scores", key, result)
-            done += 1
+            else:
+                store.put("scores", key, result)
+                done += 1
+
+        judge.judge_many(tasks, on_result=save)
         log.info("scored %d/%d", min(i + CHUNK, len(todo)), len(todo))
     return done
