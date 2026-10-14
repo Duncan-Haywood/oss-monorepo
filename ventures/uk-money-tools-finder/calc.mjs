@@ -48,6 +48,7 @@ export const TOOLS = [
   ["Property and investments", "uk-capital-gains-tax-calculator", "UK Capital Gains Tax calculator", "CGT for 2025/26 at 18% and 24% with the annual exempt amount, costs and losses.", ["investor", "landlord"]],
   ["Property and investments", "uk-stamp-duty-calculator", "UK Stamp Duty calculator", "SDLT in England and Northern Ireland band by band, with first-time buyer and additional-home rates.", ["buying"]],
   ["Property and investments", "uk-inheritance-tax-calculator", "UK Inheritance Tax calculator", "IHT on an estate for deaths from April 2025, with the home allowance and gifts.", ["estate"]],
+  ["Pay and tax on a salary", "uk-company-car-tax-calculator", "UK company car tax calculator", "Benefit in kind on a company car for 2026/27, monthly income tax, employer Class 1A, fuel charge and the electric car schedule to 2029/30.", ["employed", "employer"]],
   ["Employing people", "uk-employer-hiring-cost-calculator", "UK employer hiring cost calculator", "True first-year cost of a hire with employer National Insurance and pension.", ["employer"]],
   ["Employing people", "uk-statutory-sick-pay-calculator", "UK Statutory Sick Pay calculator", "SSP weekly and daily rate, waiting days and the 28-week limit.", ["employer", "leave"]],
   ["Employing people", "uk-statutory-maternity-pay-calculator", "UK Statutory Maternity Pay calculator", "SMP eligibility and the 39-week schedule, plus paternity pay.", ["employer", "leave"]],

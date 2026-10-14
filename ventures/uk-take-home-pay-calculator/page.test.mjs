@@ -72,3 +72,7 @@ test("links to the employer hiring cost calculator", () => {
 test("links the salary sacrifice calculator", () => {
   assert.match(page("index.html"), /href="\.\.\/uk-salary-sacrifice-calculator\/"/);
 });
+
+test("links the company car tax calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/uk-company-car-tax-calculator\/"/);
+});
