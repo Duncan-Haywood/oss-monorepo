@@ -1,0 +1,37 @@
+name: uk-savings-interest-tax-calculator
+description: >-
+  Free browser tool for UK savers: enter other taxable income and savings interest to see tax after the personal allowance, the 0% starting rate for savings and the Personal Savings Allowance, the interest you can earn tax-free, the pot size that earns it, and the tax a cash ISA would save. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no savings-interest tax tool among the 36 existing uk-* ventures (the closest, uk-dividend-tax-calculator and uk-self-assessment-tax-calculator, do not model the starting rate or PSA as a standalone question).
+#
+# First visitor: a UK saver or retiree whose bank interest rose with rates and who got, or fears, a HMRC letter or P800, searching "do I pay tax on savings interest", "personal savings allowance calculator", "starting rate for savings". Evergreen, peaks Jan-Apr and when HMRC letters go out; volume not measured. Rivals are bank and MoneySavingExpert explainers with static tables.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: household view across joint accounts and spouses with ISA-transfer planning behind an env-var switch.
+#
+# Liability: 2026/27 rates (PA 12,570, taper from 100,000, basic band 37,700, additional from 125,140, starting rate band 5,000, PSA 1,000/500/0, savings rates 20/40/45) were written from memory without network access and are flagged for GOV.UK verification on the page. Scottish bands, savings rate rises announced for later years, dividends and gains stacked on top are refused and named. The page states it is not tax advice.
+hypotheses:
+  - claim: >-
+      UK savers will use a free calculator to see whether their interest is taxable and how much tax a cash ISA would save.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or threshold differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-savings-interest-tax-calculator/
+  analytics: null
