@@ -64,3 +64,7 @@ test("sibling tools linked from the page exist", () => {
 test("links the Scottish income tax calculator", () => {
   assert.match(page("index.html"), /href="\.\.\/uk-scottish-income-tax-calculator\/"/);
 });
+
+test("links to the employer hiring cost calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/uk-employer-hiring-cost-calculator\/"/);
+});
