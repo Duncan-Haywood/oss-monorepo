@@ -1,0 +1,4 @@
+# Yosys 0.33 (git sha1 2584903a060); Icarus Verilog version 12.0 (stable) ()
+# F-16-4 MLP, WB=4; cells = Yosys generic-gate cells incl. flip-flops; cells*cycles/vec = cells * cycles_per_batch / R
+# array and MAC-engine RTL both simulated on 32 vectors and compared with the NumPy reference and the cycle formula
+F  design        cycles/batch  cells  depth  cells*cycles/vec  rtl==numpy
