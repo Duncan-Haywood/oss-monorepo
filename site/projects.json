@@ -1553,6 +1553,11 @@
      "summary": "A stylised follow-up to <em>ambient-crossfit</em>. The cap on the inverse-propensity correction is chosen from {2, 5, 10, 20, 50, 100, &infin;} by 4-fold validation, scoring each candidate with an uncapped inverse-propensity estimate of its utility. With an informed prior the chosen cap matches the best fixed cap to within seed noise (12.23 against 12.19 utility/h at &epsilon; = 0.005; 11.45 against 11.84 at 0.002, with a wider spread). With an uninformed prior it does not rescue learning (between &minus;21 and &minus;1 utility/h with seed standard deviations of 24&ndash;51, against about 12 for a randomly sampled log), and the validation score is noisy enough that chosen caps scatter across the grid. Stylised, simulated only; 20 seeds, no significance tests."
     },
     {
+     "slug": "ambient-drvalid",
+     "title": "Does a doubly robust validation score choose the doubly robust cap better than an IPS score?",
+     "summary": "A stylised, mostly negative follow-up to <em>ambient-capcv</em>. Replacing the inverse-propensity validation score with a doubly robust one, on the same 4 folds, changes nothing with an informed prior and gives mixed results with the uninformed one (seed standard deviations of 20&ndash;51 utility/h). A doubly robust score on 8 random folds is the best selector in all three uninformed cells, but remains far below a label-matched control (about 12 utility/h against &minus;11 to 6); score, fold count and fold type changed together, so the cause is untested. Simulated, independent windows only; preliminary."
+    },
+    {
      "slug": "ambient-wearable",
      "title": "What limits the battery life of a pendant-style always-on audio wearable?",
      "summary": "A stylised average-current model for an nRF52840-class pendant with a 150 mAh cell, built from a few vendor figures read on 2026-10-13 plus labelled assumptions. The always-on microphone is the floor (about 170 h alone); gating codec and radio on speech at a 30% speech fraction gives about 105 h against 59 h for always streaming. A 74-byte energy-gate routine compiles for Cortex-M4. Nothing is measured on hardware, the datasheets were not read in full and there is no numeric comparison with Omi."
