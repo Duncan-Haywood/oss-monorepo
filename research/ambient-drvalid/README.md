@@ -1,62 +1,64 @@
-# ambient-capcv: can the doubly robust cap be chosen by validation on logged data?
+# ambient-drvalid: does a doubly robust validation score choose the doubly robust cap better than an IPS score?
 
-Track 2 (ambient AI assistant), follow-up to `ambient-crossfit`, whose first next step was "choose the cap by validation on logged data". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Mixed / preliminary result**: validation-chosen caps match or slightly beat the best fixed cap with an informed prior, and do not rescue the uninformed prior.
+Track 2 (ambient AI assistant), follow-up to `ambient-capcv`, whose first next step was "lower-variance validation scores (DR rather than IPS estimates, more folds, repeated splits)". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Mostly negative / preliminary**: swapping in a DR score changes almost nothing; only 8 random folds with the DR score helps clearly (at one rate), and the uninformed-prior case stays far below the label-matched control.
 
 ## Motivation
 
-`ambient-drclip` and `ambient-crossfit` showed that capping the inverse-propensity correction in doubly robust (DR) pseudo-labels removes the collapse at small exploration rates, but the best cap differs by cell and a real assistant cannot see held-out utility. Can the cap be chosen from the log alone?
+`ambient-capcv` chose the cap on the inverse-propensity correction by an inverse-propensity-scoring (IPS) estimate of held-out utility, and found the estimate too noisy for the uninformed prior. A doubly robust (DR) estimate of the same quantity (Dud&iacute;k, Langford and Li, 2011, "Doubly robust policy evaluation and learning", ICML) adds a model-based baseline, which can reduce variance. Does it help here?
 
 ## Builds on (and does not claim affiliation with)
 
-- `research/ambient-crossfit`, `ambient-drclip` and earlier: world, &epsilon;-greedy policy, MAP logistic fit and DR pseudo-labels, copied into `src/ambient_capcv/core.py` so the project is self-contained. DR and inverse-propensity-scoring (IPS) ideas are cited there.
+- `research/ambient-capcv`, `ambient-crossfit`, `ambient-drclip` and earlier: world, &epsilon;-greedy policy, MAP logistic fit and DR pseudo-labels, copied into `src/ambient_drvalid/core.py` so the project is self-contained.
+- Dud&iacute;k, Langford and Li (2011) for the DR estimator idea (ICML 2011, arXiv:1103.4601).
 
 No research group from `prompt.md` is built on; there is no lab tag.
 
 ## Method
 
-Same world, seeds, fit hour (100), &epsilon; &isin; {0.002, 0.005, 0.02}, two priors and held-out scoring (20 fresh 100 h streams, no exploration) as `ambient-crossfit`. The DR fit is the in-sample ("plug") form: outcome model = clip10 fit, inverse propensity capped at c.
+Everything is as in `ambient-capcv` (same world, seeds, fit hour 100, &epsilon; &isin; {0.002, 0.005, 0.02}, two priors, 20 held-out 100 h streams scored without exploration). Only the cap selector differs. Each selector picks a cap from {2, 5, 10, 20, 50, 100, &infin;} and the final fit is the plug-in DR fit at that cap:
 
-- `fixed<c>`, c &isin; {5, 20, 100, &infin;}: preset caps (identical to `plug<c>` in `ambient-crossfit`).
-- `cv`: choose c from the grid {2, 5, 10, 20, 50, 100, &infin;} by 4-fold validation on the log. For each fold, fit the DR model on the other three folds and score it on the held-out fold by an **uncapped IPS estimate of the rule's mean utility** (benefit if it speaks on a window that needs help, minus cost if not, weighted by 1/propensity on windows where the assistant spoke). The winning cap is refit on all windows. Only logged quantities are used.
-- `hindsight`: the grid cap with the best held-out utility, chosen on the same held-out stream it is scored on. This uses information a real assistant never has and is optimistically biased; read it as a rough ceiling for the grid, not an achievable result.
-- `biased`, `clip10`, `random_matched` (uses labels never seen) and `full` as before.
+- `cv_ips`: 4 contiguous folds, uncapped IPS value (identical to `cv` in `ambient-capcv`; the numbers reproduce it exactly).
+- `cv_dr`: the same 4 folds, with a DR value: the expected utility under a clip10 outcome model fitted on the training folds, plus the uncapped IPS-weighted residual on windows where the rule would speak and a label was seen (`dr_value`).
+- `cv_dr8r`: DR value over 8 folds whose windows are assigned at random.
+
+`fixed*`, `biased`, `clip10`, `hindsight` (best grid cap on the held-out streams; optimistic, unavailable to a real assistant) and `random_matched` are as before.
 
 ## Reproduce
 
 ```bash
-cd research/ambient-capcv
+cd research/ambient-drvalid
 pip install numpy pytest
-PYTHONPATH=src python3 -m pytest -q tests       # 5 tests
-PYTHONPATH=src python3 experiments/run.py       # about 30 minutes on a CPU, writes experiments/results.txt
+PYTHONPATH=src python -m pytest -q tests        # 7 tests
+PYTHONPATH=src python experiments/run.py        # about 50 minutes on a CPU, writes experiments/results.txt
 ```
 
-## Results (from `experiments/results.txt`; held-out utility per hour, mean over 20 seeds; oracle 12.71, full-information fit 12.72)
+## Results (from `experiments/results.txt`; held-out utility per hour, mean over 20 seeds; oracle 12.71)
 
-| prior | &epsilon; | biased | fixed5 | fixed20 | fixed100 | fixed&infin; | cv | hindsight | random_matched |
-|---|---|---|---|---|---|---|---|---|---|
-| uninformed | 0.002 | 1.59 | &minus;22.71 | &minus;19.33 | &minus;34.90 | &minus;48.77 | &minus;21.35 | 0.79 | 12.15 |
-| uninformed | 0.005 | &minus;0.15 | &minus;18.23 | &minus;17.66 | &minus;31.14 | &minus;15.89 | &minus;17.70 | 6.49 | 12.18 |
-| uninformed | 0.020 | &minus;13.08 | &minus;29.56 | &minus;18.07 | &minus;49.54 | &minus;49.54 | &minus;1.43 | 7.44 | 12.52 |
-| informed | 0.002 | 10.62 | 11.68 | 11.74 | 11.84 | 0.26 | 11.45 | 12.11 | 12.48 |
-| informed | 0.005 | 10.84 | 12.16 | 12.19 | 12.08 | 11.00 | 12.23 | 12.40 | 12.49 |
-| informed | 0.020 | 11.42 | 12.51 | 12.51 | 12.35 | 12.35 | 12.56 | 12.65 | 12.48 |
+| prior | &epsilon; | biased | cv_ips | cv_dr | cv_dr8r | hindsight | random_matched |
+|---|---|---|---|---|---|---|---|
+| uninformed | 0.002 | 1.59 | &minus;21.35 | &minus;15.58 | &minus;11.44 | 0.79 | 12.15 |
+| uninformed | 0.005 | &minus;0.15 | &minus;17.70 | &minus;26.92 | &minus;9.62 | 6.49 | 12.18 |
+| uninformed | 0.020 | &minus;13.08 | &minus;1.43 | &minus;1.43 | 5.93 | 7.44 | 12.52 |
+| informed | 0.002 | 10.62 | 11.45 | 11.43 | 11.34 | 12.11 | 12.48 |
+| informed | 0.005 | 10.84 | 12.23 | 12.23 | 12.19 | 12.40 | 12.49 |
+| informed | 0.020 | 11.42 | 12.56 | 12.56 | 12.49 | 12.65 | 12.48 |
 
-Seed standard deviations are in `results.txt`; the `fixed` columns reproduce `plug` in `ambient-crossfit` exactly.
+Seed standard deviations, the fixed-cap columns and the chosen-cap histograms are in `results.txt`.
 
-1. **Informed prior: validation is about as good as the best fixed cap.** `cv` is within 0.06 of the best fixed cap at &epsilon; = 0.005 and 0.02 (12.23 vs 12.19; 12.56 vs 12.51), and 0.39 below the best at &epsilon; = 0.002 (11.45 vs 11.84) with a larger spread across seeds (std 2.60 against about 0.8). Differences of this size are inside seed noise; I did not test them formally.
-2. **Uninformed prior: still bad, and highly variable.** `cv` is between &minus;21 and &minus;1 utility/h with seed standard deviations of 24&ndash;51, far from `random_matched` (about 12) and, except at &epsilon; = 0.02, no better than the fixed caps. The &epsilon; = 0.02 gain (&minus;1.43 vs &minus;13.08 for `biased`) comes with std 24, so I would not call it reliable.
-3. **The IPS validation score is noisy.** Chosen caps are spread over the whole grid (see the last line of each cell in `results.txt`), which is what one expects from a rare-event, high-variance estimator at these sample sizes. This is my reading, not isolated by a separate experiment.
+1. **Informed prior: no difference.** The three selectors are within 0.12 of each other in every cell, well inside seed noise (std 0.6&ndash;2.6).
+2. **Uninformed prior: noisy, no consistent winner.** `cv_dr` equals `cv_ips` at &epsilon; = 0.02 (same caps chosen), is better at 0.002 (&minus;15.6 vs &minus;21.4) and worse at 0.005 (&minus;26.9 vs &minus;17.7), with seed standard deviations of 20&ndash;51 in those cells. I would not call either better.
+3. **8 random folds with the DR score is the best selector in all three uninformed cells** (&minus;11.4, &minus;9.6, 5.9) and has the lowest seed spread at &epsilon; = 0.02 (std 4.65 against 24). It is still far below `random_matched` (about 12) and, at the two smaller rates, below the `biased` fit's &minus;0.15&ndash;1.59, so the cap-selection route does not rescue learning from the assistant's own feedback in this world. Because three things changed at once (score, fold count, fold type), this experiment does not say which one matters; that is untested.
 
 ## Limitations
 
 - Same stylised world as `ambient-crossfit`: independent windows, instant noise-free feedback, costs chosen by me. 20 seeds, one fit hour, one prevalence.
-- The IPS validation value ignores the wake phrase (the same for every candidate), uses contiguous folds, and 4 folds only; other selection criteria (for example the pseudo-label's cross-validated loss) were not tried.
-- `hindsight` is selected and scored on the same stream, so it is optimistic.
-- No formal significance tests. Clipping is biased by design; bias not measured.
+- Random folds are valid here only because windows are independent; for real conversations they would leak across neighbouring windows.
+- The selectors differ in score, fold count and fold type together; no ablation. No formal significance tests.
+- The DR value ignores the wake phrase, as the IPS value did.
 
 ## Next steps
 
-- Lower-variance validation scores (DR rather than IPS estimates, more folds, repeated splits), and a pseudo-label loss criterion.
+- Ablate the three changes (DR with 4 random folds; IPS with 8 random folds; repeated splits).
 - A better outcome model for the uninformed prior, which remains the bottleneck.
 - Real accept/dismiss logs, if the owner opts in to collecting them.
 
