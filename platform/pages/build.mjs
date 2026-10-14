@@ -1847,7 +1847,9 @@ const CATEGORY_RULES = [
       || slug === 'uk-simplified-expenses-calculator'
       // `uk-vat-flat-rate-scheme-calculator` joined 2026-10-14 on its first commit: UK VAT Flat Rate Scheme vs standard accounting, sibling of the VAT registration checker.
       || slug === 'uk-vat-flat-rate-scheme-calculator'
-      // `uk-pension-withdrawal-tax-calculator` was left in the catch-all by its own merge (putting it over the bound); filed here beside its UK siblings.
+      // `uk-capital-allowances-calculator` joined 2026-10-14 on its first commit: UK equipment relief (AIA, full expensing, writing-down), sibling of the sole-trader and VAT tools.
+      || slug === 'uk-capital-allowances-calculator'
+      // `uk-pension-withdrawal-tax-calculator` joined 2026-10-14: UK pension withdrawal tax, sibling of the annual allowance and 100k trap tools.
       || slug === 'uk-pension-withdrawal-tax-calculator'
       // `uk-holiday-pay-calculator` joined 2026-10-14 on its first commit: UK employment-pay arithmetic, sibling of the redundancy and sick pay tools.
       || slug === 'uk-holiday-pay-calculator'
