@@ -1821,6 +1821,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-redundancy-pay-calculator'
       // `uk-statutory-maternity-pay-calculator` joined 2026-10-14 on its first commit: UK employment-payment arithmetic, sibling of the sick pay and redundancy tools.
       || slug === 'uk-statutory-maternity-pay-calculator'
+      // `uk-holiday-pay-calculator` joined 2026-10-14 on its first commit: UK employment-pay arithmetic, sibling of the redundancy and sick pay tools.
+      || slug === 'uk-holiday-pay-calculator'
       // `uk-pension-annual-allowance-calculator` joined 2026-10-14 on its first commit: UK pension tapered annual allowance and carry forward, sibling of the 100k tax trap tool.
       || slug === 'uk-pension-annual-allowance-calculator'
       // `uk-inheritance-tax-calculator` joined 2026-10-14 on its first commit: UK estate tax (nil-rate bands, residence band taper), sibling of the stamp duty and CGT tools.
