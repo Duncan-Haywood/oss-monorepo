@@ -1,0 +1,37 @@
+name: nz-self-employed-tax-set-aside-calculator
+description: >-
+  Free browser tool for New Zealand freelancers and sole traders: enter revenue and expenses to see income tax, ACC earners' levy and work levy, optional student loan repayments, and how much of every invoice to set aside, with provisional tax and GST flags. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; the portfolio now has US, UK, AU and CA self-employed tax set-aside tools and an NZ GST registration checker, but no New Zealand income-tax and ACC set-aside tool.
+#
+# First visitor: NZ freelancers searching "how much tax should I set aside self employed NZ", "ACC levy calculator self employed". Evergreen, peaks around the 31 March year end and provisional tax dates; volume not measured. Rivals are accountant blog calculators and IRD's own tax calculators, which do not show a per-invoice set-aside.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: an invoice-by-invoice set-aside tracker behind an env-var switch.
+#
+# Liability: 2025-26 IRD and ACC figures written from memory (brackets, earners' levy rate and cap, student loan threshold); ACC work levy is a user-entered rate; every result tells the reader to verify on ird.govt.nz and acc.co.nz, carries no-warranty and not-tax-advice clauses and says what it does not decide.
+hypotheses:
+  - claim: >-
+      New Zealand freelancers will use a free private calculator to learn what share of each invoice to set aside, because rules of thumb ignore ACC levies and their own expense level.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: NZD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that an IRD or ACC figure differs from the official source.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/nz-self-employed-tax-set-aside-calculator/
+  analytics: null
