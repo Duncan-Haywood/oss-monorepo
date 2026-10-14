@@ -10,7 +10,7 @@ from chip_ppa_sky130mac import flow  # noqa: E402
 PASSES = ["balance", "rewrite", "rewrite -z", "refactor", "refactor -z", "dc2", "dch"]
 DESIGNS = {"ref": HERE.parent / "chip-ppa-sky130mac" / "designs" / "mac4.v",
            "csa": HERE.parent / "chip-ppa-sky130mac" / "proposals" / "mac4" / "p0_csa.v"}
-MAXLEN = 4
+MAXLEN = 3
 
 
 def script_text(seq):
@@ -35,8 +35,11 @@ class Evaluator:
             name = "seq:" + "|".join(seq)
             flow.SCRIPTS[name] = script_text(seq)
             top = "mac4"
-            r = flow.map_sky130(DESIGNS[design], top, name, self.lib)
-            self.cache[point] = r["area_um2"] * r["delay_ps"] / 1000.0  # um^2 * ns
+            try:
+                r = flow.map_sky130(DESIGNS[design], top, name, self.lib)
+                self.cache[point] = r["area_um2"] * r["delay_ps"] / 1000.0  # um^2 * ns
+            except RuntimeError:  # ABC aborts on e.g. `dch` followed by `rewrite`; the evaluation still costs budget
+                self.cache[point] = float("inf")
         return self.cache[point]
 
 
@@ -63,7 +66,7 @@ def neighbour(point, rng):
 
 
 def random_search(ev, budget, rng):
-    """Best score after `budget` distinct evaluations of uniformly drawn points (length uniform on 0..4, then passes uniform)."""
+    """Best score after `budget` distinct evaluations of uniformly drawn points (length uniform on 0..3, then passes uniform)."""
     best = None
     while ev.calls < budget:
         p = random_point(rng)
@@ -101,3 +104,25 @@ def all_points(maxlen):
             level = [s + (p,) for s in level for p in PASSES]
             out.extend((d, s) for s in level)
     return out
+
+
+class TableEvaluator:
+    """Replays a precomputed {point: score} table with the Evaluator interface. The flow is deterministic, so this gives
+    the same numbers as re-running it. `calls` counts distinct points asked for."""
+
+    def __init__(self, table):
+        self.table = table
+        self.cache = {}
+
+    @property
+    def calls(self):
+        return len(self.cache)
+
+    def __call__(self, point):
+        if point not in self.cache:
+            self.cache[point] = self.table[point]
+        return self.cache[point]
+
+
+def key(point):
+    return point[0] + ":" + "|".join(point[1])
