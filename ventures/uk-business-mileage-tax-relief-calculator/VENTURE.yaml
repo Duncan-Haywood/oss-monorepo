@@ -1,0 +1,38 @@
+name: uk-business-mileage-tax-relief-calculator
+description: >-
+  Free browser tool for UK employees who drive their own car for work: compare what your employer pays per mile with HMRC's 45p/25p approved rate, see the tax refund per year for the four claimable tax years and each claim deadline. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no UK employee mileage-relief tool in ventures/ (mileage-deduction-calculator is the US IRS rate; uk-simplified-expenses-calculator is self-employed only).
+#
+# First visitor: UK employee (sales rep, carer, engineer, trainer) searching "claim tax back mileage allowance", "HMRC 45p per mile employer pays less", "P87 mileage". Evergreen demand: the 45p rate has not moved since 2011, so many employers pay less (20-30p) and the shortfall is claimable.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: assisted P87/Self Assessment filing and mileage-log import behind an env-var switch.
+#
+# Liability: rules checked via web summaries from tax advisers, not HMRC pages; every result names GOV.UK to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (commute vs business trips, multiple vehicles, employer NIC, Scotland, claims already made). Ethical risk is encouraging a claim for commuting miles, mitigated by the commuting question that zeroes the result.
+hypotheses:
+  - claim: >-
+      UK employees whose employer under-pays mileage will use a free calculator to learn the refund they can claim for past years and will return before each deadline.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate, deadline or eligibility rule differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-business-mileage-tax-relief-calculator/
+  analytics: null
