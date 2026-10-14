@@ -9,7 +9,7 @@ Build a public research portfolio (MIT-licensed) that supports PhD applications 
 Simulating and training with digital clones (digital twins) of physical-world systems, including sim-to-real transfer, simulation fidelity, and learning in simulation for real benefit. Every project should connect to this theme where it reasonably can.
 
 ## Priority projects
-The owner's priority projects are in [`PROJECTS.md`](PROJECTS.md): ten tracks, each with milestones, a slug prefix and its own guardrails. New projects come from there. Once Landing work steps 1 to 3 are done, pick a track and milestone as `PROJECTS.md` says. The research groups below remain the list to build on, cite and tag where a project fits them.
+The owner's priority projects are in [`PROJECTS.md`](PROJECTS.md): eleven tracks, each with milestones, a slug prefix and its own guardrails. New projects come from there. Once Landing work steps 1 to 3 are done, pick a track and milestone as `PROJECTS.md` says. The research groups below remain the list to build on, cite and tag where a project fits them.
 
 ## Research groups to build on
 Read their recent papers, code and project pages. Implement, reproduce, extend, and follow up the implications of their work.
