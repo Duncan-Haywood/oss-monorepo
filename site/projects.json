@@ -1342,6 +1342,11 @@
      "slug": "chip-systolic-hidden",
      "title": "Does the array/MAC-engine gap change when the hidden width is fixed at 8 and only the input fan-in grows?",
      "summary": "The quantised-MLP comparison of <em>chip-systolic-fanin</em> on an F-8-4 network (F = 8, 16, 32; 4-bit weights), all 12 array configurations matched to an integer NumPy reference in Icarus Verilog and scored with Yosys against MAC-lane engines. A negative result: the best MAC engine wins at every F, by 1.35&times;, 1.22&times; and 1.20&times; in cells&times;cycles per vector, so the gap narrows but does not close. One network family, one seed, gate counts only; no layout or power."
+    },
+    {
+     "slug": "chip-systolic-hidewide",
+     "title": "Does the MAC-engine lead survive a wider hidden layer (H = 16) and more MAC lanes?",
+     "summary": "The <em>chip-systolic-hidden</em> comparison repeated on an F-16-4 quantised network (F = 16, 32; 4-bit weights), all 8 array configurations matched to an integer NumPy reference in Icarus Verilog and scored with Yosys against MAC-lane engines up to P = 16. A negative result: the best MAC engine wins at both F, by 1.30&times; and 1.27&times; in cells&times;cycles per vector. At F = 32 the best lane count (P = 16, 3% ahead of P = 8) is again the largest tried, so its optimum may lie further out. One network family, one seed, gate counts only; no layout or power."
     }
    ]
   },

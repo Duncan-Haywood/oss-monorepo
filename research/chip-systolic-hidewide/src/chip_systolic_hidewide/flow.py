@@ -50,11 +50,15 @@ def _run(src, tb):
         return subprocess.run(["vvp", f"{d}/sim"], capture_output=True, text=True).stdout
 
 
-def simulate(q, c, r, xs):
-    """xs: (m*r, F) ints, run as m batches of r. Returns ((m*r, 4) signed outputs, cycles per batch)."""
+def simulate(q, c, r, xs, mac_lanes=None):
+    """xs: (m*r, F) ints, run as m batches of r. Returns ((m*r, 4) signed outputs, cycles per batch).
+    With mac_lanes=P, simulates chip-accel's P-lane MAC engine instead (c and r are ignored, one vector per run)."""
     wb = q["wb"]
+    if mac_lanes:
+        r = 1
     batches = [xs[i:i + r] for i in range(0, len(xs), r)]
-    out = _run(gen.verilog(q, c, r), _tb(wb, batches))
+    src = baseline_gen.verilog(q, mac_lanes) if mac_lanes else gen.verilog(q, c, r)
+    out = _run(src, _tb(wb, batches))
     ys, cs = [], []
     for m in re.finditer(r"OUT (\d+) (\d+)", out):
         cs.append(int(m.group(1)))

@@ -30,6 +30,17 @@ class T(unittest.TestCase):
         # MAC-lane baseline at F = 16 (cycles formula checked by the generator's own schedule)
         self.assertEqual(baseline_gen.cycles(4, 16), 2 + 4 * 17 + 1 * 17)   # H fixed at 16: 4 groups of 17, then 1 group of 17
 
+    def test_mac_engine_rtl_matches_numpy_and_formula(self):
+        for f, ps in ((8, (4, 16)), (16, (8, 16))):
+            x, y = model.make_data(0, 300, f)
+            q = model.quantise(model.train_float(x, y), x, 4)
+            xi = q["xq"](x[:4])
+            ref = model.int_forward(q, xi)
+            for p in ps:
+                out, cs = flow.simulate(q, 0, 1, xi, mac_lanes=p)
+                self.assertTrue((out == ref).all(), (f, p))
+                self.assertEqual(set(cs), {baseline_gen.cycles(p, f)})
+
     def test_cycle_formula(self):
         self.assertEqual([gen.cycles(4, r) for r in (1, 2, 4)], [70, 75, 85])
         self.assertEqual(gen.cycles(4, 1, 32), 2 + 4 * (1 + 4 + 31) + 1 * (1 + 4 + 15))   # H = 16 hidden units
