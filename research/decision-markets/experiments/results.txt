@@ -1,0 +1,60 @@
+setup: s=1.0 sig=1.0 lam=0.500 v=0.500 gap std w=1.0000
+
+E1 exact IPW payment law (two arms, k=1): E[1/pi]=1+exp(w^2/2t^2); rel std = sqrt(3E[1/pi]-1)
+  t=2.0  closed E[1/pi]=    2.133 rel-std=  2.324  MC mean 0.5028 (exact 0.5000) 2nd moment 1.6249 (exact 1.5999)
+  t=1.0  closed E[1/pi]=    2.649 rel-std=  2.636  MC mean 0.5033 (exact 0.5000) 2nd moment 2.0292 (exact 1.9865)
+  t=0.5  closed E[1/pi]=    8.389 rel-std=  4.916  MC mean 0.5079 (exact 0.5000) 2nd moment 5.2440 (exact 6.2918)
+  t=0.3  closed E[1/pi]=  259.671 rel-std= 27.893  MC mean 0.4983 (exact 0.5000) 2nd moment 28.8820 (exact 194.7530)
+
+E2 propriety when the policy reads the report (m=0.2, v=0.5, k=2, pi=sigmoid((0.4-r)/0.3))
+  r=-0.50 IPW penalty 1.9800  (k((r-m)^2+v) = 1.9800)
+  r= 0.00 IPW penalty 1.0800  (k((r-m)^2+v) = 1.0800)
+  r= 0.20 IPW penalty 1.0000  (k((r-m)^2+v) = 1.0000)
+  r= 0.60 IPW penalty 1.3200  (k((r-m)^2+v) = 1.3200)
+  unscaled, A=1.2 > kv: best report +0.151 vs truth +0.200
+  unscaled, A=0 (penalty only): best report +6.200 vs truth +0.200
+
+E3 exploration regret of softmax routing vs greedy (w=1.000); bound 0.2785 t
+  t=0.05 regret 0.0016  bound 0.0139  loss -0.3973  greedy -0.3989  payment rel-std 46559554663223133839057456435591787839488000.00
+  t=0.1  regret 0.0063  bound 0.0278  loss -0.3926  greedy -0.3989  payment rel-std 124716144046.23
+  t=0.2  regret 0.0232  bound 0.0557  loss -0.3757  greedy -0.3989  payment rel-std 897.23
+  t=0.4  regret 0.0713  bound 0.1114  loss -0.3277  greedy -0.3989  payment rel-std 8.38
+  t=0.8  regret 0.1599  bound 0.2228  loss -0.2390  greedy -0.3989  payment rel-std 2.92
+
+E4 probit vs logistic: E[1/pi] truncated at |D|<=L w (w=1)
+  t=0.7 probit L=3:158  L=5:6.261e+05  L=7:1.646e+11  L=9:2.799e+18   logistic exact 3.774
+  t=1.0 probit L=3:6.606  L=5:15.06  L=7:27.38  L=9:43.63   logistic exact 2.649
+  t=1.5 probit L=3:2.855  L=5:2.968  L=7:2.969  L=9:2.969   logistic exact 2.249
+
+E5 K arms: E[1/pi] = 1+(K-1)exp(w^2/2t^2) and the temperature a payment cap allows (rel-std cap 10, w=1)
+  K=2   t_min=0.3787  E[1/pi] at t=1 2.649
+  K=4   t_min=0.4576  E[1/pi] at t=1 5.946
+  K=8   t_min=0.5697  E[1/pi] at t=1 12.541
+  K=16  t_min=0.8015  E[1/pi] at t=1 25.731
+
+E6 stakes: symmetric stakes cancel; asymmetric stake dB shifts the reported gap (k=5, t=1)
+  concavity limit on stake 12sqrt3*k*t^2 = 103.9
+  D=0.0 equal stakes: shift +0.0000 (b0=b1=0.2000);  stakes 12/4: shift +0.1981 fixed point +0.1981
+  D=0.3 equal stakes: shift +0.0000 (b0=b1=0.1956);  stakes 12/4: shift +0.1885 fixed point +0.1885
+  D=1.0 equal stakes: shift +0.0000 (b0=b1=0.1573);  stakes 12/4: shift +0.1464 fixed point +0.1464
+  D=2.5 equal stakes: shift +0.0000 (b0=b1=0.0561);  stakes 12/4: shift +0.0536 fixed point +0.0536
+  stake   93.5 (0.9x limit): largest jump of the best report per 0.02 step of the opponent gap 0.174
+  stake  166.3 (1.6x limit): largest jump of the best report per 0.02 step of the opponent gap 3.680
+
+E7 design: payment rel-std cap C, stake asymmetry dB=6, t=t_min(C); loss increase from distortion
+  C=6.0  k=2   t=0.454 honest loss -0.3142 distorted -0.2629 extra 0.05126
+  C=6.0  k=4   t=0.454 honest loss -0.3142 distorted -0.3001 extra 0.01408
+  C=6.0  k=8   t=0.454 honest loss -0.3142 distorted -0.3106 extra 0.00361
+  C=6.0  k=16  t=0.454 honest loss -0.3142 distorted -0.3133 extra 0.00091
+  C=6.0  k=32  t=0.454 honest loss -0.3142 distorted -0.3140 extra 0.00023
+  C=12.0 k=2   t=0.360 honest loss -0.3378  stake beyond concavity limit 5.4: no unique equilibrium
+  C=12.0 k=4   t=0.360 honest loss -0.3378 distorted -0.3141 extra 0.02373
+  C=12.0 k=8   t=0.360 honest loss -0.3378 distorted -0.3316 extra 0.00616
+  C=12.0 k=16  t=0.360 honest loss -0.3378 distorted -0.3362 extra 0.00156
+  C=12.0 k=32  t=0.360 honest loss -0.3378 distorted -0.3374 extra 0.00039
+  greedy honest -0.3989
+  scaling of the extra loss with the stake gap (k=8, t=0.454): first-order harm cancels by symmetry
+  dB=1.0  extra 0.000101  ratio to dB=1: 1.00 (dB^2 would be 1)
+  dB=2.0  extra 0.000404  ratio to dB=1: 4.00 (dB^2 would be 4)
+  dB=4.0  extra 0.001611  ratio to dB=1: 15.95 (dB^2 would be 16)
+  dB=8.0  extra 0.006373  ratio to dB=1: 63.09 (dB^2 would be 64)

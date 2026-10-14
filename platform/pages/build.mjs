@@ -21,6 +21,7 @@
 // opt-out.
 
 import { promises as fs, existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -4043,6 +4044,19 @@ export async function discoverComparisons(surfaces) {
  */
 export const GUIDES_PATH = 'guides/';
 
+// The research portfolio (`research/`, MIT licensed) has its own homepage
+// builder; the site publishes its output here so the repository has one front
+// door. Not a venture: no launch date, no card, linked from the hub footer.
+export const RESEARCH_PATH = 'research/';
+export const RESEARCH_BUILDER = path.join('research', '_homepage', 'build.py');
+
+function buildResearchPage(outDir, baseUrl) {
+  const args = [path.join(REPO_ROOT, RESEARCH_BUILDER), '--out', path.join(outDir, RESEARCH_PATH), '--base-url', baseUrl];
+  execFileSync('python3', args, {
+    stdio: ['ignore', 'ignore', 'inherit'],
+  });
+}
+
 /**
  * Pages the guides index deliberately does not list.
  *
@@ -6983,6 +6997,7 @@ ${disclaimerHtml('', surfaces)}
         <a href="${ABOUT_PATH}">About &amp; press kit</a> ·
         <a href="${GUIDES_PATH}">Guides</a> ·
         <a href="${COMPARE_PATH}">Comparisons</a> ·
+        <a href="${RESEARCH_PATH}">Research</a> ·
         <a href="catalog.json">Machine-readable catalog</a> ·
         <a href="llms.txt">llms.txt</a> ·
         <a href="sitemap.xml">Sitemap</a> ·
@@ -8904,6 +8919,7 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
     .concat([`  <url><loc>${baseUrl}${COMPARE_PATH}</loc></url>`])
+    .concat([`  <url><loc>${baseUrl}${RESEARCH_PATH}</loc></url>`])
     // And the guides index, for the same reason. See `GUIDES_PATH`: it is the
     // only page on the site that is *about* the 342 informational pages the
     // ventures wrote, which is the half of the catalogue organic search
@@ -9089,6 +9105,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     '## Optional',
     '',
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (it never leaves the browser${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [Research](${baseUrl}${RESEARCH_PATH}): the open research portfolio built in the same repository — white papers with reproducible code on mechanism design for verifiable decentralised ML, and digital twins and sim-to-real gaps.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
     // Named individually rather than left behind the index, because the
     // question an assistant is actually asked is about one product ("a free
@@ -9535,6 +9552,8 @@ export async function buildSite({
     path.join(aboutDir, 'index.html'),
     renderAboutPage({ surfaces, groups: categoryGroups, baseUrl: base }),
   );
+
+  buildResearchPage(outDir, base);
 
   // The comparison index. After the categories because it links every one of
   // them, and before the sitemaps for the same reason they are.

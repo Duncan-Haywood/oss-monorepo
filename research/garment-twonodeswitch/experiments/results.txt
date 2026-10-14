@@ -1,0 +1,45 @@
+== A. Fixed states at 180 min: tsk C, tcr C, dry W/m2, evap W/m2 ==
+hot 31 C   ours closed tsk 35.23 tcr 36.91 dry   24.8 evap   40.3
+hot 31 C   ours open   tsk 34.99 tcr 36.89 dry   31.0 evap   34.1
+hot 31 C   ref  closed tsk 34.86 tcr 36.93 dry   22.1 evap   43.1
+hot 31 C   ref  open   tsk 34.66 tcr 36.92 dry   27.6 evap   37.5
+mild 24 C  ours closed tsk 33.44 tcr 36.83 dry   54.2 evap    9.3
+mild 24 C  ours open   tsk 31.42 tcr 36.83 dry   56.0 evap    7.5
+mild 24 C  ref  closed tsk 33.46 tcr 36.86 dry   53.2 evap   10.4
+mild 24 C  ref  open   tsk 31.66 tcr 36.85 dry   56.3 evap    7.5
+cool 16 C  ours closed tsk 27.00 tcr 36.75 dry   61.5 evap    6.4
+cool 16 C  ours open   tsk 25.55 tcr 36.72 dry   69.4 evap    5.7
+cool 16 C  ref  closed tsk 27.62 tcr 36.78 dry   63.5 evap    6.6
+cool 16 C  ref  open   tsk 26.15 tcr 36.73 dry   71.7 evap    5.9
+
+== B. Switching gate (thresholds on tsk, lag in min): end state, fraction of minutes open, state changes ==
+hot 31 C   ours band 33.0-34.0 lag  0 tsk 34.99 tcr 36.89 evap   34.1 open 0.98 changes 1
+hot 31 C   ours band 33.0-34.0 lag 10 tsk 34.99 tcr 36.89 evap   34.1 open 0.94 changes 1
+hot 31 C   ours band 33.4-33.6 lag  0 tsk 34.99 tcr 36.89 evap   34.1 open 1.00 changes 0
+hot 31 C   ours band 33.4-33.6 lag 10 tsk 34.99 tcr 36.89 evap   34.1 open 0.97 changes 1
+hot 31 C   ours band 32.0-35.0 lag  0 tsk 34.99 tcr 36.89 evap   34.1 open 0.88 changes 1
+hot 31 C   ref  band 33.0-34.0 lag  0 tsk 34.66 tcr 36.92 evap   37.5 open 0.98 changes 1
+hot 31 C   ref  band 33.0-34.0 lag 10 tsk 34.66 tcr 36.92 evap   37.5 open 0.94 changes 1
+hot 31 C   ref  band 33.4-33.6 lag  0 tsk 34.66 tcr 36.92 evap   37.5 open 1.00 changes 0
+hot 31 C   ref  band 33.4-33.6 lag 10 tsk 34.66 tcr 36.92 evap   37.5 open 0.97 changes 1
+hot 31 C   ref  band 32.0-35.0 lag  0 tsk 34.86 tcr 36.93 evap   43.1 open 0.00 changes 0
+mild 24 C  ours band 33.0-34.0 lag  0 tsk 33.44 tcr 36.83 evap    9.3 open 0.00 changes 0
+mild 24 C  ours band 33.0-34.0 lag 10 tsk 33.44 tcr 36.83 evap    9.3 open 0.00 changes 0
+mild 24 C  ours band 33.4-33.6 lag  0 tsk 33.44 tcr 36.83 evap    9.3 open 0.01 changes 1
+mild 24 C  ours band 33.4-33.6 lag 10 tsk 33.44 tcr 36.83 evap    9.3 open 0.00 changes 0
+mild 24 C  ours band 32.0-35.0 lag  0 tsk 33.44 tcr 36.83 evap    9.3 open 0.00 changes 0
+mild 24 C  ref  band 33.0-34.0 lag  0 tsk 33.46 tcr 36.86 evap   10.4 open 0.00 changes 0
+mild 24 C  ref  band 33.0-34.0 lag 10 tsk 33.46 tcr 36.86 evap   10.4 open 0.00 changes 0
+mild 24 C  ref  band 33.4-33.6 lag  0 tsk 33.46 tcr 36.86 evap   10.4 open 0.02 changes 1
+mild 24 C  ref  band 33.4-33.6 lag 10 tsk 33.46 tcr 36.86 evap   10.4 open 0.00 changes 0
+mild 24 C  ref  band 32.0-35.0 lag  0 tsk 33.46 tcr 36.86 evap   10.4 open 0.00 changes 0
+cool 16 C  ours band 33.0-34.0 lag  0 tsk 27.00 tcr 36.75 evap    6.4 open 0.00 changes 0
+cool 16 C  ours band 33.0-34.0 lag 10 tsk 27.00 tcr 36.75 evap    6.4 open 0.00 changes 0
+cool 16 C  ours band 33.4-33.6 lag  0 tsk 27.00 tcr 36.75 evap    6.4 open 0.01 changes 1
+cool 16 C  ours band 33.4-33.6 lag 10 tsk 27.00 tcr 36.75 evap    6.4 open 0.00 changes 0
+cool 16 C  ours band 32.0-35.0 lag  0 tsk 27.00 tcr 36.75 evap    6.4 open 0.00 changes 0
+cool 16 C  ref  band 33.0-34.0 lag  0 tsk 27.62 tcr 36.78 evap    6.6 open 0.00 changes 0
+cool 16 C  ref  band 33.0-34.0 lag 10 tsk 27.62 tcr 36.78 evap    6.6 open 0.00 changes 0
+cool 16 C  ref  band 33.4-33.6 lag  0 tsk 27.61 tcr 36.78 evap    6.6 open 0.01 changes 1
+cool 16 C  ref  band 33.4-33.6 lag 10 tsk 27.61 tcr 36.78 evap    6.6 open 0.00 changes 0
+cool 16 C  ref  band 32.0-35.0 lag  0 tsk 27.62 tcr 36.78 evap    6.6 open 0.00 changes 0

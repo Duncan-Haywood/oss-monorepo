@@ -1,0 +1,61 @@
+Compass twin: real = 2-D magnetometer with hard-iron offset beta and/or soft-iron axis scale r; twin = ideal (beta=0, r=1).
+
+== 1. Hard-iron: peak heading error, swept numerically vs asin(beta/B); rms over heading = (beta/B)/sqrt(2) ==
+beta/B   numeric peak(deg)   asin(beta/B)(deg)   first-order beta/B(deg)   rms(deg)
+  0.02              1.146              1.146                  1.146      0.810
+  0.05              2.866              2.866                  2.865      2.026
+  0.10              5.739              5.739                  5.730      4.057
+  0.20             11.537             11.537                 11.459      8.144
+  0.40             23.578             23.578                 22.918     16.551
+  0.80             53.130             53.130                 45.837     36.010
+
+== 2. Soft-iron: peak error vs asin(|1-r|/(1+r)); error is twice-per-turn ==
+    r   numeric peak(deg)   closed form(deg)   ~|1-r|/2 (deg)
+ 0.95             1.469             1.469           1.432
+ 0.90             3.017             3.017           2.865
+ 0.80             6.379             6.379           5.730
+ 0.60            14.478            14.478          11.459
+ 1.25             6.379             6.379           7.162
+hard-iron-only calibration (offset removed exactly) leaves soft-iron r=0.8 error unchanged: peak 6.379 deg (beta=0.2 removed)
+
+== 3. Loop closure of a compass-held square (4 legs of L=100 m): twin predicts 0; real = 2 L beta/B to first order ==
+beta/B   phi(deg)   closure(m)   2L beta/B (m)   true-heading tracking (m)
+  0.01          0        2.000           2.000   2.3e-14
+  0.01         52        2.000           2.000   2.3e-14
+  0.01        143        2.000           2.000   2.3e-14
+  0.03          0        6.000           6.000   2.3e-14
+  0.03         52        6.000           6.000   2.3e-14
+  0.03        143        6.000           6.000   2.3e-14
+  0.10          0       20.000          20.000   2.3e-14
+  0.10         52       20.000          20.000   2.3e-14
+  0.10        143       20.000          20.000   2.3e-14
+  0.30          0       60.000          60.000   2.3e-14
+  0.30         52       60.000          60.000   2.3e-14
+  0.30        143       60.000          60.000   2.3e-14
+
+== 4. Straight compass-held leg: distance to reach 1 m cross-track error at the worst heading (tol/(beta/B) to first order) ==
+beta/B=0.02: 50.0 m  (exact tol/sin(asin(beta/B)) = 50.0 m)
+beta/B=0.05: 20.0 m  (exact tol/sin(asin(beta/B)) = 20.0 m)
+beta/B=0.10: 10.0 m  (exact tol/sin(asin(beta/B)) = 10.0 m)
+
+== 5. Swing calibration (circle fit), hard-iron B=1, offset (0.2,-0.1), 400 trials: RMS offset error ==
+sigma=0.02 per axis. Full turn: theory 2 sigma/sqrt(n) (Euclidean RMS of the fitted offset, in units of B)
+   n   full-turn MC   2s/sqrt(n)
+  25        0.00787      0.00800
+ 100        0.00400      0.00400
+ 400        0.00209      0.00200
+
+Arc coverage (n=100, sigma=0.02):  arc(deg)  RMS offset err   ratio to full turn
+       360         0.00393          1.0
+       270         0.00457          1.1
+       180         0.00760          1.8
+       120         0.01874          4.6
+        90         0.04941         12.0
+        60         0.18595         45.3
+        30         0.78016        189.9
+
+Peak heading error after calibration from an arc (median and 90th percentile over 200 draws, n=100, sigma=0.02; asin of offset error):
+  arc 360 deg: median offset error 0.0032 B -> peak heading error ~0.18 deg; 90th pct 0.0057 B -> 0.32 deg
+  arc 180 deg: median offset error 0.0060 B -> peak heading error ~0.34 deg; 90th pct 0.0119 B -> 0.68 deg
+  arc  90 deg: median offset error 0.0387 B -> peak heading error ~2.22 deg; 90th pct 0.0697 B -> 4.00 deg
+  arc  60 deg: median offset error 0.1850 B -> peak heading error ~10.66 deg; 90th pct 0.2319 B -> 13.41 deg

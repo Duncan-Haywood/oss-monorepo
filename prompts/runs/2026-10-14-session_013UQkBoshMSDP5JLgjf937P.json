@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-14",
+  "session": "https://claude.ai/code/session_013UQkBoshMSDP5JLgjf937P",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-14T00:07:00Z",
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "ambient-drclip"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/386",
+  "commits": [
+    "4be2647"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 6,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "default python3 lacked numpy/pytest; used /usr/bin/python3"
+  ],
+  "integrity_issues": [],
+  "notes": "No open PRs; sysezg branch superseded by chip-systolic-batch already on main, left alone. Mixed result.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

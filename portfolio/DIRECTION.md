@@ -11,8 +11,9 @@ Two companion documents carry the parts this one only names:
     per user, the API-key switch, the disclaimer text to copy, the SEO/AI-discovery
     checklist, and the definition of done.
 - [`portfolio/hosting/`](hosting/README.md) — where a product goes live:
-    GitHub Pages for static tools, the existing Hetzner boxes for
-    processes. Not Cloudflare. Not Vercel.
+    GitHub Pages for static tools. The Hetzner boxes were deleted
+    2026-10-01, so processes need a new host decision. Not Cloudflare.
+    Not Vercel.
 - [`portfolio/usage/`](usage/README.md) — what may be counted (events, never
   people), which free signals already exist, and where readings land
   (`usage/usage.yaml`) so the next session and the router can see them.
@@ -345,6 +346,10 @@ Revenue comes later. For now:
 > pending. Stop naming that flip as a blocker and stop reading a built
 > product with no *second* URL as undeployed.
 >
+> **2026-10-01: the owner deleted the Hetzner servers, so the paragraph
+> below is history -- that route is retired, not down, its owner ask is
+> removed, and GitHub Pages is the only host.**
+>
 > What is **not** fixed by the above: the separate `marisstella.dev` /
 > Hetzner k3s route is still down (`CLAUDE.md`'s outage block has the
 > measurements) and its recovery is a real owner action
@@ -402,8 +407,9 @@ beats another build**:
 2. Record a usage reading that is not `null`.
 3. Only then graduate a new candidate or clone another bid calculator.
 
-The host is decided: GitHub Pages for static products, the existing
-Hetzner boxes for processes — see [`hosting/README.md`](hosting/README.md).
+The host is decided: GitHub Pages for static products. The Hetzner boxes
+for processes were deleted 2026-10-01, so processes need a new host
+decision — see [`hosting/README.md`](hosting/README.md).
 ~~The remaining owner flip is `deploy-settings` (enable GitHub Pages).~~
 **No longer true — see the "Superseded 2026-09-06" note above: `deploy-settings`
 is granted, and this line contradicted that note by still naming it as the
@@ -874,7 +880,7 @@ reason to defer a strong, non-duplicative product.
    - `graduate_as: product-line` — add the slug under `product_lines` in
      its host venture's `VENTURE.yaml` (the host must already be routable).
      Do not open a second venture directory.
-3. Ship on GitHub Pages or the Hetzner product box; record usage, not opinions.
+3. Ship on GitHub Pages (the Hetzner product box was deleted 2026-10-01); record usage, not opinions.
 4. If the product is already on `main` and still has no public URL, **that
    deploy is the next task** — not a second product in the same niche.
 5. Let organic traffic and return usage decide what gets more investment.

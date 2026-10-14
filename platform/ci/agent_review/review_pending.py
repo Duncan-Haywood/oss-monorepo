@@ -18,6 +18,7 @@ from review import (
     pr_from_same_repo,
     review_pull_request,
     reviewer_already_approved,
+    untrusted_reason,
 )
 
 
@@ -49,6 +50,10 @@ def main(argv: list[str] | None = None) -> int:
             print(f"skip #{number}: {origin_reason}")
             continue
         author = (pr.get("user") or {}).get("login", "")
+        untrusted = untrusted_reason(pr)
+        if untrusted:
+            print(f"skip #{number}: {untrusted}")
+            continue
         if author_matches_skip(author, reviewer.author_skip):
             print(f"skip #{number}: authored by {author}")
             continue

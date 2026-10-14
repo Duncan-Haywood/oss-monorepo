@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "conformal-tolerance"
+version = "0.1.0"
+description = "Distribution-free calibration of verification tolerances: exact false-slash law of split-conformal thresholds, PAC calibration-set sizes, hiding-room inflation, plug-in misspecification, pooled vs per-hardware calibration, measured float32 residuals"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

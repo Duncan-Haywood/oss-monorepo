@@ -1,0 +1,1 @@
+Module `updown4`: ports `input clk, input rst, input en, input up, output reg [3:0] q`. Synchronous, rising edge of `clk`. If `rst` is 1, `q` becomes 0. Otherwise, if `en` is 1, `q` increments when `up` is 1 and decrements when `up` is 0, wrapping modulo 16. If `en` is 0, `q` holds.

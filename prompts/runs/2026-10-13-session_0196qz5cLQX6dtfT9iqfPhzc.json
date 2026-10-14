@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-13",
+  "session": "https://claude.ai/code/session_0196qz5cLQX6dtfT9iqfPhzc",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-13T11:05:00Z",
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "extend",
+  "projects": [
+    "chip-systolic-batch"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/320",
+  "commits": [
+    "d330e15",
+    "078082e",
+    "a11d913",
+    "e9d8c0e",
+    "3195d01",
+    "22ad47f",
+    "23a5d3e"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "apt python3-numpy shadowed the usable NumPy; used a venv",
+    "first sweep grid (3 R x 3 C x 2 WB) ran over an hour without finishing; cut to R 4/8/16, C 2/4, 4-bit"
+  ],
+  "integrity_issues": [],
+  "notes": "Rolled track 3; landing queue had no open PRs and no landable branches. Batch sweep of chip-systolic; negative result. Kung citation not re-verified beyond chip-systolic's search.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

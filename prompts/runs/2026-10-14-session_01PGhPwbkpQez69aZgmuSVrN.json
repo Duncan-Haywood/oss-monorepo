@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-14",
+  "session": "https://claude.ai/code/session_01PGhPwbkpQez69aZgmuSVrN",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "chip-systolic-fanin"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/392",
+  "commits": [
+    "8f3be7f",
+    "b4784db",
+    "5193123"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 2,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "closed duplicate PR #389 (ambient-crossfit scaffold, already on main via #387)"
+  ],
+  "integrity_issues": [],
+  "notes": "Negative result; F=8 cells differ ~3% from chip-systolic-small (generator widths), disclosed in README. Diff: 12 files changed, 573 insertions(+)",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "inertia-twin"
+version = "0.1.0"
+description = "Point-mass twin of a rolling body ignores rotational inertia: down-ramp acceleration is overstated by exactly 1+k, slip threshold mu* = k tan(a)/(1+k) is invisible to the twin, coast distance is understated by 1/(1+k), one calibration cannot fix a mixed fleet"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

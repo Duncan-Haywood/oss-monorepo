@@ -1,0 +1,41 @@
+plant a=1.1 b=1.0 r=1.0 s2=1.0; zero-delay LQR gain k0=0.7034; delay margin of k0 = 1 steps
+
+1. Twin without latency (gain k0 on the delayed reading) vs delay-aware optimum (Smith predictor)
+ d  stable_k_interval          rho(k0)   cost(k0)   smith_opt  ratio   best_static_k  static_cost  ratio
+ 0  (0.100, 2.100)             0.3966      1.774      1.774    1.00      0.7034       1.774    1.00
+ 1  (0.100, 1.000)             0.8388      5.075      3.146    1.61      0.4494       3.552    1.13
+ 2  (0.100, 0.591)             1.0513        inf      4.807     inf      0.3156       6.445    1.34
+ 3  (0.100, 0.408)             1.1174        inf      6.816     inf      0.2416      11.060    1.62
+ 4  (0.100, 0.305)             1.1410        inf      9.248     inf      0.1965      18.657    2.02
+ 5  (0.100, 0.239)             1.1489        inf     12.190     inf      0.1666      32.000    2.63
+
+2. Cost ratio to the delay-aware optimum when the twin assumes delay dh but the real delay is d (rows dh, cols d)
+dh\d         0        1        2        3        4        5
+   0      1.00     1.61   unstab   unstab   unstab   unstab
+   1    unstab     1.00   unstab    35.06   unstab   unstab
+   2    unstab   unstab     1.00   unstab   unstab   unstab
+   3    unstab   unstab   unstab     1.00   unstab   unstab
+   4    unstab   unstab   unstab   unstab     1.00   unstab
+   5    unstab   unstab   unstab   unstab   unstab     1.00
+
+3. Delay margin of the zero-delay LQR gain vs plant instability a (b=1, r=1)
+ a=1.02  k0=0.635  delay margin=1
+ a=1.05  k0=0.660  delay margin=1
+ a=1.10  k0=0.703  delay margin=1
+ a=1.20  k0=0.794  delay margin=1
+ a=1.50  k0=1.087  delay margin=0
+ a=2.00  k0=1.618  delay margin=0
+
+4. Samples to identify the delay (adjacent-lag confusion prob alpha): Gaussian formula vs Monte Carlo
+ snr=0.25 n=  10  gauss=0.1587  mc=0.1487
+ snr=0.25 n=  40  gauss=0.0228  mc=0.0168
+ snr=0.25 n= 160  gauss=0.0000  mc=0.0000
+ snr=1.00 n=  10  gauss=0.0569  mc=0.0208
+ snr=1.00 n=  40  gauss=0.0008  mc=0.0000
+ snr=1.00 n= 160  gauss=0.0000  mc=0.0000
+ snr=4.00 n=  10  gauss=0.0228  mc=0.0000
+ snr=4.00 n=  40  gauss=0.0000  mc=0.0000
+ snr=4.00 n= 160  gauss=0.0000  mc=0.0000
+ snr=0.25  n for alpha=1e-2:    54.1   alpha=1e-3:    95.5
+ snr=1.00  n for alpha=1e-2:    21.6   alpha=1e-3:    38.2
+ snr=4.00  n for alpha=1e-2:    13.5   alpha=1e-3:    23.9

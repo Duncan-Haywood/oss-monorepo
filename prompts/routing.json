@@ -1,0 +1,9 @@
+{
+  "review_every": 20,
+  "review_when_due": 0.25,
+  "tracks": {
+    "ventures": {"weight": 0.5, "champion": 0, "candidate": null, "candidate_share": 0},
+    "research": {"weight": 0.5, "champion": 0, "candidate": null, "candidate_share": 0},
+    "review": {"weight": 0, "champion": 0, "candidate": null, "candidate_share": 0}
+  }
+}

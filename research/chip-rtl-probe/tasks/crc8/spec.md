@@ -1,0 +1,1 @@
+Module `crc8`: ports `input [7:0] crc_in, input [7:0] data, output [7:0] crc_out`. Combinational. One byte step of the CRC-8 with polynomial x^8 + x^2 + x + 1 (0x07), MSB first, no reflection, no final XOR: start with `x = crc_in ^ data`; eight times, shift `x` left by one and XOR with 0x07 if the bit shifted out was 1. `crc_out` is the final `x`.

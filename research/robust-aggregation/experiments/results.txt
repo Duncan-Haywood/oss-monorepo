@@ -1,0 +1,17 @@
+E1. mean vs median, n=2001, adversary at +B, honest N(0,1)
+  beta=0.05: mean bias B=1e2:     5.00 B=1e6:    49975.0 | median B=1e2:0.0661 B=1e6:0.0661 closed form 0.0660
+  beta=0.2: mean bias B=1e2:    19.99 B=1e6:   199900.1 | median B=1e2:0.3129 B=1e6:0.3129 closed form 0.3186
+  beta=0.4: mean bias B=1e2:    39.98 B=1e6:   399800.1 | median B=1e2:0.9659 B=1e6:0.9659 closed form 0.9674
+E2. worst-case median bias sigma*Phi^-1(1/(2(1-beta))): blows up at beta -> 1/2
+  beta=0.1: 0.140 sigma
+  beta=0.3: 0.566 sigma
+  beta=0.45: 1.335 sigma
+  beta=0.49: 2.062 sigma
+  beta=0.499: 2.879 sigma
+E3. trimmed mean (n=6000): closed form vs simulation
+  beta=0.05 tau=0.05: sim 0.1171 closed 0.1134  (median 0.0660)
+  beta=0.05 tau=0.1: sim 0.0923 closed 0.0887  (median 0.0660)
+  beta=0.1 tau=0.2: sim 0.1648 closed 0.1626  (median 0.1397)
+  beta=0.2 tau=0.3: sim 0.3479 closed 0.3467  (median 0.3186)
+  beta=0.2 tau=0.4: sim 0.3263 closed 0.3247  (median 0.3186)
+E4. trimming below the Byzantine fraction fails: tau=0.05 < beta=0.10 (n=6000, B=1e6) -> 55555.7

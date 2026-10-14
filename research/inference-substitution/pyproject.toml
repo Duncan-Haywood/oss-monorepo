@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "inference-substitution"
+version = "0.1.0"
+description = "Detecting model substitution in decentralised inference: anytime-valid mixture e-process, the cheater's square-root law and the optimal audit rate"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

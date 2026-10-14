@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pipeline-replication"
+version = "0.1.0"
+description = "Replication and stage skipping for pipeline-parallel training on unreliable workers: exact success law, replica floors under correlated outages, cost-optimal skip budget"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

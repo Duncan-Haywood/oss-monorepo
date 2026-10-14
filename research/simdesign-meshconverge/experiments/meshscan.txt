@@ -1,0 +1,17 @@
+laser cutting, gauge 2 mm, peak; feasible w (0.1 mm scan 15.0-17.0) per r and mesh size h
+h=1.5 r= 8.0: 1 feasible, contiguous=True, first=15.8, below-15.4 pockets=[], boundary(first)=15.8
+h=1.5 r=10.0: 3 feasible, contiguous=False, first=15.7, below-15.4 pockets=[], boundary(first)=15.7
+h=1.5 r=12.0: 4 feasible, contiguous=True, first=15.7, below-15.4 pockets=[], boundary(first)=15.7
+h=1.5 r=14.0: 5 feasible, contiguous=True, first=15.6, below-15.4 pockets=[], boundary(first)=15.6
+h=1.0 r= 8.0: none feasible
+h=1.0 r=10.0: none feasible
+h=1.0 r=12.0: none feasible
+h=1.0 r=14.0: none feasible
+h=0.75 r= 8.0: none feasible
+h=0.75 r=10.0: none feasible
+h=0.75 r=12.0: none feasible
+h=0.75 r=14.0: 1 feasible, contiguous=True, first=16.0, below-15.4 pockets=[], boundary(first)=16.0
+h=0.5 r= 8.0: none feasible
+h=0.5 r=10.0: none feasible
+h=0.5 r=12.0: none feasible
+h=0.5 r=14.0: none feasible

@@ -1,0 +1,13 @@
+# Blur twin: an instantaneous-exposure twin of a camera with finite exposure certifies detection at every speed, so what is the real speed limit, and how much does a blur-matched filter buy back?
+
+Pure Python, no dependencies. Real sensor: exposure `T = 10 ms`, so a bar of width `w` px and contrast `C` moving at `v` px/s is smeared over `d = vT` px; twin: instantaneous exposure (`d = 0`). Detection is at a known location with i.i.d. `N(0, σ²)` pixel noise, false-alarm rate 10⁻³ and target detection probability 0.9. Results (all from `experiments/results.txt`): (1) the time-averaged profile is an exact trapezoid, peak `C·min(1, w/d)`, plateau `|d−w|`, base `w+d`, energy `Cw` conserved, matching a 2000-sub-exposure forward simulation to its 5·10⁻⁴ quantisation; (2) a single-pixel peak detector, which the twin certifies at Pd = 1 at any speed, loses power at once the smear exceeds `w`: at `w = 6`, `C/σ = 10`, Pd falls from 1.000 (d = 0) to 0.972 (d = 12), 0.278 (d = 24) and 0.018 (d = 60), with a speed limit `d* = wC/(σz)`, `z = Q⁻¹(α) − Q⁻¹(Pd) = 4.372` (13.7 px, 1372 px/s, bisection agrees to 0.01 px); (3) a box filter matched to the smear collects all of `Cw` at noise cost `√L`, output `C w/(σ√d)·(1 − w/(4d))` at length `L = d` (exact in the pixel model, and the argmax over all integer lengths for `d ≥ 2w`), so the speed limit grows quadratically in SNR (185 px, 18 500 px/s) and the gain over the peak detector is about `d*_peak` (13.5× here, 5–55× over the 12 settings tried); (4) a filter tuned on the twin (length `w`) is in between: Pd 0.999 at d = 24 but 0.84, 0.49, 0.26 at d = 36, 48, 60. Stylised: known location, one bar, constant velocity, Gaussian noise, 1-D; see `paper/whitepaper.md`.
+
+```bash
+cd research/blur-twin
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, under 1 s
+PYTHONPATH=src python3 experiments/run.py                 # about 1 s; output in experiments/results.txt
+```
+
+**Builds on.** The digital-twin sensor-simulation and sim-to-real perception direction of ARPG (<https://arpg.colorado.edu/>), and the UAV and field-robot perception of RECUV (<https://www.colorado.edu/recuv/>) and the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. Motion-blur formation and matched filtering are textbook (Nayar & Ben-Ezra, 2004; Kay, 1998); this project is a small restatement with closed forms for a bar and a check of what an instantaneous-exposure twin gets wrong, not a new method. Companion to `shutter-twin` (same camera, geometric effect of readout time) and `doppler-twin` in this repository.
+
+Stylised: simulated "real" sensor, no camera data. MIT.

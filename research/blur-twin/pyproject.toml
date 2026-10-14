@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "blur-twin"
+version = "0.1.0"
+description = "Instantaneous-exposure twin of a camera with finite exposure: a moving bar is smeared into a trapezoid (peak C min(1, w/d)), a twin-certified peak detector has a hard speed limit, a matched box filter has SNR C w / (sigma sqrt(w+d)) and a quadratic speed limit"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

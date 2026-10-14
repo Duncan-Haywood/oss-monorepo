@@ -1,0 +1,13 @@
+[project]
+name = "garment-assistpower"
+version = "0.1.0"
+description = "Stylised exosuit power-train mass model: does the battery eat the metabolic saving?"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../garment-assist/src"]

@@ -1,0 +1,28 @@
+# A radar twin with only static targets picks the wrong ego-velocity estimator, and under-states its uncertainty by exactly `1+ετ²`
+
+*Stylised: a 1-D radial location model, `n` independent Doppler returns; static-world twin vs a "real" scene in which a fraction `ε` of returns come from moving targets with a zero-mean Gaussian offset of standard deviation `τσ`. Pure Python; every number below is from `experiments/results.txt` (seeded, ~10 s). The "real" scene is a simulation, not radar data. Preliminary.*
+
+## Question
+Radar ego-velocity is commonly estimated from Doppler returns of stationary targets (Kellner et al. 2013); moving targets are outliers. A radar twin usually renders a static world. If the estimator, and the uncertainty passed to a downstream filter, are chosen or tuned in that twin, what goes wrong when the real scene has moving targets?
+
+## Model
+Each of `n` returns is `y_i = v + e_i`. Twin: `e_i ~ N(0,σ²)`. Real: with probability `ε` the return is from a moving target and `e_i ~ N(0,σ²(1+τ²))`, otherwise `N(0,σ²)` (a contaminated normal, Tukey 1960). Set `σ=1`. Both the sample mean (least squares) and the sample median are unbiased by symmetry.
+- **Mean.** `n·Var = 1+ετ²`, exactly.
+- **Median.** Asymptotically `1/(4f(0)²)` with `f(0)=((1−ε)+ε/√(1+τ²))/√(2π)`; for odd `n` the exact variance is `∫x² n!/((n−1)/2)!² F^{m}(1−F)^{m} f dx`, evaluated by Simpson's rule. In the twin (`ε=0`) it is `π/2` times the mean's, so the twin picks the mean. The exact value matches Monte Carlo (`n=51`, 40,000 repeats): `ε=0.1, τ=10`: 0.03711 vs 0.03690±0.00026; `ε=0.3, τ=3`: 0.04898 vs 0.04903±0.00035; the mean's exact 0.21569 vs 0.21486±0.00152.
+- **Twin-claimed uncertainty.** The twin says `Var(mean)=σ²/n`; the real value is that times `1+ετ²`. Given the number `K` of moving targets the mean is exactly Gaussian with variance `(nσ²+Kτ²)/n²`, so the coverage of the twin's 95% interval is the binomial mixture `Σ_K P(K)[2Φ(1.96σ√n/√(nσ²+Kτ²))−1]`, matched to simulation in the tests.
+- **2-D geometry.** For `(v_x,v_y)` from returns at azimuths in a forward sector, LS covariance is `(σ²+ετ²σ²)(H'H)^{-1}`, so the trace ratio to the twin's claim is again `1+ετ²`; simulation (30 returns, 120°): 11.20 vs 11.00 (`ε=0.1,τ=10`), 1.429 vs 1.450 (`ε=0.05,τ=3`).
+
+## Results
+1. **The twin's choice is wrong on a band, not everywhere.** Asymptotically the median beats the mean iff `ε` lies in a band: `τ=2`: 0.374–0.500; `τ=3`: 0.086–0.834; `τ=5`: 0.026–0.927; `τ=10`: 0.006–0.970; `τ=30`: 0.0006–0.991; `τ=1`: never. Below the band the twin is right (the median's `π/2` price is not repaid); the mean also wins again near `ε=1`, where nearly every return is equally noisy.
+2. **Size of the regret.** `n·Var` mean/median at `τ=10`: `ε=0.01` 1.25×, `0.05` 3.48×, `0.1` 5.80×, `0.3` 10.5×, `0.6` 8.2×. At `τ=3` the mean is better until `ε≈0.09` (0.86× at 0.05) and 1.49× worse at 0.3. At `ε=0.01` and `τ=3` the twin's choice is right (mean 0.68× the median's variance).
+3. **The claimed uncertainty is off by `1+ετ²`, and coverage collapses.** `τ=10`: 2.0× (`ε=0.01`), 6.0×, 11×, 31× (`ε=0.3`); the twin's 95% interval (`n=30`) covers 86.8%, 64.0%, 48.7%, 28.3%. At `τ=3`: 93.9%, 89.7%, 84.8%, 69.7% for `ε`=0.01/0.05/0.1/0.3. Switching to the median does not repair the claim: the twin's median variance `π/(2n)` is also wrong under contamination (real 1.9 at `ε=0.1,τ=10`, though far smaller than the mean's 11).
+4. **Detectability from a residual log.** The residuals have excess kurtosis `3ε(1−ε)τ⁴/(1+ετ²)²` (22.3 at `ε=0.1,τ=10`; 5.5 at `0.05,3`; 3.4 at `0.02,3`). A one-sided sample-kurtosis test (Gaussian null sd `√(24/N)`, residuals about a known ego-velocity) has power 0.74/0.97/1.00 at `N`=20/50/200 for `ε=0.1,τ=10`; 0.20/0.47/0.91/1.00 at `N`=20/50/200/1000 for `0.05,3`; 0.09/0.24/0.61/0.98 for `0.02,3`. Its size on Gaussian data was 0.021/0.035/0.052/0.050 at those `N` (conservative at small `N`). Kurtosis needs an independent ego-velocity reference (IMU or wheel odometry) and says nothing about the *sign* of a moving-target offset.
+
+## Limitations
+Zero-mean Gaussian contamination in one radial dimension; in a real scene a single moving object contributes correlated, generally biased offsets across many returns (violating independence and unbiasedness), which would make the mean's failure worse and the median's less clean. Known `σ`; no range-dependent noise, no clutter/false returns, no azimuth-dependent Doppler geometry in the estimator comparison (only in the 2-D LS covariance check). Huber-type and RANSAC estimators (Huber 1964; Fischler & Bolles 1981), which practitioners use, are not evaluated. The "real" scene is the same model family as the analysis. Preliminary; no radar data.
+
+## Next steps
+Huber/RANSAC and their tuning constants selected in a twin vs in a contaminated scene; correlated (single-object) contamination and its effect on the exact variance; a twin that renders moving targets from a fitted `(ε,τ)` and how many frames identify them; feeding the claimed covariance into a filter (`filter-twin`) to close the loop; proper-scoring audit of the twin's covariance claim (`twin-elicitation`).
+
+## References
+See `references.bib`. Kellner, Barjenbruch, Klappstein, Dickmann & Dietmayer (2013), Instantaneous ego-motion estimation using Doppler radar, ITSC; Tukey (1960), A survey of sampling from contaminated distributions; Huber (1964), Robust estimation of a location parameter, *Ann. Math. Stat.* 35(1); Fischler & Bolles (1981), Random sample consensus, *CACM* 24(6); Zhao, Queralta & Westerlund (2020), Sim-to-real transfer in deep reinforcement learning for robotics: a survey, IEEE SSCI.

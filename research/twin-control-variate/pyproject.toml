@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "twin-control-variate"
+version = "0.1.0"
+description = "Certifying the real-world cost of a policy from a few real rollouts plus many digital-twin rollouts: exact twin/plant correlation, optimal sim/real budget split and speed-up, and the bias of trusting the twin alone"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

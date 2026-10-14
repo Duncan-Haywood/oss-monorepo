@@ -1,0 +1,30 @@
+== A. Steady state check: largest change in tsk, tcr, dry, evap between 1440 and 2880 min over all runs below ==
+worst change: 0.0000
+
+== B. End states: skin C, core C, dry loss W/m2, evaporative loss W/m2 ==
+hot room 31 C / 50%   ours 3h     closed tsk 35.23 tcr 36.91 dry   24.8 evap   40.3
+hot room 31 C / 50%   ours 3h     open   tsk 34.99 tcr 36.89 dry   31.0 evap   34.1
+hot room 31 C / 50%   ours steady closed tsk 35.23 tcr 36.91 dry   24.8 evap   40.3
+hot room 31 C / 50%   ours steady open   tsk 34.99 tcr 36.89 dry   31.0 evap   34.1
+hot room 31 C / 50%   ref  3h     closed tsk 34.86 tcr 36.93 dry   22.1 evap   43.1
+hot room 31 C / 50%   ref  3h     open   tsk 34.66 tcr 36.92 dry   27.6 evap   37.5
+hot room 31 C / 50%   ref  steady closed tsk 34.86 tcr 36.93 dry   22.1 evap   43.1
+hot room 31 C / 50%   ref  steady open   tsk 34.66 tcr 36.92 dry   27.6 evap   37.5
+cool room 16 C / 50%  ours 3h     closed tsk 27.00 tcr 36.75 dry   61.5 evap    6.4
+cool room 16 C / 50%  ours 3h     open   tsk 25.55 tcr 36.72 dry   69.4 evap    5.7
+cool room 16 C / 50%  ours steady closed tsk 27.00 tcr 36.75 dry   61.5 evap    6.4
+cool room 16 C / 50%  ours steady open   tsk 25.55 tcr 36.72 dry   69.4 evap    5.7
+cool room 16 C / 50%  ref  3h     closed tsk 27.62 tcr 36.78 dry   63.5 evap    6.6
+cool room 16 C / 50%  ref  3h     open   tsk 26.15 tcr 36.73 dry   71.7 evap    5.9
+cool room 16 C / 50%  ref  steady closed tsk 27.15 tcr 36.76 dry   60.9 evap    6.3
+cool room 16 C / 50%  ref  steady open   tsk 25.72 tcr 36.72 dry   68.6 evap    5.7
+
+== C. Open minus closed: dTsk (C), dTcr (C), dDry (W/m2), dEvap (W/m2) ==
+hot room 31 C / 50%   ours 3h     -0.25 -0.02   +6.2   -6.2
+hot room 31 C / 50%   ours steady -0.25 -0.02   +6.2   -6.2
+hot room 31 C / 50%   ref  3h     -0.20 -0.02   +5.5   -5.5
+hot room 31 C / 50%   ref  steady -0.20 -0.02   +5.5   -5.5
+cool room 16 C / 50%  ours 3h     -1.45 -0.04   +7.9   -0.7
+cool room 16 C / 50%  ours steady -1.45 -0.04   +7.9   -0.7
+cool room 16 C / 50%  ref  3h     -1.46 -0.05   +8.2   -0.7
+cool room 16 C / 50%  ref  steady -1.43 -0.04   +7.7   -0.7

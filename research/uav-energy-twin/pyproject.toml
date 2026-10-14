@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uav-energy-twin"
+version = "0.1.0"
+description = "Cruise speed and battery reserve of a UAV leg planned in a constant-wind digital twin: exact real energy, depletion probability and required margin under uniform wind, the speed cliff, wind-log fitting"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

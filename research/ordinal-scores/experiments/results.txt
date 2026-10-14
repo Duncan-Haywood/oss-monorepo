@@ -1,0 +1,25 @@
+E1 same Brier regret, different RPS regret: move eps=0.04 of mass off class 0 (K=5)
+ 0->1: brier 0.003200  rps 0.001600  rps/brier 0.50
+ 0->2: brier 0.003200  rps 0.003200  rps/brier 1.00
+ 0->3: brier 0.003200  rps 0.004800  rps/brier 1.50
+ 0->4: brier 0.003200  rps 0.006400  rps/brier 2.00
+
+E2 incentive per unit payment range for shift i->j (Brier range 2, RPS range K-1), K=5, eps^2 units
+ distance 1: brier/range 1.000  rps/range 0.250
+ distance 2: brier/range 1.000  rps/range 0.500
+ distance 3: brier/range 1.000  rps/range 0.750
+ distance 4: brier/range 1.000  rps/range 1.000
+
+E3 exact worst-case regret at vertices vs range
+ symmetric    brier 1.0600/2  rps 1.4000/4
+ skewed low   brier 1.3150/2  rps 2.7125/4
+ skewed high  brier 1.3150/2  rps 2.7125/4
+
+E4 pooling two adjacent classes (equal split): regret rps = (d/2)^2, brier = d^2/2
+ classes 0,1: rps 0.002500  brier 0.005000
+ classes 1,2: rps 0.010000  brier 0.020000
+ classes 2,3: rps 0.010000  brier 0.020000
+ classes 3,4: rps 0.002500  brier 0.005000
+
+E5 threshold-error transfer: max_k |R_k-P_k| <= sqrt(rps regret) (random reports, K=5)
+ max ratio actual gap / bound = 0.9992 (<=1; equals 1 when one threshold carries the whole error)

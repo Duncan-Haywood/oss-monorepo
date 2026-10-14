@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-heaviside"
+version = "0.1.0"
+description = "Density filter and Heaviside projection for SIMP topology optimisation, with a model-versus-discrete-design check"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

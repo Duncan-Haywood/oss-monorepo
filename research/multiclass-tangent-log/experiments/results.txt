@@ -1,0 +1,40 @@
+E1 exact payment range of the tangent score = 1 - ln eps, independent of K (max-min of loss over reports and outcomes)
+ K=2   eps=0.05   observed   3.9957  1-ln eps   3.9957  (plain clip ln(1/eps) = 2.9957)
+ K=2   eps=0.001  observed   7.9078  1-ln eps   7.9078  (plain clip ln(1/eps) = 6.9078)
+ K=5   eps=0.05   observed   3.9957  1-ln eps   3.9957  (plain clip ln(1/eps) = 2.9957)
+ K=5   eps=0.001  observed   7.9078  1-ln eps   7.9078  (plain clip ln(1/eps) = 6.9078)
+ K=20  eps=0.05   observed   3.9957  1-ln eps   3.9957  (plain clip ln(1/eps) = 2.9957)
+ K=20  eps=0.001  observed   7.9078  1-ln eps   7.9078  (plain clip ln(1/eps) = 6.9078)
+
+E2 worst-case regret (vertex formula), K=5, truth rare_class(5, rho), eps=rho; and per unit payment range
+ rho=0.05   tangent   2.3805 /range 0.596   brier 1.1281 /range 0.564
+ rho=0.01   tangent   4.1407 /range 0.739   brier 1.2251 /range 0.613
+ rho=0.001  tangent   6.5090 /range 0.823   brier 1.2475 /range 0.624
+
+E3 curvature per unit payment range, moving mass between rare class 0 and class 1 (K=5), eps=rho vs Brier (=1.000)
+ rho=0.5     tangent/range      1.34  brier/range 1.000  ratio      1.34
+ rho=0.2     tangent/range      1.92  brier/range 1.000  ratio      1.92
+ rho=0.05    tangent/range      3.03  brier/range 1.000  ratio      3.03
+ rho=0.01    tangent/range      9.28  brier/range 1.000  ratio      9.28
+ rho=0.001   tangent/range     63.48  brier/range 1.000  ratio     63.48
+ rho=0.0001  tangent/range    489.90  brier/range 1.000  ratio    489.90
+
+E4 best cutoff for truth rho=0.001 (K=5): curvature per range of 0<->1 shift as eps varies
+ eps=1e-05      40.119
+ eps=0.0001     49.166
+ eps=0.0003     55.094
+ eps=0.001      63.482
+ eps=0.003      24.771
+ eps=0.01        9.278
+ eps=0.1         2.120
+ grid argmax eps = 0.00100 (value 63.482); truth p_min = 0.001
+
+E5 dropping the rare class (r_0 = 0, rest rescaled), K=5, eps=rho: regret in each score
+ rho=0.05   tangent 0.026271  brier 0.003125  ratio    8.4  closed form 0.026271  log inf
+ rho=0.01   tangent 0.005050  brier 0.000125  ratio   40.4  closed form 0.005050  log inf
+ rho=0.001  tangent 0.000501  brier 0.000001  ratio  400.4  closed form 0.000501  log inf
+
+E6 clipping instead of extending: floor reports at eps and renormalise. truth rho=eps/10 (K=5), eps=0.01
+ best clipped report class-0 mass 0.00991 vs truth 0.00100; regret of clipping under log (unavoidable) 0.006657
+ tangent regret of the same clipped report 0.004010; tangent lets the truth be reported (regret 0)
+ max payment: clipped log 4.605, tangent range 5.605

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "collision-elicitation"
+version = "0.1.0"
+description = "Eliciting the replica-agreement (collision) probability of a nondeterministic operation from pairs of runs: proper pair score, U-statistic variance, one-sample impossibility, k-fold generalisation, float32 reduction-order check"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

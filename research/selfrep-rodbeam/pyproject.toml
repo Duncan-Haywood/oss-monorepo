@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "selfrep-rodbeam"
+version = "0.1.0"
+description = "Beam model of the Prusa Mendel's smooth rods: what a wooden, printed or aluminium rod costs in stiffness"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chip-ppa-mac"
+version = "0.1.0"
+description = "Fused multiply-accumulate rewrites scored under every ABC script, with mapped-netlist equivalence"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

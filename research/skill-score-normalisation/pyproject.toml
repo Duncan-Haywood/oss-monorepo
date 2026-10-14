@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "skill-score-normalisation"
+version = "0.1.0"
+description = "Brier skill scores normalised by the realised base rate are improper: exact optimal report, O(1/n) distortion, cross-task leakage, and proper fixes"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

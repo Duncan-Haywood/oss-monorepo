@@ -1,0 +1,19 @@
+cube 20 mm, mass 9.92 g, mu 0.5, mu_t(ball) 0.002 m; slip-only force m*g/(2mu) = 0.0973 N
+contacts at rest (part-pad): flat 10, ball 2
+d_mm | ball: bound_N mujoco_N ratio | flat: lower(best split) upper(equal split) mujoco_N
+   0 | 0.0973 0.0977 1.004 | 0.0973 0.0973 0.0977
+   2 | 0.1088 0.1086 0.999 | 0.0973 0.0992 0.0989
+   4 | 0.1376 0.1392 1.011 | 0.0973 0.1041 0.0989
+   6 | 0.1754 0.1758 1.002 | 0.0973 0.1109 0.1001
+   8 | 0.2176 0.2173 0.999 | 0.0973 0.1188 0.1013
+  10 | 0.2620 0.2637 1.006 | 0.0973 0.1282 0.1025
+  15 | 0.3777 0.3809 1.008 | 0.1088 0.1534 0.1221
+  20 | 0.4962 0.4980 1.004 | 0.1376 0.1808 0.1611
+ball ratio min 0.999 max 1.011; flat MuJoCo inside [lower, upper] (2% tolerance) in 8 of 8 rows
+rotation-tolerance check at d = 10 mm (rows above use 3 deg): pad rot_deg min_force_N
+ball 1 0.2637
+ball 3 0.2637
+ball 10 0.2637
+flat 1 0.1025
+flat 3 0.1025
+flat 10 0.1025

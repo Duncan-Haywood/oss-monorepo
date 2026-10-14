@@ -1,0 +1,31 @@
+assumed inputs: a=1.0 per machine-hour; W=50.0 h, V=170.3 per copy (selfrep-growth/selfrep-closure); horizon T=600 h; fleet starts at 1
+fluid model, Euler step 0.25 h, cash free; objective = goods + s x (machines at T); s is the assumed resale value per machine
+
+== fail=0.0: 1/k = 50.0 h, never-switch threshold s* = a/k = 50.0  (29% of V)
+s=    0.0 (0.00 s*): closed-form ts= 550.0 (goods phase  50.0 h)  grid ts= 550.0  J_grid=   2912767.8  J(closed ts)=   2912767.8  Euler/analytic= 0.973
+s=    5.0 (0.10 s*): closed-form ts= 555.0 (goods phase  45.0 h)  grid ts= 555.0  J_grid=   3218304.3  J(closed ts)=   3218304.3  Euler/analytic= 0.973
+s=   12.5 (0.25 s*): closed-form ts= 562.5 (goods phase  37.5 h)  grid ts= 562.0  J_grid=   3737646.3  J(closed ts)=   3737738.9  Euler/analytic= 0.972
+s=   25.0 (0.50 s*): closed-form ts= 575.0 (goods phase  25.0 h)  grid ts= 575.0  J_grid=   4796363.0  J(closed ts)=   4796363.0  Euler/analytic= 0.972
+s=   50.0 (1.00 s*): closed-form ts= 600.0 (goods phase   0.0 h)  grid ts= 600.0  J_grid=   7898019.8  J(closed ts)=   7898019.8  Euler/analytic= 0.971
+s=   75.0 (1.50 s*): closed-form ts= 600.0 (goods phase   0.0 h)  grid ts= 600.0  J_grid=  11847029.7  J(closed ts)=  11847029.7  Euler/analytic= 0.971
+
+== fail=0.2: 1/k = 62.5 h, never-switch threshold s* = a/k = 62.5  (37% of V)
+s=    0.0 (0.00 s*): closed-form ts= 537.5 (goods phase  62.5 h)  grid ts= 537.0  J_grid=    333699.6  J(closed ts)=    333704.9  Euler/analytic= 0.983
+s=    6.2 (0.10 s*): closed-form ts= 543.8 (goods phase  56.2 h)  grid ts= 544.0  J_grid=    368721.5  J(closed ts)=    368727.4  Euler/analytic= 0.983
+s=   15.6 (0.25 s*): closed-form ts= 553.1 (goods phase  46.9 h)  grid ts= 553.0  J_grid=    428272.8  J(closed ts)=    428272.8  Euler/analytic= 0.983
+s=   31.2 (0.50 s*): closed-form ts= 568.8 (goods phase  31.2 h)  grid ts= 569.0  J_grid=    549629.1  J(closed ts)=    549637.9  Euler/analytic= 0.982
+s=   62.5 (1.00 s*): closed-form ts= 600.0 (goods phase   0.0 h)  grid ts= 600.0  J_grid=    905296.3  J(closed ts)=    905296.3  Euler/analytic= 0.981
+s=   93.8 (1.50 s*): closed-form ts= 600.0 (goods phase   0.0 h)  grid ts= 600.0  J_grid=   1357944.5  J(closed ts)=   1357944.5  Euler/analytic= 0.981
+
+== fail=0.4: 1/k = 83.3 h, never-switch threshold s* = a/k = 83.3  (49% of V)
+s=    0.0 (0.00 s*): closed-form ts= 516.7 (goods phase  83.3 h)  grid ts= 517.0  J_grid=     40682.5  J(closed ts)=     40683.0  Euler/analytic= 0.991
+s=    8.3 (0.10 s*): closed-form ts= 525.0 (goods phase  75.0 h)  grid ts= 525.0  J_grid=     44955.0  J(closed ts)=     44955.0  Euler/analytic= 0.991
+s=   20.8 (0.25 s*): closed-form ts= 537.5 (goods phase  62.5 h)  grid ts= 537.0  J_grid=     52218.1  J(closed ts)=     52218.5  Euler/analytic= 0.990
+s=   41.7 (0.50 s*): closed-form ts= 558.3 (goods phase  41.7 h)  grid ts= 558.0  J_grid=     67024.7  J(closed ts)=     67024.9  Euler/analytic= 0.990
+s=   83.3 (1.00 s*): closed-form ts= 600.0 (goods phase   0.0 h)  grid ts= 600.0  J_grid=    110422.6  J(closed ts)=    110422.6  Euler/analytic= 0.989
+s=  125.0 (1.50 s*): closed-form ts= 600.0 (goods phase   0.0 h)  grid ts= 600.0  J_grid=    165633.9  J(closed ts)=    165633.9  Euler/analytic= 0.989
+
+== cost of ignoring the terminal value (fail=0): switch at the s=0 time while the fleet is worth s
+s=  12.5: J at s=0 switch (550 h) =    3640959.8 vs optimum    3737646.3  ( 97.4%)
+s=  25.0: J at s=0 switch (550 h) =    4369151.7 vs optimum    4796363.0  ( 91.1%)
+s=  50.0: J at s=0 switch (550 h) =    5825535.7 vs optimum    7898019.8  ( 73.8%)

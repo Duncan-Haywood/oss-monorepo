@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-14",
+  "session": "https://claude.ai/code/session_01KopQnr43kQVbEHmaGeETt3",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-14T13:14:09Z",
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "chip-systolic-p32"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/438",
+  "commits": [
+    "fff4eda"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "apt package index was stale; needed apt-get update; apt python3-numpy shadowed pip numpy, used venv"
+  ],
+  "integrity_issues": [],
+  "notes": "Chip track (random pick 3) had all milestones done; took next steps from chip-systolic-hidewide. Queue: no open PRs; old unrelated-history branches left alone.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

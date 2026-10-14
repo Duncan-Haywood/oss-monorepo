@@ -1,0 +1,13 @@
+[project]
+name = "garment-pattern-fit"
+version = "0.1.0"
+description = "Stylised pattern-fit scoring of a skirt-like tube by position-based cloth drape on an elliptical body"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

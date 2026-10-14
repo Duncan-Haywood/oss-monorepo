@@ -1,0 +1,31 @@
+Deadband twin: integrator plant x+ = x + f(u), u = -K(x+n). Twin f(u)=u; real f = deadband width d (d=0.1 unless stated).
+
+== 1. Measurement noise s: stationary rms error, twin (exact s*sqrt(K/(2-K))) vs real deadband (simulated, n=2e5, K=0.5) ==
+s       twin rms   real rms   real/twin
+0       0.0000     0.2000     inf
+0.01    0.0058     0.1591     27.56
+0.02    0.0115     0.1183     10.24
+0.03    0.0173     0.0774     4.47
+0.04    0.0231     0.0368     1.59
+0.05    0.0289     0.0107     0.37
+0.1     0.0577     0.0261     0.45
+0.2     0.1155     0.0749     0.65
+
+== 2. Dither U(-a,a) added to u (K=0.5, d=0.1): real stationary rms ==
+a       s=0        s=0.02     s=0.05
+0       0.2000     0.1176     0.0103    
+0.02    0.1600     0.0911     0.0108    
+0.05    0.1000     0.0352     0.0126    
+0.08    0.0400     0.0048     0.0172    
+0.1     0.0001     0.0090     0.0226    
+0.15    0.0334     0.0355     0.0439    
+0.2     0.0668     0.0678     0.0728    
+0.3     0.1338     0.1339     0.1366    
+twin rms (no dither) at s=0.02 / 0.05: 0.0115 / 0.0289
+
+== 3. Inverse-deadband compensation with assumed width dh under noise (K=0.5, d=0.1, s=0.02), stationary rms ==
+dh=0     rms 0.1209
+dh=0.08  rms 0.0053
+dh=0.1   rms 0.0116
+dh=0.12  rms 0.0233
+dh=0.15  rms 0.0399

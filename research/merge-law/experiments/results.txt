@@ -1,0 +1,37 @@
+E1 merged model vs law, d=12 r=3 m=4 (|e0|=1), 20000 runs: |e|^2 / seen loss / fresh loss
+ a=1/m (average)        a=0.250  |e|^2 law 0.6094 sim 0.6090 | seen law 0.0879 sim 0.0879 | fresh law 0.1523 sim 0.1523
+ a*=1/(1+(m-1)p)        a=0.571  |e|^2 law 0.4286 sim 0.4279 | seen law 0.0459 sim 0.0460 | fresh law 0.1071 sim 0.1066
+ a=1 (task arithmetic)  a=1.000  |e|^2 law 0.7500 sim 0.7525 | seen law 0.2812 sim 0.2832 | fresh law 0.1875 sim 0.1886
+
+E2 optimal scale and residual error vs m (r/d = 1/8): a*, E|e|^2 at a*, at a=1/m, at a=1, sequential (1-p)^m
+ m=   1 a*=1.000 best 0.8750 avg 0.8750 sum     0.875 sequential 8.75e-01
+ m=   2 a*=0.889 best 0.7778 avg 0.8203 sum     0.781 sequential 7.66e-01
+ m=   4 a*=0.727 best 0.6364 avg 0.7930 sum     0.688 sequential 5.86e-01
+ m=   8 a*=0.533 best 0.4667 avg 0.7793 sum     0.875 sequential 3.44e-01
+ m=  16 a*=0.348 best 0.3043 avg 0.7725 sum     2.750 sequential 1.18e-01
+ m=  64 a*=0.113 best 0.0986 avg 0.7673 sum    56.000 sequential 1.94e-04
+ m= 256 a*=0.030 best 0.0266 avg 0.7661 sum   989.000 sequential 1.43e-15
+
+E3 repeated merge rounds vs law, d=12 r=3 m=5, 8000 runs: |e|^2 after k rounds
+ k=0: law 1.0000 sim 1.0000
+ k=1: law 0.3750 sim 0.3734
+ k=2: law 0.1406 sim 0.1397
+ k=3: law 0.0527 sim 0.0522
+ k=4: law 0.0198 sim 0.0196
+ k=5: law 0.0074 sim 0.0073
+ k=6: law 0.0028 sim 0.0028
+
+E4 parallel speedup over sequential steps, efficiency, and m at 50% / 25% efficiency
+ d=  32 r=  1 r/d=0.0312 m=2:1.97x m=4:3.82x m=8:7.23x m=16:13.11x m=64:35.27x | m@50%=80 m@25%=297 1/p=32
+ d=  32 r=  4 r/d=0.1250 m=2:1.88x m=4:3.38x m=8:5.71x m=16:8.91x m=64:17.35x | m@50%=20 m@25%=72 1/p=8
+ d= 128 r=  4 r/d=0.0312 m=2:1.97x m=4:3.82x m=8:7.23x m=16:13.11x m=64:35.27x | m@50%=80 m@25%=297 1/p=32
+ d= 128 r= 16 r/d=0.1250 m=2:1.88x m=4:3.38x m=8:5.71x m=16:8.91x m=64:17.35x | m@50%=20 m@25%=72 1/p=8
+ d= 512 r=  8 r/d=0.0156 m=2:1.98x m=4:3.91x m=8:7.59x m=16:14.37x m=64:44.52x | m@50%=161 m@25%=596 1/p=64
+
+E5 seen vs fresh loss trade-off over the scale a, d=32 r=4 m=8
+ a=0.100 |e|^2 0.8188 seen 0.0835 fresh 0.1023
+ a=0.125 |e|^2 0.7793 seen 0.0748 fresh 0.0974
+ a=0.250 |e|^2 0.6172 seen 0.0413 fresh 0.0771
+ a=0.533 |e|^2 0.4667 seen 0.0272 fresh 0.0583
+ a=0.750 |e|^2 0.5547 seen 0.0745 fresh 0.0693
+ a=1.000 |e|^2 0.8750 seen 0.1914 fresh 0.1094
