@@ -1808,6 +1808,8 @@ const CATEGORY_RULES = [
       // `ie-self-employed-tax-set-aside-calculator` and `za-freelancer-provisional-tax-set-aside-calculator` joined 2026-10-14: Irish and South African self-employed tax set-aside, siblings of the AU/CA/NZ tools, same compliance-arithmetic job.
       || slug === 'ie-self-employed-tax-set-aside-calculator'
       || slug === 'za-freelancer-provisional-tax-set-aside-calculator'
+      // `in-freelancer-advance-tax-set-aside-calculator` joined 2026-10-14 on its first commit: Indian freelancer income tax, 44ADA and advance tax set-aside, sibling of the AU/CA/NZ/IE/ZA tools.
+      || slug === 'in-freelancer-advance-tax-set-aside-calculator'
       // `au-gst-registration-checker` joined 2026-10-13 on its first commit: the Australian sibling of the GST/HST small-supplier test, same compliance-arithmetic job.
       || slug === 'au-gst-registration-checker'
       // `uk-cis-deduction-refund-calculator` joined 2026-10-13 on its first commit: UK construction subcontractors' CIS deduction and refund, sibling of the UK VAT and sole-trader tools.
