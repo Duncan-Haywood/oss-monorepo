@@ -27,6 +27,7 @@ export const SITUATIONS = [
 export const TOOLS = [
   ["Pay and tax on a salary", "uk-take-home-pay-calculator", "UK take-home pay calculator", "Salary after income tax, National Insurance, pension and student loan, per year, month and week.", ["employed", "studentloan"]],
   ["Pay and tax on a salary", "uk-scottish-income-tax-calculator", "Scottish income tax calculator", "The same take-home calculation under the six Scottish bands, compared with the rest of the UK.", ["scotland", "employed"]],
+  ["Pay and tax on a salary", "uk-salary-sacrifice-calculator", "UK salary sacrifice calculator", "The same pension contribution by salary sacrifice, net pay or relief at source: tax, NI, take-home cost and employer NI saving.", ["employed", "pension", "employer"]],
   ["Pay and tax on a salary", "uk-student-loan-repayment-calculator", "UK student loan repayment calculator", "Monthly deduction for Plans 1, 2, 4, 5 and Postgraduate Loan, payoff year or write-off, overpay test.", ["studentloan", "employed"]],
   ["Pay and tax on a salary", "uk-100k-tax-trap-calculator", "UK £100k tax trap calculator", "The 60% effective rate between £100,000 and £125,140 and the pension payment that avoids it.", ["over100k", "pension", "children"]],
   ["Pay and tax on a salary", "uk-child-benefit-charge-calculator", "UK Child Benefit charge calculator", "High Income Child Benefit Charge over £60,000 and whether to opt out or pay into a pension.", ["children", "over100k", "married"]],
@@ -48,6 +49,7 @@ export const TOOLS = [
   ["Employing people", "uk-employer-hiring-cost-calculator", "UK employer hiring cost calculator", "True first-year cost of a hire with employer National Insurance and pension.", ["employer"]],
   ["Employing people", "uk-statutory-sick-pay-calculator", "UK Statutory Sick Pay calculator", "SSP weekly and daily rate, waiting days and the 28-week limit.", ["employer", "leave"]],
   ["Employing people", "uk-statutory-maternity-pay-calculator", "UK Statutory Maternity Pay calculator", "SMP eligibility and the 39-week schedule, plus paternity pay.", ["employer", "leave"]],
+  ["Employing people", "uk-minimum-wage-checker", "UK minimum wage checker", "Effective hourly rate against the National Living Wage and NMW, shortfall, arrears and HMRC penalty exposure.", ["employer", "employed"]],
   ["Employing people", "uk-holiday-pay-calculator", "UK holiday pay calculator", "Statutory holiday for part-year and irregular-hours workers and the value of unpaid leave.", ["employer", "leave", "employed"]],
   ["Employing people", "uk-redundancy-pay-calculator", "UK redundancy pay calculator", "Statutory redundancy pay, notice and whether an offer beats the statutory minimum.", ["leave", "employer", "employed"]],
 ];

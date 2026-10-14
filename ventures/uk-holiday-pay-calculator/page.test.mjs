@@ -66,3 +66,7 @@ test("the pattern switch shows only the fields that apply", () => {
   assert.match(html, /data-for="regular"/);
   assert.match(html, /data-for="irregular"/);
 });
+
+test("links to the minimum wage checker", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/uk-minimum-wage-checker\/"/);
+});
