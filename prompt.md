@@ -58,13 +58,15 @@ This brief is the owner's explicit request to open a pull request for every bran
 8. **Never push to a merged branch.** Anything after the merge goes on a new branch from `main`, with its own pull request.
 9. **Check before you stop.** List every branch you pushed this run. Each one must either be merged into `main` or have an open pull request with a blocker comment. Put that list in your final message.
 
-## End state: one repository
-The goal is a single repository: `Duncan-Haywood/oss-monorepo` (formerly `fp-monorepo`), with this portfolio living under `research/`. Both commit histories must survive. Nothing gets squashed or re-committed as a fresh copy.
-- Until the move lands, work continues here on `main`, as `CLAUDE.md` says. Keep the tree movable: every project stays self-contained under `research/<slug>/`, and nothing hardcodes this repository's name, URL or root paths where a relative path would do.
-- The move is a history-preserving merge. Rewrite this repository's history into `research/` (`git filter-repo --to-subdirectory-filter research`, or the equivalent subtree merge). Then merge it into `oss-monorepo` with `--allow-unrelated-histories` and a merge commit. Afterwards, `git log -- research/<slug>` in `oss-monorepo` shows that project's original commits.
-- That is what <https://github.com/Duncan-Haywood/oss-monorepo/pull/6143> does, but its copy dates from 2026-10-01. When the move resumes, redo the import from this repository's current `main`, or merge the newer history into that branch. Do not hand-copy files.
-- After the merge lands, this repository is archived, not deleted, so its pull requests and links keep working. Its README points to the new home. Work then continues in `oss-monorepo/research/`.
-- The owner decides when the move resumes. A run here does not start it unasked, but nothing a run does should make it harder.
+## Repository merge: mirror, then move
+All work is moving to one repository, `Duncan-Haywood/oss-monorepo` (formerly `fp-monorepo`), where this portfolio lives under `research/`. Until the move, the two repositories are mirrored. Building and keeping that mirror is standing work now, not something to wait for. The action list is "Repository merge" in [`PROJECTS.md`](PROJECTS.md). Once Landing work steps 1 to 3 are done, take its first free milestone before picking a track.
+- **One writer at a time.** Until cutover, this repository's `main` is the source, and `oss-monorepo/research/` is a copy that a sync refreshes. Nobody edits that copy, because the next sync overwrites it: make the change here, then sync. After cutover, `oss-monorepo` is the source and this repository is archived. The two never both take new work.
+- **No history loss.** Every commit made here reaches `oss-monorepo` with its original hash, so the commits in `prompts/runs.jsonl`, the `Prompt-Version` trailers and old links still resolve there, and `git log -- research/<slug>` there lists the same commits as here. A sync is a merge commit whose second parent is this repository's `main`, with the files placed under `research/` by a fixed path map (`PROJECTS.md` gives it).
+- **Never** squash, rebase, cherry-pick or hand-copy research work into `oss-monorepo`, and merge a mirror pull request only with a merge commit. Never rewrite this repository's history either: no force-push to `main`, and no `git filter-repo` or rebase of anything already pushed here.
+- **Keep the tree movable.** Every project stays self-contained under `research/<slug>/`. Nothing hardcodes this repository's name, URL or root paths where a relative path would do. `site/build.py` and the tests must run both here and at `oss-monorepo/research/`.
+- **In `oss-monorepo`, its rules govern the pull request.** Follow its `CLAUDE.md` for checks and landing, with one exception: a mirror pull request merges with a merge commit, never a squash.
+- **Cutover is the owner's.** These steps need the owner. `oss-monorepo` must be public first, because this portfolio has to stay public. The scheduled runs must point at `oss-monorepo`. And this repository is then archived, never deleted, so its pull requests, branches, links and Pages site keep working. Prepare everything else, and list what is left for the owner in your final message.
+- <https://github.com/Duncan-Haywood/oss-monorepo/pull/6143> imported a copy from 2026-10-01 through a one-off move commit, which later syncs cannot build on. The sync replaces it; `PROJECTS.md` says how to retire it without losing anything.
 
 ## Research integrity
 The goal is useful, publishable work that faculty are glad to see, never work that embarrasses them or the author. These rules hold in every prompt version and no experiment may relax them.
@@ -100,7 +102,7 @@ Before you merge, append a line to `prompts/runs.jsonl` as the last commit on yo
  "model": "<model id that made the commits>", "models_seen": ["<every model that served a turn, incl. fallbacks>"],
  "started": "<ISO time>", "ended": "<ISO time>", "wall_minutes": 0,
  "tokens_in": null, "tokens_out": null, "cost_usd": null, "usage": null, "tool_calls": null,
- "task": "new-project|extend|fix|merge|meta", "projects": ["<slug>"], "pr": "<url or null>",
+ "task": "new-project|extend|fix|merge|mirror|meta", "projects": ["<slug>"], "pr": "<url or null>",
  "commits": ["<sha>"], "lines_added": 0, "lines_removed": 0,
  "merged": null, "ci_failures_before_green": 0, "review_findings": 0, "tests_added": 0, "build_ok": true,
  "outcome": "success|partial|failed",
