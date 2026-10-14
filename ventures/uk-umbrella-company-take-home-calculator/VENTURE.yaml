@@ -1,0 +1,37 @@
+name: uk-umbrella-company-take-home-calculator
+description: >-
+  Free browser tool for UK agency contractors paid through an umbrella company: enter the agency day rate to see umbrella margin, employer National Insurance, income tax, NI and take-home pay per day, week and month (England, Wales and NI, 2026/27 rates), what a higher margin costs, and the day rate needed for a target take-home. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no umbrella-company or contractor day-rate tool in ventures/ (uk-ir35-inside-outside-calculator and uk-sole-trader-vs-limited-company-calculator cover other routes).
+#
+# First visitor: a UK agency contractor or locum searching "umbrella company calculator", "day rate to take home", "£400 a day after tax umbrella". Money-relevant: day-rate negotiation, high-intent traffic that umbrella companies and payroll brokers pay to acquire.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: umbrella vs Ltd vs sole-trader comparison across day rates, and a rate-negotiation sheet behind an env-var switch. Referral fees from umbrella/contractor-accountancy comparison are an option only once disclosed and honest.
+#
+# Liability: rates written from memory, not HMRC pages; every result names GOV.UK to verify, carries no-warranty and not-tax-advice clauses, and says what it does not decide (Scotland, tax codes, fees, expenses, weekly timing).
+hypotheses:
+  - claim: >-
+      UK agency contractors will use a free calculator to see what a day rate is worth through an umbrella and to set a target rate before negotiating.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or threshold differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-umbrella-company-take-home-calculator/
+  analytics: null
