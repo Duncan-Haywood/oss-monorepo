@@ -33,51 +33,51 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548267 bytes
+#   portfolio-front-tools-0: 145 files, 548272 bytes
 #   portfolio-front-tools-1: 92 files, 555558 bytes
-#   portfolio-front-tools-2: 144 files, 553600 bytes
-#   portfolio-front-tools-3: 128 files, 549875 bytes
-#   portfolio-front-tools-4: 136 files, 554165 bytes
+#   portfolio-front-tools-2: 144 files, 553598 bytes
+#   portfolio-front-tools-3: 128 files, 549878 bytes
+#   portfolio-front-tools-4: 136 files, 554168 bytes
 #   portfolio-front-tools-5: 130 files, 549883 bytes
-#   portfolio-front-tools-6: 127 files, 556826 bytes
-#   portfolio-front-tools-7: 121 files, 556370 bytes
-#   portfolio-front-tools-8: 131 files, 557053 bytes
-#   portfolio-front-tools-9: 136 files, 552533 bytes
-#   portfolio-front-tools-10: 136 files, 555027 bytes
-#   portfolio-front-tools-11: 136 files, 556230 bytes
-#   portfolio-front-tools-12: 127 files, 549491 bytes
-#   portfolio-front-tools-13: 131 files, 554365 bytes
-#   portfolio-front-tools-14: 119 files, 556772 bytes
-#   portfolio-front-tools-15: 140 files, 556860 bytes
-#   portfolio-front-tools-16: 116 files, 546451 bytes
-#   portfolio-front-tools-17: 133 files, 556902 bytes
-#   portfolio-front-tools-18: 124 files, 556651 bytes
-#   portfolio-front-tools-19: 126 files, 557007 bytes
-#   portfolio-front-tools-20: 122 files, 556177 bytes
-#   portfolio-front-tools-21: 126 files, 555002 bytes
-#   portfolio-front-tools-22: 117 files, 554231 bytes
-#   portfolio-front-tools-23: 117 files, 551528 bytes
-#   portfolio-front-tools-24: 130 files, 556631 bytes
-#   portfolio-front-tools-25: 128 files, 556553 bytes
-#   portfolio-front-tools-26: 134 files, 556013 bytes
-#   portfolio-front-tools-27: 133 files, 551254 bytes
-#   portfolio-front-tools-28: 121 files, 552717 bytes
-#   portfolio-front-tools-29: 127 files, 556713 bytes
-#   portfolio-front-tools-30: 138 files, 555100 bytes
-#   portfolio-front-tools-31: 125 files, 553576 bytes
-#   portfolio-front-tools-32: 125 files, 555080 bytes
-#   portfolio-front-tools-33: 135 files, 552487 bytes
-#   portfolio-front-tools-34: 109 files, 554825 bytes
-#   portfolio-front-tools-35: 100 files, 552213 bytes
-#   portfolio-front-tools-36: 128 files, 549705 bytes
-#   portfolio-front-tools-37: 118 files, 553995 bytes
-#   portfolio-front-tools-38: 130 files, 553328 bytes
-#   portfolio-front-tools-39: 124 files, 555502 bytes
-#   portfolio-front-tools-40: 137 files, 553185 bytes
-#   portfolio-front-tools-41: 135 files, 555874 bytes
-#   portfolio-front-tools-42: 120 files, 547820 bytes
-#   portfolio-front-tools-43: 109 files, 535624 bytes
-#   portfolio-front-tools-44: 50 files, 263720 bytes
+#   portfolio-front-tools-6: 127 files, 556831 bytes
+#   portfolio-front-tools-7: 121 files, 556373 bytes
+#   portfolio-front-tools-8: 131 files, 557056 bytes
+#   portfolio-front-tools-9: 136 files, 552534 bytes
+#   portfolio-front-tools-10: 136 files, 555024 bytes
+#   portfolio-front-tools-11: 136 files, 556273 bytes
+#   portfolio-front-tools-12: 127 files, 549476 bytes
+#   portfolio-front-tools-13: 131 files, 554354 bytes
+#   portfolio-front-tools-14: 119 files, 556774 bytes
+#   portfolio-front-tools-15: 140 files, 556916 bytes
+#   portfolio-front-tools-16: 116 files, 546461 bytes
+#   portfolio-front-tools-17: 133 files, 556906 bytes
+#   portfolio-front-tools-18: 124 files, 556675 bytes
+#   portfolio-front-tools-19: 126 files, 557049 bytes
+#   portfolio-front-tools-20: 122 files, 556196 bytes
+#   portfolio-front-tools-21: 126 files, 554995 bytes
+#   portfolio-front-tools-22: 117 files, 554222 bytes
+#   portfolio-front-tools-23: 117 files, 551537 bytes
+#   portfolio-front-tools-24: 130 files, 556585 bytes
+#   portfolio-front-tools-25: 128 files, 556541 bytes
+#   portfolio-front-tools-26: 134 files, 556017 bytes
+#   portfolio-front-tools-27: 133 files, 551241 bytes
+#   portfolio-front-tools-28: 121 files, 552787 bytes
+#   portfolio-front-tools-29: 127 files, 556701 bytes
+#   portfolio-front-tools-30: 138 files, 555121 bytes
+#   portfolio-front-tools-31: 125 files, 553557 bytes
+#   portfolio-front-tools-32: 125 files, 555134 bytes
+#   portfolio-front-tools-33: 135 files, 552480 bytes
+#   portfolio-front-tools-34: 109 files, 554704 bytes
+#   portfolio-front-tools-35: 100 files, 552214 bytes
+#   portfolio-front-tools-36: 128 files, 549698 bytes
+#   portfolio-front-tools-37: 118 files, 554021 bytes
+#   portfolio-front-tools-38: 130 files, 553293 bytes
+#   portfolio-front-tools-39: 124 files, 555500 bytes
+#   portfolio-front-tools-40: 137 files, 553445 bytes
+#   portfolio-front-tools-41: 135 files, 556697 bytes
+#   portfolio-front-tools-42: 122 files, 555636 bytes
+#   portfolio-front-tools-43: 110 files, 540091 bytes
+#   portfolio-front-tools-44: 50 files, 263674 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -5552,6 +5552,9 @@ configMapGenerator:
       - uk-trading-allowance-calculator__calc.mjs.gz=uk-trading-allowance-calculator__calc.mjs.gz
       - uk-trading-allowance-calculator__index.html.gz=uk-trading-allowance-calculator__index.html.gz
       - uk-trading-allowance-calculator__usage.mjs.gz=uk-trading-allowance-calculator__usage.mjs.gz
+      - uk-umbrella-company-take-home-calculator__calc.mjs.gz=uk-umbrella-company-take-home-calculator__calc.mjs.gz
+      - uk-umbrella-company-take-home-calculator__index.html.gz=uk-umbrella-company-take-home-calculator__index.html.gz
+      - uk-umbrella-company-take-home-calculator__usage.mjs.gz=uk-umbrella-company-take-home-calculator__usage.mjs.gz
       - uk-vat-flat-rate-scheme-calculator__calc.mjs.gz=uk-vat-flat-rate-scheme-calculator__calc.mjs.gz
       - uk-vat-flat-rate-scheme-calculator__index.html.gz=uk-vat-flat-rate-scheme-calculator__index.html.gz
       - uk-vat-flat-rate-scheme-calculator__usage.mjs.gz=uk-vat-flat-rate-scheme-calculator__usage.mjs.gz
@@ -5639,14 +5642,14 @@ configMapGenerator:
       - vercel-bill-estimator__cli.mjs.gz=vercel-bill-estimator__cli.mjs.gz
       - vercel-bill-estimator__engine.mjs.gz=vercel-bill-estimator__engine.mjs.gz
       - vercel-bill-estimator__how-to-reduce-your-vercel-bill.html.gz=vercel-bill-estimator__how-to-reduce-your-vercel-bill.html.gz
-      - vercel-bill-estimator__index.html.gz=vercel-bill-estimator__index.html.gz
-      - vercel-bill-estimator__usage.mjs.gz=vercel-bill-estimator__usage.mjs.gz
-      - veterinarian-associate-pay-calculator__calc.mjs.gz=veterinarian-associate-pay-calculator__calc.mjs.gz
   - name: portfolio-front-tools-42
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vercel-bill-estimator__index.html.gz=vercel-bill-estimator__index.html.gz
+      - vercel-bill-estimator__usage.mjs.gz=vercel-bill-estimator__usage.mjs.gz
+      - veterinarian-associate-pay-calculator__calc.mjs.gz=veterinarian-associate-pay-calculator__calc.mjs.gz
       - veterinarian-associate-pay-calculator__index.html.gz=veterinarian-associate-pay-calculator__index.html.gz
       - veterinarian-associate-pay-calculator__usage.mjs.gz=veterinarian-associate-pay-calculator__usage.mjs.gz
       - veterinary-dental-estimate-calculator__calc.mjs.gz=veterinary-dental-estimate-calculator__calc.mjs.gz
@@ -5766,12 +5769,12 @@ configMapGenerator:
       - wedding-day-timeline-builder__usage.mjs.gz=wedding-day-timeline-builder__usage.mjs.gz
       - wedding-day-timeline-builder__wedding-photography-timeline.html.gz=wedding-day-timeline-builder__wedding-photography-timeline.html.gz
       - wedding-florist-proposal-calculator__calc.mjs.gz=wedding-florist-proposal-calculator__calc.mjs.gz
-      - wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz=wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz
   - name: portfolio-front-tools-43
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz=wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz
       - wedding-florist-proposal-calculator__index.html.gz=wedding-florist-proposal-calculator__index.html.gz
       - wedding-florist-proposal-calculator__share.mjs.gz=wedding-florist-proposal-calculator__share.mjs.gz
       - wedding-florist-proposal-calculator__usage.mjs.gz=wedding-florist-proposal-calculator__usage.mjs.gz
