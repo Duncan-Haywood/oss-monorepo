@@ -1,0 +1,38 @@
+name: uk-working-from-home-tax-relief-calculator
+description: >-
+  Free browser tool for UK employees: the 6 GBP a week working-from-home tax relief ended on 6 April 2026, but 2022/23 to 2025/26 can still be claimed. Enter weeks at home per year to see the refund, each year's claim deadline and what has already expired. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no UK homeworking-relief tool in ventures/ (home-office-deduction-calculator is the US rule; uk-simplified-expenses-calculator is self-employed only).
+#
+# First visitor: UK employee searching "working from home tax relief claim back", "can I still claim working from home tax relief 2026", "P87 deadline". Time-limited demand: the loss of the relief drove news coverage, and each tax year's window closes on a known date.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: assisted P87/Self Assessment filing behind an env-var switch.
+#
+# Liability: rules checked via web summaries from tax advisers, not HMRC pages; every result names GOV.UK to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (whether the employer required home working, allowable costs, Scotland, claims already made). Ethical risk is encouraging an ineligible claim, mitigated by the required-by-employer question that zeroes the result.
+hypotheses:
+  - claim: >-
+      UK employees who worked from home will use a free calculator to learn which past years they can still claim and by when, and will return before each deadline.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate, deadline or eligibility rule differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-working-from-home-tax-relief-calculator/
+  analytics: null

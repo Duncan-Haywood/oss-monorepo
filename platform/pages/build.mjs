@@ -1862,6 +1862,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-eis-seis-relief-calculator'
       // `uk-emi-share-option-tax-calculator` joined 2026-10-14 on its first commit: UK EMI option tax (BADR, discount, unapproved comparison), sibling of the capital gains and R&D relief tools.
       || slug === 'uk-emi-share-option-tax-calculator'
+      // `uk-mortgage-overpayment-calculator` joined 2026-10-14 on its first commit: UK mortgage overpayment arithmetic, sibling of the stamp duty and landlord tools.
+      || slug === 'uk-mortgage-overpayment-calculator'
       // `uk-gift-aid-higher-rate-relief-calculator` joined 2026-10-14 on its first commit: UK charity-giving tax relief (Gift Aid, carry-back, allowance taper), sibling of the £100k trap and self assessment tools.
       || slug === 'uk-gift-aid-higher-rate-relief-calculator'
       // `uk-shared-parental-pay-planner` joined 2026-10-14 on its first commit: UK shared parental pay planning for two parents, sibling of the maternity and sick pay tools.
@@ -1870,6 +1872,10 @@ const CATEGORY_RULES = [
       || slug === 'uk-mileage-allowance-calculator'
       // `uk-lifetime-isa-vs-pension-calculator` joined 2026-10-14 on its first commit: UK LISA vs pension choice, sibling of the salary sacrifice and pension annual allowance tools.
       || slug === 'uk-lifetime-isa-vs-pension-calculator'
+      // `uk-working-from-home-tax-relief-calculator` joined 2026-10-14 on its first commit: UK backdated homeworking tax relief claims, sibling of the tax code and self assessment tools.
+      || slug === 'uk-working-from-home-tax-relief-calculator'
+      // `uk-umbrella-company-take-home-calculator` joined 2026-10-14 on its first commit: UK agency day rate to take-home through an umbrella, sibling of the IR35 and take-home tools.
+      || slug === 'uk-umbrella-company-take-home-calculator'
       || slug === 'uk-holiday-pay-calculator'
       // `uk-employer-hiring-cost-calculator` joined 2026-10-14 on its first commit: UK employer cost arithmetic (NIC, pension, allowance), sibling of the take-home pay and holiday pay tools.
       || slug === 'uk-employer-hiring-cost-calculator'
