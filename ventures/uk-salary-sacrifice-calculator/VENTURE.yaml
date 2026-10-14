@@ -1,0 +1,39 @@
+name: uk-salary-sacrifice-calculator
+description: >-
+  Free browser tool for UK employees: enter salary and pension percentage to see the same contribution paid by salary sacrifice, net pay arrangement and relief at source for 2026/27 - income tax, National Insurance, student loan, take-home cost, the employer NI saving, and what the announced April 2029 cap (first GBP 2,000 NI-free) would cost. England and Scotland. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no salary sacrifice tool existed in ventures/ (take-home, 100k trap and annual allowance tools each touch pension but none compares methods or models the 2029 cap).
+#
+# First visitor: an employee offered a salary sacrifice scheme, or a higher earner near GBP 100,000, searching "salary sacrifice pension calculator", "salary sacrifice vs net pay", "salary sacrifice 2029 cap".
+# Large evergreen query family with a news spike around each Budget; volume not measured. Sibling of the UK take-home, Scottish tax, 100k trap and annual allowance tools.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: an employer-facing scheme-rollout sheet (cost to the company, NI saving, staff impact table) and an HR-team offer comparison behind an env-var switch.
+#
+# Liability: rates checked against GOV.UK and gov.scot in the building session; the 2029 cap is an announcement and is labelled as not in force; student loan thresholds are 2025/26.
+# Every result names its sources to verify, carries no-warranty and not-tax-advice clauses, and says what it does not decide. Ethical risk is overstating a saving; mitigated by sourcing, a toggle for the unlegislated rule, and a list of downsides (mortgage, statutory pay).
+hypotheses:
+  - claim: >-
+      Employees offered salary sacrifice, and higher earners near the GBP 100,000 allowance taper, will use a free calculator to see what the pension really costs in take-home pay and how the 2029 NI cap changes it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate, threshold or rule differs from GOV.UK or HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-salary-sacrifice-calculator/
+  analytics: null
