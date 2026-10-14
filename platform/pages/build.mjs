@@ -1801,6 +1801,8 @@ const CATEGORY_RULES = [
       || slug === 'ca-gst-hst-small-supplier-checker'
       // `ca-self-employed-tax-set-aside-calculator` joined 2026-10-14 on its first commit: Canadian self-employed CPP and income tax set-aside, sibling of the GST/HST small-supplier test, same compliance-arithmetic job.
       || slug === 'ca-self-employed-tax-set-aside-calculator'
+      // `us-freelancer-tax-set-aside-calculator` joined 2026-10-14 on its first commit: the US member of the self-employed set-aside family (SE tax, federal income tax with QBI, state, 1040-ES), sibling of the Schedule SE calculator.
+      || slug === 'us-freelancer-tax-set-aside-calculator'
       // `au-sole-trader-tax-set-aside-calculator` joined 2026-10-14 on its first commit: Australian sole-trader income tax and Medicare set-aside, sibling of the GST registration checker, same compliance-arithmetic job.
       || slug === 'au-sole-trader-tax-set-aside-calculator'
       // `nz-sole-trader-tax-set-aside-calculator` joined 2026-10-14 on its first commit: New Zealand self-employed income tax and ACC set-aside, sibling of the NZ GST registration checker.
