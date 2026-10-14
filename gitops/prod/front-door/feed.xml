@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1191 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1192 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -46,6 +46,14 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK landlord Section 24 calculator for 2025/26 and 2026/27: enter rent, costs, mortgage interest and other income to see your tax bill, the 20% finance cost credit and how much more you pay than under the old rules. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>UK Late Payment Interest Calculator (statutory 8% plus base rate, £40/£70/£100 compensation)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-late-payment-interest-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-late-payment-interest-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free UK late payment interest calculator: statutory interest at 8% over base rate, fixed compensation of £40, £70 or £100 and a ready-to-send demand letter for an overdue business invoice. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>UK Marriage Allowance Calculator 2025/26 and 2026/27</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Australian redundancy pay calculator: enter pay, start and end dates, age and employer size to see NES redundancy weeks, notice pay and accrued leave. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Boba Tea Shop Profit Calculator — Break-Even and Ramp-Up</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/boba-tea-shop-profit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/boba-tea-shop-profit-calculator</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free pro forma for boba, bubble tea and specialty drink shops: profit per cup, break-even cups a day with the loan, the price for your target margin, delivery-app cost, and a 60-month ramp-up with the cash reserve you need. Runs in your browser.</summary>
   </entry>
 </feed>

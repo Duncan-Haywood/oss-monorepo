@@ -1,0 +1,38 @@
+name: uk-late-payment-interest-calculator
+description: >-
+  Free browser tool for UK freelancers and small businesses with an overdue business invoice: enter the amount and due date to see statutory interest at 8% over the Bank of England base rate, the fixed £40/£70/£100 compensation, the daily rate, a 30/60/90 day projection and a ready-to-send demand letter. Nothing is uploaded. Not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; duplicate_check.py closest matches were late-invoice-collections-kit (0.27, US state-rate fees and escalation plan) and uk-self-assessment-late-penalty-calculator (0.22, HMRC penalties) -- neither covers the UK statutory B2B regime.
+#
+# First visitor: a UK freelancer or small-business owner with a late-paying client, searching "late payment interest calculator UK", "late payment of commercial debts act interest", "statutory interest invoice calculator", "late payment compensation 40 70 100".
+# Evergreen, high-intent query family (the Act is widely linked from freelancer and trade-body guides); volume not measured. Paid rivals are invoicing apps (Xero, FreeAgent, QuickBooks) that add reminders inside the app.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: multi-invoice ledger with automatic chaser schedule behind an env-var switch.
+#
+# Liability: the 8% margin, the compensation tiers and the 31 Dec/30 Jun reference-date rule are from the Act; base rates 2023-H1 to 2026-H1 were written from memory without network access and 2026-H2 is flagged assumed. Every result names GOV.UK as the source to verify, carries no-warranty and not-legal-advice clauses, refuses consumer debts, and lets the user override the base rate.
+hypotheses:
+  - claim: >-
+      UK freelancers and small businesses chasing a late invoice will use a free calculator to see the statutory interest and compensation and copy a demand letter.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate, tier or date differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-late-payment-interest-calculator/
+  analytics: null
