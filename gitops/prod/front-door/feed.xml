@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1196 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1197 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -88,6 +88,14 @@
     <summary type="text">Free UK pension annual allowance calculator: your tapered allowance for incomes over £260,000, carry forward from the last three years, how much you can still pay in, and the tax charge on any excess. Runs in your browser.</summary>
   </entry>
   <entry>
+    <title>UK Pension Withdrawal Tax Calculator (25% tax-free, emergency tax refund)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-pension-withdrawal-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-pension-withdrawal-tax-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free UK pension withdrawal tax calculator: how much of a lump sum or UFPLS is tax-free, the tax you really owe, the emergency tax refund to expect and how spreading it over tax years saves. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>UK Redundancy Pay Calculator 2025/26 and 2026/27</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-redundancy-pay-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/uk-redundancy-pay-calculator</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK SMP calculator for 2026/27: enter the due date, average weekly earnings and employment start to check eligibility, the qualifying week, the 39-week pay schedule and Statutory Paternity Pay. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>UK Take-Home Pay Calculator 2025/26 and 2026/27 (after tax, NI, pension and student loan)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-take-home-pay-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/uk-take-home-pay-calculator</id>
-    <updated>2026-10-14T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free UK take-home pay calculator for 2025/26: income tax, National Insurance, student loan and pension by salary sacrifice, net pay or relief at source, with monthly and weekly pay and your marginal rate. England, Wales and NI. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
