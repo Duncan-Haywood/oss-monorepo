@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-14",
+  "session": "https://claude.ai/code/session_01MNj1T7qtdGqYZfXCcZUXjQ",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-14T14:11:23Z",
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "robofab-scurve"
+  ],
+  "pr": null,
+  "commits": [
+    "7e53450"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "one bug caught pre-push: local variable j shadowed the new j parameter"
+  ],
+  "integrity_issues": [],
+  "notes": "Queue: no open PRs; branches simdesign-gaugepockets, garment-twonodegate, selfrep-rodbeam x2 had no PR but duplicate projects already on main (left alone). main was force-updated so older branches share no history.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

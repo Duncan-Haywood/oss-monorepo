@@ -1,0 +1,44 @@
+assumed inputs: goods worth a=1.0 currency units per machine-hour; W=50.0 h and V=170.3 per copy from selfrep-growth/selfrep-closure
+fluid model, Euler step 1 h, horizon T=600 h, fleet starts at 1 unit; objective = total value of goods made, final fleet worth 0
+piecewise = 20-segment coordinate ascent started from the best bang-bang (a local search: a lower bound on the optimum)
+
+== A. cash never binds (vitamins free), no failures: numeric vs closed form
+closed form: ts = T - 1/k = 550.0 h, J = a e^(kT-1)/k = 2993707.1;  numeric: ts = 549 h, J = 2685743.1 (89.71% of closed form; Euler error)
+  Euler step  1.0 h: J at the closed-form switch = 2685743.1 (89.71% of closed form)
+  Euler step 0.25 h: J at the closed-form switch = 2912767.8 (97.30% of closed form)
+  Euler step 0.05 h: J at the closed-form switch = 2977297.8 (99.45% of closed form)
+A  free cash                       bang-bang ts=  549 J=  2685743.1 (N_T=  52661.6) | const u=0.90 J=   247391.4 (  9.2%) | smooth ts=550,w=2   99.7% | piecewise   98.4%
+
+== B. failure rate (cash free)
+fail=0.0: closed-form ts=550 h  (1/k=50 h)
+B  fail=0.0                        bang-bang ts=  549 J=  2685743.1 (N_T=  52661.6) | const u=0.90 J=   247391.4 (  9.2%) | smooth ts=550,w=2   99.7% | piecewise   98.4%
+fail=0.2: closed-form ts=538 h  (1/k=62 h)
+B  fail=0.2                        bang-bang ts=  537 J=   317147.8 (N_T=   5034.1) | const u=0.90 J=    36906.3 ( 11.6%) | smooth ts=535,w=2   99.8% | piecewise   99.9%
+fail=0.4: closed-form ts=517 h  (1/k=83 h)
+B  fail=0.4                        bang-bang ts=  516 J=    39575.3 (N_T=    471.1) | const u=0.85 J=     6470.3 ( 16.3%) | smooth ts=515,w=2   99.9% | piecewise   99.7%
+fail=0.6: closed-form ts=475 h  (1/k=125 h)
+B  fail=0.6                        bang-bang ts=  475 J=     5503.8 (N_T=     44.0) | const u=0.70 J=     1474.3 ( 26.8%) | smooth ts=475,w=2  100.0% | piecewise   99.9%
+
+== C. outside import budget pays for vitamins; goods are not sold (resale=0); cash0 = one copy's vitamins
+C  budget=0.25/h                   bang-bang ts=  550 J=     1350.6 (N_T=      2.8) | const u=1.00 J=     1348.8 ( 99.9%) | smooth ts=540,w=2  100.0% | piecewise  100.0%
+C  budget=1/h                      bang-bang ts=  549 J=     2012.1 (N_T=      5.2) | const u=1.00 J=     2004.6 ( 99.6%) | smooth ts=540,w=2  100.0% | piecewise  100.0%
+C  budget=4/h                      bang-bang ts=  550 J=     4647.5 (N_T=     14.9) | const u=1.00 J=     4617.6 ( 99.4%) | smooth ts=540,w=2  100.0% | piecewise  100.0%
+C  budget=16/h                     bang-bang ts=  549 J=    14885.7 (N_T=     53.6) | const u=1.00 J=    14765.9 ( 99.2%) | smooth ts=540,w=2  100.0% | piecewise  100.0%
+C  budget=64/h                     bang-bang ts=  549 J=    52211.0 (N_T=    208.3) | const u=1.00 J=    51732.0 ( 99.1%) | smooth ts=540,w=2  100.0% | piecewise  100.0%
+
+== D. no outside budget; goods are sold and the cash buys vitamins (cash0 = one copy's vitamins)
+D  a=0.5, resale=1.0               bang-bang ts=  550 J=     1112.5 (N_T=      7.4) | const u=1.00 J=     1099.3 ( 98.8%) | smooth ts=545,w=2  100.0% | piecewise  100.0%
+D  a=0.5, resale=0.5               bang-bang ts=  549 J=      795.5 (N_T=      4.0) | const u=1.00 J=      791.9 ( 99.5%) | smooth ts=540,w=2  100.0% | piecewise  100.0%
+D  a=1, resale=1.0                 bang-bang ts=  550 J=     4161.1 (N_T=     20.4) | const u=1.00 J=     4024.8 ( 96.7%) | smooth ts=545,w=2  100.0% | piecewise   99.9%
+D  a=1, resale=0.5                 bang-bang ts=  550 J=     2225.0 (N_T=      7.4) | const u=1.00 J=     2198.7 ( 98.8%) | smooth ts=545,w=2  100.0% | piecewise  100.0%
+D  a=2, resale=1.0                 bang-bang ts=  549 J=    23314.9 (N_T=     86.5) | const u=1.00 J=    21228.6 ( 91.1%) | smooth ts=545,w=2  100.0% | piecewise   99.8%
+D  a=2, resale=0.5                 bang-bang ts=  550 J=     8322.1 (N_T=     20.4) | const u=1.00 J=     8049.6 ( 96.7%) | smooth ts=545,w=2  100.0% | piecewise   99.9%
+D  a=4, resale=1.0                 bang-bang ts=  550 J=   181552.1 (N_T=    486.7) | const u=1.00 J=   144196.5 ( 79.4%) | smooth ts=545,w=2   99.9% | piecewise   99.6%
+D  a=4, resale=0.5                 bang-bang ts=  549 J=    46629.8 (N_T=     86.5) | const u=1.00 J=    42457.1 ( 91.1%) | smooth ts=545,w=2  100.0% | piecewise   99.8%
+
+== E. horizon sensitivity (cash free, no failures): ts and the share of the horizon spent copying
+T=  100: ts=    50 h ( 50.0% of T)  closed form    50.0
+T=  200: ts=   150 h ( 75.0% of T)  closed form   150.0
+T=  400: ts=   350 h ( 87.5% of T)  closed form   350.0
+T=  800: ts=   750 h ( 93.8% of T)  closed form   750.0
+T= 1600: ts=  1550 h ( 96.9% of T)  closed form  1550.0

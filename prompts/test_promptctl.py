@@ -100,6 +100,18 @@ class RouteTest(PromptTestCase):
         self.assertEqual(promptctl.runs_since_review(promptctl.load_runs(self.fx.root)), 0)
         self.assertNotEqual(promptctl.route(self.fx.root, rng=random.Random(0))["track"], "review")
 
+    def test_a_due_review_goes_to_a_share_of_runs(self):
+        for i in range(3):
+            self.fx.run(f"2026-10-0{i + 1}-s{i}.json", _record(day=f"2026-10-0{i + 1}"))
+        data = json.loads((self.fx.root / "routing.json").read_text())
+        data["review_when_due"] = 0.25
+        self.fx.routing(data)
+        picks = [promptctl.route(self.fx.root, rng=random.Random(s))["track"] for s in range(200)]
+        self.assertTrue(20 < picks.count("review") < 80, picks.count("review"))
+        data["review_when_due"] = 0
+        self.fx.routing(data)
+        self.assertTrue(any("review_when_due" in e for e in promptctl.validate(self.fx.root)))
+
     def test_skip_review_routes_to_work_when_a_review_is_claimed(self):
         for i in range(3):
             self.fx.run(f"2026-10-0{i + 1}-s{i}.json", _record(day=f"2026-10-0{i + 1}"))

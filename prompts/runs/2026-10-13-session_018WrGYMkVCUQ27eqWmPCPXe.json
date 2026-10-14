@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-13",
+  "session": "https://claude.ai/code/session_018WrGYMkVCUQ27eqWmPCPXe",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "merge",
+  "projects": [
+    "footprint-twin",
+    "groundeffect-twin",
+    "occlusion-twin"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/266",
+  "commits": [
+    "fa3dbc0"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 0,
+  "build_ok": true,
+  "outcome": "partial",
+  "errors": [
+    "concurrent runs landed sag-twin, groundeffect-twin and ransac-twin at the same time; merges produced duplicate README bullets, fixed in follow-up"
+  ],
+  "integrity_issues": [],
+  "notes": "Landing queue only: closed 7 stale PRs (6 already on main, tail-elicitation duplicate of tail-risk-elicitation); merged footprint-twin, groundeffect-twin, occlusion-twin; no new project built.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

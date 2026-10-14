@@ -32,3 +32,4 @@ jobs:
         with:
           python-version: "3.12"
       - run: python3 research/_homepage/build.py
+      - run: python3 -m unittest discover -s research/_mirror -v

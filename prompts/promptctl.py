@@ -139,7 +139,10 @@ def route(root: Path = ROOT, track: str | None = None, skip_review: bool = False
         if track not in tracks:
             raise SystemExit(f"unknown track {track!r}; tracks: {', '.join(tracks)}")
         reason = "chosen by the session (--track)"
-    elif since >= every and not skip_review:
+    elif (since >= every and not skip_review
+          and rng.random() < float(routing.get("review_when_due", 1))):
+        # Scheduled runs start in the same minute, so a due review goes to a
+        # share of them rather than all of them at once.
         track = REVIEW
         reason = f"{since} merged runs since the last review (review_every = {every})"
     else:
@@ -265,6 +268,9 @@ def validate(root: Path = ROOT) -> list[str]:
     every = routing.get("review_every")
     if not isinstance(every, int) or isinstance(every, bool) or every < 1:
         errors.append("routing.json: review_every must be a positive integer")
+    share = routing.get("review_when_due", 1)
+    if not isinstance(share, (int, float)) or isinstance(share, bool) or not 0 < share <= 1:
+        errors.append("routing.json: review_when_due must be in (0, 1]")
     tracks = routing.get("tracks")
     if not isinstance(tracks, dict) or REVIEW not in tracks:
         return errors + ["routing.json: tracks must be an object that includes 'review'"]

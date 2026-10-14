@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "selfrep-dpgrid"
+version = "0.1.0"
+description = "Grid-convergence check of the dynamic programme for the replicating-shop reinvestment problem with a saturating market and a terminal fleet value"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

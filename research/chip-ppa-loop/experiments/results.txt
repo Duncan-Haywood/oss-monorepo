@@ -1,0 +1,48 @@
+== add16: reference `a + b` -> cells 82, depth 31, cells*depth 2542
+-- proposer (session-written), 5 attempts
+  a0_ripple                cells   77 depth  31 cells*depth 2387
+  a1_kogge_stone           cells   88 depth  28 cells*depth 2464
+  a2_carry_select_bug      REJECTED (not equivalent)
+  a3_carry_select          cells   98 depth  22 cells*depth 2156
+  a4_sklansky              cells   88 depth  29 cells*depth 2552
+-- sweep: 16 configs, 0 not equivalent; exhaustive best cells*depth 2156 at ('csel', 4)
+  ('plus', 0)            cells   82 depth  31 cells*depth 2542
+  ('ripple', 0)          cells   77 depth  31 cells*depth 2387
+  ('csel', 2)            cells   91 depth  24 cells*depth 2184
+  ('csel', 3)            cells   94 depth  23 cells*depth 2162
+  ('csel', 4)            cells   98 depth  22 cells*depth 2156
+  ('csel', 5)            cells   94 depth  23 cells*depth 2162
+  ('csel', 6)            cells   96 depth  23 cells*depth 2208
+  ('csel', 7)            cells   92 depth  24 cells*depth 2208
+  ('csel', 8)            cells   94 depth  24 cells*depth 2256
+  ('cselrip', 2)         cells   84 depth  31 cells*depth 2604
+  ('cselrip', 3)         cells   82 depth  31 cells*depth 2542
+  ('cselrip', 4)         cells   80 depth  31 cells*depth 2480
+  ('cselrip', 5)         cells   80 depth  31 cells*depth 2480
+  ('cselrip', 6)         cells   79 depth  31 cells*depth 2449
+  ('cselrip', 7)         cells   79 depth  31 cells*depth 2449
+  ('cselrip', 8)         cells   78 depth  31 cells*depth 2418
+-- equal budget = 5 evaluations; reference counted as the starting point for both
+   proposer best cells*depth 2156 (0.848 x reference)
+   sweep (random 5 of 16, 200 seeds): mean best 2184.4, min 2156, max 2449; beats proposer in 0/200, ties in 63/200
+
+== mul6: reference `a * b` -> cells 170, depth 22, cells*depth 3740
+-- proposer (session-written), 4 attempts
+  m0_array                 cells  175 depth  22 cells*depth 3850
+  m1_csa_tree              cells  190 depth  23 cells*depth 4370
+  m2_tree_plus             cells  175 depth  22 cells*depth 3850
+  m3_off_by_one            REJECTED (not equivalent)
+-- sweep: 8 configs, 0 not equivalent; exhaustive best cells*depth 3850 at ('chain', 'lsb', 'mux')
+  ('chain', 'lsb', 'mux') cells  175 depth  22 cells*depth 3850
+  ('chain', 'lsb', 'and') cells  175 depth  22 cells*depth 3850
+  ('chain', 'msb', 'mux') cells  175 depth  22 cells*depth 3850
+  ('chain', 'msb', 'and') cells  175 depth  22 cells*depth 3850
+  ('tree', 'lsb', 'mux') cells  175 depth  22 cells*depth 3850
+  ('tree', 'lsb', 'and') cells  175 depth  22 cells*depth 3850
+  ('tree', 'msb', 'mux') cells  175 depth  22 cells*depth 3850
+  ('tree', 'msb', 'and') cells  175 depth  22 cells*depth 3850
+-- equal budget = 4 evaluations; reference counted as the starting point for both
+   proposer best cells*depth 3740 (1.000 x reference)
+   sweep (random 4 of 8, 200 seeds): mean best 3740.0, min 3740, max 3740; beats proposer in 0/200, ties in 200/200
+
+summary {"add16": {"ref": 2542, "proposer": 2156, "sweep_exhaustive": 2156, "sweep_mean": 2184.385}, "mul6": {"ref": 3740, "proposer": 3740, "sweep_exhaustive": 3850, "sweep_mean": 3740.0}}

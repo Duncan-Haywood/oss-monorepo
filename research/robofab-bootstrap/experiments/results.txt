@@ -1,0 +1,44 @@
+# robofab-bootstrap: gripper generations (side-approach arm; unit gripper = robofab-selfparts design)
+# opening(s) = 32*s - 2*pad_t mm (assumption), min_jaw(s) = smallest jaw opening with a complete order
+
+## 1. Required jaw vs offered jaw by scale (pad_t = 4 mm)
+ scale  min_jaw  opening  copy possible
+   1.0    30.00    24.00             no
+   1.5    45.00    40.00             no
+   2.0    60.00    56.00             no
+   2.5    75.00    72.00             no
+   3.0    90.00    88.00             no
+   3.5   105.00   104.00             no
+   4.0   120.00   120.00            yes
+   4.5   135.00   136.00            yes
+   5.0   150.00   152.00            yes
+   5.5   165.00   168.00            yes
+   6.0   180.00   184.00            yes
+   6.5   195.00   200.00            yes
+   7.0   210.00   216.00            yes
+
+## 2. Smallest self-assembling scale on a 0.25 grid, by pad thickness
+pad_t=1: scale=1.0  (closed form: s >= pad_t)
+pad_t=2: scale=2.0  (closed form: s >= pad_t)
+pad_t=3: scale=3.0  (closed form: s >= pad_t)
+pad_t=4: scale=4.0  (closed form: s >= pad_t)
+pad_t=6: scale=6.0  (closed form: s >= pad_t)
+
+## 3. Actuator stroke cap: is there any self-assembling scale? (pad_t = 4 mm)
+stroke=  60 mm: self-assembling scales none
+stroke= 100 mm: self-assembling scales none
+stroke= 120 mm: self-assembling scales [4.0]
+stroke= 130 mm: self-assembling scales [4.0]
+stroke= 160 mm: self-assembling scales [4.0, 4.5, 5.0]
+
+## 4. Chains from a purchased seed gripper (opening w0 mm), scales 1.0-7.0, pad_t=4
+w0= 24 max: None
+w0= 24 min: None
+w0= 60 max: 2.0 -> 1.5 -> 1.0 -> None
+w0= 60 min: 1.0 -> None
+w0=100 max: 3.0 -> 2.5 -> 2.0 -> 1.5 -> 1.0 -> None
+w0=100 min: 1.0 -> None
+w0=130 max: 4.0 -> 4.0 -> 4.0 -> 4.0 -> 4.0 -> 4.0
+w0=130 min: 1.0 -> None
+w0=140 max: 4.5 -> 4.5 -> 4.5 -> 4.5 -> 4.5 -> 4.5
+w0=140 min: 1.0 -> None

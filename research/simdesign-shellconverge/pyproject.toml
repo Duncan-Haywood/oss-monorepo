@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-shellconverge"
+version = "0.1.0"
+description = "Mesh convergence of the 3D eigenbuckling check of the bracket arms"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "scikit-fem"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -18,7 +18,7 @@ import re
 import sys
 from pathlib import Path
 
-REPO = "Duncan-Haywood/fp-monorepo"
+REPO = "Duncan-Haywood/oss-monorepo"
 REPO_URL = f"https://github.com/{REPO}"
 HERE = Path(__file__).resolve().parent
 RESEARCH = HERE.parent

@@ -1,0 +1,16 @@
+{
+ "top": "lfsr",
+ "kind": "seq",
+ "inputs": [
+  [
+   "en",
+   1
+  ]
+ ],
+ "outputs": [
+  [
+   "q",
+   8
+  ]
+ ]
+}

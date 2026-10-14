@@ -1,0 +1,46 @@
+oracle weights [score, keyword, others, intercept] = [1.998, 2.263, -0.019, -6.002]; oracle utility/h on held-out 12.71
+20 seeds, fits at hour 100; scored on fresh 100 h held-out streams with no exploration; '+-' is the std over seeds
+columns: held-out utility/h | L2 distance of weights to oracle weights | labelled windows
+prior          eps             fit       utility/h   dist to oracle  labelled
+uninformed   0.002          biased   1.59 +-  5.70  178.93 +- 46.21       814
+uninformed   0.002             ips -23.80 +- 50.17 7463.85 +- 10039.66       814
+uninformed   0.002          clip10 -33.17 +- 22.09 573.57 +- 105.11       814
+uninformed   0.002          clip50 -58.26 +- 62.80 1465.27 +- 982.01       814
+uninformed   0.002        selfnorm -11.97 +- 60.51   22.96 +- 57.89       814
+uninformed   0.002  random_matched  12.15 +-  0.75    1.21 +-  0.39       814
+uninformed   0.002            full  12.72 +-  0.58    0.15 +-  0.05       814
+uninformed   0.005          biased  -0.15 +-  6.29  260.74 +- 63.32       932
+uninformed   0.005             ips -32.73 +- 60.24 6263.45 +- 8509.95       932
+uninformed   0.005          clip10 -62.95 +- 34.21 1067.93 +- 180.91       932
+uninformed   0.005          clip50 -64.43 +- 70.51 2794.50 +- 2238.96       932
+uninformed   0.005        selfnorm   5.44 +- 23.21  31.74 +- 119.64       932
+uninformed   0.005  random_matched  12.18 +-  0.75    1.08 +-  0.31       932
+uninformed   0.005            full  12.72 +-  0.58    0.15 +-  0.05       932
+uninformed   0.020          biased -13.08 +-  8.66  658.15 +- 58.98      2691
+uninformed   0.020             ips -45.55 +- 85.65 3798.70 +- 5630.53      2691
+uninformed   0.020          clip10 -96.19 +- 87.83 2930.85 +- 2430.53      2691
+uninformed   0.020          clip50 -45.55 +- 85.65 3798.70 +- 5630.53      2691
+uninformed   0.020        selfnorm -38.68 +- 80.59 261.14 +- 407.32      2691
+uninformed   0.020  random_matched  12.52 +-  0.65    0.65 +-  0.24      2691
+uninformed   0.020            full  12.72 +-  0.58    0.15 +-  0.05      2691
+informed     0.002          biased  10.62 +-  0.77    2.67 +-  0.22      1688
+informed     0.002             ips   9.73 +-  4.38 1501.15 +- 6531.28      1688
+informed     0.002          clip10  11.70 +-  0.78    2.01 +-  0.33      1688
+informed     0.002          clip50  12.07 +-  1.03    1.06 +-  0.71      1688
+informed     0.002        selfnorm  10.01 +-  3.63    1.60 +-  0.80      1688
+informed     0.002  random_matched  12.48 +-  0.63    0.76 +-  0.22      1688
+informed     0.002            full  12.72 +-  0.58    0.15 +-  0.05      1688
+informed     0.005          biased  10.84 +-  0.81    2.55 +-  0.21      1757
+informed     0.005             ips  11.14 +-  1.49    1.96 +-  0.79      1757
+informed     0.005          clip10  12.15 +-  0.72    1.47 +-  0.31      1757
+informed     0.005          clip50  12.30 +-  0.63    0.86 +-  0.40      1757
+informed     0.005        selfnorm  11.60 +-  1.10    1.24 +-  0.41      1757
+informed     0.005  random_matched  12.49 +-  0.60    0.76 +-  0.24      1757
+informed     0.005            full  12.72 +-  0.58    0.15 +-  0.05      1757
+informed     0.020          biased  11.42 +-  0.77    2.15 +-  0.18      2178
+informed     0.020             ips  12.36 +-  0.56    0.83 +-  0.33      2178
+informed     0.020          clip10  12.52 +-  0.58    0.71 +-  0.25      2178
+informed     0.020          clip50  12.36 +-  0.56    0.83 +-  0.33      2178
+informed     0.020        selfnorm  12.45 +-  0.59    0.78 +-  0.24      2178
+informed     0.020  random_matched  12.48 +-  0.66    0.71 +-  0.24      2178
+informed     0.020            full  12.72 +-  0.58    0.15 +-  0.05      2178

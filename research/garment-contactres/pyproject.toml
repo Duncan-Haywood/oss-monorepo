@@ -1,0 +1,13 @@
+[project]
+name = "garment-contactres"
+version = "0.1.0"
+description = "Contact resistance at yarn crossings in a conductive woven fabric, with and without yarn breakage"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

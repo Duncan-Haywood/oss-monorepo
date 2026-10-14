@@ -17,7 +17,8 @@ prompts/promptctl.py       route | record | measure | validate
 
 1. **Route.** A session reads `prompt.md`, which runs
    `promptctl.py route`. Once `review_every` runs have merged since the last
-   review, it picks the review track. Otherwise it draws a track by weight,
+   review, it picks the review track for a `review_when_due` share of runs,
+   so routines that start in the same minute do not all review at once. Otherwise it draws a track by weight,
    then the champion version or, with probability `candidate_share`, the
    candidate. A session with a specific task picks the track itself
    (`--track`).

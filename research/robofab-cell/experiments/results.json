@@ -1,0 +1,342 @@
+{
+ "E1": [
+  {
+   "n_printers": 1,
+   "makespan": 1609.3965792658726,
+   "half_width": 23.39825377151442,
+   "lower_bound": 1471.8046354115904,
+   "util": {
+    "arm": 0.0819647089492085,
+    "printer": 0.9957203946086509,
+    "inspect": 0.12294706342381274
+   },
+   "bottleneck": "printer",
+   "reworks": 2.715
+  },
+  {
+   "n_printers": 2,
+   "makespan": 832.1874088111242,
+   "half_width": 12.614725325828356,
+   "lower_bound": 735.9023177057952,
+   "util": {
+    "arm": 0.15861832103591483,
+    "printer": 0.9634301756675192,
+    "inspect": 0.23792748155387222
+   },
+   "bottleneck": "printer",
+   "reworks": 2.715
+  },
+  {
+   "n_printers": 3,
+   "makespan": 578.6348264474609,
+   "half_width": 9.562706954944,
+   "lower_bound": 490.6015451371968,
+   "util": {
+    "arm": 0.22850647398647703,
+    "printer": 0.9251968130161723,
+    "inspect": 0.3427597109797155
+   },
+   "bottleneck": "printer",
+   "reworks": 2.715
+  },
+  {
+   "n_printers": 4,
+   "makespan": 455.4239384551966,
+   "half_width": 8.333915909957733,
+   "lower_bound": 367.9511588528976,
+   "util": {
+    "arm": 0.2910045460342535,
+    "printer": 0.883554750924994,
+    "inspect": 0.4365068190513802
+   },
+   "bottleneck": "printer",
+   "reworks": 2.715
+  },
+  {
+   "n_printers": 5,
+   "makespan": 383.0842077105567,
+   "half_width": 7.897994184028866,
+   "lower_bound": 294.3609270823181,
+   "util": {
+    "arm": 0.34704740438968323,
+    "printer": 0.8429888835589803,
+    "inspect": 0.5205711065845248
+   },
+   "bottleneck": "printer",
+   "reworks": 2.715
+  },
+  {
+   "n_printers": 6,
+   "makespan": 338.2653704632494,
+   "half_width": 7.429728064074559,
+   "lower_bound": 245.3007725685984,
+   "util": {
+    "arm": 0.39385764561650033,
+    "printer": 0.7972429385076898,
+    "inspect": 0.5907864684247506
+   },
+   "bottleneck": "printer",
+   "reworks": 2.715
+  },
+  {
+   "n_printers": 7,
+   "makespan": 306.01604636283963,
+   "half_width": 7.193326002058356,
+   "lower_bound": 210.51930131400096,
+   "util": {
+    "arm": 0.43636180573014444,
+    "printer": 0.7574445476233838,
+    "inspect": 0.6545427085952167
+   },
+   "bottleneck": "printer",
+   "reworks": 2.715
+  },
+  {
+   "n_printers": 8,
+   "makespan": 284.76919164610337,
+   "half_width": 7.062781358756283,
+   "lower_bound": 188.39564590663005,
+   "util": {
+    "arm": 0.4696351289019423,
+    "printer": 0.7136927726109665,
+    "inspect": 0.7044526933529135
+   },
+   "bottleneck": "printer",
+   "reworks": 2.715
+  }
+ ],
+ "E2": [
+  {
+   "n_printers": 3,
+   "arm_rule": "unload_first",
+   "job_order": "spt",
+   "d_makespan": [
+    14.402137123541747,
+    4.736407841454928
+   ],
+   "d_meanflow": [
+    -58.24847519129177,
+    2.6201685568998423
+   ]
+  },
+  {
+   "n_printers": 3,
+   "arm_rule": "unload_first",
+   "job_order": "lpt",
+   "d_makespan": [
+    -3.760088236730891,
+    4.066189187956694
+   ],
+   "d_meanflow": [
+    71.11080780972453,
+    3.35824362407243
+   ]
+  },
+  {
+   "n_printers": 3,
+   "arm_rule": "load_first",
+   "job_order": "fifo",
+   "d_makespan": [
+    -1.9754646030691496,
+    0.36458484127685953
+   ],
+   "d_meanflow": [
+    -0.9843547763915629,
+    0.1381143552548472
+   ]
+  },
+  {
+   "n_printers": 3,
+   "arm_rule": "load_first",
+   "job_order": "spt",
+   "d_makespan": [
+    14.112755195365942,
+    4.728146716830107
+   ],
+   "d_meanflow": [
+    -58.48287031529674,
+    2.6134762436262196
+   ]
+  },
+  {
+   "n_printers": 3,
+   "arm_rule": "load_first",
+   "job_order": "lpt",
+   "d_makespan": [
+    -14.219324940981377,
+    3.7581999053797395
+   ],
+   "d_meanflow": [
+    66.91836527228926,
+    3.363651441421493
+   ]
+  },
+  {
+   "n_printers": 5,
+   "arm_rule": "unload_first",
+   "job_order": "spt",
+   "d_makespan": [
+    14.594447719021305,
+    4.641608906551992
+   ],
+   "d_meanflow": [
+    -33.42351635429909,
+    1.4413869638222891
+   ]
+  },
+  {
+   "n_printers": 5,
+   "arm_rule": "unload_first",
+   "job_order": "lpt",
+   "d_makespan": [
+    0.050856731630274224,
+    5.31389561975558
+   ],
+   "d_meanflow": [
+    50.969462419878646,
+    2.028300956711857
+   ]
+  },
+  {
+   "n_printers": 5,
+   "arm_rule": "load_first",
+   "job_order": "fifo",
+   "d_makespan": [
+    -2.6373661962774317,
+    0.40993766993544145
+   ],
+   "d_meanflow": [
+    -1.232554584011315,
+    0.14257823210588128
+   ]
+  },
+  {
+   "n_printers": 5,
+   "arm_rule": "load_first",
+   "job_order": "spt",
+   "d_makespan": [
+    13.849717008449316,
+    4.654256214231981
+   ],
+   "d_meanflow": [
+    -33.96226106783274,
+    1.419208282426437
+   ]
+  },
+  {
+   "n_printers": 5,
+   "arm_rule": "load_first",
+   "job_order": "lpt",
+   "d_makespan": [
+    -13.988128402738875,
+    4.975042791693121
+   ],
+   "d_meanflow": [
+    44.19711085973471,
+    1.91736978897734
+   ]
+  }
+ ],
+ "E3": [
+  {
+   "change": "+1 printer",
+   "d_makespan": [
+    -32.24932410040977,
+    1.34502865573753
+   ]
+  },
+  {
+   "change": "+1 arm",
+   "d_makespan": [
+    -10.864404630911263,
+    0.7300661665727619
+   ]
+  },
+  {
+   "change": "+1 inspection",
+   "d_makespan": [
+    -2.320064305978722,
+    0.6708572364400479
+   ]
+  },
+  {
+   "change": "+1 arm +1 inspection",
+   "d_makespan": [
+    -12.780163227035056,
+    0.7412680064368651
+   ]
+  },
+  {
+   "change": "inspection 6->3 min",
+   "d_makespan": [
+    -6.755347500942083,
+    0.7806571383975087
+   ]
+  },
+  {
+   "change": "load+unload 2->1 min",
+   "d_makespan": [
+    -21.082755459474356,
+    0.7469563343998991
+   ]
+  }
+ ],
+ "E4": [
+  {
+   "n_printers": 1,
+   "det": 1476.0,
+   "stoch_mean": 1609.3965792658726,
+   "optimism": 133.39657926587256,
+   "share_twin_below": 0.775
+  },
+  {
+   "n_printers": 2,
+   "det": 775.0,
+   "stoch_mean": 832.1874088111242,
+   "optimism": 57.187408811124214,
+   "share_twin_below": 0.725
+  },
+  {
+   "n_printers": 3,
+   "det": 544.0,
+   "stoch_mean": 578.6348264474609,
+   "optimism": 34.63482644746091,
+   "share_twin_below": 0.675
+  },
+  {
+   "n_printers": 4,
+   "det": 446.0,
+   "stoch_mean": 455.4239384551966,
+   "optimism": 9.423938455196605,
+   "share_twin_below": 0.52
+  },
+  {
+   "n_printers": 5,
+   "det": 364.0,
+   "stoch_mean": 383.0842077105567,
+   "optimism": 19.08420771055671,
+   "share_twin_below": 0.605
+  },
+  {
+   "n_printers": 6,
+   "det": 321.0,
+   "stoch_mean": 338.2653704632494,
+   "optimism": 17.265370463249383,
+   "share_twin_below": 0.57
+  },
+  {
+   "n_printers": 7,
+   "det": 305.0,
+   "stoch_mean": 306.01604636283963,
+   "optimism": 1.0160463628396315,
+   "share_twin_below": 0.405
+  },
+  {
+   "n_printers": 8,
+   "det": 274.0,
+   "stoch_mean": 284.76919164610337,
+   "optimism": 10.769191646103366,
+   "share_twin_below": 0.445
+  }
+ ]
+}

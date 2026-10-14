@@ -29,9 +29,13 @@ Entry format:
 - Why: two repositories meant two sets of agent instructions to keep in step,
   and the research one was frozen during the move. Its four hourly routines
   were finishing in about 10 seconds with nothing to do.
-- Measure: baseline. No records exist yet. The first review backfills from
-  git history (review prompt, step 1), and every later comparison starts
-  here.
+- Measure: baseline. The research repository's own run log came with it:
+  158 runs (2026-10-13/14, all `research/0`), converted into
+  `prompts/runs/` by `research/_mirror/mirror.py`. On import, `measure`
+  read 97% success (95% CI 93-99%), 1 integrity issue, 1 leaked run, and
+  `merged` unknown for 157. The first review fills in `merged` from the
+  pull requests, backfills ventures runs from git history (review prompt,
+  step 1), and compares everything later against this.
 - Result: (first review)
 
 ## Proposals for the owner

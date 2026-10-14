@@ -11,6 +11,9 @@ Build a public research portfolio (MIT-licensed) that supports PhD applications 
 ## Central theme
 Simulating and training with digital clones (digital twins) of physical-world systems, including sim-to-real transfer, simulation fidelity, and learning in simulation for real benefit. Every project should connect to this theme where it reasonably can.
 
+## Priority projects
+The owner's priority projects are in [`research/PROJECTS.md`](../../research/PROJECTS.md): six tracks, each with milestones, a slug prefix and its own guardrails. New projects come from there. Once Landing work steps 1 to 3 are done, pick a track and milestone as `PROJECTS.md` says. The research groups below remain the list to build on, cite and tag where a project fits them.
+
 ## Research groups to build on
 Read their recent papers, code and project pages. Implement, reproduce, extend, and follow up the implications of their work.
 
@@ -44,7 +47,7 @@ A run is done when its work is on `main`. A pushed branch or an open pull reques
 The repository-wide protocol is [`.github/prompts/land-your-work.md`](../../.github/prompts/land-your-work.md): open the pull request after your first push and merge it yourself. For research work, also:
 
 1. **Start from `main`.** Branch from the latest `origin/main`. Never build on another unmerged branch: land it first (step 2), or leave it alone.
-2. **Land before you build.** First work through open pull requests and branches that touch `research/` and have not landed. Merge what is ready, fix and merge what is close, and close duplicates and superseded work with a one-line reason. A branch whose project is not on `main` yet is unfinished work: finish it rather than starting a new one.
+2. **Land before you build.** First work through open pull requests and branches that touch `research/` and have not landed. Branches whose only changes are under `prompts/runs/` hold records from runs that shipped nothing; leave them alone. Merge what is ready, fix and merge what is close, and close duplicates and superseded work with a one-line reason. A branch whose project is not on `main` yet is unfinished work: finish it rather than starting a new one.
 3. **Claim before you build.** Other runs start in the same minute as you. Before choosing a project, check for the same slug or idea in three places: `research/` on `main`, open pull requests, and branches pushed in the last three hours. If it is taken, pick something else or help land the other one. Once you have chosen, push your first commit and open the pull request within your first few minutes, with `research/<slug>` in its title, so the next run sees your claim.
 4. **One project per pull request.** Keep it small enough to merge in this run. If `main` moves, merge it into your branch (do not rebase) and rerun `python3 research/_homepage/build.py`.
 5. **Merge it.** Before merging, check that the project's tests pass, `python3 research/_homepage/build.py` prints `ok`, CI is green, the README is complete and every citation is checked. Confirm the work reached `main` with `git fetch origin main && git merge-base --is-ancestor <sha> origin/main`.
@@ -52,3 +55,5 @@ The repository-wide protocol is [`.github/prompts/land-your-work.md`](../../.git
 7. **No change, no push.** A run that ends with nothing worth merging creates no branch, commit or pull request, and no run record in git. Discard edits you will not ship (`git restore <paths>`) and drop your own unshipped commits (for example `git reset --keep HEAD~1`), so the end-of-session push has nothing to push.
 8. **Never push to a merged branch.** Anything after the merge goes on a new branch from `main`, with its own pull request.
 
+## One repository
+The research portfolio's original repository, `Duncan-Haywood/oss-research-monorepo`, is merged here under `research/` with both commit histories intact: `git log -- research/<slug>` shows each project's original commits. Until that repository is deleted, `research/` is an exact mirror of it (`research/_mirror/`). Keep every project self-contained under `research/<slug>/`, and use relative paths rather than this repository's name, URL or root paths.
