@@ -27,3 +27,11 @@ economics:
 budget:
   monthly_cap: 1
   protected: true
+
+kill_criteria:
+  - No usage events or organic referral traffic within 90 days of the next UK tax-year start (6 April).
+  - Fewer than three unsolicited signals (star, fork, referral or feedback) within 90 days of launch.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-lifetime-isa-vs-pension-calculator/
+  analytics: null
