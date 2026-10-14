@@ -39,27 +39,50 @@ touch closer to that:
   above means ideas and public behaviour, never another product's code, copy
   or assets under an incompatible license.
 
-**One repository is the end state (added 2026-10-13).** This repository is
-where everything ends up. The research portfolio,
-`Duncan-Haywood/oss-research-monorepo`, merges in under `research/` with its
-full commit history, so both histories survive in one repo. That is
-[PR #6143](https://github.com/Duncan-Haywood/oss-monorepo/pull/6143):
+**One repository is the end state; mirror it now (added 2026-10-13, changed
+2026-10-14).** Everything ends up in this repository. The research portfolio,
+`Duncan-Haywood/oss-research-monorepo`, lives here under `research/` with its
+full commit history. Until the owner's cutover, the two repositories are
+mirrored, with no history lost. Building and keeping that mirror is standing
+work now, not something to wait for. The action list is the "Repository
+merge" section of the research repository's
+[`PROJECTS.md`](https://github.com/Duncan-Haywood/oss-research-monorepo/blob/main/PROJECTS.md),
+which becomes `research/PROJECTS.md` here once the mirror lands. It holds the
+sync script and the milestones. Take its first free milestone marked
+*oss-monorepo*, and claim it with the milestone's name first in the PR title.
 
-- **Keep both histories.** Rewrite the research repository into `research/`
-  (`git filter-repo --to-subdirectory-filter research` or a subtree merge).
-  Merge it here with `--allow-unrelated-histories` and a merge commit. Never
-  squash, rebase or hand-copy the files in. Afterwards,
-  `git log -- research/<slug>` shows each project's original commits.
-- **Import from the research repo's current `main`.** Work continues there
-  until the move lands. #6143's copy is from 2026-10-01, so re-import or merge
-  the newer research history into that branch before landing it.
+- **One writer at a time.** Until cutover, the research repository's `main`
+  is the source, and `research/` here is a copy that a sync refreshes. Edit
+  nothing under `research/` here, because the next sync overwrites it. Make
+  the change in the research repository, then sync. After cutover,
+  `research/` here is the source and the research repository is archived.
+- **No history loss.** A sync is a merge commit whose second parent is the
+  research repository's `main`. Its files land under `research/` by a fixed
+  path map: `research/<slug>/` keeps its path, and every other top-level
+  entry `E` goes to `research/E`. Every research commit keeps its original
+  hash, and `git log -- research/<slug>` shows it. Never squash, rebase,
+  cherry-pick or hand-copy research work in, and never rewrite either
+  repository's history.
+- **A mirror PR merges with a merge commit.** This is the one exception to
+  squash-merging in
+  [`land-your-work.md`](.github/prompts/land-your-work.md). The auto-merge in
+  `platform/ci/agent_review` squashes, so it must not take a mirror PR. If
+  GitHub refuses a merge commit, that is an owner setting: comment the
+  blocker on the PR and stop. Never squash instead.
+- **#6143 is retired, not landed.** Its copy dates from 2026-10-01. It came
+  in through a one-off move commit, so later syncs cannot build on it. Redo
+  the import from `main` with the sync. Split what else it has worth keeping
+  into PRs of their own: the agent-review fork hardening, the Hetzner
+  clean-up, and the Pages wiring for `/research/`. Then close it with a
+  pointer. Every research commit in it is already in the research
+  repository's `main`.
 - **Leave room for it.** Do not create a top-level `research/` for anything
-  else. Inside `research/`, the research rules (`research/CLAUDE.md`, its
-  brief) apply, not the product rules.
-- **Afterwards**, the research repository is archived (not deleted), and its
-  README points here.
-- **The owner decides when the move resumes.** Preparing for it is every
-  session's job.
+  else. Tree-wide checks here skip `research/` or run it under the research
+  rules (`research/CLAUDE.md`), not the product rules.
+- **Cutover is the owner's.** Three steps need the owner. This repository
+  goes public first, because the research portfolio must stay public. The
+  scheduled research runs then point here. Last, the research repository is
+  archived, never deleted. Preparing everything else is every session's job.
 
 Making a repository public is the owner's call (publishing under the
 portfolio's name, `CLAUDE.md`). Preparing for it is every session's job.
