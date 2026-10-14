@@ -1847,6 +1847,11 @@
      "summary": "A small scan (stylised, preliminary). With the assumed slenderness limit w/b raised from 8 to 12.5, web widths of 15 to 20&nbsp;mm at fillet radii 8, 12 and 14&nbsp;mm are feasible under the peak-stress measure from w&nbsp;=&nbsp;16.0&ndash;17.0&nbsp;mm upward at every mesh tried (h&nbsp;=&nbsp;1.5, 1.0 and 0.75&nbsp;mm), so the empty fine-mesh feasible sets of <em>simdesign-meshconverge</em> came from the rule window. Refinement from 1.5 to 1.0&nbsp;mm raises the lightest feasible width by 0.5&nbsp;mm (about 1&nbsp;g, 3%) at all three radii; at 0.75&nbsp;mm it is unchanged at two radii and falls back one step at r&nbsp;=&nbsp;14&nbsp;mm, so the shift is not resolved beyond about one scan step. The relaxed rule stands in for out-of-plane buckling, which the 2D model cannot see, so these designs are not validated. Simulated results only."
     },
     {
+     "slug": "simdesign-gaugepockets",
+     "title": "Do the isolated feasible pockets of the 2&nbsp;mm laser-cut bracket survive mesh refinement?",
+     "summary": "A small mesh-refinement scan (stylised, preliminary). The isolated feasible web widths below 15&nbsp;mm that appear at 2.5&nbsp;mm element size vanish at 2.0 and 1.5&nbsp;mm, and the smallest feasible width moves up (14.4 to 15.6&nbsp;mm at fillet radius 14&nbsp;mm). Mesh convergence was not reached, and a stress peak at a corner is itself mesh-sensitive, so the least-mass design on the search mesh is optimistic."
+    },
+    {
      "slug": "simdesign-gaugemesh",
      "title": "Is the narrow 2&nbsp;mm laser-cut bracket region a mesh artefact?",
      "summary": "A negative result for the search mesh (stylised). All 39 gauge-2 bracket designs that were feasible on the 2.5&nbsp;mm search mesh (19 under laser rules, 20 for the no-rules twin) are infeasible on finer meshes (1.5, 1.0, 0.75&nbsp;mm): the peak von Mises stress is 1.09&ndash;1.27&times; higher at 0.75&nbsp;mm and is still rising, at the point where the fillet meets the arm. Tip deflection is unchanged and the fillet facet count is not the cause. Earlier mass prices in the bracket chain are therefore conditional on the coarse mesh; no fine-mesh optimum was searched."
