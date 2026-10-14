@@ -71,6 +71,25 @@ Both send downscaled previews (about 1024 px), never the original files.
 checksums for the library and makes verified copies. `--only TEXT` limits a run to matching events;
 `--limit N` scores at most N new candidates.
 
+## Reel QC
+
+`igmp.qc` runs objective checks on a rendered reel, so a reel with a mechanical fault can be
+revised before a critic call is spent on it. Instagram says it is less likely to recommend reels
+that are "muted or contain borders", low-resolution, or over 3 minutes. The checks cover format
+(1080x1920, 29.97-60 fps, yuv420p, H.264/HEVC, 6-25 Mb/s), sound (an audio stream that is not
+silent, -14 LUFS, at most -1 dBTP), letterbox and pillarbox bars (a starry night sky does not
+count as a bar), real motion or a cut in the first second, no stretch over 1.5 s without visible
+change, the length (5-180 s, plus an optional band), and how well the last frame loops to the
+first. `check_plan` also checks the plan: fit-layout shots take at most 20% of the runtime and
+none starts before 3 s. Each reel is decoded once. The renderer calls `check_plan(plan)` and
+`check_reel(path, cfg, band=None, draft=True)` on its draft. In a draft, the encoder settings are
+informational only. `report.summary_for_llm()` lists only what failed or warned, as facts for the
+revision prompt. The method and the calibration numbers are in the module docstring.
+
+```bash
+.venv/bin/python -m igmp.qc reels/ [--band short|medium|long] [--allow-silent] [--draft] [--json]
+```
+
 ## Tests
 
 ```bash
