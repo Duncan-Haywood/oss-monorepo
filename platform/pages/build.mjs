@@ -1845,6 +1845,10 @@ const CATEGORY_RULES = [
       || slug === 'uk-tax-free-childcare-calculator'
       // `uk-simplified-expenses-calculator` joined 2026-10-14 on its first commit: UK sole-trader simplified expenses vs actual costs, sibling of the self assessment and trading allowance tools.
       || slug === 'uk-simplified-expenses-calculator'
+      // `uk-capital-allowances-calculator` joined 2026-10-14 on its first commit: UK equipment relief (AIA, full expensing, writing-down), sibling of the sole-trader and VAT tools.
+      || slug === 'uk-capital-allowances-calculator'
+      // `uk-pension-withdrawal-tax-calculator` joined 2026-10-14: UK pension withdrawal tax, sibling of the annual allowance and 100k trap tools.
+      || slug === 'uk-pension-withdrawal-tax-calculator'
       // `uk-holiday-pay-calculator` joined 2026-10-14 on its first commit: UK employment-pay arithmetic, sibling of the redundancy and sick pay tools.
       || slug === 'uk-holiday-pay-calculator'
       // `uk-employer-hiring-cost-calculator` joined 2026-10-14 on its first commit: UK employer cost arithmetic (NIC, pension, allowance), sibling of the take-home pay and holiday pay tools.
