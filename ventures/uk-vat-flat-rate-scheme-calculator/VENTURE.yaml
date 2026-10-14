@@ -1,0 +1,37 @@
+name: uk-vat-flat-rate-scheme-calculator
+description: >-
+  Free browser tool for UK VAT-registered freelancers and small businesses: compare the VAT Flat Rate Scheme bill with standard VAT accounting, check for the 16.5% limited cost trader rate, the 1% first-year discount and the capital asset exception. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; closest existing tool is uk-vat-registration-checker (whether to register), not which VAT scheme -- no flat rate comparison exists in ventures/.
+#
+# First visitor: a UK contractor, consultant or tradesperson newly VAT-registered, searching "VAT flat rate scheme calculator", "limited cost trader 16.5% calculator", "is flat rate VAT worth it". Evergreen, high-intent; volume not measured. Rivals are accountancy-firm lead-capture calculators.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: multi-year scheme planner and VAT return worksheet behind an env-var switch; accountant referrals would need owner approval.
+#
+# Liability: sector rates and thresholds were written from memory without network access, are a subset of the HMRC table, and are flagged for GOV.UK verification on the page. Assumes all sales are 20% standard-rated. States it is not tax advice.
+hypotheses:
+  - claim: >-
+      Newly VAT-registered UK freelancers will use a free calculator to see whether the Flat Rate Scheme beats standard VAT, and will be surprised by the limited cost trader rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or threshold differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-vat-flat-rate-scheme-calculator/
+  analytics: null
