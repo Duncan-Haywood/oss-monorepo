@@ -1648,7 +1648,8 @@ const RELATIVE_SELF = relative(
 // +1: `uk-state-pension-ni-years-checker` graduated.
 // +1: `uk-rent-a-room-relief-calculator` graduated.
 // +1: `uk-late-payment-interest-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1173;
+// +1: `uk-simplified-expenses-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1174;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
