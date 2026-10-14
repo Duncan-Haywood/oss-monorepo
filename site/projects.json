@@ -1332,6 +1332,11 @@
      "slug": "chip-systolic-fanin",
      "title": "Does a wider fan-in let a small systolic array catch a MAC-lane engine on a tiny quantised MLP?",
      "summary": "The small output-stationary arrays of <em>chip-systolic-small</em> on an F-F-4 quantised MLP with F = 8, 16 and 32 (4-bit weights), all 12 array configurations matched to an integer NumPy reference and the cycle formula in Icarus Verilog, scored with Yosys against MAC-lane engines. A negative result: the best array costs 1.36&times;, 1.25&times; and 1.26&times; the cells&times;cycles per vector of the best MAC engine at F = 8, 16 and 32, so the gap narrows but does not close. Stylised: one seed, gate counts rather than area, no clock, power or layout, and some optima at the edge of the sweep."
+    },
+    {
+     "slug": "chip-systolic-edge",
+     "title": "Do the optima of the fan-in sweep move when columns and MAC lanes go past 8?",
+     "summary": "The F-F-4 quantised-MLP comparison of <em>chip-systolic-fanin</em> with wider grids (C up to 16, P up to 32, F = 16 and 32), all 12 array configurations matched to an integer NumPy reference in Icarus Verilog and scored with Yosys. A negative result: the earlier optima were at the sweep edge and move inward (best array 2&times;8, best MAC engine P = 16 at F = 32), but the best array still costs 1.25&times; (F = 16) and 1.20&times; (F = 32) the cells&times;cycles per vector of the best MAC engine. Stylised: one network family, one seed, generic-gate counts, no layout."
     }
    ]
   },
