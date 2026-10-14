@@ -32,12 +32,12 @@ test("worked example is consistent", () => {
   assert.equal(r.net, 86000);
   assert.equal(r.grossTax, 16588); // 4,288 + 30% of 41,000
   assert.equal(r.medicare, 1720);
-  assert.equal(r.total, 18308);
-  assert.equal(r.afterTax, 67692);
+  assert.equal(r.total, 17308);
+  assert.equal(r.afterTax, 68692);
 });
 test("HELP rate adds to the total", () => {
   assert.equal(run({ helpRate: "4" }).helpRepay, 3440);
-  assert.equal(run({ helpRate: "4" }).total, 18308 + 3440);
+  assert.equal(run({ helpRate: "4" }).total, 17308 + 3440);
 });
 test("expenses above income give nothing to set aside", () => {
   const r = run({ revenue: "1000", expenses: "5000" });
@@ -56,4 +56,14 @@ test("validation", () => {
 });
 test("summary tells the reader to verify", () => {
   assert.match(summaryText(run({})), /Verify figures on ato\.gov\.au/);
+});
+
+test("small business offset is 16% of tax, capped at $1,000", () => {
+  const big = run({});
+  assert.equal(big.sbito, 1000);
+  const small = run({ revenue: "30000", expenses: "0" });
+  assert.equal(small.grossTax, 1888);
+  assert.ok(small.sbito > 0 && small.sbito <= 0.16 * small.grossTax);
+  assert.ok(small.offset + small.sbito <= small.grossTax);
+  assert.ok(big.findings.some((f) => /small business income tax offset/.test(f.title)));
 });

@@ -80,7 +80,7 @@
   <section class="card" id="rules">
     <h2>What it does, and what it leaves to you</h2>
     <ul>
-      <li><strong>Covers:</strong> resident income tax brackets, the low income tax offset, a flat 2% Medicare levy, an optional HELP repayment rate, and flags for PAYG instalments and GST registration.</li>
+      <li><strong>Covers:</strong> resident income tax brackets, the low income and small business income tax offsets, a flat 2% Medicare levy, an optional HELP repayment rate, and flags for PAYG instalments and GST registration.</li>
       <li><strong>Not decided:</strong> Medicare levy reductions and surcharge, other income, other offsets and deductions, the home-office and vehicle rules, GST amounts, non-residents, and whether you must pay instalments. The ATO or your accountant decide these.</li>
     </ul>
   </section>
@@ -132,7 +132,7 @@
       if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
       last = r;
       $("#due").textContent = `Set aside ${cad(r.total)} · ${r.setAsidePct}% of income · ${cad(r.monthly)} a month`;
-      const rows = [["Net business income", r.net], ["Income tax before offset", r.grossTax], ["Low income tax offset", -r.offset], ["Medicare levy", r.medicare], ["HELP repayment", r.helpRepay], ["Total to set aside", r.total], ["Left after tax", r.afterTax]];
+      const rows = [["Net business income", r.net], ["Income tax before offset", r.grossTax], ["Low income tax offset", -r.offset], ["Small business income tax offset", -r.sbito], ["Medicare levy", r.medicare], ["HELP repayment", r.helpRepay], ["Total to set aside", r.total], ["Left after tax", r.afterTax]];
       $("#rows").innerHTML = rows.map(([k, v], i) => `<tr class="${i === 5 ? "total" : ""}"><td>${esc(k)}</td><td class="n">${cad(v)}</td></tr>`).join("");
       $("#summary").textContent = summaryText(r);
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
