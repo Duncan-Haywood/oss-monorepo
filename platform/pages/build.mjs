@@ -1860,6 +1860,8 @@ const CATEGORY_RULES = [
       || slug === 'uk-rd-tax-relief-calculator'
       // `uk-eis-seis-relief-calculator` joined 2026-10-14 on its first commit: UK angel-investor tax relief (EIS/SEIS), sibling of the capital gains and dividend tax tools.
       || slug === 'uk-eis-seis-relief-calculator'
+      // `uk-gift-aid-relief-calculator` joined 2026-10-14 on its first commit: UK Gift Aid and higher-rate relief, sibling of the 100k tax trap and Self Assessment tools.
+      || slug === 'uk-gift-aid-relief-calculator'
       // `uk-emi-share-option-tax-calculator` joined 2026-10-14 on its first commit: UK EMI option tax (BADR, discount, unapproved comparison), sibling of the capital gains and R&D relief tools.
       || slug === 'uk-emi-share-option-tax-calculator'
       || slug === 'uk-holiday-pay-calculator'

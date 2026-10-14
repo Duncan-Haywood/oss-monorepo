@@ -1,0 +1,37 @@
+name: uk-gift-aid-relief-calculator
+description: >-
+  Free browser tool for UK donors: enter taxable income and a charity donation to see what the charity receives with Gift Aid, the higher-rate or additional-rate relief you can claim back, the effect on the 100,000 pound personal allowance taper, and the net cost to you. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no Gift Aid tool among the 40 existing uk-* ventures (uk-100k-tax-trap-calculator covers pension and salary sacrifice, not charity gifts).
+#
+# First visitor: a UK higher-rate taxpayer or someone in the 100k-125k taper band searching "gift aid higher rate relief calculator", "how much can I claim back on gift aid", "donate to avoid 100k tax trap". Peaks Jan (Self Assessment) and Dec/March (giving and year-end); volume not measured. Rivals are charity pages and HMRC guidance with no worked calculator.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: multi-year giving plan with carry-back and CGT-share gifts behind an env-var switch.
+#
+# Liability: 2026/27 rates were written from memory without network access and are flagged for GOV.UK verification on the page. Scottish bands, savings and dividend income, shares and land gifts, payroll giving are refused and named. The page states it is not tax advice.
+hypotheses:
+  - claim: >-
+      UK higher-rate donors will use a free calculator to see their Gift Aid relief and the net cost of a donation.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or threshold differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-gift-aid-relief-calculator/
+  analytics: null
