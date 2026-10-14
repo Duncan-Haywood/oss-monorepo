@@ -10,3 +10,19 @@ F  design        cycles/batch  cells  depth  cells*cycles/vec  rtl==numpy
  8 mac-lane P=4       29     1615    36          46835  -
  8 mac-lane P=8       20     2728    36          54560  -
 F=8: best array / best MAC engine (cells*cycles/vec) = 1.36
+16 systolic 1x2       182     1810    42         329420  True
+16 systolic 1x4       102     2402    43         245004  True
+16 systolic 1x8        74     3732    40         276168  True
+16 systolic 2x4       107     4425    42         236737  True
+16 mac-lane P=2      172     1783    41         306676  -
+16 mac-lane P=4       87     2278    40         198186  -
+16 mac-lane P=8       53     3566    38         188998  -
+F=16: best array / best MAC engine (cells*cycles/vec) = 1.25
+32 systolic 1x2       614     3200    47        1964800  True
+32 systolic 1x4       326     3875    46        1263250  True
+32 systolic 1x8       202     5094    47        1028988  True
+32 systolic 2x4       335     6484    46        1086070  True
+32 mac-lane P=2      596     3089    47        1841044  -
+32 mac-lane P=4      299     3830    45        1145170  -
+32 mac-lane P=8      167     4892    43         816964  -
+F=32: best array / best MAC engine (cells*cycles/vec) = 1.26
