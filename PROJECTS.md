@@ -1,7 +1,7 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 10 added on 2026-10-14. Runs
-started from `prompt.md` take their new work from here. There are ten tracks. Each one is
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14. Runs
+started from `prompt.md` take their new work from here. There are eleven tracks. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
 README bullet, a `site/projects.json` entry and a passing `python site/build.py`, as `CLAUDE.md`
@@ -89,7 +89,7 @@ git commit -m "Mirror oss-research-monorepo@${R:0:12} into research/"
 
 ## Picking work
 
-1. **Pick a track at random.** Draw a uniform random number and map it to the ten tracks. Four
+1. **Pick a track at random.** Draw a uniform random number and map it to the eleven tracks. Four
    runs start in the same minute, and a random pick spreads them out.
 2. **Take the track's next free milestone.** That is the first one that is not on `main` (check
    `research/` for the slug), not claimed by an open pull request, and not on a branch pushed
@@ -111,6 +111,7 @@ git commit -m "Mirror oss-research-monorepo@${R:0:12} into research/"
 | 8. Task-specific AI accelerators | `accel` |
 | 9. Open-source purpose-built robots | `osrobot` |
 | 10. The software-engineering loop | `swe` |
+| 11. Adversarial human imitation | `mimic` |
 
 ## Rules for every track
 
@@ -644,9 +645,160 @@ becomes a target. Cohen (1960), kappa, for agreement between raters.
 - *Privacy.* Redact recorded inputs as `prompt.md` requires, and publish no tokens, email
   addresses or other personal data. This track builds on none of the groups in `prompt.md`.
 
+## 11. Adversarial human imitation (`mimic`)
+
+**Goal.** Two frozen LLMs play the imitation game in a loop. The *imitator* writes what a person
+would write in a given context. The *detector* reads a text, or a human text and an imitator
+text side by side, and says which one a person wrote. Neither model's weights change: the only
+thing either side may change is its own prompt. Between rounds, each side's prompt is rewritten
+to beat the other side's latest one. A context is data, not code: a situation, any earlier
+turns, format limits and human-written examples from that setting. So one loop serves a forum
+reply, a product review, an answer to a question, a chat turn, a recipe or a poem, and adding a
+context means adding rows. Can prompts alone make an LLM indistinguishable from people across
+contexts, against a detector that adapts through prompts alone? Which side wins at an equal
+budget? Does the game settle or cycle? Does a prompt that wins in one context carry over to
+others?
+
+The imitator is a simulated human, a digital twin of how people write in a context. The
+detector's accuracy is a fidelity score for that twin, as a discriminator's is for a GAN, and a
+classifier two-sample test is for any simulator. That is the track's tie to the portfolio's
+theme. Whether a twin that fools a detector is also more useful, for example as the simulated
+speakers in `ambient-interject` (track 2), is a question for the later milestones. Text comes
+first because it fits the container's CPU. Speech, images and video follow only as far as their
+measured compute cost allows (milestone 7).
+
+**What is free and what is fixed.**
+- *Free:* the imitator's prompt and the detector's prompt. A prompt may hold instructions, a
+  persona and few-shot examples, but examples come only from the training split.
+- *Fixed for a run:* the model weights, the decoding settings, the contexts and their splits,
+  the optimiser that rewrites the prompts and its own instructions, and the number of model
+  calls per round, which is the same for both sides.
+- *Scored:* the detector gives a probability, read from its answer tokens' log-probabilities
+  where the model exposes them, so results report AUROC as well as accuracy. It runs in two
+  modes: one text at a time, and paired, with a human text and an imitator text for the same
+  context in random order, where chance is 50%.
+- *Models:* the imitator and the detector are open-weight models run locally, sized to finish on
+  the container's CPU (llama.cpp or transformers), so the results can be reproduced. The
+  optimiser follows the "LLMs in the loop" rule above. A closed model behind an environment
+  variable is at most a labelled extra, never the source of a headline number.
+
+**Prior work.** Turing (1950), the imitation game. Goodfellow et al. (2014), generative
+adversarial nets. Lopez-Paz and Oquab (2017), classifier two-sample tests. Jones and Bergen
+(2024; 2026), Turing tests of LLMs in which the witness prompt drove the pass rate: in the
+three-party test, GPT-4.5 given a humanlike persona prompt was judged to be the human 73% of the
+time, and 36% without it. Jannai et al. (2023), "Human or Not?", ran a Turing test as an online
+game. Ippolito et al. (2020) and Clark et al. (2021), on people and machines judging generated
+text. On detectors: Mitchell et al. (2023), DetectGPT; Hans et al. (2024), Binoculars; Dugan et
+al. (2024), the RAID benchmark; Sadasivan et al. (2025), on the limits of detection; and Liang
+et al. (2023), on detectors' bias against non-native English writers. On evasion and adversarial
+training: Krishna et al. (2023), on paraphrasing; Lu et al. (2024), SICO, which evades detectors
+by optimising only the prompt, against a fixed proxy detector; and Hu, Chen and Ho (2023),
+RADAR, which trains a paraphraser and a detector against each other by updating weights. This
+track's set-up, where both sides adapt and only through prompts, sits between those two. On
+prompt optimisation: Zhou et al. (2023), APE; Yang et al. (2024), OPRO; Pryzant et al. (2023);
+Prasad et al. (2023), GrIPS; Fernando et al. (2024), Promptbreeder; and Yuksekgonul et al.
+(2025), TextGrad. On game dynamics: Lanctot et al. (2017), PSRO, and Balduzzi et al. (2019), on
+strategic cycles in non-transitive games. On simulated humans: Argyle et al. (2023), on
+"algorithmic fidelity"; Aher, Arriaga and Kalai (2023); and Park et al. (2023), generative
+agents. Pillutla et al. (2021), MAUVE, compares model and human text as distributions.
+
+**Milestones.**
+1. `mimic-contexts`: build the context suite and the reference detectors. Gather human-written
+   text from licence-checked corpora in at least six context families, each item stored with the
+   context that produced it. RAID (MIT) comes first. HC3 and M4 keep each source's licence, some
+   of them non-commercial or unknown, so use only the parts whose licence is known and
+   compatible. Split by family, not by item, so later milestones can hold whole families out.
+   Fit reference detectors that use no prompt: a logistic regression on character and word
+   n-grams, and a zero-shot score from a small open model's perplexity (Binoculars-style if two
+   related models fit on the CPU). Score them against an imitator given only a plain prompt
+   ("Write a reply to this post."). The suite and the detectors are useful on their own.
+2. `mimic-loop`: run the loop on two or three context families, with one small open instruct
+   model as both imitator and detector. Alternate rounds: optimise the detector's prompt against
+   the imitator's current one, then the reverse. Compare proposers at the same budget of model
+   calls: an LLM optimiser that reads scores and failures (OPRO- or TextGrad-style) against
+   baselines with no LLM proposer, namely random search and a genetic algorithm over a fixed
+   bank of prompt fragments, and GrIPS-style edits without its paraphrase step. Report AUROC and
+   paired accuracy per round. Check that the texts still do their job, with a judge prompt the
+   loop never changes, and check their length and n-gram overlap with the human references. An
+   imitator that copies people, or says almost nothing, can fool a detector without imitating
+   anyone.
+3. `mimic-crossplay`: does the game settle, cycle or tip? Score every imitator prompt from a run
+   against every detector prompt to get the full payoff matrix. Look for cycles, where a later
+   imitator prompt loses to an earlier detector prompt. Solve the matrix game for its Nash
+   mixture, one of PSRO's meta-solvers, and compare it with the last round's pair: a prompt that beats only
+   its latest opponent has overfitted to it. Then vary the two sides' model sizes. Who wins at
+   an equal budget, and does the larger model always win?
+4. `mimic-anycontext`: test "any context". Optimise on some context families and score on
+   held-out ones. Compare one universal imitator prompt, a prompt per family, and a prompt the
+   imitator writes for itself from the context, and do the same for detectors. Report the gap
+   between seen and held-out families. A universal prompt that holds up on held-out families is
+   the track's main claim; one that does not is a negative result worth reporting.
+5. `mimic-transfer`: indistinguishable to whom? Score the best imitator prompts against
+   detectors the loop never saw: milestone 1's reference detectors, a larger open model as the
+   detector, and detector prompts from other runs. Score the best detector prompts on text from
+   other models, such as RAID's generations. Check at the level of distributions too: a detector
+   that sees a batch can catch an imitator whose texts are each plausible but too much alike, so
+   compare imitator and human diversity per context with MAUVE and distinct n-grams. MAUVE's
+   package is GPL-3.0, so install it as a dependency and do not vendor it. The detector is the
+   defence, as in RADAR. Do detector prompts hardened in the loop generalise better than prompts
+   tuned on plain LLM text?
+6. `mimic-dialogue`: multi-turn contexts. The imitator continues real conversations from
+   licence-checked dialogue corpora for several turns, and the detector judges one turn or the
+   whole thread. A live Turing test, where the detector questions a witness, needs real people
+   on the human side, so it is an owner step (see the guardrails).
+7. `mimic-media`: speech, images and video, compute first. Before running any loop, time each
+   candidate generator and detector per sample on the container's CPU, and work out how many
+   rounds fit in a run. Run the modalities that fit, cheapest first. The prompt stays the only
+   free parameter: the text description that steers a speech model such as Parler-TTS, Hugging
+   Face's open reproduction of Lyth and King (2024), the text prompt of an image model, and the
+   prompt of an open audio- or vision-language model as the detector. Human references come from
+   licence-checked corpora, such as LibriSpeech and Common Voice for speech. Compare with
+   detectors from the deepfake-detection literature, such as the ASVspoof 2019 baselines for
+   speech and Wang et al. (2020) for images. Video will probably not fit on a CPU. Give its GPU
+   cost as an owner step, with a priced estimate and a source and date for the price.
+8. Later: is a twin that fools the detector more useful? Use imitators at several detector
+   scores as the simulated speakers in `ambient-interject`, or as simulated users of an
+   assistant, and check whether what is tuned against the better twin does better on held-out
+   human data. The same score works for the portfolio's physical twins: a classifier that tells
+   simulated from real trajectories measures any simulator's fidelity. And how much of the gain
+   from updating weights, as in RADAR, does prompt-only adaptation reach? Fine-tuning on a GPU
+   is an owner step.
+
+**Guardrails: research on detection, not an evasion service.**
+- *Both sides ship.* Every imitator result ships with the detector prompts and the cross-play
+  results that answer it. The detector is a deliverable, not a foil.
+- *Labelled, never passed off.* Generated text, audio and images stay in this repository,
+  labelled as generated in file names and metadata. Nothing a run generates is posted, submitted
+  or sent anywhere as if a person made it: not to forums, social media, reviews, schools,
+  journals, job applications or customer channels.
+- *No real people.* Imitate contexts, genres and registers, never a named or identifiable
+  person. No voice cloning, and no images or video of real or identifiable people. Human
+  references come from published corpora whose licence allows the use, never from private
+  messages or scraped personal accounts.
+- *No third-party detectors.* Test only detectors built here, or open models run locally. Never
+  test against commercial or institutional detectors, plagiarism checkers, proctoring tools or a
+  platform's bot filters.
+- *Human judges are an owner step.* A Turing test with people is human-subjects research. It
+  needs informed consent, a debrief that reveals the deception, and review by an institutional
+  review board or its equivalent where one applies. In the US that is the Common Rule (Subpart A
+  of 45 CFR 46) for research a federal agency conducts or supports. A run never recruits or
+  tests people.
+- *Fairness.* Report each detector's false-positive rate on human text by group wherever the
+  corpus records it, such as native and non-native writers. A detector that wins by flagging a
+  group of people is a harm, not a result.
+- *Say who was fooled.* "Indistinguishable" always means indistinguishable to something: name
+  the detectors, contexts, models and mode. Chance accuracy against the loop's own detector is
+  the weakest form of the claim.
+- *Synthetic media.* Before generated audio, images or video leave the repository, check the
+  disclosure duties that apply, such as Article 50 of the EU AI Act, which applies from 2 August
+  2026.
+- *Lab tags.* Milestones that use the imitator as a simulated partner build on CAIRO's and
+  HIRO's directions in `prompt.md`, simulated human models and social intelligence. The others
+  build on none of the groups, so say so.
+
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12 and tracks 7 to 10 on 2026-10-14. Check them again before
+Tracks 1 to 6 were checked on 2026-10-12 and tracks 7 to 11 on 2026-10-14. Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**
@@ -772,3 +924,43 @@ citing one, as `prompt.md` requires.
 - Strathern (1997). 'Improving ratings': audit in the British University system. *European Review* 5(3):305–321. <https://doi.org/10.1002/(SICI)1234-981X(199707)5:3<305::AID-EURO184>3.0.CO;2-4>
 - Cohen (1960). A Coefficient of Agreement for Nominal Scales. *Educational and Psychological Measurement* 20(1):37–46. <https://doi.org/10.1177/001316446002000104>
 - Anthropic help centre, read 2026-10-14: Max plan <https://support.claude.com/en/articles/11049741-what-is-the-max-plan>; Claude Code with a Pro or Max plan <https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-or-max-plan>; usage limits <https://support.claude.com/en/articles/11647753-understanding-usage-and-length-limits>; Claude Code `/usage` <https://code.claude.com/docs/en/costs>. Terms: Consumer Terms <https://www.anthropic.com/legal/consumer-terms>; Usage Policy <https://www.anthropic.com/legal/aup>
+
+**Track 11.**
+- Turing (1950). Computing Machinery and Intelligence. *Mind* 59(236):433–460. <https://doi.org/10.1093/mind/LIX.236.433>
+- Goodfellow et al. (2014). Generative Adversarial Nets. NeurIPS 27. <https://proceedings.neurips.cc/paper_files/paper/2014/hash/f033ed80deb0234979a61f95710dbe25-Abstract.html>
+- Lopez-Paz and Oquab (2017). Revisiting Classifier Two-Sample Tests. ICLR. <https://openreview.net/forum?id=SJkXfE5xx>
+- Jones and Bergen (2024). Does GPT-4 pass the Turing test? NAACL, 5183–5210. <https://doi.org/10.18653/v1/2024.naacl-long.290>. A two-player test.
+- Jones and Bergen (2026). Large language models pass a standard three-party Turing test. *PNAS* 123(21):e2524472123. <https://doi.org/10.1073/pnas.2524472123>. Preprint: arXiv:2503.23674 (2025).
+- Jannai, Meron, Lenz, Levine and Shoham (2023). Human or Not? A Gamified Approach to the Turing Test. arXiv. <https://arxiv.org/abs/2305.20010>
+- Ippolito, Duckworth, Callison-Burch and Eck (2020). Automatic Detection of Generated Text is Easiest when Humans are Fooled. ACL, 1808–1822. <https://doi.org/10.18653/v1/2020.acl-main.164>
+- Clark et al. (2021). All That's 'Human' Is Not Gold: Evaluating Human Evaluation of Generated Text. ACL-IJCNLP, 7282–7296. <https://doi.org/10.18653/v1/2021.acl-long.565>
+- Mitchell et al. (2023). DetectGPT: Zero-Shot Machine-Generated Text Detection using Probability Curvature. ICML, PMLR 202:24950–24962. <https://proceedings.mlr.press/v202/mitchell23a.html>
+- Hans et al. (2024). Spotting LLMs With Binoculars: Zero-Shot Detection of Machine-Generated Text. ICML, PMLR 235:17519–17537. <https://proceedings.mlr.press/v235/hans24a.html>
+- Dugan et al. (2024). RAID: A Shared Benchmark for Robust Evaluation of Machine-Generated Text Detectors. ACL, 12463–12492. <https://doi.org/10.18653/v1/2024.acl-long.674>. Code <https://github.com/liamdugan/raid> and data <https://huggingface.co/datasets/liamdugan/raid> are MIT.
+- Sadasivan et al. (2025). Can AI-Generated Text be Reliably Detected? Stress Testing AI Text Detectors Under Various Attacks. *TMLR*. <https://openreview.net/forum?id=OOgsAZdFOt>
+- Liang et al. (2023). GPT detectors are biased against non-native English writers. *Patterns* 4(7):100779. <https://doi.org/10.1016/j.patter.2023.100779>. An opinion article: seven detectors on 91 TOEFL essays and 88 US eighth-grade essays.
+- Krishna et al. (2023). Paraphrasing evades detectors of AI-generated text, but retrieval is an effective defense. NeurIPS 36, 27469–27500. <https://doi.org/10.52202/075280-1195>
+- Lu et al. (2024). Large Language Models can be Guided to Evade AI-generated Text Detection. *TMLR*. <https://openreview.net/forum?id=lLE0mWzUrr>
+- Hu, Chen and Ho (2023). RADAR: Robust AI-Text Detection via Adversarial Learning. NeurIPS 36, 15077–15095. <https://doi.org/10.52202/075280-0662>
+- Zhou et al. (2023). Large Language Models are Human-Level Prompt Engineers. ICLR. <https://openreview.net/forum?id=92gvk82DE->
+- Yang et al. (2024). Large Language Models as Optimizers. ICLR. <https://openreview.net/forum?id=Bb4VGOWELI>
+- Pryzant et al. (2023). Automatic Prompt Optimization with "Gradient Descent" and Beam Search. EMNLP, 7957–7968. <https://doi.org/10.18653/v1/2023.emnlp-main.494>
+- Prasad, Hase, Zhou and Bansal (2023). GrIPS: Gradient-free, Edit-based Instruction Search for Prompting Large Language Models. EACL, 3845–3864. <https://doi.org/10.18653/v1/2023.eacl-main.277>. Its paraphrase edit uses a PEGASUS model, and all edits act on phrases from a constituency parser.
+- Fernando et al. (2024). Promptbreeder: Self-Referential Self-Improvement via Prompt Evolution. ICML, PMLR 235:13481–13544. <https://proceedings.mlr.press/v235/fernando24a.html>
+- Yuksekgonul et al. (2025). Optimizing generative AI by backpropagating language model feedback. *Nature* 639(8055):609–616. <https://doi.org/10.1038/s41586-025-08661-4>
+- Lanctot et al. (2017). A Unified Game-Theoretic Approach to Multiagent Reinforcement Learning. NeurIPS 30. <https://proceedings.neurips.cc/paper_files/paper/2017/hash/3323fe11e9595c09af38fe67567a9394-Abstract.html>
+- Balduzzi et al. (2019). Open-ended learning in symmetric zero-sum games. ICML, PMLR 97:434–443. <https://proceedings.mlr.press/v97/balduzzi19a.html>
+- Argyle et al. (2023). Out of One, Many: Using Language Models to Simulate Human Samples. *Political Analysis* 31(3):337–351. <https://doi.org/10.1017/pan.2023.2>
+- Aher, Arriaga and Kalai (2023). Using Large Language Models to Simulate Multiple Humans and Replicate Human Subject Studies. ICML, PMLR 202:337–371. <https://proceedings.mlr.press/v202/aher23a.html>
+- Park et al. (2023). Generative Agents: Interactive Simulacra of Human Behavior. UIST, 1–22. <https://doi.org/10.1145/3586183.3606763>
+- Pillutla et al. (2021). MAUVE: Measuring the Gap Between Neural Text and Human Text using Divergence Frontiers. NeurIPS 34, 4816–4828. <https://proceedings.neurips.cc/paper_files/paper/2021/hash/260c2432a0eecc28ce03c10dadc078a4-Abstract.html>. Package <https://github.com/krishnap25/mauve> (GPL-3.0).
+- Guo et al. (2023). How Close is ChatGPT to Human Experts? Comparison Corpus, Evaluation, and Detection. arXiv. <https://arxiv.org/abs/2301.07597>. HC3 data <https://huggingface.co/datasets/Hello-SimpleAI/HC3>: CC BY-SA 4.0 on the card, but a stricter source licence overrides it, and one split is CC BY-NC 4.0.
+- Wang et al. (2024). M4: Multi-generator, Multi-domain, and Multi-lingual Black-Box Machine-Generated Text Detection. EACL, 1369–1407. <https://doi.org/10.18653/v1/2024.eacl-long.83>. Data <https://github.com/mbzuai-nlp/M4>: no single licence; human text keeps each source's.
+- Panayotov, Chen, Povey and Khudanpur (2015). Librispeech: An ASR corpus based on public domain audio books. ICASSP, 5206–5210. <https://doi.org/10.1109/ICASSP.2015.7178964>. Data <https://www.openslr.org/12/> (CC BY 4.0).
+- Ardila et al. (2020). Common Voice: A Massively-Multilingual Speech Corpus. LREC, 4218–4222. <https://aclanthology.org/2020.lrec-1.520/>. Data (CC0), distributed since October 2025 through Mozilla Data Collective <https://datacollective.mozillafoundation.org>; read its terms before downloading.
+- Wang et al. (2020). ASVspoof 2019: A large-scale public database of synthesized, converted and replayed speech. *Computer Speech & Language* 64:101114. <https://doi.org/10.1016/j.csl.2020.101114>. Data <https://doi.org/10.7488/ds/2555> (ODC-By).
+- Wang, Wang, Zhang, Owens and Efros (2020). CNN-Generated Images Are Surprisingly Easy to Spot… for Now. CVPR, 8692–8701. <https://doi.org/10.1109/CVPR42600.2020.00872>
+- Lyth and King (2024). Natural language guidance of high-fidelity text-to-speech with synthetic annotations. arXiv. <https://arxiv.org/abs/2402.01912>. Parler-TTS, Hugging Face's reproduction: code <https://github.com/huggingface/parler-tts> and parler-tts-mini-v1 weights <https://huggingface.co/parler-tts/parler-tts-mini-v1> (both Apache-2.0).
+- Open models that fit a CPU, all Apache-2.0: Qwen2.5-0.5B-Instruct <https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct>; Qwen2.5-1.5B-Instruct <https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct>; SmolLM2-1.7B-Instruct <https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct>; SmolVLM-256M-Instruct <https://huggingface.co/HuggingFaceTB/SmolVLM-256M-Instruct>. llama.cpp <https://github.com/ggml-org/llama.cpp> (MIT).
+- Regulation (EU) 2024/1689 (the AI Act), Article 50, transparency obligations for synthetic audio, image, video and text; applies from 2 August 2026 under Article 113. Amended by Regulation (EU) 2026/1744 (the Digital Omnibus on AI), which leaves Article 50's text unchanged. <https://eur-lex.europa.eu/eli/reg/2024/1689/oj>; <https://eur-lex.europa.eu/eli/reg/2026/1744/oj>
+- 45 CFR part 46, Protection of Human Subjects; Subpart A is the Common Rule (IRB review in § 46.109, informed consent in § 46.116). <https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-A/part-46>
