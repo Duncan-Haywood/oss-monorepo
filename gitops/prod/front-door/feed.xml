@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1180 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1181 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-14T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>UK Inheritance Tax Calculator 2025/26: nil-rate band, residence band, taper</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-inheritance-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/uk-inheritance-tax-calculator</id>
+    <updated>2026-10-14T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free UK Inheritance Tax calculator for deaths from April 2025: £325,000 nil-rate band, £175,000 residence nil-rate band with the £2 million taper, transferred spouse allowances, charity gifts and the 36% rate. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
   <entry>
     <title>UK Landlord Section 24 Calculator 2025/26 and 2026/27</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-landlord-section-24-calculator/"/>
@@ -158,13 +166,5 @@
     <updated>2026-10-13T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free employer payroll tax calculator: enter a salary and state to see Social Security, Medicare, FUTA, state unemployment, workers&#39; comp, match and health cost, and the true cost of a hire. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>EU AI Act Risk Checker — Is My AI System High-Risk?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eu-ai-act-risk-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/eu-ai-act-risk-checker</id>
-    <updated>2026-10-13T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free EU AI Act risk checker: tick what your AI system does and your role to see whether it is prohibited, high-risk, or only has transparency duties under Regulation (EU) 2024/1689, with the Articles, your duties and the dates. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
