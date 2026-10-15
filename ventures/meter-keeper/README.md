@@ -62,6 +62,23 @@ All `/v1/*` calls take `Authorization: Bearer $API_KEY`.
 - `GET /v1/projection?customer=` straight-line guess for the full month
 - `GET /v1/check?customer=&meter=&quantity=` is this call inside the plan limit?
 
+### SDK (Node 18+, server side)
+
+Your own server serves a tiny client at `/sdk.mjs`. It buffers `track()` calls,
+sends them in batches, and retries with the same event ids, so a lost response
+cannot double count. It never throws into your request path, and `check()`
+fails open if the meter is unreachable.
+
+```js
+import { createMeter } from "https://meter.example.com/sdk.mjs";
+const meter = createMeter({ url: "https://meter.example.com", key: process.env.METER_API_KEY });
+meter.track("acme", "api", 1);
+if (!(await meter.check("acme", "api")).allowed) return res.status(402).end();
+await meter.close(); // flush on shutdown
+```
+
+Keep the key on the server: it can read every customer's usage.
+
 Admin calls take `$ADMIN_KEY`: `PUT /v1/admin/customers/:id` with
 `{plan, stripeCustomerId}`, `GET /v1/admin/customers`, `GET /v1/admin/outbox`
 (pending and dead-lettered Stripe events), `POST /v1/admin/flush`,

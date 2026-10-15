@@ -9,6 +9,7 @@ import { createHmac, timingSafeEqual, randomBytes } from "node:crypto";
 import { verifySignature, createStripe } from "./stripe.mjs";
 import { decide, describeOffer, summarize, summarizeExperiments, assignVariant, REASONS, mergePolicy } from "./flow.mjs";
 import { renderCancelPage } from "./page.mjs";
+import { renderAdminPage } from "./admin.mjs";
 import { runWinback, summarizeWinback, readUnsubToken } from "./winback.mjs";
 
 const env = process.env;
@@ -56,6 +57,12 @@ export function handler(cfg) {
     const fail = (code, error) => send(code, { error });
     try {
       if (url.pathname === "/healthz") return send(200, "ok\n", "text/plain");
+
+      if (req.method === "GET" && url.pathname === "/admin") {
+        return send(200, renderAdminPage({ company: cfg.company }), "text/html; charset=utf-8", {
+          "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src data:; frame-ancestors 'none'",
+        });
+      }
 
       if (req.method === "POST" && url.pathname === "/webhook/stripe") {
         const raw = await readBody(req, 1_000_000);
