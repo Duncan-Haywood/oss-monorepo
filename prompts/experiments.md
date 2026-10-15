@@ -283,3 +283,16 @@ field will.
   few runs. Review ran five times today because the due counter ignores
   process-track records; owner-visible in the drift report.
 - Result: (next review)
+
+## E11: sixth review of 2026-10-15 (due-counter fix)
+
+- Change: `promptctl.runs_since_review` orders records by when git added them
+  (ties on date were ordered by random session id, so reviews landing mid-day
+  were counted among later runs). Real tree: 37 "runs since review" before,
+  5 after. Regression test added.
+- Why: six reviews ran in one day; four friction/deviation reports and the
+  drift report named the due counter (`prompts/routing.json` friction).
+- Measure: reviews per day (expect at most one per ~20 merged runs).
+- Follow-up on E8-E10: ventures/2 and research/1 still under 10 runs each;
+  no verdict possible. Bulk-mirrored records rank oldest, which is correct.
+- Result: (next review)
