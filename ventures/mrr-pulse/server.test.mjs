@@ -59,6 +59,10 @@ test("the API needs the key and the dashboard escapes the company name", async (
     const co = await (await fetch(`${url}/v1/cohorts`, { headers: AUTH })).json();
     assert.ok(Array.isArray(co) && co.some((c) => c.size === 1));
     assert.match(html, /Retention by signup month/);
+    const csv = await fetch(`${url}/v1/months.csv`, { headers: AUTH });
+    assert.match(csv.headers.get("content-type"), /text\/csv/);
+    assert.match(await csv.text(), /^# currency: .*\nmonth,mrr,customers/);
+    assert.equal((await fetch(`${url}/v1/months.csv`)).status, 401);
     assert.equal((await fetch(`${url}/nope`, { headers: AUTH })).status, 404);
   } finally { s.close(); }
 });

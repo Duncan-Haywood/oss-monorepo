@@ -198,7 +198,7 @@ node --test platform/distribution/*.test.mjs
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
 # No pytest? `apt-get update && apt-get install -y python3-pytest` (pip may not reach PyPI). gitops/tests/test_worker_run.py fails ~26 on clean main when `gh` is preinstalled: compare against origin/main before blaming your change.
-(cd platform/ci && for m in test_*.py; do python3 -m unittest "${m%.py}" || break; done)
+(cd platform/ci && rc=0; for m in test_*.py; do python3 -m unittest "${m%.py}" || { echo "FAILED $m"; rc=1; }; done; exit $rc)  # runs every module, lists each failure
 (cd platform/ci/agent_review && python3 -m unittest test_review)
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline infra/tests -q
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename

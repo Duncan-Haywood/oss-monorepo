@@ -116,6 +116,9 @@ def _codex_stub(bin_dir: Path, *, script: str, status: int = 0, output: str = "d
 def _invoke(world, *, item: dict, env_extra: dict[str, str] | None = None):
     env = dict(os.environ)
     env["PATH"] = f"{world['bin']}:{env['PATH']}"
+    # worker.sh puts /usr/local/bin first; a preinstalled real gh there would
+    # shadow the stub, so point the prefix at the stub dir instead.
+    env["WORKER_PATH_PREFIX"] = str(world["bin"])
     env["HOME"] = str(world["tmp"] / "home")
     env["CODEX_STATE_DIR"] = str(world["tmp"] / "codexstate")
     # Per-test, for the same reason CODEX_STATE_DIR is. The default is the

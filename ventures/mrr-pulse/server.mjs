@@ -6,7 +6,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { createStripe } from "./stripe.mjs";
-import { backfill, applySync, liveMap, summarize, cohorts, breakdown, forecast, concentration } from "./metrics.mjs";
+import { backfill, applySync, liveMap, summarize, cohorts, breakdown, forecast, concentration, monthsCsv } from "./metrics.mjs";
 import { renderDashboard } from "./page.mjs";
 import { notify, validWebhook } from "./alerts.mjs";
 
@@ -77,6 +77,7 @@ export function handler(cfg) {
       if (req.method === "GET" && url.pathname === "/v1/concentration") return send(200, concentration(cfg.state.last || {}));
       if (req.method === "GET" && url.pathname === "/v1/cohorts") return send(200, cfg.state.cohorts || []);
       if (req.method === "GET" && url.pathname === "/v1/plans") return send(200, cfg.state.breakdown || { total: 0, plans: [], concentration: null });
+      if (req.method === "GET" && url.pathname === "/v1/months.csv") return send(200, monthsCsv(months, cfg.state.currency || "usd"), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="mrr-pulse-months.csv"' });
       if (req.method === "GET" && url.pathname === "/v1/months") return send(200, months);
       if (req.method === "POST" && url.pathname === "/v1/sync") return send(200, await runSync());
       return send(404, "not found\n", "text/plain");
