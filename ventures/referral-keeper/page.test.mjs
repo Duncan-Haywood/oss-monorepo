@@ -64,3 +64,7 @@ test("the footer links its sibling Testimonial Keeper", () => {
 test("footer links the sibling Meter Keeper", () => {
   assert.match(page("index.html"), /href="\.\.\/meter-keeper\/"/);
 });
+
+test("footer links the sibling Drip Keeper", () => {
+  assert.match(page("index.html"), /href="\.\.\/drip-keeper\/"/);
+});
