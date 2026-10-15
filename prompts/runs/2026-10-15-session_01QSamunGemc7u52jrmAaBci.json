@@ -27,19 +27,47 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "Replaced owner-only deploy steps with Deploy-with-Vercel button, operator notice, disclaimer, sponsor link; regen mirror committed.",
+  "outcome": "success",
   "errors": [
     "pkill -f 'node --test' killed my own shell; full platform/pages suite exceeds 120s so ran 5 relevant suites (175 pass)"
   ],
   "integrity_issues": [],
   "doc_friction": [
-    "CLAUDE.md: gitops/tests pytest line unrunnable, no pytest installed and not installed (pip/apt not tried); skipped"
+    {
+      "file": "(unattributed)",
+      "issue": "CLAUDE.md: gitops/tests pytest line unrunnable, no pytest installed and not installed (pip/apt not tried); skipped"
+    }
   ],
   "deviations": [
-    "Did not run python3 -m pytest gitops/tests (pytest missing) despite regen touching gitops/; ran regen.mjs only"
+    {
+      "file": "(unattributed)",
+      "why": "Did not run python3 -m pytest gitops/tests (pytest missing) despite regen touching gitops/; ran regen.mjs only"
+    }
   ],
   "goal": null,
-  "notes": "",
-  "corrections": [],
+  "notes": " Original outcome text: Replaced owner-only deploy steps with Deploy-with-Vercel button, operator notice, disclaimer, sponsor link; regen mirror committed.",
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "outcome",
+      "from": "Replaced owner-only deploy steps with Deploy-with-Vercel button, operator notice",
+      "to": "success",
+      "why": "free text is not a valid outcome; text kept in notes (review 2026-10-15)"
+    },
+    {
+      "date": "2026-10-15",
+      "field": "doc_friction",
+      "from": "free-text strings",
+      "to": "{file,issue} entries",
+      "why": "malformed entries broke validate and measure"
+    },
+    {
+      "date": "2026-10-15",
+      "field": "deviations",
+      "from": "free-text strings",
+      "to": "{file,why} entries",
+      "why": "malformed entries broke validate and measure"
+    }
+  ],
   "redteam": null
 }
