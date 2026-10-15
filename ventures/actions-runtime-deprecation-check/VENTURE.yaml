@@ -1,0 +1,36 @@
+name: actions-runtime-deprecation-check
+description: 'Free, read-only CLI that scans GitHub Actions workflows for first-party actions (checkout, setup-node, cache, upload-artifact and more) pinned to majors that run on end-of-life or ageing Node runtimes or that GitHub has shut down, printing file, line and the major to move to; zero dependencies, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same shape as the other actions-* checkers.
+# No existing checker reads action runtime versions (actions-transitive-pin-check
+# is about pinning, not runtimes).
+# Gate self-assessment: read-only line scanner, no advice-of-record, no data
+# leaving the device. Runtime table is a labelled snapshot; the tool tells the
+# user to confirm against action.yml.
+# First visitor channel: searches for "Node.js 16 actions are deprecated" and
+# "Node 20 actions are deprecated" warnings in workflow logs.
+hypotheses:
+  - claim: 'A maintainer who sees the "Node.js NN actions are deprecated" annotation will run this to list every affected step at once.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No external repository is found using check.py within 90 days of it being reachable from the published site.
+
+links:
+  production: null
+  analytics: null

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   toCents, percentOf, addDays, addMonths, daysBetween, splitLines, normalizeProposal, pricingOptions, depositFor, phaseDates, finishDate,
   paymentSchedule, clauseTexts, status, proposalValue, nextNumber, duplicateNumbers, pipeline, duplicateProposal, validUntil, validate,
-  renderProposal, toEstimateDraft, parseBackup, mergeProposals, proposalsToCsv, esc, LEGAL_NOTICE,
+  renderProposal, standaloneHtml, toEstimateDraft, parseBackup, mergeProposals, proposalsToCsv, esc, LEGAL_NOTICE,
 } from "./calc.mjs";
 
 const base = (over = {}) => normalizeProposal({
@@ -271,4 +271,13 @@ test("CSV export neutralises spreadsheet formulas and quotes commas", () => {
   assert.match(csv, /'=HYPERLINK/);
   assert.match(csv, /"A, B"/);
   assert.match(csv.split("\n")[1], /,sent,fixed,7000\.00$/);
+});
+
+test("standaloneHtml is one self-contained file: no script, no network, user text escaped", () => {
+  const html = standaloneHtml(base({ title: "<b>Site</b>", clientName: "A & B" }), { css: "#preview h3{color:red}" });
+  assert.match(html, /^<!doctype html>/);
+  assert.match(html, /<title>PROP-0001 &lt;b&gt;Site&lt;\/b&gt;<\/title>/);
+  assert.match(html, /#preview h3\{color:red\}/);
+  assert.match(html, /A &amp; B/);
+  assert.doesNotMatch(html, /<script|<link|src=|href=|<b>Site/i);
 });
