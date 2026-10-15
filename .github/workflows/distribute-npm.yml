@@ -1,0 +1,28 @@
+# Publishes venture CLIs to npm, a few new packages per run.
+# Off by default: with vars.DISTRIBUTE_NPM unset this only prints a dry run.
+# Free registry, no paid spend, no commits pushed. Spec: portfolio/distribution/README.md
+name: distribute-npm
+on:
+  schedule:
+    - cron: '41 16 * * 3'
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  publish:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+      - run: node platform/distribution/npm.mjs
+        env:
+          DISTRIBUTE_NPM: ${{ vars.DISTRIBUTE_NPM }}
+          NPM_SCOPE: ${{ vars.NPM_SCOPE }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
