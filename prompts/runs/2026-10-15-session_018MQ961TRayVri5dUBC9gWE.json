@@ -27,15 +27,18 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 3,
-  "outcome": "shipped cron-heartbeat maintenance pause/resume and public SVG status badge; 39 venture tests and 23 deploy tests pass",
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "CLAUDE.md: gitops/tests shows 30 failures in test_worker_run.py on this branch; the file warns about ~26 with gh preinstalled and says compare against origin/main, which I did not do."
+    {
+      "file": "CLAUDE.md",
+      "issue": "gitops/tests showed 30 failures in test_worker_run.py; file warns of ~26 with gh preinstalled and says compare to origin/main, which I did not do."
+    }
   ],
   "deviations": [],
   "goal": null,
-  "notes": "",
+  "notes": "Shipped cron-heartbeat maintenance pause/resume and public SVG status badge; 39 venture tests and 23 deploy tests pass.",
   "corrections": [],
   "redteam": null
 }
