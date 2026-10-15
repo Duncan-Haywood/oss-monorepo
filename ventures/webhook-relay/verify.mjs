@@ -13,7 +13,7 @@ const TOLERANCE_SEC = 300;
 // NaN compares false against everything, so a non-numeric timestamp must not read as "inside the window".
 const stale = (nowSec, ts) => !(Math.abs(nowSec - Number(ts)) <= TOLERANCE_SEC);
 
-export const SCHEMES = ["none", "stripe", "github", "shopify", "slack", "paddle", "typeform", "gitlab", "woocommerce", "linear", "standard", "hmac-sha256"];
+export const SCHEMES = ["none", "stripe", "github", "shopify", "slack", "paddle", "typeform", "gitlab", "woocommerce", "linear", "mailgun", "bitbucket", "standard", "hmac-sha256"];
 
 export function verify(scheme, { headers, body, secret, nowSec = Math.floor(Date.now() / 1000), header }) {
   if (scheme === "none") return OK;
@@ -70,6 +70,17 @@ export function verify(scheme, { headers, body, secret, nowSec = Math.floor(Date
       try { ts = Number(JSON.parse(body.toString("utf8")).webhookTimestamp); } catch { return fail("body is not JSON"); }
       if (!Number.isFinite(ts)) return fail("missing webhookTimestamp");
       return Math.abs(nowSec * 1000 - ts) > TOLERANCE_SEC * 1000 ? fail("timestamp outside tolerance") : OK;
+    }
+    case "bitbucket": { // Bitbucket Cloud: "sha256=<hex HMAC of the raw body>" in X-Hub-Signature
+      const got = headers["x-hub-signature"] || "";
+      return eq(got, `sha256=${hmac(secret, body, "hex")}`) ? OK : fail(got ? "signature mismatch" : "missing x-hub-signature");
+    }
+    case "mailgun": { // body JSON {signature:{timestamp, token, signature}}; hex HMAC of timestamp+token with the webhook signing key
+      let sig;
+      try { sig = JSON.parse(body.toString("utf8")).signature; } catch { return fail("body is not JSON"); }
+      if (!sig || !sig.timestamp || !sig.token || !sig.signature) return fail("missing signature block");
+      if (stale(nowSec, sig.timestamp)) return fail("timestamp outside tolerance");
+      return eq(sig.signature, hmac(secret, `${sig.timestamp}${sig.token}`, "hex")) ? OK : fail("signature mismatch");
     }
     case "standard": { // standardwebhooks.com: Svix, Resend, Clerk, ...
       const id = headers["webhook-id"], ts = headers["webhook-timestamp"], sigHeader = headers["webhook-signature"];
