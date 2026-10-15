@@ -117,7 +117,7 @@ in both. oss-monorepo's `research/_mirror/mirror.py` keeps its `research/` an ex
      `site/project.html` for all projects (abstract, test count, links, AI note, and the first
      image under the project's `experiments/`), the homepage card links to it, and the build
      fails if a page cannot be built. Most projects ship no image yet (five were added 2026-10-15
-     via `experiments/figure.py`, which parses the committed `results.txt`), so most pages have no
+     via `experiments/figure.py`, which parses the committed `results.txt`); `robofab-cell`, `robofab-cell-cv` and `robofab-cell-mva` followed, redrawn from their `results.json`, so most pages have no
      figure yet. Still open: have each project's experiment code write a figure, and the
      `oss-monorepo` products half.
    - **Products (*oss-monorepo*).** Every venture gets a home or marketing page from the Pages
