@@ -43,3 +43,16 @@ channels:
       - agents did not read the live terms on build day (no network to dev.to from the build session), so this row is unconfirmed until the owner does
     owner_ask: create the dev.to account, generate an API key, store it as DEVTO_API_KEY, set DISTRIBUTE_DEVTO=true; review the first drafts before setting DEVTO_PUBLISH=true
     dry_run: node platform/distribution/devto.mjs
+  - id: hashnode-crosspost
+    rung: artifact
+    built: 2026-10-15
+    code: platform/distribution/hashnode.mjs
+    workflow: .github/workflows/distribute-hashnode.yml
+    enabled_by: repository variables DISTRIBUTE_HASHNODE=true and HASHNODE_PUBLICATION_ID, plus secret HASHNODE_TOKEN; articles are created as drafts until HASHNODE_PUBLISH=true
+    what_it_posts: one short article per tool launched in the last 3 days (platform/pages/launched.json), at most 2 per run, originalArticleURL (canonical) set to the tool page, same body and disclosures as the dev.to channel (free MIT software, not professional advice, posted automatically)
+    dedupe: stateless; reads the publication's own posts and drafts (canonicalUrl) and skips any tool whose URL is already there
+    terms_to_confirm_by_owner_when_enabling:
+      - Hashnode Terms of Service and content policy on spam and self-promotion (articles must be useful on their own; if the first drafts read as thin, keep HASHNODE_PUBLISH unset and edit by hand)
+      - the Public API at gql.hashnode.com documents createDraft, publishPost (originalArticleURL) and Post.canonicalUrl; a personal access token goes in the Authorization header. Agents had no network to Hashnode on build day, so the query shape and the terms are unconfirmed until the first live draft
+    owner_ask: create the Hashnode account and publication, generate a personal access token, store it as HASHNODE_TOKEN, set HASHNODE_PUBLICATION_ID and DISTRIBUTE_HASHNODE=true; review the first drafts before setting HASHNODE_PUBLISH=true
+    dry_run: node platform/distribution/hashnode.mjs
