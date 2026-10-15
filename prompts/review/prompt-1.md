@@ -22,30 +22,21 @@ Read the tables. Then make the numbers true before you trust them:
 
 - **Fill in what runs could not know.** For each record with `merged: null`,
   look up its pull request and set `merged` and `ci_failures_before_green`.
-  Skip records mirrored from the upstream research repository (their PR is
-  not in this repo): leave `merged` null and say so in the log.
-  Leave a `corrections` entry for each change
-  (`{"date", "field", "from", "to", "why"}`). Never change any other field of
-  a past record; add a correction note instead.
+  Skip records mirrored from upstream (their PR is not in this repo): leave
+  `merged` null. Add a `corrections` entry per change
+  (`{"date", "field", "from", "to", "why"}`); never edit any other field of a
+  past record.
 - **Count leaked work.** Branches or pull requests a recorded run pushed that
   were not on `main` 24 hours later. Set `merged: false` on their records.
   Then land or close each one, per `land-your-work.md`.
-- **First review only: backfill.** If there are fewer than 20 records, build
-  records for recent sessions from git history. Use one record per
-  `Claude-Session` trailer on `main`, starting with the last two weeks. Take
-  the model from the `Co-Authored-By` trailer, the timing and diff size from
-  the commits, and the outcome from the pull request. Mark each record
-  `"notes": "backfilled"` and use version 0. Leave unrecoverable fields
-  `null`.
 
 ## 2. Audit
 
 Pick about five recent outputs at random, across tracks. Re-run their tests
 and code, and check that the README's numbers match what the code produces.
-For research, check every citation (`prompts/goals.md`, Research guardrails).
-For a venture, check its disclaimer and usage tracking. Log each problem you
-find as an integrity issue or an error on the record of the run that produced
-it, as a correction.
+For research, check citations; for a venture, its disclaimer and usage
+tracking. Skip mirrored upstream records. Log each problem as a correction
+(integrity issue or error) on the producing run's record.
 
 ## 3. Decide the active candidates
 
@@ -66,7 +57,7 @@ message is a weaker result. Say so in the log.
 
 ## 4. Improve one prompt
 
-For each track without a candidate, write the next one:
+For a track without a candidate that has at least about 10 runs, write the next one:
 `prompts/<track>/prompt-<n+1>.md`. Start from a full copy of the champion and
 make one focused change, aimed at that track's most common failure in the
 records. One change at a time, so its effect can be measured. Give it
@@ -78,11 +69,9 @@ records. One change at a time, so its effect can be measured. Give it
 Doc friction is the signal (`measure`, "Doc friction by file"), and so are
 deviations (`measure`, "Deviations by file"): a default that runs keep
 departing from with good results should change to match them
-([`prompts/steering.md`](../steering.md)). Pick the file with the most
-reports and fix what they describe in that file. Anything you find but do
-not fix goes into `prompts/process/backlog/` as an item, not into prose. The file can
-be `AGENTS.md`, `CLAUDE.md`, a README, a sub-prompt, `land-your-work.md` or
-this prompt itself. Rules for doc changes:
+([`prompts/steering.md`](../steering.md)). Fix what the reports describe in
+the file with the most of them; what you cannot fix goes into
+`prompts/process/backlog/`, not into prose. Rules for doc changes:
 
 - **Shorter beats longer.** Every run pays to read these files
   (`measure`, "Instruction lines"). Prefer deleting a stale paragraph, or
@@ -96,16 +85,14 @@ this prompt itself. Rules for doc changes:
 
 ## 6. Drift audit
 
-Added 2026-10-15 at the owner's request. The owner sends few messages and
-does not review everything, so it is up to agents to notice when the system
-has drifted away from what the owner asked for and to fix it. Apply
-"Judgment over rules" in `prompts/goals.md` while you do this.
+Added 2026-10-15 at the owner's request: the owner reviews little, so agents
+must notice and fix drift from what the owner asked. Apply "Judgment over
+rules" in `prompts/goals.md`.
 
 1. **Read the owner's own words.** These are the `input` fields of run records
-   that are not a routine trigger (`promptctl.py measure`, "By starting
-   message"), the owner's brief in each track's sub-prompt, and the dated
-   owner quotes in `goals.md`. Read them before any agent-written summary of
-   them.
+   that are not a routine trigger ("By starting message"), the owner's brief
+   in each track's sub-prompt, and the dated quotes in `goals.md`, before any
+   agent-written summary of them.
 2. **Compare the output with them.** What has merged since the last drift
    report? Name the mix (for ventures, how many are near-copies of one
    shape) and whether it is what those words ask for. Look for owner intent
@@ -113,20 +100,17 @@ has drifted away from what the owner asked for and to fix it. Apply
    owner never asked to go.
 3. **Compare the rules with them.** Record the instruction-line count for
    each file a run reads (`measure`, "Instruction lines") against the last
-   report. Pick the file that grew most or costs most, and cut it: remove
-   stale history, rules about things that no longer exist, and duplicates of
-   rules stated elsewhere. A cut is judged by doc friction after it, as in
-   step 5. Cutting is never a reason to drop a guardrail from `goals.md`.
+   report. Cut the file that grew most or costs most: stale history, rules
+   about things that no longer exist, duplicates. Judge the cut by friction
+   after it (step 5). Never drop a `goals.md` guardrail.
 4. **Fix what is clear, propose what is not.** Correct drifted documents and
-   sub-prompts directly (a sub-prompt through a candidate version, as in
-   step 4). If the fix needs the owner, because it touches `goals.md` or
-   their intent is unclear, write a short proposal under "Proposals for the
-   owner" in `experiments.md`. Quote the words you are reading, and ask a
-   question they can answer in one line.
-5. **Write the report.** `prompts/drift/YYYY-MM-DD.md` covers what drifted,
-   the evidence, what you fixed, what you propose, and the follow-up on the
-   last report's items. Keep it short enough to read in two minutes, because
-   it is written for an owner who reads rarely.
+   sub-prompts directly (a sub-prompt through a candidate, step 4). If it
+   needs the owner (touches `goals.md`, intent unclear), add a short proposal
+   under "Proposals for the owner" in `experiments.md`: quote the words, ask
+   a one-line question.
+5. **Write the report** `prompts/drift/YYYY-MM-DD.md`: what drifted, the
+   evidence, what you fixed, what you propose, follow-up on the last report.
+   Two minutes to read, for an owner who reads rarely.
 
 ## 7. Log and follow up
 
@@ -134,16 +118,10 @@ Append to [`prompts/experiments.md`](../experiments.md), newest at the bottom:
 what changed, why, the metric it should move, and the run window to compare.
 Then go back to the previous review's entries. Fill in their results from
 this review's numbers: helped, no change, worse, or too few runs. Revert a
-doc change or retire a candidate that made things worse.
+doc change or retire a candidate that made things worse. A goal the numbers
+show is wrong gets a proposal with evidence here, never an edit to `goals.md`.
 
-## 8. Goals
-
-If the measurements say a goal or guardrail in `prompts/goals.md` is wrong,
-unmeasurable or working against the others, write a proposal under
-"Proposals for the owner" in `experiments.md`, with the evidence. Do not edit
-`goals.md`.
-
-## 9. Land it
+## 8. Land it
 
 Run `python3 prompts/promptctl.py validate` and
 `python3 -m unittest discover -s prompts`, record this run (track `review`),
