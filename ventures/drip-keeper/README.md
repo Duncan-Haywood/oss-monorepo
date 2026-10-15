@@ -93,12 +93,14 @@ To go live set `RESEND_API_KEY`, `MAIL_FROM`, `POSTAL_ADDRESS` and
 | `GET` / `DELETE /v1/admin/contacts/:email` | inspect, or erase on request |
 | `GET /v1/admin/export.csv` | contacts and sequence status |
 | `POST /v1/webhooks/resend` | Resend webhook (signed): complaints and permanent bounces suppress the address; off until `RESEND_WEBHOOK_SECRET` is set |
+| `POST /v1/webhooks/stripe` | Stripe webhook (signed): `checkout.session.completed` becomes `purchased`, a subscription's first `invoice.paid` becomes `subscribed`, `invoice.payment_failed` becomes `payment_failed`, `customer.subscription.deleted` becomes `canceled`; so `"exitOn": ["subscribed"]` stops trial emails when they pay and `"trigger": "canceled"` starts a win-back, with no code in your app. Off until `STRIPE_WEBHOOK_SECRET` is set |
 | `GET` / `POST /u/:token` | signed unsubscribe page; POST is the RFC 8058 one-click |
 
 | Env | Purpose |
 |---|---|
 | `ADMIN_KEY` | required, 16+ characters |
 | `RESEND_WEBHOOK_SECRET` | optional `whsec_...` signing secret of a Resend webhook pointed at `BASE_URL/v1/webhooks/resend` (events `email.bounced`, `email.complained`); stops mail to those addresses automatically |
+| `STRIPE_WEBHOOK_SECRET` | optional `whsec_...` signing secret of a Stripe webhook endpoint at `BASE_URL/v1/webhooks/stripe` (events above). Your own Stripe account; Drip Keeper only reads the events and stores the customer id |
 | `INGEST_KEY` | optional key that can only post events and contacts, for your app |
 | `BASE_URL`, `PRODUCT_NAME`, `POSTAL_ADDRESS` | unsubscribe links and the footer |
 | `SEQUENCES_FILE` | sequences loaded on first start (afterwards the state file wins; use `PUT`) |
