@@ -227,11 +227,18 @@ def validate_record(root: Path, path: Path, rec: Any, tracks: dict[str, Any]) ->
     if errors:
         return errors
     day = rec["date"]
-    if not (isinstance(day, str) and DATE_RE.match(day)):
+    # A mirrored run that upstream logged with no session metadata: nothing to invent.
+    unattributed = (str(rec.get("source")).startswith("oss-research-monorepo")
+                    and day is None and rec["session"] is None)
+    if unattributed:
+        pass
+    elif not (isinstance(day, str) and DATE_RE.match(day)):
         errors.append(f"{where}: date must be YYYY-MM-DD")
     elif not path.name.startswith(day):
         errors.append(f"{where}: file name must start with the record's date {day}")
-    if not (isinstance(rec["session"], str) and rec["session"].strip()):
+    if unattributed:
+        pass
+    elif not (isinstance(rec["session"], str) and rec["session"].strip()):
         errors.append(f"{where}: session must be the session URL")
     track, version = rec["track"], rec["prompt_version"]
     if track not in tracks:

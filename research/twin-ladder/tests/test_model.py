@@ -40,6 +40,17 @@ class M(unittest.TestCase):
         self.assertAlmostEqual(st.mean(est), 1.0, delta=4 * st.pstdev(est) / math.sqrt(3000))
         self.assertAlmostEqual(st.pvariance(est) / int_var([1] + rhos, ms), 1.0, delta=0.08)
 
+    def test_figure_builds_and_matches_threshold(self):
+        import importlib.util, pathlib
+        spec = importlib.util.spec_from_file_location("figure", pathlib.Path(__file__).parents[1] / "experiments" / "figure.py")
+        fig = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fig)
+        svg = fig.build()
+        self.assertTrue(svg.startswith("<svg") and svg.rstrip().endswith("</svg>"))
+        self.assertEqual(svg.count("<circle"), len(fig.E3_SETTINGS))
+        # exactly one E3 setting (q=0.9, r=0.5) lies below the threshold, as in results.txt
+        self.assertEqual([s for s in fig.E3_SETTINGS if s[0] <= rho_star(s[1])], [(0.90, 0.5)])
+
 
 if __name__ == "__main__":
     unittest.main()

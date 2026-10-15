@@ -153,3 +153,5 @@ python experiments/summarise.py
 The pretrained models (Silero VAD, Whisper tiny.en, Qwen2.5-0.5B, Piper voice) were trained
 elsewhere and are downloaded from Hugging Face, PyPI and GitHub releases; this project could not
 train or recreate them. Everything else is in this directory.
+
+**Figure.** `python experiments/figure.py` (needs matplotlib) redraws `experiments/memory.png`, memory added by each stage, from the committed `experiments/results.json` only; it runs nothing new.
