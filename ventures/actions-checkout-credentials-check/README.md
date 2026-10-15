@@ -19,7 +19,7 @@ python3 check.py /path/to/repo --format json
 python3 check.py --fail-on-risk     # exit 2 if anything is found (for CI)
 ```
 
-Tests: `python3 -m unittest test_check`.
+Tests: `python3 -m unittest test_check`; `node --test 'ventures/actions-checkout-credentials-check/*.test.mjs'` for the page.
 
 ## What it is not
 
@@ -30,10 +30,17 @@ reads one pattern only; it is not a substitute for a full workflow linter such
 as zizmor. Informational tool: no legal, security or compliance advice, and
 no warranty (MIT, see `LICENSE`).
 
+## Browser version
+
+`index.html` runs the same scan in the page (`check.mjs`, a line-for-line port
+pinned to `check.py` by a parity test): paste workflow YAML, get findings and
+the fix. Nothing is uploaded and there are no network calls.
+
 ## Usage tracking
 
-None: the CLI collects nothing. There is no hosted page yet; a browser version
-in the style of `actions-timeout-check` is the next step if the CLI gets use.
+The page counts two anonymous events (`check_run`, `example_loaded`) in the
+visitor's own local storage only, honours Do Not Track / Global Privacy
+Control, and has a button that turns counting off. The CLI collects nothing.
 
 ## Support
 
