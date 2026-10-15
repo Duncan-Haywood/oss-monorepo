@@ -39,6 +39,14 @@ export const PROVIDERS = {
     repoPrivate: false,
     serverOnly: true,
   },
+  fly: {
+    label: 'Fly.io (a running server, from your terminal)',
+    blurb: 'For apps that need a process. Download a folder with a ready fly.toml and the exact flyctl commands; you deploy it from your own terminal into your own Fly.io account (Fly bills you). No token is typed here; secrets go straight to Fly with flyctl. Download only.',
+    needs: [],
+    repoPrivate: true,
+    serverOnly: true,
+    downloadOnly: true,
+  },
   docker: {
     label: 'Docker Compose (any server you control)',
     blurb: 'For apps that need a process. Download a folder with a compose file and a setup script; run it on any VPS, Raspberry Pi or home server with Docker. No account, no token, no third party. Download only.',
@@ -209,9 +217,100 @@ It is free. If it earns you money, [buy the creator a coffee](${DONATE_URL}).
   return out;
 }
 
+function composeFlyBundle({ slug, title, serverFiles }) {
+  if (!serverFiles || !serverFiles['render.yaml'] || !serverFiles['Dockerfile']) throw new Error('app has no server files');
+  const out = {};
+  for (const [rel, f] of Object.entries(serverFiles)) {
+    if (rel.includes('..') || rel.startsWith('/')) throw new Error(`unsafe path: ${rel}`);
+    if (rel === 'render.yaml') continue;
+    if (f.text !== undefined) out[`app/${rel}`] = rel === 'index.html' ? withDeployFooter(f.text) : f.text;
+    else out[`app/${rel}`] = decodeB64(f.b64);
+  }
+  const yaml = serverFiles['render.yaml'].text;
+  const env = blueprintEnv(yaml);
+  for (const e of env) if (!/^[A-Z][A-Z0-9_]*$/.test(e.key)) throw new Error(`unsafe env name: ${e.key}`);
+  const port = serverFiles['Dockerfile'].text.match(/^\s*EXPOSE\s+(\d+)/m)?.[1] ?? '8080';
+  const mount = yaml.match(/^\s*mountPath:\s*(\S+)/m)?.[1];
+  const health = yaml.match(/healthCheckPath:\s*(\S+)/)?.[1];
+  const literals = env.filter((e) => !e.generate && !e.secret && e.value !== undefined);
+  const generated = env.filter((e) => e.generate);
+  const secrets = env.filter((e) => e.secret);
+  const tomlStr = (v) => `'${String(v).replace(/'/g, '')}'`;
+  // No `app = ...` line: Fly app names are global, so flyctl asks for the visitor's own.
+  out['fly.toml'] = `# Fly.io config for ${title}. Deploy with the commands in README.md.
+primary_region = 'iad'
+
+[build]
+  dockerfile = 'app/Dockerfile'
+
+[http_service]
+  internal_port = ${port}
+  force_https = true
+  auto_stop_machines = 'off'
+  auto_start_machines = true
+  min_machines_running = 1
+${health ? `
+  [[http_service.checks]]
+    method = 'GET'
+    path = ${tomlStr(health)}
+    interval = '30s'
+    timeout = '5s'
+    grace_period = '10s'
+` : ''}${mount ? `
+[mounts]
+  source = 'data'
+  destination = ${tomlStr(mount)}
+` : ''}${literals.length ? `
+[env]
+${literals.map((e) => `  ${e.key} = ${tomlStr(e.value)}`).join('\n')}
+` : ''}`;
+  const secretCmds = [
+    ...generated.map((e) => `${e.key}=$(openssl rand -hex 24)`),
+    ...secrets.map((e) => `${e.key}=...   # optional or required, see app/README.md`),
+  ];
+  out['README.md'] = `# ${title}
+
+Your own copy of **${title}**, a server app from the open-source portfolio
+(\`ventures/${slug}\`), set up to run on **Fly.io** in your own account.
+
+## Deploy it
+
+Install [flyctl](https://fly.io/docs/flyctl/install/) and sign in (\`fly auth login\`), then from this folder:
+
+\`\`\`
+fly launch --copy-config --no-deploy      # asks you to name the app; names are global
+${mount ? 'fly volumes create data --size 1 --count 1   # its data lives here; back it up\n' : ''}${secretCmds.length ? `fly secrets set \\\n  ${secretCmds.join(' \\\n  ')}\n` : ''}fly deploy${mount ? ' --ha=false' : ''}
+\`\`\`
+
+Secrets go from your terminal straight to Fly. They never pass through the creator or
+the deploy page${secrets.length ? '; replace each \`...\` above with your own value, or delete the line if you do not need that feature' : ''}.
+
+## You are the operator
+
+This copy runs in your own Fly.io account and Fly bills you. You are responsible for it:
+its domain, terms, privacy policy, customers' data and any changes you make. The creator
+does not host it, sees none of its traffic, and provides it as-is under the MIT license,
+with no warranty. Some apps start in a safe dry-run mode; read \`fly.toml\` and the app's own notes.
+
+## Tear it down
+
+\`fly apps destroy <your-app-name>\` deletes the app and its volume.
+
+## Support the creator
+
+It is free. If it earns you money, [buy the creator a coffee](${DONATE_URL}).
+`;
+  return out;
+}
+
 export function composeRepo({ slug, title, provider, appFiles, templates, serverFiles }) {
   if (provider === 'docker') {
     const out = composeDockerBundle({ slug, title, serverFiles });
+    out['LICENSE'] = templates?._license ?? '';
+    return out;
+  }
+  if (provider === 'fly') {
+    const out = composeFlyBundle({ slug, title, serverFiles });
     out['LICENSE'] = templates?._license ?? '';
     return out;
   }

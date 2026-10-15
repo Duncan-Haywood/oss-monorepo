@@ -71,6 +71,13 @@ it keeps state in a Docker volume, so stateful apps lose nothing on restart. The
 env list is read from the venture's `render.yaml` (`blueprintEnv`), so there is no
 second list to drift.
 
+**Fly.io** (download only, no token here): the server apps can also be downloaded as a
+folder with the app, a `fly.toml` derived from the venture's `render.yaml` (port from
+`EXPOSE`, health check, volume mount, literal env) and a README with the exact `flyctl`
+commands. Generated secrets use `openssl rand`, other secrets go through `fly secrets set`;
+nothing secret is in the folder and no `app` name is hard-coded (Fly names are global).
+Not yet validated against a live Fly account.
+
 ## Tests
 
 `node --test platform/deploy/*.test.mjs`. CI (`deploy-iac-check.yml`) also runs
@@ -80,7 +87,7 @@ second list to drift.
 
 - No `.terraform.lock.hcl` yet: it needs a `tofu init` run with network access.
   Providers are pinned to exact versions in `versions.tf` meanwhile.
-- More providers (Azure, DigitalOcean Spaces) and a Fly.io path for server apps. (DigitalOcean App Platform was considered for servers and skipped: no persistent disk, so most of the server apps would lose state.)
+- More providers (Azure, DigitalOcean Spaces). (DigitalOcean App Platform was considered for servers and skipped: no persistent disk, so most of the server apps would lose state.)
 - The hub footer and every tool page footer link the page ("Deploy your own
   copy" / "Run your own copy", `deploy/?app=<slug>` preselects the app).
 - The GCS path is validated with `tofu validate` only, not against a live project; it serves from `storage.googleapis.com` (no custom domain, no CDN).

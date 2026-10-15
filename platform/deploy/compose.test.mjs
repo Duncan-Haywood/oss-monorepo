@@ -133,6 +133,29 @@ test('docker bundle: compose file, env template, setup script, no secrets, downl
   assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'docker', serverFiles: bad, templates }), /unsafe env/);
 });
 
+test('fly bundle: fly.toml from the blueprint, flyctl steps, no secrets, download only', () => {
+  const yaml = 'services:\n  - name: x\n    healthCheckPath: /healthz\n    disk:\n      name: s\n      mountPath: /data\n    envVars:\n      - key: DRY_RUN\n        value: "true"\n      - key: ADMIN_KEY\n        generateValue: true\n      - key: STRIPE_SECRET_KEY\n        sync: false\n';
+  const serverFiles = { Dockerfile: { text: 'FROM node:22-alpine\nEXPOSE 9000\n' }, 'render.yaml': { text: yaml }, 'server.mjs': { text: 'x' }, 'index.html': { text: '<body>hi</body>' } };
+  const r = composeRepo({ slug: 'cancel-flow', title: 'Cancel Flow', provider: 'fly', serverFiles, templates });
+  assert.ok(PROVIDERS.fly.downloadOnly && PROVIDERS.fly.serverOnly && PROVIDERS.fly.needs.length === 0);
+  assert.ok(r['app/Dockerfile'] && r['app/server.mjs'] && !r['app/render.yaml']);
+  assert.match(r['app/index.html'], /buymeacoffee/);
+  assert.match(r['fly.toml'], /internal_port = 9000/);
+  assert.match(r['fly.toml'], /path = '\/healthz'/);
+  assert.match(r['fly.toml'], /destination = '\/data'/);
+  assert.match(r['fly.toml'], /DRY_RUN = 'true'/);
+  assert.ok(!/^app\s*=/m.test(r['fly.toml']), 'no hard-coded global app name');
+  assert.ok(!r['fly.toml'].includes('STRIPE') && !r['fly.toml'].includes('ADMIN_KEY'), 'secrets stay out of fly.toml');
+  assert.match(r['README.md'], /ADMIN_KEY=\$\(openssl rand -hex 24\)/);
+  assert.match(r['README.md'], /STRIPE_SECRET_KEY=\.\.\./);
+  assert.match(r['README.md'], /fly volumes create data/);
+  assert.match(r['README.md'], /You are the operator/);
+  assert.ok(r['README.md'].includes(DONATE_URL));
+  assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'fly', serverFiles: {}, templates }), /server files/);
+  const bad = { ...serverFiles, 'render.yaml': { text: yaml.replace('DRY_RUN', 'x;rm') } };
+  assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'fly', serverFiles: bad, templates }), /unsafe env/);
+});
+
 test('android repo: capacitor project around app/, workflow, no secrets, valid ids', async () => {
   const { androidAppId } = await import('./compose.mjs');
   const real = fs.readFileSync(new URL('./templates/android/deploy.yml', import.meta.url), 'utf8');

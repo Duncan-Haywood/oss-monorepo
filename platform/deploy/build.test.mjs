@@ -112,6 +112,8 @@ test('server ventures get servers/<slug>.json whose blueprint matches the repo l
     const bundle = composeRepo({ slug, title: slug, provider: 'docker', serverFiles, templates });
     assert.ok(bundle['compose.yaml'] && bundle['setup.sh'] && bundle['.env.example'], `${slug}: docker bundle`);
     assert.ok(bundle['app/Dockerfile'] && bundle['app/server.mjs'], `${slug}: docker bundle has the app`);
+    const fly = composeRepo({ slug, title: slug, provider: 'fly', serverFiles, templates });
+    assert.ok(fly['fly.toml'] && fly['app/Dockerfile'] && fly['app/server.mjs'], `${slug}: fly bundle`);
     // every file the Dockerfile COPYs by name must be in the repo
     const copy = serverFiles.Dockerfile.text.match(/^COPY\s+(.+?)\s+\.\/\s*$/m)?.[1].split(/\s+/) ?? [];
     for (const f of copy.filter((x) => !x.includes('*'))) assert.ok(repo[`ventures/${slug}/${f}`], `${slug}: Dockerfile copies ${f}`);
