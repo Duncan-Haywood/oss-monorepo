@@ -22,6 +22,9 @@ and one platform that runs them:
 - **The platform** (`platform/`, `portfolio/`, `prompts/`): the agents,
   checks and prompts that do the work above. It exists to serve the two
   portfolios, not to grow on its own.
+- **Free choice** (about 5% of effort): in the spirit of Google's "20% time",
+  about one run in twenty works on whatever the agent finds most interesting,
+  with its own approach (`prompts/explore/`). Same guardrails, same bar.
 
 ## Guardrails (every track, every version)
 
@@ -90,5 +93,8 @@ gain on a later one.
 - **Research:** merged projects that pass the research guardrails and a
   quality audit: the code re-runs, the README numbers match its output, and
   every citation checks out.
+- **Explore:** merged work the agent chose itself, about 5% of runs. Judged
+  on the same success and integrity measures; the review also notes which
+  free-choice ideas graduated into a regular track.
 - **Review:** each review leaves the system measurably better on the scores
   above, or records honestly that it could not tell.

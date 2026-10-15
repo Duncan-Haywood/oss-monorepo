@@ -7,7 +7,7 @@ prompt.md                  master prompt: route, work, record, improve
 prompts/goals.md           goals, guardrails and how a run is scored (owner-owned)
 prompts/routing.json       tracks, their weights, champion and candidate versions
 prompts/<track>/prompt-<n>.md
-                           sub-prompts: ventures, research, review
+                           sub-prompts: ventures, research, explore, review
 prompts/runs/*.json        one record per run
 prompts/experiments.md     every change the review track makes, and its result
 prompts/promptctl.py       route | record | measure | validate
@@ -21,7 +21,8 @@ prompts/promptctl.py       route | record | measure | validate
    so routines that start in the same minute do not all review at once. Otherwise it draws a track by weight,
    then the champion version or, with probability `candidate_share`, the
    candidate. A session with a specific task picks the track itself
-   (`--track`).
+   (`--track`). The `explore` track has weight 0.05: about one run in twenty
+   is free choice, Google "20% time" style, and the agent picks the work.
 2. **Work.** The session follows the sub-prompt, and every commit carries
    `Prompt-Version: <track>/<n>`. That trailer ties a version, a model and a
    session together in git history.
