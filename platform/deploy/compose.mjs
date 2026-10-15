@@ -26,6 +26,12 @@ export const PROVIDERS = {
     needs: ['github', 'gcp'],
     repoPrivate: true,
   },
+  azure: {
+    label: 'Microsoft Azure (Storage static website)',
+    blurb: 'Your own Azure subscription, set up with OpenTofu. A storage account serving the site over HTTPS; costs cents a month at low traffic. Needs a service principal.',
+    needs: ['github', 'azure'],
+    repoPrivate: true,
+  },
   android: {
     label: 'Android app (APK + Play bundle)',
     blurb: 'Wraps this app in a native Android shell (Capacitor) and builds it in your own GitHub Actions: a debug APK you can install on your phone, and a signed Play Store bundle if you add your own keystore secrets. Free for a public repository. Publishing to Google Play stays your step, with your own developer account.',
@@ -365,7 +371,7 @@ function androidProject({ slug, title }) {
 }
 
 function readme({ slug, title, provider }) {
-  const aws = provider === 'aws' || provider === 'gcp';
+  const aws = provider === 'aws' || provider === 'gcp' || provider === 'azure';
   const android = provider === 'android';
   return `# ${title}
 
@@ -407,7 +413,7 @@ Delete this repository.
     ? `
 ## Tear it down
 
-**Actions -> Destroy -> Run workflow** removes ${provider === 'gcp' ? 'the Cloud Storage bucket' : 'the bucket and CloudFront\ndistribution'}. Your encrypted OpenTofu state lives in \`state/\`; the passphrase
+**Actions -> Destroy -> Run workflow** removes ${provider === 'gcp' ? 'the Cloud Storage bucket' : provider === 'azure' ? 'the resource group, storage account and site' : 'the bucket and CloudFront\ndistribution'}. Your encrypted OpenTofu state lives in \`state/\`; the passphrase
 is the \`TOFU_STATE_PASSPHRASE\` secret. Without it the state cannot be read, so
 keep a copy.
 
