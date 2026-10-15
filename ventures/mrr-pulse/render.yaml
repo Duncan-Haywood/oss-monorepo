@@ -1,0 +1,26 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# The key you paste needs Subscriptions: read and nothing else. This server never writes to Stripe.
+services:
+  - type: web
+    name: mrr-pulse
+    runtime: docker
+    dockerContext: ventures/mrr-pulse
+    dockerfilePath: ventures/mrr-pulse/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: COMPANY_NAME
+        sync: false
+      - key: CURRENCY
+        sync: false
