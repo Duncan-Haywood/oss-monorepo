@@ -71,6 +71,16 @@ for the person who would otherwise keep a notebook.
   lists the drives found, and any threshold in `DEFAULTS` can be overridden
   per run to compare settings on the same day. Local files only (`src/gpx.mjs`).
 
+## Ship it under your own account
+
+`eas.json` has a `preview` profile (installable APK for testers) and a
+`production` profile (store bundle): `npx eas build -p android --profile preview`.
+`store/listing.md` is the store text, the background-location justification and
+the Apple/Google privacy answers; `store.test.mjs` checks the length limits and
+that the privacy claims match `app.json` and the code (no network calls, no
+analytics dependency). Host `../privacy.html` and use its URL as your privacy
+policy. Store accounts, review and publishing stay with you.
+
 ## Run it yourself
 
 ```
