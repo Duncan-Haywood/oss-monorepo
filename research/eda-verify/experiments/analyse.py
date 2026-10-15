@@ -42,7 +42,7 @@ fs = np.mean([r["formal_seconds"] for r in K if r["formal"] == "killed"] or [np.
 lines.append(f"\nCPU seconds per mutant: random 64-vector run {rs:.2f}, directed (incl. generation) {ds:.2f}, "
              f"formal kill {fs:.1f}; equivalence proofs {np.mean([r['formal_seconds'] for r in E_] or [np.nan]):.1f}")
 lines.append("kills per CPU-minute (killable mutants killed by that checker / its total seconds on all killable mutants):")
-lines.append(f"  random-64: {60 * sum(any(f is not None for f in r['random_first']) for r in K) / (meta['seeds'] * sum(r['random_seconds'] for r in K)):.1f}  (per seed pooled: the first-seed rate x mutants / one run's seconds)")
+lines.append(f"  random-64 (one seed's run; mean over seeds): {60 * np.mean([np.mean([f is not None for f in r['random_first']]) for r in K]) * len(K) / sum(r['random_seconds'] for r in K):.1f}")
 lines.append(f"  directed-16: {60 * sum(r['directed_first'] is not None for r in K) / sum(r['directed_seconds'] for r in K):.1f}")
 lines.append(f"  formal: {60 * sum(r['formal'] == 'killed' for r in K) / sum(r['formal_seconds'] for r in K):.2f}")
 open(os.path.join(HERE, "results.txt"), "w").write("\n".join(lines) + "\n")
