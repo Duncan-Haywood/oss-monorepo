@@ -12,7 +12,9 @@ Build a public research portfolio (MIT-licensed) that supports PhD applications 
 Simulating and training with digital clones (digital twins) of physical-world systems, including sim-to-real transfer, simulation fidelity, and learning in simulation for real benefit. Every project should connect to this theme where it reasonably can.
 
 ## Priority projects
-The owner's priority projects are in [`research/PROJECTS.md`](../../research/PROJECTS.md): six tracks, each with milestones, a slug prefix and its own guardrails. New projects come from there. Once Landing work steps 1 to 3 are done, pick a track and milestone as `PROJECTS.md` says. The research groups below remain the list to build on, cite and tag where a project fits them.
+The owner's priority projects are in [`research/PROJECTS.md`](../../research/PROJECTS.md): eleven tracks, each with milestones, a slug prefix and its own guardrails. New projects come from there. Once Landing work steps 1 to 3 are done, pick a track and milestone as `PROJECTS.md` says. The research groups below remain the list to build on, cite and tag where a project fits them.
+
+**Free choice, about 5% of effort.** About one run in twenty skips the tracks and works on whatever the agent finds most interesting, Google "20% time" style; `PROJECTS.md` (Picking work, step 1) says how the draw works. The rules, integrity standards and landing steps are unchanged, and so is the quality bar.
 
 ## Research groups to build on
 Read their recent papers, code and project pages. Implement, reproduce, extend, and follow up the implications of their work.
@@ -39,7 +41,7 @@ Robotics & autonomy (priority):
 - Prefer lightweight, runnable simulators (e.g. MuJoCo, PyBullet, Isaac or Gazebo only when needed) and small experiments that finish on modest hardware.
 
 ## Portfolio site
-The research homepage lists each artifact: a one-line summary, related lab, and links to the paper, code and results. It is published at `/research/` on the repository's GitHub Pages site and built by `research/_homepage/build.py`; `research/CLAUDE.md` says how to keep it current. Update it in the same pull request as the work.
+The research homepage lists each artifact: a one-line summary, related lab, and links to the paper, code and results. It is published at `/research/` on the repository's GitHub Pages site and built by `research/_homepage/build.py`; `research/CLAUDE.md` says how to keep it current. Update it in the same pull request as the work. The site is how all the work is checked out visually, so every project also gets its own home page there by default: what it asks and found, a figure from its own output, and the paper, code and results links (`PROJECTS.md`, milestone 9).
 
 ## Landing work
 A run is done when its work is on `main`. A pushed branch or an open pull request is not done: nobody sees the work, and the next run redoes it. When the research portfolio was its own repository, dozens of branches never landed: the same project built by parallel runs in the same minute, finished projects pushed with no pull request, and run records committed after the merge.
