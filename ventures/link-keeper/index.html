@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Link Keeper — Free Self-Hosted Link Shortener with Click Stats</title>
+  <meta name="description" content="A free, open-source alternative to Bitly, Dub and Rebrandly: your own short domain, UTM-tagged campaign links, iOS/Android app routing, expiry, click limits and privacy-friendly stats with no cookies and no stored IPs. Plan a batch of links in your browser first.">
+  <meta property="og:title" content="Link Keeper — self-hosted link shortener with click stats">
+  <meta property="og:description" content="Short links on your own domain with UTM tagging, app-store routing, expiry and stats that never store an IP. MIT, one Node process, your data.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Link Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source self-hosted link shortener with privacy-friendly click statistics, UTM tagging, device-targeted app links, expiry and click limits. Runs on your own server."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just use Bitly, Dub or Rebrandly?", "acceptedAnswer": {"@type": "Answer", "text": "Those are good products with hosted dashboards, team seats and custom domains handled for you, and they are the right choice if you want zero operations. Link Keeper is for people who want their own short domain, no per-link or per-click pricing tier, and click data that never leaves their server. It is one dependency-free Node process with a JSON file for state. It has no visual dashboard: stats come from a JSON API and a CSV export."}}, {"@type": "Question", "name": "What does it record about the people who click?", "acceptedAnswer": {"@type": "Answer", "text": "Per link and per day it keeps counts only: clicks, bots, unique visitors, referrer host (never the path or query), device class, browser family and, if your proxy supplies a country header, a two-letter country. No IP address, user agent or cookie is stored. Unique visitors use a hash with a random salt that is thrown away at the end of each UTC day, so a visitor cannot be followed across days."}}, {"@type": "Question", "name": "Can it be used to send people to a harmful site?", "acceptedAnswer": {"@type": "Answer", "text": "Only you hold the admin key, so only you can create links. You can restrict destinations to your own domains with ALLOW_HOSTS. Any link can be inspected without being followed by adding a plus sign to the end of its address, and javascript:, data: and credential-bearing URLs are refused."}}, {"@type": "Question", "name": "What are the limits?", "acceptedAnswer": {"@type": "Answer", "text": "State is one JSON file, written every few seconds, so it suits thousands of clicks a day, not millions. There is no login screen, no team accounts, no QR image generator and no custom domain handling: point your own domain at the server and set BASE_URL."}}, {"@type": "Question", "name": "What does the browser tool on this page do?", "acceptedAnswer": {"@type": "Answer", "text": "It builds UTM-tagged campaign URLs and plans a batch of short links from a pasted list, using the same code as the server. Nothing you paste is uploaded. Copy the result into the bulk API call to create them all at once."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2433; background: #f5f7fb; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1f45c4; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444; }
+    .card { background: #fff; border: 1px solid #dce1ee; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0 18px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab3d0; border-radius: 7px; font: inherit; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab3d0; border-radius: 7px; font: 13px ui-monospace, monospace; min-height: 130px; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f45c4; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e8f4; vertical-align: top; word-break: break-all; }
+    pre { background: #eef1fa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .err { color: #9b1c1c; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Short links on your own domain, with stats that don't track people.</h1>
+  <p>Link Keeper is an open-source link shortener you run yourself. Create branded short links, tag them with UTM parameters, send iPhone and Android visitors to the right app store, let links expire, and see clicks by day, referrer and device without storing an IP address or setting a cookie. You pay no per-link or per-click fee. First, plan a campaign's links below. Everything runs in your browser, so nothing you paste is uploaded.</p>
+
+  <section class="card" aria-labelledby="plan-h">
+    <h2 id="plan-h">1. Plan a batch of tagged short links</h2>
+    <div class="cols">
+      <div><label for="u-source">utm_source</label><input type="text" id="u-source" value="newsletter"></div>
+      <div><label for="u-medium">utm_medium</label><input type="text" id="u-medium" value="email"></div>
+      <div><label for="u-campaign">utm_campaign</label><input type="text" id="u-campaign" value="oct-launch"></div>
+    </div>
+    <label for="urls">One destination per line, optionally followed by a comma and the short name you want</label>
+    <textarea id="urls" spellcheck="false">https://example.com/pricing, pricing
+https://example.com/blog/how-we-cut-churn
+https://example.com/docs/getting-started, docs</textarea>
+    <button id="plan-btn" type="button">Plan links</button>
+    <button id="copy-btn" type="button">Copy bulk API body</button>
+    <p class="note err" id="plan-err" role="alert"></p>
+    <table><thead><tr><th scope="col">Short name</th><th scope="col">Tagged destination</th></tr></thead><tbody id="plan-rows"></tbody></table>
+    <p class="note">Short names you leave blank are random six-character names without look-alike letters (no 0, o, 1, i or l). Existing <code>utm_*</code> values on a destination are replaced, other query parameters are kept. This plans links; it does not create them. Use the bulk API call below on your server.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Run the server yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/link-keeper
+ADMIN_KEY=$(openssl rand -hex 16) BASE_URL=https://go.example.com node server.mjs
+
+curl -X POST localhost:8080/v1/links -H "authorization: Bearer $ADMIN_KEY" \
+  -d '{"url":"https://example.com/app","slug":"app","ios":"https://apps.apple.com/app/id1","android":"https://play.google.com/store/apps/details?id=com.example"}'
+curl localhost:8080/v1/links/app/stats -H "authorization: Bearer $ADMIN_KEY"</pre>
+    <p class="note">Options on a link: <code>utm</code>, <code>ios</code>, <code>android</code>, <code>expiresAt</code>, <code>maxClicks</code>, <code>tags</code>, <code>title</code>. Add <code>+</code> to any short address (<code>/app+</code>) to see where it goes without following it. <code>POST /v1/links/bulk</code> creates up to 200 at once; <code>GET /v1/export.csv</code> exports every link. One-click Render and Fly.io deploys and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not just use Bitly, Dub or Rebrandly?</h3>
+    <p>Those are good products with hosted dashboards, team seats and custom domains handled for you, and they are the right choice if you want zero operations. Link Keeper is for people who want their own short domain, no per-link or per-click pricing tier, and click data that never leaves their server. It is one dependency-free Node process with a JSON file for state. It has no visual dashboard: stats come from a JSON API and a CSV export.</p>
+    <h3>What does it record about the people who click?</h3>
+    <p>Per link and per day it keeps counts only: clicks, bots, unique visitors, referrer host (never the path or query), device class, browser family and, if your proxy supplies a country header, a two-letter country. No IP address, user agent or cookie is stored. Unique visitors use a hash with a random salt that is thrown away at the end of each UTC day, so a visitor cannot be followed across days.</p>
+    <h3>Can it be used to send people to a harmful site?</h3>
+    <p>Only you hold the admin key, so only you can create links. You can restrict destinations to your own domains with ALLOW_HOSTS. Any link can be inspected without being followed by adding a plus sign to the end of its address, and javascript:, data: and credential-bearing URLs are refused.</p>
+    <h3>What are the limits?</h3>
+    <p>State is one JSON file, written every few seconds, so it suits thousands of clicks a day, not millions. There is no login screen, no team accounts, no QR image generator and no custom domain handling: point your own domain at the server and set BASE_URL.</p>
+    <h3>What does the browser tool on this page do?</h3>
+    <p>It builds UTM-tagged campaign URLs and plans a batch of short links from a pasted list, using the same code as the server. Nothing you paste is uploaded. Copy the result into the bulk API call to create them all at once.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../waitlist-keeper/">Waitlist Keeper</a> runs a launch waitlist, <a href="../drip-keeper/">Drip Keeper</a> sends lifecycle email, <a href="../referral-keeper/">Referral Keeper</a> runs a referral programme and <a href="../meter-keeper/">Meter Keeper</a> meters usage.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator of your links: you are responsible for where they point, for what you do with the statistics, for backups, and for following the privacy, marketing and consumer-protection rules where you and your visitors live. Nothing here is legal advice and it is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { planBatch } from "./engine.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    let last = [];
+    const cell = (tr, tag, text) => { const c = document.createElement(tag); if (tag === "th") c.scope = "row"; c.textContent = text; tr.append(c); };
+    function plan() {
+      $("plan-err").textContent = ""; $("plan-rows").innerHTML = "";
+      const utm = { source: $("u-source").value, medium: $("u-medium").value, campaign: $("u-campaign").value };
+      const out = planBatch($("urls").value, utm);
+      last = out.filter((o) => !o.error);
+      for (const o of out) { const tr = document.createElement("tr"); cell(tr, "th", o.error ? "—" : o.slug); cell(tr, "td", o.error ? `Cannot use "${o.input}": ${o.error}` : o.url); $("plan-rows").append(tr); }
+      if (!out.length) $("plan-err").textContent = "Paste at least one URL.";
+      record("plan");
+    }
+    $("plan-btn").addEventListener("click", plan);
+    $("copy-btn").addEventListener("click", async () => {
+      plan();
+      const body = JSON.stringify({ links: last.map((o) => ({ slug: o.slug, url: o.url })) }, null, 2);
+      try { await navigator.clipboard.writeText(body); $("plan-err").textContent = ""; } catch { $("plan-err").textContent = "Copy failed. Select the table instead."; }
+    });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>

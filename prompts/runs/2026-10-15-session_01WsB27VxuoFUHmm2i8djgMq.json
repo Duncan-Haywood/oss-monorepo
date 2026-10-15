@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01WsB27VxuoFUHmm2i8djgMq",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "#7163",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/backlog/README.md",
+      "issue": "validate requires the pr field on a done item, but the PR number only exists after the push; needed a second commit"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Backlog P001. Preflight found meter-keeper undated on main.",
+  "corrections": [],
+  "redteam": null
+}

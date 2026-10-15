@@ -107,6 +107,12 @@ function partyFrom(tradeParty) {
     if (email) contact.email = email;
     if (Object.keys(contact).length) mapped.contact = contact;
   }
+  const uri = firstChild(firstChild(tradeParty, "URIUniversalCommunication"), "URIID");
+  if (uri) {
+    const id = (uri.text || "").trim();
+    const scheme = uri.attrs && uri.attrs.schemeID ? String(uri.attrs.schemeID).trim() : "";
+    if (id || scheme) mapped.endpoint = { id, scheme };
+  }
   for (const registration of descendants(tradeParty, "SpecifiedTaxRegistration")) {
     const identifier = firstChild(registration, "ID");
     if (identifier && identifier.attrs && String(identifier.attrs.schemeID || "").trim().toUpperCase() === "FC") {
@@ -243,6 +249,10 @@ export function parseCiiInvoice(source) {
   if (buyerRef) invoice.buyer_reference = buyerRef;
   const specification = nestedText(firstChild(root, "ExchangedDocumentContext"), "GuidelineSpecifiedDocumentContextParameter", "ID");
   if (specification) invoice.specification_id = specification;
+  const businessProcess = nestedText(firstChild(root, "ExchangedDocumentContext"), "BusinessProcessSpecifiedDocumentContextParameter", "ID");
+  if (businessProcess) invoice.profile_id = businessProcess;
+  const orderRef = nestedText(agreement, "BuyerOrderReferencedDocument", "IssuerAssignedID");
+  if (orderRef) invoice.order_reference = orderRef;
   if (headerReason) invoice.tax_exemption_reason = headerReason;
   if (totals.prepaid !== "") invoice.totals.prepaid = totals.prepaid;
   if (totals.payable !== "") invoice.totals.payable = totals.payable;

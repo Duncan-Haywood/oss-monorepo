@@ -82,7 +82,7 @@ STATE=./state.json node server.mjs
 
 Point the sender at `https://<relay-host>/in/stripe`. Dashboard:
 `/admin` (type the admin key; it stays in the tab's sessionStorage). API, all
-with `Authorization: Bearer $ADMIN_KEY`: `GET /v1/summary`,
+with `Authorization: Bearer $ADMIN_KEY`: `GET /v1/summary`, `GET /v1/metrics` (Prometheus text: events per route and status, age of the oldest waiting event, for alerting),
 `GET /v1/events?status=dead&route=stripe`, `GET /v1/events/<id>` (includes the
 body), `POST /v1/events/<id>/replay`, `DELETE /v1/events/<id>`.
 
