@@ -47,7 +47,7 @@
 #   portfolio-front-tools-11: 137 files, 555881 bytes
 #   portfolio-front-tools-12: 130 files, 551202 bytes
 #   portfolio-front-tools-13: 128 files, 555532 bytes
-#   portfolio-front-tools-14: 130 files, 554128 bytes
+#   portfolio-front-tools-14: 131 files, 556095 bytes
 #   portfolio-front-tools-15: 130 files, 548853 bytes
 #   portfolio-front-tools-16: 120 files, 554461 bytes
 #   portfolio-front-tools-17: 133 files, 554334 bytes
@@ -2073,6 +2073,7 @@ configMapGenerator:
       - dumpster-rental-margin-calculator__vs-a-spreadsheet.html.gz=dumpster-rental-margin-calculator__vs-a-spreadsheet.html.gz
       - dumpster-rental-margin-calculator__vs-jobber.html.gz=dumpster-rental-margin-calculator__vs-jobber.html.gz
       - dumpster-rental-margin-calculator__why-your-overage-fee-might-be-losing-you-money.html.gz=dumpster-rental-margin-calculator__why-your-overage-fee-might-be-losing-you-money.html.gz
+      - dunning-engine__admin.mjs.gz=dunning-engine__admin.mjs.gz
       - dunning-engine__dunning.mjs.gz=dunning-engine__dunning.mjs.gz
       - dunning-engine__engine.mjs.gz=dunning-engine__engine.mjs.gz
       - dunning-engine__expiry.mjs.gz=dunning-engine__expiry.mjs.gz

@@ -75,3 +75,16 @@ test("oversized webhook bodies are rejected", async () => {
   assert.equal(Object.keys(s.cfg.state.cases).length, 0);
   s.close();
 });
+
+test("/admin serves a data-free page with a locked-down CSP; data still needs the key", async () => {
+  const s = await boot();
+  await fetch(`${s.base}/webhook/stripe`, { method: "POST", body: evt, headers: signed() });
+  const r = await fetch(`${s.base}/admin`);
+  assert.equal(r.status, 200);
+  assert.match(r.headers.get("content-security-policy"), /connect-src 'self'/);
+  const html = await r.text();
+  assert.ok(!html.includes("in_1") && !html.includes("cus_1"), "page must carry no case data");
+  assert.ok(!html.includes("innerHTML"), "render with textContent only");
+  assert.equal((await fetch(`${s.base}/v1/cases`)).status, 401);
+  s.close();
+});

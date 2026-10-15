@@ -1,6 +1,6 @@
 FROM node:22-alpine
 WORKDIR /app
-COPY dunning.mjs templates.mjs engine.mjs stripe.mjs server.mjs ./
+COPY dunning.mjs templates.mjs engine.mjs expiry.mjs stripe.mjs admin.mjs server.mjs ./
 USER node
 ENV PORT=8080 STATE=/tmp/state.json
 EXPOSE 8080

@@ -13,7 +13,7 @@ Two parts, both free and MIT:
   uploaded.
 - **`server.mjs`** — the recovery service. One Node process, **zero
   dependencies**, state in one JSON file. It receives Stripe webhooks, plans and
-  runs recovery, and reports at `/v1/summary`.
+  runs recovery, and reports at `/v1/summary` and a read-only dashboard at `/admin` (enter your `ADMIN_KEY`; open cases, next steps, recovered counts).
 
 ## Why someone would use this
 
@@ -23,7 +23,7 @@ Two parts, both free and MIT:
 | Churn Buster, Churnkey, Baremetrics Recover and similar | Paid, often a share of recovered revenue; your customer data goes to a third party | Runs in your account, no per-recovery fee, nobody else sees your customers |
 | A script you write yourself | Easy to get wrong: duplicate charges, retrying lost cards, double emails | Idempotent, tested state machine; dry-run by default |
 
-Honest limits: it has no hosted dashboard, no in-app cancellation flow (see the sibling
+Honest limits: the dashboard at `/admin` is read-only, there is no in-app cancellation flow (see the sibling
 `cancel-flow` venture) and no card-account-updater network access (the expiry
 notice asks the customer instead). It does not claim a recovery uplift over
 Stripe's own retries; measure that on your own data (`/v1/summary` reports what
@@ -63,7 +63,7 @@ it recovered). If Smart Retries already works for you, keep it.
 
 ```sh
 cd ventures/dunning-engine
-node --test        # 50 tests, no network
+node --test        # 51 tests, no network
 STRIPE_SECRET_KEY=rk_test_... STRIPE_WEBHOOK_SECRET=whsec_... \
 ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
 PUBLIC_URL=https://dunning.example.com node server.mjs
@@ -122,6 +122,6 @@ country; you are the operator and responsible for them.
 
 Files: `dunning.mjs` (classification, schedule; also runs in the browser),
 `templates.mjs` (emails), `engine.mjs` (state machine), `stripe.mjs` (webhook
-verification, API calls), `server.mjs` (HTTP shell), `index.html` (simulator).
+verification, API calls), `server.mjs` (HTTP shell), `admin.mjs` (dashboard page), `index.html` (simulator).
 
 Support the project: <https://github.com/sponsors/Duncan-Haywood>.
