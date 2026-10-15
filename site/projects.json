@@ -1496,6 +1496,11 @@
      "summary": "A follow-up to <code>robofab-edgeconv</code> (stylised). Golden-section refinement of the trapezoid's ramp fraction lowers its six-part total by 0.00 to 0.60% across the twelve speed-limited rows. With the solver at 6400 nodes the time-optimal edge, +0.11 to +0.88% over the grid-tuned trapezoid, falls to +0.05 to +0.28% over the refined one, still positive in every row. The smallest edges are comparable to the solver's residual discretisation error, so their sign is not firmly established. One planar arm, assumed parameters, no motor dynamics; simulated only."
     },
     {
+     "slug": "robofab-motorconv",
+     "title": "Is the motor-line edge of the time-optimal carry converged in solver nodes?",
+     "summary": "Follow-up to <code>robofab-motorcurve</code> (stylised, preliminary). The same nine rows and five motor no-load speeds are solved at 400, 1600 and 6400 nodes. From 1600 to 6400 nodes the six-part time-optimal total changes by at most 0.29% and the edge over the tuned trapezoid by at most 0.28 points, so the 3.5 to 28.6% range stands. The exception is the 0.08&nbsp;m, k&nbsp;=&nbsp;2 row at w<sub>0</sub>&nbsp;=&nbsp;4, whose edge rises from 4.98% to 5.26%. The <code>cover</code> part that had no profile at w<sub>0</sub>&nbsp;=&nbsp;4 was a node-count limit: it solves at 6400 nodes. Limits: three node counts only, toy arm, assumed motor line."
+    },
+    {
      "slug": "robofab-motorcurve",
      "title": "Does the time-optimal carry's edge over a tuned trapezoid survive a motor torque-speed line?",
      "summary": "Follow-up to <code>robofab-torquebound</code> (stylised, preliminary). The same nine torque- and jaw-bound rows are re-solved with each joint's torque limit falling linearly with speed, 5&nbsp;N&nbsp;m &times; (1 &minus; |speed|/w<sub>0</sub>), for no-load speeds w<sub>0</sub> of 20, 10, 6 and 4&nbsp;rad/s. The time-optimal carry stays faster than the tuned trapezoid in every one of the 45 cells, but its edge is no longer one number: 3.5% to 28.6%, against 9.0% to 22.9% under a constant limit. Where a jaw cap binds on the smaller arms the edge shrinks as w<sub>0</sub> falls (22.9% to 5.0% for the 0.08&nbsp;m arm, k&nbsp;=&nbsp;2); where only torque binds it grows (9.0% to 28.6% for the 0.2&nbsp;m arm). The constant-limit profiles reach joint speeds up to 139&nbsp;rad/s, which no motor does. One planar arm, assumed parameters, a linear motor model, not checked in MuJoCo; simulated only."
@@ -1788,6 +1793,11 @@
      "slug": "selfrep-extinction-kits",
      "title": "Is the lone-printer die-out an early birth-death accident?",
      "summary": "Tests the extinction explanation left open by selfrep-wearout with an exact continuous-time Markov chain of the same shop (Poisson vitamin kits, exponential builds and lives). With assumed inputs and a budget of 4 units/h, the chain gives a 0.194 chance that a lone seed machine is lost before the fleet reaches 6 machines at 500 h mean life (simulation 0.198 &plusmn; 0.006), of which 0.162 is the seed retiring before its first copy; relaxing the Markov assumptions moves this by at most about 0.03. Wear-out lives (Weibull shape 2 or more) cut it to under 3%. Exact mean extinction times for small equilibrium fleets match simulation (1464 h against 1511 &plusmn; 50 h at 200 h life), but with regular kits and lognormal builds long times roughly double, so the chain is a lower guide there. Stylised: every input is assumed; simulated only."
+    },
+    {
+     "slug": "selfrep-extinction-qsd",
+     "title": "Can a quasi-stationary approximation predict how long a small printer fleet lasts?",
+     "summary": "Follow-up to selfrep-extinction-kits. The slowest decay rate of the exact Markov chain gives a quasi-stationary estimate 1/&lambda;<sub>0</sub> of the mean extinction time. Stylised, with assumed inputs, it overshoots a lone seed machine by 1.2 to 1.9 times (2388 h against 1465 h exact at 200 h life), but multiplied by the exact chance the fleet survives its start it lands within 5% in four of seven cases (for example 0.999 at 500 h life) and fails where the fleet rarely survives (ratio 1.4 at 200 h life, 42 at 75 h). Seed fleets help only up to the quasi-stationary time: 1 / 2 / 4 / 8 seeds give 1465 / 1983 / 2388 / 2666 h at 200 h life. The survival correction was chosen after seeing the overshoot, so it is a post-hoc fit. Stylised: every input is assumed; simulated only."
     },
     {
      "slug": "selfrep-reconcile",
