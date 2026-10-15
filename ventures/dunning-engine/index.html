@@ -71,7 +71,7 @@ ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
 PUBLIC_URL=https://dunning.example.com RESEND_API_KEY=re_... \
 MAIL_FROM="Billing &lt;billing@example.com&gt;" COMPANY_NAME=Acme \
 node server.mjs          # DRY_RUN=true until you set DRY_RUN=false</pre>
-    <p class="note">Point a Stripe webhook at <code>/webhook/stripe</code> for <code>invoice.payment_failed</code>, <code>invoice.paid</code>, <code>invoice.voided</code>, <code>invoice.marked_uncollectible</code>, <code>customer.subscription.deleted</code> and <code>payment_method.attached</code>. Turn off Stripe's automatic retries so only one system charges. One-click Render deploy and Docker are in the README.</p>
+    <p class="note">Point a Stripe webhook at <code>/webhook/stripe</code> for <code>invoice.payment_failed</code>, <code>invoice.paid</code>, <code>invoice.voided</code>, <code>invoice.marked_uncollectible</code>, <code>customer.subscription.deleted</code> and <code>payment_method.attached</code>. Turn off Stripe's automatic retries so only one system charges. Worried a deploy will drop a webhook? Put <a href="../webhook-relay/">webhook-relay</a> in front of it. One-click Render deploy and Docker are in the README.</p>
   </section>
 
   <section class="card">
