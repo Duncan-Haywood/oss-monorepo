@@ -24,6 +24,14 @@
     <summary type="text">Keep subscribers who only needed a nudge. A cancellation flow for Stripe that asks why, offers a pause or a discount matched to the reason, and reports your save rate. Preview it in the browser, then run the open-source server in your own account. Free, MIT.</summary>
   </entry>
   <entry>
+    <title>Changelog Keeper — Free Self-Hosted Changelog Page, RSS Feed and What&#39;s New Widget</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/changelog-keeper/"/>
+    <id>tag:marisstella.dev,2026:tool/changelog-keeper</id>
+    <updated>2026-10-15T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Publish a changelog page, an RSS and JSON feed and a What&#39;s new button with an unread dot. Drafts, categories, tags, markdown. Open source, MIT, one-click self-deploy, no monthly fee. A self-hosted alternative to Headway, Beamer and LaunchNotes.</summary>
+  </entry>
+  <entry>
     <title>Drip Keeper — Free Self-Hosted Lifecycle Email</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/drip-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/drip-keeper</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Paste an RFP, RFQ or tender. Get a compliance matrix of every shall/must/required obligation with section numbers, categories and owner/status columns, plus the page limits, due dates and forms. CSV download. Private, in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Security Questionnaire Answer Matcher: reuse your past answers</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/security-questionnaire-matcher/"/>
-    <id>tag:marisstella.dev,2026:tool/security-questionnaire-matcher</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Paste a customer security questionnaire and your saved answers. Each question is matched to your closest past answer, risky matches (changed hours, negations) are flagged, and unanswered questions are listed. Private, in your browser, free.</summary>
   </entry>
 </feed>

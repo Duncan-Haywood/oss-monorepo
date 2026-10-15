@@ -23,6 +23,16 @@ that would send your coordinates to a third party. The app also lists recent
 trips (with delete) and shares a tax-preparer report (the web app's standalone
 HTML) or CSV.
 
+## Work hours (cold start)
+
+A new user has no history for the category model to learn from. An optional
+work-hours rule (`src/schedule.mjs`: days, start and end hour, on the phone's
+own clock) suggests "business" for drives inside those hours until places have
+been learned. It is labelled as a guess, history always wins over it, and it
+never sets `auto`, so "Confirm N drives I recognise" will not file it and a
+business trip still needs a named destination and a purpose (`schedule.test.mjs`).
+The hour boxes are plain number inputs, untested on a device.
+
 ## Vehicles and backup
 
 Pick the vehicle a drive was made in (the standard rate and Schedule C Part IV
