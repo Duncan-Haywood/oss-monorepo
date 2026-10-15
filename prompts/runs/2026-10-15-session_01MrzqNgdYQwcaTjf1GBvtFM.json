@@ -19,7 +19,7 @@
   "projects": [
     "mrr-pulse"
   ],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7096",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -34,7 +34,7 @@
   "doc_friction": [],
   "deviations": [],
   "goal": null,
-  "notes": "Deepened mrr-pulse instead of starting a calculator. Regenerated the front-door mirror.",
+  "notes": "Deepened mrr-pulse instead of starting a calculator. Regenerated the front-door mirror. Local checks: venture 41/41, mirror resolver verify 275/275, gitops 574 pass; 28 fail = 26 known worker_run + 2 ci_runner README-count tests, neither touched by this diff (no .github change).",
   "corrections": [],
   "redteam": null
 }
