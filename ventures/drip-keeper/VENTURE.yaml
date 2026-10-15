@@ -1,0 +1,66 @@
+name: drip-keeper
+description: >-
+  Self-hosted lifecycle email for SaaS: your app posts events, event-triggered
+  sequences send onboarding, trial and win-back email, a goal event (upgraded)
+  stops the rest, skip rules, send windows, signed one-click unsubscribe,
+  suppression and per-step stats. Browser timeline simulator running the real
+  engine, zero-dependency Node server, one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and large: Customer.io, Loops,
+# Userlist, Encharge and Mailchimp automations charge from roughly $30 to
+# several hundred a month, scaled by contact count, for behaviour-triggered
+# sequences. Open-source options are Listmonk (broadcast newsletters, no event
+# triggers or exit-on-goal) and heavyweight stacks (Mautic, Dittofeed) that need
+# a database and queue. The gap: a founder who wants "on signup send four emails,
+# stop when they upgrade" without a per-contact bill or a platform to operate.
+# Sixth product for the SaaS-founder buyer of waitlist-keeper, feedback-board,
+# trial-converter, dunning-engine and cancel-flow: those capture, convert and
+# retain; this one is the onboarding and win-back email between them.
+# duplicate_check: trial-converter and dunning-engine each send their own fixed
+# emails for one job; no venture offers user-defined event-triggered sequences
+# (grep of ventures/ names and READMEs, 2026-10-15).
+#
+# First visitor: indie SaaS founders on Indie Hackers, r/SaaS, r/selfhosted and
+# Hacker News asking "loops alternative", "customer.io alternative self hosted",
+# "onboarding email sequence open source". Volume not measured.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you sequence writing and setup, a hosted copy under the deployer's
+# own name, or GitHub Sponsors are the paid steps. Hosting under the public name
+# is owner-gated.
+
+hypotheses:
+  - claim: >-
+      Small SaaS teams will try the browser timeline on their own onboarding
+      emails and then deploy the server, because hosted lifecycle tools price by
+      contact count and the free ones cannot stop a sequence when the customer
+      converts.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Per-step stats showing which email a converting customer received last
+      are what make a founder keep editing sequences instead of leaving them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports an email sent after unsubscribe, a duplicate send, or an address shown to someone else; the send, suppression and privacy paths come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/drip-keeper/
+  analytics: null
