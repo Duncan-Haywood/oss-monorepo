@@ -83,12 +83,13 @@ node server.mjs          # DRY_RUN=true until you set DRY_RUN=false</pre>
     <h3>Is it safe to try?</h3>
     <p>It starts in dry-run mode: it records failures and logs every email and retry it would perform, but contacts neither Stripe nor your customers until you set DRY_RUN=false. Try it with a Stripe test-mode key first.</p>
     <h3>Where can I see how much I already lose?</h3>
-    <p>Export your failed payments and run them through the <a href="../stripe-failed-payment-recovery-analyzer/">Stripe Failed Payment Recovery Analyzer</a>. If your webhook endpoint rejects Stripe's signature, the <a href="../webhook-signature-debugger/">Webhook Signature Debugger</a> shows why. When a customer chooses to leave rather than fail to pay, the self-hosted <a href="../cancel-flow/">Cancel Flow</a> offers a pause or a discount first.</p>
+    <p>Export your failed payments and run them through the <a href="../stripe-failed-payment-recovery-analyzer/">Stripe Failed Payment Recovery Analyzer</a>. If your webhook endpoint rejects Stripe's signature, the <a href="../webhook-signature-debugger/">Webhook Signature Debugger</a> shows why.</p>
     <h3>Where does my Stripe key live?</h3>
     <p>In the environment of the server you deploy in your own account. The author runs nothing in between and never sees your key or your customers.</p>
   </section>
 
   <footer>
+    <p>Customers who cancel on purpose instead? <a href="../cancel-flow/">Cancel Flow</a> asks why and offers a pause or discount that fits the reason.</p>
     <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. They charge your customers and email them on your behalf: you are the operator, responsible for your own Stripe account, your terms with customers and the email and consumer-protection rules where they live. It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
     <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
   </footer>

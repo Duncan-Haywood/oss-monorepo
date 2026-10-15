@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 340" role="img" aria-label="Grouped bars: best systolic array and best MAC-lane engine, cells times cycles per vector, by layer width F">
+<rect width="560" height="340" fill="#fff"/>
+<text x="280.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Best design by cells&#215;cycles per vector (lower is better)</text>
+<line x1="70" x2="544" y1="290.0" y2="290.0" stroke="#ddd"/><text x="64" y="294.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="70" x2="544" y1="233.2" y2="233.2" stroke="#ddd"/><text x="64" y="237.2" text-anchor="end" font-family="sans-serif" font-size="11">238,242</text>
+<line x1="70" x2="544" y1="176.4" y2="176.4" stroke="#ddd"/><text x="64" y="180.4" text-anchor="end" font-family="sans-serif" font-size="11">476,484</text>
+<line x1="70" x2="544" y1="119.5" y2="119.5" stroke="#ddd"/><text x="64" y="123.5" text-anchor="end" font-family="sans-serif" font-size="11">714,725</text>
+<line x1="70" x2="544" y1="62.7" y2="62.7" stroke="#ddd"/><text x="64" y="66.7" text-anchor="end" font-family="sans-serif" font-size="11">952,967</text>
+<rect x="105.5" y="233.5" width="78.2" height="56.5" fill="#c0392b"/><text x="144.7" y="229.5" text-anchor="middle" font-family="sans-serif" font-size="10">236,737</text>
+<rect x="188.5" y="244.9" width="78.2" height="45.1" fill="#1f6fb2"/><text x="227.6" y="240.9" text-anchor="middle" font-family="sans-serif" font-size="10">188,998</text>
+<text x="188.5" y="306" text-anchor="middle" font-family="sans-serif" font-size="11">F = 16</text>
+<rect x="342.6" y="66.8" width="78.2" height="223.2" fill="#c0392b"/><text x="381.7" y="62.8" text-anchor="middle" font-family="sans-serif" font-size="10">935,950</text>
+<rect x="425.5" y="103.9" width="78.2" height="186.1" fill="#1f6fb2"/><text x="464.6" y="99.9" text-anchor="middle" font-family="sans-serif" font-size="10">780,124</text>
+<text x="425.5" y="306" text-anchor="middle" font-family="sans-serif" font-size="11">F = 32</text>
+<rect x="80" y="322" width="10" height="10" fill="#c0392b"/><text x="95" y="331" font-family="sans-serif" font-size="11">best systolic</text>
+<rect x="190" y="322" width="10" height="10" fill="#1f6fb2"/><text x="205" y="331" font-family="sans-serif" font-size="11">best mac-lane</text>
+</svg>

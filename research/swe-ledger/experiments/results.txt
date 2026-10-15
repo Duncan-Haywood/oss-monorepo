@@ -1,0 +1,50 @@
+runs: 189   distinct projects listed: 184
+models: {'claude-sonnet-5-5': 182, 'claude-opus-5-5': 6, None: 1}
+tasks: {'merge': 6, 'new-project': 145, 'extend': 31, 'fix': 1, 'meta': 4, 'mirror': 2}
+
+measurement coverage (share of runs with the field non-null)
+  tool_calls                    0%
+  tokens_in                     1%
+  merged                        1%
+  usage                         1%
+  tokens_out                    1%
+  cost_usd                      1%
+  wall_minutes                  3%
+  lines_added                   8%
+  lines_removed                 8%
+  ended                        14%
+  started                      38%
+  pr                           71%
+  ci_failures_before_green     76%
+  review_findings              86%
+
+wall minutes derivable from started/ended: 15 runs, median 20.0
+ci_clean_first_time: 143/143 = 100%  (95% Wilson 97% to 100%)
+runs_with_errors: 82/189 = 43%  (95% Wilson 37% to 51%)
+runs_with_integrity_issue: 1/189 = 1%  (95% Wilson 0% to 3%)
+runs_listing_no_project: 7/189 = 4%  (95% Wilson 2% to 7%)
+
+per track (slug prefix): distinct projects, runs touching, tests added by single-track runs
+  robofab      32   37   226
+  garment      30   30   230
+  simdesign    29   32   143
+  selfrep      25   26   169
+  other        23   12    21
+  chip         20   22    91
+  ambient      18   20   113
+  accel         3    4    23
+  osrobot       3    3    27
+  eda           1    1     3
+
+slugs listed by more than one run: ['accel-kws', 'ambient-bandit', 'ambient-pipeline', 'chip-accel', 'chip-pnr', 'footprint-twin', 'ransac-twin', 'robofab-armaccel', 'robofab-cell', 'robofab-cell-cv', 'robofab-cell-mva', 'robofab-graspoffset', 'robofab-jawcap', 'robofab-liftload', 'robofab-rampopt', 'robofab-scurve', 'robofab-sliprate', 'robofab-toppconv', 'robofab-trapezoid', 'selfrep-closure', 'selfrep-growth', 'simdesign-gaugepockets', 'simdesign-kirsch', 'simdesign-widerweb']
+
+follow-up families (>=3 slugs sharing a stem): 9; 33% of projects sit in one
+  *-twin                       13
+  garment-twon                 10
+  chip-syst                    8
+  simdesign-gaug               8
+  robofab-cell                 5
+  garment-stac                 5
+  robofab-gras                 4
+  chip-ppa                     4
+  robofab-solr                 3

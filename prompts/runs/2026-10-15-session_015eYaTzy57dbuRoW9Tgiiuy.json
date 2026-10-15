@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_015eYaTzy57dbuRoW9Tgiiuy",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "model": "claude-sonnet-5-5",
+  "task": "extend",
+  "projects": [
+    "chip-systolic-edge",
+    "chip-systolic-fanin",
+    "chip-systolic-hidden",
+    "chip-systolic-p32"
+  ],
+  "pr": null,
+  "merged": null,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "first pass overwrote two existing figure.py files because a glob check was wrong; restored from git before commit",
+    "figures not visually inspected (no playwright)"
+  ],
+  "integrity_issues": [],
+  "notes": "project-pages milestone: 4 figures parsed from committed results.txt; ratios spot-checked against the file's own best-array/best-MAC lines; token/cost fields not read",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

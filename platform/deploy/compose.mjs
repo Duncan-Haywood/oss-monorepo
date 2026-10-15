@@ -20,6 +20,13 @@ export const PROVIDERS = {
     needs: ['github', 'aws'],
     repoPrivate: true,
   },
+  render: {
+    label: 'Render (a running server)',
+    blurb: 'For apps that need a process (webhooks, a database file). Lives in your own Render account (a paid plan; Render bills you). Needs only a GitHub token here; secrets are typed into Render, never here.',
+    needs: ['github'],
+    repoPrivate: false,
+    serverOnly: true,
+  },
 };
 
 const FOOTER_MARK = 'data-self-deployed-footer';
@@ -36,7 +43,56 @@ export function withDeployFooter(html) {
 
 const decodeB64 = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
 
-export function composeRepo({ slug, title, provider, appFiles, templates }) {
+/** Link that opens Render's blueprint deploy for a repository URL. */
+export const renderDeployUrl = (repoUrl) => `https://render.com/deploy?repo=${encodeURIComponent(repoUrl)}`;
+
+function composeServerRepo({ slug, title, serverFiles }) {
+  if (!serverFiles || !serverFiles['render.yaml'] || !serverFiles['Dockerfile']) throw new Error('app has no server files');
+  const out = {};
+  for (const [rel, f] of Object.entries(serverFiles)) {
+    if (rel.includes('..') || rel.startsWith('/')) throw new Error(`unsafe path: ${rel}`);
+    // render.yaml in the venture points dockerContext at ventures/<slug>, so keep that layout.
+    if (f.text !== undefined) out[`ventures/${slug}/${rel}`] = rel === 'index.html' ? withDeployFooter(f.text) : f.text;
+    else out[`ventures/${slug}/${rel}`] = decodeB64(f.b64);
+  }
+  out['render.yaml'] = serverFiles['render.yaml'].text;
+  out['README.md'] = `# ${title}
+
+Your own copy of **${title}**, a server app from the open-source portfolio
+(\`ventures/${slug}\`). It runs on **Render** in your own account.
+
+## Finish the deploy
+
+1. Open Render's blueprint page for this repository (the deploy page gave you the link).
+2. Render reads \`render.yaml\`, shows the environment variables it needs, and asks you
+   for the ones marked secret. Type them **into Render**; they never pass through the
+   creator or the deploy page.
+3. Read the comments at the top of \`render.yaml\` (some apps start in a safe dry-run mode).
+
+## You are the operator
+
+This copy runs in your account. You are responsible for it: its domain, terms, privacy
+policy, customers' data and any changes you make. The creator does not host it, sees none
+of its traffic, and provides it as-is under the MIT license, with no warranty.
+
+## Tear it down
+
+Delete the service in Render, then delete this repository.
+
+## Support the creator
+
+It is free. If it earns you money, [buy the creator a coffee](${DONATE_URL}).
+`;
+  out['LICENSE'] = '';
+  return out;
+}
+
+export function composeRepo({ slug, title, provider, appFiles, templates, serverFiles }) {
+  if (provider === 'render') {
+    const out = composeServerRepo({ slug, title, serverFiles });
+    out['LICENSE'] = templates?._license ?? '';
+    return out;
+  }
   const p = PROVIDERS[provider];
   if (!p) throw new Error(`unknown provider: ${provider}`);
   const tpl = templates[provider];
