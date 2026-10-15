@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   toCents, percentOf, addDays, addMonths, daysBetween, splitLines, normalizeProposal, pricingOptions, depositFor, phaseDates, finishDate,
   paymentSchedule, clauseTexts, status, proposalValue, nextNumber, duplicateNumbers, pipeline, duplicateProposal, validUntil, validate,
-  renderProposal, standaloneHtml, toEstimateDraft, parseBackup, mergeProposals, proposalsToCsv, esc, LEGAL_NOTICE,
+  followUps, followUpText, renderProposal, standaloneHtml, toEstimateDraft, parseBackup, mergeProposals, proposalsToCsv, esc, LEGAL_NOTICE,
 } from "./calc.mjs";
 
 const base = (over = {}) => normalizeProposal({
@@ -280,4 +280,28 @@ test("standaloneHtml is one self-contained file: no script, no network, user tex
   assert.match(html, /#preview h3\{color:red\}/);
   assert.match(html, /A &amp; B/);
   assert.doesNotMatch(html, /<script|<link|src=|href=|<b>Site/i);
+});
+
+test("followUps lists quiet or expiring sent proposals, most urgent first", () => {
+  const today = "2026-10-10";
+  const quiet = base({ id: "a", number: "PROP-0001", sentOn: "2026-10-05", validUntil: "2026-10-31" });
+  const fresh = base({ id: "b", number: "PROP-0002", sentOn: "2026-10-09", validUntil: "2026-10-31" });
+  const soon = base({ id: "c", number: "PROP-0003", sentOn: "2026-10-09", validUntil: "2026-10-12" });
+  const expired = base({ id: "d", number: "PROP-0004", sentOn: "2026-09-01", validUntil: "2026-09-30" });
+  const draft = base({ id: "e", number: "PROP-0005", status: "draft", sentOn: "" });
+  const accepted = base({ id: "f", number: "PROP-0006", status: "accepted", sentOn: "2026-10-01" });
+  const r = followUps([quiet, fresh, soon, expired, draft, accepted], today);
+  assert.deepEqual(r.map((x) => x.id), ["c", "a"]);
+  assert.equal(r[0].reason, "expiring");
+  assert.equal(r[0].daysLeft, 2);
+  assert.equal(r[1].quietDays, 5);
+  assert.equal(r[1].value, 700000);
+});
+
+test("followUpText names the proposal and the remaining days", () => {
+  const txt = followUpText({ clientName: "Acme", number: "PROP-0003", title: "Website rebuild", reason: "expiring", daysLeft: 1 });
+  assert.match(txt, /^Hi Acme,/);
+  assert.match(txt, /PROP-0003 \(Website rebuild\)/);
+  assert.match(txt, /1 more day\./);
+  assert.match(followUpText({ clientName: "", number: "P", title: "", reason: "quiet", daysLeft: null }), /^Hi,/);
 });

@@ -91,6 +91,7 @@
   <section class="card noprint" id="dash" aria-live="polite">
     <h2>Your proposals</h2>
     <div class="kpis" id="kpis"></div>
+    <div id="followups" hidden></div>
     <div class="scroll"><table><thead><tr><th scope="col">Proposal</th><th scope="col">Client</th><th scope="col">Project</th><th scope="col">Valid until</th><th scope="col">Status</th><th class="n" scope="col">Value</th><th scope="col"><span class="sr">Actions</span></th></tr></thead><tbody id="list"></tbody></table></div>
     <p class="note" id="empty" hidden>No proposals yet. Fill in the form below and press Save proposal, or load the example.</p>
   </section>
@@ -262,7 +263,7 @@
   </footer>
 
   <script type="module">
-    import { esc, normalizeProposal, pricingOptions, paymentSchedule, finishDate, status, proposalValue, nextNumber, duplicateNumbers, pipeline, duplicateProposal, validUntil, validate, renderProposal, standaloneHtml, toEstimateDraft, parseBackup, mergeProposals, proposalsToCsv, formatMoney, addDays, CLAUSE_KEYS, MAX_TIERS } from "./calc.mjs";
+    import { esc, followUps, followUpText, normalizeProposal, pricingOptions, paymentSchedule, finishDate, status, proposalValue, nextNumber, duplicateNumbers, pipeline, duplicateProposal, validUntil, validate, renderProposal, standaloneHtml, toEstimateDraft, parseBackup, mergeProposals, proposalsToCsv, formatMoney, addDays, CLAUSE_KEYS, MAX_TIERS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const KEY = "proposal-maker-data";
@@ -432,6 +433,10 @@
       const s = pipeline(data.proposals, t0);
       const money = (c) => esc(formatMoney(c, "USD"));
       $("#kpis").innerHTML = `<div class="kpi"><b>${s.winRate === null ? "–" : Math.round(s.winRate * 100) + "%"}</b><span>Win rate (decided proposals)</span></div><div class="kpi"><b>${money(s.openValue)}</b><span>${s.open} open proposal${s.open === 1 ? "" : "s"}</span></div><div class="kpi"><b>${money(s.wonValue)}</b><span>Accepted (${s.accepted})</span></div><div class="kpi"><b>${s.sent}</b><span>Sent in total</span></div>`;
+      const fu = followUps(data.proposals, t0);
+      const fuNote = (f) => f.reason === "expiring" ? (f.daysLeft <= 0 ? "expires today" : "expires in " + f.daysLeft + (f.daysLeft === 1 ? " day" : " days")) : "sent " + f.quietDays + " days ago, no answer";
+      $("#followups").hidden = !fu.length;
+      $("#followups").innerHTML = fu.length ? `<h3>Follow up (${esc(fu.length)})</h3><ul>` + fu.map((f) => `<li data-id="${esc(f.id)}">${esc(f.number)} ${esc(f.clientName)}: ${esc(fuNote(f))} <button type="button" class="secondary small" data-fu="1">Copy follow-up note</button></li>`).join("") + "</ul>" : "";
       $("#empty").hidden = data.proposals.length > 0;
       const sorted = [...data.proposals].sort((a, b) => (b.issued || "").localeCompare(a.issued || "") || String(b.number).localeCompare(String(a.number)));
       $("#list").innerHTML = sorted.map((e) => {
@@ -446,6 +451,13 @@
     }
 
     const download = (name, text, type) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+
+    $("#followups").addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-fu]"); if (!btn) return;
+      const f = followUps(data.proposals, today()).find((x) => x.id === btn.closest("li").dataset.id); if (!f) return;
+      const txt = followUpText(f);
+      (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => { btn.textContent = "Copied"; }, () => { prompt("Copy this note:", txt); });
+    });
 
     $("#list").addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-a]"); if (!btn) return;
