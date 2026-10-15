@@ -1955,6 +1955,9 @@ workflows:
 - workflow: reverb-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: rfp-compliance-matrix-ci.yml
+  classification: none
+  publishes: []
 - workflow: rmd-calculator-ci.yml
   classification: none
   publishes: []

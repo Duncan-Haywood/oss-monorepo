@@ -74,3 +74,7 @@ test("index links one hop to the vendor-change-evidence sibling", () => {
   );
   assert.match(index, /vendor change evidence/i);
 });
+
+test("footer links the Vendor Watch command-line sibling", () => {
+  assert.match(index, /href="\.\.\/vendor-watch\/"/);
+});
