@@ -28,7 +28,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/changelog-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/changelog-keeper</id>
     <updated>2026-10-15T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Publish a changelog page, an RSS and JSON feed and a What&#39;s new button with an unread dot. Drafts, categories, tags, markdown. Open source, MIT, one-click self-deploy, no monthly fee. A self-hosted alternative to Headway, Beamer and LaunchNotes.</summary>
   </entry>
   <entry>
@@ -36,7 +36,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/drip-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/drip-keeper</id>
     <updated>2026-10-15T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">A free, open-source alternative to Customer.io, Loops and Userlist: your app posts events, sequences send onboarding, trial and win-back email, and a goal event stops the rest. Preview exactly what a person would receive and when, in your browser, then run the server in your own account.</summary>
   </entry>
   <entry>
@@ -60,7 +60,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/flag-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/flag-keeper</id>
     <updated>2026-10-15T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">A free, open-source alternative to LaunchDarkly, Flagsmith and Unleash: percentage rollouts that stay sticky, targeting rules, segments, prerequisites and a kill switch in one small server. Simulate a rollout and see exactly who would flip before you ship it, in your browser.</summary>
   </entry>
   <entry>
@@ -100,7 +100,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/link-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/link-keeper</id>
     <updated>2026-10-15T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">A free, open-source alternative to Bitly, Dub and Rebrandly: your own short domain, UTM-tagged campaign links, iOS/Android app routing, expiry, click limits and privacy-friendly stats with no cookies and no stored IPs. Plan a batch of links in your browser first.</summary>
   </entry>
   <entry>
@@ -108,7 +108,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/meter-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/meter-keeper</id>
     <updated>2026-10-15T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">A free, open-source alternative to Lago, Orb and Metronome for small SaaS: send usage events to your own server, get exact per-customer usage, tiered invoice previews, hard-limit checks, and a reliable feed into Stripe Billing Meters. Try your pricing on real usage numbers in your browser first.</summary>
   </entry>
   <entry>
@@ -140,7 +140,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/referral-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/referral-keeper</id>
     <updated>2026-10-15T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Run an affiliate or referral program on your own Stripe account: tracking link, recurring commissions, refund clawbacks, payout CSV. Plan what a program will cost you in your browser, then deploy the open-source server. Free, MIT, no revenue share.</summary>
   </entry>
   <entry>
