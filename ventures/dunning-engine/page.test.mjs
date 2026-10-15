@@ -39,3 +39,7 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("footer links its sibling trial-converter", () => {
+  assert.match(page("index.html"), /href="\.\.\/trial-converter\/"/);
+});

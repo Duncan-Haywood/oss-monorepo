@@ -112,7 +112,7 @@
     const IDS = {"revenue":"rev","utilities":"ut","rent":"rent","labor":"lab","repairs":"rm","other":"oth","manager":"mgr","reserve":"res","multiple":"mult","downPct":"dp","ratePct":"ir","years":"yr","closing":"cc","dscr":"dscr"};
     let R = null;
     function row(b) {
-      return '<tr><td><input type="text" class="bl" value="' + esc(b.label) + '" aria-label="Label for this price"></td><td><input type="number" class="ba" min="1" step="5000" value="' + esc(b.price) + '" aria-label="Price in dollars"></td><td><button type="button" class="secondary rm" aria-label="Remove this price">Remove</button></td></tr>';
+      return '<tr><td><input type="text" class="bl" value="' + esc(b.label) + '" aria-label="Label for this price"></td><td><input type="number" class="ba" min="1" step="any" value="' + esc(b.price) + '" aria-label="Price in dollars"></td><td><button type="button" class="secondary rm" aria-label="Remove this price">Remove</button></td></tr>';
     }
     function setRows(rows) { $("#bids tbody").innerHTML = rows.map(row).join(""); }
     function read() {
