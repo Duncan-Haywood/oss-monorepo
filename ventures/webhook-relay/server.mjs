@@ -9,7 +9,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { verify, SCHEMES } from "./verify.mjs";
-import { DEFAULT_POLICY, newState, ingest, due, throttle, recordAttempt, replay, summary, metrics } from "./relay.mjs";
+import { DEFAULT_POLICY, newState, ingest, due, throttle, recordAttempt, replay, replayDead, summary, metrics } from "./relay.mjs";
 import { ADMIN_HTML } from "./admin.mjs";
 import { validateFilter, matches } from "./filter.mjs";
 
@@ -125,6 +125,11 @@ export function handler(cfg) {
             .filter((e) => (!status || e.status === status) && (!route || e.route === route))
             .sort((a, b) => b.receivedAt - a.receivedAt).slice(0, 200).map((e) => publicEvent(e, false));
           return send(200, list);
+        }
+        if (req.method === "POST" && parts[0] === "replay" && !parts[1]) {
+          const ids = replayDead(cfg.state, now(), url.searchParams.get("route"));
+          if (ids.length) cfg.save();
+          return send(200, { replayed: ids.length, ids });
         }
         const e = parts[0] === "events" && cfg.state.events[parts[1]];
         if (parts[0] === "events" && parts[1] && !e) return send(404, "no such event\n", "text/plain");

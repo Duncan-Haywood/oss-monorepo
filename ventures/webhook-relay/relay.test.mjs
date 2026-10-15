@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { humanDuration, DEFAULT_POLICY, newState, classify, parseRetryAfter, ingest, due, recordAttempt, replay, prune, summary, schedule, idempotencyKey } from "./relay.mjs";
+import { humanDuration, DEFAULT_POLICY, newState, classify, parseRetryAfter, ingest, due, recordAttempt, replay, prune, replayDead, summary, schedule, idempotencyKey } from "./relay.mjs";
 
 const T0 = 1_700_000_000_000;
 const mk = (state, body = "{}", headers = {}, now = T0) => ingest(state, { route: "r", target: "http://x", headers, body: Buffer.from(body), now });
@@ -134,4 +134,15 @@ test("classify and humanDuration boundaries: 3xx is not delivered, 24h reads as 
   assert.equal(classify(300), "dead");
   assert.equal(humanDuration(86399), "24h");
   assert.equal(humanDuration(86400), "1d");
+});
+
+test("replayDead revives only dead events, oldest first, optionally per route", () => {
+  const s = newState();
+  const mk = (route, at, status) => { const r = ingest(s, { route, targets: ["https://x"], headers: {}, body: Buffer.from(route + at), now: at, policy: DEFAULT_POLICY }); s.events[r.id].status = status; return r.id; };
+  const a = mk("r1", T0 + 2, "dead"), b = mk("r2", T0 + 1, "dead"), c = mk("r1", T0, "delivered");
+  assert.deepEqual(replayDead(s, T0 + 9, "r1"), [a]);
+  assert.equal(s.events[b].status, "dead");
+  assert.deepEqual(replayDead(s, T0 + 9), [b]);
+  assert.equal(s.events[c].status, "delivered");
+  assert.deepEqual(replayDead(s, T0 + 9), []);
 });
