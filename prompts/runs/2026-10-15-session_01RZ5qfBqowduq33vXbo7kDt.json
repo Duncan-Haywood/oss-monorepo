@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01RZ5qfBqowduq33vXbo7kDt",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-15T22:01:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7204",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Pages suite exceeds the tool limit when run in the foreground; the checklist's background advice was needed."
+    },
+    {
+      "file": "platform/ci/unlanded_work.py",
+      "issue": "--sweep listed branches (proposal-maker, tile-layout-optimizer, dunning-engine fix) whose content is already on main; merge-only tips look unlanded."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Stranded-branch sweep: all but a calculator already on main. Deepened proposal-maker with trade templates.",
+  "corrections": [],
+  "redteam": null
+}
