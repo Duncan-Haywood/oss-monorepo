@@ -31,7 +31,10 @@
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "CLAUDE.md: the huge local checklist is long to map onto a platform/deploy-only change; only the deploy suite and checklist_coverage were run."
+    {
+      "file": "CLAUDE.md",
+      "issue": "The huge local checklist is hard to map onto a platform/deploy-only change; only the deploy suite and checklist_coverage were run."
+    }
   ],
   "deviations": [],
   "goal": null,
