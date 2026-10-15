@@ -924,7 +924,7 @@ def execute(step: Step, timeout: int) -> None:
         step.reason = f"exit {done.returncode}"
 
 
-def run_steps(steps, timeout) -> None:
+def run_steps(steps, timeout, budget: int | None = None) -> None:
     """Execute steps, printing the live progress line for each.
 
     One definition, called by both the single-workflow path and the sweep,
@@ -934,11 +934,21 @@ def run_steps(steps, timeout) -> None:
     running it turned up the old output -- the same defect, caught the same
     way, in the same eleven lines.
     """
+    deadline = time.monotonic() + budget if budget else None
     for step in steps:
         # Name the step BEFORE running it, and flush. Both halves are
         # load-bearing; see the note above `STATUS_MARK`.
         print(f"  {step.label} ... ", end="", flush=True)
-        execute(step, timeout)
+        left = int(deadline - time.monotonic()) if deadline else None
+        if left is not None and left <= 0 and step.status != "skipped":
+            step.status = "failed"
+            step.reason = f"TIMEOUT: workflow budget of {budget}s spent before this step"
+            step.seconds = 0.0
+        else:
+            step_timeout = min(timeout, left) if left is not None else timeout
+            execute(step, step_timeout)
+            if step.reason.startswith("timed out after") and step_timeout < timeout:
+                step.reason = f"TIMEOUT: workflow budget of {budget}s spent in this step"
         print(f"[{STATUS_MARK[step.status]:6}] ({step.seconds:.1f}s)",
               flush=True)
 
@@ -1189,7 +1199,7 @@ def _run_selected(args, selected, held, absent=()) -> int:
         print(f"\nRunning {name} locally "
               f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)",
               flush=True)
-        run_steps(steps, args.timeout)
+        run_steps(steps, args.timeout, getattr(args, "workflow_timeout", 0))
         if report(name, steps, uses_skipped, False) != 0:
             failures.append(name)
 
@@ -1242,6 +1252,11 @@ def main(argv=None) -> int:
                     help="allow a workflow that is not verification-only")
     ap.add_argument("--timeout", type=int, default=900,
                     help="per-step timeout in seconds (default 900)")
+    ap.add_argument("--workflow-timeout", type=int, default=300,
+                    help="wall-clock budget per workflow in --tree and "
+                         "--for-changes runs, in seconds (default 300, 0 = "
+                         "none); steps past it report TIMEOUT instead of "
+                         "hanging the sweep")
     args = ap.parse_args(argv)
 
     if args.tree:
