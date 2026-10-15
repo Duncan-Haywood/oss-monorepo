@@ -19,6 +19,6 @@
   "opened": "2026-10-15",
   "source": "prompts/process/reports/2026-10-15*.md",
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7091",
-  "result": null,
+  "result": "Partly helped: records with merged known 28 of 369 (7.6%) vs baseline 8 of 184 (4.3%). The `repo` field exists (record --repo) but only 6 records set it, and 276 research records remain merged: null because they are bulk-mirrored. The field is not the limit; backfilling the mirrored records is.",
   "history": []
 }
