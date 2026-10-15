@@ -55,12 +55,13 @@ function additionalMedicare(netEarnings, w2Wages, status) {
 export function selfEmploymentTax(input = {}) {
   const netProfit = num(input.netProfit);
   const w2Wages = num(input.w2Wages);
-  const status = ADDITIONAL_MEDICARE_THRESHOLDS[input.filingStatus] ? input.filingStatus : "single";
+  const status = Object.hasOwn(ADDITIONAL_MEDICARE_THRESHOLDS, input.filingStatus) ? input.filingStatus : "single";
   const marginalRate = Math.min(num(input.marginalRate), 1);
   if (netProfit <= 0) return { invalid: true };
 
   const p = seParts(netProfit, w2Wages);
-  const addlMedicare = additionalMedicare(p.netEarnings, w2Wages, status);
+  // Under $400 there are no SE earnings on Schedule SE, so none reach Form 8959.
+  const addlMedicare = additionalMedicare(p.netEarnings < SE_MINIMUM ? 0 : p.netEarnings, w2Wages, status);
   const halfDeduction = p.total / 2;
   const incomeTax = Math.max(0, netProfit - halfDeduction) * marginalRate;
   const totalSetAside = p.total + addlMedicare + incomeTax;

@@ -83,6 +83,12 @@
     </details>
   </section>
 
+  <section class="card noprint" id="routes-card" hidden>
+    <h2>Repeat a trip</h2>
+    <p class="note">Your most frequent deductible routes. One tap fills the form for today; add the odometer or confirm the miles, then save.</p>
+    <div id="routes"></div>
+  </section>
+
   <section class="card noprint">
     <h2 id="form-title">2. Add a trip</h2>
     <div class="grid">
@@ -92,6 +98,7 @@
       <div><label for="t-to">To (destination)</label><input id="t-to" autocomplete="off"></div>
       <div><label for="t-purpose">Business purpose</label><input id="t-purpose" autocomplete="off" placeholder="e.g. Estimate visit, bank deposit"></div>
       <div><label for="t-client">Client or job (optional)</label><input id="t-client" autocomplete="off"></div>
+      <div><label for="t-vehicle">Vehicle (optional)</label><input id="t-vehicle" list="vehicle-list" autocomplete="off" placeholder="e.g. Ford Transit"><datalist id="vehicle-list"></datalist></div>
       <div><label for="t-odo-start">Odometer start</label><input id="t-odo-start" inputmode="decimal"></div>
       <div><label for="t-odo-end">Odometer end</label><input id="t-odo-end" inputmode="decimal"></div>
       <div><label for="t-miles">Miles (if no odometer)</label><input id="t-miles" inputmode="decimal"></div>
@@ -110,6 +117,11 @@
     <h2 id="report-title">Summary</h2>
     <div class="kpis" id="kpis"></div>
     <div id="report-findings"></div>
+    <div id="vehicles-wrap" hidden>
+      <h3>By vehicle</h3>
+      <p class="note">The standard rate is claimed per vehicle. Enter each vehicle's January 1 and December 31 odometer to get its own business-use share.</p>
+      <div class="scroll"><table><thead><tr><th scope="col">Vehicle</th><th class="n" scope="col">Business</th><th class="n" scope="col">Commuting</th><th class="n" scope="col">Odo Jan 1</th><th class="n" scope="col">Odo Dec 31</th><th class="n" scope="col">Business use</th><th class="n" scope="col">Deduction</th></tr></thead><tbody id="vehicles"></tbody></table></div>
+    </div>
     <h3>Schedule C, Part IV numbers</h3>
     <p class="note">Total business, commuting and other miles for the year, as that section of Schedule C asks. Other = all miles driven that are neither business nor commuting; it needs both odometer readings.</p>
     <div class="scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Miles</th></tr></thead><tbody id="sched"></tbody></table></div>
@@ -128,6 +140,7 @@
       <button type="button" class="secondary" id="export-json">Download backup (all years)</button>
       <button type="button" class="secondary" id="import-btn">Restore from backup</button>
       <button type="button" class="secondary" id="print">Print this year</button>
+      <button type="button" class="secondary" id="preparer">Report for my tax preparer (HTML)</button>
       <input type="file" id="import-file" accept=".json,application/json" hidden aria-label="Backup file to restore">
     </p>
     <p>
@@ -173,7 +186,7 @@
   </footer>
 
   <script type="module">
-    import { CATEGORIES, rateFor, tripMiles, validateTrip, normalizeTrip, summarize, addFix, toCsv, exportJson, importJson, sampleTrips, money, money0, pct } from "./calc.mjs";
+    import { CATEGORIES, summarizeByVehicle, vehicleNames, frequentRoutes, tripFromRoute, preparerReportHtml, NO_VEHICLE, rateFor, tripMiles, validateTrip, normalizeTrip, summarize, addFix, toCsv, exportJson, importJson, sampleTrips, money, money0, pct } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const KEY = "mileage-log-data-v1";
@@ -234,15 +247,54 @@
         return `<tr><td>${t.date}</td><td>${LABEL[t.category] || t.category}${t.gps ? " (GPS)" : ""}</td><td>${esc(t.from)}${t.from && t.to ? " → " : ""}${esc(t.to)}${t.client ? " · " + esc(t.client) : ""}</td><td>${esc(t.purpose)}</td><td class="n">${m}</td><td class="n">${rate ? rate.toFixed(3) : "–"}</td><td class="n">${rate ? money(m * rate) : "–"}</td><td class="noprint"><button type="button" class="secondary" data-edit="${esc(t.id)}">Edit</button><button type="button" class="danger" data-del="${esc(t.id)}">Delete</button></td></tr>`;
       }).join("");
       $("#empty").hidden = r.trips.length > 0;
+      renderVehicles();
+      renderRoutes();
     }
 
+    const vOdo = () => (state.settings[year()] || {}).vehicleOdo || {};
+    function renderVehicles() {
+      const vs = summarizeByVehicle(state.trips, { year: year(), override: override(), vehicleOdo: vOdo() });
+      const named = vs.filter((v) => v.vehicle !== NO_VEHICLE).length;
+      $("#vehicles-wrap").hidden = named === 0;
+      $("#vehicle-list").innerHTML = vehicleNames(state.trips).map((n) => `<option value="${esc(n)}">`).join("");
+      $("#vehicles").innerHTML = vs.map((v) => {
+        const o = vOdo()[v.vehicle] || {}, named = v.vehicle !== NO_VEHICLE;
+        const inp = (k) => named ? `<input class="cost" data-vodo="${k}" data-v="${esc(v.vehicle)}" inputmode="decimal" aria-label="${esc(v.vehicle)} odometer ${k === "start" ? "January 1" : "December 31"}" value="${o[k] ?? ""}">` : "–";
+        return `<tr><th scope="row">${esc(v.vehicle)}</th><td class="n">${Math.round(v.business).toLocaleString("en-US")}</td><td class="n">${Math.round(v.commute).toLocaleString("en-US")}</td><td class="n">${inp("start")}</td><td class="n">${inp("end")}</td><td class="n">${v.businessUse == null ? "–" : pct(v.businessUse, 1)}</td><td class="n">${money(v.deduction)}</td></tr>`;
+      }).join("");
+    }
+    $("#vehicles").addEventListener("input", (e) => {
+      const el = e.target.closest("[data-vodo]"); if (!el) return;
+      const y = year(), cur = state.settings[y] || {}, vo = { ...(cur.vehicleOdo || {}) };
+      vo[el.dataset.v] = { ...(vo[el.dataset.v] || {}), [el.dataset.vodo]: numOrNull(el.value) };
+      state.settings[y] = { ...cur, vehicleOdo: vo }; save();
+      const rows = summarizeByVehicle(state.trips, { year: y, override: override(), vehicleOdo: vo });
+      const row = el.closest("tr"), v = rows.find((x) => x.vehicle === el.dataset.v);
+      row.children[5].textContent = v && v.businessUse != null ? pct(v.businessUse, 1) : "–";
+    });
+
+    let routes = [];
+    function renderRoutes() {
+      routes = frequentRoutes(state.trips);
+      $("#routes-card").hidden = routes.length === 0;
+      $("#routes").innerHTML = routes.map((r, i) => `<button type="button" class="secondary" data-route="${i}">${esc(r.from || "…")} → ${esc(r.to)} · ${r.miles} mi · ${r.count}×</button>`).join("");
+    }
+    $("#routes").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-route]"); if (!b) return;
+      const d = tripFromRoute(routes[Number(b.dataset.route)], today());
+      clearForm();
+      $("#t-date").value = d.date; $("#t-cat").value = d.category; $("#t-from").value = d.from; $("#t-to").value = d.to; $("#t-purpose").value = d.purpose; $("#t-client").value = d.client; $("#t-vehicle").value = d.vehicle; $("#t-miles").value = d.miles || "";
+      $("#form-status").textContent = `Filled from your usual ${d.to} trip. Check the miles (or enter odometer readings), then save.`;
+      $("#form-title").scrollIntoView({ behavior: "smooth" });
+    });
+
     function readForm() {
-      return { id: editing || undefined, date: $("#t-date").value, category: $("#t-cat").value, from: $("#t-from").value, to: $("#t-to").value, purpose: $("#t-purpose").value, client: $("#t-client").value,
+      return { id: editing || undefined, date: $("#t-date").value, category: $("#t-cat").value, from: $("#t-from").value, to: $("#t-to").value, purpose: $("#t-purpose").value, client: $("#t-client").value, vehicle: $("#t-vehicle").value,
         odoStart: numOrNull($("#t-odo-start").value) ?? "", odoEnd: numOrNull($("#t-odo-end").value) ?? "", miles: numOrNull($("#t-miles").value) ?? 0, tolls: numOrNull($("#t-tolls").value) ?? 0, parking: numOrNull($("#t-parking").value) ?? 0,
         gps: $("#t-miles").dataset.gps === "1" };
     }
     function clearForm() {
-      for (const id of ["from", "to", "purpose", "client", "odo-start", "odo-end", "miles", "tolls", "parking"]) $("#t-" + id).value = "";
+      for (const id of ["from", "to", "purpose", "client", "vehicle", "odo-start", "odo-end", "miles", "tolls", "parking"]) $("#t-" + id).value = "";
       $("#t-miles").dataset.gps = ""; $("#t-date").value = today(); editing = null;
       $("#form-title").textContent = "2. Add a trip"; $("#save-trip").textContent = "Save trip"; $("#cancel-edit").hidden = true;
     }
@@ -264,7 +316,7 @@
       const ed = e.target.closest("[data-edit]"), del = e.target.closest("[data-del]");
       if (ed) {
         const t = state.trips.find((x) => x.id === ed.dataset.edit); if (!t) return;
-        editing = t.id; $("#t-date").value = t.date; $("#t-cat").value = t.category; $("#t-from").value = t.from; $("#t-to").value = t.to; $("#t-purpose").value = t.purpose; $("#t-client").value = t.client;
+        editing = t.id; $("#t-date").value = t.date; $("#t-cat").value = t.category; $("#t-from").value = t.from; $("#t-to").value = t.to; $("#t-purpose").value = t.purpose; $("#t-client").value = t.client; $("#t-vehicle").value = t.vehicle || "";
         $("#t-odo-start").value = t.odoStart; $("#t-odo-end").value = t.odoEnd; $("#t-miles").value = t.miles || ""; $("#t-tolls").value = t.tolls || ""; $("#t-parking").value = t.parking || "";
         $("#form-title").textContent = "2. Edit trip"; $("#save-trip").textContent = "Update trip"; $("#cancel-edit").hidden = false;
         $("#form-title").scrollIntoView({ behavior: "smooth" });
@@ -316,6 +368,13 @@
       if (r.error) { $("#io-status").textContent = r.error; return; }
       state.trips = r.trips; state.settings = { ...r.settings, ...state.settings }; save(); fillYears(); fillOdos(); render();
       $("#io-status").textContent = `Restored ${r.added} trip${r.added === 1 ? "" : "s"}; ${r.trips.length} on this device now.`; e.target.value = "";
+    });
+    $("#preparer").addEventListener("click", () => {
+      const list = state.trips.filter((t) => t.date.startsWith(year()));
+      if (!list.length) { $("#io-status").textContent = "No trips in this year to report."; return; }
+      const o = odos();
+      download(`mileage-report-${year()}.html`, preparerReportHtml(state.trips, { year: year(), override: override(), yearStartOdo: o.start, yearEndOdo: o.end, vehicleOdo: vOdo() }), "text/html");
+      record("preparer_report"); $("#io-status").textContent = "Report downloaded. Open it in a browser to print or save as PDF for your preparer.";
     });
     $("#print").addEventListener("click", () => window.print());
     $("#load-example").addEventListener("click", () => {

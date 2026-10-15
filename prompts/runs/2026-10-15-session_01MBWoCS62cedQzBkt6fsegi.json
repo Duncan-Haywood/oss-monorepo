@@ -21,7 +21,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 1,
@@ -44,6 +44,14 @@
   ],
   "goal": null,
   "notes": "Mirror sync to upstream 5cd9598. merged left null: record is committed before the merge.",
-  "corrections": [],
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR confirmed merged on main (review run)"
+    }
+  ],
   "redteam": null
 }

@@ -239,3 +239,32 @@ field will.
   page exists, adoption not measured. Result: too few runs.
 - Research/1 candidate: 1 run against 185 champion runs. Too few runs.
 - Result: (next review)
+
+## E8: third review of 2026-10-15
+
+- Change: ventures candidate `prompt-2` replaces the "no near-copies"
+  sentence with a command that counts name suffixes of the newest ventures
+  (share 0.2). `AGENTS.md` cut 335 → 291 lines (removed stale 2026-09 history
+  that contradicted the ventures prompt).
+- Why: 11 of the 15 newest ventures are `*-calculator`; AGENTS.md was over
+  its budget.
+- Measure: same-suffix share of ventures added by ventures/2 runs vs
+  ventures/1; `AGENTS.md` friction per run.
+- Follow-up on E6: `CLAUDE.md` is 452 lines (prune landed); friction after it
+  not yet measurable. Research/1: still 1 run, too few.
+- Result: (next review)
+
+## E9: fourth review of 2026-10-15
+
+- Change: `review/prompt-1.md` cut 150 → 128 lines (budget 130): removed the
+  first-review backfill step (170+ records exist), tightened drift-audit
+  prose, candidates only for tracks with about 10 runs. Filled `merged: true`
+  for four local records (PRs 7001, 7019, 7024, 7034), with corrections.
+- Why: drift report 2026-10-15-c left "trim review/prompt-1.md" open; two
+  friction reports on it (backfill and per-track candidates).
+- Measure: friction reports on `prompts/review/prompt-1.md` per review run.
+- Follow-up on E8: ventures/2 still has 0 runs against 2 for ventures/1, and
+  research/1 has 1 run against 190, so both are too few to judge. Review ran
+  twice within an hour (#7034 then this one) because the due counter is
+  unchanged by process-track records; not changed here.
+- Result: (next review)

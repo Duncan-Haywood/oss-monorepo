@@ -56,7 +56,7 @@ export function prsi(profit, y) {
 
 export function compute(input) {
   const errors = [];
-  const year = YEARS[input.year] ? String(input.year) : "2026";
+  const year = Object.hasOwn(YEARS, input.year) ? String(input.year) : "2026";
   const revenue = num(input.revenue);
   const expenses = num(input.expenses) ?? 0;
   if (revenue === null || Number.isNaN(revenue) || revenue < 0) errors.push("Enter your business income for the year, excluding VAT (0 or more).");

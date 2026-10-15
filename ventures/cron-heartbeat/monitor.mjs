@@ -2,6 +2,7 @@
 // the HTTP shell (server.mjs) so the alert rules are testable without sockets.
 import { evaluate, parseCron } from "./cron.mjs";
 
+const HISTORY_MAX = 50;
 const SLUG = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 
 export function validateConfig(config) {
@@ -41,10 +42,25 @@ export function createMonitor({ config, state = {}, notify = async () => {} }) {
   function ping(slug, kind, now) {
     if (!checks[slug]) return false;
     const rec = ensure(slug, now);
+    const h = (rec.history ||= []);
+    h.push({ t: now, kind });
+    if (h.length > HISTORY_MAX) h.splice(0, h.length - HISTORY_MAX);
     if (kind === "start") rec.lastStart = now;
     else if (kind === "fail") rec.lastFail = now;
     else { rec.lastPing = now; rec.pings = (rec.pings || 0) + 1; }
     return true;
+  }
+
+  function logEvent(rec, now, kind) {
+    const h = (rec.history ||= []);
+    h.push({ t: now, kind: `alert:${kind}` });
+    if (h.length > HISTORY_MAX) h.splice(0, h.length - HISTORY_MAX);
+  }
+
+  /** Recent pings and alerts for one check, newest first; null for an unknown check. */
+  function history(slug) {
+    if (!checks[slug]) return null;
+    return [...((st[slug] || {}).history || [])].reverse();
   }
 
   async function tick(now) {
@@ -56,11 +72,11 @@ export function createMonitor({ config, state = {}, notify = async () => {} }) {
       const wasBad = rec.lastAlert === "down" || rec.lastAlert === "failed";
       if (bad && rec.lastAlert !== r.state) {
         const msg = { slug, state: r.state, text: `[cron-heartbeat] ${slug} is ${r.state.toUpperCase()}: ${r.reason}`, at: now };
-        sent.push(msg); rec.lastAlert = r.state;
+        sent.push(msg); rec.lastAlert = r.state; logEvent(rec, now, r.state);
         try { await notify(msg); } catch (e) { rec.lastAlert = "new"; rec.notifyError = String(e.message || e); }
       } else if (!bad && wasBad && (r.state === "up" || r.state === "running" || r.state === "late")) {
         const msg = { slug, state: "recovered", text: `[cron-heartbeat] ${slug} recovered`, at: now };
-        sent.push(msg); rec.lastAlert = "up";
+        sent.push(msg); rec.lastAlert = "up"; logEvent(rec, now, "recovered");
         try { await notify(msg); } catch (e) { rec.notifyError = String(e.message || e); }
       } else if (!bad) rec.lastAlert = rec.lastAlert === "new" && r.state === "new" ? "new" : r.state;
     }
@@ -75,5 +91,5 @@ export function createMonitor({ config, state = {}, notify = async () => {} }) {
     });
   }
 
-  return { ping, tick, status, state: st, checks };
+  return { ping, tick, status, history, state: st, checks };
 }

@@ -30,7 +30,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 7,
@@ -63,6 +63,14 @@
   ],
   "goal": null,
   "notes": "Backlog items touched: P003 done (this PR); P001-P011 filed. Owner-directed process changes. Model from session config.",
-  "corrections": [],
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR 7021 shows merged=true via REST API (review 2026-10-15 third)"
+    }
+  ],
   "redteam": null
 }

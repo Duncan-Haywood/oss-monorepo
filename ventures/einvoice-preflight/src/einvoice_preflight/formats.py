@@ -417,6 +417,7 @@ def _parse_cii(root: Any) -> dict[str, Any]:
                 _text(party, f"{{{RAM}}}ID"),
                 _text(party, f"{{{RAM}}}GlobalID"),
                 _text(party, f"{{{RAM}}}SpecifiedLegalOrganization", f"{{{RAM}}}ID"),
+                _text(party, f"{{{RAM}}}URIUniversalCommunication", f"{{{RAM}}}URIID"),
                 _cii_vat_id(party),
             ),
             vat_id=_cii_vat_id(party),
