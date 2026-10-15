@@ -29462,3 +29462,33 @@ ventures:
       2026-10-11 and must be confirmed on nodejs.org, and that a clean
       result is evidence about declared versions only, not that the code
       runs on any of them.
+
+  - slug: job-application-tracker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic date arithmetic, counting and CSV/ICS formatting over
+      what the user typed. There is no inference step a model would improve.
+    basis: >-
+      Graduated 2026-10-15 as a local-first job application tracker:
+      follow-up dates, silent-30-day flags, reply rate by source, CSV and
+      calendar export. Screened with duplicate_check.py (nearest existing
+      venture scored 0.31) after eight other niches came back as existing
+      ventures. Different audience and shape from the trade calculators;
+      the paid incumbents (Huntr, Teal and similar) sit behind an account.
+      Autonomous ops 10 / gross margin 10: no server, data stays in the
+      browser. Time to revenue 4: job seekers have the least disposable
+      income of any audience here, so donations are scored lowest.
+      Defensibility 3: a tracker is easy to copy; the edge is "no account,
+      nothing uploaded" and the source funnel. Distribution 6: "job
+      application tracker" and "job application spreadsheet" are
+      high-volume searches, and r/jobs and r/resumes ask for this weekly.
