@@ -2108,6 +2108,11 @@
      "slug": "osrobot-specialise",
      "title": "When does a purpose-built gantry beat a general two-link arm at tray pick-and-place?",
      "summary": "A stdlib model compares an XY gantry with an equal-link planar arm over a square work area, on cost per good pick per hour. At 2&nbsp;mm tolerance the gantry wins up to 0.35&nbsp;m and above about 1.0&nbsp;m; the arm wins between 0.36 and 0.99&nbsp;m. Tolerance below 1&nbsp;mm removes the arm&rsquo;s band, and the band depends heavily on the assumed cost coefficients (halving the gantry&rsquo;s removes it). Stylised: every cost, mass, speed and accuracy figure is assumed, and only one task is modelled."
+    },
+    {
+     "slug": "osrobot-morph",
+     "title": "Does co-designing an arm's link lengths and controller beat tuning the controller on a fixed body?",
+     "summary": "A stdlib planar two-link arm model searches the split of a fixed 0.50&nbsp;m reach together with PD gains, against an equal-link body with tuned gains, at equal search budget. The tray is reachable only for splits of 0.40 to 0.60. Co-design gained 1.9% in held-out move time (0.283 against 0.289&nbsp;s), within three-seed noise, while tuning the controller cut hand-set gains' 0.460&nbsp;s by about 37%. Stylised, preliminary and mostly negative: one body parameter and an assumed torque limit."
     }
    ]
   }
