@@ -25,6 +25,10 @@ node --test
 - **Dashboard** at `/` (needs your key): every check's state, reason and last ping.
 - **Public status page** at `/s`, off by default (`PUBLIC_STATUS=1`): names and
   operational/disruption only, no keys, timings or reasons. Title: `STATUS_TITLE`.
+- **Maintenance pause**: `/pause/<name>` and `/resume/<name>` (key required) stop and restart
+  alerting for one check. Resuming restarts its clock, so the paused time never alerts.
+- **Status badge** at `/badge/<name>.svg` (with `PUBLIC_STATUS=1`): an embeddable
+  operational / disruption / paused SVG, same disclosure as `/s`.
 - **History** at `/history/<name>`: the last 50 pings and alerts per check.
 - **Alerts, any mix of**: webhook (Slack/Discord/Mattermost), ntfy, Telegram bot
   (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`), email through your own Resend

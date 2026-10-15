@@ -30,7 +30,7 @@ export function createMonitor({ config, state = {}, notify = async () => {} }) {
   const st = state;
   const view = (slug, now) => {
     const rec = st[slug] || {};
-    return { ...checks[slug], createdAt: rec.createdAt ?? now, lastPing: rec.lastPing, lastStart: rec.lastStart, lastFail: rec.lastFail };
+    return { ...checks[slug], paused: rec.paused ?? checks[slug].paused, createdAt: rec.createdAt ?? now, lastPing: rec.lastPing, lastStart: rec.lastStart, lastFail: rec.lastFail };
   };
 
   function ensure(slug, now) {
@@ -48,6 +48,19 @@ export function createMonitor({ config, state = {}, notify = async () => {} }) {
     if (kind === "start") rec.lastStart = now;
     else if (kind === "fail") rec.lastFail = now;
     else { rec.lastPing = now; rec.pings = (rec.pings || 0) + 1; }
+    return true;
+  }
+
+  /** Pause or resume one check at runtime (maintenance window). Returns false for an unknown check.
+   * Resuming restarts the clock, so a long pause never raises an alert for the time it was off. */
+  function setPaused(slug, paused, now) {
+    if (!checks[slug]) return false;
+    const rec = ensure(slug, now);
+    rec.paused = Boolean(paused);
+    if (!paused) { rec.createdAt = now; delete rec.lastPing; delete rec.lastStart; delete rec.lastFail; rec.lastAlert = "new"; }
+    const h = (rec.history ||= []);
+    h.push({ t: now, kind: paused ? "paused" : "resumed" });
+    if (h.length > HISTORY_MAX) h.splice(0, h.length - HISTORY_MAX);
     return true;
   }
 
@@ -91,5 +104,5 @@ export function createMonitor({ config, state = {}, notify = async () => {} }) {
     });
   }
 
-  return { ping, tick, status, history, state: st, checks };
+  return { ping, setPaused, tick, status, history, state: st, checks };
 }

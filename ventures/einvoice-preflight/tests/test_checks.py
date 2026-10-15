@@ -677,6 +677,19 @@ class ChecksTest(unittest.TestCase):
             self.assertTrue(all(error["path"] == "/invoice_number" for item in report["reports"] for error in item["errors"]))
             self.assertNotIn("INV-1", output.getvalue())
 
+    def test_cli_batch_same_number_from_different_sellers_is_not_a_duplicate(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = json.loads(json.dumps(VALID))
+            second = json.loads(json.dumps(VALID))
+            second["supplier"] = {"id": "S2", "name": "Other Supplier"}
+            (root / "first.json").write_text(json.dumps(first))
+            (root / "second.json").write_text(json.dumps(second))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                main([directory, "--format", "json"])
+            self.assertNotIn("INV-019", json.loads(output.getvalue())["rules"])
+
     def test_cli_batch_allows_unique_invoice_numbers(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
