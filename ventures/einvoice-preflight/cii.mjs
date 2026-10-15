@@ -77,6 +77,7 @@ function partyFrom(tradeParty) {
     nestedText(tradeParty, "ID"),
     nestedText(tradeParty, "GlobalID"),
     nestedText(tradeParty, "SpecifiedLegalOrganization", "ID"),
+    nestedText(tradeParty, "URIUniversalCommunication", "URIID"),
     vatId,
   );
   const mapped = {

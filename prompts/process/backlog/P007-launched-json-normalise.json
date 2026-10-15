@@ -1,7 +1,7 @@
 {
   "id": "P007",
   "title": "Stop launched.json ordering from failing parallel branches",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 1,
@@ -18,7 +18,7 @@
   "baseline": "4 in one day (2026-10-14)",
   "opened": "2026-10-15",
   "source": "prompts/process/reports/2026-10-15*.md",
-  "pr": null,
+  "pr": 7047,
   "result": null,
   "history": []
 }

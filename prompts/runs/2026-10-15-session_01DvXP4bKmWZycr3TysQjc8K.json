@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01DvXP4bKmWZycr3TysQjc8K",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled ventures brief)",
+  "input_sha256": "b1c82026cc82c95d5b547c8ce83f59a9c0499c86701501193703810a0c454da0",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "dunning-engine: new self-hosted Stripe failed-payment recovery venture (decline-code-aware retries, emails, never-expiring update link, dry-run default, one-click Render deploy)",
+  "projects": [
+    "dunning-engine"
+  ],
+  "pr": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 38,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "promptctl route returned the process track, but the scheduled brief is the ventures brief verbatim, so I followed that and built a venture"
+    }
+  ],
+  "goal": null,
+  "notes": "Also refreshed the gh-pages snapshot (gate's first item). secondary-schema.test.mjs fails on job-application-tracker pages, untouched by this change. Route said process track; ran the ventures brief because the stored prompt is the ventures brief verbatim.",
+  "corrections": [],
+  "redteam": null
+}

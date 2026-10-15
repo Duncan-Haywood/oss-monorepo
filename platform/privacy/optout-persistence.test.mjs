@@ -1679,7 +1679,8 @@ const RELATIVE_SELF = relative(
 // +1: `security-questionnaire-matcher` graduated.
 // +1: `job-application-tracker` graduated.
 // +1: `youtube-sponsorship-rate-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1208;
+// +1: `dunning-engine` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1209;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
