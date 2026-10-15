@@ -1676,7 +1676,8 @@ const RELATIVE_SELF = relative(
 // +1: `us-freelancer-tax-set-aside-calculator` graduated.
 // +1: `tenant-security-deposit-deadline-checker` graduated.
 // +1: `rfp-compliance-matrix` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1205;
+// +1: `job-application-tracker` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1206;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.

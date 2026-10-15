@@ -1484,6 +1484,9 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // vs-checking-*-by-hand/by-eye pages above.
   'ats-resume-checker/vs-checking-it-by-eye.html',
+  // Compares against "a spreadsheet" -- a method every job seeker already
+  // has, not a company or product this could be mistaken for.
+  'job-application-tracker/vs-a-spreadsheet.html',
   // Compares against "a spreadsheet" -- a method every carrier filing their
   // own IFTA return already has, not a company or product this could be
   // mistaken for. Distinct from this venture's own vs-expressifta.html,
