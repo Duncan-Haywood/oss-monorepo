@@ -20,7 +20,7 @@
   "opened": "2026-10-15",
   "source": "prompts/process/reports/2026-10-15*.md",
   "pr": 7126,
-  "result": null,
+  "result": "Partly helped, 2026-10-15: platform/ci loop (run per module) listed one failure on main, test_publish_surface, because 5 workflows added after the re-pin (distribute-devto/hashnode/releases, link-keeper-ci, meter-keeper-ci) were not in publish-surface.yaml. Re-pinned (none push to main or deploy Pages). Recurs whenever a workflow lands without --write; cheap fix is per-PR, not structural.",
   "history": [
     {
       "date": "2026-10-15",
@@ -33,6 +33,10 @@
     {
       "date": "2026-10-15",
       "note": "Re-pinned publish-surface.yaml (--write; snapshot had a workflow row appended after the gitops list, causing KeyError 'application'). Added ventures-tests.yml (runs touched ventures' node --test) and made check_venture_tests_run accept a ventures/** trigger. platform/ci loop now exits 0 on clean main."
+    },
+    {
+      "date": "2026-10-15",
+      "note": "Verified: loop red on one module after new workflows; re-pinned publish-surface.yaml."
     }
   ]
 }
