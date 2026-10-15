@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MRR Pulse — Free Self-Hosted Stripe MRR &amp; Churn Dashboard</title>
+  <meta name="description" content="See MRR, ARR, net revenue retention, logo churn and quick ratio from your Stripe subscriptions without paying a metrics service a share of your revenue. Paste a subscription export to try it in the browser, then run the open-source read-only server in your own account. Free, MIT.">
+  <meta property="og:title" content="MRR Pulse — Stripe MRR and churn dashboard, self-hosted">
+  <meta property="og:description" content="MRR, churn, NRR and a 12-month history from a read-only Stripe key. Your server, your data, no monthly fee.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "MRR Pulse", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source MRR, ARR, churn and net-revenue-retention dashboard for Stripe subscriptions. Read-only key, runs on your own server, rebuilds a 12-month history on first sync."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is this different from Baremetrics, ChartMogul or ProfitWell?", "acceptedAnswer": {"@type": "Answer", "text": "Those are hosted services with cohorts, forecasts, integrations and support, usually priced by revenue. MRR Pulse covers the numbers most small SaaS founders check every week (MRR, ARR, new, expansion, contraction and churned MRR, logo churn, net revenue retention, quick ratio) on a server you run with a read-only key. It has no cohort explorer, forecasting or multi-source billing."}}, {"@type": "Question", "name": "Can it change anything in my Stripe account?", "acceptedAnswer": {"@type": "Answer", "text": "No. It only lists subscriptions, and it needs a restricted key with Subscriptions: read and nothing else. The tests assert that every request is a plain GET."}}, {"@type": "Question", "name": "Why does the first history say it is approximate?", "acceptedAnswer": {"@type": "Answer", "text": "Stripe does not return past prices, so the first sync rebuilds the last 12 months from each subscription's start and end dates at today's price. New and churned MRR are right to within price changes; expansion and contraction only appear from the first sync onward."}}, {"@type": "Question", "name": "What counts as MRR?", "acceptedAnswer": {"@type": "Answer", "text": "Active and past-due subscriptions, every price normalised to a month, percent-off coupons netted. Trials, paused subscriptions, metered usage and fixed-amount coupons are not counted."}}, {"@type": "Question", "name": "Where does my Stripe key live?", "acceptedAnswer": {"@type": "Answer", "text": "In the environment of the server you deploy in your own account. The author runs nothing in between and never sees your key or your numbers."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f5f4fa; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #4338ca; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2e2a74; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2e2a74; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4a63; }
+    .card { background: #fff; border: 1px solid #dcdbec; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 12px 0; }
+    .tiles div { background: #f1f0f9; border-radius: 10px; padding: 10px 12px; }
+    .tiles b { display: block; font-size: 1.35rem; color: #2e2a74; }
+    label { display: block; font-weight: 600; margin: 8px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #b4b3d1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #4338ca; color: #fff; font-weight: 700; cursor: pointer; margin: 12px 8px 0 0; }
+    button.alt { background: #e4e2fb; color: #2e2a74; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid #e8e7f3; }
+    th:first-child, td:first-child { text-align: left; }
+    table[style] th, table[style] td { text-align: left; }
+    pre { background: #f1f0f9; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Your MRR, churn and retention, from a read-only Stripe key you control</h1>
+  <p>Founders pay a metrics service a monthly fee that grows with revenue to see six numbers. MRR Pulse computes them from your Stripe subscriptions: <strong>MRR and ARR, new / expansion / contraction / churned MRR, logo churn, net revenue retention and quick ratio</strong>, with a 12-month history on the first sync. Try it below on a subscription export (nothing is uploaded), then <a href="server.mjs">run the open-source server</a> in your own account. No account with us, no monthly fee.</p>
+
+  <section class="card" aria-labelledby="try">
+    <h2 id="try">Try it on a subscription export</h2>
+    <p class="note">In Stripe: Billing &rarr; Subscriptions &rarr; Export. Needs columns for amount, interval and created; status, canceled/ended date, quantity and id are used when present. Or load made-up sample data.</p>
+    <label for="csv">Paste CSV</label>
+    <textarea id="csv" spellcheck="false" placeholder="id,status,amount,interval,created,ended at"></textarea>
+    <button id="run" type="button">Compute</button><button id="sample" class="alt" type="button">Load sample data</button>
+    <p class="note" id="msg" role="status" aria-live="polite"></p>
+    <div id="out" hidden>
+      <div class="tiles" id="tiles"></div>
+      <div id="chart"></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Month</th><th>MRR</th><th>Customers</th><th>New</th><th>Churned</th><th>Net new</th></tr></thead><tbody id="rows"></tbody></table></div>
+      <p class="note">History is rebuilt from start and end dates at the prices in the file, so it shows new and churned MRR only; the server adds expansion and contraction from its first sync on.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Why someone would use this</h2>
+    <table style="text-align:left">
+      <thead><tr><th>Today</th><th>Cost / catch</th></tr></thead>
+      <tbody>
+        <tr><td>Stripe Dashboard &rarr; Billing &rarr; Overview</td><td>Free, but a thin set of numbers and no churn or retention by month</td></tr>
+        <tr><td>Baremetrics, ChartMogul, ProfitWell</td><td>Hosted, more features, priced by revenue; your customer data lives with them</td></tr>
+        <tr><td>A spreadsheet fed by an export</td><td>Free, but you rebuild it by hand every month and the plan-interval maths is easy to get wrong</td></tr>
+        <tr><td><strong>MRR Pulse</strong></td><td>Free, MIT, read-only key, your server. Honest limits: no cohorts, forecasting or other billing systems</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/fp-monorepo &amp;&amp; cd fp-monorepo/ventures/mrr-pulse
+STRIPE_SECRET_KEY=rk_live_...  ADMIN_KEY=$(openssl rand -hex 16) \
+COMPANY_NAME=Acme node server.mjs
+# open http://localhost:8080 and sign in with any user name and ADMIN_KEY</pre>
+    <p class="note">The key needs <em>Subscriptions: read</em> and nothing else. A one-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Related tools</h2>
+    <p>Same buyer, other side of churn: <a href="../dunning-engine/">Dunning Engine</a> recovers failed cards and <a href="../cancel-flow/">Cancel Flow</a> saves voluntary cancellations. Past exports can also go through the <a href="../stripe-churn-cohort-analyzer/">Stripe Churn Cohort Analyzer</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>How is this different from Baremetrics, ChartMogul or ProfitWell?</h3>
+    <p>Those are hosted services with cohorts, forecasts, integrations and support, usually priced by revenue. MRR Pulse covers the numbers most small SaaS founders check every week (MRR, ARR, new, expansion, contraction and churned MRR, logo churn, net revenue retention, quick ratio) on a server you run with a read-only key. It has no cohort explorer, forecasting or multi-source billing.</p>
+    <h3>Can it change anything in my Stripe account?</h3>
+    <p>No. It only lists subscriptions, and it needs a restricted key with Subscriptions: read and nothing else. The tests assert that every request is a plain GET.</p>
+    <h3>Why does the first history say it is approximate?</h3>
+    <p>Stripe does not return past prices, so the first sync rebuilds the last 12 months from each subscription's start and end dates at today's price. New and churned MRR are right to within price changes; expansion and contraction only appear from the first sync onward.</p>
+    <h3>What counts as MRR?</h3>
+    <p>Active and past-due subscriptions, every price normalised to a month, percent-off coupons netted. Trials, paused subscriptions, metered usage and fixed-amount coupons are not counted.</p>
+    <h3>Where does my Stripe key live?</h3>
+    <p>In the environment of the server you deploy in your own account. The author runs nothing in between and never sees your key or your numbers.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. The figures are estimates computed from the data you give it; check them against your books before relying on them for investors, taxes or decisions. It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { subsFromCsv, sampleCsv } from "./csv.mjs";
+    import { backfill, summarize, formatMoney } from "./metrics.mjs";
+    import { mrrChart } from "./chart.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const pc = (v) => (v === null || v === undefined ? "n/a" : `${(v * 100).toFixed(1)}%`);
+    function run() {
+      const { subs, skipped, missing } = subsFromCsv($("csv").value);
+      if (missing.length) { $("out").hidden = true; $("msg").textContent = `Missing column(s): ${missing.join(", ")}. Check the header row.`; return; }
+      if (!subs.length) { $("out").hidden = true; $("msg").textContent = "No usable rows."; return; }
+      const cur = (subs.find((s) => s.currency)?.currency) || "usd";
+      const { months } = backfill(subs, Date.now(), 12);
+      const s = summarize(months), r = s.rates, M = (v) => formatMoney(v, cur);
+      $("msg").textContent = `${subs.length} subscriptions read` + (skipped.length ? `; ${skipped.length} skipped (first: line ${skipped[0].line}, ${skipped[0].why})` : "") + ".";
+      $("tiles").innerHTML = [["MRR", M(s.mrr)], ["ARR", M(s.arr)], ["Customers", s.customers], ["Logo churn " + r.basis, pc(r.logoChurn)], ["Net revenue retention", pc(r.nrr)], ["Quick ratio", r.quickRatio === null ? "n/a" : r.quickRatio.toFixed(1)]].map(([l, v]) => `<div>${esc(l)}<b>${esc(v)}</b></div>`).join("");
+      $("chart").innerHTML = mrrChart(months, cur);
+      $("rows").innerHTML = [...months].reverse().map((m) => `<tr><td>${esc(m.month)}</td><td>${esc(M(m.mrr))}</td><td>${m.customers}</td><td>+${esc(M(m.new))}</td><td>-${esc(M(m.churn))}</td><td>${esc(M(m.new + m.reactivation - m.churn))}</td></tr>`).join("");
+      $("out").hidden = false;
+      record("compute");
+    }
+    $("run").addEventListener("click", run);
+    $("sample").addEventListener("click", () => { $("csv").value = sampleCsv(); run(); record("sample"); });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>
