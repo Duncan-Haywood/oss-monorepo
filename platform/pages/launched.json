@@ -15,6 +15,7 @@
     "aca-subsidy-cliff-calculator": "2026-09-29",
     "actions-artifact-poisoning-check": "2026-09-09",
     "actions-cache-poisoning-check": "2026-09-07",
+    "actions-checkout-credentials-check": "2026-10-15",
     "actions-injection-check": "2026-09-07",
     "actions-minutes-estimator": "2026-09-11",
     "actions-permissions-check": "2026-09-07",
