@@ -1,7 +1,7 @@
 {
   "id": "P002",
   "title": "Catch duplicate venture slugs and duplicate fixes at push time",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
@@ -10,7 +10,7 @@
     "2 duplicate fix pairs both merged (#6894/#6895, #6962/#6963), 4 pairs closed unmerged, 1 venture name merged twice: prompts/process/reports/2026-10-15-addendum.md, finding 2",
     "3 same-slug venture pairs: prompts/process/reports/2026-10-15.md, finding 2"
   ],
-  "change": "A check (in platform/ci/ or session_gate.py) that, given a slug or branch, reports `ventures/<slug>` already on origin/main and open or recently merged PRs naming the slug. Call it from land-your-work before opening the PR.",
+  "change": "A check (in platform/ci/ or session_gate.py) that, given a slug or branch, reports `ventures/<slug>` already on origin/main and open or recently merged PRs naming the slug. Call it from land-your-work before opening the PR. Shipped as platform/ci/slug_dupe.py (git-only, no token), linked from land-your-work.md.",
   "touches": [
     "platform/ci/",
     "portfolio/ledger/session_gate.py",
@@ -20,7 +20,7 @@
   "baseline": "4 closed pairs + 2 merged pairs + 1 repeated name in 2026-10-01..15",
   "opened": "2026-10-15",
   "source": "prompts/process/reports/2026-10-15*.md",
-  "pr": null,
+  "pr": 7149,
   "result": null,
   "history": []
 }
