@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Spread of minimum holding force across solver settings, by bar length and criterion">
+<rect width="640" height="360" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Spread of min holding force across 8 solver settings (max/min, log)</text>
+<line x1="64" x2="624" y1="308.0" y2="308.0" stroke="#ddd"/><text x="58" y="312.0" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="205.0" y2="205.0" stroke="#ddd"/><text x="58" y="209.0" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="102.0" y2="102.0" stroke="#ddd"/><text x="58" y="106.0" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#ddd"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">400</text>
+<rect x="80.8" y="129.3" width="32.5" height="178.7" fill="#c0392b"/>
+<rect x="116.3" y="308.0" width="32.5" height="0.0" fill="#2e8b57"/>
+<rect x="151.7" y="151.7" width="32.5" height="156.3" fill="#1f6fb2"/>
+<text x="134.0" y="324" text-anchor="middle" font-family="sans-serif" font-size="11">20 mm bar</text>
+<rect x="220.8" y="40.0" width="32.5" height="268.0" fill="#c0392b"/>
+<rect x="256.3" y="285.7" width="32.5" height="22.3" fill="#2e8b57"/>
+<rect x="291.7" y="40.0" width="32.5" height="268.0" fill="#1f6fb2"/>
+<text x="274.0" y="324" text-anchor="middle" font-family="sans-serif" font-size="11">30 mm bar</text>
+<rect x="360.8" y="62.3" width="32.5" height="245.7" fill="#c0392b"/>
+<rect x="396.3" y="263.3" width="32.5" height="44.7" fill="#2e8b57"/>
+<rect x="431.7" y="62.3" width="32.5" height="245.7" fill="#1f6fb2"/>
+<text x="414.0" y="324" text-anchor="middle" font-family="sans-serif" font-size="11">40 mm bar</text>
+<rect x="500.8" y="107.0" width="32.5" height="201.0" fill="#c0392b"/>
+<rect x="536.3" y="151.7" width="32.5" height="156.3" fill="#2e8b57"/>
+<rect x="571.7" y="107.0" width="32.5" height="201.0" fill="#1f6fb2"/>
+<text x="554.0" y="324" text-anchor="middle" font-family="sans-serif" font-size="11">60 mm bar</text>
+<rect x="74" y="42" width="14" height="10" fill="#c0392b"/><text x="94" y="51" font-family="sans-serif" font-size="11">1 deg tolerance</text>
+<rect x="74" y="58" width="14" height="10" fill="#2e8b57"/><text x="94" y="67" font-family="sans-serif" font-size="11">5 deg tolerance</text>
+<rect x="74" y="74" width="14" height="10" fill="#1f6fb2"/><text x="94" y="83" font-family="sans-serif" font-size="11">rate (2 mm in 3 s)</text>
+<text x="320.0" y="348" text-anchor="middle" font-family="sans-serif" font-size="11">settings that fail even at 20 N are counted as 20 N</text>
+</svg>
