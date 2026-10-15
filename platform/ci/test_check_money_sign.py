@@ -59,6 +59,11 @@ class FindingsIn(unittest.TestCase):
             name="calc.mjs",
         )
 
+    def test_reports_the_line_number_and_text_of_the_formatter(self):
+        source = "// header\nconst money = (n) => `$${n.toFixed(2)}`;\n"
+        self.assertEqual(list(guard.findings_in(self.write("calc.mjs", source))),
+                         [(2, "const money = (n) => `$${n.toFixed(2)}`;")])
+
     def test_passes_a_magnitude_formatter_whose_caller_signs(self):
         self.assert_clean(
             "const dollars = (value) => `$${Math.round(Math.abs(value)).toLocaleString('en-US')}`;"

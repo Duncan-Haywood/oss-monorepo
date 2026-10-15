@@ -97,7 +97,8 @@ OPERATORS: tuple[Operator, ...] = (
 )
 
 SKIP_LINE = re.compile(
-    r"^\s*(//|#|\*|/\*|import\b|from\s+\S+\s+import\b|export\s*\{|\"\"\"|''')")
+    r"^\s*(//|#|\*|/\*|import\b|from\s+\S+\s+import\b|export\s*\{|\"\"\"|'''"
+    r"|if __name__ == )")
 
 
 # Docstrings and block comments, which span lines and change no behaviour.
