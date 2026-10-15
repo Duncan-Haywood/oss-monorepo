@@ -336,7 +336,9 @@ export function aliasesFor(slug) {
 const EXCLUDED_FILES = new Set([
   'VENTURE.yaml', 'robots.txt', 'README.md', 'package.json', 'package-lock.json',
 ]);
-const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', '__pycache__']);
+// `mobile` is a native (Expo / React Native) app's source, not a page: its
+// extension-less bundler imports are not static paths and nobody downloads it.
+const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', '__pycache__', 'mobile']);
 // Every dot-directory is skipped unless it is named here, and the allowlist is
 // the whole reason this is a rule rather than four more entries in the set
 // above. That set is a list of names someone had already seen, and it has now
