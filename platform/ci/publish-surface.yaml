@@ -71,6 +71,9 @@ workflows:
 - workflow: actions-cache-poisoning-check-ci.yml
   classification: none
   publishes: []
+- workflow: actions-checkout-credentials-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-injection-check-ci.yml
   classification: none
   publishes: []
@@ -392,6 +395,9 @@ workflows:
 - workflow: camt053-to-ofx-converter-ci.yml
   classification: none
   publishes: []
+- workflow: cancel-flow-ci.yml
+  classification: none
+  publishes: []
 - workflow: candle-batch-cost-calculator-ci.yml
   classification: none
   publishes: []
@@ -680,10 +686,19 @@ workflows:
 - workflow: deploy-concurrency-check-ci.yml
   classification: none
   publishes: []
+- workflow: deploy-iac-check.yml
+  classification: none
+  publishes: []
 - workflow: depop-fee-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: depreciation-recapture-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: distribute-bluesky.yml
+  classification: none
+  publishes: []
+- workflow: distribute-mastodon.yml
   classification: none
   publishes: []
 - workflow: dj-gig-profit-calculator-ci.yml
@@ -749,16 +764,7 @@ workflows:
 - workflow: dumpster-rental-margin-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: cancel-flow-ci.yml
-  classification: none
-  publishes: []
 - workflow: dunning-engine-ci.yml
-  classification: none
-  publishes: []
-- workflow: trial-converter-ci.yml
-  classification: none
-  publishes: []
-- workflow: webhook-relay-ci.yml
   classification: none
   publishes: []
 - workflow: duplicate-payment-audit-ci.yml
@@ -1352,6 +1358,9 @@ workflows:
 - workflow: license-drift-check-ci.yml
   classification: none
   publishes: []
+- workflow: license-keeper-ci.yml
+  classification: none
+  publishes: []
 - workflow: like-kind-exchange-1031-calculator-ci.yml
   classification: none
   publishes: []
@@ -1497,6 +1506,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: moving-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: mrr-pulse-ci.yml
   classification: none
   publishes: []
 - workflow: mrr-waterfall-calculator-ci.yml
@@ -1884,6 +1896,9 @@ workflows:
 - workflow: redirect-map-check-ci.yml
   classification: none
   publishes: []
+- workflow: referral-keeper-ci.yml
+  classification: none
+  publishes: []
 - workflow: referrer-permissions-policy-check-ci.yml
   classification: none
   publishes: []
@@ -1959,6 +1974,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: returns-policy-cost-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: rev-rec-ci.yml
   classification: none
   publishes: []
 - workflow: revenue-target-lead-planner-ci.yml
@@ -2067,6 +2085,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: security-headers-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: security-questionnaire-matcher-ci.yml
   classification: none
   publishes: []
 - workflow: security-txt-check-ci.yml
@@ -2375,6 +2396,9 @@ workflows:
 - workflow: terraform-plan-secret-exposure-check-ci.yml
   classification: none
   publishes: []
+- workflow: testimonial-keeper-ci.yml
+  classification: none
+  publishes: []
 - workflow: thrift-haul-buy-picker-ci.yml
   classification: none
   publishes: []
@@ -2439,6 +2463,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: trial-conversion-timing-analyzer-ci.yml
+  classification: none
+  publishes: []
+- workflow: trial-converter-ci.yml
   classification: none
   publishes: []
 - workflow: trump-account-calculator-ci.yml
@@ -2507,6 +2534,9 @@ workflows:
 - workflow: vendor-watch-ci.yml
   classification: none
   publishes: []
+- workflow: ventures-tests.yml
+  classification: none
+  publishes: []
 - workflow: vercel-bill-estimator-ci.yml
   classification: none
   publishes: []
@@ -2537,6 +2567,9 @@ workflows:
 - workflow: wage-garnishment-limit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: waitlist-keeper-ci.yml
+  classification: none
+  publishes: []
 - workflow: walk-in-shower-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -2556,6 +2589,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: waterfront-rental-season-planner-ci.yml
+  classification: none
+  publishes: []
+- workflow: webhook-relay-ci.yml
   classification: none
   publishes: []
 - workflow: wedding-budget-allocator-ci.yml
@@ -2690,6 +2726,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: security-questionnaire-matcher-ci.yml
-  classification: none
-  publishes: []

@@ -1,0 +1,59 @@
+name: ventures tests
+
+# One workflow for every venture's `node --test` suite. 421 ventures had no
+# per-venture workflow, so their tests ran only on a contributor's machine
+# (validate_workflows.py invariant 7). Rather than 421 copies, this runs the
+# suites of just the ventures a change touches. It publishes nothing,
+# registers nothing, and spends no API budget.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/**"
+      - ".github/workflows/ventures-tests.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/**"
+      - ".github/workflows/ventures-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ventures-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changed-ventures:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: node --test in each touched venture
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -u
+          if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            slugs=$(ls ventures)
+          else
+            slugs=$(git diff --name-only "$BASE" HEAD -- ventures | cut -d/ -f2 | sort -u)
+          fi
+          rc=0
+          for s in $slugs; do
+            [ -d "ventures/$s" ] || continue
+            files=$(find "ventures/$s" -name '*.test.mjs' -not -path '*/node_modules/*')
+            [ -n "$files" ] || continue
+            echo "::group::$s"
+            # shellcheck disable=SC2086
+            node --test $files || { echo "FAILED $s"; rc=1; }
+            echo "::endgroup::"
+          done
+          exit $rc
