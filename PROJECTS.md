@@ -669,7 +669,25 @@ becomes a target. Cohen (1960), kappa, for agreement between raters.
 6. `swe-prompt`: run prompt experiments on this metric. Put candidate briefs through
    `prompt.md`'s experiment process with a sequential test that can stop early safely. Report
    what each change did to valuable correct throughput, not only to the success rate.
-7. Later: the model and effort level per kind of task (a cheaper model for landing and logging,
+7. `swe-orgs`: learn from engineering organisations that ship. This is a standing,
+   long-term milestone: each run takes the next batch of sources, and the catalogue grows.
+   Study how successful software and engineering companies organise and run their engineering,
+   at every stage: early-stage, venture-backed teams (seed to Series B) first, then growth-stage
+   companies and large engineering organisations. Read engineering blogs, books, talks,
+   postmortems, papers and investor writing on engineering teams, from many companies, sectors
+   and countries, and record what each says about throughput, quality, review, release, team
+   shape, on-call and monorepos. Build a cited catalogue as a dataset: one row per practice,
+   with its source and date, the stage and size of company it comes from, the evidence behind
+   it (measured, case study or opinion), and what it claims to improve. Then map each practice
+   to this portfolio's loop (`prompt.md`, the `oss-monorepo` briefs, CI, review and landing)
+   and estimate its cost and gain on the ledger from milestone 1. A practice is proposed only
+   when its expected gain is clearly worth it: throughput must not drop much unless the upside
+   is worth more. Proposals go through `prompt.md`'s experiment process, as in milestone 6,
+   and none is adopted from a source's reputation alone. Most practices were built for teams of
+   people, so say which assumptions (headcount, meetings, hiring, salaries) do not carry over to
+   a fleet of agent sessions, and why. Each run adds sources, re-scores the open proposals and
+   updates the "Next steps".
+8. Later: the model and effort level per kind of task (a cheaper model for landing and logging,
    a stronger one for new milestones), subagents against a single agent, and how often review
    sessions should run.
 
@@ -968,6 +986,7 @@ citing one, as `prompt.md` requires.
 - Yang et al. (2024). Large Language Models as Optimizers. ICLR. <https://openreview.net/forum?id=Bb4VGOWELI>
 - Khattab et al. (2024). DSPy: Compiling Declarative Language Model Calls into State-of-the-Art Pipelines. ICLR. <https://openreview.net/forum?id=sY5N0zY5Od>
 - Strathern (1997). 'Improving ratings': audit in the British University system. *European Review* 5(3):305–321. <https://doi.org/10.1002/(SICI)1234-981X(199707)5:3<305::AID-EURO184>3.0.CO;2-4>
+- Track 10, milestone 7 (`swe-orgs`), starting sources: Brooks (1975). *The Mythical Man-Month*. Addison-Wesley. Conway (1968). How Do Committees Invent? *Datamation* 14(4):28–31. <https://www.melconway.com/Home/Committees_Paper.html>. Winters, Manshreck and Wright (2020). *Software Engineering at Google*. O'Reilly. <https://abseil.io/resources/swe-book>. Potvin and Levenberg (2016). Why Google Stores Billions of Lines of Code in a Single Repository. *Communications of the ACM* 59(7):78–87. <https://doi.org/10.1145/2854146>. Sadowski, Söderberg, Church, Sipko and Bacchelli (2018). Modern Code Review: A Case Study at Google. ICSE-SEIP. <https://doi.org/10.1145/3183519.3183525>. Beyer, Jones, Petoff and Murphy (2016). *Site Reliability Engineering*. O'Reilly. <https://sre.google/sre-book/table-of-contents/>. Skelton and Pais (2019). *Team Topologies*. IT Revolution Press. Larson (2019). *An Elegant Puzzle: Systems of Engineering Management*. Stripe Press. Reinertsen (2009). *The Principles of Product Development Flow*. Celeritas. Graham (2013). Do Things that Don't Scale. <https://paulgraham.com/ds.html>
 - Cohen (1960). A Coefficient of Agreement for Nominal Scales. *Educational and Psychological Measurement* 20(1):37–46. <https://doi.org/10.1177/001316446002000104>
 - Anthropic help centre, read 2026-10-14: Max plan <https://support.claude.com/en/articles/11049741-what-is-the-max-plan>; Claude Code with a Pro or Max plan <https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-or-max-plan>; usage limits <https://support.claude.com/en/articles/11647753-understanding-usage-and-length-limits>; Claude Code `/usage` <https://code.claude.com/docs/en/costs>. Terms: Consumer Terms <https://www.anthropic.com/legal/consumer-terms>; Usage Policy <https://www.anthropic.com/legal/aup>
 
