@@ -25,17 +25,17 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "Added READMEs to 36 ventures lacking one (docs only); landed via PR.",
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "CLAUDE.md",
-      "note": "Very long; the starvation checklist's heavy suites are overkill for a docs-only change and one timed out at 120s in the foreground."
+      "issue": "The starvation checklist's heavy suites are overkill for a docs-only change; one timed out at 120s in the foreground."
     }
   ],
   "goal": null,
-  "notes": "",
+  "notes": "Added READMEs to 36 ventures lacking one (docs only).",
   "corrections": [],
   "redteam": null
 }
