@@ -57,3 +57,10 @@ the operator.
   preselects an app.
 - The AWS path is validated structurally and against a mocked GitHub API in a
   real browser, not yet against a live AWS account.
+
+## History
+
+An earlier, GitHub-Pages-only version (`core.mjs`, which read each app's files
+from the source repository) landed from a parallel session. It is replaced by
+this one: files are embedded at build time, so it works while the source
+repository is private, and AWS is supported.
