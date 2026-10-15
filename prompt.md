@@ -26,6 +26,10 @@ runs (`review_when_due`) so parallel routines do not all start one. If an open
 pull request titled `prompts: review` already exists, another run has claimed
 that review; route again with `--skip-review`.
 
+A change to the prompt system itself that the owner asked for has no track of
+its own: route it as `--track process`, since `review` resets the review-due
+counter.
+
 About 5% of runs draw the `explore` track: free choice, Google "20% time"
 style. The agent works on whatever it finds most interesting, with its own
 approach, under the same guardrails and landing rules
