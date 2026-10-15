@@ -20,6 +20,22 @@ CONFIG=example-checks.json PING_KEY=secret ALERT_WEBHOOK_URL=... node server.mjs
 node --test
 ```
 
+## One-click deploy (your own account)
+
+Fork this repository, then open `https://render.com/deploy?repo=<your fork URL>`.
+`render.yaml` builds the `Dockerfile` here on Render's free plan in **your**
+account and generates a `PING_KEY`. Nothing runs on the author's side. After
+deploy, set in Render's environment tab:
+
+- `CHECKS_JSON`: your checks, same shape as `example-checks.json` (one line).
+- `ALERT_WEBHOOK_URL` and/or `ALERT_NTFY_URL`: where alerts go.
+
+Ping with `https://<your-service>.onrender.com/ping/<name>?key=<PING_KEY>`.
+`/healthz` is open for the host's health check. Caveat: the free plan's disk is
+ephemeral and the service sleeps when idle, so a sleeping instance misses
+alerts; use a paid plan or any always-on Docker host for real monitoring. Docker
+anywhere: `docker build -t cron-heartbeat . && docker run -p 8080:8080 -e PING_KEY=change-me -e CHECKS_JSON="$(cat example-checks.json)" cron-heartbeat`.
+
 Files: `cron.mjs` (parser, next-run, evaluate), `monitor.mjs` (alert state
 machine), `crontab.mjs` (crontab → entries/config), `server.mjs` (HTTP shell),
 `usage.mjs` (opt-out local counters).

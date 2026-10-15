@@ -22,6 +22,8 @@ Read the tables. Then make the numbers true before you trust them:
 
 - **Fill in what runs could not know.** For each record with `merged: null`,
   look up its pull request and set `merged` and `ci_failures_before_green`.
+  Skip records mirrored from the upstream research repository (their PR is
+  not in this repo): leave `merged` null and say so in the log.
   Leave a `corrections` entry for each change
   (`{"date", "field", "from", "to", "why"}`). Never change any other field of
   a past record; add a correction note instead.

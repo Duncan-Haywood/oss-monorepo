@@ -24,7 +24,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 4,
@@ -50,5 +50,13 @@
   ],
   "goal": null,
   "notes": "Added a static landing page for vendor-watch (an app venture with no public page) and cross-linked vendor-change-watch to close the orphan. Marketing+pages node suites 1293 pass/0 fail. gitops/tests: 576 pass, 26 fail all in test_worker_run.py (gh download cache tests; not touched by this change, not investigated further). PR had zero check runs, so local checklist was the verification; browser checks, run_workflow_locally and unlanded_work not run before merge.",
-  "corrections": []
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR #6994 shows merged on GitHub; ci_failures_before_green not recoverable from the PR, left as recorded"
+    }
+  ]
 }
