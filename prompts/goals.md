@@ -15,6 +15,17 @@ and one platform that runs them:
 - **Ventures** (`ventures/`): software products strangers can use for free,
   with real business potential, measured by use. The ventures sub-prompt is
   the owner's brief for them.
+
+  **The business model** (the owner, 2026-10-15): "the model I'm thinking is fully developing one click deploy actual businesses with a web page with some inputs for credentials so people can spin up their own copies of the venture. then I'm not hosting and not liable. it's someone else. but still with a donate to the creator button."
+  So a finished venture is a complete business that anyone can launch as
+  their own copy from one page: they enter their own credentials, click
+  Deploy, and run it in their own accounts. The owner hosts nothing and is
+  not the operator. Each copy keeps a "donate to the creator" link (GitHub
+  Sponsors). Credentials entered on that page go straight to the deployer's
+  own cloud or fork, never through anything the owner runs, and are never
+  stored or sent anywhere else. How to build this:
+  `PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can deploy it
+  themselves".
 - **Research** (`research/`): a research portfolio that supports PhD
   applications in ML/AI, robotics and autonomy, operations research or
   industrial engineering. Work a faculty member would take seriously:
@@ -81,6 +92,41 @@ vote manipulation, automated posting where a community forbids it, paid
 placement, or evading a platform's limits. Account creation and publishing
 under the portfolio's public name stay owner-only.
 
+## Judgment over rules
+
+Set by the owner on 2026-10-15. The owner writes rarely and does not review
+everything, so the rules, checklists and priorities in this repository get
+written mostly by agents, one session at a time. They are means to the goals
+above, never goals of their own. Use common sense:
+
+- **Do what a sensible person would do.** If following a rule to the letter
+  would produce something a sensible person would not build, such as a
+  near-duplicate product, a tool whose only job is checking another tool, or
+  a paragraph nobody will act on, don't do it. Do the sensible thing instead,
+  and name the rule in the run record's `doc_friction`.
+- **Depth over count.** Making something that exists better beats adding one
+  more near-copy of it. "Every run ships something useful" means useful to a
+  person, not one more item in a count. Before building something new, ask
+  whether a real person would choose it over what is already available for
+  free. If not, don't build it.
+- **Fewer, shorter rules.** A rule earns its place by changing what runs do,
+  not by recording what happened once. One incident does not earn a
+  permanent paragraph: fix the cause in code or a check, and put the story in
+  the commit or PR, not in `CLAUDE.md`, `AGENTS.md` or `DIRECTION.md`. State
+  a rule in a sentence or two, without its history. When you add a rule,
+  delete or merge one that no longer applies. Never paste the same rule into
+  two files: link to it.
+- **Only the owner's words are the owner's direction.** Write "the owner
+  wants", "owner direction" or "relayed from the owner" only next to a dated
+  quote of the owner's actual message. An agent's summary of intent is
+  labelled as the agent's reading. A document that says the owner wants
+  something but quotes nothing is an agent's interpretation: check it
+  against this file and the owner's brief in the track's sub-prompt.
+- **Drift is reviewed continually.** Each review run checks whether the work
+  and the documents still match what the owner actually said, and fixes what
+  has drifted (`prompts/review/`, "Drift audit"; reports in
+  `prompts/drift/`).
+
 ## Guardrails (every track, every version)
 
 - **Never fabricate.** No invented results, numbers, citations, measurements
@@ -96,6 +142,13 @@ under the portfolio's public name stay owner-only.
 - **Land what you push**
   ([`land-your-work.md`](../.github/prompts/land-your-work.md)): a run's work
   is done when it is on `main`.
+- **Payments: never the owner's.** Set by the owner on 2026-10-15: "I think
+  payment is okay I just don't want mine. if other people want to fork and
+  put their payment in it's okay with me." So a product may include payment
+  code, but it stays off by default and runs only on keys that whoever
+  deploys it supplies through environment variables. Never wire in, register
+  or hold the owner's payment, merchant, payout or bank accounts. The
+  portfolio's own instances take donations only (GitHub Sponsors).
 - **Owner-only actions stay with the owner:** moving money, registering
   accounts, publishing under the portfolio's public name, unattended
   automation that spends paid budget, and pasting secrets.
@@ -160,6 +213,10 @@ gain on a later one.
 - **Ventures:** products on `main` with a public URL, disclaimers and usage
   tracking in place, then measured use (`portfolio/usage/`). Deploying what
   exists beats building another product (`portfolio/DIRECTION.md`).
+  Depth over count: no more single-page calculators; new ventures follow the
+  owner's brief in the ventures sub-prompt (ambitious, AI/ML where it helps,
+  mobile apps, real business potential). The finish line for a venture is a
+  working one-click self-deploy page (the business model under Mission).
 - **Research:** merged projects that pass the research guardrails and a
   quality audit: the code re-runs, the README numbers match its output, and
   every citation checks out.
@@ -182,7 +239,10 @@ gain on a later one.
   (`prompts/process/reports/`). Each study follows up on the last one's
   recommendations, so the process is judged by whether they helped.
 - **Review:** each review leaves the system measurably better on the scores
-  above, or records honestly that it could not tell.
+  above, or records honestly that it could not tell. Each review also runs a
+  drift audit ("Judgment over rules" above): instruction lines go down or
+  stay flat unless the review says why, and work that has drifted from the
+  owner's words is named and corrected.
 - **Public presence (all tracks):** the share of ventures, research projects
   and public platform tools with a public web page reachable from the home
   page, per the long-term goal above.

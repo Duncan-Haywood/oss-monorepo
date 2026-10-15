@@ -2,11 +2,11 @@
   "review_every": 20,
   "review_when_due": 0.25,
   "tracks": {
-    "ventures": {"weight": 0.415, "champion": 0, "candidate": null, "candidate_share": 0},
+    "ventures": {"weight": 0.415, "champion": 1, "candidate": null, "candidate_share": 0},
     "research": {"weight": 0.415, "champion": 0, "candidate": 1, "candidate_share": 0.2},
     "process": {"weight": 0.05, "champion": 0, "candidate": null, "candidate_share": 0},
     "explore": {"weight": 0.05, "champion": 0, "candidate": null, "candidate_share": 0},
     "redteam": {"weight": 0.07, "champion": 0, "candidate": null, "candidate_share": 0},
-    "review": {"weight": 0, "champion": 0, "candidate": null, "candidate_share": 0}
+    "review": {"weight": 0, "champion": 1, "candidate": null, "candidate_share": 0}
   }
 }

@@ -126,6 +126,24 @@ Entry format:
   first window is the baseline.
 - Result: (next review)
 
+## E5: Judgment over rules, depth over count, drift audit (2026-10-15, owner-directed)
+
+- Change: `goals.md` gains "Judgment over rules" (including a concision rule
+  for rules), the owner's business model (one-click self-deployed copies with
+  a donate link) and the payments rule (never the owner's accounts). Ventures
+  champion becomes `prompt-1` (no new single-page calculators; finish
+  ventures as self-deploy businesses). Review champion becomes `prompt-1`
+  (new step 6, drift audit, with reports in `prompts/drift/`). Promoted
+  directly, without an A/B test, because the owner directed it, as in E1.
+- Why: `prompts/drift/2026-10-15.md`. 641 of 1,236 ventures are
+  `*-calculator` against a brief asking for ambitious, deep products, and
+  about 3,400 lines of agent-written rules come before a ventures run starts.
+- Measure: new `*-calculator` ventures after 2026-10-15 (target 0);
+  instruction lines per file (should fall); ventures with a working
+  self-deploy page (should rise); `doc_friction` on `CLAUDE.md` and
+  `DIRECTION.md`.
+- Result: (next review)
+
 ## Proposals for the owner
 
 Changes to `prompts/goals.md` that a review thinks are warranted, with the

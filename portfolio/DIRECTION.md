@@ -4,6 +4,14 @@
 instructions conflict, this document wins over older prose in `CLAUDE.md`, the
 ledger, or session notes that still treat policy compliance as the primary job.
 
+**Updated 2026-10-15:** `prompts/goals.md` and the ventures sub-prompt
+(`prompts/ventures/prompt-1.md`) win over this document where they differ.
+That covers the business model (one-click self-deployed copies with a donate
+link), payments (allowed on the deployer's own keys, never the owner's), and
+no new single-page calculators. Several sections below say "the owner's own
+framing, relayed" without quoting the owner. Read them as an agent's
+interpretation (`goals.md`, "Judgment over rules").
+
 Two companion documents carry the parts this one only names:
 
 - [`PRODUCT_PLAYBOOK.md`](../PRODUCT_PLAYBOOK.md) — how to actually build one of
@@ -615,6 +623,10 @@ one is no longer, by itself, a sufficient reason to call a session's job
 done.
 
 ## Revenue: donations, and keeping customers happy
+
+**Superseded in part 2026-10-15** (`prompts/goals.md`, "Payments: never the
+owner's"): the owner's own instances take donations only, but a product may
+ship payment code that is off by default and runs on the deployer's own keys.
 
 The portfolio's revenue model is, and stays, **donations only** — GitHub
 Sponsors, nothing else. No payment collection, no payout rails, no merchant
