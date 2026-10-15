@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Feedback Board — Free Self-Hosted Feature Requests, Roadmap and Changelog</title>
+  <meta name="description" content="Collect feature requests, let customers vote, catch duplicates as they type, publish a roadmap and a changelog with RSS. One small open-source server you run yourself. Free, MIT, no per-user fee. Try the duplicate finder in your browser.">
+  <meta property="og:title" content="Feedback Board — a Canny alternative you host yourself">
+  <meta property="og:description" content="Votes, duplicate detection, roadmap, changelog and RSS in one zero-dependency Node server. Your server, your data.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Feedback Board", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source, self-hosted customer feedback board with voting, duplicate detection, a public roadmap and a changelog with RSS, run on your own server with no per-user fee."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just use Canny, Featurebase, Upvoty or Headway?", "acceptedAnswer": {"@type": "Answer", "text": "Those hosted tools are polished and worth it if you want zero setup. Their plans are priced by tracked users or seats and gate the roadmap, changelog or custom domain behind higher tiers, and your customers' ideas and emails live on their platform. Feedback Board is one small Node server in your own account with ideas, votes, roadmap, changelog and RSS included, no per-user fee. If a hosted plan already does the job, keep it."}}, {"@type": "Question", "name": "How does it stop people posting the same idea twice?", "acceptedAnswer": {"@type": "Answer", "text": "While someone types a title, the board shows similar existing ideas (TF-IDF cosine similarity over stemmed words and word pairs) so they can vote instead. You can also merge duplicates later: voters are combined without double counting and the old link redirects."}}, {"@type": "Question", "name": "Do my users need accounts?", "acceptedAnswer": {"@type": "Answer", "text": "No. A visitor gets an anonymous cookie that allows one vote per idea. The server stores only a salted hash of it. The trade-off is honest: someone who clears cookies can vote again, so treat votes as a signal, not a ballot."}}, {"@type": "Question", "name": "Can I tell people when their idea ships?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. If the author left an email, marking the idea Shipped sends one email through your own Resend account. It starts in dry-run mode and sends nothing until you set DRY_RUN=false. Your changelog also has an RSS feed and an embeddable What's new link."}}, {"@type": "Question", "name": "Is it safe to run in public?", "acceptedAnswer": {"@type": "Answer", "text": "Everything is escaped on render, posting is rate limited per address with a honeypot field, admin actions need your key and refuse cross-site requests, and the server sets a strict content security policy. It has no warranty; read the disclaimer and review the code before you rely on it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2030; background: #f6f7fb; }
+    body { max-width: 920px; margin: auto; padding: 28px; }
+    a { color: #2342b8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14204f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14204f; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46506b; }
+    .card { background: #fff; border: 1px solid #dde1ec; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b5bdd6; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input[type=checkbox] { width: auto; }
+    textarea { min-height: 150px; }
+    pre { background: #eef0f8; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3e6f1; vertical-align: top; }
+    .bar { display: inline-block; height: 8px; background: #2f5de0; border-radius: 4px; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Know what customers want. Show them you listened.</h1>
+  <p>Feedback Board is the open-source server that gives your product a public place to suggest ideas and vote, a roadmap that updates when you change a status, and a changelog with an RSS feed. It runs in your own account with no per-user fee. Below, try the part that saves you the most clean-up: catching duplicate requests as people type them. Everything on this page runs in your browser, so nothing is uploaded.</p>
+
+  <section class="card" aria-labelledby="lab">
+    <h2 id="lab">Try the duplicate finder</h2>
+    <label for="existing">Existing requests (one per line)</label>
+    <textarea id="existing" spellcheck="false">Export reports to CSV
+Dark mode for the dashboard
+SAML single sign-on for teams
+Public REST API with API keys
+Slack notification when a report finishes
+Mobile app for iOS and Android
+Two-factor authentication
+Scheduled weekly email digest</textarea>
+    <label for="idea">A new request</label>
+    <input id="idea" value="download my reports as a csv file" autocomplete="off">
+    <table aria-live="polite"><thead><tr><th scope="col">Closest existing request</th><th scope="col">Match</th></tr></thead><tbody id="out"></tbody></table>
+    <p class="note">On your board, the same check runs under the title box, so the visitor sees “Already suggested?” and votes instead of posting a copy.</p>
+  </section>
+
+  <section class="card">
+    <h2>Why someone would use this</h2>
+    <table><thead><tr><th scope="col">Today</th><th scope="col">Catch</th><th scope="col">Feedback Board</th></tr></thead><tbody>
+      <tr><td>Canny, Featurebase, Upvoty, Headway</td><td>Priced by tracked users or seats; roadmap, changelog or custom domain gated by tier; your customers' ideas live with them</td><td>Your server, all of it included, no per-user fee</td></tr>
+      <tr><td>A Notion page, Trello board or spreadsheet</td><td>No voting, so the loudest voice wins; duplicates pile up</td><td>One vote per visitor, duplicates caught and merged</td></tr>
+      <tr><td>Open-source boards (Fider and others)</td><td>Good boards, but a database to run and no changelog or email on ship</td><td>One zero-dependency process, JSON state file, changelog and RSS</td></tr>
+    </tbody></table>
+    <p class="note">Honest limits: anonymous cookie votes can be gamed by clearing cookies; no SSO or per-customer revenue weighting; one board per instance.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/fp-monorepo &amp;&amp; cd fp-monorepo/ventures/feedback-board
+node --test
+ADMIN_KEY=$(openssl rand -hex 16) COMPANY_NAME=Acme node server.mjs</pre>
+    <p class="note">Open <code>http://localhost:8080</code>; the team admin is at <code>/admin</code> (any user name, <code>ADMIN_KEY</code> as the password). Add <code>&lt;script src="https://your-board/widget.js" data-target="#whats-new" defer&gt;&lt;/script&gt;</code> to show a “What's new” link in your app. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not just use Canny, Featurebase, Upvoty or Headway?</h3>
+    <p>Those hosted tools are polished and worth it if you want zero setup. Their plans are priced by tracked users or seats and gate the roadmap, changelog or custom domain behind higher tiers, and your customers' ideas and emails live on their platform. Feedback Board is one small Node server in your own account with ideas, votes, roadmap, changelog and RSS included, no per-user fee. If a hosted plan already does the job, keep it.</p>
+    <h3>How does it stop people posting the same idea twice?</h3>
+    <p>While someone types a title, the board shows similar existing ideas (TF-IDF cosine similarity over stemmed words and word pairs) so they can vote instead. You can also merge duplicates later: voters are combined without double counting and the old link redirects.</p>
+    <h3>Do my users need accounts?</h3>
+    <p>No. A visitor gets an anonymous cookie that allows one vote per idea. The server stores only a salted hash of it. The trade-off is honest: someone who clears cookies can vote again, so treat votes as a signal, not a ballot.</p>
+    <h3>Can I tell people when their idea ships?</h3>
+    <p>Yes. If the author left an email, marking the idea Shipped sends one email through your own Resend account. It starts in dry-run mode and sends nothing until you set DRY_RUN=false. Your changelog also has an RSS feed and an embeddable What's new link.</p>
+    <h3>Is it safe to run in public?</h3>
+    <p>Everything is escaped on render, posting is rate limited per address with a honeypot field, admin actions need your key and refuse cross-site requests, and the server sets a strict content security policy. It has no warranty; read the disclaimer and review the code before you rely on it.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../mrr-pulse/">MRR Pulse</a> shows MRR and churn, <a href="../license-keeper/">License Keeper</a> issues license keys, <a href="../dunning-engine/">Dunning Engine</a> recovers failed payments and <a href="../webhook-relay/">Webhook Relay</a> forwards webhooks reliably.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator of any board you run, responsible for the content people post, moderation, the privacy notice and data-protection rules where you and your users live, and your own email sending. It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { similar } from "./similar.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    let first = true;
+    const run = () => {
+      const lines = $("existing").value.split("\n").map((t) => t.trim()).filter(Boolean);
+      const r = similar($("idea").value, lines.map((text, id) => ({ id, text })), { min: 0.1, limit: 5 });
+      $("out").innerHTML = "";
+      if (!r.length) { const tr = document.createElement("tr"), td = document.createElement("td"); td.colSpan = 2; td.textContent = "No close match: this would be a new idea."; tr.append(td); $("out").append(tr); }
+      for (const m of r) {
+        const tr = document.createElement("tr"), a = document.createElement("td"), b = document.createElement("td"), bar = document.createElement("span");
+        a.textContent = lines[m.id]; bar.className = "bar"; bar.style.width = `${Math.round(m.score * 120)}px`;
+        b.append(bar, ` ${Math.round(m.score * 100)}%`); tr.append(a, b); $("out").append(tr);
+      }
+      if (!first) record("match"); first = false;
+    };
+    $("existing").addEventListener("input", run); $("idea").addEventListener("input", run); run();
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>
