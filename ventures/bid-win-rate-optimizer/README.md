@@ -25,9 +25,17 @@ the most per bid, and whether your history can answer that at all**, which used 
   tested range.
 - Back-test: fit on the first 75% in the order given, score the last 25% by log-loss against the overall win rate.
 
+## Job types
+
+Add a column named `type`, `segment`, `service` or `trade` (needs a cost column too) and the tool also fits **one shared
+price slope with a separate base win rate per job type**, so repeat customers, walk-ins and tenders are no longer
+averaged together. It reports a best markup per type with a 120-resample 80% range, and a likelihood-ratio test of
+whether the types differ at all (if not, it says one overall markup will do). Types with fewer than 10 bids are pooled
+into "Other". Each type does not get its own slope: no type alone has enough bids for that.
+
 ## Limits
 
-Correlation, not an experiment. Competitors, job type, response time, reputation and repeat customers are not
+Correlation, not an experiment (job type is modelled only if you add a type column). Competitors, response time, reputation and repeat customers are not
 modelled. Verified only against simulated bids with known curves. Statistical estimate from your data, not advice.
 
 ## Run
