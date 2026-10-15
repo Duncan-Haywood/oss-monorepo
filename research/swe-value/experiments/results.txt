@@ -1,0 +1,47 @@
+projects scored: 408; listed milestone slugs found on disk: 46
+in a family: 196
+pass A structure: 1=178, 2=184, 3=46
+pass B text: 1=96, 2=120, 3=192
+
+confusion A (rows) x B (cols)
+   1 [43, 60, 75]
+   2 [52, 49, 83]
+   3 [1, 11, 34]
+kappa A vs B (linear): 0.070  95% bootstrap 0.013 to 0.126
+kappa A vs B (none): 0.029  95% bootstrap -0.026 to 0.089
+variant A2 (no families for untracked slugs): 1=39, 2=323, 3=46; linear kappa A2 vs B: 0.252  95% bootstrap 0.187 to 0.313
+
+hand pass C (session agent, blind to A and B, n=30)
+  linear kappa A vs C: 0.098  95% bootstrap -0.369 to 0.405
+  linear kappa A2 vs C: 0.573  95% bootstrap 0.242 to 0.813
+  linear kappa B vs C: 0.449  95% bootstrap 0.236 to 0.649
+
+sensitivity of B's thresholds (hi, lo) -> linear kappa A vs B
+  hi=0.4 lo=0.2: 0.022
+  hi=0.5 lo=0.3: 0.070
+  hi=0.6 lo=0.4: 0.069
+  hi=0.7 lo=0.5: 0.058
+
+lines added (non-data files, no merges) by class
+ pass A: v=1 n=178 median=318 mean=336; v=2 n=184 median=328 mean=391; v=3 n=46 median=362 mean=477
+ pass B: v=1 n=96 median=371 mean=434; v=2 n=120 median=330 mean=366; v=3 n=192 median=318 mean=354
+
+value points per 1000 lines (ratio of sums, 95% bootstrap)
+ pass A classes (1,): 3.0  (2.8 to 3.1)  n=178
+ pass A classes (2,): 5.1  (4.6 to 5.6)  n=184
+ pass A classes (3,): 6.3  (5.1 to 7.7)  n=46
+ pass A classes (2, 3): 5.4  (4.9 to 5.9)  n=230
+ pass B classes (1,): 2.3  (2.1 to 2.6)  n=96
+ pass B classes (2,): 5.5  (4.9 to 6.1)  n=120
+ pass B classes (3,): 8.5  (7.7 to 9.2)  n=192
+ pass B classes (2, 3): 7.3  (6.8 to 7.8)  n=312
+
+family follow-ups (A=1) vs first-of-family, lines added, by family size
+  *-twin                     n=108 first=  251 later median=  312
+  garment-twon               n=11 first=  310 later median=  163
+  *-elicitation              n=10 first=  244 later median=  329
+  chip-syst                  n= 8 first=  506 later median=  598
+  simdesign-gaug             n= 8 first= 1420 later median=  608
+  *-scoring                  n= 5 first=  315 later median=  359
+  *-scores                   n= 5 first=  328 later median=  292
+  *-markets                  n= 5 first= 3162 later median=  375

@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01YRjPauw6GuwzmrZh1Pkeek",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "model": "claude-sonnet-5-5",
+  "task": "new-project",
+  "projects": [
+    "swe-value"
+  ],
+  "pr": null,
+  "merged": null,
+  "build_ok": true,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "Track 10 milestone 3. Pass A variant chosen post hoc, disclosed. Left unmerged branch claude/exciting-cori-illu8k (FUNDING.yml, no PR) alone: owner decision. Token usage not read.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

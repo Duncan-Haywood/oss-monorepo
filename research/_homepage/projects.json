@@ -1531,6 +1531,16 @@
      "summary": "A follow-up to <code>robofab-liftload</code> that replaces its pass/fail threshold with the bar&rsquo;s rotation rate. A 10&times;10&times;40&nbsp;mm bar held at one end creeps at about 3.7&nbsp;deg/s from 0.3 to 3&nbsp;N and still 2.2&nbsp;deg/s at 20&nbsp;N, so no force stops it. The rate scales with the contact time constant and drops tenfold when <code>impratio</code> goes from 1 to 10; torsional friction lowers it 2.5&ndash;3&times;. Free drops occur only at 0.1&nbsp;N. The earlier verdict reflects simulator settings, not the grasp. Stylised: one engine, boxes, assumed density and friction."
     },
     {
+     "slug": "robofab-slipcrit",
+     "title": "Does a rate-based \"holds\" criterion make a MuJoCo grasp verdict independent of solver settings?",
+     "summary": "A follow-up to <code>robofab-sliprate</code>. Judging a bar held at one end by its extrapolated creep over a 3&nbsp;s hold (under 2&nbsp;mm) instead of a rotation tolerance does not help: across eight MuJoCo contact settings the minimum holding force varies by 33&times; to 400&times; or more, about as much as under a 1&deg; tolerance. Only a loose 5&deg; tolerance is stable, and only for bars up to 40&nbsp;mm. Negative and preliminary: the settings, not the criterion, drive the verdict. Stylised, one engine, no physical grip."
+    },
+    {
+     "slug": "robofab-slipthresh",
+     "title": "Is any rate threshold settings-robust for a MuJoCo grasp \"holds\" verdict?",
+     "summary": "A follow-up to <code>robofab-slipcrit</code> that sweeps the rate criterion&rsquo;s task time (0.5&ndash;10&nbsp;s) and tip bound (1&ndash;10&nbsp;mm) over four bars and eight MuJoCo contact settings. The worst-case spread of the minimum holding force falls with the allowed tip speed: 242.7&ndash;400&times; at 2&nbsp;mm/s or less, 89.4&times; at 3.3&ndash;5&nbsp;mm/s, 20&times; at 10&nbsp;mm/s and 1.6&times; only at 20&nbsp;mm/s (0.5&nbsp;s, 10&nbsp;mm), a loose threshold; 10&nbsp;s holds fail at every bound. Robustness comes from a loose threshold, not a better criterion. Stylised and preliminary: one engine, boxes, assumed density and friction."
+    },
+    {
      "slug": "robofab-barimpratio",
      "title": "Does a stiffer friction cone make the held-bar result in robofab-liftload threshold-free?",
      "summary": "A follow-up to <code>robofab-sliprate</code>, which traced the bar&rsquo;s creep to MuJoCo&rsquo;s contact settings. Raising the <code>impratio</code> option from 1 to 1000 cuts the creep of a 10&times;10&times;40&nbsp;mm bar held at one end from 3.66 to 0.004&nbsp;deg/s, roughly as 1/<code>impratio</code>. From <code>impratio</code> 10 the minimum holding forces for 1&deg; and 5&deg; tolerances agree within 26% in all 12 cases, so the answer no longer depends on the threshold. The simulated force is below the uniform-pressure torque bracket in 10 of 12 cases (0.67&ndash;1.17&times; its lower bound) and 1.15&ndash;1.67&times; a point-contact bound built on the five contacts per pad MuJoCo reports. One engine, one bar section, no torsional friction. Stylised and preliminary."
@@ -2175,6 +2185,11 @@
      "slug": "swe-backfill",
      "title": "What does git history say about the agent loop that the run log cannot?",
      "summary": "A stdlib reader of 517 commits touching <code>research/&lt;slug&gt;/</code> (396 projects, 2026-09-28 to 2026-10-15) fills in what the run log lacks. All 157 projects created since 2026-10-13 are in the log; the 217 it never lists were made in two bulk days (09-29 and 09-30) before the log began. Half of all projects (49%) sit in follow-up families, creations arrive in bursts (median gap 4 minutes), and only 6 of 234 fully observed projects (2.6%, 95% interval 1% to 5%) have a later commit whose subject says it corrects something, a lower bound on defects, not an estimate. No tokens, cost, pull request or CI data; preliminary."
+    },
+    {
+     "slug": "swe-value",
+     "title": "Can two independent passes agree on what a portfolio project is worth?",
+     "summary": "A three-level value rubric (follow-up, new question, listed milestone) scored over all 408 <code>research/</code> projects by two automated passes, one from names and order and one from README text, plus a blind 30-project hand sample. The two automated passes agree at chance level (linear Cohen&rsquo;s kappa 0.07, 95% bootstrap 0.01 to 0.13); a flaw in the name pass (108 <code>*-twin</code> projects counted as one follow-up chain) explains part, and fixing it after the fact lifts kappa to 0.25. Against the hand sample the text pass reaches 0.45 (0.24 to 0.65) and the fixed name pass 0.57 (0.24 to 0.81), n&nbsp;=&nbsp;30, scored by the rubric&rsquo;s author. Follow-ups add about as many lines as new projects (median 318 vs 328), so by the rubric they return less per line, a ratio that is largely built in. Preliminary and negative on the automated passes; no correctness term."
     },
     {
      "slug": "swe-audit",
