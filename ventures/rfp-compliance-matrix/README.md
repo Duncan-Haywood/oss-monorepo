@@ -33,9 +33,21 @@ Tests: `node --test`.
 
 It is a deterministic first pass, not a reading of the document. A sentence can hold two obligations; requirements can sit in tables, figures or attachments you did not paste; evaluation weighting is not modelled. Check the matrix against the solicitation and every addendum.
 
+## Beyond the matrix (v2)
+
+- **Response outline.** `node cli.mjs rfp.txt --outline` (or the page button) turns the matrix into a proposal skeleton: administrative, technical, management, security, past performance, representations and price sections, each listing the requirement IDs it must answer, with a compliance-statement TODO under every requirement and the page limits and forms as a final checklist.
+- **Draft gap check.** `node cli.mjs rfp.txt --coverage draft.txt` (or "Check your draft" on the page) compares your draft response with every requirement and lists the mandatory ones it does not seem to address. It is a key-term overlap heuristic that also counts a cited `REQ-004`; it finds gaps, it cannot certify compliance.
+- **Optional AI pass.** `ANTHROPIC_API_KEY=... node cli.mjs rfp.txt --refine` splits compound sentences into atomic rows (`REQ-003.1`, `REQ-003.2`). Only the extracted requirement sentences are sent, on your own key. The model's output is never trusted: each proposed row must share most of its key terms with the source sentence or it is discarded, so a hostile solicitation cannot make the tool invent requirements. Off unless you set the key.
+- **Team service.** `node server.mjs` serves the page and a JSON API (`POST /v1/matrix`, `/v1/outline`, `/v1/coverage`; bodies `{"text": "...", "format": "json|csv|md", "refine": false}`). Set `API_KEY` to require a bearer token; `refine: true` needs both `API_KEY` and `ANTHROPIC_API_KEY` and is capped at `REFINE_PER_HOUR` (default 20), so only you can spend your key.
+- **One-click deploy.** A `Dockerfile` and `render.yaml` are included: use [`platform/deploy`](../../platform/deploy/README.md) (Render option) to create the repository in your own GitHub account and deploy it to your own Render account. Nothing runs on the author's infrastructure.
+
+### Alternatives, and why this one
+
+Loopio, Responsive (RFPIO), Qvidian and AutogenAI are seat-priced response-management suites, built around a content library and sold to large teams. A small contractor answering a few solicitations a quarter pays for none of that. They build the matrix by hand in Excel. This is free, open source, private by default, and does the three things such a team actually does on day one: shred the solicitation, scaffold the response, and check the draft for gaps.
+
 ## Roadmap (not built)
 
-Word/PDF ingestion with real section parsing, an LLM pass behind an env var to split compound requirements and draft a response outline, shared matrices for a team, and a content library. This repository ships the free, private core.
+Word/PDF ingestion with real section parsing, shared matrices with owners and statuses saved on the server, and a content library of past answers mapped to requirements.
 
 ## Privacy and usage
 
