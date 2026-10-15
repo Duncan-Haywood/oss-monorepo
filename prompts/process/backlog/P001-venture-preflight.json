@@ -1,7 +1,7 @@
 {
   "id": "P001",
   "title": "One preflight command for a new venture's site-wide invariants",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
@@ -22,5 +22,10 @@
   "source": "prompts/process/reports/2026-10-15*.md",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-10-15",
+      "note": "Added platform/pages/venture-preflight.mjs (launched.json, build+check.mjs, regen --verify); first run found meter-keeper undated on main, fixed."
+    }
+  ]
 }
