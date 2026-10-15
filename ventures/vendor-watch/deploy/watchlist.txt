@@ -1,0 +1,5 @@
+# One public URL per line. Only list pages you are authorized to monitor.
+# Lines starting with # are ignored. Uncomment and edit, e.g.:
+# https://vendor.example/terms
+# https://vendor.example/privacy
+# https://vendor.example/subprocessors

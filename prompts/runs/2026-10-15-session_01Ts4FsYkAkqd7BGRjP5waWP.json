@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01Ts4FsYkAkqd7BGRjP5waWP",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "usage": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "osrobot-morph"
+  ],
+  "pr": null,
+  "commits": [
+    "a0cb3efc4dd2dc2480c12e8c60f233d84ec0c20d"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 8,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "Result is small and within seed noise, reported as such. Session metadata unavailable, so usage fields are null. Branch queue: older claude/* branches have unrelated history after main was rewritten; recent ones are all merged.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

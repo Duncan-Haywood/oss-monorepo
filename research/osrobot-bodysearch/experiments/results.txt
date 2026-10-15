@@ -1,0 +1,17 @@
+cost budget = 192 (the fixed body: 3 equal links of 0.2 m); 300 evaluations per search, 10 seeds
+train: 16 targets (seed 100+s); test: 60 held-out targets (seed 900). success = held-out fraction reached within 3 mm,
+(shelf task: and tool within 15 deg of down), joint limits and static torque limits respected.
+
+=== task: shelf ===
+fixed body, default controller: success 0.267  iters 31.0  cost 192
+ctrl_only: success mean 0.260 (min 0.233, max 0.283)  iters 31.8  cost 192  joints [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+ctrl_base: success mean 0.495 (min 0.483, max 0.500)  iters 22.6  cost 192  joints [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+   random: success mean 0.947 (min 0.850, max 1.000)  iters 7.9  cost 191  joints [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+      evo: success mean 0.875 (min 0.500, max 1.000)  iters 9.2  cost 190  joints [3, 3, 3, 3, 3, 3, 3, 3, 4, 4]
+
+=== task: far ===
+fixed body, default controller: success 1.000  iters 4.8  cost 192
+ctrl_only: success mean 1.000 (min 1.000, max 1.000)  iters 4.2  cost 192  joints [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+ctrl_base: success mean 0.993 (min 0.933, max 1.000)  iters 4.6  cost 192  joints [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+   random: success mean 1.000 (min 1.000, max 1.000)  iters 4.7  cost 191  joints [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+      evo: success mean 0.975 (min 0.833, max 1.000)  iters 5.7  cost 176  joints [2, 2, 3, 3, 3, 3, 3, 3, 3, 3]

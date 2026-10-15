@@ -1529,6 +1529,11 @@
      "slug": "robofab-sliprate",
      "title": "Is the off-centre bar result in robofab-liftload a grasp effect or solver creep?",
      "summary": "A follow-up to <code>robofab-liftload</code> that replaces its pass/fail threshold with the bar&rsquo;s rotation rate. A 10&times;10&times;40&nbsp;mm bar held at one end creeps at about 3.7&nbsp;deg/s from 0.3 to 3&nbsp;N and still 2.2&nbsp;deg/s at 20&nbsp;N, so no force stops it. The rate scales with the contact time constant and drops tenfold when <code>impratio</code> goes from 1 to 10; torsional friction lowers it 2.5&ndash;3&times;. Free drops occur only at 0.1&nbsp;N. The earlier verdict reflects simulator settings, not the grasp. Stylised: one engine, boxes, assumed density and friction."
+    },
+    {
+     "slug": "robofab-barimpratio",
+     "title": "Does a stiffer friction cone make the held-bar result in robofab-liftload threshold-free?",
+     "summary": "A follow-up to <code>robofab-sliprate</code>, which traced the bar&rsquo;s creep to MuJoCo&rsquo;s contact settings. Raising the <code>impratio</code> option from 1 to 1000 cuts the creep of a 10&times;10&times;40&nbsp;mm bar held at one end from 3.66 to 0.004&nbsp;deg/s, roughly as 1/<code>impratio</code>. From <code>impratio</code> 10 the minimum holding forces for 1&deg; and 5&deg; tolerances agree within 26% in all 12 cases, so the answer no longer depends on the threshold. The simulated force is below the uniform-pressure torque bracket in 10 of 12 cases (0.67&ndash;1.17&times; its lower bound) and 1.15&ndash;1.67&times; a point-contact bound built on the five contacts per pad MuJoCo reports. One engine, one bar section, no torsional friction. Stylised and preliminary."
     }
    ]
   },
@@ -1571,6 +1576,11 @@
      "slug": "ambient-misread",
      "title": "How accurate must an always-on assistant's urgency label be before acting on it beats ignoring it?",
      "summary": "In the stylised urgency model, perfect urgency knowledge is worth 0.034 utility per message. Acting naively on a noisy label stops being worse than ignoring it at about 70% accuracy with uniform errors (about 53% if errors only hit neighbouring classes), and at 70% it loses in 18 of 48 contexts. A Bayesian reading of the label never loses to ignoring it when the prior and confusion matrix are known, but a prior that over-weights high urgency drops it below ignoring the label. Every parameter is a round figure of mine: nothing is fitted or measured."
+    },
+    {
+     "slug": "ambient-confest",
+     "title": "How many audited messages does an always-on assistant need before it can trust a noisy urgency label?",
+     "summary": "Extending the stylised urgency-label model, the assistant estimates the label&rsquo;s class mix and confusion matrix from n audited messages and then acts by Bayes&rsquo; rule. With maximum-likelihood estimates, n&nbsp;=&nbsp;10 is worse than ignoring the label (mean utility 0.363 against 0.382 at 70% label accuracy); n&nbsp;=&nbsp;50 recovers 76% of the gain of knowing the true parameters and n&nbsp;=&nbsp;200 recovers 92%. Add-one smoothing cuts the spread at tiny n but costs a little at high accuracy. Stylised: round-number utilities, uniform label errors, noise-free audit labels."
     },
     {
      "slug": "ambient-bandit",
@@ -1994,6 +2004,11 @@
      "summary": "A stylised, preliminary follow-up to <em>garment-twonodemet</em>. A skin-temperature gate band is tuned by exhaustive grid search on rest-to-walk and walk-to-rest steps in 22, 24 and 26&nbsp;C rooms, then scored unchanged on held-out rooms (23, 25, 20 and 28&nbsp;C). The tuned band (a narrow 33.6&ndash;33.7&nbsp;C) beats the untuned 33.2&ndash;34.2&nbsp;C band and both fixed states on both held-out sets under both choice sets, by 0.01 to 0.06&nbsp;C against the untuned band. It also beats the four-schedule oracle on training scenarios, because the oracle is restricted, and it chatters (up to 24 switches in 180&nbsp;min) with instant, free switching, so the gain may not survive actuation lag or cost. Six training and eight held-out scenarios from one model; no real fabric or person."
     },
     {
+     "slug": "garment-twonodelag",
+     "title": "Does a tuned infrared-gating thermostat survive an actuation lag and a cost per switch?",
+     "summary": "A stylised, preliminary follow-up to <em>garment-twonodeheld</em>. The skin-temperature gate band is retuned by exhaustive grid search for each actuation lag (0, 2, 5, 10&nbsp;min) and each cost per switch (0, 0.01, 0.03&nbsp;C), then scored on held-out rooms. A 10&nbsp;min lag cuts the tuned gate&rsquo;s gain over never switching from 0.23 to 0.15&nbsp;C (&ldquo;between&rdquo; rooms, this repository&rsquo;s choice set). A switch penalty widens the band and removes the chatter. The tuned band is not always better: under the reference choice set it loses to the untuned band by up to 0.035&nbsp;C in 3 of 24 cells, and once to never switching (0.052&nbsp;C). Six training and eight held-out scenarios, assumed lags and penalties, one model; no real fabric or person."
+    },
+    {
      "slug": "garment-twonodeopt",
      "title": "How far is the thermostat-driven infrared-gating textile from the best possible switching schedule when the room temperature steps?",
      "summary": "A stylised, preliminary follow-up to <em>garment-twonodestep</em>. Exhaustive search over open/closed schedules (at most 3 toggles on a 10&nbsp;min grid, instant actuation) in the switchable two-node model, scored by mean |skin temperature &minus; 33.7&nbsp;C| (a proxy, not a comfort index). One toggle is enough (more improve the score by at most 0.001&nbsp;C). The best toggle is not always at the step: it is early or late after a step down. The gate is within 0.02&nbsp;C of the optimum after a step up but 0.06&ndash;0.11&nbsp;C away after a step down (0.18 with 10&nbsp;min lag in one case). One person, two assumed transmittances, a coarse grid; not a claim about any real garment."
@@ -2084,6 +2099,16 @@
      "slug": "accel-codesign",
      "title": "Under a latency deadline, how much engine area does picking the most accurate model first cost, compared with choosing model and lane count together?",
      "summary": "Exhaustive joint search over the 40 measured <em>accel-kws</em> keyword-spotting models and six MAC lane counts (240 designs), against a model-first flow, at deadlines of 2,000&ndash;20,000 cycles. The most accurate model (validation 0.775, test 0.752) needs 16 lanes at 2,000 cycles and 7,667 generic cells; accepting 2 validation points less (test 0.738) cuts area by 31&ndash;42%, and 3 points by 35&ndash;56%. Stylised and only partly the milestone: models are a fixed measured table (the dataset was unreachable), cycles for more than one lane are analytic and not RTL-simulated, memory bandwidth is not counted, area is generic gates, and no NSGA-II or Bayesian search was run (the space is small enough to enumerate)."
+    },
+    {
+     "slug": "accel-dataflow",
+     "title": "Which dataflow should a small keyword-spotting accelerator use, and does the answer survive allowing an input buffer?",
+     "summary": "Four dataflows (output-, weight-, input-stationary and reduction-tree) of a <em>P</em>-lane MAC array, as schedules walked cycle by cycle on the 40 <em>accel-kws</em> models, with SRAM-access counts that match closed forms exactly and, at <em>P</em>&nbsp;=&nbsp;1, the measured RTL cycles of <em>accel-kws</em>. At batch 1 output-stationary is best (input-stationary is a median 1.2&times; to 4.1&times; worse, falling with lanes); at batch 4 it wins every model while weight-stationary is a median 4.5&ndash;9.0&times; worse through partial-sum traffic. Allowing an activation buffer flips the batch-4 winner to the input-mapped flows at 32 lanes (1.37&times; better), so the ranking rests on a modelling choice. Stylised: assumed energy constants, a one-cycle register model, no RTL beyond one lane, Timeloop not tried."
+    },
+    {
+     "slug": "accel-policy",
+     "title": "Does a small control network need an accelerator to meet the control-rate deadline?",
+     "summary": "Small MLP policies, cloned from a computed-torque controller for a two-link arm with DAgger and quantised to 8 and 4 bits, with inference latency modelled for microcontroller loops and <em>P</em>-lane accelerators (assumed constants) and the closed loop simulated with that latency. <strong>Preliminary and mostly negative:</strong> the int8 policies track at least 300&times; worse than the teacher, which itself barely notices a sample of delay, so policy accuracy rather than hardware speed limits control; the deadline model says hardware only matters above about 10&nbsp;kHz or for larger networks. Stylised; hardware figures are not measured."
     }
    ]
   },
@@ -2096,6 +2121,50 @@
      "slug": "eda-harness",
      "title": "Can one harness check, score, cache and log candidate chip designs for any proposer?",
      "summary": "A loop that takes a parameterised generator and a search space and runs each candidate through lint, bit- and cycle-exact RTL simulation, a gate-netlist simulation check and Yosys synthesis, caching by design hash and logging every evaluation as JSON. On <em>chip-accel</em>&rsquo;s MAC engine (40 designs) all candidates pass; synthesis and the gate-level check take 99% of the 424&nbsp;s of wall time and RTL simulation under 1%. The Pareto front matches <em>chip-accel</em>&rsquo;s. Stylised: one design family, generic-gate counts, simulation-based (not formal) equivalence, no place and route."
+    },
+    {
+     "slug": "eda-proposers",
+     "title": "Which search method finds a chip design's Pareto front with the fewest evaluations?",
+     "summary": "Random search, a grid, simulated annealing, a genetic algorithm, NSGA-II and a TPE-style Bayesian method are compared at equal evaluation budgets on an 80-design space (MAC lanes &times; bit width &times; ABC script) of a toy quantised-MLP accelerator, using Pareto hypervolume over 100 seeds. TPE reaches 0.917 of the true-front hypervolume at 16 evaluations against 0.891 for random, and 0.980 against 0.943 at 30; annealing trails random throughout. Stylised: the space is tiny (random search at 40 evaluations already scores 0.965), hyperparameters are untuned, objectives are generic-gate counts, and nothing is said about real chips."
+    }
+   ]
+  },
+  {
+   "id": "osrobot",
+   "name": "Open-source purpose-built robots",
+   "blurb": "Robots built for one job and designed from the task outward: when a specialised body beats a general-purpose arm, on cost, speed and reliability.",
+   "projects": [
+    {
+     "slug": "osrobot-specialise",
+     "title": "When does a purpose-built gantry beat a general two-link arm at tray pick-and-place?",
+     "summary": "A stdlib model compares an XY gantry with an equal-link planar arm over a square work area, on cost per good pick per hour. At 2&nbsp;mm tolerance the gantry wins up to 0.35&nbsp;m and above about 1.0&nbsp;m; the arm wins between 0.36 and 0.99&nbsp;m. Tolerance below 1&nbsp;mm removes the arm&rsquo;s band, and the band depends heavily on the assumed cost coefficients (halving the gantry&rsquo;s removes it). Stylised: every cost, mass, speed and accuracy figure is assumed, and only one task is modelled."
+    },
+    {
+     "slug": "osrobot-morph",
+     "title": "Does co-designing an arm's link lengths and controller beat tuning the controller on a fixed body?",
+     "summary": "A stdlib planar two-link arm model searches the split of a fixed 0.50&nbsp;m reach together with PD gains, against an equal-link body with tuned gains, at equal search budget. The tray is reachable only for splits of 0.40 to 0.60. Co-design gained 1.9% in held-out move time (0.283 against 0.289&nbsp;s), within three-seed noise, while tuning the controller cut hand-set gains' 0.460&nbsp;s by about 37%. Stylised, preliminary and mostly negative: one body parameter and an assumed torque limit."
+    },
+    {
+     "slug": "osrobot-bodysearch",
+     "title": "Does searching an arm&rsquo;s joint count, link lengths and mount, with its controller tuned in the loop, beat a fixed three-link body at the same cost?",
+     "summary": "A stdlib model searches link lengths, joint count and mount position of a planar arm, with its inverse-kinematics controller tuned in the loop, against a fixed three-link body at an equal cost budget (300 evaluations, 10 seeds, held-out targets). On a shelf task that needs the tool pointing down, the search reaches 0.95 success against 0.26 for the fixed body with a tuned controller and 0.50 with the mount also tuned; on a long position-only reach the fixed body already succeeds and the search adds nothing. Random search beat a (1+4) evolution strategy here, weakly. Stylised: kinematics and static torque only (no MuJoCo dynamics), and every cost, mass and limit is assumed."
+    }
+   ]
+  },
+  {
+   "id": "swe",
+   "name": "The software-engineering loop",
+   "blurb": "Measuring and optimising the agent loop that builds this portfolio: what the run log records, what a run costs, and which work is worth the budget.",
+   "projects": [
+    {
+     "slug": "swe-ledger",
+     "title": "What can the run log measure about the agent loop today?",
+     "summary": "A stdlib reader of a snapshot of <code>prompts/runs.jsonl</code> (189 runs, 184 listed projects) reports coverage and throughput proxies. Token, cost and tool-call fields are present in at most 1% of runs and wall time is derivable for only 15, so no cost-per-project figure is possible yet. About a third of listed projects sit in follow-up families of three or more, and 24 slugs appear in more than one run. All 143 recorded CI-failure counts are zero, which looks like a success-only field, not a clean record. Preliminary: first step of the ledger milestone; no git-history backfill, no value or correctness scoring."
+    },
+    {
+     "slug": "swe-backfill",
+     "title": "What does git history say about the agent loop that the run log cannot?",
+     "summary": "A stdlib reader of 517 commits touching <code>research/&lt;slug&gt;/</code> (396 projects, 2026-09-28 to 2026-10-15) fills in what the run log lacks. All 157 projects created since 2026-10-13 are in the log; the 217 it never lists were made in two bulk days (09-29 and 09-30) before the log began. Half of all projects (49%) sit in follow-up families, creations arrive in bursts (median gap 4 minutes), and only 6 of 234 fully observed projects (2.6%, 95% interval 1% to 5%) have a later commit whose subject says it corrects something, a lower bound on defects, not an estimate. No tokens, cost, pull request or CI data; preliminary."
     }
    ]
   }
