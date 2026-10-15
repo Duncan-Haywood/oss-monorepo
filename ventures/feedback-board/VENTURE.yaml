@@ -1,0 +1,60 @@
+name: feedback-board
+description: >-
+  Self-hosted customer feedback board: ideas with voting, duplicate detection as
+  people type, merge, a public roadmap, a changelog with RSS and an embeddable
+  What's new link, and a ship-notification email. Zero-dependency Node server,
+  browser demo of the duplicate finder, one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and proven: Canny, Featurebase,
+# Upvoty, Headway/Beamer and Productboard Portal charge from roughly $20 to
+# $400 a month, scaled by tracked users or seats, and gate roadmap, changelog
+# and custom domains behind tiers. Open-source Fider covers the board but not
+# the changelog or ship email. Fourth product for the SaaS-founder buyer of
+# mrr-pulse, license-keeper, dunning-engine and cancel-flow: those measure and
+# protect revenue, this one tells the founder what to build and tells
+# customers it shipped. duplicate_check: no feedback, roadmap or changelog
+# venture exists in ventures/ (grep of names on 2026-10-15).
+#
+# First visitor: indie SaaS founders and small product teams on Indie Hackers,
+# r/SaaS, Hacker News asking "canny alternative", "self hosted feature request
+# board", "open source changelog". Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup, a hosted copy under the deployer's own name, or GitHub
+# Sponsors are the paid steps; hosting under the public name is owner-gated.
+
+hypotheses:
+  - claim: >-
+      Small SaaS teams will try the browser duplicate finder on their own
+      request list and then deploy the server, because hosted boards price by
+      tracked users and the free ones lack a changelog and ship email.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Warning visitors about similar ideas as they type measurably cuts
+      duplicate posts, so teams keep the board instead of abandoning it to a
+      spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a script injection, a vote counted twice for one visitor, or an admin action accepted without the key; escaping, vote and auth paths come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/feedback-board/
+  analytics: null

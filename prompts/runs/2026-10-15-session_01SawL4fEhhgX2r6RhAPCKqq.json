@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01SawL4fEhhgX2r6RhAPCKqq",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": null,
+  "model": "claude-sonnet-5-5",
+  "task": "new",
+  "projects": [
+    "mimic-contexts"
+  ],
+  "pr": 547,
+  "commits": [],
+  "merged": null,
+  "build_ok": true,
+  "tests_added": 10,
+  "outcome": "success",
+  "notes": "Track 11 milestone 1 (routed from oss-monorepo research track). RAID suite via range requests, n-gram and Binoculars-style detectors. Usage metadata not read. Mirror-sync was claimed by oss-monorepo PR 7084.",
+  "track": "research",
+  "doc_friction": [],
+  "errors": [],
+  "integrity_issues": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

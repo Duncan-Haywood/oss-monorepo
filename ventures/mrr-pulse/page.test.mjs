@@ -72,3 +72,11 @@ test("planTable escapes plan names, shows shares, hides customer ids, warns on c
   assert.match(html, /100\.0%/); assert.match(html, /above 20%/);
   assert.equal(planTable(null, "usd"), "");
 });
+
+import { forecastTable } from "./page.mjs";
+test("forecast table prints every scenario and escapes labels", () => {
+  assert.equal(forecastTable(null, "usd"), "");
+  const h = forecastTable({ basis: ["<b>"], months: ["2027-01"], low: [90000], base: [100000], high: [110000] }, "usd");
+  assert.match(h, /\$900/); assert.match(h, /\$1,000/); assert.match(h, /\$1,100/);
+  assert.ok(!h.includes("<b>"));
+});

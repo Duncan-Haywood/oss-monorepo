@@ -125,3 +125,30 @@ test("breakdown: plan totals equal headline MRR and concentration is by customer
   assert.equal(breakdown(subs, { countPastDue: false }).total, 7000);
   assert.equal(breakdown([]).plans.length, 0);
 });
+
+import { forecast } from "./metrics.mjs";
+const mo = (month, startMrr, o = {}) => ({ month, startMrr, mrr: startMrr, new: 0, reactivation: 0, expansion: 0, contraction: 0, churn: 0, ...o });
+
+test("forecast needs two complete months with revenue", () => {
+  assert.equal(forecast([mo("2026-01", 1000)]), null);
+  assert.equal(forecast([mo("2026-01", 1000), mo("2026-02", 1000)]), null);
+  assert.equal(forecast([mo("2026-01", 0), mo("2026-02", 0), mo("2026-03", 1000)]), null);
+});
+
+test("forecast rolls MRR forward; low <= base <= high; months continue the calendar", () => {
+  const ms = [mo("2026-10", 1000, { new: 100, churn: 50 }), mo("2026-11", 1050, { new: 200, churn: 100, expansion: 50 }), mo("2026-12", 1200, { mrr: 1300 })];
+  const f = forecast(ms, { horizon: 3 });
+  assert.deepEqual(f.months, ["2027-01", "2027-02", "2027-03"]);
+  assert.deepEqual(f.basis, ["2026-10", "2026-11"]);
+  assert.equal(f.startMrr, 1300);
+  for (let i = 0; i < 3; i++) { assert.ok(f.low[i] <= f.base[i]); assert.ok(f.base[i] <= f.high[i]); }
+  // base: adds avg 150, loss avg (0.05+0.0952)/2, exp avg (0+0.0476)/2
+  const loss = (50 / 1000 + 100 / 1050) / 2, exp = (50 / 1050) / 2;
+  assert.equal(f.base[0], Math.round(1300 * (1 + exp - loss) + 150));
+});
+
+test("forecast never goes below zero", () => {
+  const ms = [mo("2026-01", 1000, { churn: 900 }), mo("2026-02", 100, { churn: 100 }), mo("2026-03", 0, { mrr: 10 })];
+  const f = forecast(ms, { horizon: 12 });
+  assert.ok(f.low.every((v) => v >= 0));
+});

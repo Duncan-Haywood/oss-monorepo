@@ -181,3 +181,35 @@ export function breakdown(subs, { countPastDue = true, top = 5 } = {}) {
   const share = (n) => (total ? ranked.slice(0, n).reduce((a, [, v]) => a + v, 0) / total : 0);
   return { total, plans: byPlan, concentration: { customers: ranked.length, top1: share(1), top5: share(top), topN: top, largest: ranked[0]?.[1] || 0 } };
 }
+
+// Run-rate projection, not a prediction. Takes up to the last `window`
+// complete months (the current month is only partly observed), turns each
+// into monthly rates (churn, contraction and expansion as a share of starting
+// MRR; new + reactivation as an amount), and rolls MRR forward `horizon`
+// months. "base" uses the averages, "low" the worst month's rates, "high" the
+// best month's. Returns null with fewer than two usable complete months.
+export function forecast(months, { horizon = 6, window = 3 } = {}) {
+  if (months.length < 2) return null;
+  const cur = months[months.length - 1];
+  const usable = months.slice(0, -1).filter((m) => m.startMrr > 0).slice(-window);
+  if (usable.length < 2) return null;
+  const rows = usable.map((m) => ({
+    adds: m.new + m.reactivation,
+    loss: (m.churn + m.contraction) / m.startMrr,
+    exp: m.expansion / m.startMrr,
+  }));
+  const avg = (k) => rows.reduce((a, r) => a + r[k], 0) / rows.length;
+  const scenarios = {
+    base: { adds: avg("adds"), loss: avg("loss"), exp: avg("exp") },
+    low: { adds: Math.min(...rows.map((r) => r.adds)), loss: Math.max(...rows.map((r) => r.loss)), exp: Math.min(...rows.map((r) => r.exp)) },
+    high: { adds: Math.max(...rows.map((r) => r.adds)), loss: Math.min(...rows.map((r) => r.loss)), exp: Math.max(...rows.map((r) => r.exp)) },
+  };
+  const [y, mo] = cur.month.split("-").map(Number);
+  const labels = Array.from({ length: horizon }, (_, i) => new Date(Date.UTC(y, mo - 1 + i + 1, 1)).toISOString().slice(0, 7));
+  const out = { basis: usable.map((m) => m.month), startMrr: cur.mrr, months: labels };
+  for (const [name, s] of Object.entries(scenarios)) {
+    let mrr = cur.mrr;
+    out[name] = labels.map(() => (mrr = Math.max(0, Math.round(mrr * (1 + s.exp - s.loss) + s.adds))));
+  }
+  return out;
+}

@@ -22,8 +22,8 @@ Two parts, both free and MIT:
 | Baremetrics, ChartMogul, ProfitWell Metrics | Hosted; priced by revenue; your customer data lives with them | Your server, a read-only key, no fee |
 | A spreadsheet fed by exports | Free, rebuilt by hand monthly; interval and quantity maths go wrong | Normalised the same way every sync |
 
-Honest limits: no forecasting, multi-currency roll-up, or
-non-Stripe billing. It does not tell you what your churn *should* be.
+Honest limits: only a simple run-rate projection (no seasonality or pipeline),
+no multi-currency roll-up, no non-Stripe billing. It does not tell you what your churn *should* be.
 
 ## What it counts
 
@@ -51,6 +51,10 @@ non-Stripe billing. It does not tell you what your churn *should* be.
   seat add-ons are their own line), plus the share held by the largest and
   top five customers. Plan totals equal the headline MRR. Customer ids are
   never shown.
+- **Run-rate projection** (dashboard and `/v1/forecast?months=6`): rolls MRR
+  forward using the last three complete months' pace. Base = average, low =
+  worst month, high = best month. Needs two complete months; arithmetic on
+  the past, not a prediction.
 - One currency per instance (`CURRENCY`, default: your most common); other
   subscriptions are left out and the dashboard says how many.
 
@@ -65,7 +69,7 @@ COMPANY_NAME=Acme node server.mjs
 
 Open `http://localhost:8080` and sign in with any user name and `ADMIN_KEY` as
 the password. API (same key as `Authorization: Bearer ...`): `GET /v1/metrics`,
-`GET /v1/months`, `GET /v1/cohorts`, `GET /v1/plans`, `POST /v1/sync`.
+`GET /v1/months`, `GET /v1/cohorts`, `GET /v1/plans`, `GET /v1/forecast`, `POST /v1/sync`.
 
 Stripe key: Dashboard, Developers, API keys, **Create restricted key**, set
 *Subscriptions* to **Read** and everything else to None. The server only ever
