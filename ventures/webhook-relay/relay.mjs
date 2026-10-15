@@ -34,7 +34,7 @@ export function parseRetryAfter(value, nowMs) {
 // carry one, so a provider-side retry of an event we already hold is absorbed.
 export function idempotencyKey(route, headers, bodyText) {
   const h = (n) => headers[n];
-  const id = h("webhook-id") || h("x-github-delivery") || h("x-shopify-webhook-id") || h("idempotency-key") || h("x-idempotency-key");
+  const id = h("webhook-id") || h("x-github-delivery") || h("x-shopify-webhook-id") || h("x-gitlab-event-uuid") || h("x-wc-webhook-delivery-id") || h("linear-delivery") || h("idempotency-key") || h("x-idempotency-key");
   if (id) return `${route}:${id}`;
   try {
     const j = JSON.parse(bodyText);

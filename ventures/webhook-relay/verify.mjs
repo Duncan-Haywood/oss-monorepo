@@ -11,7 +11,7 @@ const fail = (reason) => ({ ok: false, reason });
 const OK = { ok: true };
 const TOLERANCE_SEC = 300;
 
-export const SCHEMES = ["none", "stripe", "github", "shopify", "slack", "paddle", "typeform", "standard", "hmac-sha256"];
+export const SCHEMES = ["none", "stripe", "github", "shopify", "slack", "paddle", "typeform", "gitlab", "woocommerce", "linear", "standard", "hmac-sha256"];
 
 export function verify(scheme, { headers, body, secret, nowSec = Math.floor(Date.now() / 1000), header }) {
   if (scheme === "none") return OK;
@@ -51,6 +51,23 @@ export function verify(scheme, { headers, body, secret, nowSec = Math.floor(Date
     case "typeform": { // "sha256=<base64 HMAC of the raw body>"; Typeform sends no timestamp
       const got = headers["typeform-signature"] || "";
       return eq(got, `sha256=${hmac(secret, body, "base64")}`) ? OK : fail(got ? "signature mismatch" : "missing typeform-signature");
+    }
+    case "gitlab": { // X-Gitlab-Token is the shared secret itself, compared in constant time
+      const got = headers["x-gitlab-token"] || "";
+      return eq(got, secret) ? OK : fail(got ? "token mismatch" : "missing x-gitlab-token");
+    }
+    case "woocommerce": { // base64 HMAC of the raw body
+      const got = headers["x-wc-webhook-signature"] || "";
+      return eq(got, hmac(secret, body, "base64")) ? OK : fail(got ? "signature mismatch" : "missing x-wc-webhook-signature");
+    }
+    case "linear": { // hex HMAC of the body; replay window from `webhookTimestamp` (ms) inside the body
+      const got = headers["linear-signature"] || "";
+      if (!got) return fail("missing linear-signature");
+      if (!eq(got, hmac(secret, body, "hex"))) return fail("signature mismatch");
+      let ts;
+      try { ts = Number(JSON.parse(body.toString("utf8")).webhookTimestamp); } catch { return fail("body is not JSON"); }
+      if (!Number.isFinite(ts)) return fail("missing webhookTimestamp");
+      return Math.abs(nowSec * 1000 - ts) > TOLERANCE_SEC * 1000 ? fail("timestamp outside tolerance") : OK;
     }
     case "standard": { // standardwebhooks.com: Svix, Resend, Clerk, ...
       const id = headers["webhook-id"], ts = headers["webhook-timestamp"], sigHeader = headers["webhook-signature"];
