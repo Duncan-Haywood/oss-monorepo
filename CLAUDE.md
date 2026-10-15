@@ -243,6 +243,9 @@ What the lines are for, and the traps in running them:
   `apt-get update && apt-get install -y --no-install-recommends nginx-light openssh-client`,
   then `python3 platform/ci/guard_state.py --require-runnable` lists what
   still skips and why. A skip is a green that means nothing ran.
+- **Long suites**: the `platform/pages`, `marketing` and `deploy` node suites
+  can run past the 10-minute tool limit in one call. Start each with
+  `run_in_background` and read the result when it finishes; do not chain them.
 - **`platform/ci` suites** import by bare module name, so run them from
   inside that directory as the line does. `python3 -m pytest platform/ci`
   from the root fails collection.
