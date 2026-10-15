@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
-import { handler, parseMultipart } from "./server.mjs";
+import { handler, parseMultipart, parseAgentKeys } from "./server.mjs";
 import { newState, createMailbox } from "./desk.mjs";
 
 const KEY = "k".repeat(16);
@@ -94,6 +94,26 @@ test("dry run sends nothing but still stores the reply", async () => {
   await json(`${s.base}/in/${s.mb.inboundToken}`, { from: "ann@x.com", subject: "Q", text: "x", messageId: "<1>" });
   await form(`${s.base}/admin/t/1/reply`, { text: "hi" }, auth);
   assert.equal(s.sent.length, 0); assert.equal(s.state.tickets.t1.messages.length, 2);
+  s.close();
+});
+
+test("personal agent keys sign replies and notes, claim unassigned tickets, and the shared key still works", async () => {
+  const AL = "alice-key-1234567", BO = "bob-key-7654321";
+  const s = await boot({ cfg: { agents: parseAgentKeys(`alice:${AL}, bob:${BO},bad:short,agent:${"z".repeat(14)}`) } });
+  assert.deepEqual(Object.keys(parseAgentKeys(`alice:${AL},bob:${BO},bad:short,agent:${"z".repeat(14)}`)), ["alice", "bob"]);
+  await json(`${s.base}/in/${s.mb.inboundToken}`, { from: "ann@x.com", subject: "Help", text: "hi", messageId: "<1>" });
+  const basic = (u, k) => ({ authorization: `Basic ${Buffer.from(`${u}:${k}`).toString("base64")}` });
+  assert.equal((await fetch(`${s.base}/admin`, { headers: basic("bob", AL) })).status, 401); // wrong name for that key
+  assert.equal((await fetch(`${s.base}/admin`, { headers: { authorization: "Bearer nope-nope-nope" } })).status, 401);
+  await form(`${s.base}/admin/t/1/note`, { text: "checking" }, basic("alice", AL));
+  await form(`${s.base}/admin/t/1/reply`, { text: "On it", after: "pending" }, basic("bob", BO));
+  const t = s.state.tickets.t1;
+  assert.deepEqual(t.messages.filter((m) => m.dir !== "in").map((m) => [m.dir, m.from]), [["note", "alice"], ["out", "bob"]]);
+  assert.equal(t.assignee, "bob");
+  await form(`${s.base}/admin/t/1/reply`, { text: "More", after: "pending" }, { authorization: `Bearer ${KEY}` });
+  assert.equal(t.assignee, "bob"); assert.equal(t.messages.at(-1).from, "agent");
+  await form(`${s.base}/admin/t/1/reply`, { text: "Also", after: "pending" }, { authorization: `Bearer ${AL}` });
+  assert.equal(t.assignee, "bob"); assert.equal(t.messages.at(-1).from, "alice");
   s.close();
 });
 
