@@ -66,6 +66,10 @@ for the person who would otherwise keep a notebook.
   phone or emulator**. Expect to fix small things on first run.
 - Detection thresholds are untuned guesses against simulated noise; replaying
   real recorded days through `detectTrips` is the way to tune them.
+  `node replay-gpx.mjs day.gpx [--stopDwellMs=300000 --startSpeed=4.5 ...]`
+  does that for any GPX recording (e.g. exported from a GPS logger app): it
+  lists the drives found, and any threshold in `DEFAULTS` can be overridden
+  per run to compare settings on the same day. Local files only (`src/gpx.mjs`).
 
 ## Run it yourself
 
