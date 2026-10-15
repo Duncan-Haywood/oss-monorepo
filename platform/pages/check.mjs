@@ -1117,6 +1117,8 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
           }
         }
       }
+      // Every tool page footer links `deploy/?app=<slug>` (the "Run your own copy" link), and the page is
+      // written after this check runs.
       if (resolved === path.resolve(site, DEPLOY_DIR, 'index.html')) continue;
       if (!(await exists(resolved))) problems.push(`${relative}: dead link -> ${target}`);
       else {
