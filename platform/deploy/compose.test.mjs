@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { composeRepo, withDeployFooter, DONATE_URL, PROVIDERS } from './compose.mjs';
+import { composeRepo, withDeployFooter, DONATE_URL, PROVIDERS, renderDeployUrl } from './compose.mjs';
 import { zip, crc32 } from './zip.mjs';
 
 const templates = {
@@ -71,4 +71,28 @@ print(sorted(z.namelist())); print(z.read('a.txt').decode()); print(list(z.read(
   assert.match(out, /hello/);
   assert.match(out, /\[0, 255, 7\]/);
   assert.match(out, /ü\.txt/);
+});
+
+test('render repo: venture under ventures/<slug>, blueprint at the root, no static workflow', () => {
+  const serverFiles = {
+    Dockerfile: { text: 'FROM node:22-alpine\n' },
+    'render.yaml': { text: 'services: []\n' },
+    'server.mjs': { text: 'x' },
+    'index.html': { text: '<body>hi</body>' },
+    'logo.bin': { b64: Buffer.from([9]).toString('base64') },
+  };
+  const r = composeRepo({ slug: 'cancel-flow', title: 'Cancel Flow', provider: 'render', serverFiles, templates });
+  assert.deepEqual(Object.keys(r).sort(), ['LICENSE', 'README.md', 'render.yaml', 'ventures/cancel-flow/Dockerfile', 'ventures/cancel-flow/index.html', 'ventures/cancel-flow/logo.bin', 'ventures/cancel-flow/render.yaml', 'ventures/cancel-flow/server.mjs']);
+  assert.equal(r['render.yaml'], 'services: []\n');
+  assert.match(r['ventures/cancel-flow/index.html'], /buymeacoffee/);
+  assert.ok(r['ventures/cancel-flow/logo.bin'] instanceof Uint8Array);
+  assert.match(r['README.md'], /You are the operator/);
+  assert.ok(r['README.md'].includes(DONATE_URL), 'README links the donate URL');
+  assert.ok(!r['README.md'].includes('${'), 'no uninterpolated template text');
+  assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'render', serverFiles: {}, templates }), /server files/);
+  assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'render', serverFiles: { ...serverFiles, '../x': { text: 'y' } }, templates }), /unsafe/);
+});
+
+test('renderDeployUrl encodes the repository URL', () => {
+  assert.equal(renderDeployUrl('https://github.com/a/b'), 'https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2Fa%2Fb');
 });
