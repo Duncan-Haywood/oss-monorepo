@@ -59,3 +59,17 @@ test("portalUrl posts the customer and return url form-encoded", async () => {
   assert.equal(await createStripe({ key: "k", fetchImpl: f }).portalUrl("cus_1", "https://me.example"), "https://billing.stripe.com/p/x");
   assert.equal(f.calls[0].body, "customer=cus_1&return_url=https%3A%2F%2Fme.example");
 });
+
+test("listSubscriptionsWithCards pages through results and expands the card", async () => {
+  const urls = [];
+  const fetchImpl = async (url) => {
+    urls.push(String(url));
+    const second = String(url).includes("starting_after=sub_2");
+    return { ok: true, status: 200, json: async () => (second ? { data: [{ id: "sub_3" }], has_more: false } : { data: [{ id: "sub_1" }, { id: "sub_2" }], has_more: true }) };
+  };
+  const s = createStripe({ key: "rk_t", fetchImpl });
+  const subs = await s.listSubscriptionsWithCards();
+  assert.deepEqual(subs.map((x) => x.id), ["sub_1", "sub_2", "sub_3"]);
+  assert.equal(urls.length, 2);
+  assert.match(decodeURIComponent(urls[0]), /expand\[\]=data\.default_payment_method/);
+});

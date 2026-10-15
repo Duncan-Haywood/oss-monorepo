@@ -23,8 +23,9 @@ Two parts, both free and MIT:
 | Churn Buster, Churnkey, Baremetrics Recover and similar | Paid, often a share of recovered revenue; your customer data goes to a third party | Runs in your account, no per-recovery fee, nobody else sees your customers |
 | A script you write yourself | Easy to get wrong: duplicate charges, retrying lost cards, double emails | Idempotent, tested state machine; dry-run by default |
 
-Honest limits: it has no hosted dashboard, no in-app cancellation flow and no
-card-account-updater network access. It does not claim a recovery uplift over
+Honest limits: it has no hosted dashboard, no in-app cancellation flow (see the sibling
+`cancel-flow` venture) and no card-account-updater network access (the expiry
+notice asks the customer instead). It does not claim a recovery uplift over
 Stripe's own retries; measure that on your own data (`/v1/summary` reports what
 it recovered). If Smart Retries already works for you, keep it.
 
@@ -49,14 +50,20 @@ it recovered). If Smart Retries already works for you, keep it.
 4. **Does not double-charge.** Before every retry it re-reads the invoice and
    skips it unless it is still `open`; retries carry an idempotency key; webhook
    event ids are de-duplicated.
-5. **At the end of the grace period** it alerts you (`ALERT_WEBHOOK_URL`) and
+5. **Warns before the card fails.** Once a day it lists active subscriptions
+   and emails each customer whose card expires within 30 days (or already has)
+   once per card, with the same never-expiring update link, so many failures
+   never happen. Customers already being recovered, and subscriptions set to
+   cancel at period end, are skipped. Turn off with `EXPIRY_NOTICES=false`;
+   change the window with `EXPIRY_DAYS`. Needs Subscriptions read on the key.
+6. **At the end of the grace period** it alerts you (`ALERT_WEBHOOK_URL`) and
    leaves the subscription alone, unless you set `CANCEL_ON_EXPIRE=true`.
 
 ## Run it
 
 ```sh
 cd ventures/dunning-engine
-node --test        # 38 tests, no network
+node --test        # 50 tests, no network
 STRIPE_SECRET_KEY=rk_test_... STRIPE_WEBHOOK_SECRET=whsec_... \
 ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
 PUBLIC_URL=https://dunning.example.com node server.mjs
@@ -70,8 +77,8 @@ read the log, then set `DRY_RUN=false` with `RESEND_API_KEY` and `MAIL_FROM`.
 Setup in Stripe:
 
 1. Create a restricted key: Invoices write, Customer portal write,
-   PaymentIntents read, Customers read, Subscriptions write only if you enable
-   `CANCEL_ON_EXPIRE`.
+   PaymentIntents read, Customers read, Subscriptions read (expiry notices; write only if you enable
+   `CANCEL_ON_EXPIRE`).
 2. Add a webhook endpoint `https://<host>/webhook/stripe` for
    `invoice.payment_failed`, `invoice.paid`, `invoice.payment_succeeded`,
    `invoice.voided`, `invoice.marked_uncollectible`,
@@ -91,6 +98,7 @@ Setup in Stripe:
 | `RESEND_API_KEY`, `MAIL_FROM` | email sending (needed when `DRY_RUN=false`) |
 | `COMPANY_NAME`, `COMPANY_ADDRESS` | email wording and footer |
 | `POLICY_JSON` | override the schedule, e.g. `{"graceDays":10,"softRetryDays":[2,5]}` |
+| `EXPIRY_NOTICES`, `EXPIRY_DAYS` | card-expiry heads-up emails (default on, 30 days) |
 | `ALERT_WEBHOOK_URL` | Slack/Discord-style `{"text":...}` alerts |
 | `STATE` | path of the JSON state file |
 

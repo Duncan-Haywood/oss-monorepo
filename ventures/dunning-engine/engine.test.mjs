@@ -124,3 +124,55 @@ test("a customer with no email is skipped, not crashed on", async () => {
   assert.equal(log.emails.length, 0);
   assert.equal(s.cases.in_n.steps.find((x) => x.id === "email0").status, "skipped");
 });
+
+import { scanExpiring } from "./engine.mjs";
+const NOWX = Date.UTC(2026, 9, 15, 12);
+const expSub = (id, pmId, m, y, cust = `cus_${id}`) => ({ id, status: "active", customer: { id: cust, email: `${id}@x.co`, name: id }, default_payment_method: { id: pmId, card: { exp_month: m, exp_year: y, last4: "4242", brand: "visa" } } });
+const expDeps = (subs, over = {}) => {
+  const { deps, log } = mkDeps({ expiryNotices: true, expiryDays: 30, stripe: { listSubscriptionsWithCards: async () => subs }, ...over });
+  return { deps, log };
+};
+
+test("expiry scan emails each expiring card once, then not again", async () => {
+  const s = newState(); const { deps, log } = expDeps([expSub("a", "pm_a", 10, 2026), expSub("b", "pm_b", 12, 2030)]);
+  const out = await scanExpiring(s, NOWX, deps);
+  assert.equal(log.emails.length, 1);
+  assert.equal(log.emails[0].to, "a@x.co");
+  assert.match(log.emails[0].subject, /ending 4242 expires 10\/2026/);
+  assert.match(log.emails[0].text, /https:\/\/x\/update\/tok/);
+  assert.equal(s.stats.expiryEmails, 1);
+  assert.equal(out.length, 1);
+  await scanExpiring(s, NOWX + 25 * 3600000, deps); // next day: card already notified
+  assert.equal(log.emails.length, 1);
+});
+
+test("expiry scan runs at most once a day", async () => {
+  const s = newState(); let calls = 0;
+  const { deps } = expDeps([], { stripe: { listSubscriptionsWithCards: async () => { calls++; return []; } } });
+  await scanExpiring(s, NOWX, deps); await scanExpiring(s, NOWX + 3600000, deps);
+  assert.equal(calls, 1);
+});
+
+test("expiry scan skips customers already being dunned, and is off when disabled", async () => {
+  const s = newState(); applyEvent(s, failed("in_9", { customer: "cus_a" }), { now: NOWX, declineCode: "expired_card" });
+  const { deps, log } = expDeps([expSub("a", "pm_a", 9, 2026, "cus_a")]);
+  await scanExpiring(s, NOWX, deps);
+  assert.equal(log.emails.length, 0);
+  const off = expDeps([expSub("c", "pm_c", 9, 2026)], { expiryNotices: false });
+  await scanExpiring(newState(), NOWX, off.deps);
+  assert.equal(off.log.emails.length, 0);
+});
+
+test("expiry scan in dry run sends nothing and does not mark the card notified", async () => {
+  const s = newState(); const { deps, log } = expDeps([expSub("a", "pm_a", 10, 2026)], { dryRun: true });
+  const out = await scanExpiring(s, NOWX, deps);
+  assert.equal(log.emails.length, 0);
+  assert.match(out[0], /dry run: would email a@x.co/);
+  assert.deepEqual(s.expiry.notified, {});
+});
+
+test("an expired card gets past-tense wording", async () => {
+  const s = newState(); const { deps, log } = expDeps([expSub("a", "pm_a", 9, 2026)]);
+  await scanExpiring(s, NOWX, deps);
+  assert.match(log.emails[0].subject, /expired on 09\/2026/);
+});

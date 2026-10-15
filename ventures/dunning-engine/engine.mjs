@@ -3,6 +3,7 @@
 // whole thing is testable without a network.
 import { planRecovery, replan, classifyDecline, formatMoney, mergePolicy } from "./dunning.mjs";
 import { renderEmail } from "./templates.mjs";
+import { findExpiring } from "./expiry.mjs";
 
 export function newState() { return { cases: {}, seen: [], stats: { recoveredMinor: {}, recovered: 0, lost: 0, emails: 0, retries: 0 } }; }
 
@@ -138,6 +139,35 @@ export async function tick(state, now, deps) {
       if (s.tries >= MAX_ATTEMPTS) { s.status = "failed"; await deps.alert?.(`dunning-engine: step ${s.id} on ${c.invoiceId} failed ${MAX_ATTEMPTS} times: ${e.message}`).catch(() => {}); }
       else s.at = now + 5 * 60000 * s.tries; // back off, try again on a later tick
     }
+  }
+  return done;
+}
+
+const SCAN_EVERY_MS = 24 * 3600000;
+
+// Once a day: email customers whose card expires soon, once per card. Skips
+// customers who already have an open recovery case (they are being dunned).
+// deps adds: expiryNotices (bool), expiryDays, stripe.listSubscriptionsWithCards.
+export async function scanExpiring(state, now, deps) {
+  if (!deps.expiryNotices) return [];
+  const ex = (state.expiry ||= { lastScan: 0, notified: {} });
+  if (now - ex.lastScan < SCAN_EVERY_MS) return [];
+  const done = [];
+  const subs = await deps.stripe.listSubscriptionsWithCards();
+  ex.lastScan = now;
+  const dunned = new Set(Object.values(state.cases).filter((c) => c.status === "open").map((c) => c.customer));
+  for (const x of findExpiring(subs, now, { withinDays: deps.expiryDays ?? 30 })) {
+    if (ex.notified[x.pm] || dunned.has(x.customer)) continue;
+    if (!x.email) { done.push(`expiry ${x.pm}: no customer email`); continue; }
+    const phrase = x.expired ? `expired on ${x.expires}` : `expires ${x.expires}`;
+    const mail = renderEmail("expiring", {
+      name: x.name || "there", brand: x.brand, last4: x.last4, expiry_phrase: phrase, company: deps.company || "our team",
+      address: deps.address || "", update_url: deps.updateUrl({ customer: x.customer }),
+    });
+    if (deps.dryRun) { done.push(`expiry ${x.pm}: dry run: would email ${x.email} (card ${phrase})`); continue; }
+    try { await deps.sendEmail({ to: x.email, ...mail }); } catch (e) { done.push(`expiry ${x.pm}: error: ${e.message}`); continue; }
+    ex.notified[x.pm] = now; state.stats.expiryEmails = (state.stats.expiryEmails || 0) + 1;
+    done.push(`expiry ${x.pm}: emailed (card ${phrase})`);
   }
   return done;
 }
