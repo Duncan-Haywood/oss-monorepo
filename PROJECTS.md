@@ -539,7 +539,7 @@ on microcontrollers. Horowitz (2014), energy per operation, ISSCC.
 5. `accel-sparse` (first pass landed 2026-10-15 on a substitute digits task because Speech Commands was unreachable; re-run on KWS features, add the lookup-table variant and synthesis still open): spend the task's slack on pruning, binary or ternary weights, and lookup-table
    inference. When does the task's accuracy tolerance let the hardware drop multipliers
    altogether?
-6. `accel-fpga`: put the best design through an open FPGA flow (Yosys with nextpnr, for iCE40 or
+6. `accel-fpga` (first pass landed 2026-10-15 as `research/accel-fpga`: 15 `accel-kws` engine geometries through Yosys and nextpnr-ice40 on UP5K and HX8K, random weights; the best trained design, power and a board remain open): put the best design through an open FPGA flow (Yosys with nextpnr, for iCE40 or
    ECP5) and report LUTs and maximum clock. Buying a low-cost board and measuring its power are
    owner steps, with a priced bill of materials.
 7. Later: a design sized for Tiny Tapeout (track 3, milestone 6), and accelerators for the rest
