@@ -7006,6 +7006,7 @@ ${disclaimerHtml('', surfaces)}
         <a href="${GUIDES_PATH}">Guides</a> ·
         <a href="${COMPARE_PATH}">Comparisons</a> ·
         <a href="${RESEARCH_PATH}">Research</a> ·
+        <a href="deploy/">Deploy your own copy</a> ·
         <a href="catalog.json">Machine-readable catalog</a> ·
         <a href="llms.txt">llms.txt</a> ·
         <a href="sitemap.xml">Sitemap</a> ·

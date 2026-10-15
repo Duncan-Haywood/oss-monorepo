@@ -337,6 +337,8 @@ test('every hub link resolves to a file that exists', async () => {
 
   const hub_ = path.join(outDir, 'index.html');
   for (const href of hrefs) {
+    // platform/deploy/build.mjs writes deploy/ after the site build (publish-branch.sh).
+    if (href === 'deploy/') continue;
     await fs.access(hrefTarget(href, hub_, outDir));
   }
 

@@ -53,8 +53,8 @@ the operator.
   Providers are pinned to exact versions in `versions.tf` meanwhile.
 - More providers (GCS, Azure, DigitalOcean Spaces) and VM-based apps
   (cloud-init on Hetzner/DigitalOcean) for apps that need a process.
-- Link the page from the hub and from each tool page; `?app=<slug>` already
-  preselects an app.
+- The hub footer links the page ("Deploy your own copy"). Each tool page does
+  not yet; `?app=<slug>` already preselects an app.
 - The AWS path is validated structurally and against a mocked GitHub API in a
   real browser, not yet against a live AWS account.
 
