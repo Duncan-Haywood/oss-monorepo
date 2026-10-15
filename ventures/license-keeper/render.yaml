@@ -1,0 +1,32 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# The key you paste needs Checkout Sessions: read and Subscriptions: read. This server never writes to Stripe.
+services:
+  - type: web
+    name: license-keeper
+    runtime: docker
+    dockerContext: ventures/license-keeper
+    dockerfilePath: ventures/license-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: PLANS_JSON
+        sync: false
+      - key: COMPANY_NAME
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
