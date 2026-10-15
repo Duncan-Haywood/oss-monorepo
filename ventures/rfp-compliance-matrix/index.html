@@ -80,19 +80,19 @@ a{color:var(--accent)}
     <li><strong>Leaves out:</strong> the buyer's own duties ("the County will evaluate...").</li>
     <li><strong>Not decided:</strong> whether you can meet a requirement, whether a requirement is reasonable or lawful, evaluation weighting, or anything in a table, image or attachment you did not paste. Read the solicitation and every addendum.</li>
   </ul>
-  <p>Prefer the command line? <code>node cli.mjs rfp.txt --format csv &gt; matrix.csv</code> runs the same code on your own machine (see the <a href="README.md">README</a>).</p>
+  <p>Prefer the command line? <code>node cli.mjs rfp.txt --format csv &gt; matrix.csv</code> runs the same code on your own machine (see the README in the repository).</p>
 </section>
 
 <section class="card" id="faq">
   <h2>Common questions</h2>
   <h3>What is an RFP compliance matrix?</h3>
-  <p>A table with one row per requirement: where it appears, what it says, who answers it, where in the proposal it is answered, and whether it is done. A missed mandatory requirement can make a proposal non-responsive, so teams track every one.</p>
+  <p>A compliance matrix is a table with one row per requirement in a solicitation: where the requirement appears, what it says, who answers it, where in the proposal it is answered, and whether it is done. Proposal managers use it to make sure no shall or must statement goes unanswered, because a missed mandatory requirement can make a proposal non-responsive.</p>
   <h3>How does the generator find the requirements?</h3>
-  <p>It splits the text into sentences, keeps the section number each sits under, and flags sentences with shall, must, is required to, or a contractor-subject will. It separates prohibitions, desirables and the buyer's own duties.</p>
+  <p>It splits the pasted text into sentences, keeps the section number each sits under, and flags sentences with shall, must, is required to, will (when the contractor is the subject) and similar wording. It separates prohibitions (shall not), desirables (should) and the buyer's own duties (the County will). A lead-in such as The Contractor shall followed by a list becomes one row per list item.</p>
   <h3>Is it as good as reading the RFP?</h3>
-  <p>No. It saves the typing. A sentence can contain two obligations and requirements can hide in tables and attachments. Check the matrix against the document.</p>
+  <p>No. It is a first pass that saves the typing. A sentence can contain two obligations, and requirements can hide in tables, figures and attachments that were not pasted. Read the whole solicitation and every addendum yourself, and check the matrix against it.</p>
   <h3>Is my RFP uploaded anywhere?</h3>
-  <p>No. Nothing is sent to a server.</p>
+  <p>No. The extraction runs in your browser and nothing is sent to a server. There is also a command-line version that runs on your own machine.</p>
   <p class="seo-link"><a href="./how-to-build-an-rfp-compliance-matrix.html">How to build an RFP compliance matrix</a> &middot; <a href="../tender-bid-readiness/">Tender bid readiness checker &mdash; decide whether to bid first</a> &middot; <a href="../tender-radar/">Tender Radar &mdash; shortlist tenders</a> &middot; <a href="../contractor-bid-readiness/">Contractor bid readiness checklist</a></p>
 </section>
 </main>
