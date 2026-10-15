@@ -32,6 +32,28 @@ reviews via dedicated reviewer GitHub Apps and can auto-merge internal
 the "Duplicate PRs" workflow below; it does not replace the judgment calls in
 "Ship without review ceremony".
 
+## Every run ships something useful
+
+**Set by the owner on 2026-10-15.** A run that ends without doing anything
+useful has wasted the compute budget. Every run must land at least one thing of
+real value on `main`, such as a product feature or fix, a deployed page, a
+research result, an open-source tool, marketing or SEO work, or a write-up that
+uses real data to tell the owner something new.
+
+None of these is a reason to stop with nothing done: "nothing to do", a vague
+brief, a blocked task, an empty queue, or finding that your task already
+landed. Take the next item from the queues (`session_gate.py`, `PROJECTS.md`,
+the track prompts). If none has one, **come up with something new that is
+valuable, useful or insightful and ship it.** It can be an open-source tool, a
+product, academic or industry research, marketing, or anything else that
+helps users or the portfolio.
+
+These do not count as useful work: restating known blockers, ledger-only or
+direction-only edits, re-verifying unchanged work, and analysis nobody will act
+on. The guardrails still apply. Never fabricate anything, and never lower the
+quality bar just to have something to ship. A blocker is worth reporting, but
+report it alongside other useful work, not in place of it.
+
 ## Every session lands its own work: open the PR, then merge it
 
 **This is the user's explicit, standing request to create a pull request and
