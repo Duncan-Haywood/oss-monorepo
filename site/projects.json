@@ -1869,6 +1869,12 @@
     }
     ,
     {
+     "slug": "simdesign-pricebands",
+     "title": "How wide are the budget bands where mass weighting changes the machine choice when prices are uncertain?",
+     "summary": "Follow-up to <code>simdesign-flipseeds</code>, whose count-vs-mass machine-choice flips sat exactly on thresholds set by assumed round prices. Machine prices (800, 600, 300) are scaled by independent U(1&minus;s, 1+s) factors, 400 draws over 8 samples of 20&thinsp;000 sampled brackets. For family <code>log</code> the flip band widens from budgets 600&ndash;800 to 500&ndash;1000, but its edges soften to about one half; <code>large</code>'s single nominal flip at 800 appears in 44% of draws at s = 0.2 and spills to 700 and 900; <code>small</code> never flips. Near-tie flips never lose more than 0.5 points. Stylised: assumed prices and rules, uniform independent noise, arbitrary 0.5-point materiality threshold."
+    }
+    ,
+    {
      "slug": "simdesign-processcover",
      "title": "Which share of a bracket family can each shop process make, and which machine should a shop add next?",
      "summary": "Using the assumed rules of <em>simdesign-dfm</em> (FDM, CNC routing, laser cutting, casting) as feasibility checks on 20&nbsp;000 sampled bracket feature sets, geometry alone gives a degenerate answer: FDM covers 89% and no other process covers anything FDM cannot, so no machine adds coverage (a negative result). With a tip-load requirement of 1&ndash;1000&nbsp;N and closed-form beam checks the processes separate: FDM alone covers 30%, adding casting and a laser cutter 41%, and the best next machine depends on the budget and on the part sizes. Greedy selection from <em>selfrep-nextmachine</em> is sometimes 1&ndash;2 coverage points below exhaustive search. Stylised: all rule values, working stresses and prices are assumed, the beam check ignores fillet stress concentration, and nothing was made."
@@ -2198,6 +2204,11 @@
      "slug": "eda-proposers",
      "title": "Which search method finds a chip design's Pareto front with the fewest evaluations?",
      "summary": "Random search, a grid, simulated annealing, a genetic algorithm, NSGA-II and a TPE-style Bayesian method are compared at equal evaluation budgets on an 80-design space (MAC lanes &times; bit width &times; ABC script) of a toy quantised-MLP accelerator, using Pareto hypervolume over 100 seeds. TPE reaches 0.917 of the true-front hypervolume at 16 evaluations against 0.891 for random, and 0.980 against 0.943 at 30; annealing trails random throughout. Stylised: the space is tiny (random search at 40 evaluations already scores 0.965), hyperparameters are untuned, objectives are generic-gate counts, and nothing is said about real chips."
+    },
+    {
+     "slug": "eda-fidelity",
+     "title": "Do cheap rungs of the chip-design tool ladder rank designs like synthesis, and how much synthesis time does screening save?",
+     "summary": "A three-rung ladder over 40 logged MAC-engine designs: a free analytic model (cells &asymp; lanes&times;bits<sup>2</sup>), cycle-accurate simulation, and Yosys synthesis. The analytic rung ranks the cells&times;cycles objective with Spearman 0.74 against synthesis (0.95 for cells alone) and finds 2 of the 5 best designs. Successive halving that screens on the cheap rungs reaches the optimum with certainty at 20&nbsp;s of tool time, against 0.10 for random search at the same budget and 205&nbsp;s for synthesising everything. Stylised: one toy design family with its optimum at a corner, no place-and-route rung, and the search is a replay over the committed log."
     },
     {
      "slug": "eda-flowtune",
