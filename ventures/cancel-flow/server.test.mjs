@@ -142,3 +142,18 @@ test("webhook: bad signature refused; subscription.deleted marks churn; replay i
   assert.deepEqual(await (await fetch(`${s.base}/webhook/stripe`, { method: "POST", body, headers: h })).json(), { ignored: "duplicate" });
   s.close();
 });
+
+test("/admin serves a keyless dashboard page; the data routes stay behind the admin key", async () => {
+  const s = await boot();
+  const r = await fetch(`${s.base}/admin`);
+  assert.equal(r.status, 200);
+  assert.match(r.headers.get("content-security-policy"), /frame-ancestors 'none'/);
+  assert.match(r.headers.get("content-security-policy"), /connect-src 'self'/);
+  const html = await r.text();
+  assert.match(html, /Cancel flow results/);
+  assert.doesNotMatch(html, /adm/, "the page must not contain the admin key");
+  assert.doesNotMatch(html, /innerHTML/, "dynamic strings go through textContent");
+  assert.equal((await fetch(`${s.base}/v1/summary`)).status, 401);
+  assert.equal((await fetch(`${s.base}/v1/summary`, { headers: { authorization: "Bearer adm" } })).status, 200);
+  s.close();
+});
