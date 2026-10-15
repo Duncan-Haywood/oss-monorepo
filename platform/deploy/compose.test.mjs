@@ -123,3 +123,25 @@ test('docker bundle: compose file, env template, setup script, no secrets, downl
   const bad = { ...serverFiles, 'render.yaml': { text: yaml.replace('DRY_RUN', 'x;rm') } };
   assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'docker', serverFiles: bad, templates }), /unsafe env/);
 });
+
+test('android repo: capacitor project around app/, workflow, no secrets, valid ids', async () => {
+  const { androidAppId } = await import('./compose.mjs');
+  const real = fs.readFileSync(new URL('./templates/android/deploy.yml', import.meta.url), 'utf8');
+  const r = composeRepo({ slug: '3d-print-quote', title: 'Print "Quote" <b>', provider: 'android', appFiles, templates: { ...templates, android: { 'deploy.yml': real } } });
+  assert.deepEqual(Object.keys(r).sort(), ['.github/workflows/deploy.yml', '.gitignore', 'LICENSE', 'README.md', 'app/index.html', 'app/logo.bin', 'capacitor.config.json', 'package.json']);
+  const cfg = JSON.parse(r['capacitor.config.json']);
+  assert.equal(cfg.webDir, 'app');
+  assert.equal(cfg.appId, 'io.selfhosted.dprintquote');
+  assert.match(cfg.appId, /^([a-z][a-z0-9]*)(\.[a-z][a-z0-9]*)+$/);
+  assert.equal(cfg.appName, 'Print Quote b');
+  const pkg = JSON.parse(r['package.json']);
+  for (const v of Object.values(pkg.dependencies)) assert.match(v, /^\d+\.\d+\.\d+$/, 'pinned, no ranges');
+  assert.match(r['app/index.html'], /buymeacoffee/);
+  assert.match(r['README.md'], /You are the operator/);
+  assert.match(r['README.md'], /Google Play \(your account/);
+  assert.equal(androidAppId('123'), 'io.selfhosted.app');
+  assert.equal(PROVIDERS.android.downloadOnly, undefined);
+  // the signing step must be gated on all four secrets, and secrets must reach the shell only via env
+  assert.match(real, /ANDROID_KEYSTORE_B64 != ''/);
+  assert.doesNotMatch(real.split('run:').slice(1).join('\n'), /\$\{\{\s*secrets\./, 'no secret interpolated into a shell script');
+});

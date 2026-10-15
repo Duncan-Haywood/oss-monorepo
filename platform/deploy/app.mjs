@@ -126,6 +126,8 @@ async function deploy() {
       log('The OpenTofu state passphrase was generated in this tab and stored only as a secret in your repository (GitHub never shows it again).');
     } else if (provider === 'render') {
       log('Render reads the blueprint from this repository; no secrets are stored in it.');
+    } else if (provider === 'android') {
+      log('The Android build runs in your repository\'s own GitHub Actions; no secrets are needed for the debug APK.');
     } else {
       log('Turning on GitHub Pages (build: GitHub Actions)…');
       await gh(token, 'POST', `/repos/${me.login}/${name}/pages`, { build_type: 'workflow' });
@@ -153,7 +155,7 @@ async function deploy() {
     const live = provider === 'github-pages' ? `https://${me.login}.github.io/${name}/` : null;
     $('done').hidden = false;
     $('done').innerHTML = `<div class="card"><strong>Done.</strong> Your repository is <a href="https://github.com/${me.login}/${name}" rel="noopener">${me.login}/${name}</a>. The first deploy is running: <a href="${actions}" rel="noopener">watch it here</a>.` +
-      (live ? ` When it finishes (about a minute) your copy is at <a href="${live}" rel="noopener">${live}</a>.` : ` The live URL appears in the run’s summary.`) +
+      (live ? ` When it finishes (about a minute) your copy is at <a href="${live}" rel="noopener">${live}</a>.` : provider === 'android' ? ` When it finishes (about five minutes) open the run and download <strong>app-debug-apk</strong> from its Artifacts.` : ` The live URL appears in the run’s summary.`) +
       ` Now delete the token you used.</div>`;
     log('Finished.');
   } catch (e) {

@@ -40,6 +40,14 @@
     <summary type="text">Free job application tracker that stays on your device: no account, nothing uploaded. Log applications, get follow-up reminders (calendar export), see which sources actually reply, and export to CSV any time.</summary>
   </entry>
   <entry>
+    <title>MRR Pulse — Free Self-Hosted Stripe MRR &amp; Churn Dashboard</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mrr-pulse/"/>
+    <id>tag:marisstella.dev,2026:tool/mrr-pulse</id>
+    <updated>2026-10-15T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">See MRR, ARR, net revenue retention, logo churn and quick ratio from your Stripe subscriptions without paying a metrics service a share of your revenue. Paste a subscription export to try it in the browser, then run the open-source read-only server in your own account. Free, MIT.</summary>
+  </entry>
+  <entry>
     <title>ShootFlow</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/photo-editing/"/>
     <id>tag:marisstella.dev,2026:tool/photo-editing</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free New Zealand self-employed tax calculator: enter income and expenses to see income tax, ACC earners&#39; levy, optional student loan repayment and how much of every invoice to set aside. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Singapore Freelancer Tax Set-Aside Calculator — Income Tax + Reliefs</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sg-freelancer-tax-set-aside-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/sg-freelancer-tax-set-aside-calculator</id>
-    <updated>2026-10-14T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Singapore freelancer tax calculator: enter income and expenses to see income tax after earned income relief, a MediSave flag and how much of every invoice to set aside. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
