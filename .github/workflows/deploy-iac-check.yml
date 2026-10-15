@@ -34,6 +34,11 @@ jobs:
         run: |
           tofu init -backend=false -input=false
           tofu validate
+      - name: tofu validate (azure module)
+        working-directory: platform/deploy/templates/azure/tofu
+        run: |
+          tofu init -backend=false -input=false
+          tofu validate
       - uses: actions/setup-node@v4
         with:
           node-version: 22
