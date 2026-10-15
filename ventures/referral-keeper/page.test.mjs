@@ -60,3 +60,7 @@ test("the Dockerfile copies every module the server imports", () => {
 test("the footer links its sibling Testimonial Keeper", () => {
   assert.match(page("index.html"), /href="\.\.\/testimonial-keeper\/"/);
 });
+
+test("footer links the sibling Meter Keeper", () => {
+  assert.match(page("index.html"), /href="\.\.\/meter-keeper\/"/);
+});
