@@ -1,5 +1,9 @@
 # Working in this repo
 
+**Use judgment over rules** ([`prompts/goals.md`](prompts/goals.md), "Judgment
+over rules"): where anything below would make you build something a sensible
+person would not, don't, and say so in the run record.
+
 **Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) and [`AGENTS.md`](AGENTS.md)
 first.** The portfolio's job is to ship products people use — not to debate
 policy, re-verify old PRs, or maintain admin queues.
@@ -107,9 +111,9 @@ entries and analysis documents.
 **Self-deploy principle (owner, 2026-10-15).** The aim is not for us to host
 these apps. Each one is an MIT open-source business that anyone can one-click
 host in their own cloud: credentials go in, they click Deploy, OpenTofu does
-the rest, and nothing of ours runs in between. This is a design principle,
-not a task every session must start on. Follow it whenever deploy or hosting
-work comes up. Details, including how OpenTofu is set up and the Buy Me a
+the rest, and nothing of ours runs in between. This is the business model
+(`prompts/goals.md`, Mission) and the finish line for a venture
+(`prompts/ventures/prompt-1.md`). Details, including how OpenTofu is set up and the Buy Me a
 Coffee exception: `PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can
 deploy it themselves".
 
@@ -121,8 +125,10 @@ deploy; do not clone another undeployed calculator. The host is decided
 
 Target super-niches where users have money and a real problem — especially
 tools that help them earn more. Low variable cost, traditional software, AI
-only where it clearly helps. Payment and payout rails stay off; GitHub
-Sponsors/donations are fine.
+only where it clearly helps. Payment code is allowed only off by default and on
+the deployer's own keys, never the owner's accounts (`prompts/goals.md`,
+"Payments: never the owner's"); the owner's own instances take GitHub Sponsors
+donations only. No new single-page calculators (`prompts/ventures/prompt-1.md`).
 
 ## Session gate (generic briefs only)
 

@@ -325,6 +325,13 @@ not just the disclaimer in §5b.
 
 ## 6. Money: donations only, and most of it already ships
 
+**Changed 2026-10-15 by the owner** (`prompts/goals.md`, "Payments: never the
+owner's"). Payment code in a product is allowed if it is off by default and
+runs only on the deployer's own keys from environment variables. The owner's
+own accounts are never wired in. The "no billing code, not even disabled" rule
+below and `check_no_payment_code.py` predate that change and still need
+updating to match it.
+
 No checkout, no card fields, no billing code, no merchant of record, not even
 disabled. That is on the owner-only list in
 [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) because it needs a bank
