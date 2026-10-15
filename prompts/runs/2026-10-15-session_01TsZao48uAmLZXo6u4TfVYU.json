@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01TsZao48uAmLZXo6u4TfVYU",
+  "track": "process",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "process study 2026-10-15",
+  "projects": [],
+  "pr": 7005,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "pkill -f run_workflow_locally matched and killed my own shell command once",
+    "git fetch --unshallow origin main took several minutes and the first command timed out"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    "CLAUDE.md: says pip install pytest; bare pip installed into /usr/lib/python3/dist-packages while python3 is /usr/local/bin/python3, so numpy import failed; apt had no python3-pytest (fixed the pip line in this PR)",
+    "prompts/process/prompt-0.md: suggests audit via 'random' PRs but gives no command; many merged PRs are in the upstream research repo or are doc-only, so sampling needs a filter",
+    "platform/ci/run_workflow_locally.py --tree: did not finish in about 15 minutes; no per-workflow timeout"
+  ],
+  "goal": null,
+  "notes": "First process study; window 2026-10-01..2026-10-15. Per-PR CI failures before green were not measured.",
+  "corrections": [],
+  "redteam": null
+}
