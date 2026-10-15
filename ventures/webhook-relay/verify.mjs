@@ -11,7 +11,7 @@ const fail = (reason) => ({ ok: false, reason });
 const OK = { ok: true };
 const TOLERANCE_SEC = 300;
 
-export const SCHEMES = ["none", "stripe", "github", "shopify", "slack", "standard", "hmac-sha256"];
+export const SCHEMES = ["none", "stripe", "github", "shopify", "slack", "paddle", "typeform", "standard", "hmac-sha256"];
 
 export function verify(scheme, { headers, body, secret, nowSec = Math.floor(Date.now() / 1000), header }) {
   if (scheme === "none") return OK;
@@ -38,6 +38,19 @@ export function verify(scheme, { headers, body, secret, nowSec = Math.floor(Date
       if (!ts || !got) return fail("missing slack headers");
       if (Math.abs(nowSec - Number(ts)) > TOLERANCE_SEC) return fail("timestamp outside tolerance");
       return eq(got, `v0=${hmac(secret, `v0:${ts}:${body.toString("utf8")}`, "hex")}`) ? OK : fail("signature mismatch");
+    }
+    case "paddle": { // Paddle Billing: "ts=<unix>;h1=<hex>" (several h1 while a secret rotates), signed over "<ts>:<body>"
+      const pairs = (headers["paddle-signature"] || "").split(";").map((p) => p.split("="));
+      const ts = (pairs.find((p) => p[0] === "ts") || [])[1];
+      const sigs = pairs.filter((p) => p[0] === "h1" && p[1]).map((p) => p[1]);
+      if (!ts || !sigs.length) return fail("missing paddle-signature");
+      if (Math.abs(nowSec - Number(ts)) > TOLERANCE_SEC) return fail("timestamp outside tolerance");
+      const want = hmac(secret, `${ts}:${body.toString("utf8")}`, "hex");
+      return sigs.some((s) => eq(s, want)) ? OK : fail("signature mismatch");
+    }
+    case "typeform": { // "sha256=<base64 HMAC of the raw body>"; Typeform sends no timestamp
+      const got = headers["typeform-signature"] || "";
+      return eq(got, `sha256=${hmac(secret, body, "base64")}`) ? OK : fail(got ? "signature mismatch" : "missing typeform-signature");
     }
     case "standard": { // standardwebhooks.com: Svix, Resend, Clerk, ...
       const id = headers["webhook-id"], ts = headers["webhook-timestamp"], sigHeader = headers["webhook-signature"];
