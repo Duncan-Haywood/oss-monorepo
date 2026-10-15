@@ -203,6 +203,11 @@
       <button type="button" class="secondary" id="print">Print / Save as PDF</button>
       <button type="button" class="secondary" id="new">New proposal</button>
     </p>
+    <p>
+      <label for="tpl">Or start from a template (replaces the form; your details and numbering are kept)</label>
+      <select id="tpl"><option value="">Choose a trade…</option></select>
+      <button type="button" class="secondary" id="use-tpl">Use template</button>
+    </p>
     <p class="note" id="status"></p>
   </section>
 
@@ -254,7 +259,7 @@
   <footer class="noprint">
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. The contract wording it prints is generic template text, not legal advice: have a lawyer review any contract before you rely on it. It formats the numbers you enter; whether a proposal binds you, which tax rate applies, and what a contract must contain depend on where you work, so confirm them with the relevant authority or a professional.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as your only record: download a backup.</p>
-    <p>Everything runs in your browser. Your proposals are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>proposal_saved</code>, <code>proposal_printed</code>, <code>backup_downloaded</code>, <code>example_loaded</code>, <code>estimate_exported</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
+    <p>Everything runs in your browser. Your proposals are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>proposal_saved</code>, <code>proposal_printed</code>, <code>backup_downloaded</code>, <code>example_loaded</code>, <code>template_used</code>, <code>estimate_exported</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Accepted the job? Send the pricing to <a href="../estimate-maker/">Estimate Maker</a>, then bill it with <a href="../invoice-maker/">Invoice Maker</a>. Track the hours in <a href="../time-tracker/">Time Tracker</a> and see everything at once on the <a href="../freelance-dashboard/">Freelance Dashboard</a>. Checking a contract someone sent you? Try the <a href="../freelance-contract-checker/">freelance contract checker</a>. Setting your price? Try the <a href="../quote-margin-check/">quote margin check</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -262,6 +267,7 @@
 
   <script type="module">
     import { esc, normalizeProposal, pricingOptions, paymentSchedule, finishDate, status, proposalValue, nextNumber, duplicateNumbers, pipeline, duplicateProposal, validUntil, validate, renderProposal, toEstimateDraft, parseBackup, mergeProposals, proposalsToCsv, formatMoney, addDays, CLAUSE_KEYS, MAX_TIERS } from "./calc.mjs";
+    import { TEMPLATES, applyTemplate } from "./templates.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const KEY = "proposal-maker-data";
@@ -516,6 +522,13 @@
     $("#save").onclick = save;
     $("#print").onclick = () => { record("proposal_printed"); window.print(); };
     $("#new").onclick = () => { fill(blank()); $("#status").textContent = ""; };
+    for (const t of TEMPLATES) { const o = document.createElement("option"); o.value = t.id; o.textContent = t.label; $("#tpl").appendChild(o); }
+    $("#use-tpl").onclick = () => {
+      const id = $("#tpl").value;
+      if (!id) { $("#status").textContent = "Choose a template first."; return; }
+      fill(applyTemplate(blank(), id)); record("template_used");
+      $("#status").textContent = "Template loaded with placeholder rates and wording. Replace every [bracket] and price with your own.";
+    };
     $("#add-deliverable").onclick = () => { deliverableBlock({}); refresh(); };
     $("#add-phase").onclick = () => { phaseRow({ days: 7 }); refresh(); };
     $("#add-milestone").onclick = () => { milestoneRow({}); refresh(); };
