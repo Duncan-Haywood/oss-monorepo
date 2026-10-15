@@ -58,6 +58,7 @@ test("server: dashboard needs the key, /s is public only when enabled, Bearer he
     await new Promise((r) => p.stdout.once("data", r));
     return p;
   };
+  for (const p of [18791, 18792]) fs.rmSync(`/tmp/ch-feat-${p}.json`, { force: true }); // a stale file from an earlier run would inflate pings
   const on = await spawnServer(18791, { PUBLIC_STATUS: "1" });
   const off = await spawnServer(18792, {});
   try {

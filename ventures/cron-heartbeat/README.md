@@ -57,7 +57,9 @@ machine, history), `notify.mjs` (alert channels), `dashboard.mjs` (HTML),
 `crontab.mjs` (crontab to entries/config), `server.mjs` (HTTP shell),
 `usage.mjs` (opt-out local counters).
 
-Limits, stated plainly: UTC only; five-field cron plus `@daily`-style macros
+Timezones: UTC by default. Set `"tz": "Europe/London"` on a check, or put `CRON_TZ=Europe/London` above jobs in the crontab tool, and the schedule is read in that IANA zone. Same as Vixie cron on daylight-saving days: a repeated wall-clock hour counts once, and a time that does not exist (spring forward) is skipped that day, so a missed run on that one day is not detected. The host timezone is never consulted.
+
+Limits, stated plainly: five-field cron plus `@daily`-style macros
 (no `@reboot`, no `L`/`W`/`#`); no per-check alert routing or teams; the
 monitor is a single process, so run it on a different machine from the jobs
 it watches. Not a substitute for real alerting on critical systems.
