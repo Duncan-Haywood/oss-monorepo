@@ -19,7 +19,7 @@ export const DEFAULTS = {
   minStep: 0.01,         // miles; ignore jitter smaller than ~16 m while moving
   minMiles: 0.2,         // shorter drives are dropped (moving the car, parking lots)
   minDurationMs: 60e3,
-  maxGapMs: 15 * 60e3,   // no fixes for this long mid-drive: the drive ended before the silence
+  runGapMs: 2 * 60e3,    // moving fixes this far apart are not one run (OS paused updates between them)
 };
 
 export const initial = () => ({ mode: "idle", last: null, run: [], runOrigin: null, trip: null, stoppedSince: null });
@@ -40,13 +40,17 @@ export function step(state, fix, options = {}) {
   if (fix.accuracy != null && fix.accuracy > o.maxAccuracy) return { state, trip: null };
   if (state.last && fix.t <= state.last.t) return { state, trip: null };
 
-  // Phones stop delivering fixes once still, so a parked car leaves a hole, not
-  // five minutes of zero-speed fixes. A long silence ends the open drive where
-  // the car last moved, and this fix starts afresh instead of being glued on.
-  if (state.mode === "driving" && fix.t - state.last.t >= o.maxGapMs) {
+  // Phones stop delivering fixes once parked (pausesUpdatesAutomatically), so a
+  // drive can stay open for hours. A silence as long as the dwell time means the
+  // car stopped: close that drive where it last moved, then treat this fix as
+  // the first of a new one. Without this, two drives hours apart merge into one.
+  if (state.mode === "driving" && state.last && fix.t - state.last.t >= o.stopDwellMs) {
     const closed = finish(state.trip, o);
-    const r = step(initial(), fix, options);
-    return { state: r.state, trip: closed };
+    const r = step(initial(), fix, options); // no stale origin: its time and place are hours old
+    return { state: r.state, trip: closed || r.trip };
+  }
+  if (state.mode === "idle" && state.run.length && state.last && fix.t - state.last.t > o.runGapMs) {
+    return step(initial(), fix, options);
   }
 
   // Reject teleports: the implied speed between two fixes cannot be a car.
@@ -109,6 +113,15 @@ function finish(t, o) {
     from: { lat: t.startFix.lat, lon: t.startFix.lon },
     to: { lat: t.lastMoving.lat, lon: t.lastMoving.lon },
   };
+}
+
+// Close a drive the OS stopped reporting on. Call it with the current time when
+// the app comes to the foreground: if nothing has moved for the dwell time, the
+// drive is over and is returned like any other.
+export function settle(state, now, options = {}) {
+  const o = { ...DEFAULTS, ...options };
+  if (state.mode !== "driving" || now - state.trip.lastMoving.t < o.stopDwellMs) return { state, trip: null };
+  return { state: { ...initial(), last: state.last }, trip: finish(state.trip, o) };
 }
 
 export function flush(state, options = {}) {

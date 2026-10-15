@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { SafeAreaView, ScrollView, Text, View, Pressable, TextInput, Share, StyleSheet, Linking } from "react-native";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
-import { startTracking, stopTracking } from "./src/background";
+import { startTracking, stopTracking, settleDrives } from "./src/background";
 import { loadPending, loadTrips, loadPlaces, savePlaces, loadVehicles, saveVehicles, loadActiveVehicle, saveActiveVehicle, saveTrips, classify, dismiss, deleteTrip } from "./src/store";
 import { suggestCategory, CATEGORIES } from "./src/classify.mjs";
 import { addPlace, describeDrive, logTripFor, remember, readyToConfirm } from "./src/places.mjs";
@@ -27,6 +27,7 @@ export default function App() {
   const year = new Date().getFullYear();
 
   const refresh = useCallback(async () => {
+    await settleDrives(); // close a drive the OS stopped reporting on
     setPending(await loadPending()); setTrips(await loadTrips()); setPlaces(await loadPlaces());
     setVehicles(await loadVehicles()); setActive(await loadActiveVehicle());
   }, []);
