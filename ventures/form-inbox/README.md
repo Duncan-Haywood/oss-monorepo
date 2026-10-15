@@ -54,3 +54,7 @@ Fork the repository, then open `https://render.com/deploy?repo=<your fork URL>`.
 ## Disclaimer
 
 No warranty; no uptime or delivery guarantee. You operate the forms and are responsible for the messages collected, your privacy notice and data-protection rules. The spam score can be wrong either way. Not legal, tax or financial advice. MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).
+
+## Other self-deploy paths
+
+`docker-compose.yml` runs it on any box with Docker (the command is at its top). Fly.io: the steps are at the top of `fly.toml`. Both keep state on a volume and run in your own account.

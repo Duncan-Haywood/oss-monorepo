@@ -125,3 +125,7 @@ Files: `dunning.mjs` (classification, schedule; also runs in the browser),
 verification, API calls), `server.mjs` (HTTP shell), `admin.mjs` (dashboard page), `index.html` (simulator).
 
 Support the project: <https://github.com/sponsors/Duncan-Haywood>.
+
+## Other self-deploy paths
+
+`docker-compose.yml` runs it on any box with Docker (the command is at its top). Fly.io: the steps are at the top of `fly.toml`. Both keep state on a volume and run in your own account.

@@ -71,3 +71,7 @@ One-click deploy: `render.yaml` builds the Dockerfile in your own Render
 account; you paste the key there and nothing runs on the author's.
 
 Donate: <https://github.com/sponsors/Duncan-Haywood>
+
+## Other self-deploy paths
+
+`docker-compose.yml` runs it on any box with Docker (the command is at its top). Fly.io: the steps are at the top of `fly.toml`. Both keep state on a volume and run in your own account.
