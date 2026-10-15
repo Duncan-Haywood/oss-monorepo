@@ -11,13 +11,20 @@ projects.json or README.md, or if either lists a project that does not exist.
 import argparse
 import html
 import json
+import os
 import re
 import sys
 from pathlib import Path
 
-REPO = "Duncan-Haywood/oss-research-monorepo"
+# The build runs unchanged in two layouts: here (site/ beside research/ and README.md at the repo
+# root) and mirrored under oss-monorepo (research/_homepage/ beside the projects, with research/
+# README.md). Only the repository name differs; set HOMEPAGE_REPO or pass --repo there.
+REPO = os.environ.get("HOMEPAGE_REPO", "Duncan-Haywood/oss-research-monorepo")
 REPO_URL = f"https://github.com/{REPO}"
-ROOT = Path(__file__).resolve().parent.parent
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent
+RESEARCH = ROOT / "research" if (ROOT / "research").is_dir() else ROOT
+LABEL = HERE.name  # "site" or "_homepage", used in error messages
 
 
 def readme_ledes():
@@ -34,7 +41,7 @@ def readme_ledes():
 def test_count(slug):
     return sum(
         len(re.findall(r"^\s*def test_", f.read_text(errors="ignore"), re.M))
-        for f in (ROOT / "research" / slug).rglob("test*.py")
+        for f in (RESEARCH / slug).rglob("test*.py")
     )
 
 
@@ -43,20 +50,20 @@ def plain(s):
 
 
 def validate(data, ledes):
-    projects = {p.name for p in (ROOT / "research").iterdir() if p.is_dir()}
+    projects = {p.name for p in RESEARCH.iterdir() if p.is_dir() and not p.name.startswith(("_", "."))}
     listed = [p["slug"] for t in data["themes"] for p in t["projects"]]
     errors = []
-    errors += [f"site/projects.json: missing research/{s}" for s in sorted(projects - set(listed))]
-    errors += [f"site/projects.json: nonexistent research/{s}" for s in sorted(set(listed) - projects)]
-    errors += [f"site/projects.json: research/{s} listed twice" for s in sorted({s for s in listed if listed.count(s) > 1})]
+    errors += [f"{LABEL}/projects.json: missing research/{s}" for s in sorted(projects - set(listed))]
+    errors += [f"{LABEL}/projects.json: nonexistent research/{s}" for s in sorted(set(listed) - projects)]
+    errors += [f"{LABEL}/projects.json: research/{s} listed twice" for s in sorted({s for s in listed if listed.count(s) > 1})]
     errors += [f"README.md: missing bullet for research/{s}" for s in sorted(projects - set(ledes))]
     errors += [f"README.md: bullet for nonexistent research/{s}" for s in sorted(set(ledes) - projects)]
-    errors += [f"site/projects.json: featured research/{s} not listed" for s in data["featured"] if s not in listed]
+    errors += [f"{LABEL}/projects.json: featured research/{s} not listed" for s in data["featured"] if s not in listed]
     for t in data["themes"]:
         for p in t["projects"]:
             for k in ("slug", "title", "summary"):
                 if not p.get(k):
-                    errors.append(f"site/projects.json: research/{p.get('slug')} has no {k}")
+                    errors.append(f"{LABEL}/projects.json: research/{p.get('slug')} has no {k}")
     return errors
 
 
@@ -74,7 +81,7 @@ def card(p, theme, lede, tests):
 
 
 def build(out):
-    data = json.loads((ROOT / "site" / "projects.json").read_text())
+    data = json.loads((HERE / "projects.json").read_text())
     ledes = readme_ledes()
     errors = validate(data, ledes)
     if errors:
@@ -110,7 +117,7 @@ def build(out):
         for i, t in enumerate(data["themes"], 1)
     )
 
-    page = (ROOT / "site" / "template.html").read_text()
+    page = (HERE / "template.html").read_text()
     for key, val in {
         "THEME_VARS": theme_vars, "MAP": rmap, "CHIPS": chips, "FEATURED": featured, "SECTIONS": sections,
         "PROJECT_COUNT": str(len(by_slug)), "TEST_COUNT": f"{sum(tests.values()):,}",
@@ -129,4 +136,8 @@ def build(out):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, default=ROOT / "_site")
-    build(ap.parse_args().out)
+    ap.add_argument("--repo", help="GitHub owner/name for links (default: HOMEPAGE_REPO or this repository)")
+    args = ap.parse_args()
+    if args.repo:
+        REPO, REPO_URL = args.repo, f"https://github.com/{args.repo}"
+    build(args.out)
