@@ -314,6 +314,13 @@ echo "Checking the built artifact..."
 # worth its one byte.
 : > "$dist/.nojekyll"
 
+# The self-deploy page (platform/deploy/). Written after `check.mjs` because it
+# is a separate static app with its own tests, not a catalogue page: nothing in
+# the hub links into it yet, and `check.mjs` would read its 1,200 data files as
+# orphans.
+echo "Building the self-deploy page..."
+node "$repo_root/platform/deploy/build.mjs" --out="$dist/deploy" >/dev/null
+
 # GitHub reads the custom domain back out of this file on every deploy, so it
 # has to be in every tree this script writes, not only the one where it was
 # first set. Written after `check.mjs` for the same reason `.nojekyll` is:

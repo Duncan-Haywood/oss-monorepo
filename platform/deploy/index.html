@@ -4,96 +4,78 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Deploy your own copy</title>
-<meta name="description" content="Pick an open-source app, paste a GitHub token, click Deploy. You get your own copy running on GitHub Pages in your account. Nothing passes through our servers.">
+<meta name="description" content="Pick an open-source tool, paste your own credentials, click Deploy, and run your own copy in your own GitHub or AWS account. Nothing passes through us.">
 <style>
-:root{--bg:#fff;--fg:#1b1f24;--mut:#57606a;--line:#d0d7de;--acc:#0b5cad;--warn:#fff8c5}
-@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9da7b3;--line:#30363d;--acc:#58a6ff;--warn:#3a3000}}
-body{font:16px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--fg);margin:0 auto;max-width:44rem;padding:1rem 16px 3rem}
-a{color:var(--acc)} label{display:block;margin:1rem 0 .25rem;font-weight:600}
-input,select,button{font:inherit;padding:.5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:100%;box-sizing:border-box}
-button{width:auto;background:var(--acc);color:#fff;border-color:var(--acc);cursor:pointer;margin-top:1rem}
-button:disabled{opacity:.5;cursor:default}
-.note{background:var(--warn);border:1px solid var(--line);border-radius:6px;padding:.75rem;margin:1rem 0}
-#log{white-space:pre-wrap;font:13px/1.4 ui-monospace,monospace;color:var(--mut);margin-top:1rem}
-small{color:var(--mut)}
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#595959; --line:#d4d4d4; --accent:#0b57d0; --card:#f6f7f9; --warn:#7a3e00; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#121212; --fg:#ececec; --muted:#b0b0b0; --line:#3a3a3a; --accent:#8ab4f8; --card:#1c1c1e; --warn:#ffb866; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 system-ui,sans-serif; }
+  main { max-width:720px; margin:0 auto; padding:24px 16px 64px; }
+  h1 { font-size:1.7rem; margin:.2em 0; } h2 { font-size:1.1rem; margin:1.8em 0 .4em; }
+  p, li { color:var(--fg); } .muted { color:var(--muted); font-size:.92rem; }
+  label { display:block; font-weight:600; margin:.9em 0 .25em; }
+  select, input[type=text], input[type=password], input[type=search] { width:100%; padding:10px; font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:6px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin:.6em 0; }
+  .opt { display:flex; gap:10px; align-items:flex-start; font-weight:400; margin:.3em 0; }
+  .opt input { margin-top:.35em; }
+  button { font:inherit; font-weight:600; padding:11px 16px; border-radius:6px; border:1px solid var(--accent); background:var(--accent); color:#fff; cursor:pointer; }
+  @media (prefers-color-scheme: dark) { button { color:#111; } }
+  button.secondary { background:transparent; color:var(--accent); }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:1em; }
+  .warn { color:var(--warn); }
+  pre#log { background:var(--card); border:1px solid var(--line); border-radius:6px; padding:10px; white-space:pre-wrap; min-height:3em; font-size:.88rem; }
+  a { color:var(--accent); }
+  [hidden] { display:none !important; }
 </style>
 </head>
 <body>
-<h1>Deploy your own copy</h1>
-<p>Pick an app, click <strong>Deploy</strong>, and a copy of it appears in <em>your</em> GitHub account, live on GitHub Pages. You run it; we host nothing.</p>
+<main>
+  <h1>Deploy your own copy</h1>
+  <p>Pick a tool, choose where it should live, and get your own running copy in <strong>your</strong> account. You pay your own cloud bill (GitHub Pages is free), you own the result, and nothing you enter passes through a server of ours — this page is static and talks only to GitHub.</p>
 
-<div class="note"><strong>Before you click.</strong> You become the operator of your copy: its domain, terms, privacy policy, users and any changes are yours. The software is MIT licensed and provided as is, with no warranty; the creator is not liable for your copy. The app's own disclaimers ship with it &mdash; keep them accurate.</div>
+  <h2>1. Pick a tool</h2>
+  <label for="q">Search <span class="muted" id="count"></span></label>
+  <input id="q" type="search" placeholder="e.g. invoice, tax, schedule" autocomplete="off">
+  <label for="app">Tool</label>
+  <select id="app" size="1"></select>
+  <p class="muted" id="desc"></p>
 
-<label for="app">App</label>
-<input id="q" placeholder="Search apps" aria-label="Search apps" autocomplete="off">
-<select id="app" size="8" aria-label="App"></select>
+  <h2>2. Pick where it lives</h2>
+  <div id="providers"></div>
 
-<label for="repo">Repository name in your account</label>
-<input id="repo" autocomplete="off" spellcheck="false">
+  <h2>3. Your credentials</h2>
+  <div id="creds">
+    <label for="gh">GitHub token</label>
+    <input id="gh" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_… or ghp_…">
+    <p class="muted">Fine-grained token for your own account with <em>Administration</em>, <em>Contents</em>, <em>Workflows</em>, <em>Secrets</em>, <em>Pages</em> and <em>Actions</em> read/write — or a classic token with <code>repo</code> and <code>workflow</code>. It is used from this tab only and is not stored. <a href="https://github.com/settings/personal-access-tokens/new" rel="noopener">Create one</a>, and delete it when you are done.</p>
+    <div id="aws" hidden>
+      <label for="ak">AWS access key ID</label>
+      <input id="ak" type="password" autocomplete="off" spellcheck="false">
+      <label for="sk">AWS secret access key</label>
+      <input id="sk" type="password" autocomplete="off" spellcheck="false">
+      <label for="rg">AWS region</label>
+      <input id="rg" type="text" value="us-east-1">
+      <p class="muted">Use a dedicated IAM user limited to S3, CloudFront and IAM-policy-document actions. The keys are encrypted in your browser with the new repository's public key and stored as that repository's Actions secrets; they go nowhere else.</p>
+    </div>
+  </div>
 
-<label for="token">GitHub token</label>
-<input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_...">
-<small>Create a <a href="https://github.com/settings/tokens/new?scopes=public_repo&description=one-click-deploy" rel="noopener">classic token with only the <code>public_repo</code> scope</a>, then delete it after deploying. It stays in this tab and is sent only to <code>api.github.com</code>. It is never stored and never reaches any server of ours.</small>
+  <h2>4. Deploy</h2>
+  <div class="card">
+    <label class="opt"><input type="checkbox" id="ack"> <span>I understand that I become the operator of my copy: its domain, terms, privacy policy and users are my responsibility. It is provided as-is under the MIT license with no warranty, and the creator does not host it or support it.</span></label>
+  </div>
+  <div class="row">
+    <button id="go" disabled>Deploy to my account</button>
+    <button id="dl" class="secondary" disabled>Download the files instead</button>
+  </div>
+  <p class="muted">“Download” builds the same repository as a .zip in your browser and needs no credentials; you can push it yourself or run the OpenTofu module locally.</p>
+  <pre id="log" aria-live="polite"></pre>
+  <div id="done" hidden></div>
 
-<button id="go" disabled>Deploy</button>
-<div id="log" role="status" aria-live="polite"></div>
-<div id="done" hidden></div>
-
-<h2>What happens</h2>
-<ol>
-<li>Your browser reads the app's files from the public source repository.</li>
-<li>It creates a public repository in your account and commits those files plus a README with your operator notes.</li>
-<li>It turns on GitHub Pages. The site is usually live within a minute or two.</li>
-</ol>
-<p>Prefer not to paste a token? Copy the app's folder from the source repository into any static host. Every app is plain files.</p>
-<p>If this saves you money, please <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">sponsor the creator</a> or <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy a coffee</a>.</p>
-
-<script type="module">
-import { deployToGithubPages, validRepoName, SOURCE_DEFAULT } from './core.mjs';
-const $ = (id) => document.getElementById(id);
-let apps = [];
-function render(filter = '') {
-  const f = filter.toLowerCase();
-  $('app').replaceChildren(...apps.filter((a) => !f || a.slug.includes(f) || a.title.toLowerCase().includes(f)).slice(0, 300).map((a) => {
-    const o = document.createElement('option'); o.value = a.slug; o.textContent = `${a.title} (${a.slug})`; return o;
-  }));
-}
-function sync() {
-  const ok = $('app').value && validRepoName($('repo').value) && $('token').value.length > 10;
-  $('go').disabled = !ok;
-}
-$('q').addEventListener('input', () => { render($('q').value); });
-$('app').addEventListener('change', () => { $('repo').value = $('app').value; sync(); });
-$('repo').addEventListener('input', sync);
-$('token').addEventListener('input', sync);
-const pre = new URLSearchParams(location.search).get('app');
-fetch('catalog.json').then((r) => r.json()).then((c) => {
-  apps = c; render();
-  if (pre && apps.some((a) => a.slug === pre)) { $('app').value = pre; $('repo').value = pre; }
-  sync();
-});
-$('go').addEventListener('click', async () => {
-  const entry = apps.find((a) => a.slug === $('app').value);
-  $('go').disabled = true; $('log').textContent = '';
-  try {
-    const res = await deployToGithubPages({
-      fetchFn: (u, o) => fetch(u, o), token: $('token').value.trim(), entry, repoName: $('repo').value,
-      source: SOURCE_DEFAULT, onStep: (m) => { $('log').textContent = m; },
-    });
-    $('token').value = '';
-    $('log').textContent = '';
-    $('done').hidden = false;
-    $('done').innerHTML = '';
-    const p = document.createElement('p');
-    p.append('Done. Your repository: ');
-    const a1 = document.createElement('a'); a1.href = res.repoUrl; a1.textContent = res.repoUrl; p.append(a1, '. Your site (live in a minute or two): ');
-    const a2 = document.createElement('a'); a2.href = res.pagesUrl; a2.textContent = res.pagesUrl; p.append(a2, '. Remember to delete the token.');
-    $('done').append(p);
-  } catch (e) {
-    $('log').textContent = `Failed: ${e.message}`;
-    sync();
-  }
-});
-</script>
+  <h2>Support the creator</h2>
+  <p>It is free. If it helps your business, <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy the creator a coffee</a>.</p>
+  <p class="muted">Privacy: this page loads no third-party scripts and sends nothing to us. Your browser talks to api.github.com only when you press Deploy.</p>
+</main>
+<script type="module" src="app.mjs"></script>
 </body>
 </html>
