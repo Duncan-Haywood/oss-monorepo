@@ -76,7 +76,7 @@
 #   portfolio-front-tools-40: 121 files, 551434 bytes
 #   portfolio-front-tools-41: 142 files, 555747 bytes
 #   portfolio-front-tools-42: 136 files, 555903 bytes
-#   portfolio-front-tools-43: 124 files, 555337 bytes
+#   portfolio-front-tools-43: 125 files, 556799 bytes
 #   portfolio-front-tools-44: 112 files, 555465 bytes
 #   portfolio-front-tools-45: 54 files, 266704 bytes
 #
@@ -5914,6 +5914,7 @@ configMapGenerator:
       - waterfront-rental-season-planner__index.html.gz=waterfront-rental-season-planner__index.html.gz
       - waterfront-rental-season-planner__usage.mjs.gz=waterfront-rental-season-planner__usage.mjs.gz
       - webhook-relay__admin.mjs.gz=webhook-relay__admin.mjs.gz
+      - webhook-relay__filter.mjs.gz=webhook-relay__filter.mjs.gz
       - webhook-relay__index.html.gz=webhook-relay__index.html.gz
       - webhook-relay__relay.mjs.gz=webhook-relay__relay.mjs.gz
       - webhook-relay__server.mjs.gz=webhook-relay__server.mjs.gz
