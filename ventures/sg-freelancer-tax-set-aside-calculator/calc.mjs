@@ -50,7 +50,7 @@ export function marginalRate(chargeable, y) {
 
 export function compute(input) {
   const errors = [];
-  const year = YEARS[input.year] ? String(input.year) : "2027";
+  const year = Object.hasOwn(YEARS, input.year) ? String(input.year) : "2027";
   const Y = YEARS[year];
   const age = Y.earnedIncomeRelief[input.age] !== undefined ? input.age : "under55";
   const revenue = num(input.revenue);

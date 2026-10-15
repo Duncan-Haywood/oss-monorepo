@@ -64,7 +64,7 @@ export function incomeTax(taxable, y) {
 
 export function compute(input) {
   const errors = [];
-  const year = YEARS[input.year] ? String(input.year) : "2025-26";
+  const year = Object.hasOwn(YEARS, input.year) ? String(input.year) : "2025-26";
   const scheme = input.scheme === "44ADA" ? "44ADA" : "actual";
   const lowCash = input.cash === "yes";
   const revenue = num(input.revenue);

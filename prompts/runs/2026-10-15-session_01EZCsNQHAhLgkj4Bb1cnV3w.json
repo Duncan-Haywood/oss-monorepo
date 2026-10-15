@@ -29,7 +29,7 @@
   ],
   "lines_added": 216,
   "lines_removed": 19,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": 0,
   "review_findings": 0,
   "tests_added": 0,
@@ -60,5 +60,13 @@
   ],
   "goal": null,
   "notes": "Root MIT LICENSE added to oss-monorepo (it had none) plus LICENSE in the 8 ventures lacking one; 3 venture READMEs switched from 'Private / all rights reserved' to MIT; einvoice-preflight LICENSE given its copyright holder; two research package.json files UNLICENSED -> MIT. oss-research-monorepo was already MIT throughout (root LICENSE, README, 386 pyproject.toml files), so it needed no change. cost_usd omitted: get_session's usage block was mid-run.",
-  "corrections": []
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR 6983 shows merged=true via REST API (review 2026-10-15 third)"
+    }
+  ]
 }

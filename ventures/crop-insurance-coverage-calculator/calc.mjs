@@ -86,7 +86,7 @@ export function indemnityFor(plan, aph, level, projectedPrice, yieldPerAcre, har
 }
 
 export function analyze(o) {
-  const plan = PLANS[o.plan] ? o.plan : "RP";
+  const plan = Object.hasOwn(PLANS, o.plan) ? o.plan : "RP";
   const aph = nz(o.aph), price = nz(o.projectedPrice), acres = nz(o.acres);
   const cov = parseCoverage(o.coverage);
   const sc = parseScenarios(o.scenarios);

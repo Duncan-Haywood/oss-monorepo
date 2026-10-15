@@ -43,7 +43,7 @@ export const money = (n) => {
 };
 
 function normalise(i) {
-  const platform = PLATFORMS[i.platform] ? i.platform : "etsy";
+  const platform = Object.hasOwn(PLATFORMS, i.platform) ? i.platform : "etsy";
   const o = {
     platform,
     price: num(i.price, NaN),

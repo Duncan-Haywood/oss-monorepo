@@ -92,7 +92,7 @@ function liability(net, p) {
 
 export function compute(input) {
   const errors = [];
-  const status = BRACKETS[input.filingStatus] ? input.filingStatus : "single";
+  const status = Object.hasOwn(BRACKETS, input.filingStatus) ? input.filingStatus : "single";
   const revenue = num(input.revenue);
   const expenses = num(input.expenses) ?? 0;
   const w2 = num(input.w2Wages) ?? 0;

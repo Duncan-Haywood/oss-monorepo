@@ -78,7 +78,7 @@ export function interestPct(o, months, applyFloor = true) {
 function norm(o) {
   const d = DEFAULTS;
   return {
-    mode: MODES[o.mode] ? o.mode : "simple",
+    mode: Object.hasOwn(MODES, o.mode) ? o.mode : "simple",
     face: nn(o.face, d.face),
     premium: nn(o.premium, 0),
     premiumRefunded: o.premiumRefunded === "no" ? "no" : "yes",
