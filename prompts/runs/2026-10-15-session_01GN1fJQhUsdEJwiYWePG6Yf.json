@@ -27,13 +27,18 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 1,
-  "outcome": "Shipped dunning-engine /admin dashboard and fixed Dockerfile missing expiry.mjs (container would crash on start).",
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompts/runs validate",
+      "issue": "another session's record (018obG6y...) on main fails validation (outcome/doc_friction format); not mine, left alone"
+    }
+  ],
   "deviations": [],
   "goal": null,
-  "notes": "gitops/tests: 26 failures all in test_worker_run.py, the known gh-preinstalled failures named in CLAUDE.md; not compared against origin/main.",
+  "notes": "Shipped dunning-engine /admin dashboard and fixed Dockerfile missing expiry.mjs (container would crash on start). gitops/tests: 26 failures all in test_worker_run.py, the known gh-preinstalled failures named in CLAUDE.md; not compared against origin/main.",
   "corrections": [],
   "redteam": null
 }
