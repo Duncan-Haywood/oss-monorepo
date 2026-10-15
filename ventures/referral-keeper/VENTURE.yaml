@@ -1,0 +1,63 @@
+name: referral-keeper
+description: >-
+  Self-hosted referral and affiliate program for Stripe sellers: a first-party
+  tracking link, recurring commissions with a window, refund and dispute
+  clawbacks, a hold period, affiliate dashboards and a payout CSV, all from
+  your own Stripe webhook. Browser programme planner plus a zero-dependency
+  server with a one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and proven: Rewardful, FirstPromoter,
+# Tolt, PromoteKit, Dub and Stripe-connected affiliate apps all sell this to
+# SaaS and course sellers, priced as a monthly fee or a share of tracked
+# revenue. The gap: founders on plain Stripe who want the ledger, affiliate
+# list and cookie data in their own account with no fee, and who pay
+# affiliates by hand anyway. Fifth product for the same buyer as dunning-engine,
+# cancel-flow, mrr-pulse and license-keeper (a Stripe seller of software).
+# duplicate_check: waitlist-keeper is a pre-launch referral waitlist (invites,
+# no money); no affiliate-commission venture existed.
+#
+# First visitor: indie founders on Indie Hackers, r/SaaS, r/stripe and
+# Hacker News asking "rewardful alternative", "self hosted affiliate program
+# stripe", "affiliate tracking stripe payment links". Volume not measured with
+# an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup, a hosted copy under the deployer's own name, or GitHub
+# Sponsors are the paid steps; hosting under the public name and billing are
+# owner-gated.
+
+hypotheses:
+  - claim: >-
+      Founders who run a Stripe-based product will use the browser programme
+      planner to size a referral programme and then deploy the server, because
+      hosted affiliate tools charge a monthly fee or a share of tracked revenue
+      before the programme has produced a single sale.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Clawbacks (refund, dispute, negative balance) and a hold period are what
+      make a founder trust a self-run ledger over a spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a commission paid twice for one payment, or a refunded payment that still pays out; the idempotency and clawback paths come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/referral-keeper/
+  analytics: null
