@@ -21,7 +21,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
@@ -36,5 +36,13 @@
   ],
   "goal": "mirror-sync milestone",
   "notes": "Merge commit synced upstream 05b2a8c; mirror check, homepage build and promptctl validate all ok. Token/cost not read.",
-  "corrections": []
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR 6991 is merged on main (git log and PR read)"
+    }
+  ]
 }
