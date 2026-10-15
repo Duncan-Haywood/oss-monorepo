@@ -57,6 +57,10 @@ in both. oss-monorepo's `research/_mirror/mirror.py` keeps its `research/` an ex
    `site/template.html` run unchanged at `oss-monorepo/research/_homepage/`, by finding projects
    and the README relative to the layout. Keep `CLAUDE.md` and `prompt.md` free of anything that
    only fits this repository. Then move those files to the exact map in `mirror.py`.
+   - *Progress (2026-10-15):* `site/build.py` and `site/template.html` now run unchanged in both
+     layouts (tested on a copy laid out as `research/_homepage/`); only the repository name differs,
+     via `HOMEPAGE_REPO` or `--repo`. Still open: `CLAUDE.md` and `prompt.md` portability, and the
+     `oss-monorepo` side that sets `HOMEPAGE_REPO` and drops `build.py` from the hand-ported list.
 4. `mirror-cutover` (both): prepare the cutover that `research/_mirror/README.md` describes. That
    covers the "moved" notices for this README, `CLAUDE.md` and the Pages homepage, and serving the
    research homepage from oss-monorepo's Pages, which already builds it at `/research/`. The

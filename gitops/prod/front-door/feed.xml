@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1224 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1226 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-10-14T00:00:00Z</updated>
+  <updated>2026-10-15T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Security Deposit Deadline Checker</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tenant-security-deposit-deadline-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/tenant-security-deposit-deadline-checker</id>
+    <updated>2026-10-15T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free tool for tenants: pick your state, enter your move-out date and deposit, and see when your landlord&#39;s deadline to return it ran out, what the statute says about late landlords, and a demand letter you can edit and send. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
   <entry>
     <title>Australia Sole Trader Tax Set-Aside Calculator — Income Tax + Medicare</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/au-sole-trader-tax-set-aside-calculator/"/>
@@ -158,13 +166,5 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free UK landlord Section 24 calculator for 2025/26 and 2026/27: enter rent, costs, mortgage interest and other income to see your tax bill, the 20% finance cost credit and how much more you pay than under the old rules. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>UK Late Payment Interest Calculator (statutory 8% plus base rate, £40/£70/£100 compensation)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-late-payment-interest-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/uk-late-payment-interest-calculator</id>
-    <updated>2026-10-14T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free UK late payment interest calculator: statutory interest at 8% over base rate, fixed compensation of £40, £70 or £100 and a ready-to-send demand letter for an overdue business invoice. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
