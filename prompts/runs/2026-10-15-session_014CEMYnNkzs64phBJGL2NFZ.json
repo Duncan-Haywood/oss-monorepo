@@ -29,7 +29,10 @@
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "research/_mirror/README.md and upstream PROJECTS.md: sync needs full upstream history; add_repo clone is shallow, so I fetched --depth=300 to run the template blob diff. Not stated in either doc."
+    {
+      "file": "research/_mirror/README.md",
+      "issue": "Sync step 2 needs the upstream blob diff, but add_repo clones shallow; I had to fetch --depth=300 in the upstream clone first. Not mentioned."
+    }
   ],
   "deviations": [],
   "goal": null,
