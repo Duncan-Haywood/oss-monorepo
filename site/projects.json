@@ -2247,6 +2247,11 @@
      "slug": "mimic-contexts",
      "title": "How well do prompt-free detectors tell people from a plainly prompted LLM, and do they carry over to unseen kinds of text?",
      "summary": "Eight text families from RAID (300 human and 300 plain-prompt chat-LLM texts each), split by family: train on five, hold out poetry, reviews and wiki. Prompt-free detectors on the held-out families: character/word n-gram logistic regression AUROC 0.93 (95% interval 0.91&ndash;0.94), a Binoculars-style zero-shot score from Qwen2.5-0.5B 0.80 (0.77&ndash;0.83), perplexity alone 0.76; a length-only detector is at chance (0.52). Zero-shot scores are weak on mpt-chat text (0.65) while n-grams are not (0.95). Limits: the &lsquo;imitator&rsquo; is RAID&rsquo;s own chat generations, not a prompted or optimised one; three chat models; no author-group labels for fairness checks. Preliminary: first step of track 11, no game yet."
+    },
+    {
+     "slug": "mimic-twinc2st",
+     "title": "Does a classifier two-sample test catch digital-twin errors that a paired trajectory error misses?",
+     "summary": "A stylised pendulum with Coulomb friction and heavy-tailed (Student-t) sensor noise is the &lsquo;real&rsquo; system; twins differ in friction, noise shape or noise level. A classifier two-sample test (5-fold CV AUROC, 800 vs 800 trajectories, 3 seeds) separates real from twin trajectories with boosted trees: a friction error of 0.03 (10%) that moves the noise-free trajectory by only 0.006 rad RMSE &mdash; a quarter of the 0.02 rad noise sd &mdash; gives AUROC 0.72, and 0.91 at 20%. A twin with the right dynamics but Gaussian instead of Student-t noise of the same sd has paired error exactly 0 yet AUROC 0.92 once second-difference features are added (0.59 on raw angles). A logistic regression on raw angles stays at chance (0.51) throughout, because the start angles are symmetric. Limits: one toy system, two noise models, three seeds, a handful of classifier settings; simulated only, nothing about real hardware. Preliminary, no LLM involved: a side piece of track 11."
     }
    ]
   }

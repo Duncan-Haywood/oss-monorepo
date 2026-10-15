@@ -1,6 +1,6 @@
 """C2ST vs paired RMSE as fidelity scores for pendulum twins. Writes results.txt next to this file.
 
-    python experiments/run.py      # about 3 minutes on 4 CPUs
+    python experiments/run.py      # about 7 minutes on 4 CPUs
 """
 import sys
 from pathlib import Path
