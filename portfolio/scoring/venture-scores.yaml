@@ -29475,6 +29475,13 @@ ventures:
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Stores only what the user types, in their own browser; no advice of
+      record, no upload, follow-up timing labelled a convention; reply-rate
+      figures carry a small-sample caveat.
     floor_note: >-
       Deterministic date arithmetic, counting and CSV/ICS formatting over
       what the user typed. There is no inference step a model would improve.
