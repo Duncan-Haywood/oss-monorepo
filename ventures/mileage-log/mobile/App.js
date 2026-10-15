@@ -3,9 +3,10 @@ import { SafeAreaView, ScrollView, Text, View, Pressable, TextInput, Share, Styl
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { startTracking, stopTracking, settleDrives } from "./src/background";
-import { loadPending, loadTrips, loadPlaces, savePlaces, loadVehicles, saveVehicles, loadActiveVehicle, saveActiveVehicle, saveTrips, classify, dismiss, deleteTrip } from "./src/store";
+import { loadPending, loadTrips, loadPlaces, savePlaces, loadVehicles, saveVehicles, loadActiveVehicle, saveActiveVehicle, loadSchedule, saveSchedule, saveTrips, classify, dismiss, deleteTrip } from "./src/store";
 import { suggestCategory, CATEGORIES } from "./src/classify.mjs";
 import { addPlace, describeDrive, logTripFor, remember, readyToConfirm } from "./src/places.mjs";
+import { normalizeSchedule, toggleDay, suggestWithSchedule } from "./src/schedule.mjs";
 import { addVehicle, knownVehicles, withVehicle, makeBackup, restoreBackup } from "./src/vehicles.mjs";
 import { summarize, toCsv, money, preparerReportHtml } from "../calc.mjs";
 
@@ -22,6 +23,7 @@ export default function App() {
   const [newVehicle, setNewVehicle] = useState("");
   const [restoreText, setRestoreText] = useState("");
   const [notice, setNotice] = useState("");
+  const [schedule, setSchedule] = useState(normalizeSchedule());
   const [names, setNames] = useState({}); // `${driveId}:to` -> text being typed
   const offset = -new Date().getTimezoneOffset();
   const year = new Date().getFullYear();
@@ -29,14 +31,14 @@ export default function App() {
   const refresh = useCallback(async () => {
     await settleDrives(); // close a drive the OS stopped reporting on
     setPending(await loadPending()); setTrips(await loadTrips()); setPlaces(await loadPlaces());
-    setVehicles(await loadVehicles()); setActive(await loadActiveVehicle());
+    setVehicles(await loadVehicles()); setActive(await loadActiveVehicle()); setSchedule(normalizeSchedule(await loadSchedule() || {}));
   }, []);
   useEffect(() => { refresh(); const i = setInterval(refresh, 5000); return () => clearInterval(i); }, [refresh]);
 
   const history = useMemo(() => trips.map((t) => ({ ...t, to: t.to_loc, from: t.from_loc })), [trips]);
   const suggestFor = useCallback(
-    (p) => suggestCategory(history, { to: p.to, from: p.from, startedAt: p.startedAt }, { utcOffsetMin: offset }),
-    [history, offset],
+    (p) => suggestWithSchedule(suggestCategory(history, { to: p.to, from: p.from, startedAt: p.startedAt }, { utcOffsetMin: offset }), schedule, p, { utcOffsetMin: offset }),
+    [history, offset, schedule],
   );
   const s = summarize(trips, { year }).summary;
   const ready = useMemo(() => readyToConfirm(pending, suggestFor, places), [pending, suggestFor, places]);
@@ -71,6 +73,7 @@ export default function App() {
     if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(uri, { mimeType: "text/html", dialogTitle: `Mileage report ${year}` });
   };
 
+  const updateSchedule = async (next) => { const n = normalizeSchedule(next); setSchedule(n); await saveSchedule(n); };
   const vehicleList = useMemo(() => knownVehicles(vehicles, trips), [vehicles, trips]);
   const pickVehicle = async (name) => { setActive(name); await saveActiveVehicle(name); };
   const createVehicle = async () => {
@@ -115,6 +118,21 @@ export default function App() {
         <View style={st.row}>
           <TextInput style={[st.input, st.grow]} placeholder="Add a vehicle (e.g. Ford Transit)" value={newVehicle} onChangeText={setNewVehicle} />
           <Pressable style={st.btn2} onPress={createVehicle}><Text>Add</Text></Pressable>
+        </View>
+
+        <Text style={st.h2}>Work hours</Text>
+        <Text style={st.note}>Optional. Drives inside these hours are suggested as business until the app has learned your places. It is a guess you confirm, never filed on its own.</Text>
+        <View style={st.row}>
+          <Pressable style={[st.chip, schedule.enabled && st.chipOn]} onPress={() => updateSchedule({ ...schedule, enabled: !schedule.enabled })}><Text>{schedule.enabled ? "On" : "Off"}</Text></Pressable>
+          {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((n, i) => (
+            <Pressable key={n} style={[st.chip, schedule.days.includes(i) && st.chipOn]} onPress={() => updateSchedule(toggleDay(schedule, i))}><Text>{n}</Text></Pressable>
+          ))}
+        </View>
+        <View style={st.row}>
+          <TextInput style={st.input} keyboardType="number-pad" value={String(schedule.startHour)} onChangeText={(v) => updateSchedule({ ...schedule, startHour: v })} />
+          <Text style={st.note}>to</Text>
+          <TextInput style={st.input} keyboardType="number-pad" value={String(schedule.endHour)} onChangeText={(v) => updateSchedule({ ...schedule, endHour: v })} />
+          <Text style={st.note}>o'clock</Text>
         </View>
 
         <Text style={st.h2}>To review ({pending.length})</Text>
