@@ -57,6 +57,10 @@ in both. oss-monorepo's `research/_mirror/mirror.py` keeps its `research/` an ex
    `site/template.html` run unchanged at `oss-monorepo/research/_homepage/`, by finding projects
    and the README relative to the layout. Keep `CLAUDE.md` and `prompt.md` free of anything that
    only fits this repository. Then move those files to the exact map in `mirror.py`.
+   - *Progress (2026-10-15):* `site/build.py` and `site/template.html` now run unchanged in both
+     layouts (tested on a copy laid out as `research/_homepage/`); only the repository name differs,
+     via `HOMEPAGE_REPO` or `--repo`. Still open: `CLAUDE.md` and `prompt.md` portability, and the
+     `oss-monorepo` side that sets `HOMEPAGE_REPO` and drops `build.py` from the hand-ported list.
 4. `mirror-cutover` (both): prepare the cutover that `research/_mirror/README.md` describes. That
    covers the "moved" notices for this README, `CLAUDE.md` and the Pages homepage, and serving the
    research homepage from oss-monorepo's Pages, which already builds it at `/research/`. The
@@ -109,6 +113,12 @@ in both. oss-monorepo's `research/_mirror/mirror.py` keeps its `research/` an ex
      assistance note, and its theme. The homepage card links to it. Generate it from
      `projects.json`, the README and the project's files, so a new project gets its page with no
      extra step, and make the build fail when a project's page cannot be built.
+   - *Progress (2026-10-15):* `site/build.py` now writes `_site/<slug>/index.html` from
+     `site/project.html` for all projects (abstract, test count, links, AI note, and the first
+     image under the project's `experiments/`), the homepage card links to it, and the build
+     fails if a page cannot be built. Only 7 projects ship an image today, so most pages have no
+     figure yet. Still open: have each project's experiment code write a figure, and the
+     `oss-monorepo` products half.
    - **Products (*oss-monorepo*).** Every venture gets a home or marketing page from the Pages
      build, including the CLIs, servers and apps the mirror excludes today: what it does and for
      whom, a screenshot or demo, how to install or run it, and links to the code, with the
