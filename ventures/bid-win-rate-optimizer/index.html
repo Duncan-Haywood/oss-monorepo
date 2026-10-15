@@ -76,6 +76,7 @@
     <p class="note">Won can be 1/0, won/lost, yes/no, accepted/declined. Leave out bids still pending. Markup means (quote − cost) ÷ cost. With a cost on every row the curve is about markup and works across job sizes; without it the tool uses raw prices and is only as good as your jobs are similar. Rows are read in the order given (oldest first) so the back-test can score your most recent bids. At least 30 bids with 8 wins and 8 losses, at four or more different markups.</p>
     <button type="button" id="analyze">Analyse</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-typed">Example with job types</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <p id="form-status" role="status" class="note">Upload or paste your bids, then click Analyse.</p>
   </section>
@@ -91,6 +92,11 @@
     <h3>What a price change would do</h3>
     <p class="note">Around your usual quote, from the fitted curve. Rows marked "outside" are beyond the markups you have quoted: read them as a guess, not a result.</p>
     <div class="scroll"><table id="sc"><thead><tr><th>Change</th><th class="n">Quote</th><th class="n">Win chance</th><th class="n" id="profit-h">Expected profit per bid</th><th></th></tr></thead><tbody></tbody></table></div>
+    <div id="seg" hidden>
+      <h3>By job type</h3>
+      <div id="seg-note" class="note"></div>
+      <div class="scroll"><table id="seg-t"><thead><tr><th>Job type</th><th class="n">Bids</th><th class="n">Won</th><th class="n">Your usual markup</th><th class="n">Best markup</th><th class="n">80% range</th><th class="n">Profit gain per bid</th></tr></thead><tbody></tbody></table></div>
+    </div>
     <h3>Back-test</h3>
     <div id="bt-note" class="note"></div>
     <button type="button" id="download">Download scenarios CSV</button>
@@ -131,7 +137,7 @@
   </footer>
 
   <script type="module">
-    import { parseRows, analyze, reportCsv, sampleText, num, money, pct } from "./calc.mjs";
+    import { parseRows, analyze, analyzeSegments, reportCsv, sampleText, sampleTextTyped, num, money, pct } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -177,6 +183,15 @@
       const msg = r.verdict === "usable" ? "Higher quotes clearly won less often, and price helped predict held-out bids. Still a hypothesis: try a small change in markup before relying on it." : r.verdict === "weak" ? "The data leans toward higher quotes winning less, but the interval is wide or the hold-out did not confirm it. Collect more bids or vary your quotes more before acting." : "The data does not show a believable win curve. Do not set prices from this result.";
       $("#trust").innerHTML = `<div class="warn ${r.verdict === "unidentified" ? "stop" : ""}"><span class="pill ${pill[0]}">${pill[1]}</span>${esc(msg)}</div>`;
       $("#chart").innerHTML = chart(r);
+      const sg = parsed.hasSegments ? analyzeSegments(parsed.rows) : null;
+      $("#seg").hidden = !sg;
+      if (sg) {
+        if (sg.error) { $("#seg-note").textContent = sg.error; $("#seg-t tbody").innerHTML = ""; }
+        else {
+          $("#seg-note").textContent = `One shared price slope, a separate base win rate per job type. ${sg.differ ? "The types differ clearly in how often you win" : "The types do not differ clearly"} (likelihood-ratio test, p = ${sg.pValue < 0.001 ? "<0.001" : sg.pValue.toFixed(3)}). ${sg.warnings.join(" ")}`;
+          $("#seg-t tbody").innerHTML = sg.segments.map((s) => `<tr><td>${esc(s.name)}</td><td class="n">${s.n}</td><td class="n">${pct(s.winRate, 0)}</td><td class="n">${pct(s.usualMarkup, 0)}</td><td class="n">${pct(s.bestMarkup, 0)}${s.boundary ? " (edge)" : ""}</td><td class="n">${pct(s.markupRange80[0], 0)} to ${pct(s.markupRange80[1], 0)}</td><td class="n">${money(s.gain)}</td></tr>`).join("");
+        }
+      }
       $("#profit-h").hidden = !r.optimum;
       $("#sc tbody").innerHTML = r.scenarios.map((s) => `<tr><td>${s.change === 0 ? "usual" : (s.change > 0 ? "+" : "") + Math.round(s.change * 100) + "%"}</td><td class="n">${money(s.price)}</td><td class="n">${pct(s.winChance, 0)}</td>${r.optimum ? `<td class="n">${money(s.expectedProfit)}</td>` : ""}<td>${s.tested ? "" : "outside tested range"}</td></tr>`).join("");
       $("#bt-note").textContent = r.holdout ? `Fitted on the first ${r.n - r.holdout.test} bids, scored on the last ${r.holdout.test}. Average log-loss ${r.holdout.logLossModel.toFixed(3)} with price, ${r.holdout.logLossBase.toFixed(3)} assuming only your overall win rate (lower is better). ${r.holdout.helps ? "Knowing the price helped." : "Knowing the price did not help, so do not read much into the curve."}` : "Not enough bids to hold out a test period.";
@@ -191,6 +206,11 @@
       $("#rows").value = sampleText();
       $("#jobcost").value = "12000"; $("#usual").value = "";
       if (run()) { record("example_loaded"); status.textContent = "Sample data: 90 invented bids for one trade, not a real business."; }
+    });
+    $("#load-typed").addEventListener("click", () => {
+      $("#rows").value = sampleTextTyped();
+      $("#jobcost").value = ""; $("#usual").value = "";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 150 invented bids across three job types, not a real business."; }
     });
     $("#file").addEventListener("change", (e) => {
       const f = e.target.files[0]; if (!f) return;

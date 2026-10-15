@@ -286,6 +286,24 @@ export async function withSnapshot(dir, body) {
 }
 
 /**
+ * Static pages the front-door mirror holds out for a fixable reason (a link it
+ * cannot follow, an unroutable filename). CLIs and build-step apps are not
+ * listed: they can never be pages. Before this, a venture that lost its apex
+ * copy to a stray `href="../"` or a png asset was reported by nothing, and
+ * `--verify` said current (process backlog P008).
+ */
+async function fixableExclusions() {
+  const { explainIneligible } = await import('./front-door-tools.mjs');
+  return (await explainIneligible()).filter((e) => e.kind !== 'not-a-page');
+}
+
+function reportExclusions(list, print) {
+  if (!list.length) return;
+  print(`\n${list.length} venture page(s) the mirror silently drops, each fixable in the venture:`);
+  for (const { slug, kind, reason } of list) print(`  ${slug} [${kind}]: ${reason}`);
+}
+
+/**
  * Run every generator and report whether the committed artifacts already match
  * what they produce, leaving the tree exactly as it was found.
  *
@@ -390,6 +408,11 @@ if (isMain) {
         `\nregen --verify: ${rootRel}/ matches what ${generators.length} generator(s) produce. ` +
           `The committed surface is current.`,
       );
+      const dropped = await fixableExclusions().catch(() => []);
+      if (dropped.length) {
+        reportExclusions(dropped, (line) => console.error(line));
+        process.exit(1);
+      }
       process.exit(0);
     }
 
@@ -414,6 +437,7 @@ if (isMain) {
         `Never hand-edit them — see platform/marketing/resolve-mirror-merge.sh for why ` +
         `picking a side is always wrong here.`,
     );
+    reportExclusions(await fixableExclusions().catch(() => []), (line) => console.error(line));
     process.exit(1);
   }
   for (const name of generators) {
@@ -428,5 +452,6 @@ if (isMain) {
     }
   }
 
+  reportExclusions(await fixableExclusions().catch(() => []), (line) => console.log(line));
   console.log(`\nregen: ${generators.length} generator(s) ran. The served surface is current.`);
 }
