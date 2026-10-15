@@ -31,18 +31,18 @@
   "doc_friction": [
     {
       "file": "prompts/review/prompt-1.md",
-      "note": "2026-10-15: steps 1-2 (fill merged, random audit) skipped: most records are bulk-mirrored upstream and nothing local to audit"
+      "issue": "2026-10-15: steps 1-2 (fill merged, random audit) skipped: most records are bulk-mirrored upstream and nothing local to audit"
     },
     {
       "file": "prompts/promptctl.py",
-      "note": "2026-10-15: runs_since_review ordered same-day records by random session id; fixed by git landing order"
+      "issue": "2026-10-15: runs_since_review ordered same-day records by random session id; fixed by git landing order"
     }
   ],
   "deviations": [
     {
-      "instruction": "review steps 1,2,4",
-      "did": "fixed due counter only; no candidate",
-      "why": "fewer than 10 runs for every candidate; no auditable local outputs",
+      "file": "prompts/review/prompt-1.md",
+      "what": "steps 1,2,4: fixed due counter only, no candidate",
+      "why": "fewer than 10 runs for every candidate; nothing auditable locally",
       "result": "counter 37 -> 5"
     }
   ],
