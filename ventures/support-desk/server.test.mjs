@@ -116,3 +116,16 @@ test("personal agent keys sign replies and notes, claim unassigned tickets, and 
   assert.equal(t.assignee, "bob"); assert.equal(t.messages.at(-1).from, "alice");
   s.close();
 });
+
+test("a ticket page lists the requester's earlier tickets and the admin shows a copy-paste form", async () => {
+  const s = await boot();
+  const post = (subject, from, id) => json(`${s.base}/in/${s.mb.inboundToken}`, { from, subject, text: "hi", messageId: id });
+  await post("First problem", "ann@x.com", "<1>"); await post("Other person", "bob@x.com", "<2>"); await post("Second problem", "ann@x.com", "<3>");
+  const t2 = await (await fetch(`${s.base}/admin/t/3`, { headers: auth })).text();
+  assert.match(t2, /Earlier tickets from ann@x\.com/); assert.match(t2, /First problem/); assert.doesNotMatch(t2, /Other person/);
+  const t1 = await (await fetch(`${s.base}/admin/t/2`, { headers: auth })).text();
+  assert.doesNotMatch(t1, /Earlier tickets/);
+  const admin = await (await fetch(`${s.base}/admin`, { headers: auth })).text();
+  assert.match(admin, new RegExp(`&lt;form method=&quot;post&quot; action=&quot;http://127\\.0\\.0\\.1:\\d+/m/${s.mb.id}`));
+  s.close();
+});

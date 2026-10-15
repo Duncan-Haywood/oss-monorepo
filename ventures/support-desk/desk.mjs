@@ -199,6 +199,11 @@ export function list(state, { status = "open", q = "", mailbox = "", assignee = 
     .sort((a, b) => (status === "open" ? rank(a) - rank(b) : 0) || b.updated - a.updated);
 }
 
+// Other tickets from the same requester, newest first: context before replying.
+export function history(state, t, k = 5) {
+  return Object.values(state.tickets).filter((x) => x.id !== t.id && x.requester.email === t.requester.email && x.status !== "spam").sort((a, b) => b.updated - a.updated).slice(0, k);
+}
+
 export function summary(state, now = Date.now()) {
   const ts = Object.values(state.tickets).filter((t) => t.status !== "spam");
   const by = Object.fromEntries(STATUSES.map((s) => [s, 0])); for (const t of Object.values(state.tickets)) by[t.status]++;

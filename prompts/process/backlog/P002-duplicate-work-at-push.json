@@ -21,6 +21,6 @@
   "opened": "2026-10-15",
   "source": "prompts/process/reports/2026-10-15*.md",
   "pr": 7149,
-  "result": null,
+  "result": "too early: platform/ci/slug_dupe.py exists and runs (--help ok); 1 of 424 run records mentions it. Duplicate-pair counts need a later two-week window.",
   "history": []
 }

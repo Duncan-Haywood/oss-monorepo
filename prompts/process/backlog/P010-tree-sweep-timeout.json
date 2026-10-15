@@ -18,6 +18,6 @@
   "opened": "2026-10-15",
   "source": "prompts/process/reports/2026-10-15*.md",
   "pr": 7077,
-  "result": null,
+  "result": "too early: --workflow-timeout (default 300s) and per-step flushed output are in run_workflow_locally.py. 8 run records mention the tool, but all are dated 2026-10-15 and cannot be ordered against PR 7077, so whether friction fell is unknown. Re-check once records span another day.",
   "history": []
 }

@@ -1,5 +1,5 @@
 // Server-rendered pages. Every dynamic value goes through esc().
-import { list, summary, slaState, refOf, STATUSES, PRIORITIES, suggest, renderMacro } from "./desk.mjs";
+import { list, summary, slaState, refOf, STATUSES, PRIORITIES, suggest, renderMacro, history } from "./desk.mjs";
 
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const when = (t) => new Date(t).toISOString().replace("T", " ").slice(0, 16);
@@ -9,6 +9,15 @@ const shell = (cfg, title, body, { sponsor = cfg.sponsor } = {}) => `<!doctype h
 <style>:root{font:16px system-ui,sans-serif;color:#1c2030;background:#f6f7fb}body{max-width:1040px;margin:auto;padding:24px}a{color:#2342b8}.card{background:#fff;border:1px solid #dde1ec;border-radius:12px;padding:18px;margin:16px 0}label{display:block;font-weight:600;margin:10px 0 4px}input,select,textarea{width:100%;box-sizing:border-box;padding:8px;border:1px solid #b5bdd6;border-radius:6px;font:inherit}button{padding:7px 14px;border:0;border-radius:6px;background:#2342b8;color:#fff;font:inherit;cursor:pointer}button.alt{background:#e3e6f1;color:#1c2030}table{border-collapse:collapse;width:100%;font-size:.92rem}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid #e3e6f1;vertical-align:top}pre{background:#eef0f8;padding:10px;border-radius:8px;overflow-x:auto;font-size:.82rem;white-space:pre-wrap}.muted{color:#46506b;font-size:.85rem}form.inline{display:inline}.msg{border-left:4px solid #b5bdd6;padding:6px 12px;margin:12px 0;white-space:pre-wrap}.msg.out{border-color:#2342b8;background:#f1f4ff}.msg.note{border-color:#d9a400;background:#fff8e1}.pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:.78rem;background:#e3e6f1}.pill.overdue,.pill.high{background:#fbd9db;color:#8a1118}.pill.soon{background:#fff0c2}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.grid div{background:#eef0f8;border-radius:8px;padding:10px}.grid b{display:block;font-size:1.4rem}</style></head><body><main>
 <h1><a href="/admin" style="text-decoration:none;color:inherit">${esc(cfg.company)} · support desk</a></h1>${body}
 <p class="muted">No warranty; no delivery or uptime guarantee. Review replies before sending; priority and spam flags are heuristics.${sponsor ? ` <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the author</a>.` : ""}</p></main></body></html>`;
+
+export const formSnippet = (base, id) => `<form method="post" action="${base}/m/${id}">
+  <input name="name" placeholder="Your name">
+  <input name="email" type="email" placeholder="Your email" required>
+  <input name="subject" placeholder="Subject">
+  <textarea name="message" placeholder="How can we help?" required></textarea>
+  <input name="_gotcha" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+  <button>Send</button>
+</form>`;
 
 const opts = (vals, cur) => vals.map((v) => `<option${v === cur ? " selected" : ""}>${esc(v)}</option>`).join("");
 
@@ -22,7 +31,7 @@ export function adminPage(cfg, state, base, q, now) {
   const sum = summary(state, now);
   const boxes = Object.values(state.mailboxes);
   const tabs = ["open", "pending", "closed", "spam", "all"].map((s) => (s === status ? `<b>${s}${s !== "all" ? ` (${sum.by[s]})` : ""}</b>` : `<a href="/admin?status=${s}">${s}${s !== "all" ? ` (${sum.by[s]})` : ""}</a>`)).join(" · ");
-  const boxRows = boxes.map((m) => `<tr><td>${esc(m.name)}</td><td><code>${esc(base)}/in/${esc(m.inboundToken)}</code></td><td><code>${esc(base)}/m/${esc(m.id)}</code></td><td>${m.slaHours} h</td></tr>`).join("");
+  const boxRows = boxes.map((m) => `<tr><td>${esc(m.name)}</td><td><code>${esc(base)}/in/${esc(m.inboundToken)}</code></td><td><code>${esc(base)}/m/${esc(m.id)}</code></td><td>${m.slaHours} h</td></tr><tr><td colspan="4"><details><summary>Copy-paste contact form for ${esc(m.name)}</summary><pre>${esc(formSnippet(base, m.id))}</pre></details></td></tr>`).join("");
   return shell(cfg, `${cfg.company} support desk`, `
 <div class="card"><div class="grid"><div><b>${sum.by.open}</b>open</div><div><b>${sum.overdue}</b>past first-reply target</div><div><b>${sum.by.pending}</b>waiting on customer</div><div><b>${sum.medianFirstResponseMin === null ? "—" : dur(sum.medianFirstResponseMin * 60_000)}</b>median first reply</div><div><b>${sum.slaMetPct === null ? "—" : `${sum.slaMetPct}%`}</b>replied in target</div></div>${sum.topTags.length ? `<p class="muted">Top tags: ${sum.topTags.map(([g, n]) => `<a href="/admin?status=all&q=${encodeURIComponent(g)}">${esc(g)}</a> ${n}`).join(", ")}</p>` : ""}</div>
 <div class="card"><p>${tabs} · <a href="/admin/macros">Saved replies (${state.macros.length})</a> · <a href="/admin/export.csv">Export CSV</a></p>
@@ -46,11 +55,13 @@ export function ticketPage(cfg, state, t, base, now, { macroId = "" } = {}) {
   const chosen = state.macros.find((m) => m.id === macroId);
   const vars = { name: t.requester.name || t.requester.email.split("@")[0], ticket: refOf(t), company: cfg.company };
   const draft = chosen ? renderMacro(chosen.body, vars) : "";
+  const past = history(state, t);
   return shell(cfg, `#${t.n} ${t.subject}`, `
 <p><a href="/admin">&larr; all tickets</a></p>
 <div class="card"><h2>${esc(refOf(t))} ${esc(t.subject)}</h2>
 <p class="muted">${esc(t.requester.name ? `${t.requester.name} <${t.requester.email}>` : t.requester.email)} · ${esc(mb.name || t.mailbox)} · opened ${esc(when(t.created))} UTC · <span class="pill">${esc(t.status)}</span> <span class="pill ${esc(t.priority)}">${esc(t.priority)}</span>${s.state === "overdue" ? ` <span class="pill overdue">first reply overdue</span>` : ""}</p>
 ${t.reasons.length ? `<p class="muted">Flagged because: ${esc(t.reasons.join("; "))}</p>` : ""}${thread}</div>
+${past.length ? `<div class="card"><h2>Earlier tickets from ${esc(t.requester.email)}</h2><ul>${past.map((x) => `<li><a href="/admin/t/${x.n}">${esc(refOf(x))} ${esc(x.subject)}</a> <span class="pill">${esc(x.status)}</span> <span class="muted">${esc(when(x.updated))} UTC</span></li>`).join("")}</ul></div>` : ""}
 <div class="card"><h2>Reply</h2>
 ${sug.length ? `<p class="muted">Suggested saved replies: ${sug.map((x) => `<a href="/admin/t/${t.n}?macro=${esc(x.macro.id)}#reply">${esc(x.macro.title)}</a> (${Math.round(x.score * 100)}% match)`).join(" · ")}</p>` : state.macros.length ? "" : `<p class="muted">No saved replies yet; <a href="/admin/macros">add some</a> and the best match is suggested here.</p>`}
 <form method="post" action="/admin/t/${t.n}/reply" id="reply"><label for="text">Message to ${esc(t.requester.email)}</label><textarea id="text" name="text" rows="7" required maxlength="20000">${esc(draft)}</textarea>
