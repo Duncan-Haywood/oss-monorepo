@@ -1486,6 +1486,11 @@
      "summary": "A follow-up to <code>robofab-edgeconv</code> (stylised). Golden-section refinement of the trapezoid's ramp fraction lowers its six-part total by 0.00 to 0.60% across the twelve speed-limited rows. With the solver at 6400 nodes the time-optimal edge, +0.11 to +0.88% over the grid-tuned trapezoid, falls to +0.05 to +0.28% over the refined one, still positive in every row. The smallest edges are comparable to the solver's residual discretisation error, so their sign is not firmly established. One planar arm, assumed parameters, no motor dynamics; simulated only."
     },
     {
+     "slug": "robofab-torquebound",
+     "title": "Does the time-optimal carry's edge over a tuned trapezoid survive when torque or the jaw cap binds?",
+     "summary": "Follow-up to <code>robofab-toppconv</code> (stylised, preliminary). The nine no-speed-limit rows of <code>robofab-scurve</code> (three arm sizes, jaw cap 2&times;, 5&times; or none, six printed parts each) are recomputed with the time-optimal solver at 400 to 25600 nodes and the trapezoid on a fine ramp grid with 40 and 160 extra samples per ramp. The time-optimal carry is 9.4% to 23.0% faster than the trapezoid in every row; the solver is converged to within 0.004% by 6400 nodes, and denser ramp sampling slows the trapezoid by 0.05% to 0.5%, raising the edge by at most 0.4 points. So, unlike the sub-1% edge under a speed limit, the torque- and jaw-bound gap is not a resolution artefact in this toy. A trapezoid-only comparison on assumed parameters; not a claim about real arms."
+    },
+    {
      "slug": "robofab-toppconv",
      "title": "Once the time-optimal solver's node count is converged, how big is its edge over a tuned trapezoid?",
      "summary": "Follow-up to <code>robofab-scurvefine</code>: all 12 rows (three arm sizes, jaw cap 5&times; or none, joint speed limit 2 or 1&nbsp;rad/s, six printed parts each) are re-solved at 400, 1600, 6400 and 25600 nodes. The totals change by at most 0.02% between 6400 and 25600 nodes, while 400 nodes is up to 0.5% pessimistic, which explains the negative &ldquo;edges&rdquo; there (7 of 12 rows). At 25600 nodes the time-optimal profile is faster than the ramp-resolved trapezoid in every row, by 0.11&ndash;0.88%. The observed convergence order is noisy (1.1&ndash;3.2). Stylised and preliminary; the trapezoid side&rsquo;s ramp sampling is not varied."
@@ -1593,6 +1598,11 @@
      "summary": "Extending the stylised urgency-label model, the assistant estimates the label&rsquo;s class mix and confusion matrix from n audited messages and then acts by Bayes&rsquo; rule. With maximum-likelihood estimates, n&nbsp;=&nbsp;10 is worse than ignoring the label (mean utility 0.363 against 0.382 at 70% label accuracy); n&nbsp;=&nbsp;50 recovers 76% of the gain of knowing the true parameters and n&nbsp;=&nbsp;200 recovers 92%. Add-one smoothing cuts the spread at tiny n but costs a little at high accuracy. Stylised: round-number utilities, uniform label errors, noise-free audit labels."
     },
     {
+     "slug": "ambient-noisyaudit",
+     "title": "What does a noisy auditor do to an assistant that learns its urgency label&rsquo;s reliability from audits?",
+     "summary": "Extending the stylised urgency-label model, the audit labels are themselves wrong. Taking them as truth biases the estimated label accuracy (0.57 instead of 0.70 with a 0.8-accuracy auditor) and does not improve with more audits: the policy loses 47% of the label&rsquo;s gain over ignoring it at label accuracy 0.7, and 31% at 0.9. A 0.9 auditor costs only 8&ndash;14%. Maximum likelihood over the unseen true class, given the auditor&rsquo;s accuracy, recovers the true-parameter value, but it needs that accuracy known (not identifiable from one auditor) and is no better at 50 audits with a poor auditor. Stylised; both label and auditor are made-up uniform-error matrices."
+    },
+    {
      "slug": "ambient-bandit",
      "title": "Can an always-on assistant learn when to speak from accept/dismiss feedback alone, and what does it cost in dismissals?",
      "summary": "A simulated assistant learns an interruption policy online (greedy, &epsilon;-greedy or Thompson-sampled logistic model) from the user&rsquo;s reaction only when it speaks. With an uninformed prior none of the three learns a useful policy in 100&nbsp;h; with a prior that the intent score is informative, greedy reaches 90% of an offline oracle&rsquo;s rate after a median 22.5&nbsp;h and about 185 dismissals, and Thompson sampling takes 32.5&nbsp;h. It still earns 10.4 against the oracle&rsquo;s 12.7 per hour, and after a drop in classifier quality it does far worse than frozen offline weights (0.3 vs 4.4 per hour). Stylised: independent windows, instant noise-free feedback, picked costs."
@@ -1641,6 +1651,11 @@
      "slug": "ambient-drablate",
      "title": "Which of score, fold count and fold type made cap selection better in ambient-drvalid?",
      "summary": "A stylised, mostly negative ablation of <em>ambient-drvalid</em>: all 8 combinations of validation score (IPS or doubly robust), folds (4 or 8) and fold type (contiguous or random) choosing the doubly robust cap, 20 seeds. With an informed prior all eight are within 0.2 utility/h. With the uninformed prior, random folds are the most consistent help: at &epsilon; = 0.02 the 4-fold IPS selector gives &minus;1.4 (std 24) against 5.6 (std 7.3) with random folds, and IPS on 8 random folds (6.3) matches DR on 8 random folds (5.9). At &epsilon; = 0.005 the DR score is worse than IPS on contiguous folds (&minus;26.9 vs &minus;17.7) and no selector is clearly best; seed standard deviations are 5&ndash;55. Every selector stays far below the label-matched control (about 12). Simulated, independent windows, no significance tests."
+    },
+    {
+     "slug": "ambient-drrepeat",
+     "title": "Do repeated random fold assignments stabilise validation-based cap selection?",
+     "summary": "A stylised, mixed follow-up to <em>ambient-drablate</em>: averaging the cap-selection score over 5 random fold assignments (instead of one) with an uninformed prior, 20 seeds. At &epsilon; = 0.02 it lifts the IPS-score selector from 3.5 to 5.3 utility/h and halves its seed spread; at smaller &epsilon; it changes nothing beyond noise. Single-assignment results differ from the earlier project's, showing how much one fold permutation can matter. Every selector stays far below the label-matched control (about 12). Simulated and stylised only."
     },
     {
      "slug": "ambient-wearable",
@@ -2146,6 +2161,11 @@
      "slug": "eda-proposers",
      "title": "Which search method finds a chip design's Pareto front with the fewest evaluations?",
      "summary": "Random search, a grid, simulated annealing, a genetic algorithm, NSGA-II and a TPE-style Bayesian method are compared at equal evaluation budgets on an 80-design space (MAC lanes &times; bit width &times; ABC script) of a toy quantised-MLP accelerator, using Pareto hypervolume over 100 seeds. TPE reaches 0.917 of the true-front hypervolume at 16 evaluations against 0.891 for random, and 0.980 against 0.943 at 30; annealing trails random throughout. Stylised: the space is tiny (random search at 40 evaluations already scores 0.965), hyperparameters are untuned, objectives are generic-gate counts, and nothing is said about real chips."
+    },
+    {
+     "slug": "eda-flowtune",
+     "title": "Does the best ABC recipe for one design transfer to another?",
+     "summary": "All 400 ABC pass sequences (up to three passes of seven) mapped to SKY130 on eight small datapath designs, so every optimum is known. The best recipe differs per design and transfers badly: one design&rsquo;s best recipe scores a mean 1.31&times; (worst 2.06&times;) the other&rsquo;s optimum, and score rankings of recipes correlate only weakly across designs (Spearman &minus;0.51 to 0.46). A leave-one-out consensus recipe is only slightly better than a median sequence (1.22&times; against 1.26&times;), and warm-starting a hill climber with it helps one design (<em>mac4</em>) but is within noise of random search on average at budgets 10 to 40. Stylised: eight hand-picked toy designs, ABC&rsquo;s static delay, no place and route; the OpenROAD-settings half of the milestone is not done."
     }
    ]
   },
