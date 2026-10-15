@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01VTciZJNiY2MFkprfhsrnzb",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "mirror",
+  "projects": [
+    "robofab-slipcrit",
+    "robofab-slipthresh",
+    "swe-value"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7078",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    "prompts/research/prompt-0.md says research work lands upstream; a mirror-sync milestone is the only research work that lands here, which took several reads to confirm."
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "mirror-sync only: no adapted files changed; check, build and validate all passed. Merged with a merge commit.",
+  "corrections": [],
+  "redteam": null
+}
