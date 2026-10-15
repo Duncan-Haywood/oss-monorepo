@@ -1,0 +1,80 @@
+accel-policy results (stylised; assumed hardware constants)
+BC samples 14746 (+DAgger per network), test moves 12
+
+Teacher (computed-torque PD; its own compute cost is not charged): RMS joint error (rad) / peak error (rad) by control period
+  Ts (ms)   no delay          one-sample delay
+    0.05    0.00002/0.00006   0.00002/0.00008
+     0.1    0.00003/0.00012   0.00004/0.00017
+    0.25    0.00009/0.00030   0.00011/0.00042
+       1    0.00019/0.00070   0.00039/0.00165
+       5    0.00062/0.00278   0.00207/0.00982
+
+Networks (zero latency, Ts = 1 ms): RMS/peak closed-loop error in rad ('inf' = diverged)
+  hidden [8]       MACs    80  DAgger samples 43132  val_mse 0.00014  float 0.01667/0.0942  int8 0.69205/8.0743  int4 inf/inf
+  hidden [16]      MACs   160  DAgger samples 45125  val_mse 0.00011  float 0.00969/0.0418  int8 0.11932/0.4892  int4 inf/inf
+  hidden [32]      MACs   320  DAgger samples 44237  val_mse 0.00015  float 0.01701/0.0794  int8 0.06240/0.2407  int4 0.11668/0.3314
+  hidden [16, 16]  MACs   416  DAgger samples 34649  val_mse 0.00015  float 0.02471/0.1382  int8 0.37649/1.4746  int4 0.26798/1.5011
+  hidden [32, 32]  MACs  1344  DAgger samples 42907  val_mse 0.00014  float 0.01697/0.2805  int8 0.29262/1.4786  int4 inf/inf
+  hidden [64, 64]  MACs  4736  DAgger samples 41202  val_mse 0.00011  float 0.15342/3.3365  int8 1.05408/9.7744  int4 inf/inf
+
+Latency (us) per platform and, where latency <= Ts, the int8 closed-loop RMS error (rad) at that Ts; '--' = misses the deadline
+hidden [8] (80 MACs)
+  platform                                    cycles latency_us     0.05ms      0.1ms     0.25ms        1ms        5ms
+  Cortex-M0+ @ 48 MHz (assumed 6 cyc/MAC)        600      12.5        inf        inf    0.75565    0.70548        inf
+  Cortex-M4 @ 168 MHz (assumed 2.5 cyc/MAC)      320       1.9        inf        inf    0.12692    0.79714        inf
+  accelerator P=1 @ 25 MHz                        86       3.4        inf        inf        inf    0.66533    0.77220
+  accelerator P=1 @ 50 MHz                        86       1.7        inf        inf        inf    0.81411        inf
+  accelerator P=4 @ 25 MHz                        30       1.2        inf        inf    1.13769    0.76178    0.92485
+  accelerator P=4 @ 50 MHz                        30       0.6        inf        inf    0.73419    0.66169    0.40147
+  accelerator P=16 @ 25 MHz                       22       0.9        inf        inf    0.98302    0.65140    0.39948
+  accelerator P=16 @ 50 MHz                       22       0.4        inf        inf    0.74220    0.64638    0.39592
+hidden [16] (160 MACs)
+  platform                                    cycles latency_us     0.05ms      0.1ms     0.25ms        1ms        5ms
+  Cortex-M0+ @ 48 MHz (assumed 6 cyc/MAC)       1112      23.2    0.68849    0.14330    0.14379    0.12703    0.10805
+  Cortex-M4 @ 168 MHz (assumed 2.5 cyc/MAC)      552       3.3        inf    0.15198    0.13480    0.11728    0.11666
+  accelerator P=1 @ 25 MHz                       166       6.6    0.12827    0.13235        inf    0.11382    0.13064
+  accelerator P=1 @ 50 MHz                       166       3.3        inf    0.15170    0.13759    0.11690    0.11654
+  accelerator P=4 @ 25 MHz                        54       2.2    0.13492    0.13909    0.13967    0.11932    0.11556
+  accelerator P=4 @ 50 MHz                        54       1.1    0.13045    0.13893    0.13610    0.11852    0.14971
+  accelerator P=16 @ 25 MHz                       30       1.2    0.13037    0.13876    0.13560    0.12019    0.11401
+  accelerator P=16 @ 50 MHz                       30       0.6    0.13855    0.13604    0.13923    0.11870    0.11629
+hidden [32] (320 MACs)
+  platform                                    cycles latency_us     0.05ms      0.1ms     0.25ms        1ms        5ms
+  Cortex-M0+ @ 48 MHz (assumed 6 cyc/MAC)       2136      44.5    0.07042    0.07238    0.06861    0.07216    0.18709
+  Cortex-M4 @ 168 MHz (assumed 2.5 cyc/MAC)     1016       6.0    0.06858    0.07315    0.07571    0.06232    0.20941
+  accelerator P=1 @ 25 MHz                       326      13.0    0.07235    0.07044    0.06841    0.05909    0.23238
+  accelerator P=1 @ 50 MHz                       326       6.5    0.07515    0.07068    0.07329    0.06536    0.22642
+  accelerator P=4 @ 25 MHz                       102       4.1    0.07697    0.07168    0.06764    0.06388    0.23326
+  accelerator P=4 @ 50 MHz                       102       2.0    0.07322    0.06987    0.06903    0.06283    0.22941
+  accelerator P=16 @ 25 MHz                       54       2.2    0.06840    0.06851    0.06986    0.06245    0.21247
+  accelerator P=16 @ 50 MHz                       54       1.1    0.06813    0.07565    0.07248    0.06605    0.23737
+hidden [16, 16] (416 MACs)
+  platform                                    cycles latency_us     0.05ms      0.1ms     0.25ms        1ms        5ms
+  Cortex-M0+ @ 48 MHz (assumed 6 cyc/MAC)       2752      57.3         --    0.56754    0.61492    0.33361        inf
+  Cortex-M4 @ 168 MHz (assumed 2.5 cyc/MAC)     1296       7.7        inf    0.34861        inf    0.36598        inf
+  accelerator P=1 @ 25 MHz                       425      17.0        inf    0.39986        inf    0.36138        inf
+  accelerator P=1 @ 50 MHz                       425       8.5        inf    0.32562        inf    0.33791        inf
+  accelerator P=4 @ 25 MHz                       121       4.8        inf    0.38752    0.30178    0.36316        inf
+  accelerator P=4 @ 50 MHz                       121       2.4        inf    0.29960    0.30412    0.32699        inf
+  accelerator P=16 @ 25 MHz                       49       2.0        inf    0.29338    0.34384    0.32665        inf
+  accelerator P=16 @ 50 MHz                       49       1.0        inf    0.36527    0.67351    0.36142        inf
+hidden [32, 32] (1344 MACs)
+  platform                                    cycles latency_us     0.05ms      0.1ms     0.25ms        1ms        5ms
+  Cortex-M0+ @ 48 MHz (assumed 6 cyc/MAC)       8448     176.0         --         --    0.26871    0.29385    0.44446
+  Cortex-M4 @ 168 MHz (assumed 2.5 cyc/MAC)     3744      22.3    0.30182    0.28089    0.28279    0.28886    0.37003
+  accelerator P=1 @ 25 MHz                      1353      54.1         --    0.28382    0.30345    0.27685    0.38182
+  accelerator P=1 @ 50 MHz                      1353      27.1    0.29950    0.33529    0.30722    0.27688    0.35167
+  accelerator P=4 @ 25 MHz                       361      14.4    0.26581    0.31606    0.30469    0.26611    0.34682
+  accelerator P=4 @ 50 MHz                       361       7.2    0.28329    0.30078    0.27655    0.29151    0.33530
+  accelerator P=16 @ 25 MHz                      121       4.8    0.29652    0.29514    0.29944    0.27358    0.32445
+  accelerator P=16 @ 50 MHz                      121       2.4    0.28545    0.27852    0.29624    0.30456    0.32363
+hidden [64, 64] (4736 MACs)
+  platform                                    cycles latency_us     0.05ms      0.1ms     0.25ms        1ms        5ms
+  Cortex-M0+ @ 48 MHz (assumed 6 cyc/MAC)      29056     605.3         --         --         --    1.14172        inf
+  Cortex-M4 @ 168 MHz (assumed 2.5 cyc/MAC)    12480      74.3         --        inf        inf    1.43212        inf
+  accelerator P=1 @ 25 MHz                      4745     189.8         --         --    0.85817        inf        inf
+  accelerator P=1 @ 50 MHz                      4745      94.9         --        inf    0.70703    1.56632        inf
+  accelerator P=4 @ 25 MHz                      1225      49.0        inf    0.81735    0.74343    1.00729        inf
+  accelerator P=4 @ 50 MHz                      1225      24.5        inf        inf        inf    1.12480        inf
+  accelerator P=16 @ 25 MHz                      361      14.4        inf        inf        inf    0.97442        inf
+  accelerator P=16 @ 50 MHz                      361       7.2        inf        inf    0.69544    0.98170        inf
