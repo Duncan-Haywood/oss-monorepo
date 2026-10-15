@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01FvD6fnZa7FRSrSodC49EYU",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 7067,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "pytest portfolio/router hung (likely test_allocate); my pkill then killed my own shell"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/backlog/README.md",
+      "issue": "a done item must name its PR, so the PR must exist before the item can be marked done and validated"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Backlog ids: P012. P012: validate.py now requires VENTURE.yaml bookkeeping blocks only from stage launched up; 231 problems -> 0",
+  "corrections": [],
+  "redteam": null
+}

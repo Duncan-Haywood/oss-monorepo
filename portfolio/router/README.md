@@ -184,7 +184,7 @@ hypotheses:
   imports reduce failed transfers was marked `supported` on 2026-07-29
   without any buyer in it.
 
-`validate.py` requires the field, so a new venture cannot quietly reappear at
+`validate.py` requires the field (from stage `launched` up; prototypes may omit the bookkeeping blocks), so a new venture cannot quietly reappear at
 the top of the queue with work no session can start. `rank()` sorts
 dispatchable work above blocked work — below a venture that needs a kill
 decision, which still comes first — and `allocate.py` prints how many of the
