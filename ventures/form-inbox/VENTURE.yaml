@@ -1,0 +1,58 @@
+name: form-inbox
+description: >-
+  Self-hosted form backend for static sites: point any HTML form at it and get an
+  inbox, spam scoring with visible reasons, CSV export, per-form allowed sites and
+  email or Slack/Discord notifications. Browser spam-filter demo plus a
+  zero-dependency server with a one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and proven: Formspree, Basin, Getform,
+# Web3Forms and Netlify Forms charge by monthly submissions and gate spam
+# filtering, exports and integrations behind tiers. Open-source options exist
+# (Formbricks is surveys, not a drop-in endpoint) but a tiny single-process
+# endpoint with an inbox is the gap. Fifth product for the indie-site and small
+# SaaS builder buyer of feedback-board and status-keeper. duplicate_check: no
+# form-backend venture exists in ventures/ (grep of names on 2026-10-15);
+# quick-pick-survey is a survey ranker, webhook-relay forwards webhooks.
+#
+# First visitor: people on r/selfhosted, Hacker News and Indie Hackers asking
+# "formspree alternative", "self hosted form backend", "contact form static
+# site". Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup, a hosted copy under the deployer's own name, or GitHub
+# Sponsors are the paid steps; hosting under the public name is owner-gated.
+
+hypotheses:
+  - claim: >-
+      Owners of static sites will deploy their own form endpoint once it is one
+      click and one env var, because hosted form services meter submissions and
+      put spam filtering behind paid tiers.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing the reasons a submission was scored as spam builds enough trust
+      that owners leave the filter on instead of reading every message.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A report of a real message filed as spam with no way to recover it, a script injection in the admin pages, or an admin action accepted without the key; escaping, auth and the spam review path come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/form-inbox/
+  analytics: null
