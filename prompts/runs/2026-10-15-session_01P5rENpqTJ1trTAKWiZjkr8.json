@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01P5rENpqTJ1trTAKWiZjkr8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-15T19:49:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "refresh stale gh-pages snapshot (session_gate top item)",
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "indexnow submission: no egress to api.indexnow.org"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to refresh snapshot after merge, but with ~9 concurrent sessions merging, pages_state --require-current is stale again within minutes; a one-shot check cannot reach exit 0."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Did not build or deepen a venture; only published the snapshot the gate named first. Should have deepened one."
+    }
+  ],
+  "goal": null,
+  "notes": "Published gh-pages from 59268576 via publish-branch.sh (push succeeded). IndexNow unreachable (no egress). main moved again during the run (00aec871), so pages_state still reads stale; 9 concurrent sessions make this a moving target. No venture built: the publish consumed the session budget and the cap on PR scope. Pages enable state unknown from here (no Actions:read token).",
+  "corrections": [],
+  "redteam": null
+}
