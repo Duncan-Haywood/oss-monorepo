@@ -1,4 +1,4 @@
-# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Self-deploy: Render > New > Blueprint > your fork, file path ventures/webhook-relay/render.yaml
 # Render builds the Dockerfile in YOUR account; nothing runs on the author's.
 services:
   - type: web

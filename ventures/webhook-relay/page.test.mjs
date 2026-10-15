@@ -45,3 +45,11 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("deploy files exist and agree on the state path and health check", () => {
+  const fly = page("fly.toml"), compose = page("docker-compose.yml"), render = page("render.yaml");
+  for (const f of [fly, compose, render]) assert.match(f, /\/data\/state\.json/);
+  assert.match(fly, /\/healthz/);
+  assert.match(compose, /ADMIN_KEY:\?/);
+  assert.doesNotMatch(page("index.html"), /fp-monorepo/);
+});
