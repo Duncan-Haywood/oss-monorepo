@@ -4015,3 +4015,20 @@ entries:
         in ventures/; nearest siblings are padel-club-profit-calculator and trampoline-park-profit-calculator. First visitor: buyers and operators of
         independent centers sizing a lease and loan; volume unmeasured. Every figure is the user's own; the example is labelled illustrative.
     mrr_end: 0
+  - venture: tenant-security-deposit-deadline-checker
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built tenant-security-deposit-deadline-checker: a browser-only tool for renters. A state (19
+        covered: AZ CA CO DC FL GA MA MD MI MN NC NJ NY OH OR PA TX VA WA), deposit, move-out date, forwarding-address
+        date and amount returned give the day the landlord's statutory return deadline ran out (calendar days, business
+        days, months, Florida's second clock, forwarding-address-triggered clocks), the statute cited, what the statute
+        says about a missed deadline with a for-scale multiple where the statute has a flat one, and a forwarding-address,
+        overdue-demand or deduction-dispute letter that fills itself in. 10 hand-checked unit tests plus page and usage
+        tests. Niche screened with duplicate_check.py (best match 0.26, not a tenant tool); the archetype is not another
+        trade bid calculator. First visitor: renters searching "how long does a landlord have to return a security
+        deposit [state]" or asking in r/Tenant whether a landlord is late; volume unmeasured. The statute table is the
+        author's reading and not lawyer-reviewed; the page says so and the first wrong-deadline report is the priority
+        fix. Published the gh-pages snapshot first (it was stale against main).
+    mrr_end: 0
