@@ -2106,6 +2106,11 @@
      "slug": "eda-harness",
      "title": "Can one harness check, score, cache and log candidate chip designs for any proposer?",
      "summary": "A loop that takes a parameterised generator and a search space and runs each candidate through lint, bit- and cycle-exact RTL simulation, a gate-netlist simulation check and Yosys synthesis, caching by design hash and logging every evaluation as JSON. On <em>chip-accel</em>&rsquo;s MAC engine (40 designs) all candidates pass; synthesis and the gate-level check take 99% of the 424&nbsp;s of wall time and RTL simulation under 1%. The Pareto front matches <em>chip-accel</em>&rsquo;s. Stylised: one design family, generic-gate counts, simulation-based (not formal) equivalence, no place and route."
+    },
+    {
+     "slug": "eda-proposers",
+     "title": "Which search method finds a chip design's Pareto front with the fewest evaluations?",
+     "summary": "Random search, a grid, simulated annealing, a genetic algorithm, NSGA-II and a TPE-style Bayesian method are compared at equal evaluation budgets on an 80-design space (MAC lanes &times; bit width &times; ABC script) of a toy quantised-MLP accelerator, using Pareto hypervolume over 100 seeds. TPE reaches 0.917 of the true-front hypervolume at 16 evaluations against 0.891 for random, and 0.980 against 0.943 at 30; annealing trails random throughout. Stylised: the space is tiny (random search at 40 evaluations already scores 0.965), hyperparameters are untuned, objectives are generic-gate counts, and nothing is said about real chips."
     }
    ]
   },
