@@ -28,7 +28,7 @@ at-least-once. It does not transform payloads yet (it can filter and rate limit,
 
 ## What it does
 
-1. **Verifies the sender.** Schemes: `stripe`, `github`, `shopify`, `slack`, `paddle` (Billing), `typeform`, `gitlab`, `woocommerce`, `linear`,
+1. **Verifies the sender.** Schemes: `stripe`, `github`, `shopify`, `slack`, `paddle` (Billing), `typeform`, `gitlab`, `woocommerce`, `linear`, `mailgun`, `bitbucket`,
    `standard` ([Standard Webhooks](https://www.standardwebhooks.com/): Svix,
    Resend, Clerk and others), `hmac-sha256` (hex digest in a header you name),
    `none`. Bad signatures get a 401 and are never stored. Timestamped schemes
