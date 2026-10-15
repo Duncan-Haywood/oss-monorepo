@@ -27,6 +27,7 @@ export function adminPage(cfg, state, base) {
 <label for="origins">Allowed sites (space separated, e.g. https://example.com; empty = any)</label><input id="origins" name="origins">
 <label for="redirect">Thank-you page URL (optional)</label><input id="redirect" name="redirect" type="url">
 <label for="notifyEmail">Email me each submission (optional; needs RESEND_API_KEY)</label><input id="notifyEmail" name="notifyEmail" type="email">
+<label for="autoReply">Auto-reply text to the visitor (optional; sent once a day per address, only to real submissions with an email field)</label><textarea id="autoReply" name="autoReply" rows="3" maxlength="1000" style="width:100%;box-sizing:border-box"></textarea>
 <p><button>Create form</button></p></form></div>`);
 }
 

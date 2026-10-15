@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { newState, normalize, score, createForm, addSubmission, markSpam, removeSubmission, removeForm, submissions, toCsv, fingerprint, LIMITS } from "./forms.mjs";
+import { newState, normalize, score, createForm, addSubmission, markSpam, removeSubmission, removeForm, submissions, toCsv, fingerprint, LIMITS, purgeOlderThan, autoReply, visitorEmail } from "./forms.mjs";
 
 test("normalize drops control fields, caps sizes and joins arrays", () => {
   const d = normalize({ name: "Ann", _gotcha: "", _ts: "1", tags: ["a", "b"], ["x".repeat(200)]: "long key", __proto__x: 1, msg: "y".repeat(9000) });
@@ -61,4 +61,22 @@ test("CSV neutralises spreadsheet formulas and quotes properly", () => {
   addSubmission(s, f.id, { name: "=HYPERLINK(\"http://evil\")", note: "a,b\nc" }, { score: 0, reasons: [], spam: false });
   const csv = toCsv(submissions(s, f.id));
   assert.match(csv, /'=HYPERLINK/); assert.match(csv, /"a,b\nc"/); assert.match(csv, /^received,name,note,spam_score\n/);
+});
+
+test("purgeOlderThan removes old submissions and fixes counters; 0 keeps everything", () => {
+  const s = newState(); const f = createForm(s, { name: "C" }, 0);
+  addSubmission(s, f.id, { m: "old" }, { score: 0, reasons: [], spam: false }, 1000);
+  addSubmission(s, f.id, { m: "old spam" }, { score: 90, reasons: ["x"], spam: true }, 2000);
+  addSubmission(s, f.id, { m: "new" }, { score: 0, reasons: [], spam: false }, 10 * 86_400_000);
+  assert.equal(purgeOlderThan(s, 0, 11 * 86_400_000), 0);
+  assert.equal(purgeOlderThan(s, 5, 11 * 86_400_000), 2);
+  assert.equal(s.subs.length, 1); assert.equal(f.count, 1); assert.equal(f.spam, 0);
+});
+
+test("autoReply needs text and a clean visitor address", () => {
+  const f = { name: "C", autoReply: "Hi", notifyEmail: "" };
+  assert.equal(autoReply({ ...f, autoReply: "" }, { email: "a@b.co" }), null);
+  assert.equal(autoReply(f, { message: "no email" }), null);
+  assert.equal(visitorEmail({ email: "a@b.co, c@d.co" }), null);
+  assert.equal(autoReply(f, { Email: "a@b.co" }).to, "a@b.co");
 });

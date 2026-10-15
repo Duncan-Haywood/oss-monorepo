@@ -64,7 +64,7 @@ export function score(data, ctx = {}) {
 
 const id = (prefix, n) => `${prefix}${n}`;
 
-export function createForm(state, { name, origins, redirect, notifyEmail }, now = Date.now()) {
+export function createForm(state, { name, origins, redirect, notifyEmail, autoReply }, now = Date.now()) {
   const nm = clean(name, 80).trim();
   if (!nm) throw Object.assign(new Error("name is required"), { status: 400 });
   const list = (Array.isArray(origins) ? origins : String(origins || "").split(/[\s,]+/)).filter(Boolean).map((o) => {
@@ -76,8 +76,9 @@ export function createForm(state, { name, origins, redirect, notifyEmail }, now 
   if (redirect) { try { const u = new URL(redirect); if (!/^https?:$/.test(u.protocol)) throw 0; red = u.href; } catch { throw Object.assign(new Error("redirect must be an http(s) URL"), { status: 400 }); } }
   const mail = clean(notifyEmail, 200).trim();
   if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) throw Object.assign(new Error("notify email is malformed"), { status: 400 });
+  const reply = clean(autoReply, 1000).replace(/\r\n/g, "\n").trim();
   const key = id("f", ++state.seq) + Math.abs(hash(nm + now)).toString(36).slice(0, 5);
-  state.forms[key] = { id: key, name: nm, origins: list, redirect: red, notifyEmail: mail, created: now, count: 0, spam: 0 };
+  state.forms[key] = { id: key, name: nm, origins: list, redirect: red, notifyEmail: mail, autoReply: reply, created: now, count: 0, spam: 0 };
   return state.forms[key];
 }
 
@@ -134,4 +135,31 @@ export function toCsv(subs) {
 export function notification(form, sub, base) {
   const lines = Object.entries(sub.data).map(([k, v]) => `${k}: ${v}`);
   return { subject: `New ${form.name} submission`, text: `${lines.join("\n")}\n\nView all: ${base}/admin/f/${form.id}\n` };
+}
+
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+// The visitor's address, if the form has an email field. Same field match the spam scorer uses.
+export function visitorEmail(data) {
+  const v = Object.entries(data).find(([k]) => /e-?mail/i.test(k))?.[1];
+  return v && !/[\r\n,;<>]/.test(v) && v.length <= 200 && EMAIL.test(v) ? v : null;
+}
+
+// Autoresponder: the text is fixed by the admin. Nothing the visitor typed goes into the message, so the
+// endpoint cannot be used to send an attacker's wording to a third party's address.
+export function autoReply(form, data) {
+  const to = form.autoReply && visitorEmail(data);
+  if (!to) return null;
+  return { to, subject: `We got your message: ${form.name}`.slice(0, 120), text: `${form.autoReply}\n\nThis is an automatic reply to a message sent through the ${form.name} form. If you did not send it, ignore this email.\n`, replyTo: form.notifyEmail || undefined };
+}
+
+// Drop submissions older than `days` (data-retention rule). Returns how many were removed.
+export function purgeOlderThan(state, days, now = Date.now()) {
+  if (!(days > 0)) return 0;
+  const cutoff = now - days * 86_400_000;
+  const gone = state.subs.filter((s) => s.at < cutoff);
+  if (!gone.length) return 0;
+  state.subs = state.subs.filter((s) => s.at >= cutoff);
+  for (const g of gone) { const f = state.forms[g.form]; if (f) { f.count = Math.max(0, f.count - 1); if (g.spam) f.spam = Math.max(0, f.spam - 1); } }
+  return gone.length;
 }
