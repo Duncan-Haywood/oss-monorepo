@@ -120,6 +120,8 @@ test("breakdown: plan totals equal headline MRR and concentration is by customer
   assert.equal(b.total, 10000);
   assert.deepEqual(b.plans.map((p) => [p.plan, p.mrr, p.subs]), [["Pro", 5000, 2], ["Starter", 3000, 1], ["Seats", 2000, 1]]);
   assert.equal(b.plans.reduce((a, p) => a + p.mrr, 0), b.total);
+  assert.deepEqual(b.atRisk, { mrr: 3000, subs: 1, share: 0.3 });
+  assert.equal(breakdown(subs, { countPastDue: false }).atRisk.mrr, 0);
   assert.equal(b.concentration.customers, 2);
   assert.equal(b.concentration.top1, 0.7);
   assert.equal(breakdown(subs, { countPastDue: false }).total, 7000);
