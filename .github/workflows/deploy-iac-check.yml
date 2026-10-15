@@ -1,0 +1,33 @@
+# Our own CI for the self-deploy OpenTofu modules (platform/deploy/templates):
+# a broken module should fail here, not in a stranger's account.
+name: Deploy IaC check
+on:
+  pull_request:
+    paths: ['platform/deploy/**']
+  push:
+    branches: [main]
+    paths: ['platform/deploy/**']
+
+permissions:
+  contents: read
+
+jobs:
+  tofu:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.8.5
+      - name: tofu fmt -check
+        run: tofu fmt -check -recursive platform/deploy/templates
+      - name: tofu validate (aws module)
+        working-directory: platform/deploy/templates/aws/tofu
+        run: |
+          tofu init -backend=false -input=false
+          tofu validate
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: node tests
+        run: node --test platform/deploy/*.test.mjs
