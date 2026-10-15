@@ -29,7 +29,10 @@
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "prompts/research/prompt-0.md says to push to the research repo via a clone, but the brief for milestone 1 (mirror-sync) is only in the upstream PROJECTS.md; had to add_repo and clone to learn it was due."
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Says research work lands upstream via add_repo, but the mirror-sync milestone that applied here is only described in upstream PROJECTS.md; had to clone upstream to learn it was due."
+    }
   ],
   "goal": "mirror-sync milestone",
   "notes": "Merge commit synced upstream 05b2a8c; mirror check, homepage build and promptctl validate all ok. Token/cost not read.",
