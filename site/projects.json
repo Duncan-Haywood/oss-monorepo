@@ -1265,6 +1265,11 @@
      "slug": "thrust-twin",
      "title": "What does a quadratic thrust curve do to a controller designed in a linear-thrust twin?",
      "summary": "A throttle controller inverts a twin whose thrust is linear around hover; the real thrust is quadratic. The realised acceleration is exactly <em>a</em><sub>cmd</sub>+<em>a</em><sub>cmd</sub><sup>2</sup>/(4<em>g</em>): climbs over-deliver, descents under-deliver, and the throttle floor is reached at <em>a</em><sub>cmd</sub>=&minus;2<em>g</em>. At &zeta;=0.7 the climb overshoot rises from 0.046 to 0.095 while the descent falls to 0.027 for a step of <em>p</em>=&omega;<sub>n</sub><sup>2</sup>|<em>x</em><sub>0</sub>|/<em>g</em>=4; gentle steps (<em>p</em>&le;0.5) change overshoot by under 1.1 points. Stylised: 1-D, static thrust map, assumed throttle ceiling, no field data."
+    },
+    {
+     "slug": "invthrust-twin",
+     "title": "Does inverting a quadratic thrust curve exactly fix the error a linear-thrust twin makes, and what if the thrust exponent is also wrong?",
+     "summary": "Follow-up to <code>thrust-twin</code>. With the right model, the exact square-root throttle inverse realises the commanded acceleration inside the throttle limits and shrinks the up/down overshoot gap at &zeta;=0.7, <em>p</em>=2 from 3.00 to 0.09 points. With the thrust exponent misidentified (2.5 instead of 2) the exact inverse flips the asymmetry and halves the gap (3.67 to 1.65 points) but overshoot stays at 0.071&ndash;0.088 against the twin&rsquo;s 0.046, and settling time is unchanged. Stylised: 1-D, noiseless, static thrust map, assumed throttle limits, exponent error only."
     }
    ]
   },
