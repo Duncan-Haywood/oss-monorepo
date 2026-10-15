@@ -25,14 +25,21 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "merged mirror-sync of upstream dd118d1 (PR 7001)",
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "prompts/research/prompt-0.md: says route to ventures if add_repo unavailable; add_repo worked, fine. research/_mirror/README.md: sync's 'port by hand' for site/build.py gives no guidance when the local copy already diverged; I acked without porting the HOMEPAGE_REPO override."
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "says route to ventures if add_repo is unavailable; add_repo worked here, so no impact."
+    },
+    {
+      "file": "research/_mirror/README.md",
+      "issue": "sync's 'port by hand' for site/build.py gives no guidance when the local copy already diverged; the session acked without porting the HOMEPAGE_REPO override."
+    }
   ],
   "goal": null,
-  "notes": "",
+  "notes": "outcome originally written as: merged mirror-sync of upstream dd118d1 (PR 7001)",
   "corrections": [],
   "redteam": null
 }
