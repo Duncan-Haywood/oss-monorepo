@@ -362,3 +362,15 @@ field will.
   records whose PR is in this repo.
 - Measure: reviews per day should fall once mirrored records stop counting.
 - Result: (next review)
+
+## E16: eleventh review of 2026-10-15
+
+- Change: `prompts/process/backlog/README.md` "Closing" now says to commit
+  `in_progress` first and flip to `done` once the PR number exists (+2 lines).
+- Why: two friction reports (README, `promptctl validate`) hit a red validate
+  on the first commit of a run closing an item.
+- Measure: backlog-closing friction reports per process run.
+- Follow-up on E14: ventures/2 (10 runs) vs ventures/1 (29): intervals overlap,
+  keep collecting. research/1 (7) under 10. Audit skipped: records mirrored or
+  doc-only. `validate` green on 386 records. No drift report: six already today.
+- Result: (next review)
