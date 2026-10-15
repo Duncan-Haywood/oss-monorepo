@@ -70,7 +70,19 @@ Build every app so that a stranger can run their own copy of it, in their own
 cloud account, without us. That lets other people set up businesses from
 this repo. The flow is: pick an app, pick a cloud provider, paste in
 credentials, click **Deploy**. This is a direction for future work, not a
-feature that exists yet. When someone builds it, these rules apply:
+feature that exists yet.
+
+The model here is that we don't host anything. Each app is an open-source
+business that anyone can host in one click. The code is already MIT, at the
+root and in all 1,236 ventures. MIT lets anyone copy, modify, host and sell
+it, so no license change is needed. The deployer keeps the copyright notice,
+and the license's no-warranty clause protects us. Whoever clicks Deploy
+becomes the operator of their copy. They are responsible for its domain,
+terms, privacy policy and users, and for any changes they make. The deploy
+page must say so before the button. The §5b disclaimers ship in the deployed
+copy, but they are the operator's to keep accurate, not ours.
+
+When someone builds it, these rules apply:
 
 - **All IaC, no backend of ours.** The deploy page is a static page like
   every other one. The page creates a small deploy repo in the visitor's
@@ -81,6 +93,23 @@ feature that exists yet. When someone builds it, these rules apply:
   OpenTofu state encrypted (OpenTofu's native state encryption) and in the
   visitor's own repo. Also offer "download the IaC" so a visitor can run
   `tofu apply` locally and never give GitHub a credential.
+- **OpenTofu is the IaC tool, and it is set up the same way everywhere.**
+  Write modules for OpenTofu (`tofu`), not Terraform. The two have different
+  licenses, and state encryption is OpenTofu-only. Set it up like this:
+  - Pin the version: `required_version` in each module, and the same version
+    in the workflow's `opentofu/setup-opentofu` step.
+  - Pin every provider in `required_providers` and commit
+    `.terraform.lock.hcl`.
+  - Configure state encryption from an Actions secret (a passphrase the
+    deploy page generates in the browser). A plain-text state file is never
+    committed.
+  - Use `tofu apply` for deploys and `tofu destroy` in a separate workflow.
+    Teardown is one click too.
+  - Write each module's outputs (the live URL) to the job summary.
+  - Our own CI runs `tofu fmt -check` and `tofu validate` on every module, so
+    a broken module fails here and not in a stranger's account.
+  - Each module's README gives the local commands (`tofu init`, then
+    `tofu apply -var-file=...`) for the download path.
 - **Several providers, chosen by the visitor.** Static apps can go to GitHub
   Pages, AWS (S3 + CloudFront), Google Cloud Storage, Azure Storage static
   websites or DigitalOcean Spaces. Apps that need a running process get a
