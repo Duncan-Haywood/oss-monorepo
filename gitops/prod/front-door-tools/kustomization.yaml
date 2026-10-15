@@ -48,7 +48,7 @@
 #   portfolio-front-tools-12: 129 files, 551458 bytes
 #   portfolio-front-tools-13: 127 files, 551649 bytes
 #   portfolio-front-tools-14: 125 files, 547584 bytes
-#   portfolio-front-tools-15: 132 files, 553136 bytes
+#   portfolio-front-tools-15: 133 files, 556217 bytes
 #   portfolio-front-tools-16: 119 files, 549968 bytes
 #   portfolio-front-tools-17: 134 files, 554158 bytes
 #   portfolio-front-tools-18: 122 files, 548372 bytes
@@ -2144,6 +2144,7 @@ configMapGenerator:
       - einvoice-preflight__reference.mjs.gz=einvoice-preflight__reference.mjs.gz
       - einvoice-preflight__remittance.mjs.gz=einvoice-preflight__remittance.mjs.gz
       - einvoice-preflight__report.mjs.gz=einvoice-preflight__report.mjs.gz
+      - einvoice-preflight__server.mjs.gz=einvoice-preflight__server.mjs.gz
       - einvoice-preflight__tax.mjs.gz=einvoice-preflight__tax.mjs.gz
       - einvoice-preflight__terms.mjs.gz=einvoice-preflight__terms.mjs.gz
       - einvoice-preflight__ubl.mjs.gz=einvoice-preflight__ubl.mjs.gz
