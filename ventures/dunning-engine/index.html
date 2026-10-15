@@ -83,7 +83,7 @@ node server.mjs          # DRY_RUN=true until you set DRY_RUN=false</pre>
     <h3>Is it safe to try?</h3>
     <p>It starts in dry-run mode: it records failures and logs every email and retry it would perform, but contacts neither Stripe nor your customers until you set DRY_RUN=false. Try it with a Stripe test-mode key first.</p>
     <h3>Where can I see how much I already lose?</h3>
-    <p>Export your failed payments and run them through the <a href="../stripe-failed-payment-recovery-analyzer/">Stripe Failed Payment Recovery Analyzer</a>. If your webhook endpoint rejects Stripe's signature, the <a href="../webhook-signature-debugger/">Webhook Signature Debugger</a> shows why.</p>
+    <p>Export your failed payments and run them through the <a href="../stripe-failed-payment-recovery-analyzer/">Stripe Failed Payment Recovery Analyzer</a>. If your webhook endpoint rejects Stripe's signature, the <a href="../webhook-signature-debugger/">Webhook Signature Debugger</a> shows why. When a customer chooses to leave rather than fail to pay, the self-hosted <a href="../cancel-flow/">Cancel Flow</a> offers a pause or a discount first.</p>
     <h3>Where does my Stripe key live?</h3>
     <p>In the environment of the server you deploy in your own account. The author runs nothing in between and never sees your key or your customers.</p>
   </section>
