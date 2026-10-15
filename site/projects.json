@@ -2086,6 +2086,18 @@
      "summary": "Exhaustive joint search over the 40 measured <em>accel-kws</em> keyword-spotting models and six MAC lane counts (240 designs), against a model-first flow, at deadlines of 2,000&ndash;20,000 cycles. The most accurate model (validation 0.775, test 0.752) needs 16 lanes at 2,000 cycles and 7,667 generic cells; accepting 2 validation points less (test 0.738) cuts area by 31&ndash;42%, and 3 points by 35&ndash;56%. Stylised and only partly the milestone: models are a fixed measured table (the dataset was unreachable), cycles for more than one lane are analytic and not RTL-simulated, memory bandwidth is not counted, area is generic gates, and no NSGA-II or Bayesian search was run (the space is small enough to enumerate)."
     }
    ]
+  },
+  {
+   "id": "eda",
+   "name": "Algorithmic chip-design loops",
+   "blurb": "Chip-design loops that need no LLM: algorithms propose designs and flow settings, open tools score them.",
+   "projects": [
+    {
+     "slug": "eda-harness",
+     "title": "Can one harness check, score, cache and log candidate chip designs for any proposer?",
+     "summary": "A loop that takes a parameterised generator and a search space and runs each candidate through lint, bit- and cycle-exact RTL simulation, a gate-netlist simulation check and Yosys synthesis, caching by design hash and logging every evaluation as JSON. On <em>chip-accel</em>&rsquo;s MAC engine (40 designs) all candidates pass; synthesis and the gate-level check take 99% of the 424&nbsp;s of wall time and RTL simulation under 1%. The Pareto front matches <em>chip-accel</em>&rsquo;s. Stylised: one design family, generic-gate counts, simulation-based (not formal) equivalence, no place and route."
+    }
+   ]
   }
  ],
  "featured": [
