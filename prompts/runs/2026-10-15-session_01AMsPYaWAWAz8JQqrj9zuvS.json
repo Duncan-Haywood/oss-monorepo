@@ -40,10 +40,10 @@
   ],
   "deviations": [
     {
-      "instruction": "prompt-1 Step 0: commit no run record here",
+      "file": "prompts/research/prompt-1.md",
+      "instruction": "Step 0: commit no run record here",
       "did": "committed a record, since the mirror-sync work lands in this repo",
-      "why": "the work is here, not upstream",
-      "result": "n/a"
+      "why": "the work is here, not upstream"
     }
   ],
   "goal": null,
