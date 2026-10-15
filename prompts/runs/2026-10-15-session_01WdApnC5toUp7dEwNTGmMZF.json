@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01WdApnC5toUp7dEwNTGmMZF",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial: measured, wrote drift report 2026-10-15-b and experiments E6 with an owner proposal; the planned CLAUDE.md prune was refused by the permission classifier, so no doc was cut",
+  "errors": [
+    "permission classifier denied rewriting CLAUDE.md (self-modification)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "steps 5 and 6 tell a review run to cut CLAUDE.md, but the harness blocks agents from editing it; the prompt does not say what to do then"
+    },
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "step 1 asks to fill merged:null on all records, but 167 are upstream research records with no PR here; 191 of 198 are null"
+    }
+  ],
+  "goal": null,
+  "notes": "No audit of five outputs was run; time spent on measure and drift numbers only.",
+  "corrections": [],
+  "redteam": null
+}

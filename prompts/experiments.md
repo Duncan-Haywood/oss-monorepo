@@ -144,9 +144,24 @@ Entry format:
   `DIRECTION.md`.
 - Result: (next review)
 
+## E6: Review of 2026-10-15 (second), 30 runs since the last (review run)
+
+- Change: no prompt or doc change landed. The planned cut of `CLAUDE.md`
+  (1,669 lines, 15 friction reports, the top file) was blocked by the harness
+  permission classifier; see `prompts/drift/2026-10-15-b.md` and the proposal
+  below.
+- Results for earlier entries (30-run window): E4 red team: catch rate 73% of
+  22 non-equivalent faults, 100% after guards; one red-team run, too few to
+  compare. E5: `*-calculator` ventures +1 against a target of 0, instruction
+  lines did not fall (`CLAUDE.md` 1,646 to 1,669): no effect yet, and nothing
+  was cut. research/1 candidate: 1 run vs 185 champion, too few to compare.
+- Metric for the next window: `CLAUDE.md` lines and friction reports per run.
+
 ## Proposals for the owner
 
 Changes to `prompts/goals.md` that a review thinks are warranted, with the
 evidence. The owner decides.
 
-(none yet)
+- 2026-10-15 (review): May review runs rewrite `CLAUDE.md` down to ~250 lines
+  (history stays in git)? The review prompt asks for it; the harness refused
+  the edit. Evidence: `prompts/drift/2026-10-15-b.md`.
