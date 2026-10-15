@@ -25,12 +25,12 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 7,
-  "outcome": "Built the shared deploy page, core and catalog (1,232 apps from discoverSurfaces). A test caught the visitor token being sent to the source repo on blob reads; fixed. Not yet published on the site or linked from tool pages; no OpenTofu cloud modules (tofu not installed here, so unvalidated HCL was not shipped).",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "goal": null,
-  "notes": "",
+  "notes": "Built the shared deploy page, core and catalog (1,232 apps from discoverSurfaces). A test caught the visitor token being sent to the source repo on blob reads; fixed. Not yet published on the site or linked from tool pages; no OpenTofu cloud modules (tofu not installed here, so unvalidated HCL was not shipped).",
   "corrections": [],
   "redteam": null
 }
