@@ -54,6 +54,22 @@ Entry format:
   branches.
 - Measure: research-track runs here that touch `research/` outside a sync
   (target 0), and `mirror.py check` on `main`.
+
+## E2: A process track, about 5% of runs (2026-10-15, owner request)
+
+- Change: new track `process` (`prompts/process/prompt-0.md`) with weight
+  0.05 in `routing.json`; ventures and research go from 0.5 to 0.475 each.
+  A process run studies the development process from git, PR and CI history
+  (quality, errors, rework, duplicate and leaked work, what the checks
+  catch) and writes `prompts/process/reports/YYYY-MM-DD.md` with ranked
+  recommendations. It may implement one small agent-owned fix. The track
+  goal was added to `goals.md` at the owner's request.
+- Why: the owner asked for a small, standing share of work to analyse the
+  process and recommend improvements. The review track covers prompts and
+  docs from run records only.
+- Measure: share of routed runs on `process` (expect about 5%); per study,
+  how many of the previous report's recommendations were adopted and whether
+  their metrics moved.
 - Result: (next review)
 
 ## Proposals for the owner
