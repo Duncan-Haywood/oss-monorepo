@@ -231,7 +231,9 @@ export function compareOffer(input) {
       );
     }
     notes.push(`Once you are under $${COMMISSION_THRESHOLD.toFixed(2)}, the fee is fixed at $${FLAT_FEE.toFixed(2)} no matter how low you go — Poshmark stops sharing in any further discount.`);
-  } else if (priceDrop !== 0) {
+  } else if (priceDrop < 0) {
+    notes.push(`The offer is $${Math.abs(priceDrop).toFixed(2)} above the listed price, so there is no discount to weigh. Check that the two prices are not swapped.`);
+  } else if (priceDrop > 0) {
     const shareLabel = listedPrice >= COMMISSION_THRESHOLD
       ? `Poshmark absorbed $${commissionDrop.toFixed(2)} of the $${priceDrop.toFixed(2)} discount (20% of it) — you absorbed the other $${payoutDrop.toFixed(2)}.`
       : `The fee stayed flat at $${FLAT_FEE.toFixed(2)}, so the entire $${priceDrop.toFixed(2)} discount came out of your own payout.`;
