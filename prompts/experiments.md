@@ -72,6 +72,21 @@ Entry format:
   their metrics moved.
 - Result: (next review)
 
+## E3: Free-choice track, about 5% of runs (2026-10-15, owner request)
+
+- Change: new `explore` track (`prompts/explore/prompt-0.md`) at weight 0.05
+  in `routing.json`; ventures and research went from 0.475 to 0.45 each (E2's
+  `process` track took the other 5% the same day). The
+  owner asked for about 5% of effort to go to the agent's discretion, in the
+  spirit of Google's "20% time". `goals.md` (owner-edited), `prompt.md`,
+  `AGENTS.md` and `research/PROJECTS.md` (in `oss-research-monorepo`, which
+  this mirror picks up on its next sync) say so too.
+- Why: owner direction, not a measured failure.
+- Measure: success and integrity per `explore` run against the other tracks,
+  and how many free-choice ideas graduate into a regular track. Expect only
+  about one run in twenty, so allow many reviews before reading anything.
+- Result: (next review)
+
 ## Proposals for the owner
 
 Changes to `prompts/goals.md` that a review thinks are warranted, with the
