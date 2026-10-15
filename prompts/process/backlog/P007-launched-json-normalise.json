@@ -1,7 +1,7 @@
 {
   "id": "P007",
   "title": "Stop launched.json ordering from failing parallel branches",
-  "status": "open",
+  "status": "in_progress",
   "owner": "agent",
   "effect": 2,
   "cost": 1,
