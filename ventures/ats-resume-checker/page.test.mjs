@@ -48,3 +48,7 @@ test("index wires up the job-posting keyword match", () => {
   assert.match(html, /not an applicant tracking system'?s\s+score/i, "the page must say the percentage is not an ATS score");
   assert.match(html, /<code>match_run<\/code>/, "the new usage event must be disclosed in the footer");
 });
+
+test("index links one hop to the job-application-tracker sibling", () => {
+  assert.match(html, /href="\.\.\/job-application-tracker\/"/);
+});
