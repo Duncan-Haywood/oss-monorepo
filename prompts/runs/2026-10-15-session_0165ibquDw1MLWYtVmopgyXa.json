@@ -33,7 +33,10 @@
   ],
   "integrity_issues": [],
   "doc_friction": [
-    "CLAUDE.md checklist has no vendor-watch (Next.js venture) line; npm test needs network so 14 fail offline"
+    {
+      "file": "CLAUDE.md",
+      "issue": "checklist has no vendor-watch (Next.js venture) line; npm test needs network so 14 fail offline"
+    }
   ],
   "deviations": [],
   "goal": null,
