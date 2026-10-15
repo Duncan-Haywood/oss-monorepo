@@ -5156,6 +5156,9 @@ export async function copyTree(from, to, baseUrl) {
     if (entry.isDirectory()) {
       if (EXCLUDED_DIRS.has(entry.name)) continue;
       if (entry.name.startsWith('.') && !PUBLISHABLE_DOT_DIRS.has(entry.name)) continue;
+      // A React Native / Expo app (`metro.config.js`) is phone-app source, not
+      // a web page: its extensionless `./App` imports read as dead links.
+      if (await fs.access(path.join(src, 'metro.config.js')).then(() => true, () => false)) continue;
       const nested = await copyTree(src, dest, baseUrl);
       // A directory that held only CLI source leaves an empty shell behind.
       if (nested.length === 0) await fs.rm(dest, { recursive: true, force: true });

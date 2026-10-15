@@ -119,7 +119,8 @@ export const RESEARCH_DIR = 'research';
 // page about the site rather than a tool.
 // The self-deploy page (`platform/deploy/build.mjs`). publish-branch.sh writes
 // it after this check runs, because its ~1,200 data files would read as
-// orphans, so the hub's footer link to it cannot resolve here.
+// orphans, so links to it (the hub footer, and each tool page's "Run your own
+// copy" link) cannot resolve here.
 export const DEPLOY_DIR = 'deploy';
 
 export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR]);
@@ -1110,7 +1111,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
         // A extension-less link is served as a directory if one is there.
         if (await exists(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
       }
-      if (relative === 'index.html' && resolved === path.resolve(site, DEPLOY_DIR, 'index.html')) continue;
+      if (resolved === path.resolve(site, DEPLOY_DIR, 'index.html')) continue;
       if (!(await exists(resolved))) problems.push(`${relative}: dead link -> ${target}`);
       else {
         inboundLinks.add(resolved);
