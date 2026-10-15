@@ -1,0 +1,8 @@
+Mean utility per message; true auditor accuracy 0.8; budget 1000 noisy units; EM start accuracy a0 varies; 100 audit sets per cell
+   label   gold_cost   G      N      a0=0.50   a0=0.80   a0=0.95
+    0.7         10   10    900   0.3902   0.3906   0.3906
+    0.7         30    3    910   0.3898   0.3907   0.3907
+    0.7         30    1    970   0.3905   0.3905   0.3905
+    0.9         10   10    900   0.4054   0.4054   0.4054
+    0.9         30    3    910   0.4051   0.4051   0.4051
+    0.9         30    1    970   0.4048   0.4048   0.4048

@@ -66,3 +66,11 @@ test("CSV export neutralises formula injection and quotes commas", () => {
   const csv = E.toCsv(s);
   assert.match(csv, /"'=cmd,x@x.com"/);
 });
+
+test("remove cuts the referral link and frees the email to join again", () => {
+  const s = E.newState(); const a = add(s, "ra@x.com"); const b = add(s, "rb@x.com", { ref: a.code });
+  assert.equal(E.remove(s, { email: "RA@x.com" }).id, a.id);
+  assert.equal(s.people[b.id].referredBy, null);
+  assert.equal(E.remove(s, { email: "ra@x.com" }), null);
+  assert.equal(E.join(s, "ra@x.com", { code: "new", token: "new", now: 9 }).created, true);
+});

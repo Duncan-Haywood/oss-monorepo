@@ -14,10 +14,13 @@ export function normalizeEmail(raw) {
 }
 export const isDisposable = (email) => DISPOSABLE.has(String(email).split("@")[1]);
 
+// Where a signup came from (utm_source, ?src=): short, lowercase, [a-z0-9_.-] only, so it is safe in CSV and HTML.
+export const cleanSrc = (v) => String(v || "").toLowerCase().replace(/[^a-z0-9_.-]/g, "").slice(0, 32);
+
 export const newState = () => ({ seq: 1, people: {}, byEmail: {}, byCode: {}, invited: 0 });
 
 // opts: {code, ref, ip, now, token, newCode}. Returns {person, created}.
-export function join(state, rawEmail, { ref, ip = "", now, token, code }) {
+export function join(state, rawEmail, { ref, ip = "", now, token, code, src = "" }) {
   const email = normalizeEmail(rawEmail);
   if (!email) throw Object.assign(new Error("Enter a valid email address."), { status: 400 });
   if (isDisposable(email)) throw Object.assign(new Error("Please use a permanent email address."), { status: 400 });
@@ -25,7 +28,7 @@ export function join(state, rawEmail, { ref, ip = "", now, token, code }) {
   if (existing) return { person: state.people[existing], created: false };
   const id = String(state.seq++);
   const referrer = ref && state.byCode[ref] ? state.byCode[ref] : null;
-  const p = { id, email, code, token, ip, joinedAt: now, confirmedAt: null, referredBy: referrer && referrer !== id ? referrer : null, referrals: 0, invitedAt: null };
+  const p = { id, email, code, token, ip, joinedAt: now, confirmedAt: null, referredBy: referrer && referrer !== id ? referrer : null, referrals: 0, invitedAt: null, src: cleanSrc(src) };
   state.people[id] = p; state.byEmail[email] = id; state.byCode[code] = id;
   return { person: p, created: true };
 }
@@ -41,6 +44,17 @@ export function confirm(state, token, now, { cap = 25 } = {}) {
     if (r && r.confirmedAt && r.referrals < cap && r.ip !== p.ip) r.referrals++;
     else if (r && r.confirmedAt && r.ip === p.ip) p.referredBy = null; // same network as the referrer: no credit
   }
+  return p;
+}
+
+// Erase one person (their request, or the operator's). Returns the removed record or null.
+// Referrals they earned stay with the referrers (the friend did sign up and confirm); the link to them is cut.
+export function remove(state, { token, email }) {
+  const norm = email ? normalizeEmail(email) : null;
+  const p = token ? Object.values(state.people).find((x) => x.token === token) : norm ? state.people[state.byEmail[norm]] : null;
+  if (!p) return null;
+  delete state.people[p.id]; delete state.byEmail[p.email]; delete state.byCode[p.code];
+  for (const q of Object.values(state.people)) if (q.referredBy === p.id) q.referredBy = null;
   return p;
 }
 
@@ -73,13 +87,15 @@ export function stats(state, opts) {
   const ps = Object.values(state.people);
   const confirmed = ps.filter((p) => p.confirmedAt);
   const referred = ps.filter((p) => p.referredBy).length;
-  return { signups: ps.length, confirmed: confirmed.length, waiting: ranking(state, opts).length, invited: state.invited, referred, kFactor: ps.length ? Math.round((ps.reduce((n, p) => n + p.referrals, 0) / Math.max(1, confirmed.length)) * 100) / 100 : 0 };
+  const bySource = {};
+  for (const p of ps) { const k = p.src || "direct"; const b = (bySource[k] ||= { signups: 0, confirmed: 0 }); b.signups++; if (p.confirmedAt) b.confirmed++; }
+  return { bySource, signups: ps.length, confirmed: confirmed.length, waiting: ranking(state, opts).length, invited: state.invited, referred, kFactor: ps.length ? Math.round((ps.reduce((n, p) => n + p.referrals, 0) / Math.max(1, confirmed.length)) * 100) / 100 : 0 };
 }
 
 export function toCsv(state, opts) {
   const q = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-  const rows = [["position", "email", "confirmed", "referrals", "joined", "invited"]];
+  const rows = [["position", "email", "confirmed", "referrals", "source", "joined", "invited"]];
   const pos = new Map(ranking(state, opts).map((p, i) => [p.id, i + 1]));
-  for (const p of Object.values(state.people)) rows.push([pos.get(p.id) ?? "", p.email, p.confirmedAt ? "yes" : "no", p.referrals, new Date(p.joinedAt).toISOString(), p.invitedAt ? new Date(p.invitedAt).toISOString() : ""]);
+  for (const p of Object.values(state.people)) rows.push([pos.get(p.id) ?? "", p.email, p.confirmedAt ? "yes" : "no", p.referrals, p.src || "", new Date(p.joinedAt).toISOString(), p.invitedAt ? new Date(p.invitedAt).toISOString() : ""]);
   return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
 }

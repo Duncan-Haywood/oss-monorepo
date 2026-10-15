@@ -344,3 +344,33 @@ field will.
 - Follow-up on E13: no CLAUDE.md timeout reports newer than E13 yet; too few
   runs to judge.
 - Result: (next review)
+
+## E15: tenth review of 2026-10-15
+
+- Change: none to prompts or docs. ventures/2 reached 10 runs (90% success, 0.1
+  errors/run) against ventures/1 (29 runs, 90%, 0.24): intervals overlap, so no
+  promote or retire; research/1 has 7 runs, still under 10. No new candidate
+  (both tracks already carry one).
+- Audit: skipped; the 21 runs since the last review are mirrored upstream
+  research records or doc-only. `merged` backfill skipped for the same reason.
+- Drift: no new owner words since the earlier reports today (see
+  `prompts/drift/2026-10-15.md`); no instruction file grew past budget
+  (`CLAUDE.md` 457/500, `land-your-work.md` at its 160 budget).
+- Observation: this is the tenth review today. `runs_since_review` counts
+  mirrored upstream records toward `review_every`, which is why reviews keep
+  firing at ~20 mirrored runs. Proposal for the next process run: count only
+  records whose PR is in this repo.
+- Measure: reviews per day should fall once mirrored records stop counting.
+- Result: (next review)
+
+## E16: eleventh review of 2026-10-15
+
+- Change: `prompts/process/backlog/README.md` "Closing" now says to commit
+  `in_progress` first and flip to `done` once the PR number exists (+2 lines).
+- Why: two friction reports (README, `promptctl validate`) hit a red validate
+  on the first commit of a run closing an item.
+- Measure: backlog-closing friction reports per process run.
+- Follow-up on E14: ventures/2 (10 runs) vs ventures/1 (29): intervals overlap,
+  keep collecting. research/1 (7) under 10. Audit skipped: records mirrored or
+  doc-only. `validate` green on 386 records. No drift report: six already today.
+- Result: (next review)
