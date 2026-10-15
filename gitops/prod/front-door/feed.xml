@@ -88,6 +88,14 @@
     <summary type="text">Resumable, manifest-backed command-line tools that import JPEG and RAW photos into Apple Photos and offload SD cards with hash verification.</summary>
   </entry>
   <entry>
+    <title>Referral Keeper — Free Self-Hosted Affiliate Program for Stripe</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/referral-keeper/"/>
+    <id>tag:marisstella.dev,2026:tool/referral-keeper</id>
+    <updated>2026-10-15T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Run an affiliate or referral program on your own Stripe account: tracking link, recurring commissions, refund clawbacks, payout CSV. Plan what a program will cost you in your browser, then deploy the open-source server. Free, MIT, no revenue share.</summary>
+  </entry>
+  <entry>
     <title>Retail Pilot Intel</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/retail-pilot-intel/"/>
     <id>tag:marisstella.dev,2026:tool/retail-pilot-intel</id>
@@ -136,6 +144,14 @@
     <summary type="text">Free tool for tenants: pick your state, enter your move-out date and deposit, and see when your landlord&#39;s deadline to return it ran out, what the statute says about late landlords, and a demand letter you can edit and send. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Testimonial Keeper — Free Self-Hosted Testimonial Collector and Wall of Love</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/testimonial-keeper/"/>
+    <id>tag:marisstella.dev,2026:tool/testimonial-keeper</id>
+    <updated>2026-10-15T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Collect customer testimonials with a link, approve the ones you want, and show them on your site with one script tag. Consent stored with every entry. Open source, MIT, one-click self-deploy, no monthly fee.</summary>
+  </entry>
+  <entry>
     <title>Trial Converter — Free Self-Hosted Stripe Trial-to-Paid Conversion</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/trial-converter/"/>
     <id>tag:marisstella.dev,2026:tool/trial-converter</id>
@@ -150,21 +166,5 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">A free, open-source alternative to Viral Loops and Prefinery: a launch waitlist where confirmed referrals move people up the line, with fraud guards and batch invites. Clean a pasted email list and project your viral growth in your browser, then run the server in your own account.</summary>
-  </entry>
-  <entry>
-    <title>webhook-relay — Free Self-Hosted Webhook Retries and Replay</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/webhook-relay/"/>
-    <id>tag:marisstella.dev,2026:tool/webhook-relay</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Never lose a Stripe, GitHub or Shopify webhook because your app was down. Self-hosted relay that verifies signatures, saves events before answering, retries with backoff and replays on demand. Free, MIT, zero dependencies.</summary>
-  </entry>
-  <entry>
-    <title>YouTube Sponsorship Rate Calculator — Free, No Sign-Up</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/youtube-sponsorship-rate-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/youtube-sponsorship-rate-calculator</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free YouTube sponsorship rate calculator. Enter your median views, niche and format to get a price range for an integration, dedicated video or mention, plus what to add for whitelisting and exclusivity. No sign-up, nothing uploaded.</summary>
   </entry>
 </feed>

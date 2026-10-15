@@ -3,7 +3,7 @@
 // drives land in the pending list for the user to classify.
 import * as TaskManager from "expo-task-manager";
 import * as Location from "expo-location";
-import { initial, step } from "./tripdetect.mjs";
+import { initial, step, settle } from "./tripdetect.mjs";
 import { loadEngine, saveEngine, addPending } from "./store";
 
 export const TASK = "mileage-log-background";
@@ -21,6 +21,14 @@ TaskManager.defineTask(TASK, async ({ data, error }) => {
   }
   await saveEngine(state);
 });
+
+// Called when the app opens: a drive the OS stopped reporting on is closed now.
+export async function settleDrives(now = Date.now()) {
+  const r = settle(await loadEngine(initial()), now);
+  if (r.trip) await addPending(r.trip);
+  if (r.trip || r.state.mode === "idle") await saveEngine(r.state);
+  return r.trip;
+}
 
 export async function startTracking() {
   const fg = await Location.requestForegroundPermissionsAsync();
