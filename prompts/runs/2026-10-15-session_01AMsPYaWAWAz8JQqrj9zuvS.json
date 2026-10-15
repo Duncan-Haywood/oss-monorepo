@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01AMsPYaWAWAz8JQqrj9zuvS",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-1.md",
+      "issue": "Step 0 says to clone upstream and follow its prompt.md, but the only free milestone (mirror-sync) lands here; the two docs disagree on where this run commits."
+    },
+    {
+      "file": "prompts/runs/2026-10-15-session_018obG6yKDKaeVVPvEs1FKEN.json",
+      "issue": "Another session's record has a free-text outcome and malformed doc_friction, so promptctl validate fails on main."
+    }
+  ],
+  "deviations": [
+    {
+      "instruction": "prompt-1 Step 0: commit no run record here",
+      "did": "committed a record, since the mirror-sync work lands in this repo",
+      "why": "the work is here, not upstream",
+      "result": "n/a"
+    }
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
