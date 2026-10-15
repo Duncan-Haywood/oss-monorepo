@@ -155,3 +155,5 @@ search, and the usage those channels bring, read from
 See [`channels.yaml`](channels.yaml). `bluesky-bot` is at `artifact`:
 `node platform/distribution/bluesky.mjs` prints the posts a run would send;
 the owner step is the account, two secrets and `DISTRIBUTE_BLUESKY=true`.
+`mastodon-bot` is also at `artifact` (`node platform/distribution/mastodon.mjs`);
+it refuses to post from an account not flagged as a bot, and posts unlisted by default.

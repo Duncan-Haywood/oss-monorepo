@@ -1,0 +1,25 @@
+# Announce newly launched tools from a bot-flagged Mastodon account.
+# Off by default: with vars.DISTRIBUTE_MASTODON unset this only prints a dry run.
+# Free API, no paid spend, no commits pushed. Spec: portfolio/distribution/README.md
+name: distribute-mastodon
+on:
+  schedule:
+    - cron: '47 14 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  announce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node platform/distribution/mastodon.mjs
+        env:
+          DISTRIBUTE_MASTODON: ${{ vars.DISTRIBUTE_MASTODON }}
+          MASTODON_INSTANCE: ${{ vars.MASTODON_INSTANCE }}
+          MASTODON_TOKEN: ${{ secrets.MASTODON_TOKEN }}
+          MASTODON_VISIBILITY: ${{ vars.MASTODON_VISIBILITY }}

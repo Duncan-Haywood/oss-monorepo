@@ -15,3 +15,18 @@ channels:
       - rate limits are generous for 3 posts a day; the script never retries a failed post in a loop
     owner_ask: create a Bluesky account for the portfolio, label it as automated, store the app password as a secret, set the variable
     dry_run: node platform/distribution/bluesky.mjs
+  - id: mastodon-bot
+    rung: artifact
+    built: 2026-10-15
+    code: platform/distribution/mastodon.mjs
+    workflow: .github/workflows/distribute-mastodon.yml
+    enabled_by: repository variables DISTRIBUTE_MASTODON=true and MASTODON_INSTANCE (https URL), plus secret MASTODON_TOKEN (an app token with write:statuses and read:accounts only)
+    what_it_posts: one status per tool launched in the last 3 days (platform/pages/launched.json), at most 3 per run, link back to the tool page, text ends "Automated post."; unlisted by default (MASTODON_VISIBILITY=public only if the instance allows bots to)
+    dedupe: stateless (reads the account's own recent statuses) plus an Idempotency-Key per tool and day
+    safety: the script refuses to post unless the account is flagged as a bot in its profile
+    terms_to_confirm_by_owner_when_enabling:
+      - the chosen instance's server rules on automated accounts and self-promotion (they differ per instance; pick one that welcomes bots)
+      - the account is flagged "This is a bot account" and the bio says what it posts
+      - Mastodon REST API POST /api/v1/statuses is the documented public API; tokens come from the account's own Development > New application
+    owner_ask: pick a bot-friendly instance, create a labelled account, store its token as a secret, set the variables
+    dry_run: node platform/distribution/mastodon.mjs
