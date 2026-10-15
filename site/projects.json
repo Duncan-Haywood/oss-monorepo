@@ -2098,6 +2098,18 @@
      "summary": "A loop that takes a parameterised generator and a search space and runs each candidate through lint, bit- and cycle-exact RTL simulation, a gate-netlist simulation check and Yosys synthesis, caching by design hash and logging every evaluation as JSON. On <em>chip-accel</em>&rsquo;s MAC engine (40 designs) all candidates pass; synthesis and the gate-level check take 99% of the 424&nbsp;s of wall time and RTL simulation under 1%. The Pareto front matches <em>chip-accel</em>&rsquo;s. Stylised: one design family, generic-gate counts, simulation-based (not formal) equivalence, no place and route."
     }
    ]
+  },
+  {
+   "id": "osrobot",
+   "name": "Open-source purpose-built robots",
+   "blurb": "Robots built for one job and designed from the task outward: when a specialised body beats a general-purpose arm, on cost, speed and reliability.",
+   "projects": [
+    {
+     "slug": "osrobot-specialise",
+     "title": "When does a purpose-built gantry beat a general two-link arm at tray pick-and-place?",
+     "summary": "A stdlib model compares an XY gantry with an equal-link planar arm over a square work area, on cost per good pick per hour. At 2&nbsp;mm tolerance the gantry wins up to 0.35&nbsp;m and above about 1.0&nbsp;m; the arm wins between 0.36 and 0.99&nbsp;m. Tolerance below 1&nbsp;mm removes the arm&rsquo;s band, and the band depends heavily on the assumed cost coefficients (halving the gantry&rsquo;s removes it). Stylised: every cost, mass, speed and accuracy figure is assumed, and only one task is modelled."
+    }
+   ]
   }
  ],
  "featured": [
