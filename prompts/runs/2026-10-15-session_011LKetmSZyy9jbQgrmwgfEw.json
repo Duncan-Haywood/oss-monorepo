@@ -31,8 +31,14 @@
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "prompts/research/prompt-0.md: routed to the research track, whose Mission says research work lands upstream; needed add_repo and a 2nd clone before any work. Fine, but the route output does not mention it.",
-    "research/_mirror/mirror.py sync: leaves 'port by hand' diffs as git blob shas; prompt-0.md and CLAUDE.md have diverged enough that `patch` fails and manual porting is needed."
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Research track says work lands upstream, which needed add_repo and a second clone before anything; promptctl route does not mention it."
+    },
+    {
+      "file": "research/_mirror/mirror.py",
+      "issue": "sync lists adapted files as blob-sha diffs; prompt-0.md has diverged enough that patch fails and porting is by hand."
+    }
   ],
   "goal": null,
   "notes": "Milestone mirror-sync only. tokens/cost/tool_calls not read (no get_session tool); null. Merged state filled by PR outcome.",
