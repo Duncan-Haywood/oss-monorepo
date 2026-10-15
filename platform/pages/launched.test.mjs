@@ -121,17 +121,16 @@ test('refresh output is key-sorted so a re-run produces no diff churn', async ()
   assert.deepEqual(Object.keys(launched), ['alpha', 'mike', 'zulu']);
 });
 
-test('the committed file is exactly what a refresh would produce, byte for byte', async () => {
-  // Guards the file against a hand edit that reorders or reformats it, which
-  // would make every future `--write` produce a large spurious diff.
+test('every published surface has a launch date, and the file is valid JSON', async () => {
+  // Fails on a missing date (the failure that leaves no trace on any page).
+  // Deliberately does NOT fail on key order or formatting: parallel branches
+  // each append an entry, so order drift after a merge is expected and
+  // `node platform/pages/launched.mjs --write` normalises it (P007).
   const file = path.join(import.meta.dirname, 'launched.json');
-  const onDisk = await fs.readFile(file, 'utf8');
+  const onDisk = JSON.parse(await fs.readFile(file, 'utf8')).launched;
   const surfaces = await discoverSurfaces(path.join(REPO_ROOT, 'ventures'));
-  const { launched } = await refreshLaunchDates(
-    surfaces.map((s) => s.slug),
-    { existing: await loadLaunchDates(), cwd: REPO_ROOT },
-  );
-  assert.equal(onDisk, `${JSON.stringify({ launched }, null, 2)}\n`);
+  const missing = surfaces.map((s) => s.slug).filter((slug) => !isIsoDate(onDisk[slug]));
+  assert.deepEqual(missing, [], 'run: node platform/pages/launched.mjs --write');
 });
 
 // ---------------------------------------------------------------------------
