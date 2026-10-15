@@ -58,10 +58,10 @@
 #   portfolio-front-tools-22: 121 files, 554790 bytes
 #   portfolio-front-tools-23: 117 files, 550990 bytes
 #   portfolio-front-tools-24: 128 files, 557017 bytes
-#   portfolio-front-tools-25: 125 files, 551533 bytes
-#   portfolio-front-tools-26: 133 files, 556990 bytes
-#   portfolio-front-tools-27: 139 files, 553739 bytes
-#   portfolio-front-tools-28: 118 files, 547052 bytes
+#   portfolio-front-tools-25: 125 files, 554100 bytes
+#   portfolio-front-tools-26: 132 files, 551457 bytes
+#   portfolio-front-tools-27: 139 files, 553797 bytes
+#   portfolio-front-tools-28: 119 files, 553671 bytes
 #   portfolio-front-tools-29: 126 files, 545045 bytes
 #   portfolio-front-tools-30: 133 files, 554406 bytes
 #   portfolio-front-tools-31: 133 files, 555502 bytes
@@ -3674,12 +3674,12 @@ configMapGenerator:
       - nis2-scope-checker__index.html.gz=nis2-scope-checker__index.html.gz
       - nis2-scope-checker__usage.mjs.gz=nis2-scope-checker__usage.mjs.gz
       - nl-zzp-tax-set-aside-calculator__calc.mjs.gz=nl-zzp-tax-set-aside-calculator__calc.mjs.gz
-      - nl-zzp-tax-set-aside-calculator__index.html.gz=nl-zzp-tax-set-aside-calculator__index.html.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - nl-zzp-tax-set-aside-calculator__index.html.gz=nl-zzp-tax-set-aside-calculator__index.html.gz
       - nl-zzp-tax-set-aside-calculator__usage.mjs.gz=nl-zzp-tax-set-aside-calculator__usage.mjs.gz
       - no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz=no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz
       - no-show-fee-calculator__app.mjs.gz=no-show-fee-calculator__app.mjs.gz
@@ -3818,12 +3818,12 @@ configMapGenerator:
       - paddle-payout-to-journal__calc.mjs.gz=paddle-payout-to-journal__calc.mjs.gz
       - paddle-payout-to-journal__index.html.gz=paddle-payout-to-journal__index.html.gz
       - paddle-payout-to-journal__usage.mjs.gz=paddle-payout-to-journal__usage.mjs.gz
-      - padel-club-profit-calculator__calc.mjs.gz=padel-club-profit-calculator__calc.mjs.gz
   - name: portfolio-front-tools-28
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - padel-club-profit-calculator__calc.mjs.gz=padel-club-profit-calculator__calc.mjs.gz
       - padel-club-profit-calculator__index.html.gz=padel-club-profit-calculator__index.html.gz
       - padel-club-profit-calculator__usage.mjs.gz=padel-club-profit-calculator__usage.mjs.gz
       - paid-sick-leave-accrual-calculator__calc.mjs.gz=paid-sick-leave-accrual-calculator__calc.mjs.gz
