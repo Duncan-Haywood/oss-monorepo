@@ -349,6 +349,8 @@ export function parseUblInvoice(source) {
   Object.assign(invoice, commercialReferences(root));
   const specification = textOf(root, "CustomizationID", false);
   if (specification) invoice.specification_id = specification;
+  const businessProcess = textOf(root, "ProfileID", false);
+  if (businessProcess) invoice.profile_id = businessProcess;
   const adjustments = headerAdjustments(root);
   if (adjustments.length) invoice.adjustments = adjustments;
   return invoice;
