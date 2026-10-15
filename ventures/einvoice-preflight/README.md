@@ -91,6 +91,50 @@ authority, or claims that an invoice is legally valid. It only checks the
 document facts represented in the input schema. The user remains responsible
 for selecting the correct format, tax treatment, and submission process.
 
+## Run it as your own API (self-hosted, one click)
+
+The same rules are available as a small HTTP service you run in **your own**
+account. Nothing is stored, nothing is forwarded, and the author runs nothing
+in between. Use it from an ERP, a webhook or a CI job instead of shelling out
+to the CLI.
+
+**Deploy:** fork this repository, then open
+`https://render.com/deploy?repo=<your fork URL>`. `render.yaml` builds the
+`Dockerfile` here on Render's free plan and generates an `EINVOICE_API_KEY`
+for you. Anywhere that runs Docker works too:
+
+```sh
+cd ventures/einvoice-preflight
+docker build -t einvoice-preflight . && docker run -p 8080:8080 -e EINVOICE_API_KEY=change-me einvoice-preflight
+# or, with Node 20+ and no Docker:  EINVOICE_API_KEY=change-me node server.mjs
+```
+
+```sh
+# one invoice: body is the raw file; Content-Type (or ?name=x.pdf) picks the parser
+curl -H "Authorization: Bearer $KEY" -H "Content-Type: application/xml" \
+  --data-binary @invoice.xml https://YOUR-HOST/v1/validate
+# a batch (base64 for PDFs); also flags duplicate invoice numbers (INV-019)
+curl -H "Authorization: Bearer $KEY" -d '{"documents":[{"name":"a.json","content":"{...}"}]}' \
+  https://YOUR-HOST/v1/validate/batch
+```
+
+The response is the CLI's `--format json` report plus a `disclaimer`. With no
+`EINVOICE_API_KEY` the API is open, so set one on anything public.
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `PORT` | `8080` | listen port |
+| `EINVOICE_API_KEY` | none | require `Authorization: Bearer <key>` on `/v1/*` |
+| `EINVOICE_MAX_BYTES` | `1048576` | per-invoice size limit |
+| `EINVOICE_MAX_BATCH` | `50` | documents per batch |
+| `EINVOICE_RATE_LIMIT_PER_MIN` | `120` | per client IP (honours `X-Forwarded-For`) |
+| `EINVOICE_CORS_ORIGIN` | none | allow browser calls from this origin |
+| `EINVOICE_SERVE_UI` | on | `0` serves the API only |
+
+If this saves you a rejected invoice run, you can chip in at
+<https://buymeacoffee.com/duncanhaywood>. Same safety boundary as below:
+preflight, not a Peppol/EN 16931 conformance validator, and no warranty.
+
 ## Input shape
 
 The supported v0 JSON shape is intentionally small and format-neutral. UBL XML
