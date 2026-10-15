@@ -37,6 +37,10 @@ many networks. It has **not been run in production by the author**.
   collapse to one person. A small list of disposable domains is refused.
 - Optional reward tiers (`TIERS_JSON='[{"referrals":3,"reward":"early access"}]'`)
   show on each person's status page.
+- People can delete themselves from the link in every email and on their status
+  page (the GET only shows a button, so mail scanners that prefetch links erase
+  nothing). Network addresses are stored only as a salted hash, used to spot a
+  referrer signing up their own friends.
 - The status page (`/s/<code>`) shows only the visitor's own place; it never
   shows an email.
 
@@ -57,7 +61,11 @@ printed on the page so you can try the flow.
 | `GET /v1/admin/export.csv` | full list with positions (formula-injection safe) |
 | `POST /v1/admin/invite {"count": 50, "url": "..."}` | invites the front of the line and emails them |
 | `GET /v1/count` (public) | number waiting, for social proof on your own site |
-| `POST /join` (form or JSON `{email, ref}`) | sign up, from your own form too |
+| `POST /v1/admin/erase {"email": "..."}` | delete one person (a data-deletion request) |
+| `POST /join` (form or JSON `{email, ref, src}`) | sign up, from your own form too; `src` (or `?utm_source=`) records where they came from |
+| `GET /admin` (browser, any user name, `ADMIN_KEY` as password) | read-only dashboard: counts, signups per source, top referrers |
+| `GET /embed.js` | drop-in form for any site: `<div id="waitlist-keeper" data-src="launch-post"></div><script src="https://your-server/embed.js" async></script>` |
+| `GET /leave?t=<token>` | the "delete my data" page linked from every email and status page; the button erases |
 
 | Env | Purpose |
 |---|---|
