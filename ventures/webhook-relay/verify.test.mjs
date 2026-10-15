@@ -100,3 +100,20 @@ test("a correctly signed but non-numeric timestamp is rejected, not read as insi
   const paddle = `ts=${t};h1=${h("k", `${t}:${body}`)}`;
   assert.match(verify("paddle", { headers: { "paddle-signature": paddle }, body, secret: "k", nowSec: NOW }).reason, /tolerance/);
 });
+
+test("bitbucket: sha256= hex hmac in x-hub-signature", () => {
+  const ok = { "x-hub-signature": `sha256=${h("k", body)}` };
+  assert.equal(verify("bitbucket", { headers: ok, body, secret: "k" }).ok, true);
+  assert.equal(verify("bitbucket", { headers: { "x-hub-signature": `sha256=${h("z", body)}` }, body, secret: "k" }).ok, false);
+  assert.equal(verify("bitbucket", { headers: {}, body, secret: "k" }).ok, false);
+});
+
+test("mailgun: hmac of timestamp+token inside the body, with a replay window", () => {
+  const mk = (ts, token, key) => Buffer.from(JSON.stringify({ signature: { timestamp: String(ts), token, signature: h(key, `${ts}${token}`) }, "event-data": {} }));
+  const run = (b) => verify("mailgun", { headers: {}, body: b, secret: "k", nowSec: NOW });
+  assert.equal(run(mk(NOW, "tok", "k")).ok, true);
+  assert.equal(run(mk(NOW, "tok", "z")).ok, false);
+  assert.match(run(mk(NOW - 1000, "tok", "k")).reason, /tolerance/);
+  assert.match(run(Buffer.from("{}")).reason, /signature block/);
+  assert.match(run(Buffer.from("nope")).reason, /not JSON/);
+});
