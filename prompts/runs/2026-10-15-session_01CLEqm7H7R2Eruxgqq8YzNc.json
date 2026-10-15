@@ -23,7 +23,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 14,
@@ -49,5 +49,13 @@
   ],
   "goal": null,
   "notes": "Search for new niches found every probe already built (1,233 ventures); chose to deepen an existing high-demand venture. Partial: PR #6993 opened; local checklist green except 26 pre-existing test_worker_run failures; PR check 'validate' (portfolio/router/validate.py) is red on main too, 231 problems in other ventures, none in ats-resume-checker.",
-  "corrections": []
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR 6993 is merged on main (git log and PR read)"
+    }
+  ]
 }
