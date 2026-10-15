@@ -1,6 +1,6 @@
 FROM node:22-alpine
 WORKDIR /app
-COPY engine.mjs server.mjs meter-config.example.json ./
+COPY engine.mjs sdk.mjs server.mjs meter-config.example.json ./
 RUN mkdir -p /data && chown node /data
 USER node
 ENV PORT=8080 STATE=/tmp/state.json CONFIG=/app/meter-config.example.json

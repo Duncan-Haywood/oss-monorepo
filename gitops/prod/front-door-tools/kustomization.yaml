@@ -59,7 +59,7 @@
 #   portfolio-front-tools-23: 119 files, 549949 bytes
 #   portfolio-front-tools-24: 119 files, 551212 bytes
 #   portfolio-front-tools-25: 135 files, 556591 bytes
-#   portfolio-front-tools-26: 128 files, 554610 bytes
+#   portfolio-front-tools-26: 129 files, 556261 bytes
 #   portfolio-front-tools-27: 141 files, 554680 bytes
 #   portfolio-front-tools-28: 128 files, 552705 bytes
 #   portfolio-front-tools-29: 122 files, 555700 bytes
@@ -3585,6 +3585,7 @@ configMapGenerator:
       - metal-roof-bid-calculator__vs-acculynx.html.gz=metal-roof-bid-calculator__vs-acculynx.html.gz
       - meter-keeper__engine.mjs.gz=meter-keeper__engine.mjs.gz
       - meter-keeper__index.html.gz=meter-keeper__index.html.gz
+      - meter-keeper__sdk.mjs.gz=meter-keeper__sdk.mjs.gz
       - meter-keeper__server.mjs.gz=meter-keeper__server.mjs.gz
       - meter-keeper__usage.mjs.gz=meter-keeper__usage.mjs.gz
       - microgreens-tray-planner__engine.mjs.gz=microgreens-tray-planner__engine.mjs.gz
