@@ -1,11 +1,11 @@
 {
   "id": "P012",
   "title": "portfolio-validate is red on main: 63 VENTURE.yaml files lack required fields",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
-  "problem": "`python3 portfolio/router/validate.py` reports 231 problems across 63 ventures (missing hypotheses, economics, budget, kill_criteria, links). The `validate` check is therefore red on every merge to main, so it has stopped being a signal: PRs merge past it and a new real failure in the same check would be invisible.",
+  "problem": "`python3 portfolio/router/validate.py` reports 231 problems across 63 ventures (missing hypotheses, economics, budget, kill_criteria, links). The `validate` check is therefore red on every merge to main, so it has stopped being a signal: PRs merge past it and a new real failure in the same check would be invisible. (Update 2026-10-15: router/validate.py is green; remaining red source was malformed run records.)",
   "evidence": [
     "validate.py on origin/main 00d614a86b: '231 problem(s) across 1238 venture(s)', 63 distinct ventures (2026-10-15)",
     "check run `validate` failed on the last three merge commits to main (00d614a86, 0e3cd6fa6, ccf5f82d4), via the check-runs API"
@@ -21,5 +21,7 @@
   "source": "PR 7021 CI, 2026-10-15",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    "2026-10-15: portfolio/router/validate.py now reports 'All 1244 VENTURE.yaml files are valid' on main; the recurring red `validate` was also run-record format (5 fix commits to malformed records on 2026-10-14/15). promptctl record now prints the enforced shapes."
+  ]
 }
