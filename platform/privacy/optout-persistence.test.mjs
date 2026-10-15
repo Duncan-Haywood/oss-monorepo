@@ -1684,7 +1684,7 @@ const RELATIVE_SELF = relative(
 // +1: `webhook-relay` graduated.
 // +1: `rev-rec` graduated.
 // +1: `form-inbox` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1219;
+const SWITCHES_IN_THE_CATALOGUE = 1220;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
