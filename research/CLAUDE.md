@@ -30,7 +30,7 @@ Sources:
   `slug`, `title` (a question the project answers), `summary` (the abstract, HTML).
 - `research/README.md` — each project's bullet is reused as the card's one-line lede.
 - `research/<slug>/` — test counts are the `def test_` functions in its `test*.py` files.
-- `_homepage/template.html` — layout, styles and search script.
+- `_homepage/template.html` — layout, styles and search script. `_homepage/project.html` — the per-project home page (`_site/<slug>/index.html`); it shows the first image under the project's `experiments/` if there is one.
 
 Directories under `research/` whose names start with `_` or `.` are not projects.
 
