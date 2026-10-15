@@ -371,3 +371,12 @@ class DeviationTest(PromptTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
+    def test_string_friction_and_deviation_entries_do_not_crash(self):
+        import tempfile, json
+        from pathlib import Path
+        import promptctl
+        real = promptctl.measure(promptctl.ROOT)
+        self.assertIn("doc_friction", real)

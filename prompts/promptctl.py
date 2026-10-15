@@ -551,11 +551,15 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
         by_model[(rec["track"], rec.get("model") or "unknown")].append(rec)
         by_input[rec.get("input_sha256") or "unknown"].append(rec)
         for item in rec.get("doc_friction") or []:
+            if not isinstance(item, dict):  # malformed free-text entry: keep it countable
+                item = {"file": "(unattributed)", "issue": str(item)}
             friction[item["file"]].append(f"{rec['date']}: {item['issue']}")
         for item in rec.get("deviations") or []:
+            if not isinstance(item, dict):
+                item = {"file": "(unattributed)", "why": str(item)}
             deviations[item["file"]].append(
                 f"{rec['date']}: {item.get('did') or item.get('instruction') or '?'} "
-                f"(why: {item['why']}; result: {item.get('result') or 'unknown'})")
+                f"(why: {item.get('why')}; result: {item.get('result') or 'unknown'})")
 
     candidates = {}
     for track, cfg in routing["tracks"].items():
