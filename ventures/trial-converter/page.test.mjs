@@ -39,3 +39,8 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("footer links its siblings", () => {
+  const html = page("index.html");
+  for (const s of ["dunning-engine", "cancel-flow", "mrr-pulse"]) assert.match(html, new RegExp(`href="\\.\\./${s}/"`), s);
+});
