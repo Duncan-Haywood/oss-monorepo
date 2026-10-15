@@ -38,3 +38,13 @@ test("index keeps its liability disclaimer and its no-upload promise", () => {
   assert.match(html, /No warranty/i, "the liability disclaimer is missing");
   assert.match(html, /never uploaded/i, "the no-upload privacy line is missing");
 });
+
+// The keyword match is a second feature on the same page; a later edit that
+// drops the posting box or the module import would leave the README promising
+// something the page cannot do.
+test("index wires up the job-posting keyword match", () => {
+  assert.match(html, /id="posting-text"/);
+  assert.match(html, /import \{ matchPosting, summarizeMatch \} from "\.\/match\.mjs"/);
+  assert.match(html, /not an applicant tracking system'?s\s+score/i, "the page must say the percentage is not an ATS score");
+  assert.match(html, /<code>match_run<\/code>/, "the new usage event must be disclosed in the footer");
+});
