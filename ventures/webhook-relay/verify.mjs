@@ -10,6 +10,8 @@ const hmac = (secret, data, enc) => createHmac("sha256", secret).update(data).di
 const fail = (reason) => ({ ok: false, reason });
 const OK = { ok: true };
 const TOLERANCE_SEC = 300;
+// NaN compares false against everything, so a non-numeric timestamp must not read as "inside the window".
+const stale = (nowSec, ts) => !(Math.abs(nowSec - Number(ts)) <= TOLERANCE_SEC);
 
 export const SCHEMES = ["none", "stripe", "github", "shopify", "slack", "paddle", "typeform", "gitlab", "woocommerce", "linear", "standard", "hmac-sha256"];
 
@@ -21,7 +23,7 @@ export function verify(scheme, { headers, body, secret, nowSec = Math.floor(Date
       const parts = Object.fromEntries((headers["stripe-signature"] || "").split(",").map((p) => p.split("=")).filter((p) => p.length === 2));
       const sigs = (headers["stripe-signature"] || "").split(",").filter((p) => p.startsWith("v1=")).map((p) => p.slice(3));
       if (!parts.t || !sigs.length) return fail("missing stripe-signature");
-      if (Math.abs(nowSec - Number(parts.t)) > TOLERANCE_SEC) return fail("timestamp outside tolerance");
+      if (stale(nowSec, parts.t)) return fail("timestamp outside tolerance");
       const want = hmac(secret, `${parts.t}.${body.toString("utf8")}`, "hex");
       return sigs.some((s) => eq(s, want)) ? OK : fail("signature mismatch");
     }
@@ -36,7 +38,7 @@ export function verify(scheme, { headers, body, secret, nowSec = Math.floor(Date
     case "slack": {
       const ts = headers["x-slack-request-timestamp"], got = headers["x-slack-signature"] || "";
       if (!ts || !got) return fail("missing slack headers");
-      if (Math.abs(nowSec - Number(ts)) > TOLERANCE_SEC) return fail("timestamp outside tolerance");
+      if (stale(nowSec, ts)) return fail("timestamp outside tolerance");
       return eq(got, `v0=${hmac(secret, `v0:${ts}:${body.toString("utf8")}`, "hex")}`) ? OK : fail("signature mismatch");
     }
     case "paddle": { // Paddle Billing: "ts=<unix>;h1=<hex>" (several h1 while a secret rotates), signed over "<ts>:<body>"
@@ -44,7 +46,7 @@ export function verify(scheme, { headers, body, secret, nowSec = Math.floor(Date
       const ts = (pairs.find((p) => p[0] === "ts") || [])[1];
       const sigs = pairs.filter((p) => p[0] === "h1" && p[1]).map((p) => p[1]);
       if (!ts || !sigs.length) return fail("missing paddle-signature");
-      if (Math.abs(nowSec - Number(ts)) > TOLERANCE_SEC) return fail("timestamp outside tolerance");
+      if (stale(nowSec, ts)) return fail("timestamp outside tolerance");
       const want = hmac(secret, `${ts}:${body.toString("utf8")}`, "hex");
       return sigs.some((s) => eq(s, want)) ? OK : fail("signature mismatch");
     }
@@ -72,7 +74,7 @@ export function verify(scheme, { headers, body, secret, nowSec = Math.floor(Date
     case "standard": { // standardwebhooks.com: Svix, Resend, Clerk, ...
       const id = headers["webhook-id"], ts = headers["webhook-timestamp"], sigHeader = headers["webhook-signature"];
       if (!id || !ts || !sigHeader) return fail("missing webhook-* headers");
-      if (Math.abs(nowSec - Number(ts)) > TOLERANCE_SEC) return fail("timestamp outside tolerance");
+      if (stale(nowSec, ts)) return fail("timestamp outside tolerance");
       const key = secret.startsWith("whsec_") ? Buffer.from(secret.slice(6), "base64") : Buffer.from(secret);
       const want = hmac(key, `${id}.${ts}.${body.toString("utf8")}`, "base64");
       const ok = sigHeader.split(" ").some((s) => s.startsWith("v1,") && eq(s.slice(3), want));

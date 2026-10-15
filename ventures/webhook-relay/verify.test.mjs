@@ -90,3 +90,13 @@ test("linear: hex hmac plus body timestamp window", () => {
   assert.match(run(nots, h("k", nots)).reason, /webhookTimestamp/);
   assert.equal(verify("linear", { headers: {}, body: ok, secret: "k", nowSec: NOW }).ok, false);
 });
+
+test("a correctly signed but non-numeric timestamp is rejected, not read as inside the window", () => {
+  const t = "abc";
+  const stripe = `t=${t},v1=${h("k", `${t}.${body}`)}`;
+  assert.match(verify("stripe", { headers: { "stripe-signature": stripe }, body, secret: "k", nowSec: NOW }).reason, /tolerance/);
+  const slack = `v0=${h("k", `v0:${t}:${body}`)}`;
+  assert.match(verify("slack", { headers: { "x-slack-request-timestamp": t, "x-slack-signature": slack }, body, secret: "k", nowSec: NOW }).reason, /tolerance/);
+  const paddle = `ts=${t};h1=${h("k", `${t}:${body}`)}`;
+  assert.match(verify("paddle", { headers: { "paddle-signature": paddle }, body, secret: "k", nowSec: NOW }).reason, /tolerance/);
+});
