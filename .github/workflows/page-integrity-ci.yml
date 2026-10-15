@@ -52,6 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          persist-credentials: false
           # The checker's tests read historical blobs of a page that shipped
           # broken, so they need real history rather than a shallow clone.
           fetch-depth: 0

@@ -53,6 +53,8 @@ jobs:
     container: swift:5.9
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - run: swift build
       - run: swift test
 
@@ -67,6 +69,8 @@ jobs:
         working-directory: ventures/world-clock-widget/site
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
