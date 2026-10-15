@@ -14,6 +14,7 @@ Follow-up to `selfrep-alurod` and `selfrep-rodmodes` (track 1, `PROJECTS.md`), t
 cd research/selfrep-alufreq
 python3 -m unittest discover -s tests -v     # 6 tests, standard library only
 python3 experiments/run.py                   # writes experiments/results.txt
+python3 experiments/figure.py                  # plots the frequency-vs-mass table to experiments/max_frequency.svg from the committed results.txt
 ```
 
 ## Results (from `experiments/results.txt`)

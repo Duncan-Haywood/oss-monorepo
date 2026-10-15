@@ -1573,6 +1573,11 @@
      "summary": "In the stylised urgency model, perfect urgency knowledge is worth 0.034 utility per message. Acting naively on a noisy label stops being worse than ignoring it at about 70% accuracy with uniform errors (about 53% if errors only hit neighbouring classes), and at 70% it loses in 18 of 48 contexts. A Bayesian reading of the label never loses to ignoring it when the prior and confusion matrix are known, but a prior that over-weights high urgency drops it below ignoring the label. Every parameter is a round figure of mine: nothing is fitted or measured."
     },
     {
+     "slug": "ambient-confest",
+     "title": "How many audited messages does an always-on assistant need before it can trust a noisy urgency label?",
+     "summary": "Extending the stylised urgency-label model, the assistant estimates the label&rsquo;s class mix and confusion matrix from n audited messages and then acts by Bayes&rsquo; rule. With maximum-likelihood estimates, n&nbsp;=&nbsp;10 is worse than ignoring the label (mean utility 0.363 against 0.382 at 70% label accuracy); n&nbsp;=&nbsp;50 recovers 76% of the gain of knowing the true parameters and n&nbsp;=&nbsp;200 recovers 92%. Add-one smoothing cuts the spread at tiny n but costs a little at high accuracy. Stylised: round-number utilities, uniform label errors, noise-free audit labels."
+    },
+    {
      "slug": "ambient-bandit",
      "title": "Can an always-on assistant learn when to speak from accept/dismiss feedback alone, and what does it cost in dismissals?",
      "summary": "A simulated assistant learns an interruption policy online (greedy, &epsilon;-greedy or Thompson-sampled logistic model) from the user&rsquo;s reaction only when it speaks. With an uninformed prior none of the three learns a useful policy in 100&nbsp;h; with a prior that the intent score is informative, greedy reaches 90% of an offline oracle&rsquo;s rate after a median 22.5&nbsp;h and about 185 dismissals, and Thompson sampling takes 32.5&nbsp;h. It still earns 10.4 against the oracle&rsquo;s 12.7 per hour, and after a drop in classifier quality it does far worse than frozen offline weights (0.3 vs 4.4 per hour). Stylised: independent windows, instant noise-free feedback, picked costs."
@@ -2128,6 +2133,18 @@
      "slug": "osrobot-bodysearch",
      "title": "Does searching an arm&rsquo;s joint count, link lengths and mount, with its controller tuned in the loop, beat a fixed three-link body at the same cost?",
      "summary": "A stdlib model searches link lengths, joint count and mount position of a planar arm, with its inverse-kinematics controller tuned in the loop, against a fixed three-link body at an equal cost budget (300 evaluations, 10 seeds, held-out targets). On a shelf task that needs the tool pointing down, the search reaches 0.95 success against 0.26 for the fixed body with a tuned controller and 0.50 with the mount also tuned; on a long position-only reach the fixed body already succeeds and the search adds nothing. Random search beat a (1+4) evolution strategy here, weakly. Stylised: kinematics and static torque only (no MuJoCo dynamics), and every cost, mass and limit is assumed."
+    }
+   ]
+  },
+  {
+   "id": "swe",
+   "name": "The software-engineering loop",
+   "blurb": "Measuring and optimising the agent loop that builds this portfolio: what the run log records, what a run costs, and which work is worth the budget.",
+   "projects": [
+    {
+     "slug": "swe-ledger",
+     "title": "What can the run log measure about the agent loop today?",
+     "summary": "A stdlib reader of a snapshot of <code>prompts/runs.jsonl</code> (189 runs, 184 listed projects) reports coverage and throughput proxies. Token, cost and tool-call fields are present in at most 1% of runs and wall time is derivable for only 15, so no cost-per-project figure is possible yet. About a third of listed projects sit in follow-up families of three or more, and 24 slugs appear in more than one run. All 143 recorded CI-failure counts are zero, which looks like a success-only field, not a clean record. Preliminary: first step of the ledger milestone; no git-history backfill, no value or correctness scoring."
     }
    ]
   }
