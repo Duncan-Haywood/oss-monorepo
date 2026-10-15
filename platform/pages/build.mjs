@@ -169,6 +169,7 @@ export const ENTRY_OVERRIDES = {
 export const DOWNLOADABLE_CLI_FILES = {
   'actions-artifact-poisoning-check': ['check.py'],
   'actions-cache-poisoning-check': ['check.py'],
+  'actions-checkout-credentials-check': ['check.py'],
   'actions-injection-check': ['check.py'],
   'actions-permissions-check': ['check.py'],
   'actions-runner-starvation-check': ['check.py'],
