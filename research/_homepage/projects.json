@@ -1260,6 +1260,16 @@
      "slug": "free-c2stpower",
      "title": "How many real trajectories does a classifier two-sample test need to reject a wrong digital twin, compared with a paired error test?",
      "summary": "Follow-up to <code>mimic-twinc2st</code> on a stylised pendulum (Coulomb friction, Student-t sensor noise). The rejection threshold is the 95th percentile of the exact twin&rsquo;s own null, and power is the share of replicates above it. For a Coulomb error of 20% the paired error test (same start angles, noisy real vs noise-free twin) has power 0.76 at 50 trajectories and 0.98 at 100, while the boosted-tree C2ST has 0.04 and 0.25 and needs about 200 to reach 1.00. For a 10% error the paired test stalls at 0.09&ndash;0.20 for every <em>n</em> up to 800 (a plausible but untested cause: the squared heavy-tailed noise has infinite variance), while the C2ST reaches 0.62 at 200 and 1.00 at 400. For Gaussian instead of Student-t noise of the same sd the paired test has power 0.04&ndash;0.07 at every <em>n</em>, the C2ST with second-difference features 0.92 at 50. Caveat: the null threshold comes from 60 replicates, and a check on fresh null replicates falsely rejected 0&ndash;29% of the time (nominal 5%), so power at small <em>n</em> is approximate. Stylised, simulated, 24 replicates per cell."
+    },
+    {
+     "slug": "thrust-twin",
+     "title": "What does a quadratic thrust curve do to a controller designed in a linear-thrust twin?",
+     "summary": "A throttle controller inverts a twin whose thrust is linear around hover; the real thrust is quadratic. The realised acceleration is exactly <em>a</em><sub>cmd</sub>+<em>a</em><sub>cmd</sub><sup>2</sup>/(4<em>g</em>): climbs over-deliver, descents under-deliver, and the throttle floor is reached at <em>a</em><sub>cmd</sub>=&minus;2<em>g</em>. At &zeta;=0.7 the climb overshoot rises from 0.046 to 0.095 while the descent falls to 0.027 for a step of <em>p</em>=&omega;<sub>n</sub><sup>2</sup>|<em>x</em><sub>0</sub>|/<em>g</em>=4; gentle steps (<em>p</em>&le;0.5) change overshoot by under 1.1 points. Stylised: 1-D, static thrust map, assumed throttle ceiling, no field data."
+    },
+    {
+     "slug": "invthrust-twin",
+     "title": "Does inverting a quadratic thrust curve exactly fix the error a linear-thrust twin makes, and what if the thrust exponent is also wrong?",
+     "summary": "Follow-up to <code>thrust-twin</code>. With the right model, the exact square-root throttle inverse realises the commanded acceleration inside the throttle limits and shrinks the up/down overshoot gap at &zeta;=0.7, <em>p</em>=2 from 3.00 to 0.09 points. With the thrust exponent misidentified (2.5 instead of 2) the exact inverse flips the asymmetry and halves the gap (3.67 to 1.65 points) but overshoot stays at 0.071&ndash;0.088 against the twin&rsquo;s 0.046, and settling time is unchanged. Stylised: 1-D, noiseless, static thrust map, assumed throttle limits, exponent error only."
     }
    ]
   },
@@ -2000,6 +2010,11 @@
      "slug": "simdesign-buckleguard",
      "title": "What does it cost to replace the w/b &le; 8 rule of the laser-cut bracket with a buckling-factor guard?",
      "summary": "A stylised, preliminary optimisation study (closed-form buckling check, assumed rules, material and load). Replacing the w/b &le; 8 slenderness rule with a lateral-torsional safety factor of at least 3 lets the differential-evolution optimiser use the 1.5&nbsp;mm gauge at w &asymp; 18.7&nbsp;mm: 31.1&ndash;31.4&nbsp;g against 35.8&ndash;36.0&nbsp;g under the old rule, about 12% lighter (three seeds each). The guard does not bind at that optimum; the stress limit does. The result depends on the assumed factor: no feasible 1.5&nbsp;mm design was found for a factor of 5 or more. Simulated only; edge crippling, imperfections and cutting stress are not modelled."
+    },
+    {
+     "slug": "simdesign-loadbind",
+     "title": "When does the buckling guard of the laser-cut bracket start to bind as load and arm length change?",
+     "summary": "A stylised, preliminary sweep (closed-form buckling check, assumed rules, material and loads; two seeds). Over tip loads of 50&ndash;400&nbsp;N and arms of 60&ndash;120&nbsp;mm, a lateral-torsional factor &ge;&nbsp;3 guard binds in only one of six cases: 120&nbsp;mm arms, where the unguarded optimum has a factor of 1.9 and the guard costs 16% in mass (69 g vs 59 g). The old w/b &le; 8 rule was 14&ndash;25% heavier than the buckling guard in five of six cases. Gauge steps make mass non-smooth in load; the result moves with the assumed factor."
     },
     {
      "slug": "simdesign-edgescan",
