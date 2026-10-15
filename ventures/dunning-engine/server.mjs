@@ -9,7 +9,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { verifySignature, createStripe } from "./stripe.mjs";
-import { applyEvent, tick, summary, newState } from "./engine.mjs";
+import { applyEvent, tick, scanExpiring, summary, newState } from "./engine.mjs";
 
 const env = process.env;
 
@@ -106,10 +106,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const deps = {
     stripe, policy, dryRun, alert, sendEmail: sendResend, company: env.COMPANY_NAME, address: env.COMPANY_ADDRESS,
     cancelOnExpire: env.CANCEL_ON_EXPIRE === "true",
+    expiryNotices: env.EXPIRY_NOTICES !== "false", expiryDays: Number(env.EXPIRY_DAYS || 30),
     updateUrl: (c) => (publicUrl ? `${publicUrl}/update/${linkToken(env.LINK_SECRET, c.customer)}` : c.hostedUrl || ""),
   };
   if (!dryRun && (!env.RESEND_API_KEY || !env.MAIL_FROM)) { console.error("DRY_RUN=false needs RESEND_API_KEY and MAIL_FROM"); process.exit(1); }
-  setInterval(async () => { try { const log = await tick(state, Date.now(), deps); log.forEach((l) => console.log(l)); if (log.length) save(); } catch (e) { console.error("tick failed:", e.message); } }, 60000).unref?.();
+  setInterval(async () => { try { const now = Date.now();
+    const log = [...await tick(state, now, deps), ...await scanExpiring(state, now, deps).catch((e) => [`expiry scan failed: ${e.message}`])]; log.forEach((l) => console.log(l)); if (log.length) save(); } catch (e) { console.error("tick failed:", e.message); } }, 60000).unref?.();
   const cfg = { state, save, stripe, webhookSecret: env.STRIPE_WEBHOOK_SECRET, linkSecret: env.LINK_SECRET, adminKey: env.ADMIN_KEY, publicUrl, policy, dryRun };
   http.createServer(handler(cfg)).listen(Number(env.PORT || 8080), () => console.log(`dunning-engine on :${env.PORT || 8080} (${dryRun ? "DRY RUN" : "LIVE"})`));
 }

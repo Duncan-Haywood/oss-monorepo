@@ -1,7 +1,8 @@
 // Minimal Stripe pieces, no SDK: webhook signature verification and the four
 // API calls recovery needs. Use a restricted key (rk_...) with Invoices: write,
 // Customer portal: write, Subscriptions: write (only if you enable cancelling),
-// PaymentIntents: read, Customers: read.
+// PaymentIntents: read, Customers: read, Subscriptions: read (expiry notices),
+// PaymentMethods: read.
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export function verifySignature(rawBody, header, secret, nowSec = Math.floor(Date.now() / 1000), toleranceSec = 300) {
@@ -61,6 +62,22 @@ export function createStripe({ key, fetchImpl = fetch, base = "https://api.strip
     // Portal session URLs are short-lived, so emails link to this service's own
     // /update/<token> route, which mints a fresh session on click.
     portalUrl: async (customer, returnUrl) => (await call("POST", "/v1/billing_portal/sessions", { customer, return_url: returnUrl })).url,
+    // Active subscriptions with the card (and customer) expanded, for expiry
+    // notices. Pages of 100, capped so a huge account cannot run away.
+    async listSubscriptionsWithCards(maxPages = 50) {
+      const out = [];
+      let after;
+      for (let i = 0; i < maxPages; i++) {
+        const q = new URLSearchParams({ status: "active", limit: "100" });
+        for (const e of ["data.default_payment_method", "data.customer", "data.customer.invoice_settings.default_payment_method"]) q.append("expand[]", e);
+        if (after) q.set("starting_after", after);
+        const page = await call("GET", `/v1/subscriptions?${q}`);
+        out.push(...page.data);
+        if (!page.has_more || !page.data.length) break;
+        after = page.data[page.data.length - 1].id;
+      }
+      return out;
+    },
     cancelSubscription: (id, idempotencyKey) => call("DELETE", `/v1/subscriptions/${encodeURIComponent(id)}`, null, { "idempotency-key": idempotencyKey }),
   };
 }

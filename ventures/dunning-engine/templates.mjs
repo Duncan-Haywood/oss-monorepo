@@ -27,7 +27,13 @@ const AUTH = {
   },
 };
 
+const EXPIRING = {
+  subject: "Your card ending {{last4}} {{expiry_phrase}}",
+  text: "Hi {{name}},\n\nThe {{brand}} card ending {{last4}} that pays for your {{company}} subscription {{expiry_phrase}}. To avoid a failed payment at your next renewal, please add a new card:\n{{update_url}}\n\nIf you've already done this, you can ignore this email.",
+};
+
 export function templateFor(name) {
+  if (name === "expiring") return EXPIRING;
   const [cls, stage] = name.split("-");
   if (cls === "auth") return stage === "first" ? AUTH.first : { ...BODY[stage], text: BODY[stage].text.replace("update your payment method", "confirm the payment with your bank") };
   return BODY[stage] || BODY.reminder;
