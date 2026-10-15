@@ -46,6 +46,7 @@ EXACT = {
     "LICENSE": "research/LICENSE",
     ".gitignore": "research/.gitignore",
     "PROJECTS.md": "research/PROJECTS.md",
+    ".github/FUNDING.yml": ".github/FUNDING.yml",
 }
 EXACT_PREFIX = {
     "research/": "research/",
