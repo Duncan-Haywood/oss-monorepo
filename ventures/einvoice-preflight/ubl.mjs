@@ -105,6 +105,10 @@ function party(node) {
     || textOf(partyNode, "Name", false);
   const mapped = { id: partyIdentifier(partyNode), name };
   for (const scheme of descendants(partyNode, "PartyTaxScheme")) {
+    // A national tax number travels in the same element with TaxScheme/ID "FC"
+    // (or similar); only a VAT scheme -- or an unlabelled one -- is a VAT ID.
+    const schemeId = nestedText(scheme, "TaxScheme", "ID").toUpperCase();
+    if (schemeId && schemeId !== "VAT") continue;
     const vatId = textOf(scheme, "CompanyID", false);
     if (vatId) {
       mapped.vat_id = vatId;

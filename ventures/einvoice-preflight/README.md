@@ -135,6 +135,38 @@ If this saves you a rejected invoice run, you can chip in at
 <https://buymeacoffee.com/duncanhaywood>. Same safety boundary as below:
 preflight, not a Peppol/EN 16931 conformance validator, and no warranty.
 
+## Create an e-invoice (new)
+
+The checker's other half. Germany already requires businesses to *receive*
+structured e-invoices and makes *sending* mandatory from 2027 (2028 for small
+firms); Belgium, Poland and France follow. A PDF no longer counts, and the
+usual answer is a paid invoicing subscription. This writes the file instead.
+
+```sh
+# Browser: open create.html (or GET /create.html on the server). No upload.
+node generate-cli.mjs examples/draft-invoice.json -o RE-2026-001.xml          # XRechnung 3.0 UBL
+node generate-cli.mjs examples/draft-invoice.json -f cii -p peppol -o out.xml # CII, Peppol BIS 3.0
+curl -H "Authorization: Bearer $KEY" -d '{"draft":{...},"format":"ubl"}' https://YOUR-HOST/v1/generate
+```
+
+A *draft* is who, what and how much (`examples/draft-invoice.json`). Line
+nets, the per-rate/category VAT breakdown, the totals and the amount due are
+computed in integer cents, so they cannot disagree with each other. Standard,
+zero, exempt (`E`, e.g. Kleinunternehmer § 19 UStG), reverse-charge (`AE`),
+intra-EU (`K`), export (`G`) and out-of-scope (`O`) VAT; invoices and credit
+notes; a seller VAT ID or national tax number; prepayments. Profiles:
+`xrechnung` (BR-DE contact, buyer reference and payment checks), `peppol`
+(BIS 3.0), `en16931`. Missing required data is an *error* and nothing is
+written; what only your profile wants (a Leitweg-ID, a seller contact) is a
+*warning*. Every file is read back through the same readers and rules as the
+checker, and the API returns that result as `preflight`.
+
+Not a certified invoicing system: it does not sign, archive, transmit, look
+up a Leitweg-ID or a Peppol participant, or do document-level allowances
+(put discounts into the line price). It is a preflight-grade writer, not a
+schema/Schematron validator, so run the output through your network's validator
+(e.g. the KoSIT validator) before sending.
+
 ## Input shape
 
 The supported v0 JSON shape is intentionally small and format-neutral. UBL XML

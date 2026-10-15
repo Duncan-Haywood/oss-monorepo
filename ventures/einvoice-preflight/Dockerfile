@@ -1,6 +1,6 @@
 FROM node:22-alpine
 WORKDIR /app
-COPY *.mjs index.html ./
+COPY *.mjs index.html create.html ./
 RUN rm -f *.test.mjs
 USER node
 ENV PORT=8080
