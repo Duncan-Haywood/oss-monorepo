@@ -104,6 +104,14 @@
     <summary type="text">Paste a customer security questionnaire and your saved answers. Each question is matched to your closest past answer, risky matches (changed hours, negations) are flagged, and unanswered questions are listed. Private, in your browser, free.</summary>
   </entry>
   <entry>
+    <title>status-keeper — Free Self-Hosted Status Page and Uptime Monitor</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/status-keeper/"/>
+    <id>tag:marisstella.dev,2026:tool/status-keeper</id>
+    <updated>2026-10-15T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">A free, self-hosted status page with uptime monitoring, 90-day bars, incidents, maintenance windows and alerts. An open-source alternative to Statuspage, Instatus and Better Stack. MIT, zero dependencies.</summary>
+  </entry>
+  <entry>
     <title>Security Deposit Deadline Checker</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tenant-security-deposit-deadline-checker/"/>
     <id>tag:marisstella.dev,2026:tool/tenant-security-deposit-deadline-checker</id>
