@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_013xoj3zrvH5JxcYxyCFAScj",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7028",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "review: filled merged on 4 records, second drift report, E6, review prompt step 1 fix; 2 outputs audited",
+  "errors": 0,
+  "integrity_issues": 0,
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "note": "step 2 asks for ~5 audited outputs and step 1 assumes all records are local; 167 are mirrored upstream. Did two audits only"
+    },
+    {
+      "file": "CLAUDE.md",
+      "note": "1669 lines still on main; read prompt.md and goals.md only, skipped the rest per judgment"
+    }
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

@@ -149,4 +149,19 @@ Entry format:
 Changes to `prompts/goals.md` that a review thinks are warranted, with the
 evidence. The owner decides.
 
-(none yet)
+(none this review: no measurement argues for a change to goals.md.)
+
+## E6: first scheduled review (2026-10-15)
+
+- Change: review prompt step 1 skips records mirrored from the upstream
+  research repo when filling `merged`. Four local records filled.
+- Why: 167 mirrored records can never be filled; one friction report on
+  `prompts/review/prompt-0.md`.
+- Measure: friction reports on the review prompt per review run.
+- Follow-up on E3 (red team): 1 run recorded, catch rate 73% before guards,
+  100% after; too few runs to say whether it rises.
+- Follow-up on E5: no new `*-calculator` since 2026-10-15; instruction lines
+  not yet down (prune in #7021 unmerged at the time of this review); self-deploy
+  page exists, adoption not measured. Result: too few runs.
+- Research/1 candidate: 1 run against 185 champion runs. Too few runs.
+- Result: (next review)
