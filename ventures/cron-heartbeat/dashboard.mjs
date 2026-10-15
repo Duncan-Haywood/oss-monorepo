@@ -20,3 +20,12 @@ export function publicStatusHtml(rows, title = "Status") {
   const trs = rows.map((r) => { const ok = r.state !== "down" && r.state !== "failed"; return `<tr><td><span class="dot" style="background:${ok ? COLOR.up : COLOR.down}"></span>${esc(r.slug)}</td><td>${ok ? "Operational" : "Disruption"}</td></tr>`; }).join("");
   return page(title, `<h1>${esc(title)}</h1><p><b>${bad ? "Some systems are having problems." : "All systems operational."}</b></p><table>${trs}</table>`);
 }
+
+/** Shields-style SVG badge for one check: name + Operational/Disruption/Paused. Same disclosure as /s. */
+export function badgeSvg(slug, state) {
+  const bad = state === "down" || state === "failed";
+  const label = bad ? "disruption" : state === "paused" ? "paused" : "operational";
+  const color = bad ? COLOR.down : state === "paused" ? COLOR.paused : COLOR.up;
+  const w1 = 12 + slug.length * 7, w2 = 12 + label.length * 7, w = w1 + w2;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="20" role="img" aria-label="${esc(slug)}: ${label}"><rect width="${w1}" height="20" fill="#555"/><rect x="${w1}" width="${w2}" height="20" fill="${color}"/><g fill="#fff" font-family="Verdana,sans-serif" font-size="11" text-anchor="middle"><text x="${w1 / 2}" y="14">${esc(slug)}</text><text x="${w1 + w2 / 2}" y="14">${label}</text></g></svg>`;
+}
