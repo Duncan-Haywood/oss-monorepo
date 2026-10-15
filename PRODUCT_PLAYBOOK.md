@@ -289,6 +289,11 @@ This is a build task and it ships with v0, not later:
       here anyway (`portfolio/pipeline/channel-inventory.md`). Build the
       artifact, queue the one-line ask, ship the product regardless: search and
       AI discovery do not need anyone's permission.
+- [ ] Where the product fits a natural distribution channel (registry, store,
+      directory, feed), build its publish pipeline off by default with a dry
+      run, per [`portfolio/distribution/`](portfolio/distribution/README.md)
+      (owner goal, 2026-10-15). Automated and unpaid, and never against a
+      platform's terms.
 
 ### f. If the page names a competitor
 

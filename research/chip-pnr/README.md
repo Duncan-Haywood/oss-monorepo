@@ -53,3 +53,5 @@ None required. Submitting any design to a shuttle, and paying for it, is the own
 
 ## Outside dependencies
 Yosys 0.33 (apt), OpenROAD 26Q2 (nixpkgs, built from source), SKY130 HD platform files from OpenROAD-flow-scripts at commit `e5cc6e7` (fetched, not vendored). Not made here: the PDK/cell library, the tools. No LLM or paid service.
+
+**Figure.** `python experiments/figure.py` (needs matplotlib) redraws `experiments/ratios.png`, final/mapped area and post-place/netlist period for each design, from the committed `experiments/results.txt` only; it runs nothing new.
