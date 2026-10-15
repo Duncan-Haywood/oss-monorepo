@@ -2099,6 +2099,11 @@
      "slug": "accel-dataflow",
      "title": "Which dataflow should a small keyword-spotting accelerator use, and does the answer survive allowing an input buffer?",
      "summary": "Four dataflows (output-, weight-, input-stationary and reduction-tree) of a <em>P</em>-lane MAC array, as schedules walked cycle by cycle on the 40 <em>accel-kws</em> models, with SRAM-access counts that match closed forms exactly and, at <em>P</em>&nbsp;=&nbsp;1, the measured RTL cycles of <em>accel-kws</em>. At batch 1 output-stationary is best (input-stationary is a median 1.2&times; to 4.1&times; worse, falling with lanes); at batch 4 it wins every model while weight-stationary is a median 4.5&ndash;9.0&times; worse through partial-sum traffic. Allowing an activation buffer flips the batch-4 winner to the input-mapped flows at 32 lanes (1.37&times; better), so the ranking rests on a modelling choice. Stylised: assumed energy constants, a one-cycle register model, no RTL beyond one lane, Timeloop not tried."
+    },
+    {
+     "slug": "accel-policy",
+     "title": "Does a small control network need an accelerator to meet the control-rate deadline?",
+     "summary": "Small MLP policies, cloned from a computed-torque controller for a two-link arm with DAgger and quantised to 8 and 4 bits, with inference latency modelled for microcontroller loops and <em>P</em>-lane accelerators (assumed constants) and the closed loop simulated with that latency. <strong>Preliminary and mostly negative:</strong> the int8 policies track at least 300&times; worse than the teacher, which itself barely notices a sample of delay, so policy accuracy rather than hardware speed limits control; the deadline model says hardware only matters above about 10&nbsp;kHz or for larger networks. Stylised; hardware figures are not measured."
     }
    ]
   },
