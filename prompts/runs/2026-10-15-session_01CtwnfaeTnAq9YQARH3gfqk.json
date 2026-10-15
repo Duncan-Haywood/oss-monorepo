@@ -31,13 +31,13 @@
   "doc_friction": [
     {
       "file": "portfolio/router/allocate.py",
-      "note": "top candidates are all single-page calculators, contradicting ventures/prompt-1.md's no-new-calculators rule"
+      "issue": "top candidates are all single-page calculators, contradicting ventures/prompt-1.md's no-new-calculators rule"
     }
   ],
   "deviations": [
     {
-      "instruction": "session_gate/allocate suggestions",
-      "did": "deepened existing einvoice-preflight instead of calculators",
+      "file": "portfolio/ledger/session_gate.py",
+      "did": "deepened existing einvoice-preflight instead of calculator candidates",
       "why": "ventures prompt-1 forbids new calculators",
       "result": "small fix shipped"
     }
