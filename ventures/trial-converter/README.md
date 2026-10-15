@@ -106,7 +106,8 @@ Fork this repository and open `https://render.com/deploy?repo=<your fork URL>`.
 Nothing runs on the author's side. State must survive restarts (open trials and
 pending steps live in it), which is why this uses a paid instance with a disk
 rather than the free tier. Docker anywhere works too:
-`docker build -t trial-converter . && docker run -p 8080:8080 -v tc:/data -e STATE=/data/state.json ... trial-converter`.
+`docker build -t trial-converter . && docker run -p 8080:8080 -v tc:/data -e STATE=/data/state.json ... trial-converter`,
+or `docker-compose.yml` (starts in dry-run). Fly.io: the steps are at the top of `fly.toml`.
 
 ## Status and what is not verified
 
