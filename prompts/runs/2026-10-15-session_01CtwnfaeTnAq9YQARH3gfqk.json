@@ -25,7 +25,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 2,
-  "outcome": "Fixed INV-019 false positive across suppliers in einvoice-preflight (CLI+JS), tests, apex regen",
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
