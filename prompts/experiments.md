@@ -253,3 +253,18 @@ field will.
 - Follow-up on E6: `CLAUDE.md` is 452 lines (prune landed); friction after it
   not yet measurable. Research/1: still 1 run, too few.
 - Result: (next review)
+
+## E9: fourth review of 2026-10-15
+
+- Change: `review/prompt-1.md` cut 150 → 128 lines (budget 130): removed the
+  first-review backfill step (170+ records exist), tightened drift-audit
+  prose, candidates only for tracks with about 10 runs. Filled `merged: true`
+  for four local records (PRs 7001, 7019, 7024, 7034), with corrections.
+- Why: drift report 2026-10-15-c left "trim review/prompt-1.md" open; two
+  friction reports on it (backfill and per-track candidates).
+- Measure: friction reports on `prompts/review/prompt-1.md` per review run.
+- Follow-up on E8: ventures/2 still has 0 runs against 2 for ventures/1, and
+  research/1 has 1 run against 190, so both are too few to judge. Review ran
+  twice within an hour (#7034 then this one) because the due counter is
+  unchanged by process-track records; not changed here.
+- Result: (next review)
