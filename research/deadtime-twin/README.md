@@ -8,6 +8,8 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, under 1 s
 PYTHONPATH=src python3 experiments/run.py                 # about 2 s; output in experiments/results.txt
 ```
 
+`python3 experiments/figure.py` plots observed rate against true flux for the ideal, non-paralyzable and paralyzable cases (section 1) from the committed `experiments/results.txt` and writes `experiments/observed_rate.svg` (standard library only; no new results; stylised simulation).
+
 **Builds on.** The sensor-simulation and sim-to-real direction of ARPG (<https://arpg.colorado.edu/>) and the digital-twin simulation-fidelity direction of RECUV (<https://www.colorado.edu/recuv/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. Dead-time models are classical (Knoll 2010), the pile-up correction is Coates (1968), and single-photon lidar with Coates-style correction appears in Heide et al. (2018). Companion to `shot-twin` and `saturation-twin` (what a simplified detector twin gets wrong); citations in `paper/references.bib`.
 
 Stylised: simulated "real" system, no sensor data; one Gaussian pulse, no background light, afterpulsing or crosstalk, a known pulse shape, and a constant dead time. The twin is a deliberately naive baseline. MIT.
