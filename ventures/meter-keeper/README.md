@@ -81,8 +81,10 @@ drops events older than 35 days.
 Fork this repository, then open
 `https://render.com/deploy?repo=<your fork URL>` (the blueprint is
 `render.yaml`; Render bills you, nothing runs on the author's account). Or use
-the repository-wide deploy page. Docker: `docker build -t meter-keeper .` from
-this directory.
+the repository-wide deploy page. Docker: `API_KEY=$(openssl rand -hex 16)
+ADMIN_KEY=$(openssl rand -hex 16) docker compose up -d` from this directory
+(`docker-compose.yml`, starts in dry-run). Fly.io: the steps are at the top of
+`fly.toml`.
 
 ## Limits
 
