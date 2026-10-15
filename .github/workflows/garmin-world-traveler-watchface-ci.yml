@@ -37,6 +37,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       # The self-hosted runner image (gitops/ci/runner.yaml, upstream
       # ghcr.io/actions/actions-runner) installs only sudo, lsb-release,
       # gpg-agent, software-properties-common, curl, jq, unzip and git --
