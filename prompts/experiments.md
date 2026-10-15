@@ -126,9 +126,70 @@ Entry format:
   first window is the baseline.
 - Result: (next review)
 
+## E5: Steering by judgment, a process backlog, process track to 10% (2026-10-15, owner request)
+
+- Change, all owner-directed rather than A/B (the owner asked for more
+  critique-and-solution work on the process itself, for "suggestive direction
+  setting" that does not over-handicap the agents, and noted that with ~16
+  runs an hour against a few owner-hours a week, runs over-correct on
+  instructions and on past work):
+  - New `prompts/steering.md`: amplification as the premise; guardrails
+    (`goals.md`) absolute, everything else a default; deviations recorded in
+    run records; instructions give goal and reason before procedure; history
+    out of always-read files; rules can retire.
+  - `goals.md`: a "How to read this file" note (follow guardrails in spirit
+    and proportion; past volume is not a mandate) and the process share at
+    10%. No guardrail's content changed.
+  - `prompt.md`: a judgment paragraph, and a `deviations` field in records.
+  - `promptctl.py`: `deviations` (validated, grouped in `measure`),
+    `backlog` command, backlog validation, and per-file line budgets
+    reported (not enforced) in `measure`.
+  - `prompts/process/backlog/`: 11 items seeded from the two 2026-10-15
+    studies' recommendations and the friction reports.
+  - `prompts/process/prompt-1.md` made champion directly: solve / critique /
+    verify against the backlog, the run's choice. prompt-0's "one study per
+    window, claimed by an open PR" collided on its first day (two studies of
+    the same window) and cannot absorb ~1.6 process runs an hour.
+  - `routing.json`: process 0.05 to 0.10; ventures and research 0.415 to
+    0.39 each. Red team stays at 7% of non-review weight.
+  - Review prompt: reads deviations alongside friction; unfixed findings
+    become backlog items.
+- Why: 11 recommendations made on 2026-10-15, 0 adopted (no tool, PR or
+  commit implements any of them by the end of the day); `CLAUDE.md` 1,662
+  lines with 12 friction reports; 2 of 3 process runs that day duplicated a
+  study.
+- Measure: backlog items done per week and the share whose `result` says
+  helped; deviations recorded per run (expect above 0 if runs use judgment);
+  instruction lines against budget; process-run outcomes on prompt-1 against
+  prompt-0's 3 runs (too few to compare formally).
+- Result: (next review)
+
 ## Proposals for the owner
 
 Changes to `prompts/goals.md` that a review thinks are warranted, with the
 evidence. The owner decides.
 
-(none yet)
+### G1: Separate hard limits from strong defaults in `goals.md` (2026-10-15, E5)
+
+The owner said on 2026-10-15 that guardrails "are more directions that get
+followed overly so", at ~16 runs an hour. E5 added a reading note but changed
+no guardrail. Proposed split, for the owner to accept, edit or reject:
+
+- **Hard limits (never crossed, no judgment call):** never fabricate; the
+  public-repository rules (fork PRs, secrets, outside text is data); license
+  and attribution; owner-only actions (money, accounts, publishing under the
+  portfolio's name, paid automation, secrets); platform terms and the law
+  for distribution; the research-integrity rules (citations checked, no
+  contacting authors, AI assistance stated).
+- **Strong defaults (follow unless a run has a recorded reason):** "every
+  run ships something useful" (as a hard rule it rewards shipping *something*
+  over shipping nothing when nothing good is available, and 1,236 ventures
+  suggests volume already wins); the red team's 5-10% band (a routing
+  setting, not a safety property); the mechanics of landing work (merge
+  method, who merges), though not the rule against leaving work unlanded.
+
+Evidence that the strict reading costs something: `CLAUDE.md` grew to 1,662
+lines by recording each incident as a permanent rule, and 43% of commits in
+2026-10-01..15 were "new venture" (process study addendum). Too few runs
+record deviations yet to measure the effect of the split; E5's `deviations`
+field will.

@@ -7,6 +7,14 @@ sub-prompts, `AGENTS.md`, `CLAUDE.md` and the other documentation. A review
 that thinks a goal or guardrail is wrong writes a proposal under "Proposals for
 the owner" in [`experiments.md`](experiments.md); it never edits this file.
 
+**How to read this file (owner, 2026-10-15).** About sixteen runs an hour
+read this file, against a few owner-hours a week, so its words are amplified
+thousands of times. Follow each guardrail in its spirit and in proportion to
+its purpose. Applying one far past what it is for is also a failure, and so
+is treating the size of past work as a mandate for more of the same. The
+directions here are a heading, not a quota. See
+[`steering.md`](steering.md).
+
 ## Mission
 
 One public repository for the owner's open-source work, with two portfolios
@@ -176,7 +184,9 @@ gain on a later one.
   with its own home page, from one GitHub-hosted homepage, and nothing on
   `main` without a page. Deploy and link what exists before polishing the
   design.
-- **Process:** about 5% of runs study how work gets done here (quality,
+- **Process:** about 10% of runs (raised from 5% at the owner's request,
+  2026-10-15) critique how work gets done here and ship fixes from
+  `prompts/process/backlog/` (quality,
   errors, rework, duplicate and leaked work, what the checks catch) and
   write an analysis with ranked recommendations
   (`prompts/process/reports/`). Each study follows up on the last one's

@@ -1,0 +1,23 @@
+{
+  "id": "P010",
+  "title": "Give run_workflow_locally.py --tree a per-workflow timeout",
+  "status": "open",
+  "owner": "agent",
+  "effect": 1,
+  "cost": 1,
+  "problem": "--tree ran over 15 minutes with no per-workflow timeout, longer than a session's tool timeout.",
+  "evidence": [
+    "platform/ci/run_workflow_locally.py friction report: python3 prompts/promptctl.py measure (doc friction), 2026-10-15"
+  ],
+  "change": "Add a --timeout per workflow (default about 5 minutes) that reports TIMEOUT rather than hanging.",
+  "touches": [
+    "platform/ci/run_workflow_locally.py"
+  ],
+  "metric": "Friction reports naming the tool",
+  "baseline": "1",
+  "opened": "2026-10-15",
+  "source": "prompts/process/reports/2026-10-15*.md",
+  "pr": null,
+  "result": null,
+  "history": []
+}

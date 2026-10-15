@@ -256,8 +256,6 @@ class RepositoryTest(unittest.TestCase):
         self.assertAlmostEqual(weights["explore"] / sum(weights.values()), 0.05, places=3)
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class RedteamTest(PromptTestCase):
@@ -297,3 +295,69 @@ class RedteamTest(PromptTestCase):
         bad["campaigns"][0]["mutants"][1] = {"line": 1, "operator": "x", "caught": "yes"}
         self.fx.run("2026-10-12-a.json", _record(track="redteam", redteam=bad))
         self.assertTrue(any("boolean 'caught'" in e for e in promptctl.validate(self.fx.root)))
+
+
+def _item(iid="P001", status="open", owner="agent", effect=2, cost=1, **extra):
+    item = {"id": iid, "title": f"item {iid}", "status": status, "owner": owner,
+            "problem": "p", "evidence": ["source"], "change": "c", "metric": "m",
+            "effect": effect, "cost": cost, "opened": "2026-10-15", "pr": None, "result": None}
+    item.update(extra)
+    return item
+
+
+class BacklogTest(PromptTestCase):
+    def put(self, name: str, item: dict) -> None:
+        folder = self.fx.root / "process" / "backlog"
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / name).write_text(json.dumps(item))
+
+    def test_valid_items_pass_and_rank_by_effect_over_cost_agent_first(self):
+        self.put("P001-a.json", _item("P001", effect=3, cost=3))
+        self.put("P002-b.json", _item("P002", effect=2, cost=1))
+        self.put("P003-c.json", _item("P003", owner="owner", effect=3, cost=1))
+        self.put("P004-d.json", _item("P004", status="done", pr="https://example/1"))
+        self.assertEqual(promptctl.validate(self.fx.root), [])
+        items = [i for _, i in promptctl.load_backlog(self.fx.root)]
+        self.assertEqual([i["id"] for i in promptctl.backlog_rank(items)], ["P002", "P001", "P003"])
+        summary = promptctl.measure(self.fx.root)["backlog"]
+        self.assertEqual(summary["counts"]["done"], 1)
+        self.assertEqual(summary["done_unverified"], ["P004"])
+
+    def test_bad_items_are_refused(self):
+        cases = [
+            ("P001-a.json", _item("P001", status="maybe"), "status must be"),
+            ("P001-a.json", _item("P002"), "file name must start"),
+            ("P001-a.json", _item("P001", effect=5), "effect must be"),
+            ("P001-a.json", _item("P001", evidence=[]), "evidence must be"),
+            ("P001-a.json", _item("P001", status="done"), "names the pull request"),
+            ("P001-a.json", _item("P001", status="dropped"), "says why"),
+        ]
+        for name, item, message in cases:
+            self.put(name, item)
+            errors = promptctl.validate(self.fx.root)
+            self.assertTrue(any(message in e for e in errors), (message, errors))
+
+    def test_duplicate_ids_are_refused(self):
+        self.put("P001-a.json", _item("P001"))
+        self.put("P001-b.json", _item("P001"))
+        self.assertTrue(any("also used by" in e for e in promptctl.validate(self.fx.root)))
+
+
+class DeviationTest(PromptTestCase):
+    def test_deviations_are_checked_and_grouped_by_file(self):
+        dev = {"file": "CLAUDE.md", "instruction": "x", "did": "y", "why": "z", "result": "ok"}
+        self.fx.run("2026-10-12-a.json", _record(deviations=[dev]))
+        self.assertEqual(promptctl.validate(self.fx.root), [])
+        self.assertEqual(promptctl.measure(self.fx.root)["deviations"]["CLAUDE.md"]["reports"], 1)
+        self.fx.run("2026-10-12-a.json", _record(deviations=[{"file": "CLAUDE.md"}]))
+        self.assertTrue(any("deviations must" in e for e in promptctl.validate(self.fx.root)))
+
+    def test_old_records_without_the_field_stay_valid(self):
+        rec = _record()
+        del rec["deviations"]
+        self.fx.run("2026-10-12-a.json", rec)
+        self.assertEqual(promptctl.validate(self.fx.root), [])
+
+
+if __name__ == "__main__":
+    unittest.main()

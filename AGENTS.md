@@ -49,7 +49,7 @@ a PR. Four finished ventures are among them, and `main` still lacks them.
 
 **Sessions started from [`prompt.md`](prompt.md) record themselves.** The
 master prompt routes each run to a sub-prompt (`prompts/ventures/`,
-`prompts/research/`, `prompts/process/` for the ~5% of runs that study the
+`prompts/research/`, `prompts/process/` for the ~10% of runs that critique and fix the
 development process, `prompts/explore/` for the ~5% that are free choice, or
 the review track that improves the rest) and asks for
 a run record under `prompts/runs/` in the same PR. Any agent may add one. Its

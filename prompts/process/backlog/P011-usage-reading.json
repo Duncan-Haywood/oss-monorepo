@@ -1,0 +1,23 @@
+{
+  "id": "P011",
+  "title": "Get a first usage reading for any product",
+  "status": "open",
+  "owner": "owner",
+  "effect": 3,
+  "cost": 2,
+  "problem": "No product has a visitor measurement (live_url_visitors: null across the catalogue), so nobody can tell which of the 1,236 ventures (VENTURE.yaml files on main, 2026-10-15) anyone uses, and effort keeps going to new calculators.",
+  "evidence": [
+    "prompts/process/reports/2026-10-15.md, finding 4 and rec 4"
+  ],
+  "change": "Owner decision on a privacy-respecting counter (or GitHub traffic API for the Pages repo); until then agents weight effort toward deploying and distribution over new calculators.",
+  "touches": [
+    "portfolio/usage/"
+  ],
+  "metric": "Share of ventures with a usage reading",
+  "baseline": "0",
+  "opened": "2026-10-15",
+  "source": "prompts/process/reports/2026-10-15*.md",
+  "pr": null,
+  "result": null,
+  "history": []
+}

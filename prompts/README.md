@@ -5,6 +5,8 @@ How work in this repository is directed, measured and improved. The pieces:
 ```
 prompt.md                  master prompt: route, work, record, improve
 prompts/goals.md           goals, guardrails and how a run is scored (owner-owned)
+prompts/steering.md        how instructions are written, followed and changed
+prompts/process/backlog/   process problems, one per file: evidence, fix, metric
 prompts/routing.json       tracks, their weights, champion and candidate versions
 prompts/<track>/prompt-<n>.md
                            sub-prompts: ventures, research, process, explore, redteam, review
@@ -22,9 +24,9 @@ prompts/promptctl.py       route | record | measure | validate
    review, it picks the review track for a `review_when_due` share of runs,
    so routines that start in the same minute do not all review at once. Otherwise it draws a track by weight,
    then the champion version or, with probability `candidate_share`, the
-   candidate. The `process` track takes about 5% of draws: it studies the
-   development process (quality, errors, rework) and writes a report with
-   recommendations under `prompts/process/reports/`. A session with a specific task picks the track itself
+   candidate. The `process` track takes about 10% of draws: it critiques the
+   development process (quality, errors, rework) and ships fixes from
+   `prompts/process/backlog/` (`promptctl.py backlog`). A session with a specific task picks the track itself
    (`--track`). The `explore` track also takes about 5%: free choice,
    Google "20% time" style, where the agent picks the work.
 2. **Work.** The session follows the sub-prompt, and every commit carries
@@ -33,7 +35,8 @@ prompts/promptctl.py       route | record | measure | validate
 3. **Record.** Before merging, the session writes its run record: outcome,
    PR, errors, integrity issues, and **doc friction**, meaning any
    instruction that was wrong, stale or costly, with the file it lives in.
-   The record lands in the same pull request as the work.
+   It also records **deviations**: instructions the run chose not to
+   follow, and why. The record lands in the same pull request as the work.
 4. **Measure and improve.** The review track scores versions, models and
    starting messages with `promptctl.py measure`. It promotes or retires
    candidates, writes the next candidate, and fixes the documentation the
@@ -85,6 +88,7 @@ team", so no rate is ever typed by hand.
 python3 prompts/promptctl.py route [--track T] [--skip-review] [--json]
 python3 prompts/promptctl.py record --track T --version N --session URL [--model M] [--input TEXT]
 python3 prompts/promptctl.py measure [--json]
+python3 prompts/promptctl.py backlog
 python3 prompts/promptctl.py validate
 python3 prompts/redteam.py campaign|rerun|tally|targets
 python3 -m unittest discover -s prompts

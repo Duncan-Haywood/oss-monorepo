@@ -1,0 +1,25 @@
+{
+  "id": "P004",
+  "title": "Make the local checklist green on a clean main",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "On a clean main in a web session, 26 gitops/tests/test_worker_run.py tests fail because `gh` is preinstalled, and the platform/ci loop uses `|| break`, so it stops at the first failing module and hides the rest. A session cannot tell its own regression from the baseline.",
+  "evidence": [
+    "prompts/process/reports/2026-10-15-addendum.md, rec 4",
+    "gitops/tests/test_worker_run.py friction report: python3 prompts/promptctl.py measure (doc friction), 2026-10-15"
+  ],
+  "change": "Make test_worker_run.py independent of a preinstalled gh (or skip with a named reason), and change the loop to run every module and report all failures.",
+  "touches": [
+    "gitops/tests/test_worker_run.py",
+    "CLAUDE.md"
+  ],
+  "metric": "Local checklist exit code on clean main",
+  "baseline": "non-zero (26 failures)",
+  "opened": "2026-10-15",
+  "source": "prompts/process/reports/2026-10-15*.md",
+  "pr": null,
+  "result": null,
+  "history": []
+}
