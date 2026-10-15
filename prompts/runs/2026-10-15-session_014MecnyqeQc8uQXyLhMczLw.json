@@ -29,11 +29,22 @@
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "prompt.md/review prompt: the due counter said 25 runs since the last review, but a review (#7034) had merged an hour earlier; the check for an open 'prompts: review' PR found nothing, so a duplicate-ish review ran. Counter ignores that process-track records do not reset it.",
-    "prompts/review/prompt-1.md: step 2 audit was skipped; no command picks random local outputs and most records are mirrored"
+    {
+      "file": "prompts/routing.json",
+      "issue": "review due counter said 25 runs since the last review although #7034 merged an hour earlier; no open 'prompts: review' PR existed to signal the claim, so a second review ran"
+    },
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "step 2 audit gives no command to pick random local outputs and most records are mirrored; skipped"
+    }
   ],
   "deviations": [
-    "skipped the 5-output audit and candidate writing (why: #7034 did both an hour ago and no track has ~10 new runs; result: small review, trimmed prompt to budget)"
+    {
+      "file": "prompts/review/prompt-1.md",
+      "what": "skipped audit and candidate writing",
+      "why": "#7034 did both an hour ago and no track has ~10 new runs",
+      "result": "small review: prompt trimmed to budget, merged filled on 4 records"
+    }
   ],
   "goal": null,
   "notes": "small follow-up review; trimmed review/prompt-1 to 128 lines, filled merged on 4 records",
