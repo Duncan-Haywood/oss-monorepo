@@ -3588,6 +3588,8 @@ const CATEGORY_RULES = [
         'garmin-world-traveler-watchface',
         'photo-editing',
         'photos-import-tools',
+        // `quick-pick-survey` joined 2026-10-15 when it got a landing page and the catch-all hit 6: a survey engine, one hop from the individual-decision tools above.
+        'quick-pick-survey',
       ].includes(slug),
   },
 ];
