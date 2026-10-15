@@ -18,6 +18,22 @@ A seeded random sample of 40 of the 386 projects that ship both `experiments/run
 - **Not independent of the environment.** The first pass, with fewer packages installed and no access to sibling projects, reproduced only 26 of 40. Nine of those failures were missing Python packages, or a README-documented `PYTHONPATH` into a sibling project (for example `garment-markercost` needs `../garment-nesting/src`); the harness now links all sibling projects. A project that needs `scikit-fem`, `mujoco`, `scikit-learn` or `psutil` fails in a bare container, and not every README lists them.
 - **README numbers.** Of 713 decimal numbers in 35 sampled READMEs, 604 (85%) appear verbatim in a committed results file. The remainder are derived values (ratios, differences), rounded differently, or prose, so this is a traceability measure, not an error rate. Per-project shares are in `experiments/results.txt`.
 
+## Second sample (2026-10-15)
+
+A second seeded sample of 60 projects (seed 20261016, 600 s limit, the scientific packages installed, `python3 experiments/run.py 60 20261016 600`) is in `experiments/results2.txt`. 8 projects are in both samples, so the two together cover 92 distinct projects; for those 8 the table below uses the second run.
+
+| outcome (92 distinct projects) | projects |
+|---|---|
+| byte-identical | 79 |
+| differs in one timing line only | 2 |
+| timed out | 5 (`ambient-drvalid`, `simdesign-dfm`, `simdesign-fidelity`, `simdesign-llm`, `simdesign-patchsearch`) |
+| could not run here | 6 (`yosys` missing: `chip-ppa-script`, `chip-systolic-p32`; `mujoco` missing: `robofab-insert`, `robofab-slipcrit`, `robofab-sliprate`; the `piper` voice model: `ambient-pipeline`) |
+
+- **Second sample alone:** 51 of 60 reproduced (85%, 95% Wilson 74% to 92%); all 51 that finished were byte-identical.
+- **Pooled, 92 distinct projects:** 81 reproduced = 88% (Wilson 80% to 93%). Of the 81 that finished, none gave different numbers (Wilson 95% to 100% for "no differences"). Still, no project in either sample ran to completion and gave a different answer.
+- **Every non-reproduction is an environment gap, not a changed number.** Missing tools (Yosys, MuJoCo, a voice model) and run time over the limit account for all 11. Four of the five timeouts are `simdesign-*` finite-element studies and one is `ambient-drvalid`, whose README says about 50 minutes.
+- **README traceability, second sample:** 731 of 925 decimals (79%) appear verbatim in a committed results file over 58 READMEs, against 85% in the first sample. Same caveat: derived values and prose are counted as misses.
+
 ## Method
 
 `src/swe_audit/audit.py`. Candidates are projects with both files. For each sampled project, the harness copies it to a temporary directory next to symlinks to its siblings, sets `PYTHONPATH` to its own `src` then every sibling's `src`, runs `python3 experiments/run.py` and compares the rewritten `results.txt` with the committed one. Classes: `identical`; `timing-only` (every differing line mentions time or seconds); `differs`; `timeout`; `tool-missing` (import or file error); `crashed`. Rates use Wilson (1927) intervals, as in `swe-ledger`. Nothing in the repository is written.
@@ -28,17 +44,19 @@ pip install numpy scipy matplotlib scikit-learn psutil scikit-fem mujoco shapely
 cd research/swe-audit
 PYTHONPATH=src python3 -m unittest discover -s tests   # 6 tests, under a second
 python3 experiments/run.py 40 20261015                 # about 10 minutes on 4 cores; rewrites experiments/results.txt
+python3 experiments/run.py 60 20261016 600 > experiments/results2.txt   # second sample, about 20 minutes on 4 cores
 ```
 Wall times in `results.txt` depend on load, and the timeouts in particular may differ on another machine.
 
 ## Limitations
-- 40 projects, one container, one sample. The sample is dominated by older projects without a track prefix (20 of the 40, mostly pure-Python `*-twin` studies), so the rate says little about the compiled-tool projects (Yosys, OpenROAD, Verilator), which cannot run here and are not candidates unless they ship `run.py` and `results.txt` and run without those tools.
+- 92 distinct projects in two samples, one container. The second sample ran with more packages than the first, so the two rates are not strictly comparable.
+- (First sample:) 40 projects. The sample is dominated by older projects without a track prefix (20 of the 40, mostly pure-Python `*-twin` studies), so the rate says little about the compiled-tool projects (Yosys, OpenROAD, Verilator), which cannot run here and are not candidates unless they ship `run.py` and `results.txt` and run without those tools.
 - Matching output shows the code is deterministic and unchanged, not that the model or the conclusion is right. A project can reproduce perfectly and still be wrong.
 - Projects without `run.py` or `results.txt` are not audited. Citations, the README claims beyond the 85% traceability count, and the CI-failure counts that `swe-ledger` flagged are not checked.
 - The timing heuristic can hide a real change on a line that mentions time.
 
 ## Next steps
-Re-run the three timeouts serially. Add a citation check (does the paper exist, are authors, venue and year right) on a smaller random sample, which needs web access this container lacks. Report defect rates by track and model once the sample reaches about 100 and the model per project is recoverable from `Co-Authored-By` trailers. Fix the READMEs that omit a needed package.
+Re-run the five timeouts serially with no limit. Add a citation check (does the paper exist, are authors, venue and year right) on a smaller random sample, which needs web access this container lacks. Report defect rates by track and model once the sample reaches about 100 and the model per project is recoverable from `Co-Authored-By` trailers. Fix the READMEs that omit a needed package.
 
 ## Builds on
 Wilson (1927), "Probable inference, the law of succession, and statistical inference", *JASA* 22(158): 209&ndash;212, for the interval. No lab's work is built on, and no lab is affiliated with or endorses this project.

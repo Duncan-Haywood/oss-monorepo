@@ -1,0 +1,26 @@
+# flip rate of the exhaustive machine choice, count vs mass weighting; 20 seeds (5..24), n=20000 parts per seed, with tip load
+# flips = seeds where the two weightings pick different machine sets; ci = 95% Wilson; loss = mass coverage given up by using the count-weighted pick (points)
+## family 'log'
+  budget   300: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['casting setup'] / mass ['casting setup'] x20
+  budget   600: flips 20/20  ci [0.84, 1.00]  loss mean 2.13 max 2.78  | count ['laser cutter'] / mass ['casting setup'] x20
+  budget   700: flips 20/20  ci [0.84, 1.00]  loss mean 2.13 max 2.78  | count ['laser cutter'] / mass ['casting setup'] x20
+  budget   800: flips 20/20  ci [0.84, 1.00]  loss mean 2.14 max 2.78  | count ['laser cutter'] / mass ['casting setup'] x18; count ['laser cutter'] / mass ['cnc router'] x2
+  budget   900: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['casting setup', 'laser cutter'] / mass ['casting setup', 'laser cutter'] x20
+  budget  1100: flips 10/20  ci [0.30, 0.70]  loss mean 0.04 max 0.26  | count ['casting setup', 'laser cutter'] / mass ['casting setup', 'cnc router'] x10; count ['casting setup', 'laser cutter'] / mass ['casting setup', 'laser cutter'] x10
+  budget  1400: flips 10/20  ci [0.30, 0.70]  loss mean 0.04 max 0.26  | count ['casting setup', 'laser cutter'] / mass ['casting setup', 'cnc router'] x10; count ['casting setup', 'laser cutter'] / mass ['casting setup', 'laser cutter'] x10
+## family 'small'
+  budget   300: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['casting setup'] / mass ['casting setup'] x20
+  budget   600: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['laser cutter'] / mass ['laser cutter'] x20
+  budget   700: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['laser cutter'] / mass ['laser cutter'] x20
+  budget   800: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['laser cutter'] / mass ['laser cutter'] x20
+  budget   900: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['casting setup', 'laser cutter'] / mass ['casting setup', 'laser cutter'] x20
+  budget  1100: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['casting setup', 'laser cutter'] / mass ['casting setup', 'laser cutter'] x20
+  budget  1400: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['casting setup', 'laser cutter'] / mass ['casting setup', 'laser cutter'] x20
+## family 'large'
+  budget   300: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['casting setup'] / mass ['casting setup'] x20
+  budget   600: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['casting setup'] / mass ['casting setup'] x20
+  budget   700: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['casting setup'] / mass ['casting setup'] x20
+  budget   800: flips 20/20  ci [0.84, 1.00]  loss mean 1.16 max 1.63  | count ['cnc router'] / mass ['casting setup'] x20
+  budget   900: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['casting setup', 'laser cutter'] / mass ['casting setup', 'laser cutter'] x20
+  budget  1100: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['casting setup', 'cnc router'] / mass ['casting setup', 'cnc router'] x20
+  budget  1400: flips  0/20  ci [0.00, 0.16]  loss mean 0.00 max 0.00  | count ['casting setup', 'cnc router'] / mass ['casting setup', 'cnc router'] x20
