@@ -113,6 +113,12 @@ in both. oss-monorepo's `research/_mirror/mirror.py` keeps its `research/` an ex
      assistance note, and its theme. The homepage card links to it. Generate it from
      `projects.json`, the README and the project's files, so a new project gets its page with no
      extra step, and make the build fail when a project's page cannot be built.
+   - *Progress (2026-10-15):* `site/build.py` now writes `_site/<slug>/index.html` from
+     `site/project.html` for all projects (abstract, test count, links, AI note, and the first
+     image under the project's `experiments/`), the homepage card links to it, and the build
+     fails if a page cannot be built. Only 7 projects ship an image today, so most pages have no
+     figure yet. Still open: have each project's experiment code write a figure, and the
+     `oss-monorepo` products half.
    - **Products (*oss-monorepo*).** Every venture gets a home or marketing page from the Pages
      build, including the CLIs, servers and apps the mirror excludes today: what it does and for
      whom, a screenshot or demo, how to install or run it, and links to the code, with the
