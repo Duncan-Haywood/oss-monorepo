@@ -373,6 +373,15 @@ def path_touches_ventures(files: list[str]) -> bool:
     return any(f.startswith("ventures/") for f in files)
 
 
+MIRROR_STATE = "research/_mirror/state.json"
+
+
+def merge_method_for(files: list[str]) -> str:
+    """A mirror PR must merge with a merge commit: a squash drops the upstream
+    history that research/_mirror/mirror.py check requires. Everything else squashes."""
+    return "merge" if MIRROR_STATE in files else "squash"
+
+
 def pr_from_same_repo(pr: dict[str, Any]) -> tuple[bool, str]:
     """Only PRs whose head branch lives in this repository are reviewable.
 
@@ -592,7 +601,7 @@ def try_auto_merge(pr_number: int) -> str:
     gh_api(
         f"repos/{slug}/pulls/{pr_number}/merge",
         method="PUT",
-        data={"merge_method": "squash"},
+        data={"merge_method": merge_method_for(changed_files(pr_number))},
     )
     return f"merged PR #{pr_number}: " + "; ".join(reasons)
 

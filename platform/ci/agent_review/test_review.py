@@ -8,6 +8,7 @@ from review import (
     checks_all_success,
     count_allowed_approvals,
     load_config,
+    merge_method_for,
     mergeable_state_ok,
     path_touches_ventures,
     pr_from_same_repo,
@@ -179,6 +180,16 @@ class CountApprovalsTest(unittest.TestCase):
         self.assertEqual(count_allowed_approvals(reviews, allowed, "new"), set())
         self.assertFalse(reviewer_already_approved(reviews, "cursor[bot]", "new"))
         self.assertTrue(reviewer_already_approved(reviews, "cursor[bot]", "old"))
+
+
+class MergeMethodTest(unittest.TestCase):
+    def test_mirror_pr_uses_merge_commit(self):
+        files = ["research/_mirror/state.json", "research/foo/README.md"]
+        self.assertEqual(merge_method_for(files), "merge")
+
+    def test_other_pr_squashes(self):
+        self.assertEqual(merge_method_for(["research/foo/README.md"]), "squash")
+        self.assertEqual(merge_method_for([]), "squash")
 
 
 class HumanGateTest(unittest.TestCase):

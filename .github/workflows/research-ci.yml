@@ -28,8 +28,13 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # mirror.py check needs the synced upstream commit in history
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: python3 research/_homepage/build.py
       - run: python3 -m unittest discover -s research/_mirror -v
+      # Fails a pull request that edits the mirrored copy by hand. --allow-behind: upstream may
+      # be ahead of state.json (that is a sync to do, not an error in this PR).
+      - run: python3 research/_mirror/mirror.py check --allow-behind
