@@ -1,0 +1,24 @@
+# Cross-post newly launched tools to dev.to with canonical_url back to the tool page (drafts unless DEVTO_PUBLISH=true).
+# Off by default: with vars.DISTRIBUTE_DEVTO unset this only prints a dry run.
+# Free API, no paid spend, no commits pushed. Spec: portfolio/distribution/README.md
+name: distribute-devto
+on:
+  schedule:
+    - cron: '17 15 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  announce:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node platform/distribution/devto.mjs
+        env:
+          DISTRIBUTE_DEVTO: ${{ vars.DISTRIBUTE_DEVTO }}
+          DEVTO_PUBLISH: ${{ vars.DEVTO_PUBLISH }}
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}

@@ -29,3 +29,17 @@ channels:
       - set "This is a bot account" in profile settings; the script checks it
     owner_ask: pick an instance that allows labelled bots, create the account, create an app token with write:statuses (and read:accounts), store it as MASTODON_TOKEN, set the two variables
     dry_run: node platform/distribution/mastodon.mjs
+  - id: devto-crosspost
+    rung: artifact
+    built: 2026-10-15
+    code: platform/distribution/devto.mjs
+    workflow: .github/workflows/distribute-devto.yml
+    enabled_by: repository variable DISTRIBUTE_DEVTO=true plus secret DEVTO_API_KEY; articles are created as drafts until DEVTO_PUBLISH=true
+    what_it_posts: one short article per tool launched in the last 3 days (platform/pages/launched.json), at most 2 per run, canonical_url set to the tool page, body links back, states it is free MIT software and not professional advice, ends "Posted automatically"
+    dedupe: stateless; reads the account's own articles (GET /api/articles/me/all) and skips any tool whose URL is already a canonical_url
+    terms_to_confirm_by_owner_when_enabling:
+      - dev.to Terms and Code of Conduct, in particular the rules on spam and self-promotion (articles must be useful on their own; if the first drafts read as thin, keep DEVTO_PUBLISH unset and edit by hand)
+      - Forem API v1 documents POST /api/articles with canonical_url and an api-key header; generate the key under Settings > Extensions
+      - agents did not read the live terms on build day (no network to dev.to from the build session), so this row is unconfirmed until the owner does
+    owner_ask: create the dev.to account, generate an API key, store it as DEVTO_API_KEY, set DISTRIBUTE_DEVTO=true; review the first drafts before setting DEVTO_PUBLISH=true
+    dry_run: node platform/distribution/devto.mjs
