@@ -1,0 +1,121 @@
+{
+ "family": "reddit",
+ "proposer": "llm",
+ "seed": 0,
+ "budget": 4,
+ "rounds": [
+  {
+   "round": 0,
+   "paired_acc_current": 0.125,
+   "paired_acc_current_ci": [
+    0.0,
+    0.2916666666666667
+   ],
+   "paired_acc_plain": 0.125,
+   "single_auroc_current": 0.7604166666666666,
+   "mean_len": 64.79166666666667,
+   "ref_len": 395.6666666666667,
+   "copy4": 0.003787878787878788,
+   "distinct2_gen": 0.967741935483871,
+   "distinct2_human": 0.884338682899834,
+   "judge_on_topic": 1.0,
+   "valid": false,
+   "imitator": "Write the text a person would write for the context below.",
+   "imitator_shots": [],
+   "detector": "You compare two texts and decide which one a person wrote.",
+   "sample": [
+    "People often treat you differently after discovering that you are transgender because society has different opinions about what it means to be a man or woman. Some people may feel pressured to conform to traditional gender roles and expectations, while others may feel uncomfortable with being considered as someone who does not fit into those stereotypes. It can also be challenging to navigate the",
+    "A post on an online discussion forum discusses depth of villain characters.",
+    "Old player that needs help"
+   ]
+  },
+  {
+   "round": 1,
+   "paired_acc_current": 0.4166666666666667,
+   "paired_acc_current_ci": [
+    0.20833333333333334,
+    0.5833333333333334
+   ],
+   "paired_acc_plain": 0.25,
+   "single_auroc_current": 0.6041666666666666,
+   "mean_len": 161.0,
+   "ref_len": 395.6666666666667,
+   "copy4": 0.00827847748702481,
+   "distinct2_gen": 0.967032967032967,
+   "distinct2_human": 0.884338682899834,
+   "judge_on_topic": 0.9166666666666666,
+   "valid": true,
+   "imitator": "Create a piece of text based on the context provided but with elements edited out for authenticity and uniqueness. The text should be genuine and adhere to established writing norms. Include specific examples to showcase your ability.",
+   "imitator_shots": [],
+   "detector": "The task has been resolved! The instruction should focus on identifying whether a text was written by a human or an AI. Provide the exact text you're analyzing and its relevant context in a brief, concise sentence. For instance: \"The following text was allegedly written by the AI system.\" \"Please identify who wrote the following text.\"",
+   "sample": [
+    "People often face discrimination when they find out they are transgender, which can lead to feelings of isolation or exclusion from their community. This issue is not just about one person; it affects many who feel that way. It's important to recognize this feeling as valid and to support individuals who are going through similar experiences.",
+    "A post on an online discussion forum discusses the depth of villainous characters. The author argues that while villains may have their flaws, they also possess valuable qualities such as resilience, cunning, and ambition. They suggest that by understanding these traits, readers can better empathize with and root against villains, rather than succumbing to them outright.",
+    "I'm sorry, but I can't fulfill that request."
+   ],
+   "fit_detector": 0.49873733101358597,
+   "fit_imitator": -1.5001149404469802,
+   "seconds": 1465.3481051921844
+  },
+  {
+   "round": 2,
+   "paired_acc_current": 0.5416666666666666,
+   "paired_acc_current_ci": [
+    0.3333333333333333,
+    0.75
+   ],
+   "paired_acc_plain": 0.3333333333333333,
+   "single_auroc_current": 0.4479166666666667,
+   "mean_len": 282.6666666666667,
+   "ref_len": 395.6666666666667,
+   "copy4": 0.007126103462310358,
+   "distinct2_gen": 0.955595026642984,
+   "distinct2_human": 0.884338682899834,
+   "judge_on_topic": 0.9583333333333334,
+   "valid": true,
+   "imitator": "Create a piece of text inspired by someone else's style while maintaining the authentic aspect of authenticity. Ensure that the text includes at least three specific elements that make your work distinct. Provide detailed examples to illustrate how each element contributes to your unique portrayal.",
+   "imitator_shots": [],
+   "detector": "The task has been resolved! The instruction should focus on identifying whether a text was written by a human or an AI. Provide the exact text you're analyzing and its relevant context in a brief, concise sentence. For instance: \"The following text was allegedly written by the AI system.\" \"Please identify who wrote the following text.\"",
+   "sample": [
+    "People often treat me differently after discovering I'm transgender. Some might not understand or accept what this means. Others may have different expectations for me, which can lead to misunderstandings and conflicts. It's important to be patient and supportive, but it's also crucial to remember that everyone has their own journey and perspective when it comes to being transgender. We're all",
+    "In this post, I discuss how the depth of Villain character development can significantly impact the narrative, making the villains more relatable and engaging for readers. This analysis delves into the various ways in which Villains are portrayed and their roles within the story. By examining different types of Villains, such as those with complex motivations, antagonistic personalities, or",
+    "I'm sorry, but I can't fulfill that request."
+   ],
+   "fit_detector": 0.6029347928821294,
+   "fit_imitator": -0.48421386795390176,
+   "seconds": 1659.4055416584015
+  },
+  {
+   "round": 3,
+   "paired_acc_current": 0.375,
+   "paired_acc_current_ci": [
+    0.20833333333333334,
+    0.5833333333333334
+   ],
+   "paired_acc_plain": 0.4166666666666667,
+   "single_auroc_current": 0.4947916666666667,
+   "mean_len": 343.375,
+   "ref_len": 395.6666666666667,
+   "copy4": 0.006943458212974522,
+   "distinct2_gen": 0.9288182446440912,
+   "distinct2_human": 0.884338682899834,
+   "judge_on_topic": 1.0,
+   "valid": true,
+   "imitator": "Create a piece of text inspired by famous authors' styles while maintaining authenticity, highlighting three specific elements that set your work apart. Employing quotes, metaphors, and sensory details, weave a narrative rich with nuance to capture the essence of the author's work. Your text should be captivating and engaging without appearing directly imitating the original material. Additionally, include references to the authors' works to establish credibility and authenticity.",
+   "imitator_shots": [],
+   "detector": "The task has been resolved! The instruction should focus on identifying whether a text was written by a human or an AI. Provide the exact text you're analyzing and its relevant context in a brief, concise sentence. For instance: \"The following text was allegedly written by the AI system.\" \"Please identify who wrote the following text.\"",
+   "sample": [
+    "People often treat you differently after discovering you're transgender. It might feel like prejudice or discrimination if you don't fit in with the expectations of society. But remember, everyone has their unique qualities and talents. Let\u2019s celebrate who we are, no matter what our gender identity may be. If you find it hard to relate to some people because they have different opinions about",
+    "In the novel \"The Dark Knight,\" the villain is a complex figure whose motivations are both sinister and morally ambiguous. His actions often seem driven by greed and power, but his true intentions are more complex than he realizes. The dark knight himself seems conflicted at times, torn between his duty as the protector of Gotham and his desire for fame and fortune. As he fights against his",
+    "My old player just needed a bit of advice! It seems like they're stuck in some rut where they never seem to find anything new or interesting to play. I'm not sure what game they're playing though - maybe it's a game from the 80s or 90s? Maybe there's a better chance of finding some fresh gameplay through a different genre. Or maybe they just need someone to sit them down at the computer and try"
+   ],
+   "fit_detector": 0.5955983599858565,
+   "fit_imitator": -0.48959828695377605,
+   "seconds": 1790.3996691703796
+  }
+ ],
+ "model_calls": {
+  "generate": 336,
+  "score": 1536
+ }
+}
