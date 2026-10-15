@@ -21,6 +21,7 @@ visitors you need before launching a test**.
 - Peeking: false-positive rate of "stop at the first significant look" over evenly spaced looks, by seeded
   simulation (matches Armitage: about 14% at 5 looks, 19% at 10).
 - Sample size: standard two-proportion formula, per group, with days to run from daily traffic.
+- Price test: compares revenue per visitor (conversion times price) for two price points with a delta-method z-test and a Bayesian chance that the new price earns more, and states the break-even conversion drop. Fixed prices only; first-purchase revenue, not retention.
 
 Not modelled: more than two variants, non-conversion metrics, variance reduction, novelty and seasonality.
 

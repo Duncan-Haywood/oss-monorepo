@@ -368,7 +368,7 @@ unnoticed. Run it after `git fetch origin main && git reset --hard origin/main`
 to read `main` itself, or on your branch to check the tree you are about to
 push. An empty selection exits 1 — "nothing ran" must never read as a pass.
 
-(`pip install pytest` first in a web session — the image has Python but not
+(`python3 -m pip install pytest` first (bare `pip` installed into a different interpreter on 2026-10-15; apt had no `python3-pytest` either) in a web session — the image has Python but not
 pytest, so that `gitops/tests` line exits `No module named pytest` rather than
 failing any test. Do not read that as a clean run. The `platform/ci` line needs
 no pytest — those suites are `unittest`.)

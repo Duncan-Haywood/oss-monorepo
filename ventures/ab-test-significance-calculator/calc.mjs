@@ -152,6 +152,61 @@ export function bayes(c1, n1, c2, n2, draws = 20000, seed = 11) {
 
 const isCount = (x) => Number.isInteger(x) && x >= 0;
 
+// Price test: two fixed prices, so revenue per visitor (RPV) is conversion rate
+// times price. Compares RPV, not conversion -- a price rise that loses 8% of
+// buyers can still win -- and gives the conversion drop that breaks even.
+export function priceTest({ n1, c1, price1, n2, c2, price2, alpha = 0.05, monthlyVisitors, draws = 20000, seed = 13 } = {}) {
+  if (![n1, c1, n2, c2].every(isCount)) return { error: "Visitors and conversions must be whole numbers, zero or more." };
+  if (n1 < 1 || n2 < 1) return { error: "Each price needs at least one visitor." };
+  if (c1 > n1 || c2 > n2) return { error: "Conversions cannot exceed visitors." };
+  if (!(price1 > 0 && price2 > 0)) return { error: "Both prices must be greater than zero." };
+  if (price1 === price2) return { error: "The two prices are the same, so this is an ordinary conversion test; use the A/B panel." };
+  const p1 = c1 / n1, p2 = c2 / n2;
+  const rpv1 = p1 * price1, rpv2 = p2 * price2, diff = rpv2 - rpv1;
+  // Delta-method variance of RPV with a fixed price: price^2 * p(1-p) / n.
+  const se = Math.sqrt((price1 ** 2 * p1 * (1 - p1)) / n1 + (price2 ** 2 * p2 * (1 - p2)) / n2);
+  const z = se > 0 ? diff / se : (diff === 0 ? 0 : Math.sign(diff) * Infinity);
+  const p = Number.isFinite(z) ? twoSided(z) : 0;
+  const zc = normInv(1 - alpha / 2);
+  const ci = { low: diff - zc * se, high: diff + zc * se };
+  // Posterior over RPV: Beta conversion draws times the price.
+  const rand = rng(seed);
+  const lifts = new Float64Array(draws);
+  let wins = 0, lossB = 0, lossA = 0;
+  for (let i = 0; i < draws; i++) {
+    const a = betaDraw(1 + c1, 1 + n1 - c1, rand) * price1;
+    const b = betaDraw(1 + c2, 1 + n2 - c2, rand) * price2;
+    if (b > a) wins++;
+    lossB += Math.max(a - b, 0);
+    lossA += Math.max(b - a, 0);
+    lifts[i] = b / a - 1;
+  }
+  lifts.sort();
+  const q = (f) => lifts[Math.min(draws - 1, Math.floor(f * draws))];
+  // Break-even: the variant converts at least p1*price1/price2 to match control RPV.
+  const breakEvenRate = Math.min(1, (p1 * price1) / price2);
+  const breakEvenRelativeDrop = 1 - price1 / price2; // positive for a price rise
+  const conversionChange = p1 > 0 ? p2 / p1 - 1 : NaN;
+  const monthly = monthlyVisitors > 0 ? { visitors: monthlyVisitors, revenueDelta: diff * monthlyVisitors } : null;
+  const findings = [];
+  const raise = price2 > price1;
+  if (c1 < 10 || c2 < 10) findings.push({ severity: "medium", title: "Few buyers at one price", detail: "Fewer than 10 conversions at a price makes the normal approximation shaky and the Bayesian interval wide. Keep the test running." });
+  if (raise && p2 < p1 && diff > 0) findings.push({ severity: "info", title: "Fewer buyers, more revenue", detail: `Conversion fell ${signedPct(conversionChange)} but revenue per visitor rose ${money(diff)}. The higher price wins on revenue as long as conversion stays above ${pct(breakEvenRate)}.` });
+  if (raise && diff <= 0) findings.push({ severity: "medium", title: "The higher price lost revenue so far", detail: `At ${money(price2)} revenue per visitor is ${money(rpv2)} against ${money(rpv1)}. It would need conversion of ${pct(breakEvenRate)} to break even; it has ${pct(p2)}.` });
+  if (!raise && diff > 0) findings.push({ severity: "info", title: "The lower price won on volume", detail: `More buyers at ${money(price2)} outweighed the lower price: ${money(rpv2)} per visitor against ${money(rpv1)}.` });
+  if (p < alpha && diff < 0) findings.push({ severity: "high", title: "Variant price is significantly worse", detail: `Revenue per visitor is lower by ${money(-diff)} and the gap is unlikely to be chance (p = ${p.toFixed(4)}).` });
+  findings.push({ severity: "info", title: "Revenue per visitor ignores retention", detail: "This compares first-purchase revenue at fixed prices. A higher price can change churn, refunds and who you attract; check those before rolling out." });
+  return { n1, c1, price1, n2, c2, price2, p1, p2, rpv1, rpv2, diff, relative: rpv1 > 0 ? rpv2 / rpv1 - 1 : NaN, se, z, p, alpha, significant: p < alpha, ci, conversionChange, breakEvenRate, breakEvenRelativeDrop, monthly,
+    bayes: { probBBeatsA: wins / draws, expectedLossChoosingB: lossB / draws, expectedLossChoosingA: lossA / draws, liftLow: q(0.025), liftMedian: q(0.5), liftHigh: q(0.975) }, findings };
+}
+
+export const money = (x) => (Number.isFinite(x) ? (x < 0 ? "-" : "") + "$" + Math.abs(x).toFixed(Math.abs(x) < 10 ? 3 : 2) : "n/a");
+
+export function priceSampleText() {
+  return { n1: 4000, c1: 160, price1: 29, n2: 4000, c2: 138, price2: 39 };
+}
+
+
 export function analyze({ n1, c1, n2, c2, alpha = 0.05, controlShare = 0.5, tau, looks = 1 } = {}) {
   if (![n1, c1, n2, c2].every(isCount)) return { error: "Enter whole numbers for visitors and conversions in both groups." };
   if (n1 < 1 || n2 < 1) return { error: "Each group needs at least one visitor." };
