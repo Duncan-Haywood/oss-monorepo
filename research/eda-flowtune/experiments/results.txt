@@ -1,0 +1,107 @@
+tool: Yosys 0.33 (git sha1 2584903a060); liberty sky130_fd_sc_hd__tt_025C_1v80 (ORFS e5cc6e7); score = area(um^2) x ABC static delay(ns)
+space: 400 sequences (length 0..3 over 7 passes) x 8 designs
+
+per design: optimum | best sequence | aborted | median finite / opt | strash;map / opt | resyn2 / opt
+add12         467.6  refactor -z|rewrite -z           aborted  60  median  1.35  strash;map  1.28  resyn2  1.26
+alu8          989.1  refactor|dc2|rewrite -z          aborted  60  median  1.18  strash;map  1.36  resyn2  1.17
+cmpsel        218.2  dch|dc2|dch                      aborted  60  median  1.45  strash;map  1.88  resyn2  1.23
+mac4         1157.8  rewrite|rewrite -z|dch           aborted  52  median  1.26  strash;map  1.50  resyn2  1.05
+mul6         2066.1  rewrite|rewrite -z|refactor -z   aborted  60  median  1.15  strash;map  1.49  resyn2  1.14
+popcnt12      674.2  rewrite|dch                      aborted  44  median  1.30  strash;map  1.75  resyn2  1.38
+rot8          108.9  (none)                           aborted  60  median  1.14  strash;map  1.00  resyn2  1.50
+sad2          824.4  dch|dc2|refactor -z              aborted  60  median  1.27  strash;map  1.53  resyn2  1.26
+
+Spearman rank correlation of scores between designs (sequences finite on both):
+              add12     alu8   cmpsel     mac4     mul6 popcnt12     rot8     sad2
+add12          1.00    -0.51     0.28     0.11    -0.29    -0.12    -0.05     0.28
+alu8          -0.51     1.00    -0.11    -0.07     0.18     0.16     0.17    -0.08
+cmpsel         0.28    -0.11     1.00     0.37     0.17     0.24     0.08     0.39
+mac4           0.11    -0.07     0.37     1.00     0.35     0.46    -0.06     0.35
+mul6          -0.29     0.18     0.17     0.35     1.00     0.28    -0.00     0.02
+popcnt12      -0.12     0.16     0.24     0.46     0.28     1.00    -0.16     0.19
+rot8          -0.05     0.17     0.08    -0.06    -0.00    -0.16     1.00     0.08
+sad2           0.28    -0.08     0.39     0.35     0.02     0.19     0.08     1.00
+off-diagonal: min -0.51, median 0.16, max 0.46
+
+Transfer: target's score under the SOURCE's best sequence / target optimum (rows source, columns target; inf = aborts):
+              add12     alu8   cmpsel     mac4     mul6 popcnt12     rot8     sad2
+add12         1.000    1.249    1.081    1.265    1.135    1.445    1.498    1.253
+alu8          1.744    1.000    1.097    1.255    1.341    1.377    1.498    1.297
+cmpsel        2.058    1.123    1.000    1.052    1.097    1.298    1.139    1.113
+mac4          1.344    1.180    1.155    1.000    1.102    1.000    1.139    1.184
+mul6          1.362    1.244    1.522    1.218    1.000    1.323    1.843    1.289
+popcnt12      1.148    1.248    1.155    1.006    1.195    1.000    1.139    1.154
+rot8          1.278    1.357    1.882    1.498    1.487    1.750    1.000    1.529
+sad2          1.295    1.163    1.623    1.052    1.097    1.298    1.843    1.000
+
+Leave-one-out, per target, regret = score / target optimum:
+target     consensus (rank of 400)  single-source mean/worst  median seq  strash;map
+add12         1.344 (170)          1.461 /   2.058      1.348      1.278
+alu8          1.248 (246)          1.224 /   1.357      1.178      1.357
+cmpsel        1.155 ( 43)          1.359 /   1.882      1.446      1.882
+mac4          1.019 (  7)          1.192 /   1.498      1.255      1.498
+mul6          1.195 (222)          1.208 /   1.487      1.154      1.487
+popcnt12      1.298 ( 47)          1.356 /   1.750      1.298      1.750
+rot8          1.139 (127)          1.443 /   1.843      1.139      1.000
+sad2          1.359 (267)          1.260 /   1.529      1.269      1.529
+
+Search on each target, 200 seeds, median best-found / optimum (share of seeds reaching the optimum):
+random = uniform sequences; hill = hill climbing; warm = hill climbing whose first 3 evaluations are the other designs' consensus top 3
+budget 5
+  add12     random  1.190 (  3%)  hill  1.190 (  6%)  warm  1.217 (  0%)
+  alu8      random  1.121 (  0%)  hill  1.121 (  0%)  warm  1.118 (  0%)
+  cmpsel    random  1.155 (  0%)  hill  1.204 (  1%)  warm  1.150 (  0%)
+  mac4      random  1.175 (  1%)  hill  1.175 (  0%)  warm  1.006 (  3%)
+  mul6      random  1.138 (  0%)  hill  1.143 (  0%)  warm  1.135 (  0%)
+  popcnt12  random  1.298 (  6%)  hill  1.298 (  5%)  warm  1.298 (  5%)
+  rot8      random  1.000 ( 98%)  hill  1.000 ( 86%)  warm  1.000 ( 58%)
+  sad2      random  1.162 (  0%)  hill  1.162 (  0%)  warm  1.154 (  0%)
+budget 10
+  add12     random  1.180 (  8%)  hill  1.148 (  8%)  warm  1.148 (  2%)
+  alu8      random  1.097 (  1%)  hill  1.101 (  1%)  warm  1.097 (  0%)
+  cmpsel    random  1.150 (  1%)  hill  1.150 (  1%)  warm  1.150 (  0%)
+  mac4      random  1.052 (  0%)  hill  1.066 (  2%)  warm  1.006 ( 15%)
+  mul6      random  1.119 (  0%)  hill  1.119 (  1%)  warm  1.107 (  2%)
+  popcnt12  random  1.055 (  8%)  hill  1.014 ( 20%)  warm  1.191 ( 18%)
+  rot8      random  1.000 (100%)  hill  1.000 ( 94%)  warm  1.000 ( 94%)
+  sad2      random  1.141 (  0%)  hill  1.141 (  0%)  warm  1.141 (  0%)
+budget 20
+  add12     random  1.121 ( 18%)  hill  1.107 ( 24%)  warm  1.139 (  6%)
+  alu8      random  1.097 (  4%)  hill  1.097 (  6%)  warm  1.097 (  4%)
+  cmpsel    random  1.097 (  2%)  hill  1.122 (  2%)  warm  1.140 (  2%)
+  mac4      random  1.050 (  1%)  hill  1.042 (  4%)  warm  1.006 ( 14%)
+  mul6      random  1.097 (  3%)  hill  1.097 (  3%)  warm  1.097 (  2%)
+  popcnt12  random  1.014 ( 22%)  hill  1.014 ( 31%)  warm  1.014 ( 30%)
+  rot8      random  1.000 (100%)  hill  1.000 (100%)  warm  1.000 (100%)
+  sad2      random  1.141 (  3%)  hill  1.141 (  1%)  warm  1.141 (  0%)
+budget 40
+  add12     random  1.020 ( 36%)  hill  1.018 ( 46%)  warm  1.044 ( 39%)
+  alu8      random  1.088 (  4%)  hill  1.070 (  9%)  warm  1.071 ( 10%)
+  cmpsel    random  1.081 (  4%)  hill  1.081 (  6%)  warm  1.081 (  6%)
+  mac4      random  1.007 (  6%)  hill  1.006 ( 15%)  warm  1.006 ( 20%)
+  mul6      random  1.096 (  6%)  hill  1.096 (  8%)  warm  1.096 (  8%)
+  popcnt12  random  1.014 ( 50%)  hill  1.014 ( 49%)  warm  1.000 ( 52%)
+  rot8      random  1.000 (100%)  hill  1.000 (100%)  warm  1.000 (100%)
+  sad2      random  1.116 (  6%)  hill  1.116 (  7%)  warm  1.133 (  6%)
+mean over designs, budget  5, random: 1.155
+mean over designs, budget  5, hill  : 1.162
+mean over designs, budget  5, warm  : 1.135
+mean over designs, budget 10, random: 1.099
+mean over designs, budget 10, hill  : 1.092
+mean over designs, budget 10, warm  : 1.105
+mean over designs, budget 20, random: 1.077
+mean over designs, budget 20, hill  : 1.078
+mean over designs, budget 20, warm  : 1.079
+mean over designs, budget 40, random: 1.053
+mean over designs, budget 40, hill  : 1.050
+mean over designs, budget 40, warm  : 1.054
+
+Best-sequence netlist proved equivalent to the RTL (Yosys miter + sat over all inputs):
+  add12     True
+  alu8      True
+  cmpsel    True
+  mac4      True
+  mul6      True
+  popcnt12  True
+  rot8      True
+  sad2      True
