@@ -182,6 +182,10 @@ class RecordTest(PromptTestCase):
         path.write_text(json.dumps(rec))
         self.assertTrue(any("repo must be" in e for e in promptctl.validate(self.fx.root)))
 
+    def test_record_stamps_ended_so_reviews_can_order_records(self):
+        path = promptctl.record(self.fx.root, "research", 0, "https://x/s3", day="2026-10-12")
+        self.assertRegex(json.loads(path.read_text())["ended"], r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
+
     def test_record_never_overwrites(self):
         promptctl.record(self.fx.root, "research", 0, "https://x/s1", day="2026-10-12")
         with self.assertRaises(SystemExit):

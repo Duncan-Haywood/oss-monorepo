@@ -9,7 +9,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { verify, SCHEMES } from "./verify.mjs";
-import { DEFAULT_POLICY, newState, ingest, due, throttle, recordAttempt, replay, summary } from "./relay.mjs";
+import { DEFAULT_POLICY, newState, ingest, due, throttle, recordAttempt, replay, summary, metrics } from "./relay.mjs";
 import { ADMIN_HTML } from "./admin.mjs";
 import { validateFilter, matches } from "./filter.mjs";
 
@@ -117,6 +117,7 @@ export function handler(cfg) {
       if (url.pathname.startsWith("/v1/")) {
         if (!bearerOk(req, cfg.adminKey)) return send(401, "admin key required\n", "text/plain");
         const parts = url.pathname.slice(4).split("/");
+        if (req.method === "GET" && parts[0] === "metrics") return send(200, metrics(cfg.state, now()), "text/plain; version=0.0.4");
         if (req.method === "GET" && parts[0] === "summary") return send(200, summary(cfg.state));
         if (req.method === "GET" && parts[0] === "events" && !parts[1]) {
           const status = url.searchParams.get("status"), route = url.searchParams.get("route");

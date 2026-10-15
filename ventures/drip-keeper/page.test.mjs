@@ -50,6 +50,6 @@ test("robots and sitemap let crawlers find the page; deploy files point at this 
   assert.match(file("Dockerfile"), /COPY engine\.mjs server\.mjs/);
 });
 
-test("index links one hop to the meter-keeper sibling", () => {
-  assert.match(file("index.html"), /href="\.\.\/meter-keeper\/"/);
+test("footer links the sibling Flag Keeper", () => {
+  assert.match(file("index.html"), /href="\.\.\/flag-keeper\/"/);
 });
