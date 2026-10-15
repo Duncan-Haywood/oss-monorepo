@@ -4,8 +4,8 @@
     "CLAUDE.md": "ac0b0b684219eb3d5533c4cb77417ca06762b979",
     "prompt.md": "b02a674e96d0db323483a135660758a5a753bab0",
     "site/build.py": "906c17b7dab217115775acd534e99409d38eed5b",
-    "site/template.html": "ae9d802afa5019dd4601bd679eb5bfdcf839ecdc"
+    "site/template.html": "c49d6fbae35305153612df6b0f544dc1fd243d29"
   },
   "upstream": "https://github.com/Duncan-Haywood/oss-research-monorepo",
-  "upstream_commit": "fde6b7a1f10f3d2e76085f6da4a1c2f297f12dd4"
+  "upstream_commit": "76dae087c9f7cae37b8f7a0c9dd82b6a6856298c"
 }

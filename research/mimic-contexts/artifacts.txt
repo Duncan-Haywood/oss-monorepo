@@ -1,0 +1,8 @@
+top word 1-2-gram weights of a word-only logistic regression (train families)
+machine-like: instructions, ingredients, our, their, recipe, including, hey, despite, your, instructions preheat, sure, enjoy, such as, significant, challenges, here, struggling, optional, additionally, various, sure here, that it, that, through, who
+human-like:   is, so, very, because, of the, the, at, segmentation, not, said, image, mr, are, just, two, at the, pan, told, only, teaspoons, no, then, in the, up, of
+
+texts whose first line looks like a chat preamble: human 5, llm 147 of 2400
+n-gram detector, held-out families, as shipped: AUROC 0.927
+n-gram detector, held-out families, preamble stripped from held-out texts: AUROC 0.927
+n-gram detector refit with preambles stripped everywhere: held-out AUROC 0.927

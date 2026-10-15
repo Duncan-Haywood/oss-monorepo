@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_011KJsbhzScLJqscJGxFG8Uy",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "model": "claude-sonnet-5-5",
+  "task": "milestone",
+  "projects": [
+    "ambient-exploreonly"
+  ],
+  "pr": null,
+  "commits": [
+    "c930a17"
+  ],
+  "merged": null,
+  "build_ok": true,
+  "tests_added": 5,
+  "outcome": "success",
+  "notes": "Track 2 (random draw 0.13) follow-up to ambient-labelmatch: explore-only fit. Run started from oss-monorepo; mirror-sync already claimed by oss-monorepo#7084, mirror-guards done; no unlanded upstream branches among the 12 most recent. Tokens/cost not read.",
+  "track": "research",
+  "doc_friction": [],
+  "errors": [],
+  "integrity_issues": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}
