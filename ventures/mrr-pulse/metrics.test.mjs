@@ -184,3 +184,25 @@ test("monthsCsv writes major units, flags approximate months, and defuses formul
   assert.equal(lines[2], "2026-09,1234.56,3,10.00,0.00,0.00,0.50,2.00,yes");
   assert.ok(lines[3].startsWith("'=HYPERLINK(1)"));
 });
+
+test("backfill opens each window with the MRR standing at the end of the month before it", () => {
+  const now = D(2026, 10, 15);
+  const subs = [
+    { id: "a", mrr: 700, status: "active", created: D(2026, 7, 10), endedAt: null },
+    { id: "b", mrr: 300, status: "active", created: D(2026, 3, 1), endedAt: null },
+  ];
+  const { months } = backfill(subs, now, 3);
+  assert.deepEqual(months.map((m) => m.month), ["2026-08", "2026-09", "2026-10"]);
+  assert.equal(months[0].startMrr, 1000);
+  assert.equal(months[0].new, 0);
+});
+
+test("forecast defaults to six months; low takes the worst churn, high the best", () => {
+  const ms = [mo("2026-01", 1000, { churn: 50 }), mo("2026-02", 1000, { churn: 200 }), mo("2026-03", 1000, { churn: 100 }), mo("2026-04", 1000)];
+  const f = forecast(ms);
+  assert.equal(f.months.length, 6);
+  assert.equal(f.base.length, 6);
+  // adds 0, exp 0: low uses the worst loss (0.2), high the best (0.05)
+  assert.equal(f.low[0], Math.round(1000 * (1 - 0.2)));
+  assert.equal(f.high[0], Math.round(1000 * (1 - 0.05)));
+});
