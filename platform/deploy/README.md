@@ -9,8 +9,10 @@ visitor:
 
 1. picks one of the ~1,230 browser apps (the list comes from
    `discoverSurfaces()` in `platform/pages/build.mjs`; there is no second list),
-2. picks **GitHub Pages** (free, needs only a GitHub token) or **AWS**
-   (S3 + CloudFront through OpenTofu),
+2. picks **GitHub Pages** (free, needs only a GitHub token), **AWS**
+   (S3 + CloudFront through OpenTofu) or **Android** (a Capacitor shell built in
+   the visitor's own GitHub Actions into a sideloadable APK, plus a signed Play
+   bundle if they add their own keystore secrets; iOS is not covered),
 3. pastes their own credentials and ticks the operator acknowledgement,
 4. clicks **Deploy** (their browser calls `api.github.com` directly:
    create repo, store secrets, push files, dispatch the workflow) or
@@ -36,6 +38,7 @@ to `state/` in the visitor's own repository.
 | `sealedbox.mjs`, `vendor/` | libsodium-compatible sealed box |
 | `zip.mjs` | store-only zip writer for the download path |
 | `templates/github-pages/` | `deploy.yml` (Pages via Actions) |
+| `templates/android/` | `deploy.yml` (Capacitor 6.2.0 pinned, JDK 17, debug APK; signed `.aab` only with the visitor's four `ANDROID_*` secrets); `compose.mjs` writes `capacitor.config.json` and `package.json` |
 | `templates/aws/` | `deploy.yml`, `destroy.yml`, `tofu/` (OpenTofu 1.8.5, providers pinned) |
 
 The donate link (Buy Me a Coffee, plain link) and an operator notice are added
