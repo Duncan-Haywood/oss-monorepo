@@ -18,7 +18,7 @@ Track 9 lets the task decide the body. Once a body type is chosen (an arm), the 
 
 ## Builds on
 
-Ha (2019), "Reinforcement learning for improving agent design", *Artificial Life* 25(4), and Zhao et al. (2020), "RoboGrammar: graph grammar for terrain-optimized robot design", *ACM Transactions on Graphics* 39(6), for the idea of searching body and controller together. Nothing is reproduced: those works use learned policies on legged and walking bodies in richer simulators, whereas this uses a hand-written planar arm with PD control. The arm dynamics are the textbook two-link rigid-body equations; the track's lab list (ARPG, CAIRO, HIRO) is not built on and no lab is affiliated with or endorses this work.
+Ha (2019), "Reinforcement learning for improving agent design", *Artificial Life* 25(4), and Zhao et al. (2020), "RoboGrammar: graph grammar for terrain-optimized robot design", *ACM Transactions on Graphics* 39(6), for the idea of searching body and controller together. The companion project `research/osrobot-bodysearch` (another run, same milestone) searches joint count, link lengths and mount with a kinematic controller; this one uses simulated dynamics but searches only the link split. Nothing is reproduced: those works use learned policies on legged and walking bodies in richer simulators, whereas this uses a hand-written planar arm with PD control. The arm dynamics are the textbook two-link rigid-body equations; the track's lab list (ARPG, CAIRO, HIRO) is not built on and no lab is affiliated with or endorses this work.
 
 ## Method
 
