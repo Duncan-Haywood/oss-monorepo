@@ -1972,6 +1972,11 @@
      "summary": "A stylised, preliminary study of one short steel bar (24&times;8&times;2&nbsp;mm, tip shear). Three uniformly refined hexahedral meshes give an observed order of about 2.6 and a Richardson limit of 9618&nbsp;N, 0.12% below the finest mesh. The limit is still 13.7% above the slender-beam closed form, so the gap is not discretisation error (plausibly shear deformation and clamp warping; untested). One geometry, one mesh triple."
     },
     {
+     "slug": "simdesign-buckleguard",
+     "title": "What does it cost to replace the w/b &le; 8 rule of the laser-cut bracket with a buckling-factor guard?",
+     "summary": "A stylised, preliminary optimisation study (closed-form buckling check, assumed rules, material and load). Replacing the w/b &le; 8 slenderness rule with a lateral-torsional safety factor of at least 3 lets the differential-evolution optimiser use the 1.5&nbsp;mm gauge at w &asymp; 18.7&nbsp;mm: 31.1&ndash;31.4&nbsp;g against 35.8&ndash;36.0&nbsp;g under the old rule, about 12% lighter (three seeds each). The guard does not bind at that optimum; the stress limit does. The result depends on the assumed factor: no feasible 1.5&nbsp;mm design was found for a factor of 5 or more. Simulated only; edge crippling, imperfections and cutting stress are not modelled."
+    },
+    {
      "slug": "simdesign-widerweb",
      "title": "Do wider webs of the 2&nbsp;mm laser-cut bracket stay feasible on fine meshes when the slenderness rule is relaxed?",
      "summary": "A small scan (stylised, preliminary). With the assumed slenderness limit w/b raised from 8 to 12.5, web widths of 15 to 20&nbsp;mm at fillet radii 8, 12 and 14&nbsp;mm are feasible under the peak-stress measure from w&nbsp;=&nbsp;16.0&ndash;17.0&nbsp;mm upward at every mesh tried (h&nbsp;=&nbsp;1.5, 1.0 and 0.75&nbsp;mm), so the empty fine-mesh feasible sets of <em>simdesign-meshconverge</em> came from the rule window. Refinement from 1.5 to 1.0&nbsp;mm raises the lightest feasible width by 0.5&nbsp;mm (about 1&nbsp;g, 3%) at all three radii; at 0.75&nbsp;mm it is unchanged at two radii and falls back one step at r&nbsp;=&nbsp;14&nbsp;mm, so the shift is not resolved beyond about one scan step. The relaxed rule stands in for out-of-plane buckling, which the 2D model cannot see, so these designs are not validated. Simulated results only."
