@@ -1653,6 +1653,11 @@
      "summary": "A stylised, mostly negative ablation of <em>ambient-drvalid</em>: all 8 combinations of validation score (IPS or doubly robust), folds (4 or 8) and fold type (contiguous or random) choosing the doubly robust cap, 20 seeds. With an informed prior all eight are within 0.2 utility/h. With the uninformed prior, random folds are the most consistent help: at &epsilon; = 0.02 the 4-fold IPS selector gives &minus;1.4 (std 24) against 5.6 (std 7.3) with random folds, and IPS on 8 random folds (6.3) matches DR on 8 random folds (5.9). At &epsilon; = 0.005 the DR score is worse than IPS on contiguous folds (&minus;26.9 vs &minus;17.7) and no selector is clearly best; seed standard deviations are 5&ndash;55. Every selector stays far below the label-matched control (about 12). Simulated, independent windows, no significance tests."
     },
     {
+     "slug": "ambient-drrepeat",
+     "title": "Do repeated random fold assignments stabilise validation-based cap selection?",
+     "summary": "A stylised, mixed follow-up to <em>ambient-drablate</em>: averaging the cap-selection score over 5 random fold assignments (instead of one) with an uninformed prior, 20 seeds. At &epsilon; = 0.02 it lifts the IPS-score selector from 3.5 to 5.3 utility/h and halves its seed spread; at smaller &epsilon; it changes nothing beyond noise. Single-assignment results differ from the earlier project's, showing how much one fold permutation can matter. Every selector stays far below the label-matched control (about 12). Simulated and stylised only."
+    },
+    {
      "slug": "ambient-wearable",
      "title": "What limits the battery life of a pendant-style always-on audio wearable?",
      "summary": "A stylised average-current model for an nRF52840-class pendant with a 150 mAh cell, built from a few vendor figures read on 2026-10-13 plus labelled assumptions. The always-on microphone is the floor (about 170 h alone); gating codec and radio on speech at a 30% speech fraction gives about 105 h against 59 h for always streaming. A 74-byte energy-gate routine compiles for Cortex-M4. Nothing is measured on hardware, the datasheets were not read in full and there is no numeric comparison with Omi."
