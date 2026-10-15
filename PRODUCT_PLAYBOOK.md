@@ -64,6 +64,74 @@ GitHub login" over storing credentials). Do not add Cloudflare or Vercel as
 the way a new product goes live — GitHub Pages and the existing Hetzner
 boxes are the host.
 
+### Rule of thumb: anyone can deploy it themselves (owner, 2026-10-15)
+
+Build every app so that a stranger can run their own copy of it, in their own
+cloud account, without us. That lets other people set up businesses from
+this repo. The flow is: pick an app, pick a cloud provider, paste in
+credentials, click **Deploy**. This is a direction for future work, not a
+feature that exists yet.
+
+The model here is that we don't host anything. Each app is an open-source
+business that anyone can host in one click. The code is already MIT, at the
+root and in all 1,236 ventures. MIT lets anyone copy, modify, host and sell
+it, so no license change is needed. The deployer keeps the copyright notice,
+and the license's no-warranty clause protects us. Whoever clicks Deploy
+becomes the operator of their copy. They are responsible for its domain,
+terms, privacy policy and users, and for any changes they make. The deploy
+page must say so before the button. The §5b disclaimers ship in the deployed
+copy, but they are the operator's to keep accurate, not ours.
+
+When someone builds it, these rules apply:
+
+- **All IaC, no backend of ours.** The deploy page is a static page like
+  every other one. The page creates a small deploy repo in the visitor's
+  GitHub account using their own GitHub token, then stores their cloud
+  credentials there as Actions secrets. The page encrypts the credentials in
+  the browser with the repo's public key (a libsodium sealed box) before
+  sending them. It then dispatches a workflow that runs OpenTofu. Keep the
+  OpenTofu state encrypted (OpenTofu's native state encryption) and in the
+  visitor's own repo. Also offer "download the IaC" so a visitor can run
+  `tofu apply` locally and never give GitHub a credential.
+- **OpenTofu is the IaC tool, and it is set up the same way everywhere.**
+  Write modules for OpenTofu (`tofu`), not Terraform. The two have different
+  licenses, and state encryption is OpenTofu-only. Set it up like this:
+  - Pin the version: `required_version` in each module, and the same version
+    in the workflow's `opentofu/setup-opentofu` step.
+  - Pin every provider in `required_providers` and commit
+    `.terraform.lock.hcl`.
+  - Configure state encryption from an Actions secret (a passphrase the
+    deploy page generates in the browser). A plain-text state file is never
+    committed.
+  - Use `tofu apply` for deploys and `tofu destroy` in a separate workflow.
+    Teardown is one click too.
+  - Write each module's outputs (the live URL) to the job summary.
+  - Our own CI runs `tofu fmt -check` and `tofu validate` on every module, so
+    a broken module fails here and not in a stranger's account.
+  - Each module's README gives the local commands (`tofu init`, then
+    `tofu apply -var-file=...`) for the download path.
+- **Several providers, chosen by the visitor.** Static apps can go to GitHub
+  Pages, AWS (S3 + CloudFront), Google Cloud Storage, Azure Storage static
+  websites or DigitalOcean Spaces. Apps that need a running process get a
+  cloud-init VM on Hetzner, DigitalOcean or AWS. "Not Cloudflare, not Vercel"
+  is about where *we* host. It does not limit where a visitor deploys their
+  own copy.
+- **One platform feature, not 1,200 per-venture ones.** Build it once under
+  `platform/deploy/`. Derive the list of apps from `discoverSurfaces()` in
+  `platform/pages/build.mjs`. Do not keep a second list. Giving each venture
+  its own deploy button is the fleet-parity trap.
+- **Credentials never touch anything of ours.** Nothing we run or log ever
+  sees them. The page states exactly where they go: GitHub, encrypted, and
+  then the visitor's cloud provider. The visitor pays their own cloud bill,
+  and the no-SLA clause in §5b applies to their copy too.
+- **Money stays donations.** The only ask is a Buy Me a Coffee link, beside
+  the existing GitHub Sponsors link, as a plain link with no embedded
+  widget (a third-party script would break the privacy line in §5c). This
+  is an owner-approved exception to
+  §6's "no third-party donation links", for Buy Me a Coffee only. It goes in
+  only once the owner has created the account and given the handle. Never
+  invent the handle.
+
 ## 3. The API-key switch
 
 Ship the product fully useful with **no key at all**, and let a key unlock the
@@ -309,7 +377,8 @@ yet *counted for us*. Reading the aggregate back is the same open problem
 `portfolio/usage/README.md` already describes for the rest of the fleet, not
 something a venture's own PR can close.
 
-No third-party donation links, and never in front of a feature — a donation
+No third-party donation links (one owner-approved exception: Buy Me a Coffee,
+once the owner supplies the handle; see §2's self-deploy rule), and never in front of a feature — a donation
 prompt lives in the README and the footer, nowhere a user has to pass through.
 
 What "free for now" is buying: usage data, which is the only evidence we have

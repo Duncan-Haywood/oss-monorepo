@@ -3582,6 +3582,10 @@ const CATEGORY_RULES = [
         'social-security-benefits-tax-calculator',
         'social-security-earnings-test-calculator',
         'voiceover-project-rate-calculator',
+        // The three below joined 2026-10-15 when they got landing pages and the catch-all hit 8: one photographer or one frequent traveler running their own kit.
+        'garmin-world-traveler-watchface',
+        'photo-editing',
+        'photos-import-tools',
       ].includes(slug),
   },
 ];

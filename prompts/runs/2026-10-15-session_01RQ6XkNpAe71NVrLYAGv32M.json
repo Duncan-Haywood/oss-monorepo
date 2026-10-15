@@ -31,15 +31,15 @@
   "doc_friction": [
     {
       "file": "prompts/research/prompt-0.md",
-      "issue": "says route to ventures if add_repo is unavailable; add_repo worked here, so no impact."
+      "issue": "says route to ventures if add_repo unavailable; add_repo worked, fine."
     },
     {
       "file": "research/_mirror/README.md",
-      "issue": "sync's 'port by hand' for site/build.py gives no guidance when the local copy already diverged; the session acked without porting the HOMEPAGE_REPO override."
+      "issue": "sync's 'port by hand' for site/build.py gives no guidance when the local copy already diverged; I acked without porting the HOMEPAGE_REPO override."
     }
   ],
   "goal": null,
-  "notes": "outcome originally written as: merged mirror-sync of upstream dd118d1 (PR 7001)",
+  "notes": "merged mirror-sync of upstream dd118d1 (PR 7001)",
   "corrections": [],
   "redteam": null
 }
