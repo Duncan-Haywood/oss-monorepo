@@ -1265,6 +1265,11 @@
      "slug": "thrust-twin",
      "title": "What does a quadratic thrust curve do to a controller designed in a linear-thrust twin?",
      "summary": "A throttle controller inverts a twin whose thrust is linear around hover; the real thrust is quadratic. The realised acceleration is exactly <em>a</em><sub>cmd</sub>+<em>a</em><sub>cmd</sub><sup>2</sup>/(4<em>g</em>): climbs over-deliver, descents under-deliver, and the throttle floor is reached at <em>a</em><sub>cmd</sub>=&minus;2<em>g</em>. At &zeta;=0.7 the climb overshoot rises from 0.046 to 0.095 while the descent falls to 0.027 for a step of <em>p</em>=&omega;<sub>n</sub><sup>2</sup>|<em>x</em><sub>0</sub>|/<em>g</em>=4; gentle steps (<em>p</em>&le;0.5) change overshoot by under 1.1 points. Stylised: 1-D, static thrust map, assumed throttle ceiling, no field data."
+    },
+    {
+     "slug": "invthrust-twin",
+     "title": "Does inverting a quadratic thrust curve exactly fix the error a linear-thrust twin makes, and what if the thrust exponent is also wrong?",
+     "summary": "Follow-up to <code>thrust-twin</code>. With the right model, the exact square-root throttle inverse realises the commanded acceleration inside the throttle limits and shrinks the up/down overshoot gap at &zeta;=0.7, <em>p</em>=2 from 3.00 to 0.09 points. With the thrust exponent misidentified (2.5 instead of 2) the exact inverse flips the asymmetry and halves the gap (3.67 to 1.65 points) but overshoot stays at 0.071&ndash;0.088 against the twin&rsquo;s 0.046, and settling time is unchanged. Stylised: 1-D, noiseless, static thrust map, assumed throttle limits, exponent error only."
     }
    ]
   },
@@ -2134,6 +2139,11 @@
      "summary": "A stylised, preliminary, <em>negative</em> follow-up to <em>garment-twonodelag</em>. A transmittance that ramps linearly with skin temperature is tuned by exhaustive search (72 bands) for each actuation lag (0 to 10&nbsp;min) and scored on held-out rooms against the tuned on/off gate. Proportional wins in 5 of 16 cells and every difference is within 0.010&nbsp;C: the search picks bands only 0.1 to 0.2&nbsp;C wide, i.e. nearly on/off. Forcing a softer ramp (at least 1.4&nbsp;C wide) costs 0.02 to 0.07&nbsp;C. Switching is free in this run, so a switch penalty could change the answer. Six training and eight held-out scenarios; no real fabric or person."
     },
     {
+     "slug": "garment-twonodepen",
+     "title": "At what switching penalty does a proportional infrared gate beat the on/off thermostat gate?",
+     "summary": "A stylised, preliminary follow-up to <em>garment-twonodeprop</em>. Both gates are retuned on training rooms for each actuation lag and a per-swing penalty (one full close-to-open swing = 1 for either gate; the penalty scale is an assumption), then scored on held-out rooms. The proportional gate has the lower cost in 52 of 80 cells, by at most 0.096&nbsp;C on a proxy of order 0.3&ndash;1.5&nbsp;C; at the highest penalty the gain holds in the between rooms (8 of 8) but mostly reverses in the outside rooms (2 of 8). Simulated comfort, not a claim about any real garment."
+    },
+    {
      "slug": "garment-twonodeopt",
      "title": "How far is the thermostat-driven infrared-gating textile from the best possible switching schedule when the room temperature steps?",
      "summary": "A stylised, preliminary follow-up to <em>garment-twonodestep</em>. Exhaustive search over open/closed schedules (at most 3 toggles on a 10&nbsp;min grid, instant actuation) in the switchable two-node model, scored by mean |skin temperature &minus; 33.7&nbsp;C| (a proxy, not a comfort index). One toggle is enough (more improve the score by at most 0.001&nbsp;C). The best toggle is not always at the step: it is early or late after a step down. The gate is within 0.02&nbsp;C of the optimum after a step up but 0.06&ndash;0.11&nbsp;C away after a step down (0.18 with 10&nbsp;min lag in one case). One person, two assumed transmittances, a coarse grid; not a claim about any real garment."
@@ -2248,7 +2258,16 @@
     {
      "slug": "accel-lut",
      "title": "Does weight-sharing lookup-table inference beat a multiply-accumulate engine for a small accelerator?",
-     "summary": "A k-means weight-sharing codebook with a per-input product table (no multiplier per weight) against int8 serial MAC engines, on the 64-32-10 digits MLP of <code>accel-sparse</code>, dense and 75% pruned, over 10 splits. Negative: within 2 points of float32 the table engine does not beat int8 (dense: 3.51 nJ for 8 shared values against 3.56 nJ for int8; pruned: 1.55 against 1.51 nJ), and it only looks better against a baseline that rereads activations per weight. An analytic sweep puts the break-even at layers of about 128 outputs or more, and then only if table reads cost a quarter of an array read. Stylised: assumed 45 nm constants, no retraining or RTL, substitute task."
+     "summary": "A k-means weight-sharing codebook with a per-input product table (no multiplier per weight) against int8 serial MAC engines, on the 64-32-10 digits MLP of <code>accel-sparse</code>, dense and 75% pruned, over 10 splits. Negative: within 2 points of float32 the table engine does not beat int8 (dense: 3.51 nJ for 8 shared values against 3.56 nJ for int8; pruned: 1.55 against 1.51 nJ), and it only looks better against a baseline that rereads activations per weight. An analytic sweep puts the break-even at layers of about 128 outputs or more, and then only if table reads cost a quarter of an array read. Stylised: assumed 45 nm constants, no retraining or RTL, substitute task."    },
+    {
+     "slug": "accel-lutft",
+     "title": "Does fine-tuning the shared weight values rescue low-K lookup-table inference?",
+     "summary": "<code>accel-lut</code> left its shared values untrained. Here the codebook is kept in the loop for 60 epochs (straight-through, k-means re-fit each step) on the same 64-32-10 digits MLP, dense and 75% pruned, over 10 splits. Mixed: in the pruned network 2 shared values go from a 6.5-point to a 1.7-point accuracy drop, and with an assumed cheap table read (0.04&nbsp;pJ/bit) that is 1.30&nbsp;nJ against 1.51&nbsp;nJ for int8; at 0.16&nbsp;pJ/bit it loses. In the dense network fine-tuning does not help (8 shared values: 3.2 points down against 1.6 without it). Stylised: assumed energy constants, one fine-tuning recipe, no RTL, substitute task."
+    },
+    {
+     "slug": "accel-lutrtl",
+     "title": "What does a product-table inference engine cost in RTL, against a serial MAC engine?",
+     "summary": "Both engines for a 64&times;N dense layer with 4-bit activations and int8 shared weights, written in Verilog, checked bit for bit against an integer NumPy reference, and synthesised with Yosys to generic gates (assumed gate-equivalent weights). Negative and stylised: the table engine keeps one accumulator per output, so its datapath is 2.4&times; (N=8) to 11.6&times; (N=128) the MAC engine's and it takes 1.1&times; to 3.0&times; the cycles, even though it stores half the weight bits. Random weights, area only, no energy measured."
     }
    ]
   },
@@ -2370,6 +2389,11 @@
      "slug": "swe-prflow",
      "title": "What do 526 closed pull requests say about how the agent loop lands work?",
      "summary": "A stdlib analysis of the creation and merge times of every closed PR here (#1 to #526). 87.5% merged (Wilson 84.3&ndash;90.0%), falling from 93.8% for PRs opened by 10-01 to 81.2% from 10-05 on. Median time to merge is 0.6 minutes, 4.3% of merges happen in four same-second batches after long waits, and PRs opened within 10 seconds of another merged only 60% of the time against 92% for the rest. The last is an association, not a cause. No CI, review or closure-reason data, and the timestamps were hand-transcribed. Preliminary third step of track 10."
+    },
+    {
+     "slug": "swe-orgs",
+     "title": "Which practices of engineering organisations that ship could help an agent loop, and what is there to fix?",
+     "summary": "A first-batch, cited catalogue of 14 practices from 14 sources (Google, Microsoft, Facebook, Netflix, Basecamp, Spotify, Ries, Stripe and others), each tagged with company stage, evidence type (one measured, others case studies, accounts or opinion), the loop element it maps to, how far it transfers to a fleet of agent sessions, and the assumption that does not carry over. Scored against the 268-row run ledger, the failure classes runs report are small (2.2&ndash;6.0% of runs, self-reported keyword matches), so <em>no practice clears the 5% ceiling as a new proposal</em>: a negative result. Sources were checked by web search only, three only partly. First batch of a standing milestone 7 of track 10."
     }
    ]
   },
@@ -2387,6 +2411,11 @@
      "slug": "mimic-loop",
      "title": "Can prompt search alone move a frozen 0.5B imitator past a prompted 0.5B detector, and which proposer does it best at equal budget?",
      "summary": "A first, stylised run of the imitation game: Qwen2.5-0.5B-Instruct as imitator and detector, only prompts change, alternating rounds on two families (reddit, reviews) with four proposers (random, GA, GrIPS-style, local-LLM) at 4 evaluations per side per round. The plain detector starts <em>below</em> chance (paired accuracy 0.12), the final detectors reach 0.12&ndash;0.58 on 24 test pairs with intervals of about &plusmn;0.2, and the proposers cannot be ranked. Length is a major confound: imitators that wrote longer texts fooled the detector more. One seed; a harness and a first look, not a detection result."
+    },
+    {
+     "slug": "mimic-crossplay",
+     "title": "Does the prompt-only imitation game settle or cycle, and does beating the latest detector mean beating the others?",
+     "summary": "Follow-up to <code>mimic-loop</code>. Every imitator prompt any of its eight runs produced is scored against every detector prompt (Qwen2.5-0.5B-Instruct on both sides, 48 titles per cell, detector paired accuracy, 0.50 = chance), giving a 10&times;7 matrix on reddit and 9&times;10 on reviews. Both zero-sum games have a pure equilibrium with value below chance (reddit 0.396, 95% title-bootstrap 0.28 to 0.47; reviews 0.292, 0.17 to 0.34): no detector prompt guarantees chance, and no cell exceeds 0.56. On reviews the unadapted plain imitator prompt is the equilibrium imitator. Mean text length correlates with detector accuracy (Spearman 0.76 on reddit, 0.30 on reviews). No cycles at a 0.15 noise margin; overfitting to the latest opponent is small and not established. Stylised: one loop seed, a 0.5B detector that starts below chance. The model-size question is left open."
     },
     {
      "slug": "mimic-twinc2st",
