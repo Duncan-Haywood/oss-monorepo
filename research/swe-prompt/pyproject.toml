@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swe-prompt"
+version = "0.1.0"
+description = "Sequential tests for prompt A/B experiments on the run ledger: fixed-n, naive peeking and a mixture SPRT"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
