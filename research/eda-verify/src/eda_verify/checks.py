@@ -11,6 +11,7 @@ from chip_accel import gen, model
 from chip_accel.model import NIN, NOUT
 
 MAXCYC = 200
+SIM_TIMEOUT = 20      # wall seconds for a simulation of up to 64 vectors; the golden design takes well under 1 s
 
 
 def _tb(wb, xs):
@@ -46,7 +47,10 @@ def sim_first_mismatch(q, p, verilog, xs):
         r = subprocess.run(["iverilog", "-g2012", "-o", f"{d}/s", f"{d}/a.v", f"{d}/tb.v"], capture_output=True, text=True)
         if r.returncode:
             raise RuntimeError(r.stderr)
-        out = subprocess.run(["vvp", f"{d}/s"], capture_output=True, text=True, timeout=300).stdout
+        try:
+            out = subprocess.run(["vvp", f"{d}/s"], capture_output=True, text=True, timeout=SIM_TIMEOUT).stdout
+        except subprocess.TimeoutExpired:       # e.g. a mutant that makes a loop non-terminating: the check fails
+            return 0
     rows = re.findall(r"OUT (\d+) (\d) (\d+)", out)
     if len(rows) < len(xs):
         return len(rows)
@@ -107,7 +111,7 @@ def _yosys(script, timeout):
         return None, time.perf_counter() - t, True
 
 
-PREP = "read_verilog {g}; read_verilog {m}; proc; flatten; memory_map; opt;"
+PREP = "read_verilog {g}; read_verilog {m}; proc; flatten; memory_map; opt; "
 
 
 def formal(gold, mut, seq, d, sat_timeout=150, induct_timeout=240):
