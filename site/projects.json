@@ -2263,6 +2263,11 @@
      "slug": "accel-lutft",
      "title": "Does fine-tuning the shared weight values rescue low-K lookup-table inference?",
      "summary": "<code>accel-lut</code> left its shared values untrained. Here the codebook is kept in the loop for 60 epochs (straight-through, k-means re-fit each step) on the same 64-32-10 digits MLP, dense and 75% pruned, over 10 splits. Mixed: in the pruned network 2 shared values go from a 6.5-point to a 1.7-point accuracy drop, and with an assumed cheap table read (0.04&nbsp;pJ/bit) that is 1.30&nbsp;nJ against 1.51&nbsp;nJ for int8; at 0.16&nbsp;pJ/bit it loses. In the dense network fine-tuning does not help (8 shared values: 3.2 points down against 1.6 without it). Stylised: assumed energy constants, one fine-tuning recipe, no RTL, substitute task."
+    },
+    {
+     "slug": "accel-lutrtl",
+     "title": "What does a product-table inference engine cost in RTL, against a serial MAC engine?",
+     "summary": "Both engines for a 64&times;N dense layer with 4-bit activations and int8 shared weights, written in Verilog, checked bit for bit against an integer NumPy reference, and synthesised with Yosys to generic gates (assumed gate-equivalent weights). Negative and stylised: the table engine keeps one accumulator per output, so its datapath is 2.4&times; (N=8) to 11.6&times; (N=128) the MAC engine's and it takes 1.1&times; to 3.0&times; the cycles, even though it stores half the weight bits. Random weights, area only, no energy measured."
     }
    ]
   },
