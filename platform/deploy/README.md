@@ -53,8 +53,8 @@ the operator.
   Providers are pinned to exact versions in `versions.tf` meanwhile.
 - More providers (GCS, Azure, DigitalOcean Spaces) and VM-based apps
   (cloud-init on Hetzner/DigitalOcean) for apps that need a process.
-- Every tool page footer now links "Run your own copy" to `deploy/?app=<slug>`
-  (`platform/pages/build.mjs`). Still to do: link it from the hub itself.
+- The hub footer and every tool page footer link the page ("Deploy your own
+  copy" / "Run your own copy", `deploy/?app=<slug>` preselects the app).
 - The AWS path is validated structurally and against a mocked GitHub API in a
   real browser, not yet against a live AWS account.
 

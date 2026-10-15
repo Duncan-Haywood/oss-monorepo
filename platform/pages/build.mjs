@@ -3588,6 +3588,8 @@ const CATEGORY_RULES = [
         'garmin-world-traveler-watchface',
         'photo-editing',
         'photos-import-tools',
+        // `quick-pick-survey` joined 2026-10-15 when it got a landing page and the catch-all hit 6: a survey engine, one hop from the individual-decision tools above.
+        'quick-pick-survey',
       ].includes(slug),
   },
 ];
@@ -7006,6 +7008,7 @@ ${disclaimerHtml('', surfaces)}
         <a href="${GUIDES_PATH}">Guides</a> ·
         <a href="${COMPARE_PATH}">Comparisons</a> ·
         <a href="${RESEARCH_PATH}">Research</a> ·
+        <a href="deploy/">Deploy your own copy</a> ·
         <a href="catalog.json">Machine-readable catalog</a> ·
         <a href="llms.txt">llms.txt</a> ·
         <a href="sitemap.xml">Sitemap</a> ·
