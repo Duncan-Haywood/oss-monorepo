@@ -49,14 +49,21 @@ node --test
 
 Open `index.html` through any static server (ES modules need `http://`).
 
+## Phone app
+
+`mobile/` is an Expo (React Native) app that adds what the web page cannot:
+automatic background drive detection, one-tap classification with a
+suggested category, and the same pricing, audit and CSV code. First version,
+tested at the logic level only; see `mobile/README.md`.
+
 ## Why use this instead of
 
 MileIQ, Everlance and TripLog charge about $6-15 a month and track in the
 background on a phone; QuickBooks Self-Employed bundles it. This is free, keeps
 the data on your device, tells you what is weak in the log, and (new) handles
-more than one vehicle and hands your preparer a report. What it cannot do is
-background tracking: a web page cannot, so GPS needs the page open. A native
-wrapper for that is the next step and is not built.
+more than one vehicle and hands your preparer a report. The web page cannot track in the
+background, so GPS needs the page open; the phone app in `mobile/` is the
+answer to that (first version, not yet run on a device).
 
 ## Deploy your own copy
 
