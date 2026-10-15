@@ -213,3 +213,15 @@ export function forecast(months, { horizon = 6, window = 3 } = {}) {
   }
   return out;
 }
+
+// Monthly history as CSV for a spreadsheet, an accountant or an investor deck.
+// Money is in major units (12.34), one row per month, oldest first. Months
+// rebuilt from dates at today's prices are flagged in the `approximate` column.
+// Any cell that could be read as a formula is prefixed with a quote.
+export function monthsCsv(months, currency = "usd") {
+  const head = ["month", "mrr", "customers", "new", "expansion", "reactivation", "contraction", "churn", "approximate"];
+  const major = (v) => (v / 100).toFixed(2);
+  const rows = months.map((m) => [m.month, major(m.mrr), m.customers, major(m.new), major(m.expansion), major(m.reactivation), major(m.contraction), major(m.churn), m.approximate ? "yes" : "no"]);
+  const cell = (v) => { const s = String(v); return /^[=+\-@\t\r]/.test(s) ? `'${s}` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  return `# currency: ${String(currency).toUpperCase()}, amounts in major units\n` + [head, ...rows].map((r) => r.map(cell).join(",")).join("\n") + "\n";
+}

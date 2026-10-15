@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01LRNR5M7tMeXUaFcHHY2E2h",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "mrr-pulse"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First PR (#7092, customer concentration) duplicated a feature another session merged to main while it was open; closed unmerged. Cost ~1h of CI waiting."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The mrr-pulse cluster had 4 concurrent sessions adding overlapping features; the 'check open PRs' step cannot see a sibling that merges mid-run. Re-fetching main before choosing a feature would have caught it."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Pages build test (platform/pages/build.test.mjs) takes 4-21 minutes locally; the 'run locally when starved' checklist is impractical for it."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Landed a small mrr-pulse CSV export instead. validate (score_ventures --check, 13 problems) was red on main at the time; left alone because fixing needs real scores for hundreds of ventures.",
+  "corrections": [],
+  "redteam": null
+}
