@@ -192,6 +192,9 @@ def convert_runs(text: str) -> dict[str, dict[str, Any]]:
         out["_upstream_keys"] = sorted(set(rec) | {"track", "source"})
         out.setdefault("track", "research")
         out.setdefault("doc_friction", [])
+        out.setdefault("errors", [])
+        out.setdefault("integrity_issues", [])
+        out.setdefault("date", None)
         out.setdefault("goal", None)
         out.setdefault("corrections", [])
         out["source"] = RUNS_SOURCE

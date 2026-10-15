@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01Wsmgftayw5PJKTPMb7HnEf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-15T05:05:00Z",
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "usage": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "eda-proposers"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/518",
+  "commits": [
+    "8c4bd81922fefe838600c8feb8bb98f88bbab5a7"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 10,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "Overwrote the existing eda-harness project in the working tree by building eda-harness before checking research/; caught before committing and restored with git checkout; switched to eda-proposers (milestone 2)",
+    "Closed selfrep-termsat branch unmerged: duplicate of selfrep-terminalmarket"
+  ],
+  "integrity_issues": [],
+  "notes": "Usage metadata not available in this session; null rather than guessed.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

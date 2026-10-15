@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eda-proposers"
+version = "0.1.0"
+description = "Equal-budget comparison of random, grid, annealing, genetic, NSGA-II and TPE proposers on a logged chip-design space, by Pareto hypervolume"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

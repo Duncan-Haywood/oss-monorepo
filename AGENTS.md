@@ -75,144 +75,40 @@ AI-wrap by default.
 
 ## Ship fast
 
-- **Merge when CI is green — you, not someone later.** No human code review
-  gate. Fix forward. A pushed branch is not shipped: open the PR as soon as
-  you push, and merge it yourself once it is verified. `ventures/*`
-  included; auto-merge refuses those paths, so if you don't, nobody does.
-- **Touched a venture page? Regenerate the served surface before you push:**
+Incident history for these rules: `docs/history/claude-md-2026-10-15.md`.
 
-  ```
-  node platform/marketing/regen.mjs
-  ```
-
-  The apex is the only host serving anything, and what it serves is a
-  *committed* artifact under `gitops/prod/front-door*` built from the venture
-  tree by two generators. Editing a venture page does not update it. Nothing
-  else you run will tell you: `platform/pages/build.mjs` and `check.mjs` build
-  `tools.marisstella.dev`, a different host, and both pass happily while the
-  apex is stale.
-
-  On 2026-09-05 #3256 added a comparison page and skipped this. The page was
-  mirrored nowhere and missing from the apex's sitemap — built, deployed, and
-  findable by nobody — and `main` went red on six tests. #3257 and #3258 then
-  each ran *one* of the two generators, because that is what the failing test
-  named, and each reported success. Three sessions, three hours, one page
-  still dark. The hints now name `regen.mjs`, which runs every generator, but
-  that only reaches you once a test is already failing; this bullet is for the
-  case where you never run those tests at all, which is what #3256 did.
-- **Do not re-verify** PRs recorded in `portfolio/ledger/verifications.yaml`
-  unless `python3 portfolio/ledger/verification_status.py` says drift
-  invalidated them.
-- **Never land a change that is only ledger prose.** Not "avoid" — never.
-  Gate it mechanically before you push:
-
-  ```
-  python3 portfolio/ledger/check_ledger_only.py
-  ```
-
-  Exit 1 means every file in your branch is `portfolio/ledger/` data, and the
-  branch is not a deliverable. This bullet used to read "do not open
-  ledger-only PRs *that re-state known blockers*", and that escape hatch ate
-  the rule: in the seven days to 2026-09-02 the fleet landed **381 commits on
-  `main` touching nothing but ledger YAML — 34.6% of 1,102** — because every
-  session read its own entry as the new one. A third of the fleet's output
-  went into describing the other two thirds.
-
-  Recording an outcome is still right, and still cheap. It just **rides with
-  the work it describes** — same commit, or same PR. The ledger is a footnote
-  to a shipped thing, not a thing that ships.
-
-  If a session genuinely found a blocker instead of shipping: say so in the
-  reply and leave `main` alone. An unshipped session is a real outcome and
-  does not need a commit to be true. Take the ledger commit off your branch
-  too, or the harness pushes it as a branch nobody reads
-  (`land-your-work.md`, "Not shipping something?"). The ledger *tooling* (`.py` under
-  `portfolio/ledger/`) is exempt and passes the check — it is ordinary
-  platform code.
+- **Merge when CI is green, yourself.** No human review gate; fix forward. A
+  pushed branch is not shipped: open the PR at once and merge it once
+  verified. `ventures/*` included (auto-merge refuses those paths).
+- **Touched a venture page? Run `node platform/marketing/regen.mjs` before you
+  push.** The apex serves a *committed* mirror under `gitops/prod/front-door*`;
+  editing the venture does not update it, and `platform/pages` builds a
+  different host, so its checks pass while the apex is stale.
+- **Do not re-verify** PRs in `portfolio/ledger/verifications.yaml` unless
+  `python3 portfolio/ledger/verification_status.py` reports drift.
+- **Never land ledger prose alone.** `python3 portfolio/ledger/check_ledger_only.py`
+  exits 1 when your branch is only ledger data. Record outcomes in the same PR
+  as the work; a blocker with nothing shipped goes in your reply, and the
+  ledger commit comes off the branch (`land-your-work.md`, "Not shipping
+  something?"). Ledger tooling (`.py`) is ordinary code.
 - **Do not close a PR as "already on main"** until
-  `python3 portfolio/ledger/supersede_check.py <n>` exits 0. Exit 1 prints the
-  lines the close would destroy. See `CLAUDE.md` for why: the claim has been
-  wrong three times in one hour, and each time the feature existed only on the
-  branch being closed.
-- **Read the RENAME SUSPECTED section if the report prints one.** Exit 1 with
-  that section means the branch's lines are `main`'s own lines with the
-  identifiers changed — `largestCostComponent` where `main` says
-  `largestCostDriver`. The report prints each pair and the file the twin lives
-  in. Merging that branch adds a duplicate button or a weaker copy of a live
-  function; it is not new work. It is still not a licence to close unread — the
-  one word that differs can be the point of the branch.
-- **A red check is a failed check again, as of 2026-09-01.** This bullet read
-  "a red check is not a failed check right now" for five days, and that is no
-  longer true: Actions began assigning real runners again at
-  2026-09-01T00:00:53Z, and #2601 went green on merit that evening (`gitops`
-  ran `kustomize build`, `kubeconform` and 193 pytest cases on runner
-  `1000040xxx`). Treat red as red, and fix it.
-
-  The old signature is still worth knowing, because the ceiling appears to
-  **cycle** rather than to be gone — the recovery landed at 00:00:53Z on the
-  first of the month, which is what a metered minute allowance resetting looks
-  like. If starvation returns it looks like this: every workflow fails in 3-6
-  seconds with no runner, so checks arrive *red* rather than absent, including
-  on `main`; the job has empty check-run output and 404s on log download; and a
-  real `Portfolio validate` installs Python and Node and runs 36 steps, so it
-  cannot finish in five seconds. The single field that settles it is
-  `runner_id: 0` with an empty `runner_name` — no runner was ever assigned, so
-  no step ran. Do not judge that by eye: run
-  `python3 platform/ci/ci_starvation.py --run <run_id>`, which votes on that
-  one field. See `CLAUDE.md`.
-- **Verify with the workflow's own step list, not a subset you chose — and
-  with every workflow your change would start, not just the one you know.**
-
-  ```
-  python3 platform/ci/run_workflow_locally.py --for-changes
-  ```
-
-  That reads the `paths:` filter on every workflow, works out which ones your
-  current diff against `origin/main` would trigger, and runs the jobs among
-  them that cannot write anything (holding, and naming, any job that grants a
-  write permission or reads a secret). Prefer it to naming a single workflow.
-  Naming `portfolio-validate.yml` alone is how a `FAQPage` whose JSON-LD did
-  not match its own visible copy reached `main` on 2026-08-30: the guard that
-  catches it lives in `portfolio-pages.yml`, which runs on any `ventures/**`
-  change, and the session that merged verified the wrong workflow. Add
-  `--list` to see the selection without running it.
-
-  To run one workflow by name:
-
-  ```
-  python3 platform/ci/run_workflow_locally.py portfolio-validate.yml
-  ```
-
-  It reads `.github/workflows/<file>` and runs its `run:` steps in order, in
-  each step's working directory, then reports what passed and names every step
-  it did *not* run (`uses:` steps, steps needing a `${{ }}` expression, steps
-  that look like they would push or deploy). Improvising a subset instead is
-  how `main` came to be failing two `Portfolio validate` steps for days in
-  August: several sessions each verified locally before merging, and none of
-  their subsets happened to include `check_ask_hosts.py`. Paste the summary
-  line into the pull request — including the count it says did not run, which
-  is the part that keeps "verified locally" honest.
-- **No workflow covers the browser.** `run_workflow_locally.py` runs what CI
-  would run, and CI never ran the six checks in `platform/pages/` — they need
-  Playwright, which is not a dependency of this repo. They are the only thing
-  that catches a page which renders perfectly and computes nothing. When your
-  change touches a `ventures/**` surface or `platform/pages/`, run them:
-
-  ```
-  PLAYWRIGHT=$(npm root -g)/playwright/index.js python3 platform/ci/browser_checks.py
-  ```
-
-  It builds into a temporary directory (so nothing stale can be verified by
-  accident), serves it, and refuses to start unless the origin echoes a
-  sentinel token it just wrote — the leftover-server false pass that cost a
-  clean report on 2026-08-28 is an error here rather than a green run. Add
-  `--checks sweep,sideways` for a subset, or `--dist <dir>` to reuse a build.
-  A missing Playwright exits 2 and says so; it is a skip, not a pass.
-- **`git fetch --unshallow` first.** A scheduled session's clone is shallow, so
-  every branch reads as an unrelated history: no merge base, `git merge` refuses,
-  and a normal PR looks like a 2,800-file catastrophe. That is the clone, not the
-  branch. `supersede_check.py` now unshallows itself, but `git merge` and
-  `git diff origin/main <branch>` do not.
+  `python3 portfolio/ledger/supersede_check.py <n>` exits 0. Exit 1 prints what
+  the close would destroy; its RENAME SUSPECTED section means `main` has the
+  same lines under other names, which is evidence to read, not a licence to
+  close.
+- **Red is red, but classify first:**
+  `python3 platform/ci/ci_starvation.py --run <run_id>` votes on `runner_id: 0`
+  (no runner assigned, no step ran). See `CLAUDE.md`, "Reading CI".
+- **Verify with the workflows' own steps, not a subset:**
+  `python3 platform/ci/run_workflow_locally.py --for-changes` runs every
+  workflow your diff would trigger that cannot write anything and names each
+  step it did not run; paste its summary line, including that count, in the PR.
+  `--list` shows the selection; naming one workflow runs just that one.
+- **The browser checks are in no workflow.** For a `ventures/**` surface or
+  `platform/pages/` change run `python3 platform/ci/browser_checks.py` (setup:
+  `CLAUDE.md`). A missing Playwright exits 2: a skip, not a pass.
+- **`git fetch --unshallow origin main` first** if `git merge` reports
+  unrelated histories (scheduled clones are shallow). It can take minutes.
 
 **Rely on the owner as little as possible.** Merge product work. Do not
 invent a review gate.

@@ -268,3 +268,18 @@ field will.
   twice within an hour (#7034 then this one) because the due counter is
   unchanged by process-track records; not changed here.
 - Result: (next review)
+
+## E10: fifth review of 2026-10-15
+
+- Change: `AGENTS.md` 291 → 187 lines ("Ship fast" incident stories moved to
+  `docs/history/claude-md-2026-10-15.md`, rules kept). `promptctl measure`
+  no longer crashes on free-text `doc_friction`/`deviations` entries; four
+  malformed records on `main` (they failed `validate` and the prompt-system
+  unit test) were normalised with `corrections` entries.
+- Why: `measure` crashed; `validate` was red on `main`; AGENTS.md was over its
+  250 budget.
+- Measure: `AGENTS.md` friction per run; `validate` stays green.
+- Follow-up on E8/E9: ventures/2 (1 run) and research/1 (1 run) still too
+  few runs. Review ran five times today because the due counter ignores
+  process-track records; owner-visible in the drift report.
+- Result: (next review)

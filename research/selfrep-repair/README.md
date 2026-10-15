@@ -17,6 +17,7 @@ Follow-up to `selfrep-wearout` in the self-replicating manufacturing track (`PRO
 cd research/selfrep-repair
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, standard library only
 python3 experiments/run.py                                 # about 5 s; writes experiments/results.txt
+python3 experiments/figure.py                              # plots section A (working fleet vs repair cost share) to experiments/repair_share.svg from the committed results.txt
 ```
 
 ## Results (from `experiments/results.txt`; B = 4, L = 2000 h unless stated)
