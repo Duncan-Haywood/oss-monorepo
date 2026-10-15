@@ -9,6 +9,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { verifySignature, createStripe } from "./stripe.mjs";
+import { ADMIN_HTML, ADMIN_CSP } from "./admin.mjs";
 import { applyEvent, tick, scanExpiring, summary, newState } from "./engine.mjs";
 
 const env = process.env;
@@ -62,6 +63,10 @@ export function handler(cfg) {
         if (!customer) return send(404, "link not valid\n");
         const to = await cfg.stripe.portalUrl(customer, cfg.publicUrl || "https://stripe.com");
         res.writeHead(302, { location: to }); return res.end();
+      }
+      if (req.method === "GET" && url.pathname === "/admin") {
+        res.writeHead(200, { "content-type": "text/html; charset=utf-8", "content-security-policy": ADMIN_CSP, "cache-control": "no-store", "x-content-type-options": "nosniff" });
+        return res.end(ADMIN_HTML);
       }
       if (url.pathname === "/v1/summary" || url.pathname === "/v1/cases") {
         if (!bearerOk(req, cfg.adminKey)) return send(401, "admin key required\n");
