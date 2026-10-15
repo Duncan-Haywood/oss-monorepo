@@ -11,6 +11,7 @@ const templates = {
   'github-pages': { 'deploy.yml': 'name: Deploy\n' },
   aws: { 'deploy.yml': 'a', 'destroy.yml': 'b', 'tofu/main.tf': 'c', 'tofu/encryption.hcl.tmpl': 'd' },
   gcp: { 'deploy.yml': 'a', 'destroy.yml': 'b', 'tofu/main.tf': 'c', 'tofu/encryption.hcl.tmpl': 'd' },
+  azure: { 'deploy.yml': 'a', 'destroy.yml': 'b', 'tofu/main.tf': 'c', 'tofu/encryption.hcl.tmpl': 'd' },
   _license: 'MIT',
 };
 const appFiles = {
@@ -56,7 +57,7 @@ test('gcp repo carries tofu/ and both workflows, and says what Destroy removes',
 test('refuses path traversal, missing index, unknown provider', () => {
   assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'aws', appFiles: { 'index.html': { text: 'x' }, '../x': { text: 'y' } }, templates }), /unsafe/);
   assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'aws', appFiles: {}, templates }), /index/);
-  assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'azure', appFiles, templates }), /unknown provider/);
+  assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'heroku', appFiles, templates }), /unknown provider/);
 });
 
 test('every provider has a label, a blurb and a privacy flag', () => {
