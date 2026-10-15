@@ -134,11 +134,13 @@ test('a dead relative link is caught', async () => {
   assert.equal(mentioning(problems, 'dead link -> missing.html').length, 1);
 });
 
-test('only the hub may link the self-deploy page, which is built after this check', async () => {
+test('any page may link the self-deploy page, which is built after this check', async () => {
   const hub = await problemsFor({ 'index.html': '<a href="deploy/">Deploy your own copy</a>' });
   assert.deepEqual(mentioning(hub, 'dead link -> deploy/'), []);
-  const other = await problemsFor({ 'tool/index.html': '<a href="../deploy/">deploy</a>' });
-  assert.equal(mentioning(other, 'dead link -> ../deploy/').length, 1);
+  const tool = await problemsFor({ 'tool/index.html': '<a href="../deploy/?app=tool">Run your own copy</a>' });
+  assert.deepEqual(mentioning(tool, 'dead link -> ../deploy/'), []);
+  const other = await problemsFor({ 'tool/index.html': '<a href="../deployx/">nope</a>' });
+  assert.equal(mentioning(other, 'dead link -> ../deployx/').length, 1);
 });
 
 test('a JS template-literal href in a standalone .mjs is not a dead link', async () => {
