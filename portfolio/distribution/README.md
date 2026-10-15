@@ -149,3 +149,9 @@ search, and the usage those channels bring, read from
 - `PRODUCT_PLAYBOOK.md` §5e (discoverability), §5f (naming competitors).
 - `platform/ci/indexnow_state.py`, `platform/pages/launched.mjs`: the
   search-side distribution already built.
+
+## Channel status
+
+See [`channels.yaml`](channels.yaml). `bluesky-bot` is at `artifact`:
+`node platform/distribution/bluesky.mjs` prints the posts a run would send;
+the owner step is the account, two secrets and `DISTRIBUTE_BLUESKY=true`.
