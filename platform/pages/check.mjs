@@ -1110,7 +1110,8 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
         // A extension-less link is served as a directory if one is there.
         if (await exists(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
       }
-      if (relative === 'index.html' && resolved === path.resolve(site, DEPLOY_DIR, 'index.html')) continue;
+      // The hub footer and every tool page's "Run your own copy" link point at it.
+      if (resolved === path.resolve(site, DEPLOY_DIR, 'index.html')) continue;
       if (!(await exists(resolved))) problems.push(`${relative}: dead link -> ${target}`);
       else {
         inboundLinks.add(resolved);
