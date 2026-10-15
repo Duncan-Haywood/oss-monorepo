@@ -86,3 +86,22 @@ test("summary names the numbers", () => {
   assert.match(t, /Net cost to you: £600\.00/);
   assert.match(t, /Not tax advice/);
 });
+
+test("the basic-rate 'no extra relief' finding appears only when there is no relief and no better carry-back", () => {
+  const none = /No extra relief for you/;
+  assert.ok(compute({ gift: "800", income: "30000", prevIncome: "" }).findings.some((f) => none.test(f.title)));
+  assert.ok(!compute({ gift: "800", income: "30000", prevIncome: "" }).findings.some((f) => /Carrying the gift back/.test(f.title)));
+  // Relief this year, so the message must not appear.
+  assert.ok(!compute({ gift: "800", income: "60000", prevIncome: "" }).findings.some((f) => none.test(f.title)));
+  // No relief this year but a better carry-back: the message is wrong then.
+  const cb = compute({ gift: "800", income: "30000", prevIncome: "60000" });
+  assert.equal(cb.carryBackBetter, true);
+  assert.ok(!cb.findings.some((f) => none.test(f.title)));
+});
+
+test("the taper-trap finding appears only for incomes inside the 100k to 125,140 band", () => {
+  const trap = /would restore the full allowance/;
+  assert.ok(compute({ gift: "1000", income: "110000", prevIncome: "" }).findings.some((f) => trap.test(f.title)));
+  assert.ok(!compute({ gift: "1000", income: "60000", prevIncome: "" }).findings.some((f) => trap.test(f.title)));
+  assert.ok(!compute({ gift: "1000", income: "150000", prevIncome: "" }).findings.some((f) => trap.test(f.title)));
+});

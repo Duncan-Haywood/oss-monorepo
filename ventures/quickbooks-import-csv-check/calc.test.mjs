@@ -166,3 +166,44 @@ test("helpers", () => {
   assert.equal(conceptOf("As of Date", "customers"), "asof");
   assert.match(findingsCsv(validate("Display Name\nA\nA\n")), /dup-name/);
 });
+
+test("a final row that is only an empty quoted cell is still a row", () => {
+  assert.equal(parseCsv('a\n""').rows.length, 2);
+  assert.equal(parseCsv("a\n1").rows.length, 2);
+});
+
+test("dateShape rejects a three-digit month", () => {
+  assert.equal(dateShape("2024-123-05"), "bad");
+  assert.equal(dateShape("2024-012-05"), "bad");
+  assert.equal(dateShape("2024-12-05"), "iso");
+});
+
+test("a file with no name column reports the error on the header line", () => {
+  const r = validate("Email\na@b.com\nc@d.com\n", { kind: "customers" });
+  const f = r.findings.find((x) => x.code === "no-name");
+  assert.ok(f);
+  assert.equal(f.line, r.findings.find((x) => x.code === "no-name").line);
+  assert.equal(f.line, 1);
+});
+
+test("a colon in a customer name warns and explains the sub-customer reading", () => {
+  const r = validate(cust(["Acme: East", "a@b.com", "12345", "", ""]), { kind: "customers" });
+  const f = r.findings.find((x) => x.code === "colon");
+  assert.ok(f);
+  assert.match(f.title, /sub-customer/);
+  const p = validate(toCsv([["Name"], ["Pipe: Large"]]), { kind: "products" }).findings.find((x) => x.code === "colon");
+  assert.equal(p.title, "Name contains a colon");
+  assert.match(p.detail, /means a sub-item/);
+  assert.match(f.detail, /may be created as a sub-customer of "Acme"/);
+});
+
+test("findingsCsv has one row per finding with its severity and code", () => {
+  const r = validate(sampleBrokenFile("customers"), { kind: "customers" });
+  const out = parseCsv(findingsCsv(r)).rows.map((x) => x.cells);
+  assert.equal(out.length, r.findings.length + 1);
+  assert.equal(out[1][0], r.findings[0].severity);
+  assert.equal(out[1][2], r.findings[0].code);
+  const withLine = r.findings.findIndex((x) => x.line);
+  assert.ok(withLine >= 0);
+  assert.equal(out[withLine + 1][1], String(r.findings[withLine].line));
+});
