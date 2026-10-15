@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01C5rn6Dj2UKnGqG6Ez8MNyY",
+  "track": "review",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/6999",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "skipped audit and merged-field backfill: research PRs are upstream, unreadable"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-0.md",
+      "note": "steps 1-2 assume PRs are readable; research PRs live in the upstream repo, out of session scope"
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "note": "unittest discover -s prompts did not finish in 3 minutes"
+    }
+  ],
+  "goal": null,
+  "notes": "unittest discover did not complete; validate ok",
+  "corrections": []
+}
