@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01VqcQame57gUpe6xRFoFtxT",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "model": "claude-sonnet-5-5",
+  "task": "extend",
+  "projects": [
+    "ambient-drrepeat"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/538",
+  "commits": [
+    "d482e9e297e4d746fb7c5f265112342104fd6386"
+  ],
+  "merged": null,
+  "build_ok": true,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "PR #534 (eda-flowtune, other run, draft, failing check) left alone: claimed 6 min earlier"
+  ],
+  "integrity_issues": [],
+  "notes": "token/cost fields not read",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

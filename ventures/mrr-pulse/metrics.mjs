@@ -133,3 +133,27 @@ export function formatMoney(minor, currency = "usd") {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: String(currency).toUpperCase(), maximumFractionDigits: 0 }).format(minor / 100);
   } catch { return `${(minor / 100).toFixed(0)} ${currency}`; }
 }
+
+// Signup-month cohorts: of the subscriptions that started in each of the last
+// `months` months, how many (and how much of their MRR) were still alive at the
+// end of month 0, 1, 2 ... Uses start and end dates only, so logo retention is
+// exact; revenue retention uses today's price for every subscription (marked
+// approximate in the README). Trials and paused subscriptions are left out.
+export function cohorts(subs, now, months = 12) {
+  const rows = [];
+  const ends = monthEnds(now, months);
+  const eligible = subs.filter((s) => s.mrr > 0 && s.created && ["active", "past_due", "canceled", "incomplete_expired"].includes(s.status));
+  for (let i = 0; i < ends.length; i++) {
+    const members = eligible.filter((s) => ym(s.created) === ends[i].month);
+    if (!members.length) { rows.push({ month: ends[i].month, size: 0, mrr: 0, logo: [], revenue: [] }); continue; }
+    const mrr = members.reduce((a, s) => a + s.mrr, 0);
+    const logo = [], revenue = [];
+    for (let k = i; k < ends.length; k++) {
+      const alive = members.filter((s) => !s.endedAt || s.endedAt > ends[k].t);
+      logo.push(alive.length / members.length);
+      revenue.push(alive.reduce((a, s) => a + s.mrr, 0) / mrr);
+    }
+    rows.push({ month: ends[i].month, size: members.length, mrr, logo, revenue });
+  }
+  return rows;
+}

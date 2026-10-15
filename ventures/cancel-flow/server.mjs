@@ -9,6 +9,7 @@ import { createHmac, timingSafeEqual, randomBytes } from "node:crypto";
 import { verifySignature, createStripe } from "./stripe.mjs";
 import { decide, describeOffer, summarize, REASONS, mergePolicy } from "./flow.mjs";
 import { renderCancelPage } from "./page.mjs";
+import { runWinback, summarizeWinback, readUnsubToken } from "./winback.mjs";
 
 const env = process.env;
 const MAX_SESSIONS = 20000;
@@ -29,7 +30,7 @@ export function readToken(secret, token, now = Date.now()) {
   } catch { return null; }
 }
 
-export const newState = () => ({ sessions: {}, seen: [] });
+export const newState = () => ({ sessions: {}, seen: [], optouts: {} });
 
 const readBody = (req, max = 100_000) => new Promise((resolve, reject) => {
   let size = 0; const chunks = [];
@@ -64,10 +65,23 @@ export function handler(cfg) {
         cfg.state.seen.push(event.id); if (cfg.state.seen.length > 2000) cfg.state.seen.shift();
         let marked = 0;
         if (event.type === "customer.subscription.deleted") {
-          for (const s of Object.values(cfg.state.sessions)) if (s.sub === event.data.object.id && !s.churned) { s.churned = true; marked++; }
+          for (const s of Object.values(cfg.state.sessions)) if (s.sub === event.data.object.id && !s.churned) { s.churned = true; s.churnedAt = now(); marked++; }
+        }
+        if (event.type === "customer.subscription.created") {
+          // A cancelled customer who subscribes again after we emailed them is a win-back.
+          for (const s of Object.values(cfg.state.sessions)) if (s.customer === event.data.object.customer && s.churned && s.winback?.sent?.some((x) => !x.dry)) { s.winback.won = true; marked++; }
         }
         cfg.save();
         return send(200, { received: event.type, marked });
+      }
+
+      const u = url.pathname.match(/^\/u\/([^/]+)$/);
+      if (u) {
+        const customer = readUnsubToken(cfg.linkSecret, decodeURIComponent(u[1]));
+        const page = (msg, form) => send(200, `<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width"><title>Unsubscribe</title><body style="font:16px system-ui;max-width:32rem;margin:3rem auto;padding:0 1rem"><p>${msg}</p>${form || ""}`, "text/html; charset=utf-8");
+        if (!customer) return send(410, "This link is not valid.\n", "text/plain");
+        if (req.method === "POST") { (cfg.state.optouts ||= {})[customer] = now(); cfg.save(); return page("You are unsubscribed. We will not email you about coming back."); }
+        if (req.method === "GET") return page("Stop emails about coming back?", `<form method=post><button>Unsubscribe</button></form>`);
       }
 
       const m = url.pathname.match(/^\/c\/([^/]+)(?:\/(answer|accept|cancel|keep))?$/);
@@ -134,7 +148,7 @@ export function handler(cfg) {
       if (url.pathname.startsWith("/v1/")) {
         if (!bearerOk(req, cfg.adminKey)) return fail(401, "admin key required");
         const all = Object.values(cfg.state.sessions);
-        if (req.method === "GET" && url.pathname === "/v1/summary") return send(200, { dryRun: cfg.dryRun, ...summarize(all) });
+        if (req.method === "GET" && url.pathname === "/v1/summary") return send(200, { dryRun: cfg.dryRun, ...summarize(all), ...(cfg.winbackUrl ? { winback: summarizeWinback(all, cfg.state.optouts) } : {}) });
         if (req.method === "GET" && url.pathname === "/v1/sessions") {
           return send(200, all.slice(-200).map(({ id, sub, customer, ...rest }) => ({ id, ...rest, at: new Date(rest.at).toISOString() })));
         }
@@ -154,6 +168,14 @@ export function handler(cfg) {
   };
 }
 
+async function sendResend(msg) {
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST", headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
+    body: JSON.stringify({ from: env.MAIL_FROM, to: [msg.to], subject: msg.subject, text: msg.text, headers: { "List-Unsubscribe": `<${msg.unsubUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } }),
+  });
+  if (!res.ok) throw new Error(`resend ${res.status}`);
+}
+
 function readJson(path, fallback) {
   try { return JSON.parse(fs.readFileSync(path, "utf8")); } catch (e) { if (e.code === "ENOENT") return fallback; throw e; }
 }
@@ -170,5 +192,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     adminKey: env.ADMIN_KEY, publicUrl: env.PUBLIC_URL.replace(/\/$/, ""), policy: env.POLICY_JSON ? JSON.parse(env.POLICY_JSON) : {}, dryRun,
     company: env.COMPANY_NAME, color: env.BRAND_COLOR, returnUrl: env.RETURN_URL, frameAncestors: env.FRAME_ANCESTORS,
   };
+  if (env.WINBACK_URL) {
+    if (!dryRun && (!env.RESEND_API_KEY || !env.MAIL_FROM || !env.COMPANY_ADDRESS)) { console.error("DRY_RUN=false with WINBACK_URL needs RESEND_API_KEY, MAIL_FROM and COMPANY_ADDRESS"); process.exit(1); }
+    if (!/^https:\/\//.test(env.WINBACK_URL)) { console.error("WINBACK_URL must be an https URL"); process.exit(1); }
+    cfg.winbackUrl = env.WINBACK_URL;
+    const deps = { stripe: cfg.stripe, sendEmail: sendResend, dryRun, publicUrl: cfg.publicUrl, linkSecret: env.LINK_SECRET, company: env.COMPANY_NAME, address: env.COMPANY_ADDRESS,
+      url: env.WINBACK_URL, code: env.WINBACK_CODE, codeText: env.WINBACK_CODE_TEXT, winback: env.WINBACK_JSON ? JSON.parse(env.WINBACK_JSON) : {} };
+    setInterval(async () => { try { const log = await runWinback(state, Date.now(), deps); log.forEach((l) => console.log(l)); if (log.length) save(); } catch (e) { console.error("winback failed:", e.message); } }, 3600_000).unref?.();
+  }
   http.createServer(handler(cfg)).listen(Number(env.PORT || 8080), () => console.log(`cancel-flow on :${env.PORT || 8080} (${dryRun ? "DRY RUN" : "LIVE"})`));
 }

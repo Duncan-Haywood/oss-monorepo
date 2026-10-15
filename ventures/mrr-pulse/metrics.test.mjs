@@ -87,3 +87,22 @@ test("summarize computes retention from the last complete month", () => {
   assert.equal(s.rates.logoChurn, 0.1); assert.equal(s.rates.quickRatio, 1.5);
   assert.equal(summarize([]), null);
 });
+
+test("cohorts: logo and revenue retention by signup month", async () => {
+  const { cohorts } = await import("./metrics.mjs");
+  const subs = [
+    { id: "a", mrr: 100, status: "active", created: D(2026, 8, 5), endedAt: null },
+    { id: "b", mrr: 300, status: "canceled", created: D(2026, 8, 20), endedAt: D(2026, 9, 10) },
+    { id: "c", mrr: 50, status: "canceled", created: D(2026, 9, 2), endedAt: D(2026, 9, 3) },
+    { id: "t", mrr: 999, status: "trialing", created: D(2026, 9, 2), endedAt: null },
+    { id: "z", mrr: 0, status: "active", created: D(2026, 9, 2), endedAt: null },
+  ];
+  const rows = cohorts(subs, D(2026, 10, 15), 3);
+  const aug = rows.find((r) => r.month === "2026-08");
+  assert.equal(aug.size, 2); assert.equal(aug.mrr, 400);
+  assert.deepEqual(aug.logo, [1, 0.5, 0.5]);
+  assert.deepEqual(aug.revenue, [1, 0.25, 0.25]);
+  const sep = rows.find((r) => r.month === "2026-09");
+  assert.equal(sep.size, 1); assert.deepEqual(sep.logo, [0, 0]);
+  assert.equal(rows.find((r) => r.month === "2026-10").size, 0);
+});

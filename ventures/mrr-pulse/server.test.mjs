@@ -56,6 +56,9 @@ test("the API needs the key and the dashboard escapes the company name", async (
     assert.doesNotMatch(html, /<script>alert/);
     assert.match(html, /&lt;script&gt;/);
     assert.match(html, /<svg/);
+    const co = await (await fetch(`${url}/v1/cohorts`, { headers: AUTH })).json();
+    assert.ok(Array.isArray(co) && co.some((c) => c.size === 1));
+    assert.match(html, /Retention by signup month/);
     assert.equal((await fetch(`${url}/nope`, { headers: AUTH })).status, 404);
   } finally { s.close(); }
 });

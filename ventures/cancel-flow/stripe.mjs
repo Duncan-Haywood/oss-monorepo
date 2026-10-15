@@ -54,6 +54,11 @@ export function createStripe({ key, fetchImpl = fetch, base = "https://api.strip
   }
   const subPath = (id) => `/v1/subscriptions/${encodeURIComponent(id)}`;
   return {
+    async getCustomer(id) { const c = await call("GET", `/v1/customers/${encodeURIComponent(id)}`); return { id: c.id, email: c.email || null, name: c.name || null, deleted: Boolean(c.deleted) }; },
+    async hasActiveSubscription(customer) {
+      const r = await call("GET", `/v1/subscriptions?customer=${encodeURIComponent(customer)}&status=all&limit=10`);
+      return (r.data || []).some((s) => ["active", "trialing", "past_due"].includes(s.status));
+    },
     async getSubscription(id) { return normalizeSubscription(await call("GET", `${subPath(id)}`)); },
     // One coupon per (percent, duration, months), created on first use. The id is
     // deterministic so concurrent first uses converge instead of duplicating.

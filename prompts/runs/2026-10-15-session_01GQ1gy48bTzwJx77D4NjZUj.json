@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01GQ1gy48bTzwJx77D4NjZUj",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "model": "claude-sonnet-5-5",
+  "task": "extend",
+  "projects": [
+    "selfrep-extinction",
+    "simdesign-meshmargin",
+    "simdesign-patchsearch"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/535",
+  "commits": [
+    "4d14a250a5fad8f05857e7989d53f39deed7b7a8"
+  ],
+  "merged": null,
+  "build_ok": true,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "main history was force-updated; ~400 old claude/* branches share no merge base with main and were left alone"
+  ],
+  "integrity_issues": [],
+  "notes": "project-pages milestone: three figures parsed from committed results.txt. Token/cost not read (no get_session tool).",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

@@ -1,7 +1,7 @@
 {
   "id": "P006",
   "title": "Let run records resolve upstream PRs",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 1,
@@ -18,7 +18,7 @@
   "baseline": "8 of 184",
   "opened": "2026-10-15",
   "source": "prompts/process/reports/2026-10-15*.md",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7091",
   "result": null,
   "history": []
 }

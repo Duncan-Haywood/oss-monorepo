@@ -6,10 +6,11 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { createStripe } from "./stripe.mjs";
-import { backfill, applySync, liveMap, summarize } from "./metrics.mjs";
+import { backfill, applySync, liveMap, summarize, cohorts } from "./metrics.mjs";
 import { renderDashboard } from "./page.mjs";
+import { notify, validWebhook } from "./alerts.mjs";
 
-export const newState = () => ({ months: {}, last: null, ever: {}, lastSyncAt: null, currency: null });
+export const newState = () => ({ months: {}, last: null, ever: {}, lastSyncAt: null, currency: null, cohorts: [] });
 
 const eq = (a, b) => { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); };
 export function authorized(header, key) {
@@ -45,7 +46,9 @@ export async function sync(cfg) {
     st.lastSyncAt = now;
   } else applySync(st, cur, now);
   st.currency = currency; st.skipped = skipped;
+  st.cohorts = cohorts(subs, now, cfg.months || 12);
   cfg.save();
+  try { await notify(cfg, monthList(st)); } catch (e) { console.error("alert failed:", e.message); }
   return { subscriptions: all.length, counted: Object.keys(cur).length, skipped };
 }
 
@@ -66,9 +69,10 @@ export function handler(cfg) {
       if (!authorized(req.headers.authorization, cfg.adminKey)) return send(401, "sign in with ADMIN_KEY as the password\n", "text/plain", { "www-authenticate": 'Basic realm="MRR Pulse", charset="UTF-8"' });
       const months = monthList(cfg.state);
       if (req.method === "GET" && url.pathname === "/") {
-        return send(200, renderDashboard({ company: cfg.company || "Your company", summary: summarize(months), months, currency: cfg.state.currency || "usd", lastSyncAt: cfg.state.lastSyncAt, skipped: cfg.state.skipped }), "text/html; charset=utf-8", { "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'" });
+        return send(200, renderDashboard({ company: cfg.company || "Your company", summary: summarize(months), months, currency: cfg.state.currency || "usd", lastSyncAt: cfg.state.lastSyncAt, skipped: cfg.state.skipped, cohorts: cfg.state.cohorts || [] }), "text/html; charset=utf-8", { "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'" });
       }
       if (req.method === "GET" && url.pathname === "/v1/metrics") return send(200, { currency: cfg.state.currency, lastSyncAt: cfg.state.lastSyncAt, summary: summarize(months) });
+      if (req.method === "GET" && url.pathname === "/v1/cohorts") return send(200, cfg.state.cohorts || []);
       if (req.method === "GET" && url.pathname === "/v1/months") return send(200, months);
       if (req.method === "POST" && url.pathname === "/v1/sync") return send(200, await runSync());
       return send(404, "not found\n", "text/plain");
@@ -90,8 +94,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (env.ADMIN_KEY.length < 12) { console.error("ADMIN_KEY must be at least 12 characters"); process.exit(1); }
   const statePath = env.STATE || "state.json";
   const state = Object.assign(newState(), readJson(statePath, {}));
+  if (env.ALERT_WEBHOOK_URL && !validWebhook(env.ALERT_WEBHOOK_URL)) { console.error("ALERT_WEBHOOK_URL must be an https URL"); process.exit(1); }
   const save = () => { fs.writeFileSync(`${statePath}.tmp`, JSON.stringify(state)); fs.renameSync(`${statePath}.tmp`, statePath); };
-  const cfg = { state, save, stripe: createStripe({ key: env.STRIPE_SECRET_KEY, maxPages: Number(env.MAX_PAGES) || 500 }), adminKey: env.ADMIN_KEY, company: env.COMPANY_NAME, currency: env.CURRENCY && env.CURRENCY.toLowerCase(), countPastDue: env.COUNT_PAST_DUE !== "false", months: Number(env.HISTORY_MONTHS) || 12, now: Date.now };
+  const cfg = { state, save, stripe: createStripe({ key: env.STRIPE_SECRET_KEY, maxPages: Number(env.MAX_PAGES) || 500 }), adminKey: env.ADMIN_KEY, company: env.COMPANY_NAME, currency: env.CURRENCY && env.CURRENCY.toLowerCase(), countPastDue: env.COUNT_PAST_DUE !== "false", months: Number(env.HISTORY_MONTHS) || 12, now: Date.now, webhook: env.ALERT_WEBHOOK_URL, digestDays: env.DIGEST_DAYS === undefined ? 7 : Number(env.DIGEST_DAYS), churnAlertPct: (Number(env.CHURN_ALERT_PCT) || 5) / 100 };
   const h = handler(cfg);
   const tick = () => sync(cfg).then((r) => console.log("synced", JSON.stringify(r)), (e) => console.error("sync failed:", e.message));
   http.createServer(h).listen(Number(env.PORT || 8080), () => {
