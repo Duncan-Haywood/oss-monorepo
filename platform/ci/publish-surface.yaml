@@ -755,6 +755,9 @@ workflows:
 - workflow: dunning-engine-ci.yml
   classification: none
   publishes: []
+- workflow: webhook-relay-ci.yml
+  classification: none
+  publishes: []
 - workflow: duplicate-payment-audit-ci.yml
   classification: none
   publishes: []

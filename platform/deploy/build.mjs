@@ -26,7 +26,7 @@ async function readTree(dir, prefix = '') {
 
 export async function loadTemplates() {
   const t = {};
-  for (const p of ['github-pages', 'aws']) t[p] = await readTree(path.join(HERE, 'templates', p));
+  for (const p of ['github-pages', 'aws', 'gcp', 'android']) t[p] = await readTree(path.join(HERE, 'templates', p));
   t._license = await fs.readFile(path.join(REPO_ROOT, 'LICENSE'), 'utf8');
   return t;
 }

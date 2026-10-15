@@ -10,6 +10,7 @@ import { zip, crc32 } from './zip.mjs';
 const templates = {
   'github-pages': { 'deploy.yml': 'name: Deploy\n' },
   aws: { 'deploy.yml': 'a', 'destroy.yml': 'b', 'tofu/main.tf': 'c', 'tofu/encryption.hcl.tmpl': 'd' },
+  gcp: { 'deploy.yml': 'a', 'destroy.yml': 'b', 'tofu/main.tf': 'c', 'tofu/encryption.hcl.tmpl': 'd' },
   _license: 'MIT',
 };
 const appFiles = {
@@ -44,10 +45,18 @@ test('aws repo carries tofu/ and both workflows', () => {
   assert.match(r['README.md'], /TOFU_STATE_PASSPHRASE/);
 });
 
+test('gcp repo carries tofu/ and both workflows, and says what Destroy removes', () => {
+  const r = composeRepo({ slug: 's', title: 'T', provider: 'gcp', appFiles, templates });
+  assert.ok(r['.github/workflows/deploy.yml'] && r['.github/workflows/destroy.yml'] && r['tofu/main.tf']);
+  assert.match(r['README.md'], /Cloud Storage bucket/);
+  assert.doesNotMatch(r['README.md'], /CloudFront/);
+  assert.match(r['app/index.html'], /buymeacoffee/);
+});
+
 test('refuses path traversal, missing index, unknown provider', () => {
   assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'aws', appFiles: { 'index.html': { text: 'x' }, '../x': { text: 'y' } }, templates }), /unsafe/);
   assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'aws', appFiles: {}, templates }), /index/);
-  assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'gcp', appFiles, templates }), /unknown provider/);
+  assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'azure', appFiles, templates }), /unknown provider/);
 });
 
 test('every provider has a label, a blurb and a privacy flag', () => {
@@ -122,4 +131,26 @@ test('docker bundle: compose file, env template, setup script, no secrets, downl
   assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'docker', serverFiles: {}, templates }), /server files/);
   const bad = { ...serverFiles, 'render.yaml': { text: yaml.replace('DRY_RUN', 'x;rm') } };
   assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'docker', serverFiles: bad, templates }), /unsafe env/);
+});
+
+test('android repo: capacitor project around app/, workflow, no secrets, valid ids', async () => {
+  const { androidAppId } = await import('./compose.mjs');
+  const real = fs.readFileSync(new URL('./templates/android/deploy.yml', import.meta.url), 'utf8');
+  const r = composeRepo({ slug: '3d-print-quote', title: 'Print "Quote" <b>', provider: 'android', appFiles, templates: { ...templates, android: { 'deploy.yml': real } } });
+  assert.deepEqual(Object.keys(r).sort(), ['.github/workflows/deploy.yml', '.gitignore', 'LICENSE', 'README.md', 'app/index.html', 'app/logo.bin', 'capacitor.config.json', 'package.json']);
+  const cfg = JSON.parse(r['capacitor.config.json']);
+  assert.equal(cfg.webDir, 'app');
+  assert.equal(cfg.appId, 'io.selfhosted.dprintquote');
+  assert.match(cfg.appId, /^([a-z][a-z0-9]*)(\.[a-z][a-z0-9]*)+$/);
+  assert.equal(cfg.appName, 'Print Quote b');
+  const pkg = JSON.parse(r['package.json']);
+  for (const v of Object.values(pkg.dependencies)) assert.match(v, /^\d+\.\d+\.\d+$/, 'pinned, no ranges');
+  assert.match(r['app/index.html'], /buymeacoffee/);
+  assert.match(r['README.md'], /You are the operator/);
+  assert.match(r['README.md'], /Google Play \(your account/);
+  assert.equal(androidAppId('123'), 'io.selfhosted.app');
+  assert.equal(PROVIDERS.android.downloadOnly, undefined);
+  // the signing step must be gated on all four secrets, and secrets must reach the shell only via env
+  assert.match(real, /ANDROID_KEYSTORE_B64 != ''/);
+  assert.doesNotMatch(real.split('run:').slice(1).join('\n'), /\$\{\{\s*secrets\./, 'no secret interpolated into a shell script');
 });

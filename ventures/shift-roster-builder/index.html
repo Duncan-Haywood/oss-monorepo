@@ -108,6 +108,9 @@
     <div class="scroll"><table id="cmp"><thead><tr><th>Plan</th><th class="n">Shifts left open</th><th class="n">Overtime hours</th><th class="n">Payroll</th></tr></thead><tbody></tbody></table></div>
     <button type="button" id="download">Download roster CSV</button>
     <button type="button" class="secondary" id="download-hours">Download hours CSV</button>
+    <div style="margin-top:12px"><label for="weekstart">Week starting (a Monday), for calendar files</label>
+      <input id="weekstart" type="date"> <select id="icsperson" aria-label="Whose shifts"></select>
+      <button type="button" class="secondary" id="download-ics">Download calendar (.ics)</button></div>
   </section>
 
   <section class="card">
@@ -149,7 +152,7 @@
   </footer>
 
   <script type="module">
-    import { parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv, sampleStaff, sampleShifts, fmtClock, money, num, DAYS } from "./calc.mjs";
+    import { parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv, rosterIcs, sampleStaff, sampleShifts, fmtClock, money, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -191,15 +194,17 @@
         : '<p class="ok">Nobody on this roster is a single point of failure: every shift can still be covered if any one person drops out.</p>';
       $("#cmp tbody").innerHTML = [["This roster", r.unfilledSlots, r.otHours, r.cost], ["Listed order", r.listed.unfilledSlots, r.listed.otHours, r.listed.cost]]
         .map(([n, u, o, c]) => `<tr><td>${n}</td><td class="n">${u}</td><td class="n">${num(o)}</td><td class="n">${money(c)}</td></tr>`).join("");
+      $("#icsperson").innerHTML = '<option value="">Everyone</option>' + r.people.map((p) => `<option>${esc(p.name)}</option>`).join("");
+      if (!$("#weekstart").value) { const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); $("#weekstart").value = d.toISOString().slice(0, 10); }
       report.hidden = false;
       status.textContent = "Done. Scroll down for the roster.";
       report.scrollIntoView({ behavior: "smooth", block: "start" });
       return true;
     }
 
-    function download(name, text) {
+    function download(name, text, type = "text/csv") {
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+      a.href = URL.createObjectURL(new Blob([text], { type }));
       a.download = name;
       a.click();
       record("report_downloaded");
@@ -218,6 +223,11 @@
     $("#clear-all").addEventListener("click", () => { $("#staff").value = ""; $("#shifts").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Enter your people and shifts, then click the button."; });
     $("#download").addEventListener("click", () => { if (last) download("roster.csv", rosterCsv(last)); });
     $("#download-hours").addEventListener("click", () => { if (last) download("roster-hours.csv", hoursCsv(last)); });
+    $("#download-ics").addEventListener("click", () => {
+      if (!last) return;
+      try { const who = $("#icsperson").value || null; download(who ? `roster-${who}.ics` : "roster.ics", rosterIcs(last, $("#weekstart").value, who), "text/calendar"); }
+      catch (e) { status.textContent = e.message === "weekStart must be a Monday" ? "Pick a date that is a Monday." : "Pick the Monday the week starts on."; }
+    });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>

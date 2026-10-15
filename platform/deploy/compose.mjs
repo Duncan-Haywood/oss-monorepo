@@ -4,7 +4,7 @@
 //   composeRepo({ slug, title, provider, appFiles, templates }) -> { path: string | Uint8Array }
 //
 // appFiles:  { 'index.html': { text } | { b64 } }  (the venture's static site)
-// templates: { 'github-pages': { 'deploy.yml': '...' }, 'aws': { ... } }  (read from templates/)
+// templates: { 'github-pages': { 'deploy.yml': '...' }, 'aws': { ... }, 'gcp': { ... } }  (read from templates/)
 
 export const DONATE_URL = 'https://buymeacoffee.com/duncanhaywood';
 export const PROVIDERS = {
@@ -19,6 +19,18 @@ export const PROVIDERS = {
     blurb: 'Your own AWS account, set up with OpenTofu. Costs cents a month at low traffic.',
     needs: ['github', 'aws'],
     repoPrivate: true,
+  },
+  gcp: {
+    label: 'Google Cloud Storage',
+    blurb: 'Your own Google Cloud project, set up with OpenTofu. A public bucket served over HTTPS; costs cents a month at low traffic. Needs a service-account key.',
+    needs: ['github', 'gcp'],
+    repoPrivate: true,
+  },
+  android: {
+    label: 'Android app (APK + Play bundle)',
+    blurb: 'Wraps this app in a native Android shell (Capacitor) and builds it in your own GitHub Actions: a debug APK you can install on your phone, and a signed Play Store bundle if you add your own keystore secrets. Free for a public repository. Publishing to Google Play stays your step, with your own developer account.',
+    needs: ['github'],
+    repoPrivate: false,
   },
   render: {
     label: 'Render (a running server)',
@@ -220,6 +232,7 @@ export function composeRepo({ slug, title, provider, appFiles, templates, server
     if (f.text !== undefined) out[`app/${rel}`] = rel === 'index.html' ? withDeployFooter(f.text) : f.text;
     else out[`app/${rel}`] = decodeB64(f.b64);
   }
+  if (provider === 'android') Object.assign(out, androidProject({ slug, title }));
   for (const [rel, content] of Object.entries(tpl)) {
     if (rel.endsWith('.yml')) out[`.github/workflows/${rel}`] = content;
     else if (rel.startsWith('tofu/')) out[rel] = content;
@@ -230,8 +243,31 @@ export function composeRepo({ slug, title, provider, appFiles, templates, server
   return out;
 }
 
+/** Reverse-DNS application id from a slug: lowercase letters and digits only, every segment starting with a letter. */
+export function androidAppId(slug) {
+  const seg = String(slug).toLowerCase().replace(/[^a-z0-9]/g, '').replace(/^[0-9]+/, '') || 'app';
+  return `io.selfhosted.${seg}`;
+}
+
+function androidProject({ slug, title }) {
+  const cleanTitle = String(title).replace(/[\u0000-\u001f"\\<>&]/g, '').trim().slice(0, 30) || 'App';
+  return {
+    'capacitor.config.json': JSON.stringify({ appId: androidAppId(slug), appName: cleanTitle, webDir: 'app', server: { androidScheme: 'https' } }, null, 2) + '\n',
+    'package.json': JSON.stringify({
+      name: String(slug).toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+      version: '1.0.0',
+      private: true,
+      description: `Android build of ${cleanTitle}`,
+      license: 'MIT',
+      dependencies: { '@capacitor/android': '6.2.0', '@capacitor/cli': '6.2.0', '@capacitor/core': '6.2.0' },
+    }, null, 2) + '\n',
+    '.gitignore': 'node_modules/\nandroid/\n',
+  };
+}
+
 function readme({ slug, title, provider }) {
-  const aws = provider === 'aws';
+  const aws = provider === 'aws' || provider === 'gcp';
+  const android = provider === 'android';
   return `# ${title}
 
 Your own copy of **${title}**, deployed from the open-source portfolio
@@ -248,12 +284,31 @@ warranty. Keep the notice at the bottom of the page accurate.
 
 Change anything under \`app/\` and push to \`main\`, or open **Actions -> Deploy -> Run workflow**.
 ${
-  aws
+  android
+    ? `
+## Get the app
+
+Open **Actions -> Deploy** and download \`app-debug-apk\` from the finished run. Copy the
+APK to an Android phone you own and open it (Android asks you to allow installs from that
+source). It is a debug build: fine for you and your testers, not for the Play Store.
+
+## Publish to Google Play (your account, your step)
+
+1. Create a keystore once: \`keytool -genkeypair -v -keystore release.keystore -alias upload -keyalg RSA -keysize 2048 -validity 10000\` and keep it safe. Losing it can lock you out of updates.
+2. Add four repository secrets (Settings -> Secrets and variables -> Actions): \`ANDROID_KEYSTORE_B64\` (\`base64 -w0 release.keystore\`), \`ANDROID_KEYSTORE_PASSWORD\`, \`ANDROID_KEY_ALIAS\`, \`ANDROID_KEY_PASSWORD\`.
+3. Re-run **Deploy**; it also uploads \`app-release-aab\`. Upload that to your own Google Play Console (a one-time developer fee applies, charged by Google to you).
+
+The app is the website in \`app/\` bundled inside the APK; it works offline. iOS builds need a Mac and an Apple developer account and are not part of this copy.
+
+## Tear it down
+
+Delete this repository.
+`
+    : aws
     ? `
 ## Tear it down
 
-**Actions -> Destroy -> Run workflow** removes the bucket and CloudFront
-distribution. Your encrypted OpenTofu state lives in \`state/\`; the passphrase
+**Actions -> Destroy -> Run workflow** removes ${provider === 'gcp' ? 'the Cloud Storage bucket' : 'the bucket and CloudFront\ndistribution'}. Your encrypted OpenTofu state lives in \`state/\`; the passphrase
 is the \`TOFU_STATE_PASSPHRASE\` secret. Without it the state cannot be read, so
 keep a copy.
 

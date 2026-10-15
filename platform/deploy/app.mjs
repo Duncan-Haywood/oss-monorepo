@@ -36,7 +36,7 @@ function showDesc() {
 
 const isServer = () => !!catalog.find((a) => a.slug === $('app').value)?.server;
 
-/** Static apps: GitHub Pages / AWS. Server apps: also Render. */
+/** Static apps: GitHub Pages / AWS / Google Cloud. Server apps: also Render. */
 function renderProviders() {
   const box = $('providers');
   box.innerHTML = '';
@@ -48,12 +48,18 @@ function renderProviders() {
     l.innerHTML = `<input type="radio" name="prov" value="${id}"${id === provider ? ' checked' : ''}> <span><strong>${p.label}</strong><br><span class="muted">${p.blurb}</span></span>`;
     box.append(l);
   }
-  $('aws').hidden = !PROVIDERS[provider].needs.includes('aws');
+  showCreds();
+}
+
+function showCreds() {
+  for (const c of ['aws', 'gcp']) $(c).hidden = !PROVIDERS[provider].needs.includes(c);
 }
 
 function refresh() {
   const needs = PROVIDERS[provider].needs;
-  const haveCreds = $('gh').value.trim() && (!needs.includes('aws') || ($('ak').value.trim() && $('sk').value.trim() && $('rg').value.trim()));
+  const haveCreds = $('gh').value.trim()
+    && (!needs.includes('aws') || ($('ak').value.trim() && $('sk').value.trim() && $('rg').value.trim()))
+    && (!needs.includes('gcp') || ($('gk').value.trim() && $('gp').value.trim()));
   $('go').disabled = PROVIDERS[provider].downloadOnly || !($('ack').checked && haveCreds && $('app').value);
   $('dl').disabled = !($('ack').checked && $('app').value);
 }
@@ -124,8 +130,23 @@ async function deploy() {
       }
       await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'AWS_REGION', value: $('rg').value.trim() });
       log('The OpenTofu state passphrase was generated in this tab and stored only as a secret in your repository (GitHub never shows it again).');
+    } else if (p.needs.includes('gcp')) {
+      let sa;
+      try { sa = JSON.parse($('gk').value); } catch { throw new Error('the service-account key is not valid JSON'); }
+      if (sa.type !== 'service_account' || !sa.private_key) throw new Error('that does not look like a service-account key file');
+      log('Encrypting your Google Cloud key in this tab and storing it as an Actions secret…');
+      const key = await gh(token, 'GET', `/repos/${me.login}/${name}/actions/secrets/public-key`);
+      const secrets = { GOOGLE_CREDENTIALS: JSON.stringify(sa), TOFU_STATE_PASSPHRASE: randomHex(24) };
+      for (const [k, v] of Object.entries(secrets)) {
+        await gh(token, 'PUT', `/repos/${me.login}/${name}/actions/secrets/${k}`, { encrypted_value: sealSecretForGitHub(v, key.key), key_id: key.key_id });
+      }
+      await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'GCP_PROJECT', value: $('gp').value.trim() });
+      await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'GCP_LOCATION', value: $('gl').value.trim() || 'US' });
+      log('The OpenTofu state passphrase was generated in this tab and stored only as a secret in your repository (GitHub never shows it again).');
     } else if (provider === 'render') {
       log('Render reads the blueprint from this repository; no secrets are stored in it.');
+    } else if (provider === 'android') {
+      log('The Android build runs in your repository\'s own GitHub Actions; no secrets are needed for the debug APK.');
     } else {
       log('Turning on GitHub Pages (build: GitHub Actions)…');
       await gh(token, 'POST', `/repos/${me.login}/${name}/pages`, { build_type: 'workflow' });
@@ -153,7 +174,7 @@ async function deploy() {
     const live = provider === 'github-pages' ? `https://${me.login}.github.io/${name}/` : null;
     $('done').hidden = false;
     $('done').innerHTML = `<div class="card"><strong>Done.</strong> Your repository is <a href="https://github.com/${me.login}/${name}" rel="noopener">${me.login}/${name}</a>. The first deploy is running: <a href="${actions}" rel="noopener">watch it here</a>.` +
-      (live ? ` When it finishes (about a minute) your copy is at <a href="${live}" rel="noopener">${live}</a>.` : ` The live URL appears in the run’s summary.`) +
+      (live ? ` When it finishes (about a minute) your copy is at <a href="${live}" rel="noopener">${live}</a>.` : provider === 'android' ? ` When it finishes (about five minutes) open the run and download <strong>app-debug-apk</strong> from its Artifacts.` : ` The live URL appears in the run’s summary.`) +
       ` Now delete the token you used.</div>`;
     log('Finished.');
   } catch (e) {
@@ -189,10 +210,10 @@ async function main() {
   $('app').addEventListener('change', showDesc);
   $('providers').addEventListener('change', (e) => {
     provider = e.target.value;
-    $('aws').hidden = !PROVIDERS[provider].needs.includes('aws');
+    showCreds();
     refresh();
   });
-  for (const id of ['ack', 'gh', 'ak', 'sk', 'rg']) $(id).addEventListener('input', refresh);
+  for (const id of ['ack', 'gh', 'ak', 'sk', 'rg', 'gk', 'gp', 'gl']) $(id).addEventListener('input', refresh);
   $('go').addEventListener('click', deploy);
   $('dl').addEventListener('click', download);
   refresh();

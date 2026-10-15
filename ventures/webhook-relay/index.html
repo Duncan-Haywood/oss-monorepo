@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>webhook-relay — Free Self-Hosted Webhook Retries and Replay</title>
+  <meta name="description" content="Never lose a Stripe, GitHub or Shopify webhook because your app was down. Self-hosted relay that verifies signatures, saves events before answering, retries with backoff and replays on demand. Free, MIT, zero dependencies.">
+  <meta property="og:title" content="webhook-relay — keep webhooks safe while your app is down">
+  <meta property="og:description" content="Verify, store, retry, replay. A free self-hosted alternative to paid webhook gateways.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "webhook-relay", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; Node.js 22+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source webhook relay. Verifies the sender's signature, saves each event to disk before answering 200, delivers it to your app with retries and backoff, and lets you replay any event. Self-hosted, zero dependencies, MIT.", "featureList": "Signature verification for Stripe, GitHub, Shopify, Slack, Standard Webhooks and generic HMAC, durable store before acknowledgement, exponential backoff with Retry-After, dead-letter parking with alerts, one-click replay, de-duplication by provider event id, admin dashboard"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just let the provider retry?", "acceptedAnswer": {"@type": "Answer", "text": "Providers differ and you do not control them. Some retry for days, some for minutes, and some, GitHub for one, do not automatically redeliver a failed delivery at all. A relay answers the provider 200 as soon as the event is saved, then retries against your app on a schedule you set, and lets you replay any event by hand."}}, {"@type": "Question", "name": "What does it do that a queue in my own app does not?", "acceptedAnswer": {"@type": "Answer", "text": "It sits in front of your app. If your app is down, mid-deploy or crashing on the way in, the event is already safe on disk. It also verifies the signature at the edge, so a forged request is rejected before it reaches your code."}}, {"@type": "Question", "name": "Which providers can it verify?", "acceptedAnswer": {"@type": "Answer", "text": "Stripe, GitHub, Shopify, Slack, anything that follows the Standard Webhooks spec (Svix, Resend, Clerk and others), and any provider that sends an HMAC-SHA256 hex digest in a header you name. Use scheme none to skip verification on a route."}}, {"@type": "Question", "name": "What happens to events my app rejects with a 4xx?", "acceptedAnswer": {"@type": "Answer", "text": "A 4xx other than 408, 425 and 429 means your app understood the request and refused it, so retrying the same bytes cannot help. The event is parked as dead, an alert goes to ALERT_WEBHOOK_URL if you set one, and you can replay it from the dashboard after you fix the cause."}}, {"@type": "Question", "name": "Can it lose or duplicate events?", "acceptedAnswer": {"@type": "Answer", "text": "It writes the event to disk before answering the provider, so an accepted event survives a restart. Delivery is at-least-once: your app should treat a repeated x-relay-event-id as the same event. Events that carry a provider event id are de-duplicated on the way in."}}, {"@type": "Question", "name": "Where does my data live?", "acceptedAnswer": {"@type": "Answer", "text": "On the disk of the server you deploy in your own account. The author runs nothing in between and never sees your events or secrets."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f6f4; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #0f6b4f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b4a37; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b4a37; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #475550; }
+    .card { background: #fff; border: 1px solid #d3e0da; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 18px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9c2b8; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input[type=checkbox] { width: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3ede8; vertical-align: top; }
+    pre { background: #eef4f1; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .ok { color: #1a7f37; font-weight: 700; } .bad { color: #b42318; font-weight: 700; }
+    .big { font-size: 1.3rem; font-weight: 800; color: #0b4a37; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Your app was down for ten minutes. Did you lose the payment webhook?</h1>
+  <p>webhook-relay sits between Stripe, GitHub, Shopify or any sender and your app. It checks the signature, <strong>saves the event to disk before it answers 200</strong>, then delivers it to your app with retries and backoff. If your app is down or deploying, nothing is lost; if an event fails for good you replay it from a dashboard. One Node process, no dependencies, <a href="server.mjs">open source</a>, in your own account.</p>
+
+  <section class="card" aria-labelledby="sim">
+    <h2 id="sim">How long an outage can you survive?</h2>
+    <p class="note">The default retry schedule, applied to your outage. Edit the delays to see your own policy.</p>
+    <div class="grid">
+      <div><label for="out">Your app is down for (hours)</label><input id="out" type="number" min="0" step="0.5" value="3"></div>
+      <div><label for="delays">Retry delays in seconds, comma separated</label><input id="delays" value="10,60,300,1800,7200,21600,43200,86400"></div>
+    </div>
+    <p id="verdict" aria-live="polite"></p>
+    <table><thead><tr><th scope="col">Attempt</th><th scope="col">At (after arrival)</th><th scope="col">Your app is</th></tr></thead><tbody id="rows"></tbody></table>
+  </section>
+
+  <section class="card" aria-labelledby="cfg">
+    <h2 id="cfg">Build your routes</h2>
+    <div class="grid">
+      <div><label for="name">Route name (the URL path)</label><input id="name" value="stripe"></div>
+      <div><label for="scheme">Sender</label><select id="scheme"></select></div>
+      <div><label for="target">Deliver to</label><input id="target" value="https://app.example.com/hooks/stripe"></div>
+    </div>
+    <p>Point the sender at <code id="inurl"></code>, then set this on your server:</p>
+    <pre id="cfgout"></pre>
+    <p class="note">Put the signing secret in the route's <code>secret</code> field (the Render blueprint keeps <code>ROUTES_JSON</code> out of your repository). Your app still verifies the original signature itself: the relay forwards the sender's headers and the exact bytes unchanged.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/fp-monorepo &amp;&amp; cd fp-monorepo/ventures/webhook-relay
+ADMIN_KEY=$(openssl rand -hex 16) ROUTES_JSON='[...]' node server.mjs
+# dashboard: http://localhost:8080/admin</pre>
+    <p class="note">One-click Render deploy and Docker are in the <a href="https://github.com/Duncan-Haywood/fp-monorepo/blob/main/ventures/webhook-relay/README.md">README</a>. Mount a persistent disk at the path in <code>STATE</code> or events are lost on restart.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not just let the provider retry?</h3>
+    <p>Providers differ and you do not control them. Some retry for days, some for minutes, and some, GitHub for one, do not automatically redeliver a failed delivery at all. A relay answers the provider 200 as soon as the event is saved, then retries against your app on a schedule you set, and lets you replay any event by hand.</p>
+    <h3>What does it do that a queue in my own app does not?</h3>
+    <p>It sits in front of your app. If your app is down, mid-deploy or crashing on the way in, the event is already safe on disk. It also verifies the signature at the edge, so a forged request is rejected before it reaches your code.</p>
+    <h3>Which providers can it verify?</h3>
+    <p>Stripe, GitHub, Shopify, Slack, anything that follows the Standard Webhooks spec (Svix, Resend, Clerk and others), and any provider that sends an HMAC-SHA256 hex digest in a header you name. Use scheme none to skip verification on a route.</p>
+    <h3>What happens to events my app rejects with a 4xx?</h3>
+    <p>A 4xx other than 408, 425 and 429 means your app understood the request and refused it, so retrying the same bytes cannot help. The event is parked as dead, an alert goes to ALERT_WEBHOOK_URL if you set one, and you can replay it from the dashboard after you fix the cause.</p>
+    <h3>Can it lose or duplicate events?</h3>
+    <p>It writes the event to disk before answering the provider, so an accepted event survives a restart. Delivery is at-least-once: your app should treat a repeated x-relay-event-id as the same event. Events that carry a provider event id are de-duplicated on the way in.</p>
+    <h3>Where does my data live?</h3>
+    <p>On the disk of the server you deploy in your own account. The author runs nothing in between and never sees your events or secrets.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. Delivery is at-least-once and depends on your own host, disk and network; you are the operator and responsible for the data that passes through it. It is not legal, tax, or financial advice. Everything on this page runs in your browser; nothing you type is sent anywhere.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <a href="../webhook-signature-debugger/">Webhook Signature Debugger</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { schedule, humanDuration } from "./relay.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const SCHEMES = ["stripe", "github", "shopify", "slack", "standard", "hmac-sha256", "none"];
+    $("scheme").innerHTML = SCHEMES.map((s) => `<option>${s}</option>`).join("");
+    function sim() {
+      const delays = $("delays").value.split(",").map((x) => Number(x.trim())).filter((x) => Number.isFinite(x) && x > 0);
+      if (!delays.length) { $("verdict").textContent = "Enter at least one delay."; $("rows").innerHTML = ""; return; }
+      const downSec = Math.max(0, Number($("out").value) || 0) * 3600;
+      const sch = schedule({ delays });
+      const hit = sch.find((s) => s.atSec >= downSec);
+      $("rows").innerHTML = sch.map((s) => `<tr><td>${s.attempt}</td><td>${humanDuration(s.atSec)}</td><td class="${s.atSec >= downSec ? "ok" : "bad"}">${s.atSec >= downSec ? "back up" : "down"}</td></tr>`).join("");
+      $("verdict").innerHTML = hit
+        ? `<span class="big ok">Delivered</span> on attempt ${hit.attempt}, ${humanDuration(hit.atSec)} after it arrived.`
+        : `<span class="big bad">Parked as dead</span> after ${sch.length} attempts (${humanDuration(sch.at(-1).atSec)}). It stays saved: replay it from the dashboard once your app is back.`;
+      record("sim");
+    }
+    function cfg() {
+      const name = $("name").value.trim() || "route";
+      const scheme = $("scheme").value;
+      const route = { name, scheme, ...(scheme === "none" ? {} : { secret: "<signing secret>" }), target: $("target").value.trim() };
+      if (scheme === "hmac-sha256") route.header = "x-signature";
+      $("inurl").textContent = `https://<your-relay-host>/in/${name}`;
+      $("cfgout").textContent = `ROUTES_JSON='${JSON.stringify([route])}'`;
+    }
+    for (const id of ["out", "delays"]) $(id).addEventListener("input", sim);
+    for (const id of ["name", "scheme", "target"]) $(id).addEventListener("input", cfg);
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+    sim(); cfg();
+  </script>
+</body>
+</html>
