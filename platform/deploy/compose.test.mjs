@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { composeRepo, withDeployFooter, DONATE_URL, PROVIDERS, renderDeployUrl } from './compose.mjs';
+import { composeRepo, withDeployFooter, DONATE_URL, PROVIDERS, renderDeployUrl, blueprintEnv } from './compose.mjs';
 import { zip, crc32 } from './zip.mjs';
 
 const templates = {
@@ -95,4 +95,31 @@ test('render repo: venture under ventures/<slug>, blueprint at the root, no stat
 
 test('renderDeployUrl encodes the repository URL', () => {
   assert.equal(renderDeployUrl('https://github.com/a/b'), 'https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2Fa%2Fb');
+});
+
+test('blueprintEnv reads keys, literal values, generated and secret variables', () => {
+  const y = 'services:\n  - name: x\n    envVars:\n      - key: A\n        value: "true"\n      - key: B\n        generateValue: true\n      - key: C\n        sync: false\n    other: 1\n';
+  assert.deepEqual(blueprintEnv(y), [{ key: 'A', value: 'true' }, { key: 'B', generate: true }, { key: 'C', secret: true }]);
+});
+
+test('docker bundle: compose file, env template, setup script, no secrets, download only', () => {
+  const yaml = 'services:\n  - name: x\n    healthCheckPath: /healthz\n    disk:\n      name: s\n      mountPath: /data\n    envVars:\n      - key: DRY_RUN\n        value: "true"\n      - key: ADMIN_KEY\n        generateValue: true\n      - key: STRIPE_SECRET_KEY\n        sync: false\n';
+  const serverFiles = { Dockerfile: { text: 'FROM node:22-alpine\nEXPOSE 9000\n' }, 'render.yaml': { text: yaml }, 'server.mjs': { text: 'x' }, 'index.html': { text: '<body>hi</body>' } };
+  const r = composeRepo({ slug: 'cancel-flow', title: 'Cancel Flow', provider: 'docker', serverFiles, templates });
+  assert.ok(PROVIDERS.docker.downloadOnly && PROVIDERS.docker.needs.length === 0);
+  assert.ok(r['app/Dockerfile'] && r['app/server.mjs'] && !r['app/render.yaml']);
+  assert.match(r['app/index.html'], /buymeacoffee/);
+  assert.match(r['compose.yaml'], /"\$\{HOST_PORT:-9000\}:9000"/);
+  assert.match(r['compose.yaml'], /data:\/data/);
+  assert.match(r['compose.yaml'], /127\.0\.0\.1:9000\/healthz/);
+  assert.match(r['.env.example'], /^DRY_RUN=true$/m);
+  assert.match(r['.env.example'], /^# STRIPE_SECRET_KEY=$/m);
+  assert.match(r['setup.sh'], /'ADMIN_KEY' "\$\(rand\)"/);
+  assert.match(r['setup.sh'], /'# STRIPE_SECRET_KEY='/);
+  assert.match(r['README.md'], /You are the operator/);
+  assert.ok(r['README.md'].includes(DONATE_URL));
+  assert.ok(!r['README.md'].includes('${'));
+  assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'docker', serverFiles: {}, templates }), /server files/);
+  const bad = { ...serverFiles, 'render.yaml': { text: yaml.replace('DRY_RUN', 'x;rm') } };
+  assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'docker', serverFiles: bad, templates }), /unsafe env/);
 });
