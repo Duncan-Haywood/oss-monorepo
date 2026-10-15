@@ -1,0 +1,34 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# No third-party key is required to try it. Add RESEND_API_KEY + MAIL_FROM + POSTAL_ADDRESS and set DRY_RUN=false to send real email.
+services:
+  - type: web
+    name: drip-keeper
+    runtime: docker
+    dockerContext: ventures/drip-keeper
+    dockerfilePath: ventures/drip-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: TRUST_PROXY
+        value: "true"
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: BASE_URL
+        sync: false
+      - key: PRODUCT_NAME
+        sync: false
+      - key: POSTAL_ADDRESS
+        sync: false
+      - key: DRY_RUN
+        value: "true"
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false

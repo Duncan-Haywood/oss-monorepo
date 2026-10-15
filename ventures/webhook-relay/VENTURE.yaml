@@ -1,6 +1,6 @@
 name: webhook-relay
 description: >-
-  Self-hosted webhook relay: verifies Stripe, GitHub, Shopify, Slack, Paddle, Typeform, Standard
+  Self-hosted webhook relay: verifies Stripe, GitHub, Shopify, Slack, Paddle, Typeform, GitLab, WooCommerce, Linear, Mailgun, Bitbucket, Standard
   Webhooks and HMAC signatures, saves each event before answering 200, delivers
   it to your app with backoff and Retry-After, parks refusals as dead with an
   alert, and replays any event from a dashboard. Browser outage simulator plus a

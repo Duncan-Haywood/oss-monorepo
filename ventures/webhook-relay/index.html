@@ -91,7 +91,7 @@ ADMIN_KEY=$(openssl rand -hex 16) ROUTES_JSON='[...]' node server.mjs
     import { schedule, humanDuration } from "./relay.mjs";
     import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
-    const SCHEMES = ["stripe", "github", "shopify", "slack", "paddle", "typeform", "gitlab", "woocommerce", "linear", "standard", "hmac-sha256", "none"];
+    const SCHEMES = ["stripe", "github", "shopify", "slack", "paddle", "typeform", "gitlab", "woocommerce", "linear", "mailgun", "bitbucket", "standard", "hmac-sha256", "none"];
     $("scheme").innerHTML = SCHEMES.map((s) => `<option>${s}</option>`).join("");
     function sim() {
       const delays = $("delays").value.split(",").map((x) => Number(x.trim())).filter((x) => Number.isFinite(x) && x > 0);
