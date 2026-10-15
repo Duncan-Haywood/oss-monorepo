@@ -25,11 +25,14 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 2,
-  "outcome": "shipped P010 --workflow-timeout",
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "prompts/process/backlog validator: a done item requires pr, so the PR must exist before the backlog edit (chicken-and-egg with first commit)"
+    {
+      "file": "prompts/process/backlog/README.md",
+      "issue": "a done item requires pr, so the PR must exist before the backlog edit"
+    }
   ],
   "deviations": [],
   "goal": null,
