@@ -1,0 +1,21 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# The page and the deterministic API work with no keys. The LLM pass (refine:true)
+# needs both API_KEY (so only you can call it) and ANTHROPIC_API_KEY (your own key).
+services:
+  - type: web
+    name: rfp-compliance-matrix
+    runtime: docker
+    dockerContext: ventures/rfp-compliance-matrix
+    dockerfilePath: ventures/rfp-compliance-matrix/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    envVars:
+      - key: API_KEY
+        generateValue: true
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        sync: false
+      - key: REFINE_PER_HOUR
+        value: "20"
