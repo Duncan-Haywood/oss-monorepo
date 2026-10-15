@@ -68,3 +68,30 @@ test("S corporation prompt appears at higher profit only", () => {
   assert.ok(selfEmploymentTax({ netProfit: 120000 }).findings.some((f) => /S corporation/.test(f.title)));
   assert.ok(!selfEmploymentTax({ netProfit: 40000 }).findings.some((f) => /S corporation/.test(f.title)));
 });
+
+test("below $400 the result carries no Social Security amount and no SE-earnings Additional Medicare", () => {
+  const r = selfEmploymentTax({ netProfit: 430 });
+  assert.equal(r.socialSecurity, 0);
+  assert.equal(r.medicare, 0);
+  // Under $400 there are no SE earnings for Form 8959: only the wages over the threshold count.
+  assert.equal(selfEmploymentTax({ netProfit: 100, w2Wages: 300000 }).additionalMedicare, 900);
+});
+
+test("exactly $400 of net earnings is taxed and gets no below-threshold notice", () => {
+  const r = selfEmploymentTax({ netProfit: 400 / 0.9235 });
+  assert.ok(r.seTax > 0);
+  assert.ok(!r.findings.some((f) => /\$400/.test(f.title)));
+});
+
+test("wage-base finding appears only when the base is actually crossed", () => {
+  const wage = (r) => r.findings.some((f) => /wage base/.test(f.title));
+  assert.equal(wage(selfEmploymentTax({ netProfit: 50000 })), false);
+  assert.equal(wage(selfEmploymentTax({ netProfit: 100 })), false); // under $400: not taxed at all
+  assert.equal(wage(selfEmploymentTax({ netProfit: 300000 })), true);
+});
+
+test("S corporation prompt starts at exactly $80,000", () => {
+  const s = (p) => selfEmploymentTax({ netProfit: p }).findings.some((f) => /S corporation/.test(f.title));
+  assert.equal(s(80000), true);
+  assert.equal(s(79999), false);
+});

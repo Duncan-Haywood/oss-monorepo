@@ -20,27 +20,40 @@ CONFIG=example-checks.json PING_KEY=secret ALERT_WEBHOOK_URL=... node server.mjs
 node --test
 ```
 
-## One-click deploy (your own account)
+## What the monitor does
 
-Fork this repository, then open `https://render.com/deploy?repo=<your fork URL>`.
-`render.yaml` builds the `Dockerfile` here on Render's free plan in **your**
-account and generates a `PING_KEY`. Nothing runs on the author's side. After
-deploy, set in Render's environment tab:
+- **Dashboard** at `/` (needs your key): every check's state, reason and last ping.
+- **Public status page** at `/s`, off by default (`PUBLIC_STATUS=1`): names and
+  operational/disruption only, no keys, timings or reasons. Title: `STATUS_TITLE`.
+- **History** at `/history/<name>`: the last 50 pings and alerts per check.
+- **Alerts, any mix of**: webhook (Slack/Discord/Mattermost), ntfy, Telegram bot
+  (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`), email through your own Resend
+  account (`RESEND_API_KEY`, `ALERT_EMAIL_TO`, `ALERT_EMAIL_FROM`). One channel
+  failing does not stop the others; if all fail it retries next tick.
+- **Persistent state** (`STATE`, default `/data/state.json` in Docker, written
+  atomically and flushed on shutdown), so a restart does not forget your jobs.
+- The key can be sent as `?key=` or `Authorization: Bearer <key>`; pings accept GET or POST.
 
-- `CHECKS_JSON`: your checks, same shape as `example-checks.json` (one line).
-- `ALERT_WEBHOOK_URL` and/or `ALERT_NTFY_URL`: where alerts go.
+## Deploy your own copy (nothing runs on the author's side)
 
-Ping with `https://<your-service>.onrender.com/ping/<name>?key=<PING_KEY>`.
-`/healthz` is open for the host's health check. Caveat: the free plan's disk is
-ephemeral and the service sleeps when idle, so a sleeping instance misses
-alerts; use a paid plan or any always-on Docker host for real monitoring. Docker
-anywhere: `docker build -t cron-heartbeat . && docker run -p 8080:8080 -e PING_KEY=change-me -e CHECKS_JSON="$(cat example-checks.json)" cron-heartbeat`.
+A monitor must stay awake and remember state, so every route below gives it a disk and one always-on instance.
+
+- **Render**: fork this repository, open `https://render.com/deploy?repo=<your fork URL>`.
+  `render.yaml` builds the `Dockerfile` on the paid *starter* plan (about $7/month, your account)
+  with a 1 GB disk and a generated `PING_KEY`. Then set `CHECKS_JSON` and an alert channel in
+  the environment tab.
+- **Fly.io**: `fly.toml` has the exact commands in its header (volume, secrets, `fly deploy`).
+- **Any Docker host**: `PING_KEY=change-me docker compose up -d` (see `docker-compose.yml`).
+
+Ping with `https://<your-service>/ping/<name>?key=<PING_KEY>`; `/healthz` is open for health checks.
+Do not use Render's free plan for real monitoring: it sleeps when idle and has no disk.
 
 Files: `cron.mjs` (parser, next-run, evaluate), `monitor.mjs` (alert state
-machine), `crontab.mjs` (crontab → entries/config), `server.mjs` (HTTP shell),
+machine, history), `notify.mjs` (alert channels), `dashboard.mjs` (HTML),
+`crontab.mjs` (crontab to entries/config), `server.mjs` (HTTP shell),
 `usage.mjs` (opt-out local counters).
 
 Limits, stated plainly: UTC only; five-field cron plus `@daily`-style macros
-(no `@reboot`, no `L`/`W`/`#`); no email alerts or UI in this version; the
+(no `@reboot`, no `L`/`W`/`#`); no per-check alert routing or teams; the
 monitor is a single process, so run it on a different machine from the jobs
 it watches. Not a substitute for real alerting on critical systems.

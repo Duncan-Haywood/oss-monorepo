@@ -1,0 +1,36 @@
+name: actions-checkout-credentials-check
+description: 'Free, read-only, zero-dependency CLI that scans GitHub Actions workflow YAML for actions/checkout steps without persist-credentials: false, ranking the ones in jobs that also upload artifacts or caches (the artipacked pattern) first, with the exact fix; no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same shape as the other actions-* checkers.
+# No existing checker reads persist-credentials (grep of ventures/ on
+# 2026-10-15). Explore-track build. Read-only line scanner; no advice of
+# record, no data leaves the device.
+hypotheses:
+  - claim: 'A maintainer who read about artipacked will run this against their repo and fix the with-upload findings.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will wire check.py --fail-on-risk into their own CI.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No external repository is found using check.py within 90 days of it being reachable from the published site.
+
+links:
+  production: null
+  analytics: null

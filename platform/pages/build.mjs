@@ -3588,6 +3588,8 @@ const CATEGORY_RULES = [
         'garmin-world-traveler-watchface',
         'photo-editing',
         'photos-import-tools',
+        // `quick-pick-survey` joined 2026-10-15 when it got a landing page and the catch-all hit 6: a survey engine, one hop from the individual-decision tools above.
+        'quick-pick-survey',
       ].includes(slug),
   },
 ];
@@ -8592,6 +8594,8 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
       &nbsp;·&nbsp;
       <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About &amp; privacy</a>
+      &nbsp;·&nbsp;
+      <a href="${escapeHtml(`${toRoot}deploy/?app=${encodeURIComponent(slug)}`)}">Run your own copy</a>
       &nbsp;·&nbsp;
       <a href="${SPONSORS_URL}">Sponsoring on GitHub</a>
       is optional and changes nothing about what these tools do.
