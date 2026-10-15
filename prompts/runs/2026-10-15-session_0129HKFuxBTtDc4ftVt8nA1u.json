@@ -25,13 +25,13 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 4,
-  "outcome": "Published stale gh-pages snapshot; added Mastodon launch-announcer distribution channel (artifact rung, off by default, dry run, bot-flag guard, 4 tests).",
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
   "goal": null,
-  "notes": "Idea: mastodon-bot channel; next rung is the owner ask (instance + token + variables). Snapshot went stale again within minutes because main moves fast; IndexNow unreachable from sandbox.",
+  "notes": "Published stale gh-pages snapshot; added Mastodon launch-announcer distribution channel (artifact rung, off by default, dry run, bot-flag guard, 4 tests). Idea: mastodon-bot channel; next rung is the owner ask (instance + token + variables). Snapshot went stale again within minutes because main moves fast; IndexNow unreachable from sandbox.",
   "corrections": [],
   "redteam": null
 }
