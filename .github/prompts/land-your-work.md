@@ -46,8 +46,10 @@ or on `main`.
    `python3 platform/ci/ci_starvation.py --run <id>` says runners are starved,
    run the local checklist in `CLAUDE.md` ("Ship without review ceremony")
    instead and paste its results into the PR.
-5. **Merge it yourself.** Mark the draft ready and squash-merge. Don't wait
-   for a human or for bot approvals. `ventures/*` product code counts too:
+5. **Merge it yourself.** Mark the draft ready and squash-merge. A research
+   mirror PR is the one exception: it merges with a merge commit, never a
+   squash (`prompt.md`). Don't wait for a human or for bot approvals.
+   `ventures/*` product code counts too:
    `CLAUDE.md` settled that on 2026-08-25. If the merge won't go:
    - **Conflict:** merge `origin/main` into your branch, re-run what the
      checklist says (`regen.mjs`, `sync_tree_counts.py`), re-verify, and
