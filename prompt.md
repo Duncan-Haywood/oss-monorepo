@@ -11,6 +11,8 @@ Simulating and training with digital clones (digital twins) of physical-world sy
 ## Priority projects
 The owner's priority projects are in [`PROJECTS.md`](PROJECTS.md): eleven tracks, each with milestones, a slug prefix and its own guardrails. New projects come from there. Once Landing work steps 1 to 3 are done, pick a track and milestone as `PROJECTS.md` says. The research groups below remain the list to build on, cite and tag where a project fits them.
 
+**Free choice, about 5% of effort.** About one run in twenty skips the tracks and works on whatever the agent finds most interesting, Google "20% time" style; `PROJECTS.md` (Picking work, step 1) says how the draw works. The rules, integrity standards and landing steps are unchanged, and so is the quality bar.
+
 ## Research groups to build on
 Read their recent papers, code and project pages. Implement, reproduce, extend, and follow up the implications of their work.
 
@@ -101,7 +103,7 @@ Before you merge, append a line to `prompts/runs.jsonl` as the last commit on yo
  "model": "<model id that made the commits>", "models_seen": ["<every model that served a turn, incl. fallbacks>"],
  "started": "<ISO time>", "ended": "<ISO time>", "wall_minutes": 0,
  "tokens_in": null, "tokens_out": null, "cost_usd": null, "usage": null, "tool_calls": null,
- "task": "new-project|extend|fix|merge|mirror|meta", "projects": ["<slug>"], "pr": "<url or null>",
+ "task": "new-project|extend|fix|merge|mirror|meta|free-choice", "projects": ["<slug>"], "pr": "<url or null>",
  "commits": ["<sha>"], "lines_added": 0, "lines_removed": 0,
  "merged": null, "ci_failures_before_green": 0, "review_findings": 0, "tests_added": 0, "build_ok": true,
  "outcome": "success|partial|failed",

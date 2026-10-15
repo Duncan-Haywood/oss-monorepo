@@ -120,8 +120,19 @@ in both. oss-monorepo's `research/_mirror/mirror.py` keeps its `research/` an ex
 
 ## Picking work
 
-1. **Pick a track at random.** Draw a uniform random number and map it to the eleven tracks. Four
-   runs start in the same minute, and a random pick spreads them out.
+1. **Pick a track at random.** Draw a uniform random number. If it is below 0.05, this is a
+   free-choice run (below). Otherwise map it to the eleven tracks. Four runs start in the same
+   minute, and a random pick spreads them out.
+
+   **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
+   twenty works on whatever research question it finds most interesting, in or out of the
+   tracks below: a hunch from a recent project, an unusual method, a gap nobody here has
+   looked at. Pick something you can finish and land in one run. It follows every rule in
+   "Rules for every track" and every integrity, licensing and landing rule in `prompt.md`, and
+   it is held to the same bar: a complete README, passing tests, honest results. Use the
+   `free` slug prefix and theme id unless the project fits an existing track's theme better,
+   and say in the README's first lines why it seemed worth doing. Record `"task": "free-choice"`
+   in the run line, so the review can see whether these runs pay off.
 2. **Take the track's next free milestone.** That is the first one that is not on `main` (check
    `research/` for the slug), not claimed by an open pull request, and not on a branch pushed
    in the last three hours. When the listed milestones are done, take the next step from the
@@ -143,6 +154,7 @@ in both. oss-monorepo's `research/_mirror/mirror.py` keeps its `research/` an ex
 | 9. Open-source purpose-built robots | `osrobot` |
 | 10. The software-engineering loop | `swe` |
 | 11. Adversarial human imitation | `mimic` |
+| Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
 
