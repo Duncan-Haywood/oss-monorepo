@@ -20,13 +20,13 @@ test("nothing can send the pasted text anywhere", () => {
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
   assert.doesNotMatch(page("extract.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
   const imports = [...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(imports.sort(), ["./extract.mjs", "./sample.mjs", "./usage.mjs"]);
+  assert.deepEqual(imports.sort(), ["./extract.mjs", "./sample.mjs", "./shred.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
 });
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["matrix_built", "example_loaded", "csv_downloaded"]) {
+  for (const e of ["matrix_built", "example_loaded", "csv_downloaded", "outline_downloaded", "draft_checked"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }

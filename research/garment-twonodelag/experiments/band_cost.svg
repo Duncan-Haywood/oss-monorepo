@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Cost of tuned band, default band and never switching on held-out outside rooms for four sensor lags">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Held-out outside-range cost, switch penalty 0.01 (lower is better)</text>
+<line x1="64" x2="624" y1="310.0" y2="310.0" stroke="#ddd"/><text x="58" y="314.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="231.2" y2="231.2" stroke="#ddd"/><text x="58" y="235.2" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="152.4" y2="152.4" stroke="#ddd"/><text x="58" y="156.4" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="73.5" y2="73.5" stroke="#ddd"/><text x="58" y="77.5" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<text x="14" y="175.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 175.0)">cost</text>
+<text x="134.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 134.0 324)">lag 0 min</text>
+<rect x="78.0" y="87.4" width="36.3" height="222.6" fill="#1f6fb2"/>
+<rect x="115.3" y="87.7" width="36.3" height="222.3" fill="#c0392b"/>
+<rect x="152.7" y="64.5" width="36.3" height="245.5" fill="#2e8b57"/>
+<text x="274.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 274.0 324)">lag 2 min</text>
+<rect x="218.0" y="89.6" width="36.3" height="220.4" fill="#1f6fb2"/>
+<rect x="255.3" y="87.6" width="36.3" height="222.4" fill="#c0392b"/>
+<rect x="292.7" y="64.5" width="36.3" height="245.5" fill="#2e8b57"/>
+<text x="414.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 414.0 324)">lag 5 min</text>
+<rect x="358.0" y="88.0" width="36.3" height="222.0" fill="#1f6fb2"/>
+<rect x="395.3" y="87.1" width="36.3" height="222.9" fill="#c0392b"/>
+<rect x="432.7" y="64.5" width="36.3" height="245.5" fill="#2e8b57"/>
+<text x="554.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 554.0 324)">lag 10 min</text>
+<rect x="498.0" y="86.3" width="36.3" height="223.7" fill="#1f6fb2"/>
+<rect x="535.3" y="86.3" width="36.3" height="223.7" fill="#c0392b"/>
+<rect x="572.7" y="64.5" width="36.3" height="245.5" fill="#2e8b57"/>
+<rect x="74" y="42" width="12" height="10" fill="#1f6fb2"/><text x="92" y="51" font-family="sans-serif" font-size="11">tuned band</text>
+<rect x="74" y="57" width="12" height="10" fill="#c0392b"/><text x="92" y="66" font-family="sans-serif" font-size="11">default band</text>
+<rect x="74" y="72" width="12" height="10" fill="#2e8b57"/><text x="92" y="81" font-family="sans-serif" font-size="11">never switch</text>
+</svg>

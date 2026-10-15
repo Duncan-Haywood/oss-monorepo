@@ -44,8 +44,8 @@ the operator.
 
 ## Server apps (Render, or Docker Compose)
 
-Four ventures are processes, not static pages (`cancel-flow`, `cron-heartbeat`,
-`dunning-engine`, `einvoice-preflight`: a `Dockerfile` plus a `render.yaml`).
+Five ventures are processes, not static pages (`cancel-flow`, `cron-heartbeat`,
+`dunning-engine`, `einvoice-preflight`, `rfp-compliance-matrix`: a `Dockerfile` plus a `render.yaml`).
 For these the page also offers **Render**: it creates a public repository in the
 visitor's GitHub account holding `ventures/<slug>/` and the venture's
 `render.yaml` at the root, then links `render.com/deploy?repo=<that repo>`.
