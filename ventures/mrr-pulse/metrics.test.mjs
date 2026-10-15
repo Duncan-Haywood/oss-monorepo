@@ -154,3 +154,13 @@ test("forecast never goes below zero", () => {
   const f = forecast(ms, { horizon: 12 });
   assert.ok(f.low.every((v) => v >= 0));
 });
+
+import { monthsCsv } from "./metrics.mjs";
+test("monthsCsv writes major units, flags approximate months, and defuses formulas", () => {
+  const m = { month: "2026-09", mrr: 123456, customers: 3, new: 1000, expansion: 0, reactivation: 0, contraction: 50, churn: 200, approximate: true };
+  const csv = monthsCsv([m, { ...m, month: "=HYPERLINK(1)", approximate: false }], "eur");
+  const lines = csv.trim().split("\n");
+  assert.equal(lines[0], "# currency: EUR, amounts in major units");
+  assert.equal(lines[2], "2026-09,1234.56,3,10.00,0.00,0.00,0.50,2.00,yes");
+  assert.ok(lines[3].startsWith("'=HYPERLINK(1)"));
+});

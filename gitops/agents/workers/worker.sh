@@ -66,7 +66,9 @@ if ! mkdir -p "$CODEX_TOOLS_DIR" 2>/dev/null || [[ ! -w "$CODEX_TOOLS_DIR" ]]; t
 fi
 export npm_config_prefix="$CODEX_TOOLS_DIR/npm-global"
 mkdir -p "$npm_config_prefix"
-export PATH="/usr/local/bin:$npm_config_prefix/bin:$PATH"
+# WORKER_PATH_PREFIX exists for the test harness: its stub gh/codex sit on PATH,
+# and a real gh in /usr/local/bin (web sessions, runner images) would shadow them.
+export PATH="${WORKER_PATH_PREFIX:-/usr/local/bin}:$npm_config_prefix/bin:$PATH"
 
 MANDATE_FILE="${CODEX_MANDATE_FILE:-/opt/worker/mandate.md}"
 

@@ -70,7 +70,7 @@ COMPANY_NAME=Acme node server.mjs
 
 Open `http://localhost:8080` and sign in with any user name and `ADMIN_KEY` as
 the password. API (same key as `Authorization: Bearer ...`): `GET /v1/metrics`,
-`GET /v1/months`, `GET /v1/cohorts`, `GET /v1/plans`, `GET /v1/forecast`, `POST /v1/sync`.
+`GET /v1/months`, `GET /v1/months.csv` (the history for a spreadsheet), `GET /v1/cohorts`, `GET /v1/plans`, `GET /v1/forecast`, `POST /v1/sync`.
 
 Stripe key: Dashboard, Developers, API keys, **Create restricted key**, set
 *Subscriptions* to **Read** and everything else to None. The server only ever
