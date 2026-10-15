@@ -1,0 +1,26 @@
+sources 12, practices 12, validation problems 0
+ledger rows 265; rows with any reported error 103
+
+failure class: rows matching / rows (Wilson 95%)
+  coordination    9/265 =  3.4%  ( 1.8% to  6.3%)
+  unlanded        8/265 =  3.0%  ( 1.5% to  5.8%)
+  unverified      5/265 =  1.9%  ( 0.8% to  4.3%)
+  tooling        16/265 =  6.0%  ( 3.8% to  9.6%)
+  rework          8/265 =  3.0%  ( 1.5% to  5.8%)
+  duplicate      15/265 =  5.7%  ( 3.5% to  9.1%)
+
+practice  transfer  status                                   target        ceiling  priority
+  P1   yes      adopted (prompt.md, Landing work)        unlanded       3.0%    3.0%
+  P6   partial  not adopted                              tooling        6.0%    3.0%
+  P7   yes      adopted (prompt.md steps 4 and 6)        unlanded       3.0%    3.0%
+  P10  partial  adopted (track 10 metric has three terms duplicate      5.7%    2.8%
+  P5   yes      not adopted                              unverified     1.9%    1.9%
+  P9   yes      partly adopted (prompt.md: integrity is  unverified     1.9%    1.9%
+  P12  yes      adopted (swe-ledger)                     unverified     1.9%    1.9%
+  P4   partial  adopted (mirror under way)               coordination   3.4%    1.7%
+  P11  partial  not adopted                              coordination   3.4%    1.7%
+  P2   partial  not adopted                              rework         3.0%    1.5%
+  P3   partial  partly adopted (audit pass exists, not p rework         3.0%    1.5%
+  P8   no       not adopted                              coordination   3.4%    0.0%
+
+open candidates (transfer yes, not adopted, ceiling >= 5%):
