@@ -112,6 +112,15 @@ export function replay(state, id, now) {
   return e;
 }
 
+// Bulk replay after an outage: every dead event (optionally one route), oldest first,
+// each with a fresh budget. Delivered events are never touched, so nothing is sent twice.
+export function replayDead(state, now, route) {
+  const dead = Object.values(state.events).filter((e) => e.status === "dead" && (!route || e.route === route))
+    .sort((a, b) => a.receivedAt - b.receivedAt);
+  for (const e of dead) replay(state, e.id, now);
+  return dead.map((e) => e.id);
+}
+
 export function prune(state, now, policy = DEFAULT_POLICY) {
   const cutoff = now - policy.retentionDays * 86400_000;
   for (const e of Object.values(state.events)) {

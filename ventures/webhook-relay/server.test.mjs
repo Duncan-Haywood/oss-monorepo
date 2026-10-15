@@ -66,6 +66,10 @@ test("admin API needs the key; list, view, replay, delete work", async () => {
     t.state.events[id].status = "dead";
     const rep = await (await fetch(`${t.base}/v1/events/${id}/replay`, { method: "POST", headers: auth })).json();
     assert.equal(rep.status, "pending");
+    t.state.events[id].status = "dead";
+    assert.equal((await fetch(`${t.base}/v1/replay`, { method: "POST" })).status, 401);
+    assert.deepEqual(await (await fetch(`${t.base}/v1/replay`, { method: "POST", headers: auth })).json(), { replayed: 1, ids: [id] });
+    assert.equal(t.state.events[id].status, "pending");
     assert.equal((await fetch(`${t.base}/v1/events/zzz`, { headers: auth })).status, 404);
     assert.deepEqual(await (await fetch(`${t.base}/v1/events/${id}`, { method: "DELETE", headers: auth })).json(), { deleted: id });
     const page = await fetch(`${t.base}/admin`);
