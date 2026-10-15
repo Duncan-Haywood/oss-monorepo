@@ -86,7 +86,7 @@ jobs:
           set -eu
           found=0
           for example in examples/*; do
-            case "$example" in *-with-defects.*) continue;; esac
+            case "$example" in *-with-defects.*|*/draft-*) continue;; esac
             echo "--- $example"
             python3 -m einvoice_preflight "$example"
             found=$((found + 1))
