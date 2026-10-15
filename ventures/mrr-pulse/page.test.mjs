@@ -70,6 +70,9 @@ test("planTable escapes plan names, shows shares, hides customer ids, warns on c
   const html = planTable({ total: 100, plans: [{ plan: "<b>Pro</b>", mrr: 100, subs: 1, share: 1 }], concentration: { customers: 1, top1: 1, top5: 1, topN: 5 } }, "usd");
   assert.ok(!html.includes("<b>Pro</b>") && html.includes("&lt;b&gt;Pro"));
   assert.match(html, /100\.0%/); assert.match(html, /above 20%/);
+  const r = planTable({ total: 1000, atRisk: { mrr: 300, subs: 2, share: 0.3 }, plans: [{ plan: "Pro", mrr: 1000, subs: 3, share: 1 }], concentration: null }, "usd");
+  assert.match(r, /30\.0%\) across 2 past-due subscriptions/);
+  assert.ok(!planTable({ total: 1, atRisk: { mrr: 0, subs: 0, share: 0 }, plans: [{ plan: "P", mrr: 1, subs: 1, share: 1 }], concentration: null }, "usd").includes("past-due"));
   assert.equal(planTable(null, "usd"), "");
 });
 
