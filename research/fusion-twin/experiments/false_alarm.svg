@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log line plot of gate false-alarm rate against pairwise sensor correlation rho: exact and simulated agree and rise from 0.005 at rho 0.01 to 0.20 at rho 0.3, far above the nominal 0.0027">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Fusion twin: false-alarm rate of a 3-twin-std gate (n=16, nominal 0.0027)</text>
+<line x1="64" x2="624" y1="237.0" y2="237.0" stroke="#ddd"/><text x="58" y="241.0" text-anchor="end" font-family="sans-serif" font-size="11">0.01</text>
+<line x1="64" x2="624" y1="109.1" y2="109.1" stroke="#ddd"/><text x="58" y="113.1" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.01</text>
+<text x="329.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="443.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">pairwise correlation rho</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">false-alarm rate</text>
+<line x1="64" x2="624" y1="309.6" y2="309.6" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,274.3 329.0,190.0 443.1,139.6 624.0,70.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="274.3" r="3" fill="#c0392b"/>
+<circle cx="329.0" cy="190.0" r="3" fill="#c0392b"/>
+<circle cx="443.1" cy="139.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">exact</text>
+<polyline points="64.0,273.3 329.0,190.5 443.1,139.5 624.0,70.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="273.3" r="3" fill="#1f6fb2"/>
+<circle cx="329.0" cy="190.5" r="3" fill="#1f6fb2"/>
+<circle cx="443.1" cy="139.5" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">simulated</text>
+</svg>
