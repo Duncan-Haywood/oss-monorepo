@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Referral Keeper — Free Self-Hosted Affiliate Program for Stripe</title>
+  <meta name="description" content="Run an affiliate or referral program on your own Stripe account: tracking link, recurring commissions, refund clawbacks, payout CSV. Plan what a program will cost you in your browser, then deploy the open-source server. Free, MIT, no revenue share.">
+  <meta property="og:title" content="Referral Keeper — a self-hosted affiliate program for Stripe sellers">
+  <meta property="og:description" content="Recurring commissions, refund and dispute clawbacks, hold periods and payout CSVs from your own Stripe webhook. No Stripe API key, no revenue share.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Referral Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source affiliate and referral program server for Stripe sellers. Attributes customers from a tracking link, pays recurring commissions from Stripe webhooks, claws back refunds and disputes, and exports payout CSVs."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not use Rewardful, FirstPromoter or a Stripe app?", "acceptedAnswer": {"@type": "Answer", "text": "Hosted affiliate tools are polished and quick to set up, and some connect to Stripe in a few clicks. The trade-off is a monthly fee or a share of the revenue they track, and your affiliates and customer data living on their platform. Referral Keeper runs in your own account, reads only Stripe webhooks, and has no fee. It is leaner: no affiliate marketplace, no automatic payments to affiliates, one admin key. If a hosted tool already earns its fee for you, keep it."}}, {"@type": "Question", "name": "How is a referral attributed to an affiliate?", "acceptedAnswer": {"@type": "Answer", "text": "A one-line script on your site stores the affiliate code from the link in a cookie on your own domain. Stripe Payment Links are tagged automatically; for Checkout Sessions you create, you pass the code as client_reference_id. When Stripe tells the server about the completed checkout, that customer belongs to the affiliate, and every later invoice for them earns commission until the window you set ends."}}, {"@type": "Question", "name": "What happens on a refund or chargeback?", "acceptedAnswer": {"@type": "Answer", "text": "A refund reduces the commission in proportion. A dispute withholds it until the dispute closes in your favour. If the commission was already paid out, the affiliate's balance goes negative and the next commissions absorb it, so you are never forced to chase money back. New commission is also held for a number of days (30 by default) before it becomes payable."}}, {"@type": "Question", "name": "Does it pay my affiliates?", "acceptedAnswer": {"@type": "Answer", "text": "No. It keeps the ledger and produces a payout CSV that you pay by bank transfer, PayPal, Wise or any other method, then you mark the payout paid. It never holds or moves money and never needs a Stripe API key, only the webhook signing secret."}}, {"@type": "Question", "name": "Are there legal or tax things to know?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Affiliates generally must disclose the relationship when they promote you, and you may have tax-reporting duties for what you pay them depending on where you both live. This software is not legal or tax advice and you operate the programme."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f7f5; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #0f6b55; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b3d31; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b3d31; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #3f4f4a; }
+    .card { background: #fff; border: 1px solid #d3e3dd; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 18px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9c4ba; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input[type=checkbox] { width: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3eeea; vertical-align: top; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    pre { background: #eef5f2; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .big { font-size: 1.5rem; font-weight: 800; color: #0b3d31; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 14px 0; }
+    .stats div { background: #eef5f2; border-radius: 10px; padding: 12px; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Let your customers sell for you, and keep the affiliate ledger in your own account.</h1>
+  <p>Referral Keeper is the open-source server behind a referral or affiliate program on Stripe: a tracking link, recurring commissions, refund and dispute clawbacks, a hold period and a payout CSV. First plan what a program would cost you below. It runs in your browser, so nothing is uploaded.</p>
+
+  <section class="card" aria-labelledby="plan">
+    <h2 id="plan">1. What would a referral program cost me?</h2>
+    <div class="grid">
+      <div><label for="price">Price per month</label><input id="price" type="number" min="0" step="any" value="49"></div>
+      <div><label for="billing">Billing</label><select id="billing"><option value="monthly">Monthly</option><option value="annual">Annual (paid up front)</option></select></div>
+      <div><label for="percent">Commission, % of what they pay</label><input id="percent" type="number" min="0" max="100" step="any" value="25"></div>
+      <div><label for="months">For how many months (0 = for life)</label><input id="months" type="number" min="0" value="12"></div>
+      <div><label for="newPerMonth">Referred customers per month</label><input id="newPerMonth" type="number" min="0" step="any" value="6"></div>
+      <div><label for="churn">Monthly churn, %</label><input id="churn" type="number" min="0" max="100" step="any" value="4"></div>
+      <div><label for="refund">First payments refunded, %</label><input id="refund" type="number" min="0" max="100" step="any" value="3"></div>
+      <div><label for="horizon">Months to look ahead</label><input id="horizon" type="number" min="1" max="120" value="24"></div>
+      <div><label for="hold">Hold before payable, days</label><input id="hold" type="number" min="0" value="30"></div>
+      <div><label for="fee">What a hosted tool would cost, per month</label><input id="fee" type="number" min="0" step="any" value="0"></div>
+    </div>
+    <div class="stats" aria-live="polite">
+      <div>Commission paid in total<div class="big" id="sCom">–</div></div>
+      <div>Share of referred revenue<div class="big" id="sRate">–</div></div>
+      <div>Commission per referred customer<div class="big" id="sPer">–</div></div>
+      <div>Kept after commission<div class="big" id="sNet">–</div></div>
+    </div>
+    <p class="note" id="sNote"></p>
+    <table><caption class="note">Month by month (expected values, not a forecast)</caption><thead><tr><th scope="col" class="n">Month</th><th scope="col" class="n">Active</th><th scope="col" class="n">Revenue</th><th scope="col" class="n">Commission earned</th><th scope="col" class="n">Paid out so far</th><th scope="col" class="n">Still owed</th></tr></thead><tbody id="rows"></tbody></table>
+  </section>
+
+  <section class="card" aria-labelledby="link">
+    <h2 id="link">2. Make a link and the checkout snippet</h2>
+    <div class="grid">
+      <div><label for="site">Your site</label><input id="site" value="https://example.com"></div>
+      <div><label for="code">Affiliate code</label><input id="code" value="ann" pattern="[a-z0-9_-]{3,32}"></div>
+    </div>
+    <p>Share link: <code id="shareLink"></code></p>
+    <p class="note">Add <code>&lt;script src="https://YOUR-SERVER/r.js" defer&gt;&lt;/script&gt;</code> to your site. Payment Links are tagged automatically. For Checkout Sessions you create, pass the code through:</p>
+    <pre>const session = await stripe.checkout.sessions.create({
+  mode: "subscription",
+  line_items: [{ price: "price_123", quantity: 1 }],
+  client_reference_id: ref,   // from referralKeeper.clientReferenceId() in the browser, sent with your request
+  success_url: "https://example.com/thanks",
+});</pre>
+  </section>
+
+  <section class="card">
+    <h2>3. Run the server yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/fp-monorepo &amp;&amp; cd fp-monorepo/ventures/referral-keeper
+STRIPE_WEBHOOK_SECRET=whsec_... ADMIN_KEY=$(openssl rand -hex 16) \
+PUBLIC_URL=https://refs.example.com SITE_URL=https://example.com \
+PROGRAM_JSON='{"percent":25,"months":12,"holdDays":30,"minPayout":5000}' node server.mjs</pre>
+    <p class="note">Point a Stripe webhook at <code>/webhook/stripe</code> for <code>checkout.session.completed</code>, <code>checkout.session.async_payment_succeeded</code>, <code>invoice.paid</code>, <code>charge.refunded</code>, <code>charge.dispute.created</code> and <code>charge.dispute.closed</code>. It needs no Stripe API key. Add affiliates at <code>/admin</code>; each gets a private dashboard link. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not use Rewardful, FirstPromoter or a Stripe app?</h3>
+    <p>Hosted affiliate tools are polished and quick to set up, and some connect to Stripe in a few clicks. The trade-off is a monthly fee or a share of the revenue they track, and your affiliates and customer data living on their platform. Referral Keeper runs in your own account, reads only Stripe webhooks, and has no fee. It is leaner: no affiliate marketplace, no automatic payments to affiliates, one admin key. If a hosted tool already earns its fee for you, keep it.</p>
+    <h3>How is a referral attributed to an affiliate?</h3>
+    <p>A one-line script on your site stores the affiliate code from the link in a cookie on your own domain. Stripe Payment Links are tagged automatically; for Checkout Sessions you create, you pass the code as client_reference_id. When Stripe tells the server about the completed checkout, that customer belongs to the affiliate, and every later invoice for them earns commission until the window you set ends.</p>
+    <h3>What happens on a refund or chargeback?</h3>
+    <p>A refund reduces the commission in proportion. A dispute withholds it until the dispute closes in your favour. If the commission was already paid out, the affiliate's balance goes negative and the next commissions absorb it, so you are never forced to chase money back. New commission is also held for a number of days (30 by default) before it becomes payable.</p>
+    <h3>Does it pay my affiliates?</h3>
+    <p>No. It keeps the ledger and produces a payout CSV that you pay by bank transfer, PayPal, Wise or any other method, then you mark the payout paid. It never holds or moves money and never needs a Stripe API key, only the webhook signing secret.</p>
+    <h3>Are there legal or tax things to know?</h3>
+    <p>Yes. Affiliates generally must disclose the relationship when they promote you, and you may have tax-reporting duties for what you pay them depending on where you both live. This software is not legal or tax advice and you operate the programme.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../dunning-engine/">Dunning Engine</a> recovers failed subscription payments, <a href="../cancel-flow/">Cancel Flow</a> handles voluntary cancellations, <a href="../mrr-pulse/">MRR Pulse</a> shows MRR, churn and net revenue retention, <a href="../license-keeper/">License Keeper</a> issues license keys and <a href="../waitlist-keeper/">Waitlist Keeper</a> runs a referral waitlist before launch.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. The figures above are expected values from the inputs you type, not a forecast, and not legal, tax, or financial advice. You are the operator, responsible for your own Stripe account, your terms with affiliates and customers, affiliate-disclosure rules, any tax reporting on what you pay, and the consumer-protection and data-protection rules where you live. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { simulate, lifetimePerCustomer } from "./program.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const num = (id) => { const v = Number($(id).value); return Number.isFinite(v) ? v : 0; };
+    const nf = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
+    const f = (v) => nf.format(Math.round(v));
+    let counted = false;
+    function run() {
+      const input = { price: num("price"), billing: $("billing").value, percent: num("percent"), months: num("months"), newPerMonth: num("newPerMonth"), horizon: num("horizon") || 1, churn: num("churn") / 100, refundRate: num("refund") / 100, holdDays: num("hold"), toolFee: num("fee") };
+      const r = simulate(input);
+      $("sCom").textContent = f(r.totalCommission);
+      $("sRate").textContent = (r.effectiveRate * 100).toFixed(1) + "%";
+      $("sPer").textContent = f(lifetimePerCustomer(input));
+      $("sNet").textContent = f(r.netAfterCommission);
+      $("sNote").textContent = input.toolFee > 0 ? `A hosted tool at ${f(input.toolFee)} a month would add ${f(r.toolCost)} over these ${r.rows.length} months on top of the commission.` : "Amounts are in your own currency. Commission per referred customer counts every payment inside the window, after expected churn and refunds.";
+      $("rows").innerHTML = "";
+      for (const row of r.rows) {
+        const tr = document.createElement("tr");
+        for (const [i, v] of [row.month, row.active, row.revenue, row.commission, row.paidOut, row.owed].entries()) {
+          const td = document.createElement("td"); td.className = "n"; td.textContent = i === 0 ? String(v) : f(v); tr.append(td);
+        }
+        $("rows").append(tr);
+      }
+      if (!counted) { counted = true; record("plan"); }
+    }
+    for (const id of ["price", "billing", "percent", "months", "newPerMonth", "churn", "refund", "horizon", "hold", "fee"]) $(id).addEventListener("input", run);
+    function link() {
+      const code = $("code").value.trim().toLowerCase();
+      let site = $("site").value.trim().replace(/\/$/, "");
+      $("shareLink").textContent = /^[a-z0-9_-]{3,32}$/.test(code) ? `${site}/?ref=${code}` : "code: 3-32 characters, a-z 0-9 - _";
+    }
+    $("site").addEventListener("input", link); $("code").addEventListener("input", link);
+    run(); link();
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>

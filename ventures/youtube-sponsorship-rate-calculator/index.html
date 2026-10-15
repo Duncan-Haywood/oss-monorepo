@@ -154,7 +154,11 @@
     const FIELD_ELEMENTS = { views: els.views, niche: els.niche, format: els.format, usage: els.usage, exclusivity: els.exclusivity };
     const DEFAULTS = { niche: "general", format: "integration", usage: "none", exclusivity: "none" };
 
-    const money = (n) => `$${n.toLocaleString()}`;
+    const money = (n) => {
+      const format = (n) => `$${n.toLocaleString()}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const range = (lo, hi) => `${money(lo)} – ${money(hi)}`;
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1245 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1247 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -136,6 +136,14 @@
     <summary type="text">Free tool for tenants: pick your state, enter your move-out date and deposit, and see when your landlord&#39;s deadline to return it ran out, what the statute says about late landlords, and a demand letter you can edit and send. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Trial Converter — Free Self-Hosted Stripe Trial-to-Paid Conversion</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/trial-converter/"/>
+    <id>tag:marisstella.dev,2026:tool/trial-converter</id>
+    <updated>2026-10-15T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Turn more Stripe free trials into paying customers: card-on-file trials get an honest price-and-date heads-up, card-less trials get escalating add-a-card emails and an optional one-time extension. Preview the plan, then run the open-source server in your own account. Free, MIT.</summary>
+  </entry>
+  <entry>
     <title>Waitlist Keeper — Free Self-Hosted Referral Waitlist</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/waitlist-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/waitlist-keeper</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free YouTube sponsorship rate calculator. Enter your median views, niche and format to get a price range for an integration, dedicated video or mention, plus what to add for whitelisting and exclusivity. No sign-up, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Australia Sole Trader Tax Set-Aside Calculator — Income Tax + Medicare</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/au-sole-trader-tax-set-aside-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/au-sole-trader-tax-set-aside-calculator</id>
-    <updated>2026-10-14T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Australian sole trader tax calculator: enter income and expenses to see income tax, Medicare levy, optional HELP repayment and how much of every invoice to set aside. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

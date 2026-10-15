@@ -1,0 +1,65 @@
+name: trial-converter
+description: >-
+  Self-hosted Stripe trial-to-paid conversion: a price-and-date heads-up for
+  trials with a card on file, escalating add-a-card emails for card-less
+  trials, an optional one-time trial extension, and conversion rate reported
+  with and without a card. Browser simulator plus a zero-dependency server with
+  a one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and proven: Churnkey, ProfitWell
+# (Paddle), Baremetrics, Chargebee's trial flows, Userlist and Customer.io all
+# sell lifecycle emails around the trial, and Stripe's own trial_will_end
+# webhook and reminder email are the free baseline. The gap: indie SaaS founders
+# running card-less trials (the common case for self-serve B2B) get no
+# scheduled "add a card" sequence from Stripe, no one-time extension, and no
+# conversion rate split by card versus no card, without paying a lifecycle
+# tool that bills by contact count.
+# duplicate_check: no existing venture handles trials; dunning-engine (failed
+# payments) and cancel-flow (voluntary cancellation) are the siblings, mrr-pulse
+# reads the result. Same buyer, same Stripe account, third stage of the
+# subscription lifecycle: trial -> paid (this), paid -> failed (dunning),
+# paid -> cancelling (cancel-flow).
+#
+# First visitor: indie SaaS founders on Indie Hackers, r/SaaS, r/stripe and
+# Hacker News asking "stripe free trial emails", "no credit card trial
+# conversion", "trial extension stripe", "trial_will_end webhook". Volume not
+# measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet; a hosted
+# version, done-for-you setup or GitHub Sponsors are the paid steps -- hosting
+# under the public name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      Founders running card-less Stripe trials will deploy a dry-run server in
+      their own account once the simulator shows them the add-a-card sequence,
+      because Stripe sends nothing to a trial that has no payment method.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A scheduled add-a-card sequence plus one extension converts more card-less
+      trials than the end-of-trial email alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports an email sent after the trial ended or a customer emailed twice for the same step; the stale-step and idempotency paths come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/trial-converter/
+  analytics: null
