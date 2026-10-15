@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": "mirror-sync",
   "projects": [],
-  "pr": null,
+  "pr": 7066,
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
@@ -25,15 +25,22 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "Synced research/ with oss-research-monorepo main (919825b -> df6ec01); mirror.py check ok, homepage build ok, promptctl validate ok. Merged via merge commit.",
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "research/PROJECTS.md: says mirror-sync step 2 'port each adapted file' - none changed this time; check passed with no ack needed."
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "mirror-sync step 2 says port each adapted file; none changed this time, check passed without ack."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "record step says outcome free text implied; validator requires success|partial|failed and doc_friction {file,issue} objects."
+    }
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Added upstream repo via add_repo to read its head; mirror.py sync fetches itself.",
+  "notes": "Synced research/ with oss-research-monorepo main (919825b -> df6ec01); mirror.py check, homepage build ok. Merge commit. Added upstream repo via add_repo to read its head; mirror.py sync fetches itself.",
   "corrections": [],
   "redteam": null
 }
