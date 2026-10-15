@@ -96,7 +96,9 @@ feature that exists yet. When someone builds it, these rules apply:
   then the visitor's cloud provider. The visitor pays their own cloud bill,
   and the no-SLA clause in §5b applies to their copy too.
 - **Money stays donations.** The only ask is a Buy Me a Coffee link, beside
-  the existing GitHub Sponsors link. This is an owner-approved exception to
+  the existing GitHub Sponsors link, as a plain link with no embedded
+  widget (a third-party script would break the privacy line in §5c). This
+  is an owner-approved exception to
   §6's "no third-party donation links", for Buy Me a Coffee only. It goes in
   only once the owner has created the account and given the handle. Never
   invent the handle.
