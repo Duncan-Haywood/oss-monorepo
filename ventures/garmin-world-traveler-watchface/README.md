@@ -27,7 +27,7 @@ simulator screenshots.)*
   sweeps around together, the same way a real worldtimer watch bezel does.
   A primary city per zone draws on an outer ring in the accent color; a
   second well-known city at zones with more than one famous option (e.g.
-  Paris alongside Lagos, Athens alongside Cairo, Tokyo alongside Seoul)
+  Paris alongside Lagos, Athens alongside Johannesburg, Tokyo alongside Seoul)
   draws on an inner ring in a muted tone, so same-offset pairs never
   overlap.
 - Big digital local time + date in the center, respecting the device's
@@ -72,6 +72,15 @@ Two cities sharing an offset are drawn on different label-ring tiers
 (`:ring => 0` outer/primary, `:ring => 1` inner/secondary) so they don't
 overlap even when neither is mid-DST and they land on the exact same
 angle — see "The ring mechanic" below.
+
+## Tests
+
+`node --test ventures/garmin-world-traveler-watchface/test/citydata.test.mjs`
+parses the city table out of `source/CityData.mc`, ports its DST rules to JS,
+and compares the effective offset of all 42 cities with Node's IANA data at
+every hour of 2025-2027. It caught two wrong cities (Cairo, which resumed DST
+in 2023, and Santiago, whose Southern-hemisphere rule the face does not
+model); they were replaced by Johannesburg and Caracas.
 
 ## Project layout
 
