@@ -2109,6 +2109,11 @@
      "slug": "accel-policy",
      "title": "Does a small control network need an accelerator to meet the control-rate deadline?",
      "summary": "Small MLP policies, cloned from a computed-torque controller for a two-link arm with DAgger and quantised to 8 and 4 bits, with inference latency modelled for microcontroller loops and <em>P</em>-lane accelerators (assumed constants) and the closed loop simulated with that latency. <strong>Preliminary and mostly negative:</strong> the int8 policies track at least 300&times; worse than the teacher, which itself barely notices a sample of delay, so policy accuracy rather than hardware speed limits control; the deadline model says hardware only matters above about 10&nbsp;kHz or for larger networks. Stylised; hardware figures are not measured."
+    },
+    {
+     "slug": "accel-sparse",
+     "title": "When does a task's accuracy tolerance let an accelerator drop its multipliers?",
+     "summary": "Pruning, int4/int8, ternary and binary variants of a 64-32-10 MLP on scikit-learn's 8&times;8 digits (a substitute task: Speech Commands was unreachable), with a modelled energy per inference for a zero-skipping serial engine, over 10 splits. Pruning 75% of int8 weights costs 0.2 points and cuts modelled energy to 36% of dense int8; ternary costs 1.4 points and binary 3.0. Within 1&ndash;2 points of float32 the cheapest design still has multipliers, because operand reads dominate in the assumed model; multiplier energy must be about 10&times; the assumed value before dropping it clearly pays. Stylised: assumed 45 nm constants, no RTL or synthesis, no lookup-table variant, toy task."
     }
    ]
   },
