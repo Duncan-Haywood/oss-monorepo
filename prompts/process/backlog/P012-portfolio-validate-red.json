@@ -19,7 +19,7 @@
   "baseline": "231 problems; failure on 3 of 3 recent merges",
   "opened": "2026-10-15",
   "source": "PR 7021 CI, 2026-10-15",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7107",
   "result": null,
   "history": [
     "2026-10-15: portfolio/router/validate.py now reports 'All 1244 VENTURE.yaml files are valid' on main; the recurring red `validate` was also run-record format (5 fix commits to malformed records on 2026-10-14/15). promptctl record now prints the enforced shapes."
