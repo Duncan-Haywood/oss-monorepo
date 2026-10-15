@@ -25,15 +25,18 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 5,
-  "outcome": "mrr-pulse gains weekly digest + churn alert to a Slack/Discord webhook (off by default, https only, totals only); Dockerfile test caught a missing COPY; regen mirror refreshed",
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "CLAUDE.md: gitops/tests shows 26 failures on a clean tree when gh is preinstalled; matches the documented baseline (26), so I did not compare against origin/main."
+    {
+      "file": "CLAUDE.md",
+      "issue": "gitops/tests shows 26 failures on a clean tree when gh is preinstalled; matches the documented baseline (26), so I did not compare against origin/main."
+    }
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Local checklist run: checklist_coverage ok, regen --verify 0 after regen, mrr-pulse 37/37, gitops 576 pass/26 known-baseline fail.",
+  "notes": "Local checklist run: checklist_coverage ok, regen --verify 0 after regen, mrr-pulse 37/37, gitops 576 pass/26 known-baseline fail. Original outcome text: mrr-pulse gains weekly digest + churn alert to a Slack/Discord webhook (off by default, https only, totals only); Dockerfile test caught a missing COPY; regen mirror refreshed",
   "corrections": [],
   "redteam": null
 }
