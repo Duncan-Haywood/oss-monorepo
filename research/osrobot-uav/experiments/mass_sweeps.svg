@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" font-family="sans-serif" font-size="12">
+<rect width="100%" height="100%" fill="white"/>
+<rect x="50" y="40" width="300" height="235" fill="none" stroke="#999"/>
+<text x="50" y="28">Loiter time on station (min), 3 km out</text>
+<text x="42" y="279.0" text-anchor="end">0</text>
+<text x="42" y="220.25" text-anchor="end">1</text>
+<text x="42" y="161.5" text-anchor="end">2</text>
+<text x="42" y="102.75" text-anchor="end">3</text>
+<text x="42" y="44.0" text-anchor="end">4</text>
+<text x="50.0" y="291" text-anchor="middle" font-size="10">1</text>
+<text x="53.37078651685393" y="291" text-anchor="middle" font-size="10">2</text>
+<text x="63.48314606741573" y="291" text-anchor="middle" font-size="10">5</text>
+<text x="80.33707865168539" y="291" text-anchor="middle" font-size="10">10</text>
+<text x="114.04494382022472" y="291" text-anchor="middle" font-size="10">20</text>
+<text x="147.75280898876406" y="291" text-anchor="middle" font-size="10">30</text>
+<text x="198.31460674157304" y="291" text-anchor="middle" font-size="10">45</text>
+<text x="248.87640449438203" y="291" text-anchor="middle" font-size="10">60</text>
+<text x="350.0" y="291" text-anchor="middle" font-size="10">90</text>
+<polyline fill="none" stroke="#1b6ca8" stroke-width="2" points="50.0,208.6 53.4,206.3 63.5,200.4 80.3,188.1 114.0,149.3 147.8,51.8"/>
+<circle cx="50.0" cy="208.6" r="3" fill="#1b6ca8"/>
+<circle cx="53.4" cy="206.3" r="3" fill="#1b6ca8"/>
+<circle cx="63.5" cy="200.4" r="3" fill="#1b6ca8"/>
+<circle cx="80.3" cy="188.1" r="3" fill="#1b6ca8"/>
+<circle cx="114.0" cy="149.3" r="3" fill="#1b6ca8"/>
+<circle cx="147.8" cy="51.8" r="3" fill="#1b6ca8"/>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="50.0,206.8 53.4,206.8 63.5,205.7 80.3,203.9 114.0,200.4 147.8,196.9 198.3,189.8 248.9,181.6 350.0,162.2"/>
+<circle cx="50.0" cy="206.8" r="3" fill="#c0392b"/>
+<circle cx="53.4" cy="206.8" r="3" fill="#c0392b"/>
+<circle cx="63.5" cy="205.7" r="3" fill="#c0392b"/>
+<circle cx="80.3" cy="203.9" r="3" fill="#c0392b"/>
+<circle cx="114.0" cy="200.4" r="3" fill="#c0392b"/>
+<circle cx="147.8" cy="196.9" r="3" fill="#c0392b"/>
+<circle cx="198.3" cy="189.8" r="3" fill="#c0392b"/>
+<circle cx="248.9" cy="181.6" r="3" fill="#c0392b"/>
+<circle cx="350.0" cy="162.2" r="3" fill="#c0392b"/>
+<polyline fill="none" stroke="#2e8b57" stroke-width="2" points="50.0,172.2 53.4,171.6 63.5,168.7 80.3,164.0 114.0,152.8 147.8,137.5 198.3,108.2 248.9,68.2"/>
+<circle cx="50.0" cy="172.2" r="3" fill="#2e8b57"/>
+<circle cx="53.4" cy="171.6" r="3" fill="#2e8b57"/>
+<circle cx="63.5" cy="168.7" r="3" fill="#2e8b57"/>
+<circle cx="80.3" cy="164.0" r="3" fill="#2e8b57"/>
+<circle cx="114.0" cy="152.8" r="3" fill="#2e8b57"/>
+<circle cx="147.8" cy="137.5" r="3" fill="#2e8b57"/>
+<circle cx="198.3" cy="108.2" r="3" fill="#2e8b57"/>
+<circle cx="248.9" cy="68.2" r="3" fill="#2e8b57"/>
+<rect x="420" y="40" width="300" height="235" fill="none" stroke="#999"/>
+<text x="420" y="28">Distance to the site (km), 10 min on station</text>
+<text x="412" y="279.0" text-anchor="end">0</text>
+<text x="412" y="220.25" text-anchor="end">1</text>
+<text x="412" y="161.5" text-anchor="end">2</text>
+<text x="412" y="102.75" text-anchor="end">3</text>
+<text x="412" y="44.0" text-anchor="end">4</text>
+<text x="420.0" y="291" text-anchor="middle" font-size="10">0.25</text>
+<text x="426.3829787234043" y="291" text-anchor="middle" font-size="10">0.5</text>
+<text x="439.1489361702128" y="291" text-anchor="middle" font-size="10">1</text>
+<text x="464.6808510638298" y="291" text-anchor="middle" font-size="10">2</text>
+<text x="490.2127659574468" y="291" text-anchor="middle" font-size="10">3</text>
+<text x="541.2765957446809" y="291" text-anchor="middle" font-size="10">5</text>
+<text x="617.8723404255319" y="291" text-anchor="middle" font-size="10">8</text>
+<text x="720.0" y="291" text-anchor="middle" font-size="10">12</text>
+<polyline fill="none" stroke="#1b6ca8" stroke-width="2" points="420.0,198.0 426.4,197.4 439.1,195.7 464.7,191.6 490.2,188.1 541.3,179.2 617.9,163.4 720.0,135.8"/>
+<circle cx="420.0" cy="198.0" r="3" fill="#1b6ca8"/>
+<circle cx="426.4" cy="197.4" r="3" fill="#1b6ca8"/>
+<circle cx="439.1" cy="195.7" r="3" fill="#1b6ca8"/>
+<circle cx="464.7" cy="191.6" r="3" fill="#1b6ca8"/>
+<circle cx="490.2" cy="188.1" r="3" fill="#1b6ca8"/>
+<circle cx="541.3" cy="179.2" r="3" fill="#1b6ca8"/>
+<circle cx="617.9" cy="163.4" r="3" fill="#1b6ca8"/>
+<circle cx="720.0" cy="135.8" r="3" fill="#1b6ca8"/>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="420.0,206.3 426.4,205.7 439.1,205.7 464.7,205.1 490.2,203.9 541.3,202.7 617.9,200.4 720.0,196.9"/>
+<circle cx="420.0" cy="206.3" r="3" fill="#c0392b"/>
+<circle cx="426.4" cy="205.7" r="3" fill="#c0392b"/>
+<circle cx="439.1" cy="205.7" r="3" fill="#c0392b"/>
+<circle cx="464.7" cy="205.1" r="3" fill="#c0392b"/>
+<circle cx="490.2" cy="203.9" r="3" fill="#c0392b"/>
+<circle cx="541.3" cy="202.7" r="3" fill="#c0392b"/>
+<circle cx="617.9" cy="200.4" r="3" fill="#c0392b"/>
+<circle cx="720.0" cy="196.9" r="3" fill="#c0392b"/>
+<polyline fill="none" stroke="#2e8b57" stroke-width="2" points="420.0,169.2 426.4,168.7 439.1,168.1 464.7,166.3 490.2,164.0 541.3,160.4 617.9,154.0 720.0,145.2"/>
+<circle cx="420.0" cy="169.2" r="3" fill="#2e8b57"/>
+<circle cx="426.4" cy="168.7" r="3" fill="#2e8b57"/>
+<circle cx="439.1" cy="168.1" r="3" fill="#2e8b57"/>
+<circle cx="464.7" cy="166.3" r="3" fill="#2e8b57"/>
+<circle cx="490.2" cy="164.0" r="3" fill="#2e8b57"/>
+<circle cx="541.3" cy="160.4" r="3" fill="#2e8b57"/>
+<circle cx="617.9" cy="154.0" r="3" fill="#2e8b57"/>
+<circle cx="720.0" cy="145.2" r="3" fill="#2e8b57"/>
+<text x="14" y="165.0" transform="rotate(-90 14 165.0)" text-anchor="middle">all-up mass (kg), 0.5 kg payload</text>
+<rect x="150" y="306" width="14" height="4" fill="#1b6ca8"/><text x="170" y="312">multirotor</text>
+<rect x="310" y="306" width="14" height="4" fill="#c0392b"/><text x="330" y="312">fixed wing</text>
+<rect x="470" y="306" width="14" height="4" fill="#2e8b57"/><text x="490" y="312">VTOL fixed wing</text>
+</svg>
