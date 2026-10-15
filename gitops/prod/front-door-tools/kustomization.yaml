@@ -33,51 +33,51 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548382 bytes
-#   portfolio-front-tools-1: 92 files, 555572 bytes
-#   portfolio-front-tools-2: 144 files, 553629 bytes
+#   portfolio-front-tools-0: 145 files, 548379 bytes
+#   portfolio-front-tools-1: 92 files, 555577 bytes
+#   portfolio-front-tools-2: 144 files, 553636 bytes
 #   portfolio-front-tools-3: 128 files, 549962 bytes
-#   portfolio-front-tools-4: 136 files, 556699 bytes
-#   portfolio-front-tools-5: 130 files, 549981 bytes
-#   portfolio-front-tools-6: 127 files, 556332 bytes
-#   portfolio-front-tools-7: 120 files, 554720 bytes
-#   portfolio-front-tools-8: 130 files, 555880 bytes
-#   portfolio-front-tools-9: 136 files, 550080 bytes
-#   portfolio-front-tools-10: 134 files, 550241 bytes
-#   portfolio-front-tools-11: 137 files, 555435 bytes
+#   portfolio-front-tools-4: 136 files, 556701 bytes
+#   portfolio-front-tools-5: 130 files, 549955 bytes
+#   portfolio-front-tools-6: 127 files, 556335 bytes
+#   portfolio-front-tools-7: 120 files, 554709 bytes
+#   portfolio-front-tools-8: 130 files, 555890 bytes
+#   portfolio-front-tools-9: 136 files, 550076 bytes
+#   portfolio-front-tools-10: 134 files, 550240 bytes
+#   portfolio-front-tools-11: 137 files, 555410 bytes
 #   portfolio-front-tools-12: 129 files, 551447 bytes
-#   portfolio-front-tools-13: 127 files, 551650 bytes
-#   portfolio-front-tools-14: 125 files, 547587 bytes
-#   portfolio-front-tools-15: 132 files, 553134 bytes
-#   portfolio-front-tools-16: 119 files, 549975 bytes
-#   portfolio-front-tools-17: 134 files, 554134 bytes
-#   portfolio-front-tools-18: 122 files, 548304 bytes
-#   portfolio-front-tools-19: 121 files, 553483 bytes
+#   portfolio-front-tools-13: 127 files, 551649 bytes
+#   portfolio-front-tools-14: 125 files, 547584 bytes
+#   portfolio-front-tools-15: 132 files, 553136 bytes
+#   portfolio-front-tools-16: 119 files, 549968 bytes
+#   portfolio-front-tools-17: 134 files, 554136 bytes
+#   portfolio-front-tools-18: 122 files, 548309 bytes
+#   portfolio-front-tools-19: 121 files, 553485 bytes
 #   portfolio-front-tools-20: 129 files, 550574 bytes
-#   portfolio-front-tools-21: 120 files, 554498 bytes
-#   portfolio-front-tools-22: 121 files, 554842 bytes
-#   portfolio-front-tools-23: 117 files, 550986 bytes
-#   portfolio-front-tools-24: 128 files, 556990 bytes
-#   portfolio-front-tools-25: 125 files, 551562 bytes
-#   portfolio-front-tools-26: 132 files, 550466 bytes
-#   portfolio-front-tools-27: 139 files, 553727 bytes
-#   portfolio-front-tools-28: 119 files, 553698 bytes
-#   portfolio-front-tools-29: 126 files, 544947 bytes
-#   portfolio-front-tools-30: 133 files, 554402 bytes
-#   portfolio-front-tools-31: 133 files, 554061 bytes
-#   portfolio-front-tools-32: 119 files, 548818 bytes
-#   portfolio-front-tools-33: 137 files, 556052 bytes
-#   portfolio-front-tools-34: 115 files, 555994 bytes
-#   portfolio-front-tools-35: 98 files, 553264 bytes
-#   portfolio-front-tools-36: 126 files, 556289 bytes
-#   portfolio-front-tools-37: 122 files, 549275 bytes
-#   portfolio-front-tools-38: 126 files, 551872 bytes
-#   portfolio-front-tools-39: 125 files, 553588 bytes
-#   portfolio-front-tools-40: 132 files, 554171 bytes
-#   portfolio-front-tools-41: 140 files, 551075 bytes
-#   portfolio-front-tools-42: 126 files, 553741 bytes
-#   portfolio-front-tools-43: 120 files, 550954 bytes
-#   portfolio-front-tools-44: 105 files, 544715 bytes
+#   portfolio-front-tools-21: 120 files, 554500 bytes
+#   portfolio-front-tools-22: 121 files, 554844 bytes
+#   portfolio-front-tools-23: 117 files, 550991 bytes
+#   portfolio-front-tools-24: 128 files, 556991 bytes
+#   portfolio-front-tools-25: 125 files, 551560 bytes
+#   portfolio-front-tools-26: 132 files, 550461 bytes
+#   portfolio-front-tools-27: 139 files, 553730 bytes
+#   portfolio-front-tools-28: 119 files, 553699 bytes
+#   portfolio-front-tools-29: 126 files, 544951 bytes
+#   portfolio-front-tools-30: 133 files, 554404 bytes
+#   portfolio-front-tools-31: 133 files, 555500 bytes
+#   portfolio-front-tools-32: 120 files, 551154 bytes
+#   portfolio-front-tools-33: 137 files, 556194 bytes
+#   portfolio-front-tools-34: 115 files, 556024 bytes
+#   portfolio-front-tools-35: 98 files, 553293 bytes
+#   portfolio-front-tools-36: 126 files, 556231 bytes
+#   portfolio-front-tools-37: 122 files, 549271 bytes
+#   portfolio-front-tools-38: 126 files, 551819 bytes
+#   portfolio-front-tools-39: 125 files, 553577 bytes
+#   portfolio-front-tools-40: 132 files, 554098 bytes
+#   portfolio-front-tools-41: 140 files, 551099 bytes
+#   portfolio-front-tools-42: 126 files, 553864 bytes
+#   portfolio-front-tools-43: 120 files, 550924 bytes
+#   portfolio-front-tools-44: 105 files, 544672 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -4262,6 +4262,7 @@ configMapGenerator:
       - quarterly-estimated-tax-calendar__vs-a-spreadsheet.html.gz=quarterly-estimated-tax-calendar__vs-a-spreadsheet.html.gz
       - quarterly-estimated-tax-calendar__vs-keeper.html.gz=quarterly-estimated-tax-calendar__vs-keeper.html.gz
       - quarterly-estimated-tax-calendar__what-happens-if-i-miss-a-quarterly-estimated-tax-payment.html.gz=quarterly-estimated-tax-calendar__what-happens-if-i-miss-a-quarterly-estimated-tax-payment.html.gz
+      - quick-pick-survey__index.html.gz=quick-pick-survey__index.html.gz
       - quickbooks-chart-of-accounts-csv-check__calc.mjs.gz=quickbooks-chart-of-accounts-csv-check__calc.mjs.gz
       - quickbooks-chart-of-accounts-csv-check__index.html.gz=quickbooks-chart-of-accounts-csv-check__index.html.gz
       - quickbooks-chart-of-accounts-csv-check__usage.mjs.gz=quickbooks-chart-of-accounts-csv-check__usage.mjs.gz
@@ -4344,12 +4345,12 @@ configMapGenerator:
       - referrer-permissions-policy-check__index.html.gz=referrer-permissions-policy-check__index.html.gz
       - referrer-permissions-policy-check__probe.mjs.gz=referrer-permissions-policy-check__probe.mjs.gz
       - referrer-permissions-policy-check__usage.mjs.gz=referrer-permissions-policy-check__usage.mjs.gz
-      - regex-redos-check__cli.mjs.gz=regex-redos-check__cli.mjs.gz
   - name: portfolio-front-tools-32
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - regex-redos-check__cli.mjs.gz=regex-redos-check__cli.mjs.gz
       - regex-redos-check__engine.mjs.gz=regex-redos-check__engine.mjs.gz
       - regex-redos-check__how-regex-denial-of-service-works-and-how-to-find-it-before-an-attacker-does.html.gz=regex-redos-check__how-regex-denial-of-service-works-and-how-to-find-it-before-an-attacker-does.html.gz
       - regex-redos-check__index.html.gz=regex-redos-check__index.html.gz
