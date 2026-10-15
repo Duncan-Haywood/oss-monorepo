@@ -1,0 +1,36 @@
+closed PRs: 526; merged: 460 (87.5%, Wilson 95% 84.3% to 90.0%); closed unmerged: 66
+
+merge rate by era (created date)
+  bulk (09-28..10-01)    merged 244/260 = 93.8% (Wilson 90.2% to 96.2%)
+  tracked (10-05..)      merged 216/266 = 81.2% (Wilson 76.1% to 85.4%)
+
+merge rate by creation day
+  09-28    8/  8 = 100%
+  09-29   86/ 88 = 98%
+  09-30  131/144 = 91%
+  10-01   19/ 20 = 95%
+  10-05    2/  2 = 100%
+  10-12    1/  1 = 100%
+  10-13  105/119 = 88%
+  10-14   69/105 = 66%
+  10-15   39/ 39 = 100%
+
+time from creation to merge, minutes (merged PRs only)
+  all                    n=460 median    0.6  p90    12.5  max   2157.4
+  bulk (09-28..10-01)    n=244 median    0.3  p90     7.2  max   2157.4
+  tracked (10-05..)      n=216 median    1.6  p90    14.3  max    170.5
+  merged after more than 3 h: 18 PRs
+
+batch merges: 3 or more PRs sharing one merge timestamp to the second
+  09-30T20:19:25   7 PRs, waited 0.1 to 8.1 h
+  09-30T21:21:06   3 PRs, waited 12.9 to 13.0 h
+  09-30T21:21:07   7 PRs, waited 14.0 to 20.0 h
+  09-30T22:13:05   3 PRs, waited 21.8 to 24.8 h
+  20 of 460 merged PRs (4.3%) were merged in 4 such batches
+
+bursts: PRs created within 10 s of the previous PR
+  in a burst      merged  45/ 75 = 60.0% (Wilson 48.7% to 70.3%)
+  not in a burst  merged 415/451 = 92.0% (Wilson 89.1% to 94.2%)
+  32 bursts, sizes: [5, 5, 4, 4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+
+closed-unmerged PRs by number: 34, 67, 118, 146, 151, 191, 196, 197, 198, 203, 205, 211, 218, 227, 237, 242, 270, 278, 282, 283, 294, 295, 296, 302, 333, 343, 347, 348, 349, 350, 389, 396, 397, 400, 402, 407, 410, 422, 424, 425, 427, 432, 433, 434, 435, 436, 443, 444, 445, 446, 447, 450, 452, 453, 454, 455, 456, 459, 461, 466, 468, 469, 470, 475, 478, 479
