@@ -153,7 +153,7 @@ def _landing_order(runs: list[tuple[Path, dict[str, Any]]]) -> dict[str, int]:
     except (OSError, subprocess.SubprocessError):
         return {}
     names = [Path(line).name for line in out.splitlines() if line.strip()]
-    # git lists newest first; an uncommitted record is not listed and is newest.
+    # git lists newest first; a record git does not list (bulk mirror) ranks oldest.
     return {name: len(names) - i for i, name in enumerate(names)}
 
 
@@ -162,7 +162,7 @@ def runs_since_review(runs: list[tuple[Path, dict[str, Any]]]) -> int:
     rank = _landing_order(runs)
     ordered = sorted(
         enumerate(runs),
-        key=lambda ir: (str(ir[1][1].get("date", "")), rank.get(ir[1][0].name, 1 << 30), ir[0]),
+        key=lambda ir: (str(ir[1][1].get("date", "")), rank.get(ir[1][0].name, 0), ir[0]),
     )
     count = 0
     for _, (_, rec) in ordered:

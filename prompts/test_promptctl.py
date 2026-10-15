@@ -100,6 +100,19 @@ class RouteTest(PromptTestCase):
         self.assertEqual(promptctl.runs_since_review(promptctl.load_runs(self.fx.root)), 0)
         self.assertNotEqual(promptctl.route(self.fx.root, rng=random.Random(0))["track"], "review")
 
+    def test_same_day_records_count_in_landing_order(self):
+        import subprocess
+        git = lambda *a: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a],
+                                        cwd=self.fx.repo, check=True, capture_output=True)
+        git("init", "-q")
+        # File names sort opposite to landing order: the review landed first.
+        for name, track in [("z-review.json", "review"), ("a-run1.json", "ventures"),
+                            ("m-run2.json", "ventures")]:
+            self.fx.run(name, _record(track=track, day="2026-10-05"))
+            git("add", "-A")
+            git("commit", "-qm", name)
+        self.assertEqual(promptctl.runs_since_review(promptctl.load_runs(self.fx.root)), 2)
+
     def test_a_due_review_goes_to_a_share_of_runs(self):
         for i in range(3):
             self.fx.run(f"2026-10-0{i + 1}-s{i}.json", _record(day=f"2026-10-0{i + 1}"))
