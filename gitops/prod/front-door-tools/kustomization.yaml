@@ -71,13 +71,13 @@
 #   portfolio-front-tools-35: 108 files, 553418 bytes
 #   portfolio-front-tools-36: 104 files, 554574 bytes
 #   portfolio-front-tools-37: 126 files, 556847 bytes
-#   portfolio-front-tools-38: 124 files, 556916 bytes
-#   portfolio-front-tools-39: 130 files, 554339 bytes
-#   portfolio-front-tools-40: 128 files, 546673 bytes
-#   portfolio-front-tools-41: 138 files, 556013 bytes
-#   portfolio-front-tools-42: 136 files, 555268 bytes
-#   portfolio-front-tools-43: 123 files, 555162 bytes
-#   portfolio-front-tools-44: 118 files, 552924 bytes
+#   portfolio-front-tools-38: 122 files, 548558 bytes
+#   portfolio-front-tools-39: 130 files, 553934 bytes
+#   portfolio-front-tools-40: 130 files, 556565 bytes
+#   portfolio-front-tools-41: 138 files, 554394 bytes
+#   portfolio-front-tools-42: 136 files, 555502 bytes
+#   portfolio-front-tools-43: 122 files, 556829 bytes
+#   portfolio-front-tools-44: 120 files, 555564 bytes
 #   portfolio-front-tools-45: 67 files, 344798 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -5178,6 +5178,7 @@ configMapGenerator:
       - status-keeper__monitor.mjs.gz=status-keeper__monitor.mjs.gz
       - status-keeper__render.mjs.gz=status-keeper__render.mjs.gz
       - status-keeper__server.mjs.gz=status-keeper__server.mjs.gz
+      - status-keeper__subscribers.mjs.gz=status-keeper__subscribers.mjs.gz
       - status-keeper__usage.mjs.gz=status-keeper__usage.mjs.gz
       - stocker-cattle-margin-calculator__calc.mjs.gz=stocker-cattle-margin-calculator__calc.mjs.gz
       - stocker-cattle-margin-calculator__index.html.gz=stocker-cattle-margin-calculator__index.html.gz
@@ -5255,14 +5256,14 @@ configMapGenerator:
       - student-loan-rap-ibr-standard-calculator__index.html.gz=student-loan-rap-ibr-standard-calculator__index.html.gz
       - student-loan-rap-ibr-standard-calculator__usage.mjs.gz=student-loan-rap-ibr-standard-calculator__usage.mjs.gz
       - studio-class-slot-optimizer__calc.mjs.gz=studio-class-slot-optimizer__calc.mjs.gz
-      - studio-class-slot-optimizer__index.html.gz=studio-class-slot-optimizer__index.html.gz
-      - studio-class-slot-optimizer__usage.mjs.gz=studio-class-slot-optimizer__usage.mjs.gz
-      - stump-grinding-price-calculator__calc.mjs.gz=stump-grinding-price-calculator__calc.mjs.gz
   - name: portfolio-front-tools-39
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - studio-class-slot-optimizer__index.html.gz=studio-class-slot-optimizer__index.html.gz
+      - studio-class-slot-optimizer__usage.mjs.gz=studio-class-slot-optimizer__usage.mjs.gz
+      - stump-grinding-price-calculator__calc.mjs.gz=stump-grinding-price-calculator__calc.mjs.gz
       - stump-grinding-price-calculator__index.html.gz=stump-grinding-price-calculator__index.html.gz
       - stump-grinding-price-calculator__usage.mjs.gz=stump-grinding-price-calculator__usage.mjs.gz
       - subdomain-takeover-check__analyze.mjs.gz=subdomain-takeover-check__analyze.mjs.gz
@@ -5390,14 +5391,14 @@ configMapGenerator:
       - terraform-plan-secret-exposure-check__engine.mjs.gz=terraform-plan-secret-exposure-check__engine.mjs.gz
       - terraform-plan-secret-exposure-check__index.html.gz=terraform-plan-secret-exposure-check__index.html.gz
       - terraform-plan-secret-exposure-check__usage.mjs.gz=terraform-plan-secret-exposure-check__usage.mjs.gz
-      - terraform-plan-secret-exposure-check__vs-checkov.html.gz=terraform-plan-secret-exposure-check__vs-checkov.html.gz
-      - terraform-plan-secret-exposure-check__vs-gitleaks.html.gz=terraform-plan-secret-exposure-check__vs-gitleaks.html.gz
-      - terraform-plan-secret-exposure-check__vs-manually-reading-the-plan-json.html.gz=terraform-plan-secret-exposure-check__vs-manually-reading-the-plan-json.html.gz
   - name: portfolio-front-tools-40
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - terraform-plan-secret-exposure-check__vs-checkov.html.gz=terraform-plan-secret-exposure-check__vs-checkov.html.gz
+      - terraform-plan-secret-exposure-check__vs-gitleaks.html.gz=terraform-plan-secret-exposure-check__vs-gitleaks.html.gz
+      - terraform-plan-secret-exposure-check__vs-manually-reading-the-plan-json.html.gz=terraform-plan-secret-exposure-check__vs-manually-reading-the-plan-json.html.gz
       - terraform-plan-secret-exposure-check__why-terraform-plan-json-leaks-secrets.html.gz=terraform-plan-secret-exposure-check__why-terraform-plan-json-leaks-secrets.html.gz
       - testimonial-keeper__index.html.gz=testimonial-keeper__index.html.gz
       - testimonial-keeper__page.mjs.gz=testimonial-keeper__page.mjs.gz
@@ -5525,12 +5526,12 @@ configMapGenerator:
       - trump-account-calculator__usage.mjs.gz=trump-account-calculator__usage.mjs.gz
       - trump-account-calculator__vs-doing-the-math-by-hand.html.gz=trump-account-calculator__vs-doing-the-math-by-hand.html.gz
       - tuckpointing-bid-calculator__calc.mjs.gz=tuckpointing-bid-calculator__calc.mjs.gz
-      - tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz=tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz
   - name: portfolio-front-tools-41
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz=tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz
       - tuckpointing-bid-calculator__index.html.gz=tuckpointing-bid-calculator__index.html.gz
       - tuckpointing-bid-calculator__usage.mjs.gz=tuckpointing-bid-calculator__usage.mjs.gz
       - tuckpointing-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=tuckpointing-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
@@ -5668,12 +5669,12 @@ configMapGenerator:
       - uk-savings-interest-tax-calculator__calc.mjs.gz=uk-savings-interest-tax-calculator__calc.mjs.gz
       - uk-savings-interest-tax-calculator__index.html.gz=uk-savings-interest-tax-calculator__index.html.gz
       - uk-savings-interest-tax-calculator__usage.mjs.gz=uk-savings-interest-tax-calculator__usage.mjs.gz
-      - uk-scottish-income-tax-calculator__calc.mjs.gz=uk-scottish-income-tax-calculator__calc.mjs.gz
   - name: portfolio-front-tools-42
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - uk-scottish-income-tax-calculator__calc.mjs.gz=uk-scottish-income-tax-calculator__calc.mjs.gz
       - uk-scottish-income-tax-calculator__index.html.gz=uk-scottish-income-tax-calculator__index.html.gz
       - uk-scottish-income-tax-calculator__usage.mjs.gz=uk-scottish-income-tax-calculator__usage.mjs.gz
       - uk-self-assessment-late-penalty-calculator__calc.mjs.gz=uk-self-assessment-late-penalty-calculator__calc.mjs.gz
@@ -5809,12 +5810,12 @@ configMapGenerator:
       - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz
       - vendor-change-watch__store.mjs.gz=vendor-change-watch__store.mjs.gz
       - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
-      - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
   - name: portfolio-front-tools-43
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
       - vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz=vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz
       - vendor-contract-clause-reader__calc.mjs.gz=vendor-contract-clause-reader__calc.mjs.gz
       - vendor-contract-clause-reader__index.html.gz=vendor-contract-clause-reader__index.html.gz
@@ -5936,13 +5937,13 @@ configMapGenerator:
       - waterfront-rental-season-planner__calc.mjs.gz=waterfront-rental-season-planner__calc.mjs.gz
       - waterfront-rental-season-planner__index.html.gz=waterfront-rental-season-planner__index.html.gz
       - waterfront-rental-season-planner__usage.mjs.gz=waterfront-rental-season-planner__usage.mjs.gz
-      - webhook-relay__admin.mjs.gz=webhook-relay__admin.mjs.gz
-      - webhook-relay__filter.mjs.gz=webhook-relay__filter.mjs.gz
   - name: portfolio-front-tools-44
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - webhook-relay__admin.mjs.gz=webhook-relay__admin.mjs.gz
+      - webhook-relay__filter.mjs.gz=webhook-relay__filter.mjs.gz
       - webhook-relay__index.html.gz=webhook-relay__index.html.gz
       - webhook-relay__relay.mjs.gz=webhook-relay__relay.mjs.gz
       - webhook-relay__server.mjs.gz=webhook-relay__server.mjs.gz
