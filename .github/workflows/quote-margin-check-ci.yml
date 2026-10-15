@@ -30,6 +30,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -41,6 +43,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -55,6 +59,8 @@ jobs:
         working-directory: ventures/quote-margin-check/site
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       # parity.test.mjs shells out to the real CLI and requires byte-identical
       # JSON, so this job needs both runtimes -- pinned to the same version
       # cli-test uses, so the two jobs can never disagree about what "the CLI"
