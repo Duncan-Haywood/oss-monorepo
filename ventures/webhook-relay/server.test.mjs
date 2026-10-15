@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
 import { createHmac } from "node:crypto";
-import { handler, tick, parseRoutes } from "./server.mjs";
+import { handler, tick, parseRoutes, deliveryHeaders } from "./server.mjs";
 import { newState } from "./relay.mjs";
 
 const NOW = 1_700_000_000_000;
@@ -155,4 +155,33 @@ test("rateLimitPerMinute defers over-limit events without spending retries, then
 
 test("rateLimitPerMinute must be a sane whole number", () => {
   for (const bad of [0, -1, 1.5, "5", 7000]) assert.throws(() => parseRoutes(JSON.stringify([{ name: "a", target: "http://x", rateLimitPerMinute: bad }])), /rateLimitPerMinute/);
+});
+
+test("route and target headers: env expanded, merged, sent on delivery, never stored", async () => {
+  const routes = parseRoutes(JSON.stringify([{ ...route, headers: { Authorization: "Bearer ${TOK}", "x-a": "1" },
+    targets: [{ url: "http://one.invalid/h", headers: { "x-a": "2" } }, "http://two.invalid/h"] }]), { TOK: "abc" });
+  assert.deepEqual(deliveryHeaders(routes), {
+    "http://one.invalid/h": { authorization: "Bearer abc", "x-a": "2" },
+    "http://two.invalid/h": { authorization: "Bearer abc", "x-a": "1" } });
+  const t = await boot(routes);
+  try {
+    const body = "{}";
+    await fetch(`${t.base}/in/gh`, { method: "POST", body, headers: { "x-hub-signature-256": sign("s3", body) } });
+    assert.ok(!JSON.stringify(t.state).includes("abc"), "secret must not reach the state file");
+    const seen = {};
+    await tick(t.state, NOW, { extraHeaders: deliveryHeaders(routes),
+      fetch: async (u, o) => { seen[u] = o.headers; return { status: 200, headers: new Headers() }; } });
+    assert.equal(seen["http://one.invalid/h"].authorization, "Bearer abc");
+    assert.equal(seen["http://one.invalid/h"]["x-a"], "2");
+    assert.ok(seen["http://two.invalid/h"]["x-relay-event-id"]);
+  } finally { t.close(); }
+});
+
+test("parseRoutes rejects missing env vars and relay-owned headers", () => {
+  const mk = (headers) => JSON.stringify([{ ...route, headers }]);
+  assert.throws(() => parseRoutes(mk({ a: "${NOPE}" }), {}), /NOPE.*not set/);
+  assert.throws(() => parseRoutes(mk({ "X-Relay-Event-Id": "x" })), /cannot be overridden/);
+  assert.throws(() => parseRoutes(mk({ Host: "x" })), /cannot be overridden/);
+  assert.throws(() => parseRoutes(mk(["x"])), /object/);
+  assert.throws(() => parseRoutes(mk({ "bad name": "x" })), /bad header/);
 });

@@ -17,7 +17,26 @@ const env = process.env;
 const MAX_BODY = 1_000_000;
 const SKIP_FORWARD = new Set(["host", "connection", "content-length", "transfer-encoding", "keep-alive", "upgrade", "accept-encoding", "authorization", "cookie"]);
 
-export function parseRoutes(json) {
+const NO_SET = new Set([...SKIP_FORWARD, "x-relay-event-id", "x-relay-attempt"].filter((h) => h !== "authorization"));
+
+// "Bearer ${APP_TOKEN}" -> the env var's value, resolved once at start so a typo fails loudly.
+function expandHeaders(h, env, what) {
+  if (h === undefined) return undefined;
+  if (!h || typeof h !== "object" || Array.isArray(h)) throw new Error(`${what}: headers must be an object of header name to value`);
+  const out = {};
+  for (const [k, v] of Object.entries(h)) {
+    const name = k.toLowerCase();
+    if (!/^[a-z0-9-]+$/.test(name) || typeof v !== "string") throw new Error(`${what}: bad header ${k}`);
+    if (NO_SET.has(name)) throw new Error(`${what}: header ${k} is set by the relay and cannot be overridden`);
+    out[name] = v.replace(/\$\{([A-Z0-9_]+)\}/g, (_, n) => {
+      if (env[n] === undefined) throw new Error(`${what}: header ${k} uses \${${n}} but that environment variable is not set`);
+      return env[n];
+    });
+  }
+  return out;
+}
+
+export function parseRoutes(json, envVars = {}) {
   const routes = JSON.parse(json || "[]");
   if (!Array.isArray(routes) || !routes.length) throw new Error("ROUTES_JSON must be a non-empty array");
   const seen = new Set();
@@ -41,7 +60,13 @@ export function parseRoutes(json) {
     };
     rate(r.rateLimitPerMinute, `route ${r.name}`);
     for (const t of targets) rate(t.rateLimitPerMinute, `route ${r.name} target ${t.url}`);
-    return { scheme: "none", ...r, targets, target: targets[0].url };
+    // headers (route-wide, or per target) are added to every delivery, e.g. an Authorization the receiver wants.
+    const routeHeaders = expandHeaders(r.headers, envVars, `route ${r.name}`);
+    const withHeaders = targets.map((t) => {
+      const h = { ...routeHeaders, ...expandHeaders(t.headers, envVars, `route ${r.name} target ${t.url}`) };
+      return Object.keys(h).length ? { ...t, headers: h } : { ...t, headers: undefined };
+    });
+    return { scheme: "none", ...r, headers: undefined, targets: withHeaders, target: targets[0].url };
   });
 }
 
@@ -124,7 +149,14 @@ export function rateLimits(routes) {
   return out;
 }
 
-// One delivery pass. deps: {fetch, alert, timeoutMs, concurrency, limits}. Returns log lines.
+// URL -> extra headers to send with each delivery (secrets stay in memory, never in the state file).
+export function deliveryHeaders(routes) {
+  const out = {};
+  for (const r of routes) for (const t of r.targets) if (t.headers) out[t.url] = { ...out[t.url], ...t.headers };
+  return out;
+}
+
+// One delivery pass. deps: {fetch, alert, timeoutMs, concurrency, limits, extraHeaders}. Returns log lines.
 export async function tick(state, now, deps) {
   const doFetch = deps.fetch || fetch;
   const log = [];
@@ -136,7 +168,7 @@ export async function tick(state, now, deps) {
       try {
         const res = await doFetch(e.target, {
           method: "POST",
-          headers: { ...e.headers, "x-relay-event-id": e.id, "x-relay-attempt": String(e.attempts.length + 1) },
+          headers: { ...e.headers, ...deps.extraHeaders?.[e.target], "x-relay-event-id": e.id, "x-relay-attempt": String(e.attempts.length + 1) },
           body: Buffer.from(e.bodyB64, "base64"),
           redirect: "manual",
           signal: AbortSignal.timeout(deps.timeoutMs || 10_000),
@@ -166,11 +198,11 @@ async function alert(text) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   if (!env.ADMIN_KEY) { console.error("missing env: ADMIN_KEY"); process.exit(1); }
   let routes;
-  try { routes = parseRoutes(env.ROUTES_JSON); } catch (e) { console.error(`ROUTES_JSON: ${e.message}`); process.exit(1); }
+  try { routes = parseRoutes(env.ROUTES_JSON, env); } catch (e) { console.error(`ROUTES_JSON: ${e.message}`); process.exit(1); }
   const statePath = env.STATE || "state.json";
   const state = readJson(statePath, newState());
   const save = () => { fs.writeFileSync(`${statePath}.tmp`, JSON.stringify(state)); fs.renameSync(`${statePath}.tmp`, statePath); };
-  const deps = { alert, limits: rateLimits(routes) };
+  const deps = { alert, limits: rateLimits(routes), extraHeaders: deliveryHeaders(routes) };
   let busy = false;
   setInterval(async () => {
     if (busy) return;
