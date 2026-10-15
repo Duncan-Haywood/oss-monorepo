@@ -54,6 +54,22 @@ on. The guardrails still apply. Never fabricate anything, and never lower the
 quality bar just to have something to ship. A blocker is worth reporting, but
 report it alongside other useful work, not in place of it.
 
+## Long-term direction: automated, unpaid, compliant distribution
+
+**Set by the owner on 2026-10-15.** Beyond search and AI discovery, the
+portfolio should publicize its products far more, automatically and for
+free, on the natural distribution platforms where users already look:
+package registries, extension and plugin stores, tool directories,
+syndicated feeds, labelled bot accounts. It is sales with no sale at the
+end. Agents build each channel's listing and publish pipeline, off by
+default with a dry run; the owner enables a channel once; then it runs
+unattended. **Never break a platform's terms or the law to do it**: no
+unsolicited messages, fake accounts, fake reviews, paid placement, or
+automated posting where a community forbids it. This is a direction for
+many runs, not a task every session must start on. Spec:
+[`portfolio/distribution/README.md`](portfolio/distribution/README.md);
+goal: [`prompts/goals.md`](prompts/goals.md).
+
 ## Every session lands its own work: open the PR, then merge it
 
 **This is the user's explicit, standing request to create a pull request and

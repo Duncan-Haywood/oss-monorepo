@@ -143,6 +143,16 @@ class RecordTest(PromptTestCase):
         path.write_text(json.dumps(rec))
         self.assertEqual(promptctl.validate(self.fx.root), [])
 
+    def test_mirrored_upstream_line_with_no_date_or_session_is_valid_but_a_native_one_is_not(self):
+        path = promptctl.record(self.fx.root, "research", 0, "https://x/session_abc", day="2026-10-12")
+        rec = json.loads(path.read_text())
+        rec.update(outcome="success", date=None, session=None)
+        path.write_text(json.dumps(rec))
+        self.assertTrue(any("date must be" in e for e in promptctl.validate(self.fx.root)))
+        rec["source"] = promptctl.MIRRORED_RUNS_SOURCE
+        path.write_text(json.dumps(rec))
+        self.assertEqual(promptctl.validate(self.fx.root), [])
+
     def test_record_refuses_a_version_with_no_prompt_file(self):
         with self.assertRaises(SystemExit):
             promptctl.record(self.fx.root, "research", 7, "https://x/session_abc")
@@ -160,14 +170,6 @@ class ValidateTest(PromptTestCase):
 
     def test_minimal_system_is_valid(self):
         self.assertEqual(promptctl.validate(self.fx.root), [])
-
-    def test_mirrored_run_without_session_metadata_is_valid_but_a_native_one_is_not(self):
-        rec = _record(date=None, session=None, source="oss-research-monorepo prompts/runs.jsonl")
-        self.fx.run("None-session.json", rec)
-        self.assertEqual(promptctl.validate(self.fx.root), [])
-        rec.pop("source")
-        self.fx.run("None-session.json", rec)
-        self.assertError("date must be YYYY-MM-DD")
 
     def test_master_prompt_must_route(self):
         (self.fx.repo / "prompt.md").write_text("do whatever\n")
