@@ -74,6 +74,11 @@ test("applySync folds live changes into the current month and remembers who has 
   assert.equal(st.months["2026-10"].churnCount, 3);
 });
 
+test("netNew adds new, expansion and reactivation and subtracts contraction and churn", () => {
+  const cur = { month: "2026-10", mrr: 0, customers: 0, new: 100, expansion: 20, contraction: 3, churn: 5, reactivation: 40, newCount: 0, churnCount: 0, startMrr: 0, startCustomers: 0 };
+  assert.equal(summarize([cur]).netNew, 152);
+});
+
 test("summarize computes retention from the last complete month", () => {
   const months = [
     { month: "2026-08", mrr: 1000, customers: 10, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, startMrr: 1000, startCustomers: 10 },
