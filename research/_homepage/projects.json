@@ -1869,6 +1869,12 @@
     }
     ,
     {
+     "slug": "simdesign-pricebands",
+     "title": "How wide are the budget bands where mass weighting changes the machine choice when prices are uncertain?",
+     "summary": "Follow-up to <code>simdesign-flipseeds</code>, whose count-vs-mass machine-choice flips sat exactly on thresholds set by assumed round prices. Machine prices (800, 600, 300) are scaled by independent U(1&minus;s, 1+s) factors, 400 draws over 8 samples of 20&thinsp;000 sampled brackets. For family <code>log</code> the flip band widens from budgets 600&ndash;800 to 500&ndash;1000, but its edges soften to about one half; <code>large</code>'s single nominal flip at 800 appears in 44% of draws at s = 0.2 and spills to 700 and 900; <code>small</code> never flips. Near-tie flips never lose more than 0.5 points. Stylised: assumed prices and rules, uniform independent noise, arbitrary 0.5-point materiality threshold."
+    }
+    ,
+    {
      "slug": "simdesign-processcover",
      "title": "Which share of a bracket family can each shop process make, and which machine should a shop add next?",
      "summary": "Using the assumed rules of <em>simdesign-dfm</em> (FDM, CNC routing, laser cutting, casting) as feasibility checks on 20&nbsp;000 sampled bracket feature sets, geometry alone gives a degenerate answer: FDM covers 89% and no other process covers anything FDM cannot, so no machine adds coverage (a negative result). With a tip-load requirement of 1&ndash;1000&nbsp;N and closed-form beam checks the processes separate: FDM alone covers 30%, adding casting and a laser cutter 41%, and the best next machine depends on the budget and on the part sizes. Greedy selection from <em>selfrep-nextmachine</em> is sometimes 1&ndash;2 coverage points below exhaustive search. Stylised: all rule values, working stresses and prices are assumed, the beam check ignores fillet stress concentration, and nothing was made."
@@ -2200,6 +2206,11 @@
      "summary": "Random search, a grid, simulated annealing, a genetic algorithm, NSGA-II and a TPE-style Bayesian method are compared at equal evaluation budgets on an 80-design space (MAC lanes &times; bit width &times; ABC script) of a toy quantised-MLP accelerator, using Pareto hypervolume over 100 seeds. TPE reaches 0.917 of the true-front hypervolume at 16 evaluations against 0.891 for random, and 0.980 against 0.943 at 30; annealing trails random throughout. Stylised: the space is tiny (random search at 40 evaluations already scores 0.965), hyperparameters are untuned, objectives are generic-gate counts, and nothing is said about real chips."
     },
     {
+     "slug": "eda-fidelity",
+     "title": "Do cheap rungs of the chip-design tool ladder rank designs like synthesis, and how much synthesis time does screening save?",
+     "summary": "A three-rung ladder over 40 logged MAC-engine designs: a free analytic model (cells &asymp; lanes&times;bits<sup>2</sup>), cycle-accurate simulation, and Yosys synthesis. The analytic rung ranks the cells&times;cycles objective with Spearman 0.74 against synthesis (0.95 for cells alone) and finds 2 of the 5 best designs. Successive halving that screens on the cheap rungs reaches the optimum with certainty at 20&nbsp;s of tool time, against 0.10 for random search at the same budget and 205&nbsp;s for synthesising everything. Stylised: one toy design family with its optimum at a corner, no place-and-route rung, and the search is a replay over the committed log."
+    },
+    {
      "slug": "eda-flowtune",
      "title": "Does the best ABC recipe for one design transfer to another?",
      "summary": "All 400 ABC pass sequences (up to three passes of seven) mapped to SKY130 on eight small datapath designs, so every optimum is known. The best recipe differs per design and transfers badly: one design&rsquo;s best recipe scores a mean 1.31&times; (worst 2.06&times;) the other&rsquo;s optimum, and score rankings of recipes correlate only weakly across designs (Spearman &minus;0.51 to 0.46). A leave-one-out consensus recipe is only slightly better than a median sequence (1.22&times; against 1.26&times;), and warm-starting a hill climber with it helps one design (<em>mac4</em>) but is within noise of random search on average at budgets 10 to 40. Stylised: eight hand-picked toy designs, ABC&rsquo;s static delay, no place and route; the OpenROAD-settings half of the milestone is not done."
@@ -2289,6 +2300,11 @@
      "slug": "mimic-twinc2st",
      "title": "Does a classifier two-sample test catch digital-twin errors that a paired trajectory error misses?",
      "summary": "A stylised pendulum with Coulomb friction and heavy-tailed (Student-t) sensor noise is the &lsquo;real&rsquo; system; twins differ in friction, noise shape or noise level. A classifier two-sample test (5-fold CV AUROC, 800 vs 800 trajectories, 3 seeds) separates real from twin trajectories with boosted trees: a friction error of 0.03 (10%) that moves the noise-free trajectory by only 0.006 rad RMSE &mdash; a quarter of the 0.02 rad noise sd &mdash; gives AUROC 0.72, and 0.91 at 20%. A twin with the right dynamics but Gaussian instead of Student-t noise of the same sd has paired error exactly 0 yet AUROC 0.92 once second-difference features are added (0.59 on raw angles). A logistic regression on raw angles stays at chance (0.51) throughout, because the start angles are symmetric. Limits: one toy system, two noise models, three seeds, a handful of classifier settings; simulated only, nothing about real hardware. Preliminary, no LLM involved: a side piece of track 11."
+    },
+    {
+     "slug": "mimic-mujocotwin",
+     "title": "Does a classifier two-sample test see the integrator, timestep and friction gaps of a MuJoCo digital twin?",
+     "summary": "A MuJoCo hinge pendulum (RK4, 0.002 s, dry friction, Student-t sensor noise) is the &lsquo;real&rsquo; system; twins change the integrator, timestep or friction. A boosted-tree classifier two-sample test (800 trajectories per class, 3 seeds) has AUROC 0.98 for semi-implicit Euler at 0.02 s (paired RMSE 0.028 rad), 0.90 at 0.01 s, 0.67 at 0.005 s (0.007 rad) and 0.53 at 0.002 s (0.003 rad), which is not separable from the null 0.51. A friction error of 10% gives 0.52 and 20% gives 0.61. Gaussian instead of Student-t noise of the same sd has zero paired error but AUROC 0.92. Limits: one toy system, one classifier, 3 seeds; the &lsquo;real&rsquo; system is itself simulated. Stylised, preliminary."
     }
    ]
   }
