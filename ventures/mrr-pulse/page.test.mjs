@@ -83,3 +83,11 @@ test("forecast table prints every scenario and escapes labels", () => {
   assert.match(h, /\$900/); assert.match(h, /\$1,000/); assert.match(h, /\$1,100/);
   assert.ok(!h.includes("<b>"));
 });
+
+import { concentrationCard } from "./page.mjs";
+test("concentration card prints shares and escapes nothing dynamic but numbers", () => {
+  assert.equal(concentrationCard(null), "");
+  const html = concentrationCard({ subscriptions: 4, top1: 0.5, top5: 1, top10: 1, top: [0.5, 0.3], risk: "high" });
+  assert.match(html, /50\.0%/);
+  assert.match(html, /high<\/span> risk/);
+});

@@ -216,6 +216,19 @@ export function forecast(months, { horizon = 6, window = 3 } = {}) {
   return out;
 }
 
+// Customer concentration: how much of MRR sits with the largest subscriptions.
+// `live` is the {id: mrr} map of current subscriptions. Shares are of total
+// MRR; `top` lists the largest five by share only (no ids, so the API and the
+// dashboard carry no customer identifiers). Returns null with no MRR.
+export function concentration(live) {
+  const v = Object.values(live).filter((x) => x > 0).sort((a, b) => b - a);
+  const total = v.reduce((a, b) => a + b, 0);
+  if (!total) return null;
+  const share = (n) => v.slice(0, n).reduce((a, b) => a + b, 0) / total;
+  const risk = share(1) >= 0.25 ? "high" : share(1) >= 0.1 || share(5) >= 0.5 ? "moderate" : "low";
+  return { subscriptions: v.length, top1: share(1), top5: share(5), top10: share(10), top: v.slice(0, 5).map((x) => x / total), risk };
+}
+
 // Monthly history as CSV for a spreadsheet, an accountant or an investor deck.
 // Money is in major units (12.34), one row per month, oldest first. Months
 // rebuilt from dates at today's prices are flagged in the `approximate` column.
