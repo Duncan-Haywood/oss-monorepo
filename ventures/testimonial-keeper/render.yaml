@@ -1,0 +1,31 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+services:
+  - type: web
+    name: testimonial-keeper
+    runtime: docker
+    dockerContext: ventures/testimonial-keeper
+    dockerfilePath: ventures/testimonial-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: IP_SECRET
+        generateValue: true
+      - key: TRUST_PROXY
+        value: "true"
+      - key: PUBLIC_URL
+        sync: false
+      - key: COMPANY_NAME
+        sync: false
+      - key: BRAND_COLOR
+        sync: false
+      - key: NOTIFY_WEBHOOK
+        sync: false
