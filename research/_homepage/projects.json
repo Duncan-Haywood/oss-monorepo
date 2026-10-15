@@ -1618,6 +1618,16 @@
      "summary": "Extending the stylised urgency-label model, the audit labels are themselves wrong. Taking them as truth biases the estimated label accuracy (0.57 instead of 0.70 with a 0.8-accuracy auditor) and does not improve with more audits: the policy loses 47% of the label&rsquo;s gain over ignoring it at label accuracy 0.7, and 31% at 0.9. A 0.9 auditor costs only 8&ndash;14%. Maximum likelihood over the unseen true class, given the auditor&rsquo;s accuracy, recovers the true-parameter value, but it needs that accuracy known (not identifiable from one auditor) and is no better at 50 audits with a poor auditor. Stylised; both label and auditor are made-up uniform-error matrices."
     },
     {
+     "slug": "ambient-dsaudit",
+     "title": "Can an assistant learn its urgency label&rsquo;s reliability from two noisy auditors, and what does a wrongly assumed auditor accuracy cost?",
+     "summary": "Extending the noisy-audit model, a wrongly assumed accuracy for a 0.8-accuracy auditor costs 31% of a 0.9 label&rsquo;s gain if the auditor is trusted fully, 17% if assumed 0.9 and 6% if assumed 0.6 (about 39&ndash;47% at either extreme for a 0.7 label). With two independent auditors on every message, Dawid&ndash;Skene EM learns all three confusion matrices with none supplied: it recovers the true-parameter value exactly in the population limit and at n&nbsp;=&nbsp;1000 is within 0.0005 of the oracle given the same number of labels, 0.0009 to 0.0128 above taking one auditor as truth. At n&nbsp;=&nbsp;50 with two 0.7 auditors it still falls below ignoring the label in 18% of audit sets. Stylised: uniform errors, independent auditors, round-number utilities; nothing measured on people."
+    },
+    {
+     "slug": "ambient-dscorr",
+     "title": "What does Dawid&ndash;Skene do when the two auditors share their errors?",
+     "summary": "Extending the two-auditor model, the second auditor copies the first with probability &rho; (each stays 0.8 accurate). Dawid&ndash;Skene reads their agreement as correctness: the accuracy it assigns auditor 1 rises from 0.80 to 0.91 at &rho;&nbsp;=&nbsp;0.5 and 1.00 at &rho;&nbsp;=&nbsp;1. At label accuracy 0.9 its policy utility falls from 0.4066 (&rho;&nbsp;=&nbsp;0) to 0.4026 and 0.3992, where it equals taking one auditor as truth, and never goes below that in this model; an oracle told auditor 1&rsquo;s accuracy is unaffected. Stylised: one shared-error model, uniform errors, round-number utilities; nothing measured on people."
+    },
+    {
      "slug": "ambient-bandit",
      "title": "Can an always-on assistant learn when to speak from accept/dismiss feedback alone, and what does it cost in dismissals?",
      "summary": "A simulated assistant learns an interruption policy online (greedy, &epsilon;-greedy or Thompson-sampled logistic model) from the user&rsquo;s reaction only when it speaks. With an uninformed prior none of the three learns a useful policy in 100&nbsp;h; with a prior that the intent score is informative, greedy reaches 90% of an offline oracle&rsquo;s rate after a median 22.5&nbsp;h and about 185 dismissals, and Thompson sampling takes 32.5&nbsp;h. It still earns 10.4 against the oracle&rsquo;s 12.7 per hour, and after a drop in classifier quality it does far worse than frozen offline weights (0.3 vs 4.4 per hour). Stylised: independent windows, instant noise-free feedback, picked costs."
@@ -2263,6 +2273,11 @@
      "slug": "swe-value",
      "title": "Can two independent passes agree on what a portfolio project is worth?",
      "summary": "A three-level value rubric (follow-up, new question, listed milestone) scored over all 408 <code>research/</code> projects by two automated passes, one from names and order and one from README text, plus a blind 30-project hand sample. The two automated passes agree at chance level (linear Cohen&rsquo;s kappa 0.07, 95% bootstrap 0.01 to 0.13); a flaw in the name pass (108 <code>*-twin</code> projects counted as one follow-up chain) explains part, and fixing it after the fact lifts kappa to 0.25. Against the hand sample the text pass reaches 0.45 (0.24 to 0.65) and the fixed name pass 0.57 (0.24 to 0.81), n&nbsp;=&nbsp;30, scored by the rubric&rsquo;s author. Follow-ups add about as many lines as new projects (median 318 vs 328), so by the rubric they return less per line, a ratio that is largely built in. Preliminary and negative on the automated passes; no correctness term."
+    },
+    {
+     "slug": "swe-prompt",
+     "title": "How many runs does a prompt experiment need, and is it safe to peek at it?",
+     "summary": "Three stopping rules for a champion-versus-candidate brief experiment were simulated on outcome distributions drawn from the run ledger (success rate 237/244) and from <code>swe-value</code>&rsquo;s project values: one look at the end, a look after every pair, and a mixture sequential probability ratio test. Looking after every pair declared an identical brief different in 21% of 2,000 experiments on success rate and 40% on value (nominal 5%); the mixture test stayed at 0.4% and 3.9%, at the price of power (92% against 99% at a +0.2 shift in value, stopping after 181 of 400 pairs on average). At a 97% success rate a fixed test needs about 2,200 runs to see a 0.971 to 0.991 change, so success rate is a poor primary metric. <strong>Stylised and preliminary:</strong> all 244 ledger rows are the same prompt, effects are hypothetical, and the value scores are weak; no candidate brief has been run."
     },
     {
      "slug": "swe-allocate",
