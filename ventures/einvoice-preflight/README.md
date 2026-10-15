@@ -386,8 +386,9 @@ results so a CI consumer cannot mistake a skipped file for a clean check. Both f
 any check fails and `2` for an unreadable input file. Pass a directory to scan
 all `.json` files recursively; batch JSON includes per-file errors and batch
 SARIF uses paths relative to the input directory. An empty directory is an
-input error and exits `2`. Batch scans also flag duplicate `invoice_number`
-values as `INV-019`; the number itself is never emitted.
+input error and exits `2`. Batch scans also flag a supplier (matched by id, VAT id or
+name) who reuses an `invoice_number` as `INV-019`; the number itself is never
+emitted. Two different suppliers that both issue `1001` are not flagged.
 JSON output uses the same versioned summary fields for single files and
 directories: `schema_version` (currently `1`), `status`, `exit_code`,
 `files_checked`, `files_failed`, `observations`, `rules`, `fixes`, and `read_errors`.
