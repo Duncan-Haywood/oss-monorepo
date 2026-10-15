@@ -72,3 +72,41 @@ test("admin: stats, CSV export and inviting the front of the line", async () => 
   assert.match(csv, /^position,email,confirmed/); assert.match(csv, /c@x\.com,yes/);
   srv.close();
 });
+
+test("signups record a clean source, and the admin dashboard and CSV show it", async () => {
+  const { srv, join, get, base, state } = await boot();
+  await fetch(base + "/join", { method: "POST", headers: { "content-type": "application/json", "x-forwarded-for": "9.9.9.9" }, body: JSON.stringify({ email: "s@x.com", src: "Twitter<script>" }) });
+  assert.equal(Object.values(state.people)[0].src, "twitterscript");
+  assert.equal((await get("/admin")).status, 401);
+  const basic = { authorization: "Basic " + Buffer.from("me:" + ADMIN).toString("base64") };
+  const dash = await (await get("/admin", basic)).text();
+  assert.match(dash, /twitterscript/); assert.match(dash, /1 signups/);
+  assert.match(await (await get("/v1/admin/export.csv", { authorization: `Bearer ${ADMIN}` })).text(), /twitterscript/);
+  srv.close();
+});
+
+test("a person can delete their own data; the GET only asks, the POST erases", async () => {
+  const { srv, sent, join, get, base, state } = await boot();
+  await join("gone@x.com");
+  assert.match(sent[0].text, /\/leave\?t=/);
+  const t = tokenOf(sent[0]);
+  assert.match(await (await get(`/leave?t=${t}`)).text(), /Delete my data/);
+  assert.equal(Object.keys(state.people).length, 1); // prefetching the link erases nothing
+  assert.equal((await fetch(`${base}/leave?t=${t}`, { method: "POST" })).status, 200);
+  assert.equal(Object.keys(state.people).length, 0); assert.deepEqual(state.byEmail, {});
+  assert.equal((await fetch(`${base}/leave?t=${t}`, { method: "POST" })).status, 404);
+  srv.close();
+});
+
+test("operator erase by email, embed script, and no raw network address is stored", async () => {
+  const { srv, join, base, state } = await boot();
+  await join("e@x.com", "", "203.0.113.7");
+  assert.doesNotMatch(JSON.stringify(state), /203\.0\.113\.7/);
+  const auth = { authorization: `Bearer ${ADMIN}` };
+  assert.equal((await fetch(base + "/v1/admin/erase", { method: "POST", headers: auth, body: JSON.stringify({ email: "E@x.com" }) })).status, 200);
+  assert.equal(Object.keys(state.people).length, 0);
+  assert.equal((await fetch(base + "/v1/admin/erase", { method: "POST", headers: auth, body: JSON.stringify({ email: "e@x.com" }) })).status, 404);
+  assert.equal((await fetch(base + "/v1/admin/erase", { method: "POST", body: "{}" })).status, 401);
+  const js = await fetch(base + "/embed.js"); assert.match(js.headers.get("content-type"), /javascript/); assert.match(await js.text(), /waitlist-keeper/);
+  srv.close();
+});
