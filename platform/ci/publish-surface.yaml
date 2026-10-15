@@ -698,7 +698,16 @@ workflows:
 - workflow: distribute-bluesky.yml
   classification: none
   publishes: []
+- workflow: distribute-devto.yml
+  classification: none
+  publishes: []
+- workflow: distribute-hashnode.yml
+  classification: none
+  publishes: []
 - workflow: distribute-mastodon.yml
+  classification: none
+  publishes: []
+- workflow: distribute-releases.yml
   classification: none
   publishes: []
 - workflow: dj-gig-profit-calculator-ci.yml
@@ -1367,6 +1376,9 @@ workflows:
 - workflow: link-contrast-ci.yml
   classification: none
   publishes: []
+- workflow: link-keeper-ci.yml
+  classification: none
+  publishes: []
 - workflow: liquidation-pallet-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1467,6 +1479,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: metal-roof-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: meter-keeper-ci.yml
   classification: none
   publishes: []
 - workflow: midterm-rental-calculator-ci.yml
