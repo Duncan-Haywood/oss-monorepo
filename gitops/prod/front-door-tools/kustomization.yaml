@@ -71,7 +71,7 @@
 #   portfolio-front-tools-35: 107 files, 552075 bytes
 #   portfolio-front-tools-36: 103 files, 551388 bytes
 #   portfolio-front-tools-37: 126 files, 552441 bytes
-#   portfolio-front-tools-38: 121 files, 551152 bytes
+#   portfolio-front-tools-38: 122 files, 555203 bytes
 #   portfolio-front-tools-39: 131 files, 556342 bytes
 #   portfolio-front-tools-40: 130 files, 555918 bytes
 #   portfolio-front-tools-41: 138 files, 555520 bytes
@@ -5181,6 +5181,7 @@ configMapGenerator:
       - status-keeper__monitor.mjs.gz=status-keeper__monitor.mjs.gz
       - status-keeper__render.mjs.gz=status-keeper__render.mjs.gz
       - status-keeper__server.mjs.gz=status-keeper__server.mjs.gz
+      - status-keeper__subscribers.mjs.gz=status-keeper__subscribers.mjs.gz
       - status-keeper__usage.mjs.gz=status-keeper__usage.mjs.gz
       - stocker-cattle-margin-calculator__calc.mjs.gz=stocker-cattle-margin-calculator__calc.mjs.gz
       - stocker-cattle-margin-calculator__index.html.gz=stocker-cattle-margin-calculator__index.html.gz

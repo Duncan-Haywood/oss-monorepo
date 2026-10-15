@@ -26,3 +26,8 @@ services:
         sync: false
       - key: ALERT_WEBHOOK_URL
         sync: false
+      # Optional: email subscribers. Set both (your own Resend key and a verified sender) and PUBLIC_URL to https.
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
