@@ -106,3 +106,21 @@ test("parse accepts tab and semicolon separators and dollar signs", () => {
   assert.deepEqual(p.errors, []);
   assert.equal(p.changes[0].amount, 120050);
 });
+
+test("impossible calendar dates are rejected, not rolled over", () => {
+  assert.match(compute({ ...base, periodEnd: "2026-02-30" }).errors[0], /billing period end/);
+  assert.match(compute({ ...base, periodStart: "2026-13-01" }).errors[0], /billing period start/);
+  assert.match(compute({ ...base, periodStart: "2026-01-32" }).errors[0], /billing period start/);
+});
+
+test("a period that ends the day it starts is rejected", () => {
+  const r = compute({ ...base, periodStart: "2026-01-01", periodEnd: "2026-01-01", changes: "2026-01-01, 150" });
+  assert.match(r.errors.join(" "), /must end after it starts/);
+});
+
+test("sweep runs from the first day to the last day of the period", () => {
+  const r = compute(base);
+  const day = 86400000;
+  assert.equal(r.sweep[0].date, r.start);
+  assert.equal(r.sweep[r.sweep.length - 1].date, r.end - day);
+});
