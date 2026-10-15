@@ -28,7 +28,7 @@ at-least-once. It does not transform payloads or rate limit yet (it can filter, 
 
 ## What it does
 
-1. **Verifies the sender.** Schemes: `stripe`, `github`, `shopify`, `slack`, `paddle` (Billing), `typeform`,
+1. **Verifies the sender.** Schemes: `stripe`, `github`, `shopify`, `slack`, `paddle` (Billing), `typeform`, `gitlab`, `woocommerce`, `linear`,
    `standard` ([Standard Webhooks](https://www.standardwebhooks.com/): Svix,
    Resend, Clerk and others), `hmac-sha256` (hex digest in a header you name),
    `none`. Bad signatures get a 401 and are never stored. Timestamped schemes
@@ -36,7 +36,8 @@ at-least-once. It does not transform payloads or rate limit yet (it can filter, 
 2. **Saves before answering.** The event (exact bytes, headers) is written to
    disk before the sender gets its 200, so an accepted event survives a restart.
    Events carrying a provider id (`webhook-id`, `x-github-delivery`,
-   `x-shopify-webhook-id`, `idempotency-key`, or a Stripe-shaped `id`+`type`)
+   `x-shopify-webhook-id`, `x-gitlab-event-uuid`, `x-wc-webhook-delivery-id`,
+   `linear-delivery`, `idempotency-key`, or a Stripe-shaped `id`+`type`)
    are de-duplicated.
 3. **Delivers with backoff.** POSTs the original bytes and headers to the
    route's `target` with `x-relay-event-id` and `x-relay-attempt` added, so your
