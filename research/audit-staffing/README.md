@@ -8,3 +8,6 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, ~1 s
 PYTHONPATH=src python3 experiments/run.py                  # output in experiments/results.txt
 ```
 M/M/c and M/G/c queues, static outages, stylised costs; MIT.
+
+## Figure
+`python3 experiments/figure.py` plots total verifier cost against stake (section E3) from the committed `experiments/results.txt` and writes `experiments/cost_vs_stake.svg` (standard library only; no new results; stylised simulation).
