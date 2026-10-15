@@ -30,18 +30,27 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "merged: four static landing pages, launched.json entries, regenerated mirror; local checklist (platform/marketing + platform/pages node tests 1293/0, tree counts agree). No CI check runs existed on the PR.",
+  "outcome": "success",
   "errors": [
     "first push failed 4 tests (catch-all category cap, off-site ../ repair, clauses fixture, sibling orphan budget); fixed forward",
     "garmin page's png broke the front-door mirror fixpoint and cascaded ~100 ventures; removed the image"
   ],
   "integrity_issues": [],
   "doc_friction": [
-    "CLAUDE.md starvation checklist: gitops/tests shows 26 failures in test_worker_run.py in this sandbox (gh already present), unrelated to the change; not documented",
-    "CLAUDE.md/platform/pages: nothing says a site/index.html page must avoid ../ back links (repairLinks sends them to GitHub) or non-mirrorable assets like png",
-    "regen/test runs exceed the 10 min tool timeout; checklist gives no timing"
+    {
+      "file": "CLAUDE.md",
+      "issue": "starvation checklist: gitops/tests shows 26 failures in test_worker_run.py in this sandbox (gh already present), unrelated to the change; undocumented"
+    },
+    {
+      "file": "platform/pages/README.md",
+      "issue": "nothing says a site/index.html page must avoid ../ back links (repairLinks sends them to GitHub) or assets the front-door mirror cannot carry (png), either of which fails tests or cascades dropped ventures"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "regen and node test runs exceed the 10 min tool timeout; checklist gives no timing or background advice"
+    }
   ],
   "goal": null,
-  "notes": "gitops/tests: 576 passed, 26 failed (test_worker_run.py, environmental, not touched), 25 skipped.",
+  "notes": "outcome success: merged with local checklist, no CI check runs existed. gitops/tests: 576 passed, 26 failed (test_worker_run.py, environmental, not touched), 25 skipped.",
   "corrections": []
 }

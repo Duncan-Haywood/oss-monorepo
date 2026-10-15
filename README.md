@@ -160,3 +160,8 @@ valuable task without an account, payment, or a paid dependency. See
 [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) and
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) for the launch checklist, safety
 guardrails, and opportunity-selection criteria.
+
+## License
+
+[MIT](LICENSE). Every venture under `ventures/` also carries its own MIT
+`LICENSE`.

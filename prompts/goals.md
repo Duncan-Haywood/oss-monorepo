@@ -71,6 +71,11 @@ platform tools that have a reachable page linked from the home page.
 - **Owner-only actions stay with the owner:** moving money, registering
   accounts, publishing under the portfolio's public name, unattended
   automation that spends paid budget, and pasting secrets.
+- **Red team / blue team takes 5-10% of runs.** The `redteam` track's
+  weight in `routing.json` stays between 5% and 10% of the non-review
+  weight. `promptctl.py validate` fails outside that band. Seeded faults are
+  applied only through `prompts/redteam.py`, which restores the file, and a
+  mutant is never committed.
 
 ### Research guardrails
 
@@ -105,7 +110,8 @@ gain on a later one.
    met: `PRODUCT_PLAYBOOK.md` for a venture, a complete README and passing
    tests for a research project, and for both a home page on the GitHub
    Pages site.
-3. **Errors:** CI failures before green, review findings, reverts or fix-ups
+3. **Errors:** escaped defects (a bug a red-team run finds on `main`),
+   CI failures before green, review findings, reverts or fix-ups
    within two weeks, abandoned runs, and leaked work. Leaked work is a branch
    or pull request a run pushed that was not on `main` 24 hours later.
 4. **Cost:** wall-clock minutes, tokens, and how much instruction text a run
@@ -124,6 +130,12 @@ gain on a later one.
 - **Explore:** merged work the agent chose itself, about 5% of runs. Judged
   on the same success and integrity measures; the review also notes which
   free-choice ideas graduated into a regular track.
+- **Red team / blue team:** the repository's **catch rate** (seeded faults
+  its tests catch, over non-equivalent faults seeded) rises over time, and
+  its **error rate** (real defects found per red-team run) falls. Every
+  escaped fault triaged as a gap gets a guard that `redteam.py rerun` proves
+  catches it, and every real defect found is patched or named in the PR.
+  `promptctl.py measure` reports both rates from the run records.
 - **Web presence:** every venture and every research project reachable,
   with its own home page, from one GitHub-hosted homepage, and nothing on
   `main` without a page. Deploy and link what exists before polishing the

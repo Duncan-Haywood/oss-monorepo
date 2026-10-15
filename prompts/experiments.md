@@ -70,7 +70,6 @@ Entry format:
 - Measure: share of routed runs on `process` (expect about 5%); per study,
   how many of the previous report's recommendations were adopted and whether
   their metrics moved.
-- Result: (next review)
 
 ## E3: Free-choice track, about 5% of runs (2026-10-15, owner request)
 
@@ -85,6 +84,46 @@ Entry format:
 - Measure: success and integrity per `explore` run against the other tracks,
   and how many free-choice ideas graduate into a regular track. Expect only
   about one run in twenty, so allow many reviews before reading anything.
+- Result: (next review)
+
+## R1: First review, 2026-10-15 (172 records since start)
+
+- Measured: 170 of 172 records are research runs imported from the upstream
+  research repository; their PRs live there, so `merged` stays `null` for 167
+  (not checkable from here, never guessed). Filled and corrected 4 local
+  records (PRs 6988, 6991, 6992, 6993, all merged). 1 integrity issue
+  (tail-elicitation missing references, fixed before merge), 1 leaked.
+  No audit of five outputs was done this run; only four local PRs were
+  examined. ventures/process/explore have 1 or 0 runs: too few to compare.
+- Change 1 (candidate, research/1): adds a "Step 0" naming `add_repo` and the
+  upstream landing rule first. Two friction reports said the rule was found
+  too late. Metric: friction reports on `prompts/research/` per run; compare
+  research/0 (170 runs) against research/1 after about 10 runs.
+- Change 2 (doc): `CLAUDE.md` checklist gained two comment lines (apt pytest;
+  `test_worker_run.py` baseline failures). Metric: `CLAUDE.md` friction
+  reports per run, 3 over the 172 recorded runs. Not shortened: the ~1,000
+  lines of incident history remain the largest cost (1614 lines), proposed
+  as the next review's job: move it to a separate history file.
+
+## E4: Red team / blue team track (2026-10-15, owner request, PR https://github.com/Duncan-Haywood/oss-monorepo/pull/6987)
+
+- Change: a new track, `redteam`, routed 7% of runs (owner's request; the
+  5-10% band is in `goals.md` and enforced by `validate`). With the
+  `process` and `explore` tracks (5% each), ventures and research go to
+  0.415 each. New
+  `prompts/redteam.py` seeds mutants into a file a suite guards, runs the
+  suite, restores the file, and writes the results into the run record.
+  `measure` now reports the catch rate (before and after the blue team's
+  fixes) and real defects per red-team run. Sub-prompt:
+  `prompts/redteam/prompt-0.md`.
+- Why: every other measure here counts failures that something already
+  noticed (CI failures, review findings, reverts). Nothing measured how many
+  bugs go unnoticed. CLAUDE.md records many guards that were green while
+  checking nothing. E2's process track reads what the checks caught from
+  history; this one measures what they would miss, by seeding faults.
+- Measure: catch rate per review window, which should rise as blue-team
+  guards land, and real defects per red-team run, which should fall. The
+  first window is the baseline.
 - Result: (next review)
 
 ## Proposals for the owner

@@ -155,3 +155,49 @@ test("sample data, CSV and formatters", () => {
   assert.equal(signedPct(0.111), "+11.1%");
   assert.equal(signedPct(NaN), "n/a");
 });
+
+import { priceTest, priceSampleText, money } from "./calc.mjs";
+
+test("price test compares revenue per visitor and finds the break-even conversion", () => {
+  const r = priceTest(priceSampleText());
+  near(r.rpv1, 1.16, 1e-9);
+  near(r.rpv2, 0.0345 * 39, 1e-9);
+  near(r.diff, 0.0345 * 39 - 1.16, 1e-9);
+  // $29 -> $39 can lose up to 25.6% of buyers before revenue per visitor falls.
+  near(r.breakEvenRelativeDrop, 1 - 29 / 39, 1e-12);
+  near(r.breakEvenRate, (0.04 * 29) / 39, 1e-12);
+  assert.ok(r.conversionChange < 0 && r.diff > 0);
+  assert.ok(r.findings.some((f) => f.title === "Fewer buyers, more revenue"));
+  // Delta-method z-test against the hand calculation.
+  const se = Math.sqrt((29 ** 2 * 0.04 * 0.96) / 4000 + (39 ** 2 * 0.0345 * 0.9655) / 4000);
+  near(r.se, se, 1e-12);
+  near(r.z, r.diff / se, 1e-9);
+  near(r.p, 2 * normCdf(-Math.abs(r.z)), 1e-9);
+  assert.ok(r.ci.low < r.diff && r.diff < r.ci.high);
+});
+
+test("price test Bayesian view agrees with the sign of the evidence and is reproducible", () => {
+  const a = priceTest(priceSampleText());
+  const b = priceTest(priceSampleText());
+  assert.deepEqual(a.bayes, b.bayes);
+  assert.ok(a.bayes.probBBeatsA > 0.5 && a.bayes.probBBeatsA < 1);
+  assert.ok(a.bayes.liftLow < a.bayes.liftMedian && a.bayes.liftMedian < a.bayes.liftHigh);
+  // Swapping the arms mirrors the probability.
+  const s = priceTest({ n1: 4000, c1: 138, price1: 39, n2: 4000, c2: 160, price2: 29 });
+  near(a.bayes.probBBeatsA + s.bayes.probBBeatsA, 1, 0.02);
+  // A clearly losing higher price is flagged.
+  const bad = priceTest({ n1: 20000, c1: 800, price1: 29, n2: 20000, c2: 400, price2: 39 });
+  assert.ok(bad.significant && bad.diff < 0);
+  assert.ok(bad.findings.some((f) => f.severity === "high"));
+});
+
+test("price test validates input and reports monthly impact", () => {
+  assert.match(priceTest({ n1: 100, c1: 5, price1: 10, n2: 100, c2: 5, price2: 10 }).error, /same/);
+  assert.match(priceTest({ n1: 100, c1: 5, price1: 0, n2: 100, c2: 5, price2: 10 }).error, /greater than zero/);
+  assert.match(priceTest({ n1: 100, c1: 105, price1: 5, n2: 100, c2: 5, price2: 10 }).error, /exceed/);
+  assert.match(priceTest({ n1: 0, c1: 0, price1: 5, n2: 100, c2: 5, price2: 10 }).error, /at least one/);
+  const r = priceTest({ ...priceSampleText(), monthlyVisitors: 10000 });
+  near(r.monthly.revenueDelta, r.diff * 10000, 1e-9);
+  assert.equal(money(1.2346), "$1.235");
+  assert.equal(money(-12.5), "-$12.50");
+});

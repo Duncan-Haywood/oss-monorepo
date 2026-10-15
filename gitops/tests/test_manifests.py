@@ -3070,7 +3070,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `uk-savings-interest-tax-calculator` graduated (browser UK savings interest tax, starting rate, Personal Savings Allowance and cash ISA saving).
     # +1: `sg-freelancer-tax-set-aside-calculator` graduated (browser Singapore freelancer income tax after earned income relief, MediSave flag and set-aside per invoice).
     # +1: `de-freiberufler-tax-set-aside-calculator` graduated (browser Germany freelancer tax: section 32a tariff, Soli, Kirchensteuer, Gewerbesteuer and set-aside per invoice).
-    total = 1228  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1228 tools" wording.
+    # +1: `us-freelancer-tax-set-aside-calculator` graduated (browser US freelancer SE tax, federal tax with QBI, state tax and 1040-ES set-aside). #6981 and #6982 each wrote 1223 against a base without the other; re-synced after both merged.
+    total = 1232  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1232 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).

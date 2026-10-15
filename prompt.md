@@ -2,7 +2,9 @@
 
 Every session started from this file follows it; the scheduled routines say
 "read ./prompt.md". This repository holds two portfolios, products under
-`ventures/` and research under `research/`, and one prompt system. The system
+`ventures/` and research under `research/`, and one prompt system. About 7%
+of runs go to the red team / blue team track, which seeds faults to measure
+how many the repository's tests catch, and patches what gets through. The system
 routes each run to a sub-prompt, measures how runs go, and uses the
 measurements to improve the sub-prompts and the documentation.
 [`prompts/README.md`](prompts/README.md) explains the whole loop.
@@ -20,7 +22,7 @@ guardrails, and no sub-prompt can relax them.
 
 If the message that started the session asks for something specific, do that
 instead, under the track it belongs to:
-`route --track ventures|research|process|explore|review`. The router picks the review track
+`route --track ventures|research|process|explore|redteam|review`. The router picks the review track
 by itself once enough runs have merged since the last review, for a share of
 runs (`review_when_due`) so parallel routines do not all start one. If an open
 pull request titled `prompts: review` already exists, another run has claimed

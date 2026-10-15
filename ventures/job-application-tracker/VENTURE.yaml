@@ -1,0 +1,51 @@
+name: job-application-tracker
+description: Free, private job application tracker that runs entirely in the browser — no account, nothing uploaded. Logs applications, surfaces today's follow-ups (7 days after applying, 3 after a screen or interview, editable), flags applications silent for 30+ days, shows reply and interview rate by source so a job seeker can see which channel is worth their time, and imports/exports CSV plus a calendar (.ics) file of pending follow-ups.
+stage: prototype
+
+owner: duncan
+
+# Screened with portfolio/pipeline/duplicate_check.py: nearest existing venture
+# scored 0.31 (1099-vendor-tracker, grant-reporting-tracker), after eight other
+# niche probes came back as near-duplicates of existing ventures.
+#
+# Gate scoring (portfolio/pipeline/README.md, both need >= 5):
+#   liability_containment: 8 -- stores only what the user types, in their own
+#     browser; gives no advice of record; follow-up timing is labelled a
+#     convention. Worst case is a missed reminder on a list the user keeps.
+#   ethical_robustness: 8 -- no accounts, no upload, no dark patterns, no
+#     upsell; CSV export keeps the user free to leave. Reply-rate figures
+#     carry a small-sample caveat and are never framed as a judgement of the
+#     user.
+#
+# Distribution: "job application tracker" / "job application tracker
+# spreadsheet" are established searches; r/jobs, r/resumes and r/cscareerquestions
+# ask for tracking setups constantly. Paid/account-gated incumbents (Huntr,
+# Teal and similar) differ on account and upload, which this does not require.
+# Sibling: ats-resume-checker (same audience, one hop apart).
+hypotheses:
+  - claim: A job seeker with more than a handful of open applications will keep their list here, rather than in a spreadsheet, if the page tells them each morning which follow-ups are due, and will come back at least weekly during a search.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing reply rate by source changes where a job seeker spends their next applications, not just confirms what they already did.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/job-application-tracker/
+  analytics: null

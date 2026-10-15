@@ -149,6 +149,7 @@ node --test platform/proposal/*.test.mjs
 node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
+# No pytest? `apt-get update && apt-get install -y python3-pytest` (pip may not reach PyPI). gitops/tests/test_worker_run.py fails ~26 on clean main when `gh` is preinstalled: compare against origin/main before blaming your change.
 (cd platform/ci && for m in test_*.py; do python3 -m unittest "${m%.py}" || break; done)
 (cd platform/ci/agent_review && python3 -m unittest test_review)
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline infra/tests -q
@@ -367,7 +368,7 @@ unnoticed. Run it after `git fetch origin main && git reset --hard origin/main`
 to read `main` itself, or on your branch to check the tree you are about to
 push. An empty selection exits 1 — "nothing ran" must never read as a pass.
 
-(`pip install pytest` first in a web session — the image has Python but not
+(`python3 -m pip install pytest` first (bare `pip` installed into a different interpreter on 2026-10-15; apt had no `python3-pytest` either) in a web session — the image has Python but not
 pytest, so that `gitops/tests` line exits `No module named pytest` rather than
 failing any test. Do not read that as a clean run. The `platform/ci` line needs
 no pytest — those suites are `unittest`.)
