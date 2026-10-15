@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01Vcz8ZWPa4EJnNPG8SUynxn",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "mirror",
+  "projects": [
+    "accel-sparse",
+    "swe-prflow"
+  ],
+  "pr": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    "prompts/research/prompt-0.md: says research work lands upstream; this run did milestone mirror-sync in oss-monorepo instead of a new project, as PROJECTS.md 'Repository merge' directs; fine but the prompt does not mention that add_repo plus a full clone is needed just to read upstream PROJECTS.md."
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "mirror-sync of oss-research-monorepo main df6ec01 (accel-sparse, swe-prflow). check, build.py, promptctl validate, mirror unit tests all pass.",
+  "corrections": [],
+  "redteam": null
+}
