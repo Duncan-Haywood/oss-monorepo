@@ -35,8 +35,7 @@ def one(n, twin_cfg, feat, seed):
 def paired(n, twin_cfg, seed):
     rng = np.random.default_rng(seed)
     th0, _, real = P.dataset(rng, n, **P.REAL)
-    return P.paired_stat(real, th0, twin_cfg["visc"], twin_cfg["coul"]) if twin_cfg["kind"] == P.REAL["kind"] else \
-        P.paired_stat(real, th0, twin_cfg["visc"], twin_cfg["coul"])
+    return P.paired_stat(real, th0, twin_cfg["visc"], twin_cfg["coul"])
 
 
 OUT = []
