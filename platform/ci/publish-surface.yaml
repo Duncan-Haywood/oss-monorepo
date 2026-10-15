@@ -1253,6 +1253,9 @@ workflows:
 - workflow: janitorial-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: job-application-tracker-ci.yml
+  classification: none
+  publishes: []
 - workflow: job-margin-variance-ci.yml
   classification: none
   publishes: []
@@ -1950,6 +1953,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: reverb-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: rfp-compliance-matrix-ci.yml
   classification: none
   publishes: []
 - workflow: rmd-calculator-ci.yml
