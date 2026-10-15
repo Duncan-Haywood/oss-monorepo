@@ -11,6 +11,7 @@ import { timingSafeEqual } from "node:crypto";
 import { verify, SCHEMES } from "./verify.mjs";
 import { DEFAULT_POLICY, newState, ingest, due, recordAttempt, replay, summary } from "./relay.mjs";
 import { ADMIN_HTML } from "./admin.mjs";
+import { validateFilter, matches } from "./filter.mjs";
 
 const env = process.env;
 const MAX_BODY = 1_000_000;
@@ -26,8 +27,14 @@ export function parseRoutes(json) {
     seen.add(r.name);
     if (!SCHEMES.includes(r.scheme || "none")) throw new Error(`route ${r.name}: unknown scheme ${r.scheme}`);
     if ((r.scheme || "none") !== "none" && !r.secret) throw new Error(`route ${r.name}: scheme ${r.scheme} needs a secret`);
-    if (!/^https?:\/\//.test(r.target || "")) throw new Error(`route ${r.name}: target must be an http(s) URL`);
-    return { scheme: "none", ...r };
+    const raw = r.targets !== undefined ? r.targets : [r.target];
+    if (!Array.isArray(raw) || !raw.length || raw.length > 10) throw new Error(`route ${r.name}: target must be an http(s) URL (or targets: up to 10 http(s) URLs)`);
+    // A target is a URL, or {"url": ..., "filter": ...} to receive only matching events.
+    const targets = raw.map((t) => (typeof t === "string" ? { url: t } : t));
+    if (!targets.every((t) => t && /^https?:\/\//.test(t.url || ""))) throw new Error(`route ${r.name}: target must be an http(s) URL (or targets: up to 10 http(s) URLs)`);
+    if (r.filter !== undefined) validateFilter(r.filter, `route ${r.name} filter`);
+    for (const t of targets) if (t.filter !== undefined) validateFilter(t.filter, `route ${r.name} target ${t.url} filter`);
+    return { scheme: "none", ...r, targets, target: targets[0].url };
   });
 }
 
@@ -67,7 +74,11 @@ export function handler(cfg) {
         if (!v.ok) { console.log(`rejected ${route.name}: ${v.reason}`); return send(401, `signature check failed: ${v.reason}\n`, "text/plain"); }
         const forward = {};
         for (const [k, val] of Object.entries(req.headers)) if (!SKIP_FORWARD.has(k) && typeof val === "string") forward[k] = val;
-        const r = ingest(cfg.state, { route: route.name, target: route.target, headers: forward, body, now: now(), policy });
+        const ctx = { headers: req.headers, bodyText: body.toString("utf8") };
+        if (!matches(route.filter, ctx)) return send(200, { filtered: true, ids: [] });
+        const urls = (route.targets || [{ url: route.target }]).filter((t) => matches(t.filter, ctx)).map((t) => t.url);
+        if (!urls.length) return send(200, { filtered: true, ids: [] });
+        const r = ingest(cfg.state, { route: route.name, targets: urls, headers: forward, body, now: now(), policy });
         if (!r.duplicate) cfg.save();
         return send(200, r);
       }

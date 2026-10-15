@@ -121,3 +121,13 @@ test("a refusing receiver (410) parks the event dead and raises one alert; netwo
     assert.equal(t.state.events[id2].attempts[0].error, "ECONNREFUSED");
   } finally { t.close(); }
 });
+
+test("parseRoutes accepts targets for fan-out and rejects bad lists", async () => {
+  const { parseRoutes } = await import("./server.mjs");
+  const ok = parseRoutes(JSON.stringify([{ name: "a", targets: ["http://x", "https://y"] }]));
+  assert.equal(ok[0].target, "http://x");
+  assert.equal(ok[0].targets.length, 2);
+  assert.throws(() => parseRoutes(JSON.stringify([{ name: "a", targets: [] }])));
+  assert.throws(() => parseRoutes(JSON.stringify([{ name: "a", targets: ["ftp://x"] }])));
+  assert.equal(parseRoutes(JSON.stringify([{ name: "a", target: "http://x" }]))[0].targets[0].url, "http://x");
+});

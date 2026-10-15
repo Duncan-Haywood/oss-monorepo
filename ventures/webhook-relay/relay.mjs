@@ -43,20 +43,27 @@ export function idempotencyKey(route, headers, bodyText) {
   return null;
 }
 
-export function ingest(state, { route, target, headers, body, now, policy = DEFAULT_POLICY }) {
+// targets: one URL, or several for fan-out. Each target becomes its own event
+// (own retries, own dead/replay state), so one slow consumer never holds up
+// the others. A provider-side retry of an event already held is absorbed per target.
+export function ingest(state, { route, target, targets, headers, body, now, policy = DEFAULT_POLICY }) {
+  const list = [...new Set(targets && targets.length ? targets : [target])];
   const key = idempotencyKey(route, headers, body.toString("utf8"));
-  if (key) {
-    const dup = Object.values(state.events).find((e) => e.key === key);
-    if (dup) return { id: dup.id, duplicate: true };
+  const ids = [];
+  let created = 0;
+  for (const t of list) {
+    const dup = key && Object.values(state.events).find((e) => e.key === key && e.target === t);
+    if (dup) { ids.push(dup.id); continue; }
+    state.seq += 1;
+    const id = `evt_${now.toString(36)}_${state.seq.toString(36)}`;
+    state.events[id] = {
+      id, route, target: t, key, receivedAt: now, headers, bodyB64: body.toString("base64"), size: body.length,
+      status: "pending", nextAt: now, attempts: [],
+    };
+    ids.push(id); created += 1;
   }
-  state.seq += 1;
-  const id = `evt_${now.toString(36)}_${state.seq.toString(36)}`;
-  state.events[id] = {
-    id, route, target, key, receivedAt: now, headers, bodyB64: body.toString("base64"), size: body.length,
-    status: "pending", nextAt: now, attempts: [],
-  };
-  prune(state, now, policy);
-  return { id, duplicate: false };
+  if (created) prune(state, now, policy);
+  return { id: ids[0], ids, duplicate: created === 0 };
 }
 
 export const due = (state, now) =>
