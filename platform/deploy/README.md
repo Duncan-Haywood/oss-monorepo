@@ -48,8 +48,12 @@ the operator.
 
 ## Server apps (Render, or Docker Compose)
 
-Five ventures are processes, not static pages (`cancel-flow`, `cron-heartbeat`,
-`dunning-engine`, `einvoice-preflight`, `rfp-compliance-matrix`: a `Dockerfile` plus a `render.yaml`).
+Sixteen ventures are processes, not static pages (every `ventures/*/` that has a
+`Dockerfile` plus a `render.yaml`: `cancel-flow`, `cron-heartbeat`, `dunning-engine`,
+`einvoice-preflight`, `feedback-board`, `form-inbox`, `license-keeper`, `mrr-pulse`,
+`referral-keeper`, `rev-rec`, `rfp-compliance-matrix`, `status-keeper`,
+`testimonial-keeper`, `trial-converter`, `waitlist-keeper`, `webhook-relay`; the list is
+derived at build time, `servers/<slug>.json` after a build is authoritative).
 For these the page also offers **Render**: it creates a public repository in the
 visitor's GitHub account holding `ventures/<slug>/` and the venture's
 `render.yaml` at the root, then links `render.com/deploy?repo=<that repo>`.
@@ -58,7 +62,7 @@ so on) and bills the visitor. Secrets are typed into Render, never into this
 page, and the repository holds none. `build.mjs` writes `servers/<slug>.json`
 for each; tests check every `COPY` in the Dockerfile is present.
 
-**Docker Compose** (download only, no token or account): the same four apps can be
+**Docker Compose** (download only, no token or account): the same server apps can be
 downloaded as a folder with the app, a `compose.yaml`, a `.env.example` and a
 `setup.sh` that writes `.env` with random values for the secrets the blueprint
 generates (unset optional variables stay commented out so each app's own default
@@ -76,7 +80,7 @@ second list to drift.
 
 - No `.terraform.lock.hcl` yet: it needs a `tofu init` run with network access.
   Providers are pinned to exact versions in `versions.tf` meanwhile.
-- More providers (Azure, DigitalOcean Spaces) and a Fly.io path for server apps. (DigitalOcean App Platform was considered for servers and skipped: no persistent disk, so three of the four apps would lose state.)
+- More providers (Azure, DigitalOcean Spaces) and a Fly.io path for server apps. (DigitalOcean App Platform was considered for servers and skipped: no persistent disk, so most of the server apps would lose state.)
 - The hub footer and every tool page footer link the page ("Deploy your own
   copy" / "Run your own copy", `deploy/?app=<slug>` preselects the app).
 - The GCS path is validated with `tofu validate` only, not against a live project; it serves from `storage.googleapis.com` (no custom domain, no CDN).
