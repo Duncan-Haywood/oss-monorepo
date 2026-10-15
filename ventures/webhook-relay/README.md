@@ -75,11 +75,19 @@ with `Authorization: Bearer $ADMIN_KEY`: `GET /v1/summary`,
 `GET /v1/events?status=dead&route=stripe`, `GET /v1/events/<id>` (includes the
 body), `POST /v1/events/<id>/replay`, `DELETE /v1/events/<id>`.
 
-**One-click:** fork the repository and open
-`https://render.com/deploy?repo=<your fork URL>`; Render reads `render.yaml`,
-asks for `ROUTES_JSON` and bills you. Docker: `docker build -t webhook-relay .`
-and mount a volume at the directory in `STATE`. Without a persistent disk
-events are lost on restart.
+**Deploy to your own account** (nothing of the author's runs in between):
+
+- **Render:** fork the repository, then in Render choose New, Blueprint, pick
+  your fork and set the Blueprint file path to
+  `ventures/webhook-relay/render.yaml` (Render's own `?repo=` deploy link only
+  finds a `render.yaml` at the repository root). It asks for `ROUTES_JSON` and
+  bills you for the starter plan plus a 1 GB disk.
+- **Fly.io:** the steps are at the top of `fly.toml`.
+- **Any Docker host:** `ADMIN_KEY=$(openssl rand -hex 16) ROUTES_JSON='[...]'
+  docker compose up -d` with `docker-compose.yml`, or `docker build` and mount
+  a volume at the directory in `STATE`.
+
+Without a persistent disk events are lost on restart.
 
 Put TLS in front (Render and most hosts do). Treat `ROUTES_JSON` as a secret: it
 holds signing secrets. Authorization and cookie headers are never stored or
