@@ -83,3 +83,39 @@ test("summarize counts saves, save rate and the revenue a discount keeps", () =>
   assert.deepEqual(s.byReason.too_expensive, { n: 2, saved: 1, canceled: 1 });
   assert.deepEqual(s.savedByType, { discount: 1, pause: 1 });
 });
+
+import { assignVariant, summarizeExperiments, twoProportionP } from "./flow.mjs";
+
+const exp = { experiments: { too_expensive: { variants: { B: { type: "discount", percent: 15, months: 6 } } } } };
+
+test("variant assignment is sticky, even, and absent without a test", () => {
+  assert.equal(assignVariant({ customer: "cus_1", reason: "other", policy: exp }), null);
+  assert.equal(assignVariant({ customer: "cus_1", reason: "too_expensive", policy: exp }), assignVariant({ customer: "cus_1", reason: "too_expensive", policy: exp }));
+  let b = 0; for (let i = 0; i < 2000; i++) if (assignVariant({ customer: `cus_${i}`, reason: "too_expensive", policy: exp }) === "B") b++;
+  assert.ok(b > 900 && b < 1100, `B share ${b}/2000`);
+});
+
+test("variant B replaces the control offer; control and unknown arms keep the default", () => {
+  const policy = mergePolicy(exp);
+  assert.equal(decide({ reason: "too_expensive", sub: monthly, policy, now: NOW, variant: "B" }).offer.percent, 15);
+  assert.equal(decide({ reason: "too_expensive", sub: monthly, policy, now: NOW, variant: "A" }).offer.percent, 30);
+  assert.equal(decide({ reason: "too_expensive", sub: monthly, policy, now: NOW, variant: "Z" }).offer.percent, 30);
+});
+
+test("two-proportion p-value matches a worked example", () => {
+  // 40/100 vs 25/100: pooled p=.325, z=2.264, two-sided p=0.0236
+  assert.equal(twoProportionP(40, 100, 25, 100), 0.024);
+  assert.equal(twoProportionP(5, 0, 1, 10), null);
+  assert.equal(twoProportionP(0, 50, 0, 50), 1);
+});
+
+test("experiment verdict waits for enough offers, then calls a real difference", () => {
+  const mk = (variant, n, saved) => Array.from({ length: n }, (_, i) => ({ reason: "too_expensive", variant, offer: { type: "discount", monthly: 1000, percent: 20 }, outcome: i < saved ? "saved" : "canceled" }));
+  const small = summarizeExperiments([...mk("A", 10, 2), ...mk("B", 10, 8)]);
+  assert.equal(small.too_expensive.B.verdict, "keep collecting");
+  const big = summarizeExperiments([...mk("A", 100, 25), ...mk("B", 100, 40)]);
+  assert.equal(big.too_expensive.B.verdict, "beats control on save rate");
+  assert.equal(big.too_expensive.A.saveRate, 25);
+  const tie = summarizeExperiments([...mk("A", 100, 25), ...mk("B", 100, 27)]);
+  assert.equal(tie.too_expensive.B.verdict, "no clear difference");
+});
