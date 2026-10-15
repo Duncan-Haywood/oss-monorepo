@@ -1,0 +1,15 @@
+mimic-contexts reference detectors (AUROC; 1.0 = perfect, 0.5 = chance)
+
+detector             train fams          held-out fams  held acc  held paired
+length   0.491 [0.473,0.508]  0.515 [0.491,0.541]      0.523        0.513
+ngram    1.000 [1.000,1.000]  0.927 [0.913,0.939]      0.813        0.938
+
+by family AUROC:
+  length   abstracts=0.44  books=0.41  news=0.52  recipes=0.70  reddit=0.58  poetry=0.89  reviews=0.52  wiki=0.15
+  ngram    abstracts=1.00  books=1.00  news=1.00  recipes=1.00  reddit=1.00  poetry=0.95  reviews=0.98  wiki=0.89
+
+ngram leave-one-family-out AUROC: abstracts=0.90  books=0.99  news=0.97  recipes=0.87  reddit=0.95  poetry=0.95  reviews=0.98  wiki=0.90
+
+held-out AUROC by plain-prompt LLM (human vs that LLM):
+  length   llama-chat=0.35(n=384)  mistral-chat=0.55(n=333)  mpt-chat=0.81(n=183)
+  ngram    llama-chat=0.94(n=384)  mistral-chat=0.90(n=333)  mpt-chat=0.96(n=183)

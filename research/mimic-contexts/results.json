@@ -1,0 +1,138 @@
+{
+ "counts": {
+  "abstracts/human": 300,
+  "abstracts/llm": 300,
+  "books/human": 300,
+  "books/llm": 300,
+  "news/human": 300,
+  "news/llm": 300,
+  "recipes/human": 300,
+  "recipes/llm": 300,
+  "reddit/human": 300,
+  "reddit/llm": 300,
+  "poetry/human": 300,
+  "poetry/llm": 300,
+  "reviews/human": 300,
+  "reviews/llm": 300,
+  "wiki/human": 300,
+  "wiki/llm": 300
+ },
+ "detectors": {
+  "length": {
+   "train_families": {
+    "auroc": 0.49081844444444445,
+    "auroc_ci95": [
+     0.4725247854370386,
+     0.5078663718612642
+    ],
+    "accuracy": 0.49766666666666665,
+    "paired_accuracy": 0.541
+   },
+   "held_out_families": {
+    "auroc": 0.5149172839506173,
+    "auroc_ci95": [
+     0.4910698542694103,
+     0.5412734359432264
+    ],
+    "accuracy": 0.5233333333333333,
+    "paired_accuracy": 0.5132533133283321
+   },
+   "all": {
+    "auroc": 0.4980471354166667,
+    "auroc_ci95": [
+     0.4817484838197675,
+     0.5112163612720368
+    ],
+    "accuracy": 0.5072916666666667,
+    "paired_accuracy": 0.529625
+   },
+   "by_family_auroc": {
+    "abstracts": 0.44421111111111106,
+    "books": 0.4137166666666666,
+    "news": 0.5241388888888889,
+    "recipes": 0.6960000000000001,
+    "reddit": 0.5849944444444444,
+    "poetry": 0.8853777777777778,
+    "reviews": 0.5180333333333333,
+    "wiki": 0.1548444444444444
+   },
+   "held_out_auroc_by_llm": {
+    "llama-chat": {
+     "n": 384,
+     "auroc": 0.34730034722222225
+    },
+    "mistral-chat": {
+     "n": 333,
+     "auroc": 0.546735068401735
+    },
+    "mpt-chat": {
+     "n": 183,
+     "auroc": 0.8087401335761992
+    }
+   }
+  },
+  "ngram": {
+   "train_families": {
+    "auroc": 1.0,
+    "auroc_ci95": [
+     0.9999999999999999,
+     1.0
+    ],
+    "accuracy": 1.0,
+    "paired_accuracy": 1.0
+   },
+   "held_out_families": {
+    "auroc": 0.9273716049382718,
+    "auroc_ci95": [
+     0.9132894171189103,
+     0.9387113608647711
+    ],
+    "accuracy": 0.8133333333333334,
+    "paired_accuracy": 0.9382345586396599
+   },
+   "all": {
+    "auroc": 0.9842848958333333,
+    "auroc_ci95": [
+     0.9809810197452855,
+     0.9867929748351021
+    ],
+    "accuracy": 0.93,
+    "paired_accuracy": 0.97775
+   },
+   "by_family_auroc": {
+    "abstracts": 1.0,
+    "books": 1.0,
+    "news": 1.0,
+    "recipes": 1.0,
+    "reddit": 1.0,
+    "poetry": 0.9504333333333334,
+    "reviews": 0.9793222222222222,
+    "wiki": 0.8928222222222223
+   },
+   "held_out_auroc_by_llm": {
+    "llama-chat": {
+     "n": 384,
+     "auroc": 0.938738425925926
+    },
+    "mistral-chat": {
+     "n": 333,
+     "auroc": 0.8975241908575241
+    },
+    "mpt-chat": {
+     "n": 183,
+     "auroc": 0.957832422586521
+    }
+   }
+  }
+ },
+ "ngram_leave_one_family_out_auroc": {
+  "abstracts": 0.8961666666666667,
+  "books": 0.9927222222222223,
+  "news": 0.9687888888888889,
+  "recipes": 0.8674333333333335,
+  "reddit": 0.9532222222222223,
+  "poetry": 0.9455666666666667,
+  "reviews": 0.9836111111111111,
+  "wiki": 0.8953555555555556
+ }
+}
