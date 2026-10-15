@@ -23,6 +23,19 @@ that would send your coordinates to a third party. The app also lists recent
 trips (with delete) and shares a tax-preparer report (the web app's standalone
 HTML) or CSV.
 
+## Vehicles and backup
+
+Pick the vehicle a drive was made in (the standard rate and Schedule C Part IV
+miles are per vehicle); it is stamped on every trip, so the web app's
+per-vehicle split works on exported data. Because the log lives only on the
+phone, **Back up my log** shares a JSON file (the web app's own export format,
+plus places and vehicles); pasting it back merges by id and never deletes.
+
+Drive detection also handles the phone going silent: iOS stops sending fixes
+once the phone is still, so a gap of 15 minutes or more ends the open drive
+where the car last moved, instead of gluing the next drive onto it
+(`gap.test.mjs`).
+
 ## Why use it
 
 Paid alternatives: MileIQ, Everlance, TripLog, QuickBooks Self-Employed

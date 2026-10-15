@@ -19,6 +19,7 @@ export const DEFAULTS = {
   minStep: 0.01,         // miles; ignore jitter smaller than ~16 m while moving
   minMiles: 0.2,         // shorter drives are dropped (moving the car, parking lots)
   minDurationMs: 60e3,
+  maxGapMs: 15 * 60e3,   // no fixes for this long mid-drive: the drive ended before the silence
 };
 
 export const initial = () => ({ mode: "idle", last: null, run: [], runOrigin: null, trip: null, stoppedSince: null });
@@ -38,6 +39,15 @@ export function step(state, fix, options = {}) {
   const o = { ...DEFAULTS, ...options };
   if (fix.accuracy != null && fix.accuracy > o.maxAccuracy) return { state, trip: null };
   if (state.last && fix.t <= state.last.t) return { state, trip: null };
+
+  // Phones stop delivering fixes once still, so a parked car leaves a hole, not
+  // five minutes of zero-speed fixes. A long silence ends the open drive where
+  // the car last moved, and this fix starts afresh instead of being glued on.
+  if (state.mode === "driving" && fix.t - state.last.t >= o.maxGapMs) {
+    const closed = finish(state.trip, o);
+    const r = step(initial(), fix, options);
+    return { state: r.state, trip: closed };
+  }
 
   // Reject teleports: the implied speed between two fixes cannot be a car.
   if (state.last) {

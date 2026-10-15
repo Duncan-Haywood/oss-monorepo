@@ -3,9 +3,10 @@ import { SafeAreaView, ScrollView, Text, View, Pressable, TextInput, Share, Styl
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { startTracking, stopTracking } from "./src/background";
-import { loadPending, loadTrips, loadPlaces, savePlaces, classify, dismiss, deleteTrip } from "./src/store";
+import { loadPending, loadTrips, loadPlaces, savePlaces, loadVehicles, saveVehicles, loadActiveVehicle, saveActiveVehicle, saveTrips, classify, dismiss, deleteTrip } from "./src/store";
 import { suggestCategory, CATEGORIES } from "./src/classify.mjs";
 import { addPlace, describeDrive, logTripFor, remember, readyToConfirm } from "./src/places.mjs";
+import { addVehicle, knownVehicles, withVehicle, makeBackup, restoreBackup } from "./src/vehicles.mjs";
 import { summarize, toCsv, money, preparerReportHtml } from "../calc.mjs";
 
 const DONATE = "https://github.com/sponsors/Duncan-Haywood";
@@ -16,12 +17,18 @@ export default function App() {
   const [places, setPlaces] = useState([]);
   const [status, setStatus] = useState("off");
   const [purpose, setPurpose] = useState({});
+  const [vehicles, setVehicles] = useState([]);
+  const [active, setActive] = useState("");
+  const [newVehicle, setNewVehicle] = useState("");
+  const [restoreText, setRestoreText] = useState("");
+  const [notice, setNotice] = useState("");
   const [names, setNames] = useState({}); // `${driveId}:to` -> text being typed
   const offset = -new Date().getTimezoneOffset();
   const year = new Date().getFullYear();
 
   const refresh = useCallback(async () => {
     setPending(await loadPending()); setTrips(await loadTrips()); setPlaces(await loadPlaces());
+    setVehicles(await loadVehicles()); setActive(await loadActiveVehicle());
   }, []);
   useEffect(() => { refresh(); const i = setInterval(refresh, 5000); return () => clearInterval(i); }, [refresh]);
 
@@ -42,7 +49,7 @@ export default function App() {
   };
   const choose = async (p, category, placeList = places, given = {}) => {
     const typed = given.purpose ?? purpose[p.id] ?? "";
-    const log = logTripFor(placeList, p, category, { utcOffsetMin: offset, purpose: typed, client: given.client || "" });
+    const log = withVehicle(logTripFor(placeList, p, category, { utcOffsetMin: offset, purpose: typed, client: given.client || "" }), active);
     await classify(p.id, log, p);
     const learned = remember(placeList, p, category, { purpose: log.purpose, client: log.client });
     if (learned !== placeList) await savePlaces(learned);
@@ -51,7 +58,7 @@ export default function App() {
   const confirmAll = async () => {
     let list = places;
     for (const r of ready) {
-      const log = logTripFor(list, r.drive, r.category, { utcOffsetMin: offset, purpose: r.purpose, client: r.client });
+      const log = withVehicle(logTripFor(list, r.drive, r.category, { utcOffsetMin: offset, purpose: r.purpose, client: r.client }), active);
       await classify(r.drive.id, log, r.drive);
     }
     await refresh();
@@ -61,6 +68,27 @@ export default function App() {
     const uri = FileSystem.cacheDirectory + `mileage-report-${year}.html`;
     await FileSystem.writeAsStringAsync(uri, html);
     if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(uri, { mimeType: "text/html", dialogTitle: `Mileage report ${year}` });
+  };
+
+  const vehicleList = useMemo(() => knownVehicles(vehicles, trips), [vehicles, trips]);
+  const pickVehicle = async (name) => { setActive(name); await saveActiveVehicle(name); };
+  const createVehicle = async () => {
+    const next = addVehicle(vehicleList, newVehicle);
+    if (next === vehicleList) return;
+    const name = next[next.length - 1];
+    await saveVehicles(next); setVehicles(next); setNewVehicle(""); await pickVehicle(name);
+  };
+  const shareBackup = async () => {
+    const uri = FileSystem.cacheDirectory + `mileage-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    await FileSystem.writeAsStringAsync(uri, makeBackup({ trips, places, vehicles: vehicleList, activeVehicle: active }));
+    if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(uri, { mimeType: "application/json", dialogTitle: "Mileage Log backup" });
+  };
+  const restore = async () => {
+    const r = restoreBackup(restoreText, { trips, places, vehicles: vehicleList });
+    if (r.error) { setNotice(r.error); return; }
+    await saveTrips(r.trips); await savePlaces(r.places); await saveVehicles(r.vehicles);
+    setRestoreText(""); setNotice(`Restored: ${r.added} new trip${r.added === 1 ? "" : "s"} added; nothing on this phone was removed.`);
+    await refresh();
   };
 
   const recent = [...trips].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 15);
@@ -75,6 +103,18 @@ export default function App() {
           <Pressable style={st.btn2} onPress={async () => { await stopTracking(); setStatus("off"); }}><Text>Stop</Text></Pressable>
         </View>
         <Text style={st.note}>Tracking: {status}. Locations are processed and stored on this phone only.</Text>
+
+        <Text style={st.h2}>Vehicle</Text>
+        <Text style={st.note}>New drives are logged to the selected vehicle (the rate and Schedule C miles are per vehicle).</Text>
+        <View style={st.row}>
+          {vehicleList.map((v) => (
+            <Pressable key={v} style={[st.chip, active === v && st.chipOn]} onPress={() => pickVehicle(v)}><Text>{v}</Text></Pressable>
+          ))}
+        </View>
+        <View style={st.row}>
+          <TextInput style={[st.input, st.grow]} placeholder="Add a vehicle (e.g. Ford Transit)" value={newVehicle} onChangeText={setNewVehicle} />
+          <Pressable style={st.btn2} onPress={createVehicle}><Text>Add</Text></Pressable>
+        </View>
 
         <Text style={st.h2}>To review ({pending.length})</Text>
         {ready.length > 1 && (
@@ -123,6 +163,12 @@ export default function App() {
           <Pressable style={st.btn2} onPress={() => Share.share({ message: toCsv(trips), title: `mileage-${year}.csv` })}><Text>Export CSV</Text></Pressable>
           <Pressable style={st.btn2} onPress={() => Linking.openURL(DONATE)}><Text>Support the creator</Text></Pressable>
         </View>
+        <Text style={st.h2}>Backup</Text>
+        <Text style={st.note}>Your log lives only on this phone. Save a backup file somewhere you control; restoring merges, it never deletes.</Text>
+        <Pressable style={st.btn2} onPress={shareBackup}><Text>Back up my log</Text></Pressable>
+        <TextInput style={st.input} multiline placeholder="To restore, paste the backup file's text here" value={restoreText} onChangeText={setRestoreText} />
+        {restoreText.trim() !== "" && <Pressable style={st.btn2} onPress={restore}><Text>Restore from pasted backup</Text></Pressable>}
+        {notice !== "" && <Text style={st.note}>{notice}</Text>}
         <Text style={st.note}>Not tax advice. Business trips need a destination and a purpose; check with a tax professional.</Text>
       </ScrollView>
     </SafeAreaView>
