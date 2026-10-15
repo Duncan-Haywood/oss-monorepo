@@ -1,0 +1,29 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# Starts in DRY_RUN=true with the example meters. Set CONFIG_JSON to your own meters and plans, then add
+# STRIPE_SECRET_KEY (a restricted key that can write Billing Meter Events) and set DRY_RUN=false to forward usage to Stripe.
+services:
+  - type: web
+    name: meter-keeper
+    runtime: docker
+    dockerContext: ventures/meter-keeper
+    dockerfilePath: ventures/meter-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: API_KEY
+        generateValue: true
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: CONFIG_JSON
+        sync: false
+      - key: DRY_RUN
+        value: "true"
+      - key: STRIPE_SECRET_KEY
+        sync: false
