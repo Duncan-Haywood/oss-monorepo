@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recipe Nutrition Facts Label Generator: free, private, FDA rounding</title>
+<meta name="description" content="Turn a recipe into an FDA-style Nutrition Facts label with per-serving values, rounding, percent Daily Values, an ingredient list by weight and an allergen line. For bakers, cottage food sellers and small food makers. Private, in your browser.">
+<meta property="og:title" content="Recipe Nutrition Facts Label Generator">
+<meta property="og:description" content="Ingredients in, Nutrition Facts panel out. FDA rounding, percent Daily Values and major-allergen detection. Nothing is uploaded.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Recipe Nutrition Facts Label Generator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make a Nutrition Facts label for a homemade food product?", "acceptedAnswer": {"@type": "Answer", "text": "List every ingredient with its weight in grams and its nutrition per 100 g (from the package or from USDA FoodData Central), weigh the finished batch, pick a serving size, and let the tool add everything up per serving, apply the FDA rounding rules and work out the percent Daily Values. This tool does that arithmetic in your browser and draws the panel."}}, {"@type": "Question", "name": "Do I need a lab test?", "acceptedAnswer": {"@type": "Answer", "text": "Not always. FDA allows nutrient values from a database or calculation for many foods, but the label stays your responsibility and accuracy tolerances apply. Many sellers send a first product to a lab to check their calculation. Small businesses can qualify for an exemption (see the guide) and many cottage food sales need no panel at all; state rules differ."}}, {"@type": "Question", "name": "Why does it ask for the finished weight?", "acceptedAnswer": {"@type": "Answer", "text": "Baking and cooking drive off water, so a batch that went in at 640 g may weigh 560 g when done. The same calories are then packed into fewer grams, so each serving has more of them. Leaving the finished weight out understates every nutrient."}}, {"@type": "Question", "name": "How does it find allergens?", "acceptedAnswer": {"@type": "Answer", "text": "It reads your ingredient names for the nine major allergens (milk, eggs, fish, crustacean shellfish, tree nuts, peanuts, wheat, soybeans and sesame) and their common derivatives, and prints a Contains line. It cannot see inside a branded ingredient, so names like natural flavor or chocolate are flagged for you to check with the supplier."}}, {"@type": "Question", "name": "Is my recipe uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. All the arithmetic runs in your browser and nothing is sent to a server. There is also a command-line version that runs on your own machine."}}]}</script>
+<style>
+:root{--bg:#f6f4ee;--fg:#1b2430;--muted:#4b5767;--card:#fff;--line:#cfd6df;--accent:#0b5d7a;--warn:#8a3b12}
+@media (prefers-color-scheme:dark){:root{--bg:#12171d;--fg:#e8edf2;--muted:#a9b5c2;--card:#1a2129;--line:#33404d;--accent:#6cc3e0;--warn:#f0a070}}
+*{box-sizing:border-box}
+body{font:16px/1.5 system-ui,sans-serif;margin:0;padding:1rem;background:var(--bg);color:var(--fg)}
+main,footer{max-width:1000px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.25rem;margin:1rem 0}
+h1{font-size:clamp(1.8rem,4.5vw,3rem);line-height:1.1;margin:.2rem 0 .6rem}
+textarea{width:100%;min-height:200px;padding:.8rem;border:2px solid var(--line);border-radius:8px;font:13px/1.4 ui-monospace,monospace;background:var(--bg);color:var(--fg)}
+input,select{font:inherit;padding:.4rem;border:2px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:.8rem;align-items:end;margin:.6rem 0}
+.row label{display:block;font-size:.85rem;color:var(--muted)}
+button{background:var(--accent);color:#fff;border:0;padding:.65rem 1rem;border-radius:8px;font-weight:700;cursor:pointer;margin:.4rem .4rem .4rem 0}
+@media (prefers-color-scheme:dark){button{color:#0b1218}}
+button.secondary{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+.panel{background:#fff;color:#000;border:2px solid #000;max-width:320px;padding:.5rem .6rem;font:14px/1.25 "Helvetica Neue",Arial,sans-serif}
+.panel h2{font-size:2rem;font-weight:900;margin:0;line-height:1;border-bottom:1px solid #000;padding-bottom:.2rem}
+.panel .big{display:flex;justify-content:space-between;align-items:baseline;border-top:8px solid #000;border-bottom:4px solid #000;margin-top:.3rem;padding:.2rem 0;font-weight:900}
+.panel .big span:last-child{font-size:2rem}
+.panel .r{display:flex;justify-content:space-between;border-top:1px solid #000;padding:.1rem 0}
+.panel .sub{padding-left:1rem}.panel .sub2{padding-left:2rem}
+.panel .thick{border-top:8px solid #000}
+.panel .note{font-size:.72rem;border-top:4px solid #000;margin-top:.3rem;padding-top:.2rem}
+.panel b{font-weight:800}
+.warn{color:var(--warn)}
+footer{font-size:.85rem;color:var(--muted);padding-bottom:3rem}
+a{color:var(--accent)}
+code{font-size:.9em}
+@media print{body *{visibility:hidden}.panel,.panel *{visibility:visible}.panel{position:absolute;left:0;top:0}}
+</style>
+</head>
+<body>
+<main>
+<p><strong>Bakers, cottage food and small food makers</strong> &middot; private browser tool &middot; free</p>
+<h1>Make a Nutrition Facts label from your recipe</h1>
+<p>List your ingredients by weight, enter the finished batch weight and a serving size. Get an FDA-style Nutrition Facts panel with the rounding rules and percent Daily Values applied, the ingredient list in weight order, and a <em>Contains</em> line for the major allergens. Nutrition data stays on this device.</p>
+
+<section class="card">
+  <div class="row">
+    <div><label for="serving">Serving size (grams)</label><input id="serving" type="number" min="1" step="any" value="" size="6"></div>
+    <div><label for="stext">Household measure</label><input id="stext" placeholder="1 cookie" size="14"></div>
+    <div><label for="yield">Finished batch weight (grams)</label><input id="yield" type="number" min="1" step="any" size="8"></div>
+  </div>
+  <label for="source"><strong>Ingredients</strong>, one per line: name, grams, then nutrition <em>per 100 g</em> (<code id="cols"></code>). Blank means unknown and is flagged.</label>
+  <textarea id="source" spellcheck="false" placeholder="Name,grams,calories,fat,satFat,transFat,cholesterol,sodium,carbs,fiber,sugars,addedSugars,protein,vitD,calcium,iron,potassium"></textarea>
+  <div class="row">
+    <div><label for="pantry">Add a common ingredient</label><select id="pantry"></select></div>
+    <div><label for="pgrams">Grams</label><input id="pgrams" type="number" min="0" step="any" value="100" size="6"></div>
+    <button type="button" class="secondary" id="add">Add to list</button>
+  </div>
+  <p><small>The built-in values are approximate USDA FoodData Central figures. Branded products differ: copy the numbers from the package label (they are per serving there, so convert to per 100 g) or search <a href="https://fdc.nal.usda.gov/" rel="noopener">FoodData Central</a>.</small></p>
+  <div>
+    <button type="button" id="make">Make the label</button>
+    <button type="button" class="secondary" id="example">Load a fictional example</button>
+    <button type="button" class="secondary" id="clear">Clear</button>
+  </div>
+  <p id="status" aria-live="polite">Nothing is uploaded. The arithmetic runs on this device.</p>
+</section>
+
+<section class="card" id="report" hidden>
+  <h2>Your label</h2>
+  <div id="panel" class="panel"></div>
+  <p id="ingredients"></p>
+  <p id="allergens"><strong></strong></p>
+  <h3>Read this first</h3>
+  <ul id="warnings"></ul>
+  <p>
+    <button type="button" id="copy">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="print">Print the panel</button>
+  </p>
+</section>
+
+<section class="card" id="rules">
+  <h2>What it does, and what it leaves to you</h2>
+  <ul>
+    <li><strong>Does:</strong> adds up each nutrient across ingredients, scales to your serving using the finished batch weight, rounds to FDA increments (calories, fats, cholesterol, sodium, carbohydrate, protein, vitamin D, calcium, iron, potassium), and computes percent Daily Value against the 2020 Daily Values. Lists ingredients by weight and detects the nine major allergens in the names you give.</li>
+    <li><strong>Warns:</strong> missing values, a missing finished weight, calories that disagree with fat, protein and carbohydrate, and impossible combinations such as more added sugar than total sugar.</li>
+    <li><strong>Not decided:</strong> whether your product needs a label or qualifies for an exemption, the correct serving size for your product category (reference amounts), nutrient content or health claims, allergen cross-contact, state cottage food rules, or the accuracy of the numbers you typed. This is a calculation aid, not a regulatory determination. Have the label reviewed before you print and sell under it.</li>
+  </ul>
+  <p>Prefer the command line? <code>node cli.mjs recipe.csv --serving 30 --yield 560</code> runs the same code on your own machine (see the README in the repository).</p>
+</section>
+
+<section class="card" id="faq">
+  <h2>Common questions</h2>
+  <h3>How do I make a Nutrition Facts label for a homemade food product?</h3>
+  <p>List every ingredient with its weight in grams and its nutrition per 100 g (from the package or from USDA FoodData Central), weigh the finished batch, pick a serving size, and let the tool add everything up per serving, apply the FDA rounding rules and work out the percent Daily Values. This tool does that arithmetic in your browser and draws the panel.</p>
+  <h3>Do I need a lab test?</h3>
+  <p>Not always. FDA allows nutrient values from a database or calculation for many foods, but the label stays your responsibility and accuracy tolerances apply. Many sellers send a first product to a lab to check their calculation. Small businesses can qualify for an exemption (see the guide) and many cottage food sales need no panel at all; state rules differ.</p>
+  <h3>Why does it ask for the finished weight?</h3>
+  <p>Baking and cooking drive off water, so a batch that went in at 640 g may weigh 560 g when done. The same calories are then packed into fewer grams, so each serving has more of them. Leaving the finished weight out understates every nutrient.</p>
+  <h3>How does it find allergens?</h3>
+  <p>It reads your ingredient names for the nine major allergens (milk, eggs, fish, crustacean shellfish, tree nuts, peanuts, wheat, soybeans and sesame) and their common derivatives, and prints a Contains line. It cannot see inside a branded ingredient, so names like natural flavor or chocolate are flagged for you to check with the supplier.</p>
+  <h3>Is my recipe uploaded anywhere?</h3>
+  <p>No. All the arithmetic runs in your browser and nothing is sent to a server. There is also a command-line version that runs on your own machine.</p>
+  <p class="seo-link"><a href="./how-to-make-a-nutrition-facts-label-for-homemade-food.html">How to make a Nutrition Facts label for homemade food</a> &middot; <a href="../recipe-costing-calculator/">Recipe costing calculator &mdash; what each batch costs</a> &middot; <a href="../cottage-food-pricing-calculator/">Cottage food pricing calculator</a> &middot; <a href="../cake-pricing-calculator/">Cake pricing calculator</a></p>
+</section>
+</main>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, regulatory, nutrition, tax, financial, medical, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p>Everything runs in your browser. Your recipe is never uploaded; there are no accounts, cookies, or analytics vendors. We count anonymous feature events (<code>label_made</code>, <code>example_loaded</code>, <code>csv_downloaded</code>), never people, only in your own browser's storage, and counting honors Do Not Track and Global Privacy Control.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p class="support">Free and open source under the <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support on GitHub Sponsors</a> if this saved you a lab fee or an afternoon &mdash; optional, the tool stays free either way.</p>
+</footer>
+
+<script type="module">
+import { parseRecipe, buildLabel, toText, toCsv, LABELS, PANTRY, COLUMNS, pantryLine } from "./label.mjs";
+import { SAMPLE, SAMPLE_SERVING_G, SAMPLE_SERVING_TEXT, SAMPLE_YIELD_G } from "./sample.mjs";
+import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+const $ = (sel) => document.querySelector(sel);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const IDLE = "Nothing is uploaded. The arithmetic runs on this device.";
+let last = null;
+
+$("#cols").textContent = COLUMNS.join(", ");
+$("#pantry").innerHTML = PANTRY.map((p) => `<option>${esc(p.name)}</option>`).join("");
+
+function download(name, body, type) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([body], { type }));
+  a.download = name;
+  a.click();
+}
+
+function panelHtml(l) {
+  const r = l.rows;
+  const dv = (k) => (r[k].dv != null ? `<b>${r[k].dv}%</b>` : "");
+  const line = (k, cls = "") => `<div class="r ${cls}"><span>${cls ? "" : "<b>"}${LABELS[k]}${cls ? "" : "</b>"} ${esc(r[k].display)}</span>${dv(k)}</div>`;
+  return `<h2>Nutrition Facts</h2>
+<div>${esc(l.serving.perContainer)} servings per container</div>
+<div class="r" style="border-top:0"><b>Serving size</b><b>${esc(l.serving.text)} (${esc(l.serving.grams)}g)</b></div>
+<div class="big"><span>Calories</span><span>${esc(r.calories.amount)}</span></div>
+<div style="text-align:right"><b>% Daily Value*</b></div>
+${line("fat")}${line("satFat", "sub")}${line("transFat", "sub")}${line("cholesterol")}${line("sodium")}${line("carbs")}${line("fiber", "sub")}${line("sugars", "sub")}
+<div class="r sub2"><span>Includes ${esc(r.addedSugars.display)} Added Sugars</span>${dv("addedSugars")}</div>
+<div class="r"><span><b>Protein</b> ${esc(r.protein.display)}</span></div>
+<div class="thick"></div>
+${["vitD", "calcium", "iron", "potassium"].map((k) => `<div class="r"><span>${LABELS[k]} ${esc(r[k].display)}</span><span>${r[k].dv}%</span></div>`).join("")}
+<div class="note">* The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</div>`;
+}
+
+function run() {
+  const { ingredients, warnings } = parseRecipe($("#source").value);
+  if (!ingredients.length) { $("#report").hidden = true; $("#status").textContent = warnings[0] || "Add at least one ingredient line."; return false; }
+  const servingG = Number($("#serving").value);
+  if (!(servingG > 0)) { $("#report").hidden = true; $("#status").textContent = "Enter the serving size in grams."; return false; }
+  const y = $("#yield").value;
+  last = buildLabel(ingredients, { servingG, yieldG: y === "" ? null : Number(y), servingText: $("#stext").value.trim() });
+  $("#panel").innerHTML = panelHtml(last);
+  $("#ingredients").textContent = last.ingredientStatement;
+  $("#allergens").innerHTML = last.allergenStatement ? `<strong>${esc(last.allergenStatement)}</strong>` : "No major allergen found in the ingredient names. Check supplier labels anyway.";
+  $("#warnings").innerHTML = [...warnings, ...last.warnings, ...last.allergenNotes].map((w) => `<li class="warn">${esc(w)}</li>`).join("") || "<li>No warnings. Still check every number against the source.</li>";
+  $("#report").hidden = false;
+  $("#status").textContent = "Done. Check the label against your sources and the FDA rules before you print it.";
+  return true;
+}
+
+$("#make").addEventListener("click", () => { if (run()) record("label_made"); });
+$("#example").addEventListener("click", () => {
+  $("#source").value = SAMPLE; $("#serving").value = SAMPLE_SERVING_G; $("#stext").value = SAMPLE_SERVING_TEXT; $("#yield").value = SAMPLE_YIELD_G;
+  run(); record("example_loaded");
+});
+$("#clear").addEventListener("click", () => { $("#source").value = ""; $("#report").hidden = true; last = null; $("#status").textContent = IDLE; });
+$("#add").addEventListener("click", () => {
+  const g = Number($("#pgrams").value);
+  if (!(g > 0)) { $("#status").textContent = "Enter the ingredient weight in grams."; return; }
+  const cur = $("#source").value.trimEnd();
+  $("#source").value = (cur ? cur + "\n" : "") + pantryLine($("#pantry").value, g);
+});
+$("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("nutrition-label.csv", toCsv(last), "text/csv"); } });
+$("#copy").addEventListener("click", async () => {
+  if (!last) return;
+  try { await navigator.clipboard.writeText(toText(last)); $("#status").textContent = "Copied the label as plain text."; }
+  catch { $("#status").textContent = "Copy was blocked by the browser; use Download CSV instead."; }
+});
+$("#print").addEventListener("click", () => window.print());
+$("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+</script>
+</body>
+</html>

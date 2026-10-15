@@ -729,6 +729,8 @@ const CATEGORY_RULES = [
       'bakery-production-scheduler',
       // `cake-pricing-calculator` joined 2026-10-10: custom cake pricing for home and small bakeries, a sibling of `bakery-production-scheduler`.
       'cake-pricing-calculator',
+      // `recipe-nutrition-label` joined 2026-10-15 on its first commit: a baker or cottage-food seller turning a recipe into a Nutrition Facts panel, one hop from `cake-pricing-calculator` and `recipe-costing-calculator`.
+      'recipe-nutrition-label',
       // `ghost-kitchen-brand-picker` joined 2026-10-09 on its first commit: which virtual brands a delivery-only kitchen keeps under a kitchen-hours limit, beside `menu-engineering-calculator`'s per-item margins.
       'ghost-kitchen-brand-picker',
       // `cafe-drink-margin-calculator` joined 2026-10-09 on its first commit: per-drink margin for coffee shops after card fees and make-time labor, beside `menu-engineering-calculator`'s dish margins.
