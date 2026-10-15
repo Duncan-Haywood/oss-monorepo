@@ -2258,7 +2258,11 @@
     {
      "slug": "accel-lut",
      "title": "Does weight-sharing lookup-table inference beat a multiply-accumulate engine for a small accelerator?",
-     "summary": "A k-means weight-sharing codebook with a per-input product table (no multiplier per weight) against int8 serial MAC engines, on the 64-32-10 digits MLP of <code>accel-sparse</code>, dense and 75% pruned, over 10 splits. Negative: within 2 points of float32 the table engine does not beat int8 (dense: 3.51 nJ for 8 shared values against 3.56 nJ for int8; pruned: 1.55 against 1.51 nJ), and it only looks better against a baseline that rereads activations per weight. An analytic sweep puts the break-even at layers of about 128 outputs or more, and then only if table reads cost a quarter of an array read. Stylised: assumed 45 nm constants, no retraining or RTL, substitute task."
+     "summary": "A k-means weight-sharing codebook with a per-input product table (no multiplier per weight) against int8 serial MAC engines, on the 64-32-10 digits MLP of <code>accel-sparse</code>, dense and 75% pruned, over 10 splits. Negative: within 2 points of float32 the table engine does not beat int8 (dense: 3.51 nJ for 8 shared values against 3.56 nJ for int8; pruned: 1.55 against 1.51 nJ), and it only looks better against a baseline that rereads activations per weight. An analytic sweep puts the break-even at layers of about 128 outputs or more, and then only if table reads cost a quarter of an array read. Stylised: assumed 45 nm constants, no retraining or RTL, substitute task."    },
+    {
+     "slug": "accel-lutft",
+     "title": "Does fine-tuning the shared weight values rescue low-K lookup-table inference?",
+     "summary": "<code>accel-lut</code> left its shared values untrained. Here the codebook is kept in the loop for 60 epochs (straight-through, k-means re-fit each step) on the same 64-32-10 digits MLP, dense and 75% pruned, over 10 splits. Mixed: in the pruned network 2 shared values go from a 6.5-point to a 1.7-point accuracy drop, and with an assumed cheap table read (0.04&nbsp;pJ/bit) that is 1.30&nbsp;nJ against 1.51&nbsp;nJ for int8; at 0.16&nbsp;pJ/bit it loses. In the dense network fine-tuning does not help (8 shared values: 3.2 points down against 1.6 without it). Stylised: assumed energy constants, one fine-tuning recipe, no RTL, substitute task."
     },
     {
      "slug": "accel-lutrtl",
