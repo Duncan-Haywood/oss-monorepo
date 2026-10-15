@@ -2084,6 +2084,11 @@
      "slug": "accel-codesign",
      "title": "Under a latency deadline, how much engine area does picking the most accurate model first cost, compared with choosing model and lane count together?",
      "summary": "Exhaustive joint search over the 40 measured <em>accel-kws</em> keyword-spotting models and six MAC lane counts (240 designs), against a model-first flow, at deadlines of 2,000&ndash;20,000 cycles. The most accurate model (validation 0.775, test 0.752) needs 16 lanes at 2,000 cycles and 7,667 generic cells; accepting 2 validation points less (test 0.738) cuts area by 31&ndash;42%, and 3 points by 35&ndash;56%. Stylised and only partly the milestone: models are a fixed measured table (the dataset was unreachable), cycles for more than one lane are analytic and not RTL-simulated, memory bandwidth is not counted, area is generic gates, and no NSGA-II or Bayesian search was run (the space is small enough to enumerate)."
+    },
+    {
+     "slug": "accel-dataflow",
+     "title": "Which dataflow should a small keyword-spotting accelerator use, and does the answer survive allowing an input buffer?",
+     "summary": "Four dataflows (output-, weight-, input-stationary and reduction-tree) of a <em>P</em>-lane MAC array, as schedules walked cycle by cycle on the 40 <em>accel-kws</em> models, with SRAM-access counts that match closed forms exactly and, at <em>P</em>&nbsp;=&nbsp;1, the measured RTL cycles of <em>accel-kws</em>. At batch 1 output-stationary is best (input-stationary is a median 1.2&times; to 4.1&times; worse, falling with lanes); at batch 4 it wins every model while weight-stationary is a median 4.5&ndash;9.0&times; worse through partial-sum traffic. Allowing an activation buffer flips the batch-4 winner to the input-mapped flows at 32 lanes (1.37&times; better), so the ranking rests on a modelling choice. Stylised: assumed energy constants, a one-cycle register model, no RTL beyond one lane, Timeloop not tried."
     }
    ]
   },
@@ -2096,6 +2101,28 @@
      "slug": "eda-harness",
      "title": "Can one harness check, score, cache and log candidate chip designs for any proposer?",
      "summary": "A loop that takes a parameterised generator and a search space and runs each candidate through lint, bit- and cycle-exact RTL simulation, a gate-netlist simulation check and Yosys synthesis, caching by design hash and logging every evaluation as JSON. On <em>chip-accel</em>&rsquo;s MAC engine (40 designs) all candidates pass; synthesis and the gate-level check take 99% of the 424&nbsp;s of wall time and RTL simulation under 1%. The Pareto front matches <em>chip-accel</em>&rsquo;s. Stylised: one design family, generic-gate counts, simulation-based (not formal) equivalence, no place and route."
+    }
+   ]
+  },
+  {
+   "id": "osrobot",
+   "name": "Open-source purpose-built robots",
+   "blurb": "Robots built for one job and designed from the task outward: when a specialised body beats a general-purpose arm, on cost, speed and reliability.",
+   "projects": [
+    {
+     "slug": "osrobot-specialise",
+     "title": "When does a purpose-built gantry beat a general two-link arm at tray pick-and-place?",
+     "summary": "A stdlib model compares an XY gantry with an equal-link planar arm over a square work area, on cost per good pick per hour. At 2&nbsp;mm tolerance the gantry wins up to 0.35&nbsp;m and above about 1.0&nbsp;m; the arm wins between 0.36 and 0.99&nbsp;m. Tolerance below 1&nbsp;mm removes the arm&rsquo;s band, and the band depends heavily on the assumed cost coefficients (halving the gantry&rsquo;s removes it). Stylised: every cost, mass, speed and accuracy figure is assumed, and only one task is modelled."
+    },
+    {
+     "slug": "osrobot-morph",
+     "title": "Does co-designing an arm's link lengths and controller beat tuning the controller on a fixed body?",
+     "summary": "A stdlib planar two-link arm model searches the split of a fixed 0.50&nbsp;m reach together with PD gains, against an equal-link body with tuned gains, at equal search budget. The tray is reachable only for splits of 0.40 to 0.60. Co-design gained 1.9% in held-out move time (0.283 against 0.289&nbsp;s), within three-seed noise, while tuning the controller cut hand-set gains' 0.460&nbsp;s by about 37%. Stylised, preliminary and mostly negative: one body parameter and an assumed torque limit."
+    },
+    {
+     "slug": "osrobot-bodysearch",
+     "title": "Does searching an arm&rsquo;s joint count, link lengths and mount, with its controller tuned in the loop, beat a fixed three-link body at the same cost?",
+     "summary": "A stdlib model searches link lengths, joint count and mount position of a planar arm, with its inverse-kinematics controller tuned in the loop, against a fixed three-link body at an equal cost budget (300 evaluations, 10 seeds, held-out targets). On a shelf task that needs the tool pointing down, the search reaches 0.95 success against 0.26 for the fixed body with a tuned controller and 0.50 with the mount also tuned; on a long position-only reach the fixed body already succeeds and the search adds nothing. Random search beat a (1+4) evolution strategy here, weakly. Stylised: kinematics and static torque only (no MuJoCo dynamics), and every cost, mass and limit is assumed."
     }
    ]
   }
