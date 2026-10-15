@@ -5,6 +5,9 @@
 //                            extension; ?name=invoice.xml overrides it.
 //   POST /v1/validate/batch  {"documents":[{"name","content","encoding"?}]}
 //                            encoding "base64" is for PDFs; default is text.
+//   POST /v1/generate        {"draft":{...},"format":"ubl"|"cii","profile":"xrechnung"|
+//                            "peppol"|"en16931"} -> { ok, errors, warnings, totals,
+//                            xml, filename, preflight }. See examples/draft-invoice.json.
 //   GET  /healthz            liveness probe.
 //   GET  /                   the browser checker (index.html), if present.
 //
@@ -16,6 +19,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { timingSafeEqual } from "node:crypto";
+import { generateInvoice } from "./generate.mjs";
 import { buildJsonReport, preflightDocuments } from "./report.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -117,6 +121,14 @@ export function createApp(config = loadConfig()) {
       send(res, 200, { status: "ok", donate: DONATE_URL });
       return;
     }
+    if (req.method === "GET" && path === "/create.html" && config.serveUi) {
+      try {
+        send(res, 200, await readFile(join(HERE, "create.html"), "utf8"));
+      } catch {
+        send(res, 404, { error: "UI not bundled in this deployment." });
+      }
+      return;
+    }
     if (req.method === "GET" && (path === "/" || path === "/index.html") && config.serveUi) {
       try {
         send(res, 200, await readFile(join(HERE, "index.html"), "utf8"));
@@ -178,6 +190,27 @@ export function createApp(config = loadConfig()) {
       });
       const result = await preflightDocuments(inputs, { maxBytes: config.maxBytes, maxFiles: config.maxBatch });
       send(res, 200, { ...buildJsonReport(result), disclaimer: DISCLAIMER });
+      return;
+    }
+
+    if (path === "/v1/generate") {
+      const raw = await readBody(req, config.maxBytes);
+      let parsed;
+      try {
+        parsed = JSON.parse(raw.toString("utf8"));
+      } catch {
+        throw new HttpError(400, "Body must be JSON.");
+      }
+      if (!parsed || typeof parsed !== "object" || typeof parsed.draft !== "object" || parsed.draft === null) {
+        throw new HttpError(400, 'Expected {"draft":{...}}.');
+      }
+      const made = generateInvoice(parsed.draft, { format: parsed.format || "ubl", profile: parsed.profile || "xrechnung" });
+      if (!made.ok) {
+        send(res, 422, { ...made, disclaimer: DISCLAIMER });
+        return;
+      }
+      const check = buildJsonReport(await preflightDocuments([{ name: made.filename, source: made.xml }], { maxBytes: config.maxBytes, maxFiles: 1 }));
+      send(res, 200, { ...made, preflight: { status: check.status, findings: check.errors }, disclaimer: DISCLAIMER });
       return;
     }
 

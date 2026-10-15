@@ -75,3 +75,43 @@ test("malformed JSON is a read error, not a crash", async () => {
   assert.equal(j.exit_code, 2);
   await s.close();
 });
+
+test("POST /v1/generate writes UBL that passes its own preflight", async () => {
+  const s = await start();
+  const draft = JSON.parse((await ex("draft-invoice.json")).toString());
+  const r = await fetch(`${s.base}/v1/generate`, { method: "POST", body: JSON.stringify({ draft, format: "ubl" }) });
+  const j = await r.json();
+  assert.equal(r.status, 200);
+  assert.equal(j.ok, true);
+  assert.match(j.xml, /<Invoice /);
+  assert.equal(j.preflight.status, "pass");
+  assert.deepEqual(j.totals, { net: 350, tax: 48.5, gross: 398.5, prepaid: 0, due: 398.5 });
+  await s.close();
+});
+
+test("POST /v1/generate returns 422 with errors for an incomplete draft", async () => {
+  const s = await start();
+  const r = await fetch(`${s.base}/v1/generate`, { method: "POST", body: JSON.stringify({ draft: { lines: [] } }) });
+  const j = await r.json();
+  assert.equal(r.status, 422);
+  assert.equal(j.ok, false);
+  assert.ok(j.errors.length > 3);
+  assert.equal(j.xml, undefined);
+  await s.close();
+});
+
+test("POST /v1/generate honours the API key and rejects a body without a draft", async () => {
+  const s = await start({ EINVOICE_API_KEY: "k" });
+  assert.equal((await fetch(`${s.base}/v1/generate`, { method: "POST", body: "{}" })).status, 401);
+  const r = await fetch(`${s.base}/v1/generate`, { method: "POST", headers: { authorization: "Bearer k" }, body: "{}" });
+  assert.equal(r.status, 400);
+  await s.close();
+});
+
+test("GET /create.html serves the creator page", async () => {
+  const s = await start();
+  const r = await fetch(`${s.base}/create.html`);
+  assert.equal(r.status, 200);
+  assert.match(await r.text(), /invoice creator/i);
+  await s.close();
+});
