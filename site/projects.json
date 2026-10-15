@@ -2388,7 +2388,7 @@
     {
      "slug": "swe-orgs",
      "title": "Which practices of engineering organisations that ship could help an agent loop, and what is there to fix?",
-     "summary": "A first-batch, cited catalogue of 12 practices from 12 sources (Google, Microsoft, Facebook, Netflix, Basecamp, Spotify and others), each tagged with company stage, evidence type (one measured, others case studies, accounts or opinion), the loop element it maps to, how far it transfers to a fleet of agent sessions, and the assumption that does not carry over. Scored against the 265-row run ledger, the failure classes runs report are small (1.9&ndash;6.0% of runs, self-reported keyword matches), so <em>no practice clears the 5% ceiling as a new proposal</em>: a negative result. Sources were checked by web search only, three only partly. First batch of a standing milestone 7 of track 10."
+     "summary": "A first-batch, cited catalogue of 14 practices from 14 sources (Google, Microsoft, Facebook, Netflix, Basecamp, Spotify, Ries, Stripe and others), each tagged with company stage, evidence type (one measured, others case studies, accounts or opinion), the loop element it maps to, how far it transfers to a fleet of agent sessions, and the assumption that does not carry over. Scored against the 268-row run ledger, the failure classes runs report are small (2.2&ndash;6.0% of runs, self-reported keyword matches), so <em>no practice clears the 5% ceiling as a new proposal</em>: a negative result. Sources were checked by web search only, three only partly. First batch of a standing milestone 7 of track 10."
     }
    ]
   },
