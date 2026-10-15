@@ -66,7 +66,7 @@ export function federalTax(taxable, y) {
 
 export function compute(input) {
   const errors = [];
-  const year = YEARS[input.year] ? String(input.year) : "2025";
+  const year = Object.hasOwn(YEARS, input.year) ? String(input.year) : "2025";
   const revenue = num(input.revenue);
   const expenses = num(input.expenses) ?? 0;
   const provRate = num(input.provincialRate) ?? 0;

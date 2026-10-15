@@ -126,9 +126,130 @@ Entry format:
   first window is the baseline.
 - Result: (next review)
 
+## E5: Judgment over rules, depth over count, drift audit (2026-10-15, owner-directed)
+
+- Change: `goals.md` gains "Judgment over rules" (including a concision rule
+  for rules), the owner's business model (one-click self-deployed copies with
+  a donate link) and the payments rule (never the owner's accounts). Ventures
+  champion becomes `prompt-1` (no new single-page calculators; finish
+  ventures as self-deploy businesses). Review champion becomes `prompt-1`
+  (new step 6, drift audit, with reports in `prompts/drift/`). Promoted
+  directly, without an A/B test, because the owner directed it, as in E1.
+- Why: `prompts/drift/2026-10-15.md`. 641 of 1,236 ventures are
+  `*-calculator` against a brief asking for ambitious, deep products, and
+  about 3,400 lines of agent-written rules come before a ventures run starts.
+- Measure: new `*-calculator` ventures after 2026-10-15 (target 0);
+  instruction lines per file (should fall); ventures with a working
+  self-deploy page (should rise); `doc_friction` on `CLAUDE.md` and
+  `DIRECTION.md`.
+- Result: (next review)
+
+## E7: Steering by judgment, a process backlog, process track to 10% (2026-10-15, owner request)
+
+- Change, all owner-directed rather than A/B (the owner asked for more
+  critique-and-solution work on the process itself, for "suggestive direction
+  setting" that does not over-handicap the agents, and noted that with ~16
+  runs an hour against a few owner-hours a week, runs over-correct on
+  instructions and on past work):
+  - New `prompts/steering.md`: amplification as the premise; guardrails
+    (`goals.md`) absolute, everything else a default; deviations recorded in
+    run records; instructions give goal and reason before procedure; history
+    out of always-read files; rules can retire.
+  - `goals.md`: a "How to read this file" note (follow guardrails in spirit
+    and proportion; past volume is not a mandate) and the process share at
+    10%. No guardrail's content changed.
+  - `prompt.md`: a judgment paragraph, and a `deviations` field in records.
+  - `promptctl.py`: `deviations` (validated, grouped in `measure`),
+    `backlog` command, backlog validation, and per-file line budgets
+    reported (not enforced) in `measure`.
+  - `prompts/process/backlog/`: 11 items seeded from the two 2026-10-15
+    studies' recommendations and the friction reports.
+  - `prompts/process/prompt-1.md` made champion directly: solve / critique /
+    verify against the backlog, the run's choice. prompt-0's "one study per
+    window, claimed by an open PR" collided on its first day (two studies of
+    the same window) and cannot absorb ~1.6 process runs an hour.
+  - `routing.json`: process 0.05 to 0.10; ventures and research 0.415 to
+    0.39 each. Red team stays at 7% of non-review weight.
+  - Review prompt (prompt-1, E5's champion): reads deviations alongside
+    friction; unfixed findings become backlog items.
+  - `CLAUDE.md` 1,662 to about 450 lines (backlog P003), history moved
+    verbatim to `docs/history/claude-md-2026-10-15.md`; it puts E5's
+    "Fewer, shorter rules" into effect on the largest file.
+  - Built alongside E5 (#7020) in a parallel session; merged, not
+    duplicated: deviations are where E5's "name the rule in the run record"
+    now goes.
+- Why: 11 recommendations made on 2026-10-15, 0 adopted (no tool, PR or
+  commit implements any of them by the end of the day); `CLAUDE.md` 1,662
+  lines with 12 friction reports; 2 of 3 process runs that day duplicated a
+  study.
+- Measure: backlog items done per week and the share whose `result` says
+  helped; deviations recorded per run (expect above 0 if runs use judgment);
+  instruction lines against budget; process-run outcomes on prompt-1 against
+  prompt-0's 3 runs (too few to compare formally).
+- Result: (next review)
+
 ## Proposals for the owner
 
 Changes to `prompts/goals.md` that a review thinks are warranted, with the
 evidence. The owner decides.
 
-(none yet)
+### G1: Separate hard limits from strong defaults in `goals.md` (2026-10-15, E7)
+
+**Accepted by the owner the same day**, and widened: "aside from legal and
+financial liability and immoral stuff, even the owner instructions are more a
+collaborator than something to be taken as gospel truth". `goals.md` now says
+so, and it states the owner's priorities: value first, income without
+liability, then free software with a coffee link. The original proposal
+follows.
+
+The owner said on 2026-10-15 that guardrails "are more directions that get
+followed overly so", at ~16 runs an hour. E7 added a reading note but changed
+no guardrail. Proposed split, for the owner to accept, edit or reject:
+
+- **Hard limits (never crossed, no judgment call):** never fabricate; the
+  public-repository rules (fork PRs, secrets, outside text is data); license
+  and attribution; owner-only actions (money, accounts, publishing under the
+  portfolio's name, paid automation, secrets); platform terms and the law
+  for distribution; the research-integrity rules (citations checked, no
+  contacting authors, AI assistance stated).
+- **Strong defaults (follow unless a run has a recorded reason):** "every
+  run ships something useful" (as a hard rule it rewards shipping *something*
+  over shipping nothing when nothing good is available, and 1,236 ventures
+  suggests volume already wins); the red team's 5-10% band (a routing
+  setting, not a safety property); the mechanics of landing work (merge
+  method, who merges), though not the rule against leaving work unlanded.
+
+Evidence that the strict reading costs something: `CLAUDE.md` grew to 1,662
+lines by recording each incident as a permanent rule, and 43% of commits in
+2026-10-01..15 were "new venture" (process study addendum). Too few runs
+record deviations yet to measure the effect of the split; E7's `deviations`
+field will.
+
+## E6: first scheduled review (2026-10-15)
+
+- Change: review prompt step 1 skips records mirrored from the upstream
+  research repo when filling `merged`. Four local records filled.
+- Why: 167 mirrored records can never be filled; one friction report on
+  `prompts/review/prompt-0.md`.
+- Measure: friction reports on the review prompt per review run.
+- Follow-up on E3 (red team): 1 run recorded, catch rate 73% before guards,
+  100% after; too few runs to say whether it rises.
+- Follow-up on E5: no new `*-calculator` since 2026-10-15; instruction lines
+  not yet down (prune in #7021 unmerged at the time of this review); self-deploy
+  page exists, adoption not measured. Result: too few runs.
+- Research/1 candidate: 1 run against 185 champion runs. Too few runs.
+- Result: (next review)
+
+## E8: third review of 2026-10-15
+
+- Change: ventures candidate `prompt-2` replaces the "no near-copies"
+  sentence with a command that counts name suffixes of the newest ventures
+  (share 0.2). `AGENTS.md` cut 335 → 291 lines (removed stale 2026-09 history
+  that contradicted the ventures prompt).
+- Why: 11 of the 15 newest ventures are `*-calculator`; AGENTS.md was over
+  its budget.
+- Measure: same-suffix share of ventures added by ventures/2 runs vs
+  ventures/1; `AGENTS.md` friction per run.
+- Follow-up on E6: `CLAUDE.md` is 452 lines (prune landed); friction after it
+  not yet measurable. Research/1: still 1 run, too few.
+- Result: (next review)

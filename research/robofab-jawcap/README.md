@@ -30,6 +30,10 @@ Tests (`tests/test_jawcap.py` plus the `robofab-armbang` tests) check: the inter
 
 ## Results
 
+![Carry time from `experiments/results.json`, stylised simulation](experiments/carry_time.svg)
+
+*Figure: carry time from the committed run output, regenerated with `python3 experiments/figure.py` (standard library only). Stylised model; nothing here is measured on a real arm.*
+
 `experiments/results.txt` has, for each of nine arm and torque cases, seven rows (k = 1.25 to 10 and torque-only): six-part min-jerk total, time-optimal total, percent saved, the time-optimal total relative to its torque-only value, the worst force over cap and torque over limit, and how many of the six parts were feasible (all six were, in every row). Per-part values are not printed. For 0.12 m links at 5 N m: torque-only 0.416 s (min-jerk) and 0.332 s (time-optimal); at k = 3, 1.425 s and 1.028 s; at k = 1.25, 4.001 s and 2.286 s.
 
 ## Limitations

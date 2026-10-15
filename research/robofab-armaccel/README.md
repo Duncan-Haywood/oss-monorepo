@@ -51,3 +51,6 @@ None; nothing was built or ordered. A physical test would need a priced bill of 
 The Python standard library only; no language model, key or hardware. Produced with AI assistance (Claude).
 
 MIT.
+
+## Figure
+`python3 experiments/figure.py` plots total move time against link length for each torque limit (feasible rows) from the committed `experiments/results.json` and writes `experiments/totaltime_vs_link.svg` (standard library only; no new results; stylised simulation).

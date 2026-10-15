@@ -1,0 +1,24 @@
+{
+  "id": "P006",
+  "title": "Let run records resolve upstream PRs",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "167 of 175 records carry merged: null because their PR lives in the upstream research repository, so success rates are unverifiable.",
+  "evidence": [
+    "prompts/process/reports/2026-10-15-addendum.md, rec 6",
+    "prompts/review/prompt-0.md friction report, 2026-10-15"
+  ],
+  "change": "Add a `repo` field (default this repository) to records, written by `record --repo`, so a review can look the PR up.",
+  "touches": [
+    "prompts/promptctl.py"
+  ],
+  "metric": "Records with merged known",
+  "baseline": "8 of 184",
+  "opened": "2026-10-15",
+  "source": "prompts/process/reports/2026-10-15*.md",
+  "pr": null,
+  "result": null,
+  "history": []
+}

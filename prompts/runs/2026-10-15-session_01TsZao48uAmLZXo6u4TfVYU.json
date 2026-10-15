@@ -21,7 +21,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
@@ -51,6 +51,14 @@
   ],
   "goal": null,
   "notes": "Landed as an addendum because #7003 (another process run) took prompts/process/reports/2026-10-15.md first.",
-  "corrections": [],
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR 7005 shows merged=true via REST API (review 2026-10-15 third)"
+    }
+  ],
   "redteam": null
 }

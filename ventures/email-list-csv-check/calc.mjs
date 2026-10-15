@@ -282,7 +282,7 @@ export function validate(text, opts = {}) {
     add("info", "multi-email", "More than one column looks like an email column", `Checking "${f.header[f.emailCol].trim()}" (column ${f.emailCol + 1}); the others are not checked.`, f.headerLine);
   }
   for (const id of Object.keys(PLATFORMS)) summary.platforms.push(platformReport(f.header, id));
-  const want = opts.platform && PLATFORMS[opts.platform] ? summary.platforms.find((p) => p.id === opts.platform) : null;
+  const want = opts.platform && Object.hasOwn(PLATFORMS, opts.platform) ? summary.platforms.find((p) => p.id === opts.platform) : null;
   if (want) {
     if (!want.emailFound) add("error", "platform-email", `${want.name} will not find an email column`, `${want.name} expects the heading "${want.emailHeader}".`, f.headerLine);
     else if (!want.emailExact) add("warning", "platform-email", `Heading "${want.renames.find((r) => r.concept === "email").from}" is not ${want.name}'s "${want.emailHeader}"`, `${want.name} may ask you to map it by hand. Renaming it to "${want.emailHeader}" lets the import match it automatically; the safe-fixes file can do that.`, f.headerLine);

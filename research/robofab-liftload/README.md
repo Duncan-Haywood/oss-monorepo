@@ -50,3 +50,6 @@ None; nothing was built or ordered. A physical test would need a priced bill of 
 The `mujoco` and `numpy` packages (pip); no language model, key or hardware. Produced with AI assistance (Claude).
 
 MIT.
+
+## Figure
+`python3 experiments/figure.py` plots the MuJoCo minimum holding force against the closed-form load bound (section A) from the committed `experiments/results.json` and writes `experiments/liftload_bound_vs_mujoco.svg` (standard library only; no new results; stylised simulation).

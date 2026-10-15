@@ -289,6 +289,11 @@ This is a build task and it ships with v0, not later:
       here anyway (`portfolio/pipeline/channel-inventory.md`). Build the
       artifact, queue the one-line ask, ship the product regardless: search and
       AI discovery do not need anyone's permission.
+- [ ] Where the product fits a natural distribution channel (registry, store,
+      directory, feed), build its publish pipeline off by default with a dry
+      run, per [`portfolio/distribution/`](portfolio/distribution/README.md)
+      (owner goal, 2026-10-15). Automated and unpaid, and never against a
+      platform's terms.
 
 ### f. If the page names a competitor
 
@@ -324,6 +329,13 @@ not just the disclaimer in §5b.
    for a page that costs nothing to make safe instead.
 
 ## 6. Money: donations only, and most of it already ships
+
+**Changed 2026-10-15 by the owner** (`prompts/goals.md`, "Payments: never the
+owner's"). Payment code in a product is allowed if it is off by default and
+runs only on the deployer's own keys from environment variables. The owner's
+own accounts are never wired in. The "no billing code, not even disabled" rule
+below and `check_no_payment_code.py` predate that change and still need
+updating to match it.
 
 No checkout, no card fields, no billing code, no merchant of record, not even
 disabled. That is on the owner-only list in

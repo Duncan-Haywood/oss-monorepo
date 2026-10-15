@@ -3071,7 +3071,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `sg-freelancer-tax-set-aside-calculator` graduated (browser Singapore freelancer income tax after earned income relief, MediSave flag and set-aside per invoice).
     # +1: `de-freiberufler-tax-set-aside-calculator` graduated (browser Germany freelancer tax: section 32a tariff, Soli, Kirchensteuer, Gewerbesteuer and set-aside per invoice).
     # +1: `us-freelancer-tax-set-aside-calculator` graduated (browser US freelancer SE tax, federal tax with QBI, state tax and 1040-ES set-aside). #6981 and #6982 each wrote 1223 against a base without the other; re-synced after both merged.
-    total = 1234  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1234 tools" wording.
+    total = 1235  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1235 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
@@ -3096,6 +3096,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `ad-slot-sell-through-planner` graduated (browser-local newsletter/podcast ad-slot sell-through, price-response and booking-pace planner).
     # +1: `ca-meal-rest-break-premium-checker` graduated (browser California meal and rest break premium audit: late, short and missed meals, rest shortfalls, waivers and the Labor Code 226.7 premium per workday from pasted timecards).
     # +1: `prop-firm-challenge-calculator` graduated (browser Monte Carlo of a funded-trader challenge: pass probability, expected fees to pass, funded payouts, break-even win rate).
+    # +1: `youtube-sponsorship-rate-calculator` reached the mirror (its page landed after #7000 set 1232; counted by sync_tree_counts.py at the merge).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
