@@ -77,6 +77,7 @@ export function normalizeTrip(t) {
     parking: Math.max(0, num(t.parking)),
     enteredAt: t.enteredAt || new Date().toISOString(),
     gps: Boolean(t.gps),
+    vehicle: String(t.vehicle || "").trim(),
   };
 }
 
@@ -191,10 +192,10 @@ export function addFix(track, fix, { maxAccuracy = 50, minStep = 0.02 } = {}) {
 
 const q = (v) => '"' + String(v ?? "").replace(/"/g, '""') + '"';
 export function toCsv(trips, { override = {} } = {}) {
-  const head = ["date", "category", "from", "to", "purpose", "client", "odometer_start", "odometer_end", "miles", "rate_per_mile", "deduction", "tolls", "parking", "entered_at"];
+  const head = ["date", "category", "from", "to", "purpose", "client", "odometer_start", "odometer_end", "miles", "rate_per_mile", "deduction", "tolls", "parking", "entered_at", "vehicle"];
   const body = [...trips].sort((a, b) => a.date.localeCompare(b.date)).map((t) => {
     const m = tripMiles(t), r = rateFor(t.date, t.category, override);
-    return [t.date, t.category, q(t.from), q(t.to), q(t.purpose), q(t.client), t.odoStart, t.odoEnd, m, r, round2(m * r), t.tolls || "", t.parking || "", t.enteredAt].join(",");
+    return [t.date, t.category, q(t.from), q(t.to), q(t.purpose), q(t.client), t.odoStart, t.odoEnd, m, r, round2(m * r), t.tolls || "", t.parking || "", t.enteredAt, q(t.vehicle)].join(",");
   });
   return [head.join(",")].concat(body).join("\n");
 }
@@ -250,3 +251,113 @@ export function sampleTrips(year = 2026) {
 export const money = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 export const money0 = $;
 export const pct = P;
+
+
+// ---- Multi-vehicle -------------------------------------------------------
+// The standard rate is claimed per vehicle, and Schedule C Part IV (and Form
+// 4562 Part V) ask for miles per vehicle, so a second car must not be folded
+// into the first one's totals.
+
+export const NO_VEHICLE = "(no vehicle named)";
+
+// Per-vehicle miles, deduction and the year's first/last odometer reading seen
+// in the log. vehicleOdo: { [name]: { start, end } } overrides the inferred ones.
+export function summarizeByVehicle(trips, { year, override = {}, vehicleOdo = {} } = {}) {
+  const y = String(year);
+  const map = new Map();
+  for (const t of trips) {
+    if (!isDate(t.date) || !t.date.startsWith(y)) continue;
+    const name = (t.vehicle || "").trim() || NO_VEHICLE;
+    if (!map.has(name)) map.set(name, { vehicle: name, trips: 0, business: 0, commute: 0, other: 0, deduction: 0, seenLow: null, seenHigh: null });
+    const v = map.get(name), m = tripMiles(t);
+    v.trips++;
+    if (t.category === "business") v.business += m;
+    else if (t.category === "commute") v.commute += m;
+    else v.other += m;
+    v.deduction += m * rateFor(t.date, t.category, override);
+    for (const o of [t.odoStart, t.odoEnd]) {
+      if (o === "" || o == null) continue;
+      const n = num(o);
+      v.seenLow = v.seenLow === null ? n : Math.min(v.seenLow, n);
+      v.seenHigh = v.seenHigh === null ? n : Math.max(v.seenHigh, n);
+    }
+  }
+  const out = [...map.values()].map((v) => {
+    const o = vehicleOdo[v.vehicle] || {};
+    const start = o.start ?? null, end = o.end ?? null;
+    const haveOdo = start != null && end != null && end > start;
+    const total = haveOdo ? end - start : null;
+    return { ...v, business: round1(v.business), commute: round1(v.commute), other: round1(v.other), deduction: round2(v.deduction),
+      yearMiles: total, businessUse: total ? v.business / total : null,
+      unlogged: haveOdo ? Math.max(0, round1(total - v.business - v.commute - v.other)) : null };
+  });
+  return out.sort((a, b) => b.business - a.business || a.vehicle.localeCompare(b.vehicle));
+}
+
+export function vehicleNames(trips) {
+  return [...new Set(trips.map((t) => (t.vehicle || "").trim()).filter(Boolean))].sort();
+}
+
+// ---- Repeat trips --------------------------------------------------------
+// Most self-employed driving repeats (home -> supplier, home -> client). The
+// fastest way to a contemporaneous log is one tap on a trip you have already
+// written down once, so rank the routes by how often they recur.
+
+export function frequentRoutes(trips, { limit = 6, minCount = 2 } = {}) {
+  const map = new Map();
+  for (const t of trips) {
+    if (!DEDUCTIBLE.includes(t.category) || !t.to.trim()) continue;
+    const key = [t.from.trim().toLowerCase(), t.to.trim().toLowerCase(), t.category].join("|");
+    if (!map.has(key)) map.set(key, { count: 0, miles: [], last: t });
+    const r = map.get(key);
+    r.count++;
+    const m = tripMiles(t);
+    if (m > 0) r.miles.push(m);
+    if (t.date >= r.last.date) r.last = t;
+  }
+  const med = (a) => { if (!a.length) return 0; const s = [...a].sort((x, y) => x - y), k = s.length >> 1; return s.length % 2 ? s[k] : (s[k - 1] + s[k]) / 2; };
+  return [...map.values()].filter((r) => r.count >= minCount)
+    .sort((a, b) => b.count - a.count || b.last.date.localeCompare(a.last.date))
+    .slice(0, limit)
+    .map((r) => ({ count: r.count, category: r.last.category, from: r.last.from, to: r.last.to, purpose: r.last.purpose, client: r.last.client, vehicle: r.last.vehicle || "", miles: round1(med(r.miles)) }));
+}
+
+// A repeat becomes a draft dated today. Odometer readings are deliberately not
+// copied: they belong to the trip being logged, not to the one it copies.
+export function tripFromRoute(route, date) {
+  return { date, category: route.category, from: route.from, to: route.to, purpose: route.purpose, client: route.client, vehicle: route.vehicle, miles: route.miles, odoStart: "", odoEnd: "" };
+}
+
+// ---- Year-end report for a tax preparer ----------------------------------
+const h = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// A standalone, print-ready HTML document: nothing external, no script.
+export function preparerReportHtml(trips, { year, override = {}, yearStartOdo = null, yearEndOdo = null, vehicleOdo = {}, generated = new Date().toISOString().slice(0, 10) } = {}) {
+  const r = summarize(trips, { year, override, yearStartOdo, yearEndOdo });
+  const s = r.summary;
+  const vs = summarizeByVehicle(trips, { year, override, vehicleOdo });
+  const n0 = (n) => Math.round(n).toLocaleString("en-US");
+  const rows = r.trips.map((t) => {
+    const m = tripMiles(t), rate = rateFor(t.date, t.category, override);
+    return `<tr><td>${h(t.date)}</td><td>${h(t.category)}</td><td>${h(t.vehicle)}</td><td>${h(t.from)}${t.from && t.to ? " &rarr; " : ""}${h(t.to)}</td><td>${h(t.purpose)}${t.client ? " (" + h(t.client) + ")" : ""}</td><td class="n">${t.odoStart === "" ? "" : h(t.odoStart)}</td><td class="n">${t.odoEnd === "" ? "" : h(t.odoEnd)}</td><td class="n">${m}</td><td class="n">${rate ? money(m * rate) : ""}</td></tr>`;
+  }).join("");
+  const vrows = vs.map((v) => `<tr><td>${h(v.vehicle)}</td><td class="n">${n0(v.business)}</td><td class="n">${n0(v.commute)}</td><td class="n">${n0(v.other)}</td><td class="n">${v.yearMiles == null ? "not entered" : n0(v.yearMiles)}</td><td class="n">${v.businessUse == null ? "" : pct(v.businessUse, 1)}</td><td class="n">${money(v.deduction)}</td></tr>`).join("");
+  const frows = r.findings.filter((f) => f.severity !== "info").map((f) => `<li><strong>${h(f.title)}.</strong> ${h(f.detail)}</li>`).join("");
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Mileage log ${h(year)}</title>
+<style>body{font:13px/1.45 system-ui,sans-serif;margin:28px;color:#111}h1{font-size:20px;margin:0 0 4px}h2{font-size:15px;margin:22px 0 6px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbb;padding:4px 6px;text-align:left;vertical-align:top}th{background:#eee}td.n,th.n{text-align:right}.note{color:#444;font-size:12px}@media print{body{margin:10mm}tr{break-inside:avoid}}</style></head><body>
+<h1>Mileage log summary, tax year ${h(year)}</h1>
+<p class="note">Prepared ${h(generated)} from a log kept in Mileage Log. This is a record of what the taxpayer entered, not tax advice and not a determination that any mile is deductible.</p>
+<h2>Totals</h2>
+<table><tbody>
+<tr><th>Business miles</th><td class="n">${n0(s.by.business.miles)}</td><th>Commuting miles</th><td class="n">${n0(s.by.commute.miles)}</td></tr>
+<tr><th>Other miles (all driving not business or commuting)</th><td class="n">${s.haveOdo ? n0(s.otherMiles) : "needs odometer readings"}</td><th>Total miles driven</th><td class="n">${s.haveOdo ? n0(s.yearMiles) : "needs odometer readings"}</td></tr>
+<tr><th>Standard-rate deduction (business, medical, charity)</th><td class="n">${money(s.mileageDeduction)}</td><th>Business tolls + parking (claimed separately)</th><td class="n">${money(s.tolls + s.parking)}</td></tr>
+</tbody></table>
+<h2>By vehicle</h2>
+<table><thead><tr><th>Vehicle</th><th class="n">Business</th><th class="n">Commuting</th><th class="n">Other logged</th><th class="n">Year miles</th><th class="n">Business use</th><th class="n">Deduction</th></tr></thead><tbody>${vrows}</tbody></table>
+${frows ? `<h2>Gaps in this log</h2><ul>${frows}</ul>` : ""}
+<h2>Trips (${r.trips.length})</h2>
+<table><thead><tr><th>Date</th><th>Type</th><th>Vehicle</th><th>Route</th><th>Purpose</th><th class="n">Odo start</th><th class="n">Odo end</th><th class="n">Miles</th><th class="n">Deduction</th></tr></thead><tbody>${rows}</tbody></table>
+<p class="note">Rates applied: the IRS standard mileage rate in effect on each trip's date unless overridden by the taxpayer. Verify against irs.gov before filing.</p>
+</body></html>`;
+}
