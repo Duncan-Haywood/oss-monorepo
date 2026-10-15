@@ -28,18 +28,27 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 4,
-  "outcome": "Added a static landing page for vendor-watch (an app venture with no public page) and cross-linked vendor-change-watch to close the orphan. Marketing+pages node suites 1293 pass/0 fail. gitops/tests: 576 pass, 26 fail all in test_worker_run.py (gh download cache tests; not touched by this change, not investigated further). PR had zero check runs, so local checklist was the verification; browser checks, run_workflow_locally and unlanded_work not run before merge.",
+  "outcome": "partial",
   "errors": [
     "first landing page used href=\"../\" which the mirror rejects and which silently dropped vendor-watch and vendor-change-watch from the mirror",
     "first apt-get install python3-pytest failed (exit 100) without apt-get update"
   ],
   "integrity_issues": [],
   "doc_friction": [
-    "CLAUDE.md: the pytest apt line omits `apt-get update &&`, which the same file says is load-bearing elsewhere; the first install failed with exit 100",
-    "platform/pages: no doc says a hub link href=\"../\" makes the mirror drop the page; regen printed no warning when vendor-watch was silently excluded (count stayed 1224 and regen --verify said current)",
-    "CLAUDE.md checklist runs for 10+ minutes in one foreground call; tool timeout moved it to background"
+    {
+      "file": "CLAUDE.md",
+      "issue": "the pytest apt line omits `apt-get update &&`, which the same file calls load-bearing elsewhere; my first install failed with exit 100"
+    },
+    {
+      "file": "platform/pages/README.md",
+      "issue": "no doc says a hub link href=\"../\" makes the mirror drop the page; regen printed no warning when vendor-watch was silently excluded and regen --verify said current"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "the checklist's test commands take 10+ minutes in one call and hit the tool timeout"
+    }
   ],
   "goal": null,
-  "notes": "",
+  "notes": "Added a static landing page for vendor-watch (an app venture with no public page) and cross-linked vendor-change-watch to close the orphan. Marketing+pages node suites 1293 pass/0 fail. gitops/tests: 576 pass, 26 fail all in test_worker_run.py (gh download cache tests; not touched by this change, not investigated further). PR had zero check runs, so local checklist was the verification; browser checks, run_workflow_locally and unlanded_work not run before merge.",
   "corrections": []
 }
