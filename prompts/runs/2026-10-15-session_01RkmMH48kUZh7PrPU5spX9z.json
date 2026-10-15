@@ -16,23 +16,30 @@
   "cost_usd": null,
   "tool_calls": null,
   "task": null,
-  "projects": [],
-  "pr": null,
+  "projects": [
+    "flag-keeper"
+  ],
+  "pr": 7176,
   "repo": null,
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 42,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The marketing/pages checklist line cannot be green on clean main: two build.test.mjs guards already fail, so 'run it' gives no signal without a baseline run."
+    }
+  ],
   "deviations": [],
   "goal": null,
-  "notes": "",
+  "notes": "Router drew research, but research work lands in the upstream repo until cutover, so the owner's venture brief was followed: new venture flag-keeper (feature flags). Local checks: flag-keeper 30 pass, drip-keeper 32, platform/deploy pass, gitops/tests 602 pass, regen --verify 0. platform/marketing+pages suite: 1296 pass, 2 fail (build.test.mjs 'sponsor ask is optional' fails identically on origin/main; 'catch-all holds only what no section claims' is over its bound of 5 because the keeper server apps have no category in platform/pages/build.mjs; left for a taxonomy fix). No Actions check runs appeared on the PR at merge time.",
   "corrections": [],
   "redteam": null
 }
