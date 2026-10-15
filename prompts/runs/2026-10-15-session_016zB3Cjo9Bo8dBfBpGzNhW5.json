@@ -26,7 +26,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 12,
@@ -39,7 +39,15 @@
   "doc_friction": [],
   "goal": null,
   "notes": "Three campaigns, 24 seeded faults: 16 caught, 6 escaped, 2 equivalent (catch rate 72.7%, 100% after the blue team's guards, verified by redteam.py rerun). The first campaign against check_money_sign.py found its baseline red on main, which led to 10 real defects patched (8 venture money formatters printing \"$-9.24\", plus the guard's name gap and the fixer's indentation bug). Router weight set to 7% by the owner's request.",
-  "corrections": [],
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR #6987 shows merged on GitHub; ci_failures_before_green not recoverable from the PR, left as recorded"
+    }
+  ],
   "redteam": {
     "campaigns": [
       {
