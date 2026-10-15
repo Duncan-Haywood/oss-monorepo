@@ -1,0 +1,25 @@
+# Cross-post newly launched tools to Hashnode with originalArticleURL back to the tool page (drafts unless HASHNODE_PUBLISH=true).
+# Off by default: with vars.DISTRIBUTE_HASHNODE unset this only prints a dry run.
+# Free API, no paid spend, no commits pushed. Spec: portfolio/distribution/README.md
+name: distribute-hashnode
+on:
+  schedule:
+    - cron: '43 15 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  announce:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node platform/distribution/hashnode.mjs
+        env:
+          DISTRIBUTE_HASHNODE: ${{ vars.DISTRIBUTE_HASHNODE }}
+          HASHNODE_PUBLISH: ${{ vars.HASHNODE_PUBLISH }}
+          HASHNODE_TOKEN: ${{ secrets.HASHNODE_TOKEN }}
+          HASHNODE_PUBLICATION_ID: ${{ vars.HASHNODE_PUBLICATION_ID }}
