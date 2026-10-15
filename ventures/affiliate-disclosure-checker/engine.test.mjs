@@ -115,3 +115,29 @@ test("summarize describes each status", () => {
   assert.equal(summarize({ status: "ok", missingAmazonRequiredPhrase: false }).level, "ok");
   assert.equal(summarize({ status: "ok", missingAmazonRequiredPhrase: true }).level, "warn");
 });
+
+test("classifyLink matches the shortest and longest storefront suffixes, not an arbitrarily long one", () => {
+  assert.ok(classifyLink("https://www.amazon.in/dp/B000?tag=me-21", ""));
+  assert.ok(classifyLink("https://www.amazon.co.uk/dp/B000?tag=me-21", ""));
+  assert.ok(classifyLink("https://www.amazon.abcdefghij/dp/B000?tag=me-21", "")); // 10 chars: upper bound
+  assert.ok(!classifyLink("https://www.amazon.abcdefghijk/dp/B000?tag=me-21", "")); // 11 chars: not a storefront
+});
+
+test("checkDisclosure reads rel=sponsored from the anchor tag itself", () => {
+  const html = `<p>We may earn a commission.</p><p><a href="https://example.com/x" rel="sponsored nofollow">buy</a></p>`;
+  const report = checkDisclosure(html);
+  assert.equal(report.affiliateLinks.length, 1);
+  assert.match(report.affiliateLinks[0].reason, /sponsored/i);
+});
+
+test("findDisclosures returns the matched text of a generic phrase", () => {
+  const [d] = findDisclosures("Heads up: we may earn a commission from links.");
+  assert.equal(typeof d.phrase, "string");
+  assert.match(d.phrase, /earn a commission/i);
+  assert.equal(d.kind, "generic");
+});
+
+test("a disclosure inside the link's own text starts where the link starts and is not too late", () => {
+  const report = checkDisclosure(`<a href="https://www.amazon.com/dp/B000?tag=me-20">affiliate link: buy this</a>`);
+  assert.equal(report.status, "ok");
+});

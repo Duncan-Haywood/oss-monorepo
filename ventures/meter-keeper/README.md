@@ -62,6 +62,23 @@ All `/v1/*` calls take `Authorization: Bearer $API_KEY`.
 - `GET /v1/projection?customer=` straight-line guess for the full month
 - `GET /v1/check?customer=&meter=&quantity=` is this call inside the plan limit?
 
+### SDK (Node 18+, server side)
+
+Your own server serves a tiny client at `/sdk.mjs`. It buffers `track()` calls,
+sends them in batches, and retries with the same event ids, so a lost response
+cannot double count. It never throws into your request path, and `check()`
+fails open if the meter is unreachable.
+
+```js
+import { createMeter } from "https://meter.example.com/sdk.mjs";
+const meter = createMeter({ url: "https://meter.example.com", key: process.env.METER_API_KEY });
+meter.track("acme", "api", 1);
+if (!(await meter.check("acme", "api")).allowed) return res.status(402).end();
+await meter.close(); // flush on shutdown
+```
+
+Keep the key on the server: it can read every customer's usage.
+
 Admin calls take `$ADMIN_KEY`: `PUT /v1/admin/customers/:id` with
 `{plan, stripeCustomerId}`, `GET /v1/admin/customers`, `GET /v1/admin/outbox`
 (pending and dead-lettered Stripe events), `POST /v1/admin/flush`,
@@ -81,8 +98,10 @@ drops events older than 35 days.
 Fork this repository, then open
 `https://render.com/deploy?repo=<your fork URL>` (the blueprint is
 `render.yaml`; Render bills you, nothing runs on the author's account). Or use
-the repository-wide deploy page. Docker: `docker build -t meter-keeper .` from
-this directory.
+the repository-wide deploy page. Docker: `API_KEY=$(openssl rand -hex 16)
+ADMIN_KEY=$(openssl rand -hex 16) docker compose up -d` from this directory
+(`docker-compose.yml`, starts in dry-run). Fly.io: the steps are at the top of
+`fly.toml`.
 
 ## Limits
 

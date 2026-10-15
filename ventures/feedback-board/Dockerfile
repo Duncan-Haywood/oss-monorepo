@@ -1,6 +1,7 @@
 FROM node:22-alpine
 WORKDIR /app
 COPY similar.mjs board.mjs render.mjs server.mjs ./
+RUN mkdir -p /data && chown node /data
 USER node
 ENV PORT=8080 STATE=/tmp/state.json TRUST_PROXY=false
 EXPOSE 8080

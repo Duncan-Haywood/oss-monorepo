@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01LXDCNd7cTcj8FFTbxAEGvH",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-15T21:42:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes exceeds the 120s default tool timeout; checklist says to background long suites but does not list this one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "why": "Shipped a CLI without a home page or usage tracking; no browser surface, page is follow-up."
+    }
+  ],
+  "goal": null,
+  "notes": "Explore idea: actions-runtime-deprecation-check, a CLI mapping actions/* majors to Node runtimes (12/16 deprecated, 20 ageing, shut-down majors). Run on this repo: 0 deprecated, 1874 Node-20 steps. No browser page or classify.mjs port: CLI-only, so the 'public page' goal is not met yet; next step is a Pages page. Runtime table is from memory of release notes, labelled as a snapshot; not verified against action.yml (no network).",
+  "corrections": [],
+  "redteam": null
+}
