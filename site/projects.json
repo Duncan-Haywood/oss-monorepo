@@ -2289,6 +2289,11 @@
      "slug": "mimic-twinc2st",
      "title": "Does a classifier two-sample test catch digital-twin errors that a paired trajectory error misses?",
      "summary": "A stylised pendulum with Coulomb friction and heavy-tailed (Student-t) sensor noise is the &lsquo;real&rsquo; system; twins differ in friction, noise shape or noise level. A classifier two-sample test (5-fold CV AUROC, 800 vs 800 trajectories, 3 seeds) separates real from twin trajectories with boosted trees: a friction error of 0.03 (10%) that moves the noise-free trajectory by only 0.006 rad RMSE &mdash; a quarter of the 0.02 rad noise sd &mdash; gives AUROC 0.72, and 0.91 at 20%. A twin with the right dynamics but Gaussian instead of Student-t noise of the same sd has paired error exactly 0 yet AUROC 0.92 once second-difference features are added (0.59 on raw angles). A logistic regression on raw angles stays at chance (0.51) throughout, because the start angles are symmetric. Limits: one toy system, two noise models, three seeds, a handful of classifier settings; simulated only, nothing about real hardware. Preliminary, no LLM involved: a side piece of track 11."
+    },
+    {
+     "slug": "mimic-mujocotwin",
+     "title": "Does a classifier two-sample test see the integrator, timestep and friction gaps of a MuJoCo digital twin?",
+     "summary": "A MuJoCo hinge pendulum (RK4, 0.002 s, dry friction, Student-t sensor noise) is the &lsquo;real&rsquo; system; twins change the integrator, timestep or friction. A boosted-tree classifier two-sample test (800 trajectories per class, 3 seeds) has AUROC 0.98 for semi-implicit Euler at 0.02 s (paired RMSE 0.028 rad), 0.90 at 0.01 s, 0.67 at 0.005 s (0.007 rad) and 0.53 at 0.002 s (0.003 rad), which is not separable from the null 0.51. A friction error of 10% gives 0.52 and 20% gives 0.61. Gaussian instead of Student-t noise of the same sd has zero paired error but AUROC 0.92. Limits: one toy system, one classifier, 3 seeds; the &lsquo;real&rsquo; system is itself simulated. Stylised, preliminary."
     }
    ]
   }
