@@ -67,7 +67,7 @@ function refresh() {
 async function build() {
   const slug = $('app').value;
   const title = catalog.find((a) => a.slug === slug)?.title ?? slug;
-  if (provider === 'render' || provider === 'docker') {
+  if (provider === 'render' || provider === 'docker' || provider === 'fly') {
     const [templates, serverFiles] = await Promise.all([getJSON('templates.json'), getJSON(`servers/${slug}.json`)]);
     return { slug, files: composeRepo({ slug, title, provider, serverFiles, templates }) };
   }
@@ -195,6 +195,8 @@ async function download() {
     URL.revokeObjectURL(a.href);
     log(`Built ${Object.keys(files).length} files. ` + (provider === 'docker'
       ? 'Unzip, then follow README.md: sh setup.sh && docker compose up -d --build.'
+      : provider === 'fly'
+      ? 'Unzip, then follow README.md: fly launch --copy-config --no-deploy, set secrets, fly deploy.'
       : 'Unzip, push to a new repository (set the secrets listed in README.md) or run the tofu/ module locally.'));
   } catch (e) {
     log(`Stopped: ${e.message}`);
