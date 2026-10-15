@@ -42,7 +42,7 @@ The donate link (Buy Me a Coffee, plain link) and an operator notice are added
 to every deployed `index.html`; the generated README tells the visitor they are
 the operator.
 
-## Server apps (Render)
+## Server apps (Render, or Docker Compose)
 
 Four ventures are processes, not static pages (`cancel-flow`, `cron-heartbeat`,
 `dunning-engine`, `einvoice-preflight`: a `Dockerfile` plus a `render.yaml`).
@@ -54,6 +54,15 @@ so on) and bills the visitor. Secrets are typed into Render, never into this
 page, and the repository holds none. `build.mjs` writes `servers/<slug>.json`
 for each; tests check every `COPY` in the Dockerfile is present.
 
+**Docker Compose** (download only, no token or account): the same four apps can be
+downloaded as a folder with the app, a `compose.yaml`, a `.env.example` and a
+`setup.sh` that writes `.env` with random values for the secrets the blueprint
+generates (unset optional variables stay commented out so each app's own default
+applies). Run it on any VPS, Raspberry Pi or home server. Unlike Render's blueprint
+it keeps state in a Docker volume, so stateful apps lose nothing on restart. The
+env list is read from the venture's `render.yaml` (`blueprintEnv`), so there is no
+second list to drift.
+
 ## Tests
 
 `node --test platform/deploy/*.test.mjs`. CI (`deploy-iac-check.yml`) also runs
@@ -63,7 +72,7 @@ for each; tests check every `COPY` in the Dockerfile is present.
 
 - No `.terraform.lock.hcl` yet: it needs a `tofu init` run with network access.
   Providers are pinned to exact versions in `versions.tf` meanwhile.
-- More providers (GCS, Azure, DigitalOcean Spaces) and a Fly.io path for server apps.
+- More providers (GCS, Azure, DigitalOcean Spaces) and a Fly.io path for server apps. (DigitalOcean App Platform was considered for servers and skipped: no persistent disk, so three of the four apps would lose state.)
 - The hub footer and every tool page footer link the page ("Deploy your own
   copy" / "Run your own copy", `deploy/?app=<slug>` preselects the app).
 - The AWS path is validated structurally and against a mocked GitHub API in a
