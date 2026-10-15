@@ -37,6 +37,8 @@ jobs:
         working-directory: ventures/testimonial-keeper
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
