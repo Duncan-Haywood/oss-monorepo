@@ -50,3 +50,4 @@ infra/*.tfvars
 # reviewer a round trip and puts junk in the repo root. Named exactly rather
 # than globbed -- a pattern like *-tmp would start hiding real files.
 .bash-test-tmp
+platform/deploy/dist/
