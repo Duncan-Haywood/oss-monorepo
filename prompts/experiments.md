@@ -330,3 +330,17 @@ field will.
   no verdict, no new candidate. Audit skipped again: records are mirrored or
   doc-only. `validate` green on 318 records.
 - Result: (next review)
+
+## E14: ninth review of 2026-10-15
+
+- Change: `prompts/review/prompt-1.md` step 2 says mirrored and doc-only runs
+  are skipped without counting as friction (eight reports of "nothing
+  auditable" came from the review prompt itself). +2 lines.
+- Audit: `ventures/meter-keeper` (newest merged venture): 26/26 tests pass,
+  README disclaimer and page disclaimer present.
+- Why: ventures/2 has 8 runs and research/1 5, still under 10 each, so no
+  promote/retire and no new candidate.
+- Measure: review/1 friction reports per run about unauditable records.
+- Follow-up on E13: no CLAUDE.md timeout reports newer than E13 yet; too few
+  runs to judge.
+- Result: (next review)
