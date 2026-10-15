@@ -18,6 +18,6 @@
   "opened": "2026-10-15",
   "source": "prompts/process/reports/2026-10-15*.md",
   "pr": 7146,
-  "result": null,
+  "result": "too early: resolve-mirror-merge friction baseline 1; 2 records mention the script but all are dated 2026-10-15, so none can be ordered after PR 7146.",
   "history": []
 }

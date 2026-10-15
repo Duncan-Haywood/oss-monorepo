@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01PQvvF61FQrfn3f2PdZKfZq",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-15T23:41:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": 0,
+  "integrity_issues": 0,
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Verify mode is hard when every backlog item and run record is dated the same day: no record can be ordered after a fix, so friction metrics cannot be compared to baselines."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Verify mode. Wrote results for P001 P002 P007 P008 P009 P010 P012. P012 helped; the rest too early to call. Small run: no ship beyond verification.",
+  "corrections": [],
+  "redteam": null
+}
