@@ -58,7 +58,7 @@ test('every built app composes into a repo for every provider', async () => {
   const catalog = JSON.parse(await fs.readFile(path.join(out, 'catalog.json'), 'utf8'));
   for (const { slug, title } of catalog.slice(0, 40)) {
     const appFiles = JSON.parse(await fs.readFile(path.join(out, 'apps', `${slug}.json`), 'utf8'));
-    for (const provider of ['github-pages', 'aws', 'gcp']) {
+    for (const provider of ['github-pages', 'aws', 'gcp', 'azure']) {
       const repo = composeRepo({ slug, title, provider, appFiles, templates });
       assert.match(repo['app/index.html'], /buymeacoffee\.com\/duncanhaywood/, slug);
     }
@@ -85,9 +85,20 @@ test('the gcp module pins versions, encrypts state and holds no key', async () =
   assert.doesNotMatch(JSON.stringify(t.gcp), /BEGIN (RSA )?PRIVATE KEY/);
 });
 
+test('the azure module pins versions, encrypts state and holds no secret', async () => {
+  const t = await loadTemplates();
+  assert.match(t.azure['tofu/versions.tf'], /required_version = "= 1\.8\.5"/);
+  assert.match(t.azure['tofu/versions.tf'], /azurerm[\s\S]*version = "= \d+\.\d+\.\d+"/);
+  assert.match(t.azure['tofu/encryption.hcl.tmpl'], /enforced = true/);
+  assert.match(t.azure['deploy.yml'], /tofu_version: 1\.8\.5/);
+  assert.match(t.azure['destroy.yml'], /tofu destroy/);
+  assert.match(t.azure['deploy.yml'], /secrets\.ARM_CLIENT_SECRET/);
+  assert.doesNotMatch(JSON.stringify(t.azure), /GOOGLE_|GCP_/);
+});
+
 test('the workflows never echo a secret and hold no credentials of our own', async () => {
   const t = await loadTemplates();
-  for (const p of ['aws', 'gcp', 'github-pages']) {
+  for (const p of ['aws', 'gcp', 'azure', 'github-pages']) {
     for (const [name, body] of Object.entries(t[p])) {
       if (!name.endsWith('.yml')) continue;
       assert.doesNotMatch(body, /echo[^\n]*secrets\./, `${p}/${name}`);

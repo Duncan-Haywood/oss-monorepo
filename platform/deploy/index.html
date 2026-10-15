@@ -67,6 +67,19 @@
       <input id="gl" type="text" value="US">
       <p class="muted">Create a dedicated service account with only <em>Storage Admin</em> on your project and download a JSON key. The key is encrypted in your browser with the new repository's public key and stored as that repository's Actions secret; it goes nowhere else. Delete the key when you are done if you will not redeploy. The bucket is public by design (it is a website); if your organization blocks public buckets, pick another provider.</p>
     </div>
+    <div id="azure" hidden>
+      <label for="zc">Service principal application (client) ID</label>
+      <input id="zc" type="password" autocomplete="off" spellcheck="false">
+      <label for="zs">Service principal client secret</label>
+      <input id="zs" type="password" autocomplete="off" spellcheck="false">
+      <label for="zt">Directory (tenant) ID</label>
+      <input id="zt" type="password" autocomplete="off" spellcheck="false">
+      <label for="zb">Subscription ID</label>
+      <input id="zb" type="password" autocomplete="off" spellcheck="false">
+      <label for="zl">Azure region</label>
+      <input id="zl" type="text" value="eastus">
+      <p class="muted">Create a dedicated service principal with the <em>Contributor</em> role on your subscription (<code>az ad sp create-for-rbac --role Contributor --scopes /subscriptions/&lt;id&gt;</code>). The values are encrypted in your browser with the new repository's public key and stored as that repository's Actions secrets; they go nowhere else. Delete the principal when you are done if you will not redeploy.</p>
+    </div>
   </div>
 
   <h2>4. Deploy</h2>
