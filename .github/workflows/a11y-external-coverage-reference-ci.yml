@@ -62,6 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          persist-credentials: false
           # The as-found result set is addressed by git revision rather than
           # trusted as a file, so the comparison needs real history. At the
           # default depth of 1 those tests skip instead of running.

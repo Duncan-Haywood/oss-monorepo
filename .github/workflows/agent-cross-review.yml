@@ -84,6 +84,7 @@ jobs:
       - if: steps.app.outputs.configured == 'true'
         uses: actions/checkout@v4
         with:
+          persist-credentials: false
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
       - if: steps.app.outputs.configured == 'true'
         uses: actions/setup-python@v5
@@ -126,6 +127,7 @@ jobs:
       - if: steps.app.outputs.configured == 'true'
         uses: actions/checkout@v4
         with:
+          persist-credentials: false
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
       - if: steps.app.outputs.configured == 'true'
         uses: actions/setup-python@v5
@@ -168,6 +170,7 @@ jobs:
       - if: steps.app.outputs.configured == 'true'
         uses: actions/checkout@v4
         with:
+          persist-credentials: false
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
       - if: steps.app.outputs.configured == 'true'
         uses: actions/setup-python@v5
@@ -210,6 +213,7 @@ jobs:
       - if: steps.app.outputs.configured == 'true'
         uses: actions/checkout@v4
         with:
+          persist-credentials: false
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
       - if: steps.app.outputs.configured == 'true'
         uses: actions/setup-python@v5

@@ -749,6 +749,9 @@ workflows:
 - workflow: dumpster-rental-margin-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cancel-flow-ci.yml
+  classification: none
+  publishes: []
 - workflow: dunning-engine-ci.yml
   classification: none
   publishes: []
