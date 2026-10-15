@@ -119,7 +119,10 @@ These are **not** reasons:
 - **CI is starved.** Run the checklist.
 - **Waiting for review.** There is no review gate.
 - **The branch conflicts.** Resolve it.
-- **Another session may be doing the same thing.** Check open PRs, then
+- **Another session may be doing the same thing.** Check open PRs and run
+  `python3 platform/ci/slug_dupe.py <slug>` (exit 1: already on `main` or
+  landed in the last 14 days; open PRs cannot show a sibling that just
+  merged), then
   either land yours or close it with a pointer to the survivor (`CLAUDE.md`,
   "Duplicate PRs").
 - **The brief didn't say to open a PR.** This file says so.
