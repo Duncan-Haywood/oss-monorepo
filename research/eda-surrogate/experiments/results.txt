@@ -1,0 +1,30 @@
+Yosys: Yosys 0.33 (git sha1 2584903a060); target: generic-gate cells after `synth -flatten; abc -g AND,NAND,OR,NOR,XOR,XNOR,ANDNOT,ORNOT,MUX`
+designs: 133 alu=36, fir=36, mac=36, sorter=25
+cells range 28..5415; features: 24 word-level counts and bit totals
+cost per design: features 0.018 s, synthesis 0.582 s (ratio 32x)
+
+== A. random 5-fold CV, pooled over families (10 repeats of the split; median of per-repeat median APE) ==
+model   median APE   mean Spearman within family
+mean        59.5%   -0.140
+linear       3.9%   0.995
+ridge        5.7%   0.995
+gbr          8.5%   0.985
+
+== B. leave-one-family-out (trained only on the other three families), median APE per held-out family ==
+model        alu       fir       mac    sorter   Spearman alu fir mac sorter
+mean      150.4%     46.3%     63.3%     68.5%     n/a   n/a   n/a   n/a
+linear     64.6%     37.3%     18.7%     59.9%   0.91 0.97 1.00 0.99
+ridge      71.5%    210.7%     21.7%     10.5%   0.85 0.75 0.95 0.99
+gbr        26.8%     16.0%     62.5%     53.4%   0.88 0.93 0.97 0.94
+
+== C. screening: synthesise designs in the surrogate's order of predicted cells x cycles until one is within 2% of the best (mean number of syntheses; random = mean over 2,000 orders) ==
+family  pool  random  linear:oof/lofo  ridge:oof/lofo  gbr:oof/lofo
+mac       36    12.4           4/  5           1/  4           2/  4
+fir       36    18.6           1/  1           1/  1           1/  1
+
+== D. what the features hide: worst out-of-fold designs for gbr ==
+alu {'w': 4, 'nops': 2}: true 28, predicted 51 (83%)
+alu {'w': 8, 'nops': 2}: true 64, predicted 103 (62%)
+alu {'w': 32, 'nops': 2}: true 280, predicted 422 (51%)
+alu {'w': 16, 'nops': 2}: true 136, predicted 204 (50%)
+alu {'w': 24, 'nops': 2}: true 214, predicted 321 (50%)
