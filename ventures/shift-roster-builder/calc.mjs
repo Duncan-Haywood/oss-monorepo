@@ -111,7 +111,11 @@ export function parseAvailability(text) {
   return { days, errors, any: false };
 }
 
-// One person per line: name, hourly wage, max hours per week, min hours per week, availability
+// Roles: "roles: cook|server" on a person, "role: cook" on a shift (lower-cased, matched exactly).
+const ROLE_CELL = /^roles?\s*:/i;
+const parseRoles = (cell) => cell.replace(ROLE_CELL, "").split(/[|/&+]/).map((r) => r.trim().toLowerCase()).filter(Boolean);
+
+// One person per line: name, hourly wage, max hours per week, min hours per week, availability, [roles: a|b]
 export function parseStaff(text) {
   const staff = [], errors = [];
   const lines = String(text || "").split(/\r?\n/);
@@ -130,16 +134,18 @@ export function parseStaff(text) {
     if (!Number.isFinite(maxH) || maxH < 0) { errors.push(`${where} (${c[0]}): max hours is not a number`); return; }
     if (!Number.isFinite(minH) || minH < 0) { errors.push(`${where} (${c[0]}): min hours is not a number`); return; }
     if (staff.some((s) => s.name.toLowerCase() === c[0].toLowerCase())) { errors.push(`${where}: "${c[0]}" is listed twice`); return; }
-    const av = parseAvailability(c.slice(4).join(","));
+    const tail = c.slice(4);
+    const roles = tail.filter((x) => ROLE_CELL.test(x)).flatMap(parseRoles);
+    const av = parseAvailability(tail.filter((x) => !ROLE_CELL.test(x)).join(","));
     av.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
-    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), days: av.days, anyTime: av.any });
+    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any });
   });
   if (!staff.length && !errors.length) errors.push("Add at least one person.");
   if (staff.length > MAX_STAFF) errors.push(`That is ${staff.length} people; this tool handles up to ${MAX_STAFF}.`);
   return { staff, errors };
 }
 
-// One requirement per line: day(s), start, end, people needed, label (optional)
+// One requirement per line: day(s), start, end, people needed, label (optional), role (optional: sixth column or "role: x")
 export function parseShifts(text) {
   const slots = [], errors = [];
   const lines = String(text || "").split(/\r?\n/);
@@ -157,10 +163,12 @@ export function parseShifts(text) {
     if (a === b) { errors.push(`${where}: start and end are the same`); return; }
     const count = (c[3] || "") === "" ? 1 : Number(c[3]);
     if (!Number.isInteger(count) || count < 1 || count > 50) { errors.push(`${where}: people needed must be a whole number from 1 to 50`); return; }
-    const label = c[4] || "";
+    const label = ROLE_CELL.test(c[4] || "") ? "" : (c[4] || "");
+    const roleCell = c.slice(4).find((x) => ROLE_CELL.test(x));
+    const role = roleCell ? parseRoles(roleCell)[0] || "" : (c[5] || "").trim().toLowerCase();
     for (const d of days) for (let k = 0; k < count; k++) {
       const end = b <= a ? b + 1440 : b; // an end at or before the start runs overnight
-      slots.push({ day: d, startMin: a, endMin: end, start: d * 1440 + a, end: d * 1440 + end, label, copy: k + 1, of: count });
+      slots.push({ day: d, startMin: a, endMin: end, start: d * 1440 + a, end: d * 1440 + end, label, role, copy: k + 1, of: count });
     }
   });
   if (!slots.length && !errors.length) errors.push("Add at least one shift to cover.");
@@ -186,7 +194,12 @@ const DEFAULTS = {
   balance: 25, shortfallValue: 8, seed: 1, restarts: 4, iterations: 0,
 };
 
+function qualified(person, slot) {
+  return !slot.role || (person.roles || []).includes(slot.role);
+}
+
 function available(person, slot) {
+  if (!qualified(person, slot)) return false;
   const first = person.days[slot.day];
   const stop = Math.min(slot.endMin, 1440);
   if (!first.some(([a, b]) => a <= slot.startMin && b >= stop)) return false;
@@ -416,14 +429,16 @@ function whyUnfilled(ctx, owner, i) {
     if (gapBad) why.rest++; else why.days++;
   }
   let text;
-  if (why.free === 0) text = "nobody listed is available for this whole shift";
+  const skilled = slot.role ? ctx.staff.filter((p) => qualified(p, slot)).length : ctx.P;
+  if (slot.role && skilled === 0) text = `nobody listed has the role "${slot.role}"`;
+  else if (why.free === 0) text = slot.role ? `nobody with the role "${slot.role}" is available for this whole shift` : "nobody listed is available for this whole shift";
   else {
     const bits = [];
     if (why.overlap) bits.push(`${why.overlap} already on another shift`);
     if (why.rest) bits.push(`${why.rest} would break the rest rule`);
     if (why.hours) bits.push(`${why.hours} at their weekly hour limit`);
     if (why.days) bits.push(`${why.days} at the consecutive-days limit`);
-    text = `${why.free} ${why.free === 1 ? "person is" : "people are"} free then, but ${bits.join(", ") || "the others are needed elsewhere"}`;
+    text = `${why.free} ${slot.role ? `with the role "${slot.role}" ` : ""}${why.free === 1 ? "person is" : "people are"} free then, but ${bits.join(", ") || "the others are needed elsewhere"}`;
   }
   return { ...why, text };
 }
@@ -474,7 +489,7 @@ export function buildRoster(staff, slots, options = {}) {
   const assignments = slots.map((s, i) => ({ slot: s, person: res.owner[i] >= 0 ? staff[res.owner[i]].name : null }));
   const grid = staff.map((p, k) => ({
     name: p.name,
-    days: DAYS.map((_, d) => res.lists[k].filter((i) => slots[i].day === d).map((i) => `${fmtClock(slots[i].startMin)}–${fmtClock(slots[i].endMin)}${slots[i].label ? " " + slots[i].label : ""}`)),
+    days: DAYS.map((_, d) => res.lists[k].filter((i) => slots[i].day === d).map((i) => `${fmtClock(slots[i].startMin)}–${fmtClock(slots[i].endMin)}${slots[i].label ? " " + slots[i].label : ""}${slots[i].role ? " [" + slots[i].role + "]" : ""}`)),
   }));
 
   const savingVsListed = base.cost - res.cost;
@@ -490,12 +505,37 @@ export function buildRoster(staff, slots, options = {}) {
 
 export function rosterCsv(r) {
   const q = (s) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
-  const rows = ["day,start,end,hours,label,assigned_to"];
+  const rows = ["day,start,end,hours,label,assigned_to,role"];
   for (const a of r.assignments) {
     const s = a.slot;
-    rows.push([DAYS[s.day] + (s.endMin > 1440 ? " (overnight)" : ""), fmtClock(s.startMin), fmtClock(s.endMin), ((s.end - s.start) / 60).toFixed(2), q(s.label || ""), q(a.person || "UNFILLED")].join(","));
+    rows.push([DAYS[s.day] + (s.endMin > 1440 ? " (overnight)" : ""), fmtClock(s.startMin), fmtClock(s.endMin), ((s.end - s.start) / 60).toFixed(2), q(s.label || ""), q(a.person || "UNFILLED"), q(s.role || "")].join(","));
   }
   return rows.join("\n") + "\n";
+}
+
+// iCalendar file for one week, so each person can import their own shifts. weekStart is "YYYY-MM-DD" and
+// must be a Monday; person limits the file to one name (default: everyone, with the name in the title).
+export function rosterIcs(r, weekStart, person = null) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(weekStart || ""));
+  if (!m) throw new Error("weekStart must be YYYY-MM-DD");
+  const base = Date.UTC(+m[1], +m[2] - 1, +m[3]);
+  if (new Date(base).getUTCDay() !== 1) throw new Error("weekStart must be a Monday");
+  const esc = (t) => String(t).replace(/([,;\\])/g, "\\$1").replace(/\n/g, "\\n");
+  const stamp = (min, day) => {
+    const d = new Date(base + day * 86400000 + min * 60000);
+    const p = (n) => String(n).padStart(2, "0");
+    return `${d.getUTCFullYear()}${p(d.getUTCMonth() + 1)}${p(d.getUTCDate())}T${p(d.getUTCHours())}${p(d.getUTCMinutes())}00`;
+  };
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//shift-roster-builder//EN", "CALSCALE:GREGORIAN"];
+  r.assignments.forEach((a, k) => {
+    if (!a.person || (person && a.person !== person)) return;
+    const s = a.slot;
+    const title = (s.label || "Shift") + (s.role ? ` (${s.role})` : "") + (person ? "" : ` - ${a.person}`);
+    lines.push("BEGIN:VEVENT", `UID:roster-${weekStart}-${k}@shift-roster-builder`, `DTSTAMP:${stamp(0, 0)}Z`,
+      `DTSTART:${stamp(s.startMin, s.day)}`, `DTEND:${stamp(s.endMin, s.day)}`, `SUMMARY:${esc(title)}`, "END:VEVENT");
+  });
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n") + "\r\n";
 }
 
 export function hoursCsv(r) {

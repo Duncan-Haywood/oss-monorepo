@@ -11,8 +11,8 @@ shuffling on Sunday night.
 
 ## Model
 
-- People: `name, wage, max hours, min hours, availability` (`Mon-Fri 9-17; Sat 10am-2pm; Sun off`; blank = any time).
-- Shifts: `day(s), start, end, people needed, label`. An end at or before the start runs overnight.
+- People: `name, wage, max hours, min hours, availability, roles: cook|server` (`Mon-Fri 9-17; Sat 10am-2pm; Sun off`; blank = any time; roles optional).
+- Shifts: `day(s), start, end, people needed, label, role: cook` (the role is optional; a shift with a role goes only to people who list it). An end at or before the start runs overnight.
 - Hard rules, never broken: availability covers the whole shift, no double-booking, minimum rest between shifts, max
   hours per week, max days in a row.
 - Objective, in order: cover as many shift-hours as possible; then minimise real payroll (wage x (1 + extras), overtime
@@ -22,12 +22,12 @@ shuffling on Sunday night.
   several restarts. Deterministic. Tests check every roster against the hard rules and compare with an exhaustive search of
   all rosters on small problems.
 - Reports: who is on each shift, shifts nobody could take and the reason, hours and pay per person, who the week depends on
-  (rebuild without each person), and a comparison with filling shifts in listed order. CSV exports.
+  (rebuild without each person), and a comparison with filling shifts in listed order. CSV exports, and a `.ics` calendar file for the week (everyone, or one person to hand them their own shifts).
 
 ## Limits
 
 Not modelled: predictive-scheduling and fair-workweek notice rules, meal and rest breaks, minor-labor limits, split-shift
-premiums, skills or roles, tips, union rules, seniority, time-off across weeks, the rest rule across the week boundary. A
+premiums, tips, union rules, seniority, time-off across weeks, the rest rule across the week boundary. A
 heuristic search, not a proof of optimality on large problems. Verified only against exhaustive search and invented data.
 Not legal, tax, or financial advice.
 
