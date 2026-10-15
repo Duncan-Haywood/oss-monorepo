@@ -18,7 +18,7 @@ Usage — the metric while everything is free — is specified in
 rules below; the public-repository rules apply everywhere.
 
 **[`prompt.md`](prompt.md) is the master prompt.** It routes each run to a
-sub-prompt in `prompts/` (ventures, research, or the review track) with
+sub-prompt in `prompts/` (ventures, research, process, or the review track) with
 `python3 prompts/promptctl.py route`, and asks for a run record before the
 merge. The goals and guardrails in [`prompts/goals.md`](prompts/goals.md)
 are the owner's; the review track improves everything else, this file
@@ -149,6 +149,7 @@ node --test platform/proposal/*.test.mjs
 node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
+# No pytest? `apt-get update && apt-get install -y python3-pytest` (pip may not reach PyPI). gitops/tests/test_worker_run.py fails ~26 on clean main when `gh` is preinstalled: compare against origin/main before blaming your change.
 (cd platform/ci && for m in test_*.py; do python3 -m unittest "${m%.py}" || break; done)
 (cd platform/ci/agent_review && python3 -m unittest test_review)
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline infra/tests -q

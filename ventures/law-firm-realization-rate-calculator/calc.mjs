@@ -194,7 +194,11 @@ export function realization(input = {}) {
 }
 
 const pct = (x) => `${(x * 100).toFixed(1)}%`;
-const usd = (x) => `$${Math.round(x).toLocaleString('en-US')}`;
+const usd = (x) => {
+  const format = (x) => `$${Math.round(x).toLocaleString('en-US')}`;
+  const text = format(Math.abs(x));
+  return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 function findings({ firm, ranked, topShare, lockup, annual }) {
   const out = [];

@@ -2,5 +2,5 @@
   "name": "a11y-axe-recall",
   "private": true,
   "description": "Scratch manifest for `npm install axe-core@4.13.0 playwright@1.56.1 --no-save` — see README.md. Not committed with a lockfile; nothing here is a runtime dependency of any venture.",
-  "license": "UNLICENSED"
+  "license": "MIT"
 }

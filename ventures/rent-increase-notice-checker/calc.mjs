@@ -105,7 +105,11 @@ export function parseDate(s) {
 export const iso = (dt) => dt.toISOString().slice(0, 10);
 export const addDays = (dt, n) => new Date(dt.getTime() + n * 86400000);
 const daysBetween = (a, b) => Math.round((b.getTime() - a.getTime()) / 86400000);
-export const dollars = (c) => `$${(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+export const dollars = (c) => {
+  const format = (c) => `$${(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const text = format(Math.abs(c));
+  return c < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const yes = (s) => /^(y|yes|true|1|x)$/i.test(String(s ?? "").trim());
 
 // Basis points of allowed increase, or null when no cap applies.

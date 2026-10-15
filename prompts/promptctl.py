@@ -34,6 +34,9 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent
 
 REVIEW = "review"
+REDTEAM = "redteam"
+# prompts/goals.md: the red team / blue team share of non-review runs.
+REDTEAM_SHARE = (0.05, 0.10)
 OUTCOMES = ("success", "partial", "failed")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 PROMPT_RE = re.compile(r"^prompt-(\d+)\.md$")
@@ -75,6 +78,7 @@ RECORD_FIELDS: dict[str, Any] = {
     "goal": None,
     "notes": "",
     "corrections": [],
+    "redteam": None,
 }
 REQUIRED = ("date", "session", "track", "prompt_version", "outcome",
             "errors", "integrity_issues", "doc_friction")
@@ -250,7 +254,49 @@ def validate_record(root: Path, path: Path, rec: Any, tracks: dict[str, Any]) ->
                     and isinstance(item.get("issue"), str)):
                 errors.append(f"{where}: each doc_friction entry needs a 'file' and an 'issue'")
                 break
+    rt = rec.get("redteam")
+    if rt is not None:
+        errors.extend(validate_redteam(where, rt))
     return errors
+
+
+def validate_redteam(where: str, rt: Any) -> list[str]:
+    """Structure only: the rates are derived from the mutants, never stored."""
+    if not isinstance(rt, dict) or not isinstance(rt.get("campaigns", []), list) \
+            or not isinstance(rt.get("real_defects", []), list):
+        return [f"{where}: redteam must be an object with 'campaigns' and 'real_defects' lists"]
+    errors = []
+    for camp in rt.get("campaigns", []):
+        if not (isinstance(camp, dict) and isinstance(camp.get("target"), str)
+                and isinstance(camp.get("mutants"), list)):
+            errors.append(f"{where}: each redteam campaign needs a 'target' and a 'mutants' list")
+            continue
+        for m in camp["mutants"]:
+            if not (isinstance(m, dict) and isinstance(m.get("caught"), bool)
+                    and isinstance(m.get("line"), int) and isinstance(m.get("operator"), str)):
+                errors.append(f"{where}: each mutant needs 'line', 'operator' and a boolean 'caught'")
+                break
+            if m.get("triage") not in (None, "gap", "equivalent"):
+                errors.append(f"{where}: mutant triage must be null, 'gap' or 'equivalent'")
+                break
+            if m["caught"] and m.get("triage") == "equivalent":
+                errors.append(f"{where}: a caught mutant cannot be 'equivalent'")
+                break
+    for d in rt.get("real_defects", []):
+        if not (isinstance(d, dict) and isinstance(d.get("file"), str)
+                and isinstance(d.get("issue"), str) and isinstance(d.get("patched"), bool)):
+            errors.append(f"{where}: each real defect needs 'file', 'issue' and a boolean 'patched'")
+            break
+    return errors
+
+
+def redteam_share(tracks: dict[str, Any]) -> float | None:
+    """The red-team share of the non-review routing weight, or None without the track."""
+    if REDTEAM not in tracks:
+        return None
+    weights = {t: float(c.get("weight", 0)) for t, c in tracks.items() if t != REVIEW}
+    total = sum(weights.values())
+    return weights[REDTEAM] / total if total else 0.0
 
 
 def validate(root: Path = ROOT) -> list[str]:
@@ -276,6 +322,11 @@ def validate(root: Path = ROOT) -> list[str]:
         return errors + ["routing.json: tracks must be an object that includes 'review'"]
     if not any(float(c.get("weight", 0)) > 0 for t, c in tracks.items() if t != REVIEW):
         errors.append("routing.json: at least one non-review track needs a positive weight")
+    share = redteam_share(tracks)
+    if share is not None and not REDTEAM_SHARE[0] <= share <= REDTEAM_SHARE[1]:
+        low, high = REDTEAM_SHARE
+        errors.append(f"routing.json: redteam is {share:.1%} of non-review weight; "
+                      f"prompts/goals.md holds it between {low:.0%} and {high:.0%}")
 
     for track, cfg in tracks.items():
         label = f"routing.json: {track}"
@@ -404,8 +455,13 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
         if path.is_file():
             sizes[str(path.relative_to(root.parent))] = len(path.read_text().splitlines())
 
+    from redteam import tally  # prompts/redteam.py, alongside this file
+    recent = runs[-100:]
+    share = (sum(1 for r in recent if r.get("track") == REDTEAM) / len(recent)) if recent else None
     return {
         "runs": len(runs),
+        "redteam": {**tally(runs), "routed_share": redteam_share(routing["tracks"]),
+                    "recorded_share_last_100": round(share, 3) if share is not None else None},
         "since_review": runs_since_review(load_runs(root)),
         "review_every": routing["review_every"],
         "by_version": {f"{t}/{v}": summarise(r) for (t, v), r in sorted(by_version.items())},
@@ -447,7 +503,23 @@ def print_measure(m: dict[str, Any]) -> None:
         print("None reported.\n")
     for path, f in m["doc_friction"].items():
         print(f"- `{path}`: {f['reports']} report(s); latest: " + " | ".join(f["recent"]))
-    print("\n## Instruction lines a run may read\n")
+    rt = m["redteam"]
+    print("\n## Red team / blue team\n")
+    if not rt["seeded"]:
+        print("No faults seeded yet: catch rate never measured (not zero).\n")
+    else:
+        print(f"- Catch rate: {rt['catch_rate']:.0%} of {rt['seeded'] - rt['equivalent']} "
+              f"non-equivalent seeded faults ({rt['caught']} caught, {rt['escaped']} escaped, "
+              f"{rt['equivalent']} equivalent, {rt['untriaged']} untriaged)")
+        print(f"- After the blue team's guards: {rt['catch_rate_after_fix']:.0%}")
+        print(f"- Real defects: {rt['real_defects']} found in {rt['redteam_runs']} run(s), "
+              f"{rt['real_defects_patched']} patched ({rt['defects_per_run']} per run)")
+    routed = rt["routed_share"]
+    recorded = rt["recorded_share_last_100"]
+    print(f"- Share of runs: routed {routed:.1%}" if routed is not None else "- Share of runs: no track",
+          end="")
+    print(f", recorded {recorded:.1%} of the last 100 (goal 5-10%)\n" if recorded is not None else "\n")
+    print("## Instruction lines a run may read\n")
     for path, lines in m["instruction_lines"].items():
         print(f"- `{path}`: {lines}")
     print("\nFewer than about 10 runs per row is too few to compare; say so rather than conclude.")

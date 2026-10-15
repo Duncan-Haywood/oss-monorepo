@@ -41,15 +41,21 @@ touch closer to that:
   or assets under an incompatible license.
 
 **One repository is the end state (added 2026-10-13; the move landed in
-#6832).** This repository is where everything ends up. The research
-portfolio, `Duncan-Haywood/oss-research-monorepo`, lives under `research/`
-with its full commit history, so `git log -- research/<slug>` shows each
-project's original commits. Until the research repository is deleted,
-`research/` stays an exact mirror of it: `python3 research/_mirror/mirror.py
-sync` brings in new upstream history, and `mirror.py check` proves the two
-match (`research/_mirror/README.md`). Do not create a top-level `research/`
-for anything else; inside it the research rules (`research/CLAUDE.md`, the
-research track of `prompts/`) apply, not the product rules.
+#6832; changed 2026-10-14).** This repository is where everything ends up.
+The research portfolio, `Duncan-Haywood/oss-research-monorepo`, lives under
+`research/` with its full commit history, so `git log -- research/<slug>`
+shows each project's original commits. Until the owner's cutover, research
+work still lands in that repository, and `research/` here is its exact
+mirror. `python3 research/_mirror/mirror.py sync` brings in new upstream
+history, and `mirror.py check` proves the two match
+(`research/_mirror/README.md`). Keeping the mirror current is standing work.
+Its action list is "Repository merge" in the research repository's
+`PROJECTS.md`. Change nothing under `research/` here except through a sync.
+Merge a sync PR with a merge commit, never a squash, because a squash drops
+the upstream history. At cutover the research repository is archived, never
+deleted. Do not create a top-level `research/` for anything else. Inside it,
+the research rules (`research/CLAUDE.md`, the research track of `prompts/`)
+apply, not the product rules.
 
 Making a repository public is the owner's call (publishing under the
 portfolio's name, `CLAUDE.md`). Preparing for it is every session's job.

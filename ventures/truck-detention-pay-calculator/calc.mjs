@@ -7,7 +7,11 @@ export const INCREMENTS = Object.freeze({ 15: "15 minutes", 30: "30 minutes", 60
 
 const num = (v) => (v === "" || v === null || v === undefined ? 0 : Number(v));
 const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
-export const money = (n) => `$${round2(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+export const money = (n) => {
+  const format = (n) => `$${round2(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 function parseTime(s) {
   if (!s) return null;
