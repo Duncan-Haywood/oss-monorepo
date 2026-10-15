@@ -3,6 +3,7 @@
 //   POST /v1/validate        raw body = one invoice (JSON, UBL/CII XML or a
 //                            Factur-X PDF). Content-Type picks the filename
 //                            extension; ?name=invoice.xml overrides it.
+//     add ?profile=xrechnung to also apply the German BR-DE rules (XR-nnn)
 //   POST /v1/validate/batch  {"documents":[{"name","content","encoding"?}]}
 //                            encoding "base64" is for PDFs; default is text.
 //   POST /v1/generate        {"draft":{...},"format":"ubl"|"cii","profile":"xrechnung"|
@@ -31,6 +32,10 @@ const DISCLAIMER =
 function intEnv(env, key, fallback) {
   const n = Number.parseInt(env[key] ?? "", 10);
   return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
+function profileFrom(url) {
+  return url.searchParams.get("profile") === "xrechnung" ? "xrechnung" : "";
 }
 
 export function loadConfig(env = process.env) {
@@ -164,7 +169,7 @@ export function createApp(config = loadConfig()) {
       if (!body.length) throw new HttpError(400, "Empty body.");
       const name = nameFor(req.headers["content-type"], url.searchParams.get("name"));
       const source = name.toLowerCase().endsWith(".pdf") ? new Uint8Array(body) : body.toString("utf8");
-      const result = await preflightDocuments([{ name, source }], { maxBytes: config.maxBytes, maxFiles: 1 });
+      const result = await preflightDocuments([{ name, source }], { maxBytes: config.maxBytes, maxFiles: 1, profile: profileFrom(url) });
       const report = buildJsonReport(result);
       send(res, 200, { ...report, disclaimer: DISCLAIMER });
       return;
@@ -188,7 +193,7 @@ export function createApp(config = loadConfig()) {
         const source = d.encoding === "base64" ? new Uint8Array(Buffer.from(d.content, "base64")) : d.content;
         return { name: d.name ? name : `invoice-${i}.json`, source };
       });
-      const result = await preflightDocuments(inputs, { maxBytes: config.maxBytes, maxFiles: config.maxBatch });
+      const result = await preflightDocuments(inputs, { maxBytes: config.maxBytes, maxFiles: config.maxBatch, profile: profileFrom(url) });
       send(res, 200, { ...buildJsonReport(result), disclaimer: DISCLAIMER });
       return;
     }
