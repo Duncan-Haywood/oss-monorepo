@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the sampled hover loop gain margin against target height in rotor radii: the margin falls from 1.27 at three radii toward 1.0 near 0.55 radii, while the twin predicts 1.2755 at every height">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Ground-effect twin: loop gain margin vs target height</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="284.4" y2="284.4" stroke="#ddd"/><text x="58" y="288.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="244.7" y2="244.7" stroke="#ddd"/><text x="58" y="248.7" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="205.1" y2="205.1" stroke="#ddd"/><text x="58" y="209.1" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="165.4" y2="165.4" stroke="#ddd"/><text x="58" y="169.4" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="125.8" y2="125.8" stroke="#ddd"/><text x="58" y="129.8" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="86.1" y2="86.1" stroke="#ddd"/><text x="58" y="90.1" text-anchor="end" font-family="sans-serif" font-size="11">1.2</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.55</text>
+<text x="75.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="98.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.7</text>
+<text x="121.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<text x="166.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="281.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.5</text>
+<text x="395.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">target height z_r / R_r</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">gain margin</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="624.0,73.0 395.4,75.3 281.1,78.6 166.9,88.2 121.1,97.6 98.3,105.4 75.4,116.7 64.0,124.3" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="624.0" cy="73.0" r="3" fill="#c0392b"/>
+<circle cx="395.4" cy="75.3" r="3" fill="#c0392b"/>
+<circle cx="281.1" cy="78.6" r="3" fill="#c0392b"/>
+<circle cx="166.9" cy="88.2" r="3" fill="#c0392b"/>
+<circle cx="121.1" cy="97.6" r="3" fill="#c0392b"/>
+<circle cx="98.3" cy="105.4" r="3" fill="#c0392b"/>
+<circle cx="75.4" cy="116.7" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="124.3" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">full ground-effect model</text>
+<polyline points="624.0,72.9 395.4,75.1 281.1,78.1 166.9,86.5 121.1,94.5 98.3,100.9 75.4,110.0 64.0,116.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="624.0" cy="72.9" r="3" fill="#1f6fb2"/>
+<circle cx="395.4" cy="75.1" r="3" fill="#1f6fb2"/>
+<circle cx="281.1" cy="78.1" r="3" fill="#1f6fb2"/>
+<circle cx="166.9" cy="86.5" r="3" fill="#1f6fb2"/>
+<circle cx="121.1" cy="94.5" r="3" fill="#1f6fb2"/>
+<circle cx="98.3" cy="100.9" r="3" fill="#1f6fb2"/>
+<circle cx="75.4" cy="110.0" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="116.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">gain change only (S=0)</text>
+</svg>
