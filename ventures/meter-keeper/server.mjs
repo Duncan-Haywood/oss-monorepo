@@ -36,6 +36,7 @@ export function handler(cfg) {
     const json = (code, body) => { res.writeHead(code, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-content-type-options": "nosniff" }); res.end(JSON.stringify(body, null, 2)); };
     try {
       if (path === "/healthz") { res.writeHead(200, { "content-type": "text/plain" }); return res.end("ok\n"); }
+      if (req.method === "GET" && path === "/sdk.mjs" && cfg.sdk) { res.writeHead(200, { "content-type": "text/javascript; charset=utf-8", "cache-control": "public, max-age=300" }); return res.end(cfg.sdk); }
       if (path === "/") return json(200, { name: "meter-keeper", dryRun: cfg.dryRun, meters: Object.keys(cfg.config.meters || {}), docs: "https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/meter-keeper" });
 
       if (path.startsWith("/v1/admin")) {
@@ -92,6 +93,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const save = () => { fs.writeFileSync(`${file}.tmp`, JSON.stringify(state)); fs.renameSync(`${file}.tmp`, file); };
   const dryRun = env.DRY_RUN !== "false";
   const send = env.STRIPE_SECRET_KEY ? stripeSender({ apiKey: env.STRIPE_SECRET_KEY }) : null;
-  http.createServer(handler({ state, save, config, apiKey: env.API_KEY, adminKey: env.ADMIN_KEY, send, dryRun })).listen(Number(env.PORT) || 8080, () => console.log(`meter-keeper on :${env.PORT || 8080} (dry run: ${dryRun})`));
+  http.createServer(handler({ state, save, config, apiKey: env.API_KEY, adminKey: env.ADMIN_KEY, send, dryRun, sdk: fs.readFileSync(new URL("./sdk.mjs", import.meta.url), "utf8") })).listen(Number(env.PORT) || 8080, () => console.log(`meter-keeper on :${env.PORT || 8080} (dry run: ${dryRun})`));
   setInterval(async () => { try { if (!dryRun && send) await E.flush(state, send, Date.now()); E.prune(state, Date.now()); save(); } catch (e) { console.error("flush failed:", e.message); } }, 30_000).unref();
 }

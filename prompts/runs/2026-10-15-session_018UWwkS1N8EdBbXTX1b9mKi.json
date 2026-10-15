@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_018UWwkS1N8EdBbXTX1b9mKi",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-15T22:10:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "waitlist-keeper",
+    "trial-converter"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7206",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Top 25 candidates are all single-page calculators the ventures prompt forbids; had to pick a venture by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/ledger/session_gate.py",
+      "why": "Gate said refresh the published snapshot first; skipped (owner-flagged gh-pages push, not shipping value) and deepened two non-calculator ventures instead."
+    }
+  ],
+  "goal": null,
+  "notes": "Added docker-compose.yml and fly.toml to waitlist-keeper and trial-converter. Compose/fly files not executed against Docker or Fly.",
+  "corrections": [],
+  "redteam": null
+}

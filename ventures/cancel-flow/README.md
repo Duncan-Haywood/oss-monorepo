@@ -24,7 +24,8 @@ Two parts, both free and MIT:
 | Churnkey, ProfitWell Retain, Brightback and similar | Paid, usually scaled to your MRR; your customers' data goes to a third party | Runs in your account, no fee, nobody else sees your customers |
 | A flow you build yourself | Easy to get wrong: double discounts, canceling the wrong subscription, offers on trials | Signed links, ownership check, idempotent writes, cooldown, dry-run default |
 
-Honest limits: no hosted dashboard, and win-back emails are
+Honest limits: the results dashboard is a single page on your own server (no accounts, no
+history beyond the state file), and win-back emails are
 plain-text only (off until you set `WINBACK_URL`). It does not claim a save rate; measure it on your own data.
 If the Stripe portal's built-in survey already works for you, keep it.
 
@@ -74,14 +75,17 @@ If the Stripe portal's built-in survey already works for you, keep it.
    revenue kept per arm, a two-sided two-proportion p-value, and a verdict that stays
    "keep collecting" until both arms have 30 offers and p < 0.05. Small shops will
    wait a long time for 30 per arm; treat early gaps as noise.
-8. **Reports** `GET /v1/summary` (started, offered, saved, save rate, by reason,
+8. **Shows results at `/admin`.** Open `https://<your host>/admin`, paste `ADMIN_KEY`, and see
+   save rate by reason, offer tests, win-back and recent sessions, plus a CSV export. The page holds
+   no data and no key; the key stays in the tab and goes only to your server.
+9. **Reports** `GET /v1/summary` (started, offered, saved, save rate, by reason,
    monthly revenue kept by discounts) and `GET /v1/sessions` (admin key).
 
 ## Run it
 
 ```sh
 cd ventures/cancel-flow
-node --test        # 52 tests, no network
+node --test        # 53 tests, no network
 STRIPE_SECRET_KEY=rk_test_... STRIPE_WEBHOOK_SECRET=whsec_... \
 ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
 PUBLIC_URL=https://cancel.example.com COMPANY_NAME=Acme node server.mjs
@@ -139,7 +143,7 @@ easy as signing up); you are the operator. Keep a plain cancel path, and do not
 make the offer step mandatory beyond one screen.
 
 Files: `flow.mjs` (decisions, summary; also runs in the browser), `page.mjs` (hosted
-page), `winback.mjs` (win-back emails), `stripe.mjs` (webhook verification, API calls), `server.mjs` (HTTP shell),
+page), `admin.mjs` (results dashboard), `winback.mjs` (win-back emails), `stripe.mjs` (webhook verification, API calls), `server.mjs` (HTTP shell),
 `index.html` (simulator). Sibling venture for failed payments: `../dunning-engine`.
 
 Support the project: <https://github.com/sponsors/Duncan-Haywood>.

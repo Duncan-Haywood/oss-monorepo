@@ -82,7 +82,8 @@ printed on the page so you can try the flow.
 Fork this repository and open `https://render.com/deploy?repo=<your fork URL>`.
 `render.yaml` builds the `Dockerfile` here in **your** Render account with a 1 GB
 disk for the state file and generates `ADMIN_KEY`. Nothing runs on the author's
-side. Docker anywhere works too. Put it behind HTTPS (Render does).
+side. Docker anywhere works too (`docker-compose.yml`, starts in dry-run). Fly.io: the steps
+are at the top of `fly.toml`. Put it behind HTTPS (Render and Fly do).
 
 ## Status and what is not verified
 
