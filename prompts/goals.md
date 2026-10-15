@@ -25,6 +25,15 @@ and one platform that runs them:
 - **Free choice** (about 5% of effort): in the spirit of Google's "20% time",
   about one run in twenty works on whatever the agent finds most interesting,
   with its own approach (`prompts/explore/`). Same guardrails, same bar.
+- **The web presence** (added 2026-10-14): one website, hosted on GitHub
+  (GitHub Pages), from which all of the work above can be easily checked out
+  visually. A visitor lands on one homepage and reaches every product and
+  every research project from it without reading the repository.
+  - **Every project and product has a home page by default**: a home or
+    marketing page that says what it is, who it is for and what it found or
+    does, with screenshots or figures, and links to try it, the code and the
+    write-up. That includes CLIs, servers, apps and research projects, not
+    only browser tools. A new project or product is not done without one.
 
 ## Long-term goal: a public face for everything
 
@@ -94,7 +103,8 @@ gain on a later one.
 2. **Success:** the run's pull request merged with CI green (or the local
    checklist when runners are starved) and its track's definition of done
    met: `PRODUCT_PLAYBOOK.md` for a venture, a complete README and passing
-   tests for a research project.
+   tests for a research project, and for both a home page on the GitHub
+   Pages site.
 3. **Errors:** CI failures before green, review findings, reverts or fix-ups
    within two weeks, abandoned runs, and leaked work. Leaked work is a branch
    or pull request a run pushed that was not on `main` 24 hours later.
@@ -114,6 +124,10 @@ gain on a later one.
 - **Explore:** merged work the agent chose itself, about 5% of runs. Judged
   on the same success and integrity measures; the review also notes which
   free-choice ideas graduated into a regular track.
+- **Web presence:** every venture and every research project reachable,
+  with its own home page, from one GitHub-hosted homepage, and nothing on
+  `main` without a page. Deploy and link what exists before polishing the
+  design.
 - **Process:** about 5% of runs study how work gets done here (quality,
   errors, rework, duplicate and leaked work, what the checks catch) and
   write an analysis with ranked recommendations
