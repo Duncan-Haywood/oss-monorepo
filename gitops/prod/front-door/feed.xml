@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1243 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1244 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -128,6 +128,14 @@
     <summary type="text">Free tool for tenants: pick your state, enter your move-out date and deposit, and see when your landlord&#39;s deadline to return it ran out, what the statute says about late landlords, and a demand letter you can edit and send. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Waitlist Keeper — Free Self-Hosted Referral Waitlist</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/waitlist-keeper/"/>
+    <id>tag:marisstella.dev,2026:tool/waitlist-keeper</id>
+    <updated>2026-10-15T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">A free, open-source alternative to Viral Loops and Prefinery: a launch waitlist where confirmed referrals move people up the line, with fraud guards and batch invites. Clean a pasted email list and project your viral growth in your browser, then run the server in your own account.</summary>
+  </entry>
+  <entry>
     <title>webhook-relay — Free Self-Hosted Webhook Retries and Replay</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/webhook-relay/"/>
     <id>tag:marisstella.dev,2026:tool/webhook-relay</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Canadian self-employed tax calculator: enter revenue and expenses to see CPP, federal tax, a provincial estimate and how much of every invoice to set aside. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Germany Freelancer Tax Set-Aside Calculator — Einkommensteuer, Soli, Gewerbesteuer (2026)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/de-freiberufler-tax-set-aside-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/de-freiberufler-tax-set-aside-calculator</id>
-    <updated>2026-10-14T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free German freelancer tax calculator (Freiberufler and Gewerbe): enter turnover and expenses to see Einkommensteuer under the 2026 tariff, Soli, Kirchensteuer, Gewerbesteuer and how much of every invoice to set aside. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
