@@ -296,3 +296,16 @@ field will.
 - Follow-up on E8-E10: ventures/2 and research/1 still under 10 runs each;
   no verdict possible. Bulk-mirrored records rank oldest, which is correct.
 - Result: (next review)
+
+## E12: seventh review of 2026-10-15
+
+- Change: `CLAUDE.md` checklist notes (4 lines) that the pages/marketing/deploy
+  node suites exceed the tool timeout and must run in the background.
+- Why: three friction reports (CLAUDE.md, `unspecified`) hit the 120 s / 10 min
+  limit on those lines.
+- Measure: timeout reports on those lines per run.
+- Follow-up on E8-E11: ventures/2 (4 runs) and research/1 (4 runs) still under
+  10 each; no verdict. Audit step skipped: nearly all records are mirrored or
+  doc-only. Fixed in earlier E-entries and verified: PRODUCT_PLAYBOOK self-deploy
+  line is no longer stale.
+- Result: (next review)
