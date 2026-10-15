@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv,
+  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv, rosterIcs,
   sampleStaff, sampleShifts, fmtClock, _internals,
 } from "./calc.mjs";
 
@@ -241,4 +241,39 @@ test("limits are enforced with a message, not a hang", () => {
   assert.match(parseStaff(many).errors.join(" "), /up to 60/);
   assert.match(parseShifts("Mon-Sun,9,17,50\nMon-Sun,9,17,50").errors.join(" "), /up to 400/);
   assert.ok(buildRoster([], []).error);
+});
+
+test("roles: only qualified people fill a role shift, and the reason says so", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any, roles: cook|server\nBen, 12, 40, 0, any, roles: server\nCy, 10, 40, 0, any");
+  assert.deepEqual(staff.map((s) => s.roles), [["cook", "server"], ["server"], []]);
+  const slots = slotsOf("Mon, 8, 12, 2, line, role: cook\nMon, 13, 17, 1, floor, server");
+  assert.equal(slots[0].role, "cook");
+  assert.equal(slots[0].label, "line");
+  const r = buildRoster(staff, slots);
+  const cooks = r.assignments.filter((a) => a.slot.role === "cook");
+  assert.ok(cooks.every((a) => a.person === "Ana" || a.person === null));
+  assert.equal(r.unfilledSlots, 1); // two cooks needed, only Ana is one
+  assert.match(r.unfilled[0].text, /cook/);
+  assert.match(rosterCsv(r), /,role\n/);
+});
+
+test("roles: a role nobody has is named, and shifts without roles ignore roles", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any, roles: cook");
+  const r = buildRoster(staff, slotsOf("Tue, 8, 12, 1, bar, role: bartender\nTue, 13, 17, 1, any job"));
+  assert.match(r.unfilled[0].text, /nobody listed has the role "bartender"/);
+  assert.equal(r.assignments.find((a) => !a.slot.role).person, "Ana");
+});
+
+test("ics export: one event per assigned shift, overnight ends next day, per-person filter, Monday check", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any\nBen, 12, 40, 0, any");
+  const r = buildRoster(staff, slotsOf("Fri, 22, 6, 1, night\nMon, 9, 17, 1, day"));
+  const all = rosterIcs(r, "2026-10-12");
+  assert.equal((all.match(/BEGIN:VEVENT/g) || []).length, 2);
+  assert.match(all, /DTSTART:20261016T220000\r\nDTEND:20261017T060000/);
+  const who = r.assignments.find((a) => a.slot.label === "night").person;
+  const one = rosterIcs(r, "2026-10-12", who);
+  assert.ok((one.match(/BEGIN:VEVENT/g) || []).length >= 1);
+  assert.ok(!one.includes(` - ${who}`));
+  assert.throws(() => rosterIcs(r, "2026-10-13"), /Monday/);
+  assert.throws(() => rosterIcs(r, "nope"), /YYYY/);
 });
