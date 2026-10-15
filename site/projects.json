@@ -1663,6 +1663,11 @@
      "summary": "A stylised, mixed follow-up to <em>ambient-drablate</em>: averaging the cap-selection score over 5 random fold assignments (instead of one) with an uninformed prior, 20 seeds. At &epsilon; = 0.02 it lifts the IPS-score selector from 3.5 to 5.3 utility/h and halves its seed spread; at smaller &epsilon; it changes nothing beyond noise. Single-assignment results differ from the earlier project's, showing how much one fold permutation can matter. Every selector stays far below the label-matched control (about 12). Simulated and stylised only."
     },
     {
+     "slug": "ambient-exploreonly",
+     "title": "Does fitting only on the windows an assistant explored at random fix learning from its own feedback?",
+     "summary": "A stylised follow-up to <em>ambient-labelmatch</em> and the reweighting and doubly robust fixes after it. The deployed learner already draws a random sample for free: the windows it spoke on only because its &epsilon; coin came up. Fitting on those windows alone, unweighted, reaches 11.99 utility/h at &epsilon; = 0.02 and 12.25 at 0.05 with an uninformed prior, against &minus;13.08 and &minus;71.85 for the fit on every spoken window (oracle 12.71; 20 seeds), and as a learner it earns 6.49/h online at &epsilon; = 0.005 against &minus;2.04. Exploration costs dismissals (online utility falls at larger &epsilon;), and with an informed prior the plain fit is better at small &epsilon;. Stylised simulation only."
+    },
+    {
      "slug": "ambient-wearable",
      "title": "What limits the battery life of a pendant-style always-on audio wearable?",
      "summary": "A stylised average-current model for an nRF52840-class pendant with a 150 mAh cell, built from a few vendor figures read on 2026-10-13 plus labelled assumptions. The always-on microphone is the floor (about 170 h alone); gating codec and radio on speech at a 30% speech fraction gives about 105 h against 59 h for always streaming. A 74-byte energy-gate routine compiles for Cortex-M4. Nothing is measured on hardware, the datasheets were not read in full and there is no numeric comparison with Omi."
@@ -2037,6 +2042,11 @@
      "slug": "garment-twonodelag",
      "title": "Does a tuned infrared-gating thermostat survive an actuation lag and a cost per switch?",
      "summary": "A stylised, preliminary follow-up to <em>garment-twonodeheld</em>. The skin-temperature gate band is retuned by exhaustive grid search for each actuation lag (0, 2, 5, 10&nbsp;min) and each cost per switch (0, 0.01, 0.03&nbsp;C), then scored on held-out rooms. A 10&nbsp;min lag cuts the tuned gate&rsquo;s gain over never switching from 0.23 to 0.15&nbsp;C (&ldquo;between&rdquo; rooms, this repository&rsquo;s choice set). A switch penalty widens the band and removes the chatter. The tuned band is not always better: under the reference choice set it loses to the untuned band by up to 0.035&nbsp;C in 3 of 24 cells, and once to never switching (0.052&nbsp;C). Six training and eight held-out scenarios, assumed lags and penalties, one model; no real fabric or person."
+    },
+    {
+     "slug": "garment-twonodeprop",
+     "title": "Does a proportional infrared-gating textile beat the on/off thermostat gate?",
+     "summary": "A stylised, preliminary, <em>negative</em> follow-up to <em>garment-twonodelag</em>. A transmittance that ramps linearly with skin temperature is tuned by exhaustive search (72 bands) for each actuation lag (0 to 10&nbsp;min) and scored on held-out rooms against the tuned on/off gate. Proportional wins in 5 of 16 cells and every difference is within 0.010&nbsp;C: the search picks bands only 0.1 to 0.2&nbsp;C wide, i.e. nearly on/off. Forcing a softer ramp (at least 1.4&nbsp;C wide) costs 0.02 to 0.07&nbsp;C. Switching is free in this run, so a switch penalty could change the answer. Six training and eight held-out scenarios; no real fabric or person."
     },
     {
      "slug": "garment-twonodeopt",
