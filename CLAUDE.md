@@ -18,7 +18,7 @@ Usage — the metric while everything is free — is specified in
 rules below; the public-repository rules apply everywhere.
 
 **[`prompt.md`](prompt.md) is the master prompt.** It routes each run to a
-sub-prompt in `prompts/` (ventures, research, or the review track) with
+sub-prompt in `prompts/` (ventures, research, process, or the review track) with
 `python3 prompts/promptctl.py route`, and asks for a run record before the
 merge. The goals and guardrails in [`prompts/goals.md`](prompts/goals.md)
 are the owner's; the review track improves everything else, this file

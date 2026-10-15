@@ -10,11 +10,12 @@ Its public-repository rules do.
 
 New projects come from the priority tracks in [`PROJECTS.md`](PROJECTS.md).
 
-**Until `oss-research-monorepo` is deleted, this directory is an exact mirror of it**, with its
-full history. `python3 research/_mirror/mirror.py sync` brings in new upstream work and
-`mirror.py check` proves the two match. While work still lands upstream, change mirrored files
-there, not here, or the next sync overwrites the edit. [`_mirror/README.md`](_mirror/README.md)
-has the cut-over steps.
+**Until cutover, this directory is an exact mirror of `oss-research-monorepo`**, with its full
+history. `python3 research/_mirror/mirror.py sync` brings in new upstream work and
+`mirror.py check` proves the two match. Until then, research work lands upstream: build new
+projects and change mirrored files there, not here, or the next sync deletes or overwrites the
+change. [`_mirror/README.md`](_mirror/README.md) has the cut-over steps, after which upstream is
+archived, never deleted.
 
 ## Keep the research homepage up to date
 
