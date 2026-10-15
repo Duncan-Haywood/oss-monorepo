@@ -33,52 +33,52 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548396 bytes
-#   portfolio-front-tools-1: 92 files, 555575 bytes
-#   portfolio-front-tools-2: 144 files, 553634 bytes
-#   portfolio-front-tools-3: 128 files, 549961 bytes
-#   portfolio-front-tools-4: 136 files, 556594 bytes
-#   portfolio-front-tools-5: 130 files, 549913 bytes
-#   portfolio-front-tools-6: 127 files, 556399 bytes
-#   portfolio-front-tools-7: 120 files, 554714 bytes
-#   portfolio-front-tools-8: 130 files, 555754 bytes
-#   portfolio-front-tools-9: 138 files, 554661 bytes
-#   portfolio-front-tools-10: 136 files, 556970 bytes
-#   portfolio-front-tools-11: 137 files, 552569 bytes
-#   portfolio-front-tools-12: 131 files, 556554 bytes
-#   portfolio-front-tools-13: 128 files, 555384 bytes
-#   portfolio-front-tools-14: 131 files, 556057 bytes
-#   portfolio-front-tools-15: 130 files, 548901 bytes
-#   portfolio-front-tools-16: 120 files, 554452 bytes
-#   portfolio-front-tools-17: 135 files, 551229 bytes
-#   portfolio-front-tools-18: 124 files, 551933 bytes
-#   portfolio-front-tools-19: 125 files, 549618 bytes
-#   portfolio-front-tools-20: 125 files, 556535 bytes
-#   portfolio-front-tools-21: 120 files, 548426 bytes
-#   portfolio-front-tools-22: 123 files, 556910 bytes
-#   portfolio-front-tools-23: 118 files, 556672 bytes
-#   portfolio-front-tools-24: 126 files, 555218 bytes
-#   portfolio-front-tools-25: 130 files, 556367 bytes
-#   portfolio-front-tools-26: 129 files, 553751 bytes
-#   portfolio-front-tools-27: 142 files, 549740 bytes
-#   portfolio-front-tools-28: 120 files, 550326 bytes
-#   portfolio-front-tools-29: 128 files, 548929 bytes
-#   portfolio-front-tools-30: 131 files, 554050 bytes
-#   portfolio-front-tools-31: 130 files, 554742 bytes
-#   portfolio-front-tools-32: 124 files, 552992 bytes
-#   portfolio-front-tools-33: 136 files, 550427 bytes
-#   portfolio-front-tools-34: 135 files, 554952 bytes
-#   portfolio-front-tools-35: 97 files, 556111 bytes
-#   portfolio-front-tools-36: 116 files, 554183 bytes
-#   portfolio-front-tools-37: 121 files, 557031 bytes
-#   portfolio-front-tools-38: 129 files, 552727 bytes
-#   portfolio-front-tools-39: 130 files, 556718 bytes
-#   portfolio-front-tools-40: 121 files, 551676 bytes
-#   portfolio-front-tools-41: 141 files, 551586 bytes
-#   portfolio-front-tools-42: 135 files, 556918 bytes
-#   portfolio-front-tools-43: 126 files, 553444 bytes
-#   portfolio-front-tools-44: 95 files, 495522 bytes
-#   portfolio-front-tools-45: 54 files, 266661 bytes
+#   portfolio-front-tools-0: 145 files, 548404 bytes
+#   portfolio-front-tools-1: 92 files, 555594 bytes
+#   portfolio-front-tools-2: 144 files, 553644 bytes
+#   portfolio-front-tools-3: 128 files, 549965 bytes
+#   portfolio-front-tools-4: 136 files, 556596 bytes
+#   portfolio-front-tools-5: 130 files, 549922 bytes
+#   portfolio-front-tools-6: 127 files, 556403 bytes
+#   portfolio-front-tools-7: 120 files, 554722 bytes
+#   portfolio-front-tools-8: 130 files, 555764 bytes
+#   portfolio-front-tools-9: 138 files, 554754 bytes
+#   portfolio-front-tools-10: 136 files, 556975 bytes
+#   portfolio-front-tools-11: 137 files, 552604 bytes
+#   portfolio-front-tools-12: 131 files, 556561 bytes
+#   portfolio-front-tools-13: 128 files, 555387 bytes
+#   portfolio-front-tools-14: 131 files, 556136 bytes
+#   portfolio-front-tools-15: 130 files, 548900 bytes
+#   portfolio-front-tools-16: 120 files, 554453 bytes
+#   portfolio-front-tools-17: 135 files, 551231 bytes
+#   portfolio-front-tools-18: 124 files, 551938 bytes
+#   portfolio-front-tools-19: 125 files, 549625 bytes
+#   portfolio-front-tools-20: 125 files, 556537 bytes
+#   portfolio-front-tools-21: 120 files, 548423 bytes
+#   portfolio-front-tools-22: 123 files, 556921 bytes
+#   portfolio-front-tools-23: 118 files, 556677 bytes
+#   portfolio-front-tools-24: 126 files, 555220 bytes
+#   portfolio-front-tools-25: 130 files, 556368 bytes
+#   portfolio-front-tools-26: 129 files, 553861 bytes
+#   portfolio-front-tools-27: 142 files, 549750 bytes
+#   portfolio-front-tools-28: 120 files, 550331 bytes
+#   portfolio-front-tools-29: 128 files, 548938 bytes
+#   portfolio-front-tools-30: 131 files, 554061 bytes
+#   portfolio-front-tools-31: 130 files, 554744 bytes
+#   portfolio-front-tools-32: 124 files, 552966 bytes
+#   portfolio-front-tools-33: 136 files, 550436 bytes
+#   portfolio-front-tools-34: 135 files, 554974 bytes
+#   portfolio-front-tools-35: 97 files, 556109 bytes
+#   portfolio-front-tools-36: 116 files, 554188 bytes
+#   portfolio-front-tools-37: 121 files, 557038 bytes
+#   portfolio-front-tools-38: 129 files, 552733 bytes
+#   portfolio-front-tools-39: 130 files, 556722 bytes
+#   portfolio-front-tools-40: 124 files, 555563 bytes
+#   portfolio-front-tools-41: 143 files, 556462 bytes
+#   portfolio-front-tools-42: 136 files, 549614 bytes
+#   portfolio-front-tools-43: 122 files, 550589 bytes
+#   portfolio-front-tools-44: 101 files, 517031 bytes
+#   portfolio-front-tools-45: 54 files, 266703 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -5479,6 +5479,14 @@ configMapGenerator:
       - trial-conversion-timing-analyzer__calc.mjs.gz=trial-conversion-timing-analyzer__calc.mjs.gz
       - trial-conversion-timing-analyzer__index.html.gz=trial-conversion-timing-analyzer__index.html.gz
       - trial-conversion-timing-analyzer__usage.mjs.gz=trial-conversion-timing-analyzer__usage.mjs.gz
+      - trial-converter__admin.mjs.gz=trial-converter__admin.mjs.gz
+      - trial-converter__engine.mjs.gz=trial-converter__engine.mjs.gz
+      - trial-converter__index.html.gz=trial-converter__index.html.gz
+      - trial-converter__server.mjs.gz=trial-converter__server.mjs.gz
+      - trial-converter__stripe.mjs.gz=trial-converter__stripe.mjs.gz
+      - trial-converter__templates.mjs.gz=trial-converter__templates.mjs.gz
+      - trial-converter__trial.mjs.gz=trial-converter__trial.mjs.gz
+      - trial-converter__usage.mjs.gz=trial-converter__usage.mjs.gz
       - truck-detention-pay-calculator__calc.mjs.gz=truck-detention-pay-calculator__calc.mjs.gz
       - truck-detention-pay-calculator__index.html.gz=truck-detention-pay-calculator__index.html.gz
       - truck-detention-pay-calculator__usage.mjs.gz=truck-detention-pay-calculator__usage.mjs.gz
@@ -5514,16 +5522,16 @@ configMapGenerator:
       - tutor-weekly-schedule-optimizer__usage.mjs.gz=tutor-weekly-schedule-optimizer__usage.mjs.gz
       - twitch-payout-calculator__calc.mjs.gz=twitch-payout-calculator__calc.mjs.gz
       - twitch-payout-calculator__does-a-mobile-subscription-pay-me-less.html.gz=twitch-payout-calculator__does-a-mobile-subscription-pay-me-less.html.gz
-      - twitch-payout-calculator__index.html.gz=twitch-payout-calculator__index.html.gz
-      - twitch-payout-calculator__share.mjs.gz=twitch-payout-calculator__share.mjs.gz
-      - twitch-payout-calculator__usage.mjs.gz=twitch-payout-calculator__usage.mjs.gz
-      - twitch-payout-calculator__vs-tracking-payouts-in-a-spreadsheet.html.gz=twitch-payout-calculator__vs-tracking-payouts-in-a-spreadsheet.html.gz
-      - u-pick-farm-profit-planner__calc.mjs.gz=u-pick-farm-profit-planner__calc.mjs.gz
   - name: portfolio-front-tools-41
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - twitch-payout-calculator__index.html.gz=twitch-payout-calculator__index.html.gz
+      - twitch-payout-calculator__share.mjs.gz=twitch-payout-calculator__share.mjs.gz
+      - twitch-payout-calculator__usage.mjs.gz=twitch-payout-calculator__usage.mjs.gz
+      - twitch-payout-calculator__vs-tracking-payouts-in-a-spreadsheet.html.gz=twitch-payout-calculator__vs-tracking-payouts-in-a-spreadsheet.html.gz
+      - u-pick-farm-profit-planner__calc.mjs.gz=u-pick-farm-profit-planner__calc.mjs.gz
       - u-pick-farm-profit-planner__index.html.gz=u-pick-farm-profit-planner__index.html.gz
       - u-pick-farm-profit-planner__usage.mjs.gz=u-pick-farm-profit-planner__usage.mjs.gz
       - ucr-fee-calculator__calc.mjs.gz=ucr-fee-calculator__calc.mjs.gz
@@ -5662,14 +5670,14 @@ configMapGenerator:
       - uk-statutory-maternity-pay-calculator__index.html.gz=uk-statutory-maternity-pay-calculator__index.html.gz
       - uk-statutory-maternity-pay-calculator__usage.mjs.gz=uk-statutory-maternity-pay-calculator__usage.mjs.gz
       - uk-statutory-sick-pay-calculator__calc.mjs.gz=uk-statutory-sick-pay-calculator__calc.mjs.gz
-      - uk-statutory-sick-pay-calculator__index.html.gz=uk-statutory-sick-pay-calculator__index.html.gz
-      - uk-statutory-sick-pay-calculator__usage.mjs.gz=uk-statutory-sick-pay-calculator__usage.mjs.gz
-      - uk-student-loan-repayment-calculator__calc.mjs.gz=uk-student-loan-repayment-calculator__calc.mjs.gz
   - name: portfolio-front-tools-42
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - uk-statutory-sick-pay-calculator__index.html.gz=uk-statutory-sick-pay-calculator__index.html.gz
+      - uk-statutory-sick-pay-calculator__usage.mjs.gz=uk-statutory-sick-pay-calculator__usage.mjs.gz
+      - uk-student-loan-repayment-calculator__calc.mjs.gz=uk-student-loan-repayment-calculator__calc.mjs.gz
       - uk-student-loan-repayment-calculator__index.html.gz=uk-student-loan-repayment-calculator__index.html.gz
       - uk-student-loan-repayment-calculator__usage.mjs.gz=uk-student-loan-repayment-calculator__usage.mjs.gz
       - uk-take-home-pay-calculator__calc.mjs.gz=uk-take-home-pay-calculator__calc.mjs.gz
@@ -5803,13 +5811,13 @@ configMapGenerator:
       - vineyard-grape-vs-wine-calculator__usage.mjs.gz=vineyard-grape-vs-wine-calculator__usage.mjs.gz
       - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
       - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
-      - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
-      - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
   - name: portfolio-front-tools-43
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
+      - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
       - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
       - vinyl-liner-bid-calculator__vs-a-flat-2999-special.html.gz=vinyl-liner-bid-calculator__vs-a-flat-2999-special.html.gz
       - vinyl-liner-bid-calculator__vs-jobber.html.gz=vinyl-liner-bid-calculator__vs-jobber.html.gz
@@ -5930,17 +5938,17 @@ configMapGenerator:
       - wedding-officiant-fee-calculator__index.html.gz=wedding-officiant-fee-calculator__index.html.gz
       - wedding-officiant-fee-calculator__usage.mjs.gz=wedding-officiant-fee-calculator__usage.mjs.gz
       - wedding-photographer-profit-calculator__calc.mjs.gz=wedding-photographer-profit-calculator__calc.mjs.gz
+  - name: portfolio-front-tools-44
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - wedding-photographer-profit-calculator__index.html.gz=wedding-photographer-profit-calculator__index.html.gz
       - wedding-photographer-profit-calculator__usage.mjs.gz=wedding-photographer-profit-calculator__usage.mjs.gz
       - wedding-venue-date-pricing-optimizer__calc.mjs.gz=wedding-venue-date-pricing-optimizer__calc.mjs.gz
       - wedding-venue-date-pricing-optimizer__index.html.gz=wedding-venue-date-pricing-optimizer__index.html.gz
       - wedding-venue-date-pricing-optimizer__usage.mjs.gz=wedding-venue-date-pricing-optimizer__usage.mjs.gz
       - wedding-videographer-profit-calculator__calc.mjs.gz=wedding-videographer-profit-calculator__calc.mjs.gz
-  - name: portfolio-front-tools-44
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - wedding-videographer-profit-calculator__index.html.gz=wedding-videographer-profit-calculator__index.html.gz
       - wedding-videographer-profit-calculator__usage.mjs.gz=wedding-videographer-profit-calculator__usage.mjs.gz
       - weekly-staff-schedule-maker__calc.mjs.gz=weekly-staff-schedule-maker__calc.mjs.gz

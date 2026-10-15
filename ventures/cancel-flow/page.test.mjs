@@ -48,3 +48,7 @@ test("the hosted cancel page escapes dynamic text and only follows https return 
   assert.doesNotMatch(html, /<\/style><script>/);
   assert.match(html, /RETURN=""/);
 });
+
+test("footer links its sibling trial-converter", () => {
+  assert.match(page("index.html"), /href="\.\.\/trial-converter\/"/);
+});

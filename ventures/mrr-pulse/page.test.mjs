@@ -91,3 +91,9 @@ test("concentration card prints shares and escapes nothing dynamic but numbers",
   assert.match(html, /50\.0%/);
   assert.match(html, /high<\/span> risk/);
 });
+
+test("footer links rev-rec and trial-converter", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/rev-rec\/"/);
+  assert.match(html, /href="\.\.\/trial-converter\/"/);
+});
