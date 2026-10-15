@@ -2236,7 +2236,7 @@
     {
      "slug": "mimic-contexts",
      "title": "How well do prompt-free detectors tell people from a plainly prompted LLM, and do they carry over to unseen kinds of text?",
-     "summary": "PLACEHOLDER"
+     "summary": "Eight text families from RAID (300 human and 300 plain-prompt chat-LLM texts each), split by family: train on five, hold out poetry, reviews and wiki. Prompt-free detectors on the held-out families: character/word n-gram logistic regression AUROC 0.93 (95% interval 0.91&ndash;0.94), a Binoculars-style zero-shot score from Qwen2.5-0.5B 0.80 (0.77&ndash;0.83), perplexity alone 0.76; a length-only detector is at chance (0.52). Zero-shot scores are weak on mpt-chat text (0.65) while n-grams are not (0.95). Limits: the &lsquo;imitator&rsquo; is RAID&rsquo;s own chat generations, not a prompted or optimised one; three chat models; no author-group labels for fairness checks. Preliminary: first step of track 11, no game yet."
     }
    ]
   }
