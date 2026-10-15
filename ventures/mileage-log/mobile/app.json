@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Mileage Log",
+    "slug": "mileage-log",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "ios": {
+      "bundleIdentifier": "dev.example.mileagelog",
+      "infoPlist": {
+        "UIBackgroundModes": ["location"],
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Mileage Log records the start, end and distance of your drives in the background so you do not have to. Locations stay on this phone.",
+        "NSLocationWhenInUseUsageDescription": "Mileage Log records the distance of your drives. Locations stay on this phone."
+      }
+    },
+    "android": {
+      "package": "dev.example.mileagelog",
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_BACKGROUND_LOCATION", "FOREGROUND_SERVICE", "FOREGROUND_SERVICE_LOCATION"]
+    },
+    "plugins": [
+      ["expo-location", {
+        "isAndroidBackgroundLocationEnabled": true,
+        "isIosBackgroundLocationEnabled": true
+      }]
+    ]
+  }
+}

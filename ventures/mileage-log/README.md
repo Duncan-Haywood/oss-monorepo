@@ -40,3 +40,10 @@ node --test
 ```
 
 Open `index.html` through any static server (ES modules need `http://`).
+
+## Phone app
+
+`mobile/` is an Expo (React Native) app that adds what the web page cannot:
+automatic background drive detection, one-tap classification with a
+suggested category, and the same pricing, audit and CSV code. First version,
+tested at the logic level only; see `mobile/README.md`.
