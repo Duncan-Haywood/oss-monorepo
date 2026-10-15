@@ -42,6 +42,18 @@ The donate link (Buy Me a Coffee, plain link) and an operator notice are added
 to every deployed `index.html`; the generated README tells the visitor they are
 the operator.
 
+## Server apps (Render)
+
+Four ventures are processes, not static pages (`cancel-flow`, `cron-heartbeat`,
+`dunning-engine`, `einvoice-preflight`: a `Dockerfile` plus a `render.yaml`).
+For these the page also offers **Render**: it creates a public repository in the
+visitor's GitHub account holding `ventures/<slug>/` and the venture's
+`render.yaml` at the root, then links `render.com/deploy?repo=<that repo>`.
+Render shows the blueprint, asks for the `sync: false` secrets (Stripe keys and
+so on) and bills the visitor. Secrets are typed into Render, never into this
+page, and the repository holds none. `build.mjs` writes `servers/<slug>.json`
+for each; tests check every `COPY` in the Dockerfile is present.
+
 ## Tests
 
 `node --test platform/deploy/*.test.mjs`. CI (`deploy-iac-check.yml`) also runs
@@ -51,8 +63,7 @@ the operator.
 
 - No `.terraform.lock.hcl` yet: it needs a `tofu init` run with network access.
   Providers are pinned to exact versions in `versions.tf` meanwhile.
-- More providers (GCS, Azure, DigitalOcean Spaces) and VM-based apps
-  (cloud-init on Hetzner/DigitalOcean) for apps that need a process.
+- More providers (GCS, Azure, DigitalOcean Spaces) and a Fly.io path for server apps.
 - The hub footer and every tool page footer link the page ("Deploy your own
   copy" / "Run your own copy", `deploy/?app=<slug>` preselects the app).
 - The AWS path is validated structurally and against a mocked GitHub API in a

@@ -1,4 +1,4 @@
-import { composeRepo, PROVIDERS } from './compose.mjs';
+import { composeRepo, PROVIDERS, renderDeployUrl } from './compose.mjs';
 import { sealSecretForGitHub } from './sealedbox.mjs';
 import { zip } from './zip.mjs';
 
@@ -30,22 +30,25 @@ function renderApps(filter = '') {
 function showDesc() {
   const a = catalog.find((x) => x.slug === $('app').value);
   $('desc').textContent = a ? a.description : '';
+  renderProviders();
   refresh();
 }
 
+const isServer = () => !!catalog.find((a) => a.slug === $('app').value)?.server;
+
+/** Static apps: GitHub Pages / AWS. Server apps: also Render. */
 function renderProviders() {
   const box = $('providers');
+  box.innerHTML = '';
+  if (PROVIDERS[provider].serverOnly && !isServer()) provider = 'github-pages';
   for (const [id, p] of Object.entries(PROVIDERS)) {
+    if (p.serverOnly && !isServer()) continue;
     const l = document.createElement('label');
     l.className = 'opt';
     l.innerHTML = `<input type="radio" name="prov" value="${id}"${id === provider ? ' checked' : ''}> <span><strong>${p.label}</strong><br><span class="muted">${p.blurb}</span></span>`;
     box.append(l);
   }
-  box.addEventListener('change', (e) => {
-    provider = e.target.value;
-    $('aws').hidden = !PROVIDERS[provider].needs.includes('aws');
-    refresh();
-  });
+  $('aws').hidden = !PROVIDERS[provider].needs.includes('aws');
 }
 
 function refresh() {
@@ -57,8 +60,12 @@ function refresh() {
 
 async function build() {
   const slug = $('app').value;
-  const [templates, appFiles] = await Promise.all([getJSON('templates.json'), getJSON(`apps/${slug}.json`)]);
   const title = catalog.find((a) => a.slug === slug)?.title ?? slug;
+  if (provider === 'render') {
+    const [templates, serverFiles] = await Promise.all([getJSON('templates.json'), getJSON(`servers/${slug}.json`)]);
+    return { slug, files: composeRepo({ slug, title, provider, serverFiles, templates }) };
+  }
+  const [templates, appFiles] = await Promise.all([getJSON('templates.json'), getJSON(`apps/${slug}.json`)]);
   return { slug, files: composeRepo({ slug, title, provider, appFiles, templates }) };
 }
 
@@ -117,6 +124,8 @@ async function deploy() {
       }
       await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'AWS_REGION', value: $('rg').value.trim() });
       log('The OpenTofu state passphrase was generated in this tab and stored only as a secret in your repository (GitHub never shows it again).');
+    } else if (provider === 'render') {
+      log('Render reads the blueprint from this repository; no secrets are stored in it.');
     } else {
       log('Turning on GitHub Pages (build: GitHub Actions)…');
       await gh(token, 'POST', `/repos/${me.login}/${name}/pages`, { build_type: 'workflow' });
@@ -130,6 +139,13 @@ async function deploy() {
       await gh(token, 'PUT', url, { message: `Add ${path}`, content: toB64(content), ...(existing?.sha ? { sha: existing.sha } : {}) });
     }
 
+    if (provider === 'render') {
+      const repoUrl = `https://github.com/${me.login}/${name}`;
+      $('done').hidden = false;
+      $('done').innerHTML = `<div class="card"><strong>Your repository is ready:</strong> <a href="${repoUrl}" rel="noopener">${me.login}/${name}</a>. Last step: <a href="${renderDeployUrl(repoUrl)}" rel="noopener"><strong>open it in Render</strong></a> (sign in to your own Render account; it asks for the secrets and shows the price). Then delete the GitHub token you used here.</div>`;
+      log('Finished.');
+      return;
+    }
     log('Starting the first deploy…');
     await gh(token, 'POST', `/repos/${me.login}/${name}/actions/workflows/deploy.yml/dispatches`, { ref: repo.default_branch ?? 'main' });
 
@@ -163,13 +179,17 @@ async function download() {
 }
 
 async function main() {
-  renderProviders();
   catalog = await getJSON('catalog.json');
   const want = new URLSearchParams(location.search).get('app');
   renderApps();
   if (want && catalog.some((a) => a.slug === want)) { $('app').value = want; showDesc(); }
   $('q').addEventListener('input', () => renderApps($('q').value));
   $('app').addEventListener('change', showDesc);
+  $('providers').addEventListener('change', (e) => {
+    provider = e.target.value;
+    $('aws').hidden = !PROVIDERS[provider].needs.includes('aws');
+    refresh();
+  });
   for (const id of ['ack', 'gh', 'ak', 'sk', 'rg']) $(id).addEventListener('input', refresh);
   $('go').addEventListener('click', deploy);
   $('dl').addEventListener('click', download);

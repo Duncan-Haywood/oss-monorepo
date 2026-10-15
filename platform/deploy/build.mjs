@@ -38,10 +38,14 @@ export async function build(out) {
   await fs.writeFile(path.join(out, 'templates.json'), JSON.stringify(await loadTemplates()));
 
   const { apps, skipped } = await deployableApps();
-  for (const a of apps) await fs.writeFile(path.join(out, 'apps', `${a.slug}.json`), JSON.stringify(a.files));
+  await fs.mkdir(path.join(out, 'servers'), { recursive: true });
+  for (const a of apps) {
+    await fs.writeFile(path.join(out, 'apps', `${a.slug}.json`), JSON.stringify(a.files));
+    if (a.serverFiles) await fs.writeFile(path.join(out, 'servers', `${a.slug}.json`), JSON.stringify(a.serverFiles));
+  }
   await fs.writeFile(
     path.join(out, 'catalog.json'),
-    JSON.stringify(apps.map(({ slug, title, description }) => ({ slug, title, description }))),
+    JSON.stringify(apps.map(({ slug, title, description, serverFiles }) => ({ slug, title, description, ...(serverFiles ? { server: true } : {}) }))),
   );
   return { apps: apps.length, skipped };
 }
