@@ -25,17 +25,20 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "mirror-sync of research/ to upstream fde6b7a; check/build/validate pass",
+  "outcome": "success",
   "errors": [
     "gh GraphQL 403 (use MCP/REST)"
   ],
   "integrity_issues": [],
   "doc_friction": [
-    "prompts/research/prompt-0.md: says research work lands upstream, yet the first free milestone (mirror-sync) is what fits an oss-monorepo session; clear enough but the route to it takes reading three files"
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Says research work lands upstream; the route to the oss-monorepo-side mirror-sync milestone takes reading prompt, research/CLAUDE.md, PROJECTS.md and the mirror README."
+    }
   ],
   "deviations": [],
   "goal": null,
-  "notes": "",
+  "notes": "mirror-sync of research/ to upstream fde6b7a; mirror.py check, build.py and promptctl validate pass",
   "corrections": [],
   "redteam": null
 }
