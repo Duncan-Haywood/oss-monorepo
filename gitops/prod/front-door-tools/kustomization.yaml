@@ -48,10 +48,10 @@
 #   portfolio-front-tools-12: 129 files, 557047 bytes
 #   portfolio-front-tools-13: 129 files, 556527 bytes
 #   portfolio-front-tools-14: 130 files, 552111 bytes
-#   portfolio-front-tools-15: 132 files, 556187 bytes
-#   portfolio-front-tools-16: 121 files, 553790 bytes
-#   portfolio-front-tools-17: 136 files, 554540 bytes
-#   portfolio-front-tools-18: 122 files, 553311 bytes
+#   portfolio-front-tools-15: 131 files, 553859 bytes
+#   portfolio-front-tools-16: 122 files, 556478 bytes
+#   portfolio-front-tools-17: 136 files, 555186 bytes
+#   portfolio-front-tools-18: 123 files, 555702 bytes
 #   portfolio-front-tools-19: 128 files, 555304 bytes
 #   portfolio-front-tools-20: 122 files, 550423 bytes
 #   portfolio-front-tools-21: 123 files, 555176 bytes
@@ -65,7 +65,7 @@
 #   portfolio-front-tools-29: 126 files, 556401 bytes
 #   portfolio-front-tools-30: 133 files, 554537 bytes
 #   portfolio-front-tools-31: 132 files, 556956 bytes
-#   portfolio-front-tools-32: 122 files, 554717 bytes
+#   portfolio-front-tools-32: 122 files, 554775 bytes
 #   portfolio-front-tools-33: 136 files, 556991 bytes
 #   portfolio-front-tools-34: 135 files, 553631 bytes
 #   portfolio-front-tools-35: 100 files, 555766 bytes
@@ -76,7 +76,7 @@
 #   portfolio-front-tools-40: 121 files, 551245 bytes
 #   portfolio-front-tools-41: 142 files, 555669 bytes
 #   portfolio-front-tools-42: 136 files, 555859 bytes
-#   portfolio-front-tools-43: 124 files, 553792 bytes
+#   portfolio-front-tools-43: 124 files, 554366 bytes
 #   portfolio-front-tools-44: 112 files, 548529 bytes
 #   portfolio-front-tools-45: 55 files, 277881 bytes
 #
@@ -2166,6 +2166,7 @@ configMapGenerator:
       - einvoice-preflight__index.html.gz=einvoice-preflight__index.html.gz
       - einvoice-preflight__means.mjs.gz=einvoice-preflight__means.mjs.gz
       - einvoice-preflight__period.mjs.gz=einvoice-preflight__period.mjs.gz
+      - einvoice-preflight__profile.mjs.gz=einvoice-preflight__profile.mjs.gz
       - einvoice-preflight__reference.mjs.gz=einvoice-preflight__reference.mjs.gz
       - einvoice-preflight__remittance.mjs.gz=einvoice-preflight__remittance.mjs.gz
       - einvoice-preflight__report.mjs.gz=einvoice-preflight__report.mjs.gz
@@ -2254,13 +2255,13 @@ configMapGenerator:
       - equipment-auction-buyer-premium-calculator__share.mjs.gz=equipment-auction-buyer-premium-calculator__share.mjs.gz
       - equipment-auction-buyer-premium-calculator__usage.mjs.gz=equipment-auction-buyer-premium-calculator__usage.mjs.gz
       - equipment-auction-buyer-premium-calculator__vs-a-flat-percent-rule.html.gz=equipment-auction-buyer-premium-calculator__vs-a-flat-percent-rule.html.gz
-      - equipment-auction-buyer-premium-calculator__why-is-sales-tax-charged-on-the-buyers-premium.html.gz=equipment-auction-buyer-premium-calculator__why-is-sales-tax-charged-on-the-buyers-premium.html.gz
-      - equipment-lease-buyout-calculator__calc.mjs.gz=equipment-lease-buyout-calculator__calc.mjs.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - equipment-auction-buyer-premium-calculator__why-is-sales-tax-charged-on-the-buyers-premium.html.gz=equipment-auction-buyer-premium-calculator__why-is-sales-tax-charged-on-the-buyers-premium.html.gz
+      - equipment-lease-buyout-calculator__calc.mjs.gz=equipment-lease-buyout-calculator__calc.mjs.gz
       - equipment-lease-buyout-calculator__index.html.gz=equipment-lease-buyout-calculator__index.html.gz
       - equipment-lease-buyout-calculator__should-i-buy-out-my-equipment-lease.html.gz=equipment-lease-buyout-calculator__should-i-buy-out-my-equipment-lease.html.gz
       - equipment-lease-buyout-calculator__usage.mjs.gz=equipment-lease-buyout-calculator__usage.mjs.gz
@@ -2381,12 +2382,12 @@ configMapGenerator:
       - eudr-scope-checker__index.html.gz=eudr-scope-checker__index.html.gz
       - eudr-scope-checker__usage.mjs.gz=eudr-scope-checker__usage.mjs.gz
       - ev-charger-bid-calculator__calc.mjs.gz=ev-charger-bid-calculator__calc.mjs.gz
-      - ev-charger-bid-calculator__how-much-to-charge.html.gz=ev-charger-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ev-charger-bid-calculator__how-much-to-charge.html.gz=ev-charger-bid-calculator__how-much-to-charge.html.gz
       - ev-charger-bid-calculator__index.html.gz=ev-charger-bid-calculator__index.html.gz
       - ev-charger-bid-calculator__share.mjs.gz=ev-charger-bid-calculator__share.mjs.gz
       - ev-charger-bid-calculator__should-i-hardwire-or-use-a-nema-14-50.html.gz=ev-charger-bid-calculator__should-i-hardwire-or-use-a-nema-14-50.html.gz
@@ -2522,12 +2523,12 @@ configMapGenerator:
       - fishing-crew-share-settlement-calculator__calc.mjs.gz=fishing-crew-share-settlement-calculator__calc.mjs.gz
       - fishing-crew-share-settlement-calculator__index.html.gz=fishing-crew-share-settlement-calculator__index.html.gz
       - fishing-crew-share-settlement-calculator__usage.mjs.gz=fishing-crew-share-settlement-calculator__usage.mjs.gz
-      - fitness-studio-membership-calculator__calc.mjs.gz=fitness-studio-membership-calculator__calc.mjs.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - fitness-studio-membership-calculator__calc.mjs.gz=fitness-studio-membership-calculator__calc.mjs.gz
       - fitness-studio-membership-calculator__index.html.gz=fitness-studio-membership-calculator__index.html.gz
       - fitness-studio-membership-calculator__usage.mjs.gz=fitness-studio-membership-calculator__usage.mjs.gz
       - fiverr-earnings-fee-analyzer__calc.mjs.gz=fiverr-earnings-fee-analyzer__calc.mjs.gz
