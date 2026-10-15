@@ -1,0 +1,59 @@
+name: webhook-relay
+description: >-
+  Self-hosted webhook relay: verifies Stripe, GitHub, Shopify, Slack, Standard
+  Webhooks and HMAC signatures, saves each event before answering 200, delivers
+  it to your app with backoff and Retry-After, parks refusals as dead with an
+  alert, and replays any event from a dashboard. Browser outage simulator plus a
+  zero-dependency server with a one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real: Hookdeck, Svix Ingest, Convoy Cloud
+# and Webhook Relay sell reliable webhook ingestion and replay, per event or per
+# seat. Free baselines are webhook.site (inspection only, no retries to your app)
+# and a hand-rolled queue. The gap: small teams that want durable ingest and
+# replay without sending payment and customer payloads to a third party.
+# duplicate_check: webhook-signature-debugger explains why one signature fails
+# (browser, no delivery); this is the always-on delivery path. Different job.
+#
+# First visitor: developers searching "webhook retry self hosted", "hookdeck
+# alternative", "replay stripe webhook", "lost webhook while deploying" on Hacker
+# News, r/webdev, r/selfhosted and Stack Overflow. Volume not measured.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet; hosted
+# version, done-for-you setup or GitHub Sponsors are the paid steps. Hosting under
+# the public name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      Indie SaaS and agency developers will deploy the relay in front of one
+      payment or Git webhook once the simulator shows a deploy window cannot lose
+      an event, because the alternatives are paying a gateway per event or
+      trusting the sender's retry policy.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Parking 4xx refusals as dead (instead of retrying) and alerting, with
+      one-click replay, is the feature people come back for after a bad deploy.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A report of a lost or silently altered event; durability and byte-exact forwarding come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/webhook-relay/
+  analytics: null
