@@ -26,7 +26,9 @@
   "review_findings": null,
   "tests_added": 1,
   "outcome": "Refreshed stale gh-pages snapshot + IndexNow; linked the self-deploy page from the hub footer with a check.mjs exemption and test.",
-  "errors": [],
+  "errors": [
+    "hub-link build test failed after adding deploy/ link; fixed before merge"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     "unlanded_work.py --sweep: listed 3 branches (proposal-maker, tile-layout-optimizer, agent_review fork guard) whose work is already on main; the sweep seems to flag by commit not content, costing a check.",
@@ -36,7 +38,7 @@
     "Did not run the full checklist (python suites, browser checks); change is one footer link + checker exemption, ran the pages/marketing/deploy node suites and a full build+check instead."
   ],
   "goal": null,
-  "notes": "Background full node-test run may not have finished before merge; check.test.mjs (94 pass) and full build+check were verified.",
+  "notes": "Full pages/marketing/deploy node suites: 1 failure was mine (hub link test, fixed in a follow-up commit); 'every secondary prose page ships structured data' fails on clean origin/main too. python pytest suites not run (no pytest).",
   "corrections": [],
   "redteam": null
 }
