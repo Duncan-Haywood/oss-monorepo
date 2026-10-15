@@ -1,0 +1,59 @@
+name: waitlist-keeper
+description: >-
+  Self-hosted launch waitlist with a referral ladder: email confirmation, place
+  in line that improves with confirmed referrals, anti-gaming guards, reward
+  tiers, CSV export and batch invites. Browser list cleaner and growth
+  projector, plus a zero-dependency server with a one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and proven: Viral Loops, Prefinery,
+# Waitlister, Launchrock and GetWaitlist serve founders before a launch, priced
+# by subscribers or campaigns. The gap: founders who want the referral loop and
+# the list in their own account with no per-subscriber fee. Sixth product for the
+# same buyer as dunning-engine, cancel-flow, mrr-pulse, license-keeper and
+# status-keeper (a small software seller); it comes first in their timeline.
+# duplicate_check: email-list-csv-check validates an import file for one mail
+# provider; no waitlist venture existed.
+#
+# First visitor: indie founders on Indie Hackers, Product Hunt makers, r/SaaS and
+# Hacker News asking "viral loops alternative", "open source waitlist referral",
+# "self hosted waitlist". Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup, a hosted copy under the deployer's own name, or GitHub
+# Sponsors are the paid steps; hosting under the public name and billing are
+# owner-gated.
+
+hypotheses:
+  - claim: >-
+      Founders planning a launch will clean their signup list in the browser
+      tool and then deploy the waitlist, because aliases and disposable
+      addresses inflate every list and no hosted tool shows that before you pay.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Confirmation-gated referral credit is enough to make the share link worth
+      using without producing a list full of fake signups.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a referral credited before the friend confirmed, or an email shown on a public status page; the referral and privacy paths come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/waitlist-keeper/
+  analytics: null

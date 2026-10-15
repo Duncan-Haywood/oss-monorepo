@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Waitlist Keeper — Free Self-Hosted Referral Waitlist</title>
+  <meta name="description" content="A free, open-source alternative to Viral Loops and Prefinery: a launch waitlist where confirmed referrals move people up the line, with fraud guards and batch invites. Clean a pasted email list and project your viral growth in your browser, then run the server in your own account.">
+  <meta property="og:title" content="Waitlist Keeper — a self-hosted referral waitlist">
+  <meta property="og:description" content="Email confirmation, referral ladder, anti-gaming guards, reward tiers, CSV export, batch invites. MIT, one Node process, your list.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Waitlist Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source launch waitlist with referral ladder: email confirmation, place in line that improves with confirmed referrals, fraud guards, reward tiers, CSV export and batch invites. Runs on your own server."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not use Viral Loops, Prefinery, Waitlister or Launchrock?", "acceptedAnswer": {"@type": "Answer", "text": "Hosted waitlist tools are quick to start and some are generous at small sizes, but most price by subscriber count, and the list, your most valuable launch asset, lives on their platform. Waitlist Keeper is MIT, runs in your own account, and keeps your list in one JSON file you can export as CSV. If a hosted tool already works for you, keep it."}}, {"@type": "Question", "name": "How does it stop people gaming referrals?", "acceptedAnswer": {"@type": "Answer", "text": "A referral counts only after the friend confirms their own email. Emails are canonicalised so dots, plus-tags and googlemail aliases are one person, disposable domains are refused, a friend on the same network address as the referrer earns no credit, and each referrer is capped (25 by default). It also has a honeypot field and a per-address rate limit. None of this beats a determined attacker with many networks, so treat position as a growth mechanic, not a lottery."}}, {"@type": "Question", "name": "How is the place in line worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Everyone is ranked by join order. Each confirmed referral moves you up a configurable number of places (5 by default). People you have invited leave the queue. The status page shows only the person's own place and never anyone's email."}}, {"@type": "Question", "name": "Does it send email?", "acceptedAnswer": {"@type": "Answer", "text": "Only if you set it up. It starts in dry-run mode: nothing is sent and the confirm link is shown on screen so you can test the whole flow. With a Resend key and DRY_RUN=false it sends the confirmation and invite emails."}}, {"@type": "Question", "name": "Do I need to worry about privacy law?", "acceptedAnswer": {"@type": "Answer", "text": "You are the operator, so yes: you collect email addresses. Say what you will use them for, send only what people signed up for, and delete on request. The page tells visitors the email is used only to run the waitlist; adapt that to your own terms."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2433; background: #f5f7fb; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1f45c4; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444; }
+    .card { background: #fff; border: 1px solid #dce1ee; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 18px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab3d0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { font: 13px ui-monospace, monospace; min-height: 150px; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f45c4; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e8f4; vertical-align: top; }
+    pre { background: #eef1fa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>A waitlist that grows itself, and a list you actually own.</h1>
+  <p>Waitlist Keeper is an open-source launch waitlist: people confirm their email, get a place in line and a share link, and every friend who confirms moves them up. You run it in your own account and export the list any time. Try the two parts that matter before you deploy. Everything runs in your browser, so nothing you paste is uploaded.</p>
+
+  <section class="card" aria-labelledby="clean">
+    <h2 id="clean">1. Clean an email list</h2>
+    <label for="emails">One email per line</label>
+    <textarea id="emails" spellcheck="false">jane.doe@gmail.com
+janedoe+launch@gmail.com
+Jane.Doe@googlemail.com
+sam@acme.io
+sam@acme.io
+temp@mailinator.com
+not-an-email</textarea>
+    <button id="clean-btn" type="button">Find duplicates and junk</button>
+    <p class="note" id="clean-sum" aria-live="polite"></p>
+    <table><thead><tr><th scope="col">Entered</th><th scope="col">Counts as</th><th scope="col">Verdict</th></tr></thead><tbody id="clean-rows"></tbody></table>
+  </section>
+
+  <section class="card" aria-labelledby="grow">
+    <h2 id="grow">2. Project your referral growth</h2>
+    <div class="grid">
+      <div><label for="seed">People you bring yourself</label><input id="seed" type="number" min="1" value="500"></div>
+      <div><label for="shares">Friends each person invites</label><input id="shares" type="number" min="0" step="0.1" value="3"></div>
+      <div><label for="conv">Share of invited who confirm (%)</label><input id="conv" type="number" min="0" max="100" value="12"></div>
+      <div><label for="cycles">Referral rounds</label><input id="cycles" type="number" min="1" max="12" value="5"></div>
+    </div>
+    <button id="grow-btn" type="button">Project</button>
+    <p class="note" id="grow-sum" aria-live="polite"></p>
+    <table><thead><tr><th scope="col">Round</th><th scope="col">New confirmed</th><th scope="col">Total</th></tr></thead><tbody id="grow-rows"></tbody></table>
+    <p class="note">A rough model: each round, every new person invites some friends and a share confirm. Under 1.0 invited-and-confirmed per person, growth fades out; above 1.0 it compounds. Real lists land well below the optimistic numbers, so test with your own audience.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Run the waitlist yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/waitlist-keeper
+ADMIN_KEY=$(openssl rand -hex 16) BASE_URL=https://join.example.com PRODUCT_NAME=Acme \
+TAGLINE="Invoices that chase themselves" node server.mjs     # DRY_RUN=true until you change it</pre>
+    <p class="note">Send people to <code>/</code>; they get a confirmation email, a place in line and a share link. Use <code>/v1/admin/stats</code>, <code>/v1/admin/export.csv</code> and <code>POST /v1/admin/invite {"count": 50}</code> with <code>Authorization: Bearer $ADMIN_KEY</code>. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not use Viral Loops, Prefinery, Waitlister or Launchrock?</h3>
+    <p>Hosted waitlist tools are quick to start and some are generous at small sizes, but most price by subscriber count, and the list, your most valuable launch asset, lives on their platform. Waitlist Keeper is MIT, runs in your own account, and keeps your list in one JSON file you can export as CSV. If a hosted tool already works for you, keep it.</p>
+    <h3>How does it stop people gaming referrals?</h3>
+    <p>A referral counts only after the friend confirms their own email. Emails are canonicalised so dots, plus-tags and googlemail aliases are one person, disposable domains are refused, a friend on the same network address as the referrer earns no credit, and each referrer is capped (25 by default). It also has a honeypot field and a per-address rate limit. None of this beats a determined attacker with many networks, so treat position as a growth mechanic, not a lottery.</p>
+    <h3>How is the place in line worked out?</h3>
+    <p>Everyone is ranked by join order. Each confirmed referral moves you up a configurable number of places (5 by default). People you have invited leave the queue. The status page shows only the person's own place and never anyone's email.</p>
+    <h3>Does it send email?</h3>
+    <p>Only if you set it up. It starts in dry-run mode: nothing is sent and the confirm link is shown on screen so you can test the whole flow. With a Resend key and DRY_RUN=false it sends the confirmation and invite emails.</p>
+    <h3>Do I need to worry about privacy law?</h3>
+    <p>You are the operator, so yes: you collect email addresses. Say what you will use them for, send only what people signed up for, and delete on request. The page tells visitors the email is used only to run the waitlist; adapt that to your own terms.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../feedback-board/">Feedback Board</a> collects feature requests, <a href="../license-keeper/">License Keeper</a> issues license keys after Stripe checkout, <a href="../status-keeper/">Status Keeper</a> runs an uptime page and <a href="../mrr-pulse/">MRR Pulse</a> shows MRR and churn.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator of your waitlist: you are responsible for the privacy notice, consent and anti-spam rules where you and your subscribers live, for the rewards you promise, and for any email you send. It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { normalizeEmail, isDisposable } from "./engine.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const row = (tbody, cells) => { const tr = document.createElement("tr"); for (const c of cells) { const td = document.createElement("td"); td.textContent = c; tr.append(td); } tbody.append(tr); };
+    $("clean-btn").addEventListener("click", () => {
+      const seen = new Map(); $("clean-rows").innerHTML = ""; let keep = 0, dup = 0, bad = 0;
+      for (const line of $("emails").value.split("\n").map((l) => l.trim()).filter(Boolean)) {
+        const n = normalizeEmail(line); let v;
+        if (!n) { v = "invalid"; bad++; } else if (isDisposable(n)) { v = "disposable domain"; bad++; } else if (seen.has(n)) { v = "duplicate of " + seen.get(n); dup++; } else { seen.set(n, line); v = "keep"; keep++; }
+        row($("clean-rows"), [line, n || "-", v]);
+      }
+      $("clean-sum").textContent = `${keep} to keep, ${dup} duplicates, ${bad} invalid or disposable.`; record("clean");
+    });
+    $("grow-btn").addEventListener("click", () => {
+      const seed = Math.max(1, Number($("seed").value) || 1), r = Math.max(0, Number($("shares").value) || 0) * (Math.min(100, Math.max(0, Number($("conv").value) || 0)) / 100), cycles = Math.min(12, Math.max(1, Number($("cycles").value) || 1));
+      $("grow-rows").innerHTML = ""; let added = seed, total = seed; row($("grow-rows"), ["0 (you)", seed, seed]);
+      for (let i = 1; i <= cycles; i++) { added = Math.round(added * r); total += added; row($("grow-rows"), [i, added, total]); }
+      $("grow-sum").textContent = `Each person brings ${r.toFixed(2)} confirmed friends. ` + (r >= 1 ? "That compounds." : r > 0 ? `Growth fades; the ceiling is about ${Math.round(seed / (1 - r))} people.` : "No referral growth.");
+      record("project");
+    });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>
