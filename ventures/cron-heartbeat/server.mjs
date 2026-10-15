@@ -33,6 +33,7 @@ export function handler(monitor, save, now = Date.now) {
   return (req, res) => {
     const url = new URL(req.url, "http://x");
     const send = (code, body) => { res.writeHead(code, { "content-type": "text/plain" }); res.end(body); };
+    if (url.pathname === "/healthz") return send(200, "ok\n");
     if (key && url.searchParams.get("key") !== key) return send(401, "key required\n");
     const parts = url.pathname.split("/").filter(Boolean);
     if (parts[0] === "status") {
@@ -51,7 +52,7 @@ export function handler(monitor, save, now = Date.now) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const monitor = createMonitor({ config: readJson(configPath, {}), state: readJson(statePath, {}), notify });
+  const monitor = createMonitor({ config: env.CHECKS_JSON ? JSON.parse(env.CHECKS_JSON) : readJson(configPath, {}), state: readJson(statePath, {}), notify });
   const save = () => fs.writeFileSync(statePath, JSON.stringify(monitor.state));
   setInterval(async () => { await monitor.tick(Date.now()); save(); }, 30000).unref?.();
   http.createServer(handler(monitor, save)).listen(port, () => console.log(`cron-heartbeat listening on :${port}, ${Object.keys(monitor.checks).length} checks`));

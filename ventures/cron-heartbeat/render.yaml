@@ -1,0 +1,20 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# Paste your checks (see example-checks.json) into CHECKS_JSON after deploy.
+services:
+  - type: web
+    name: cron-heartbeat
+    runtime: docker
+    dockerContext: ventures/cron-heartbeat
+    dockerfilePath: ventures/cron-heartbeat/Dockerfile
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: PING_KEY
+        generateValue: true
+      - key: CHECKS_JSON
+        value: '{"example":{"periodSeconds":86400,"graceSeconds":3600}}'
+      - key: ALERT_WEBHOOK_URL
+        sync: false
+      - key: ALERT_NTFY_URL
+        sync: false
