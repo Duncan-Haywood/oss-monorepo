@@ -1,0 +1,42 @@
+name: recipe-nutrition-label
+description: >-
+  Free browser tool and zero-dependency Node CLI for bakers, cottage food sellers and small food makers: list a recipe by weight and get an FDA-style Nutrition Facts panel with the rounding steps, percent Daily Values, ingredient list in weight order and a major-allergen line. Nothing is uploaded. Not regulatory or nutrition advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15 in a new-venture-first session; ls ventures/ found no nutrition-label or allergen tool (nearest: recipe-costing-calculator and cottage-food-pricing-calculator, which price a batch but do not label it).
+#
+# First visitor: a home baker, farmers-market vendor, small caterer or specialty-food startup searching "nutrition facts label generator", "recipe nutrition label calculator", "how to make a nutrition label for homemade food". Paid incumbents (Genesis R&D, ESHA, Nutritionix, Recipal, FoodLabelMaker) charge per recipe or per seat; labs charge per product. Volume not measured.
+#
+# Path to revenue (payment rails stay off): free here as a lead magnet and open source (MIT); the business shape is a hosted version with a full ingredient database and search, branded-product import, saved recipes, tabular and linear label formats, FDA reference-amount lookup and a PDF export, behind an env-var switch and a flat low monthly price. Not built here: database, accounts, PDF.
+#
+# Liability: output is a calculation aid and says so on screen and in every export. Exemptions, serving sizes, claims and cottage-food rules are named as not decided. The built-in values are labelled approximate. Recipes never leave the device. No claim of FDA review or approval.
+hypotheses:
+  - claim: >-
+      Home bakers and small food makers will use a free private label generator in place of a spreadsheet or a per-recipe paid tool, and return for each new recipe.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Users who outgrow the starter pantry will want a searchable ingredient database and saved recipes enough to pay a low flat monthly price for a hosted version.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Two independent reports that the rounding or Daily Values disagree with the regulation, with no cheap fix.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/recipe-nutrition-label/
+  analytics: null
