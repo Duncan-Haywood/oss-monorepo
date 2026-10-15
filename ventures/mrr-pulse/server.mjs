@@ -6,10 +6,10 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { createStripe } from "./stripe.mjs";
-import { backfill, applySync, liveMap, summarize } from "./metrics.mjs";
+import { backfill, applySync, liveMap, summarize, cohorts } from "./metrics.mjs";
 import { renderDashboard } from "./page.mjs";
 
-export const newState = () => ({ months: {}, last: null, ever: {}, lastSyncAt: null, currency: null });
+export const newState = () => ({ months: {}, last: null, ever: {}, lastSyncAt: null, currency: null, cohorts: [] });
 
 const eq = (a, b) => { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); };
 export function authorized(header, key) {
@@ -45,6 +45,7 @@ export async function sync(cfg) {
     st.lastSyncAt = now;
   } else applySync(st, cur, now);
   st.currency = currency; st.skipped = skipped;
+  st.cohorts = cohorts(subs, now, cfg.months || 12);
   cfg.save();
   return { subscriptions: all.length, counted: Object.keys(cur).length, skipped };
 }
@@ -66,9 +67,10 @@ export function handler(cfg) {
       if (!authorized(req.headers.authorization, cfg.adminKey)) return send(401, "sign in with ADMIN_KEY as the password\n", "text/plain", { "www-authenticate": 'Basic realm="MRR Pulse", charset="UTF-8"' });
       const months = monthList(cfg.state);
       if (req.method === "GET" && url.pathname === "/") {
-        return send(200, renderDashboard({ company: cfg.company || "Your company", summary: summarize(months), months, currency: cfg.state.currency || "usd", lastSyncAt: cfg.state.lastSyncAt, skipped: cfg.state.skipped }), "text/html; charset=utf-8", { "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'" });
+        return send(200, renderDashboard({ company: cfg.company || "Your company", summary: summarize(months), months, currency: cfg.state.currency || "usd", lastSyncAt: cfg.state.lastSyncAt, skipped: cfg.state.skipped, cohorts: cfg.state.cohorts || [] }), "text/html; charset=utf-8", { "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'" });
       }
       if (req.method === "GET" && url.pathname === "/v1/metrics") return send(200, { currency: cfg.state.currency, lastSyncAt: cfg.state.lastSyncAt, summary: summarize(months) });
+      if (req.method === "GET" && url.pathname === "/v1/cohorts") return send(200, cfg.state.cohorts || []);
       if (req.method === "GET" && url.pathname === "/v1/months") return send(200, months);
       if (req.method === "POST" && url.pathname === "/v1/sync") return send(200, await runSync());
       return send(404, "not found\n", "text/plain");

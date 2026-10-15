@@ -22,7 +22,7 @@ Two parts, both free and MIT:
 | Baremetrics, ChartMogul, ProfitWell Metrics | Hosted; priced by revenue; your customer data lives with them | Your server, a read-only key, no fee |
 | A spreadsheet fed by exports | Free, rebuilt by hand monthly; interval and quantity maths go wrong | Normalised the same way every sync |
 
-Honest limits: no cohort explorer, forecasting, multi-currency roll-up, or
+Honest limits: no forecasting, multi-currency roll-up, or
 non-Stripe billing. It does not tell you what your churn *should* be.
 
 ## What it counts
@@ -41,6 +41,11 @@ non-Stripe billing. It does not tell you what your churn *should* be.
   12 months are rebuilt from start and end dates at today's prices (marked `~`).
   Expansion and contraction appear from the first sync onward, which means the
   server must keep running with its state file kept to build them.
+- **Retention by signup month** (dashboard and `/v1/cohorts`): of each month's
+  new subscriptions, the share still active at the end of month 0, 1, 2 ...
+  Logo retention is exact from start and end dates; the revenue share uses
+  today's prices. Trials and paused subscriptions are left out, and a
+  customer with two subscriptions counts twice.
 - One currency per instance (`CURRENCY`, default: your most common); other
   subscriptions are left out and the dashboard says how many.
 
@@ -55,7 +60,7 @@ COMPANY_NAME=Acme node server.mjs
 
 Open `http://localhost:8080` and sign in with any user name and `ADMIN_KEY` as
 the password. API (same key as `Authorization: Bearer ...`): `GET /v1/metrics`,
-`GET /v1/months`, `POST /v1/sync`.
+`GET /v1/months`, `GET /v1/cohorts`, `POST /v1/sync`.
 
 Stripe key: Dashboard, Developers, API keys, **Create restricted key**, set
 *Subscriptions* to **Read** and everything else to None. The server only ever
