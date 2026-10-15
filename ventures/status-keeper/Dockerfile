@@ -1,6 +1,6 @@
 FROM node:22-alpine
 WORKDIR /app
-COPY monitor.mjs render.mjs server.mjs ./
+COPY monitor.mjs render.mjs subscribers.mjs server.mjs ./
 USER node
 ENV PORT=8080 STATE=/tmp/state.json
 EXPOSE 8080

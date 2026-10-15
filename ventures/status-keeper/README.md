@@ -22,8 +22,8 @@ Two parts, both free and MIT:
 
 Honest limits: one process on one host, so host it somewhere other than what it
 watches. It checks from one location, so it cannot tell a regional outage from
-its own network trouble. It does not email subscribers (alerts go to a Slack or
-Discord compatible webhook; the Atom feed is the subscription), has no TLS
+its own network trouble. Email subscribers need your own Resend key (off until
+you set it; no SMS or per-component subscriptions), and it has no TLS
 certificate expiry check, no multi-region probes, no custom domain handling
 (point your DNS at it yourself) and no per-component incident history.
 
@@ -45,6 +45,17 @@ certificate expiry check, no multi-region probes, no custom domain handling
    `/api/status.json` (CORS open), `/feed.xml` (Atom) and `/badge.svg`.
 6. **Alerts.** Down and recovery messages go to stdout and, if set,
    `ALERT_WEBHOOK_URL`.
+7. **Email subscribers (optional).** Set `RESEND_API_KEY`, `MAIL_FROM` (a sender
+   you verified with Resend) and an https `PUBLIC_URL`, and the page grows a
+   subscribe form. Double opt-in (a confirmation link, expiring in 48 hours),
+   then a plain-text email when an incident opens, updates or resolves and when
+   maintenance is scheduled, each with `List-Unsubscribe` one-click headers.
+   Unsubscribing needs a POST, so link scanners cannot do it for anyone. The form
+   answers the same for known and new addresses, has a honeypot field, resends
+   a confirmation at most hourly per address, and caps confirmation emails at 30
+   an hour and the list at 5,000. `GET /v1/subscribers` (admin key) returns the
+   counts. Subscriber addresses live only in your state file. Without the two
+   keys none of these routes exist.
 
 ## Run it
 
@@ -60,6 +71,7 @@ node server.mjs
 | `MONITORS_JSON` | required; array of monitors (above) |
 | `TITLE`, `PUBLIC_URL` | page title; absolute URL used in the feed |
 | `STATE` | path of the JSON state file (mount a disk here) |
+| `RESEND_API_KEY`, `MAIL_FROM` | optional; both or neither. Turns on email subscriptions |
 | `ALERT_WEBHOOK_URL` | Slack or Discord compatible incoming webhook |
 | `PORT` | default 8080 |
 

@@ -124,3 +124,76 @@ test("checkHttp: expected statuses, keyword match, timeouts and network errors",
   assert.match((await checkHttp(base, slow)).error, /timed out after 50ms/);
   assert.match((await checkHttp(base, async () => { throw new Error("ECONNREFUSED"); })).error, /ECONNREFUSED/);
 });
+
+// ---- email subscriptions ----
+async function bootMail() {
+  const state = newState();
+  const sent = [];
+  const server = http.createServer(handler({ state, save: () => {}, monitors: mons, adminKey: "k", title: "Acme", publicUrl: "https://s.example", now: () => T0, sendEmail: async (m) => { sent.push(m); } }));
+  await new Promise((r) => server.listen(0, r));
+  return { state, sent, base: `http://127.0.0.1:${server.address().port}`, close: () => server.close() };
+}
+const form = (o) => ({ method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(o).toString() });
+
+test("without a mail sender the subscription routes do not exist and the page has no form", async () => {
+  const t = await boot();
+  assert.equal((await fetch(`${t.base}/subscribe`, form({ email: "a@b.co" }))).status, 404);
+  assert.doesNotMatch(await (await fetch(`${t.base}/`)).text(), /action="\/subscribe"/);
+  t.close();
+});
+
+test("subscribe, confirm, get an incident email, unsubscribe", async () => {
+  const t = await bootMail();
+  assert.match(await (await fetch(`${t.base}/`)).text(), /action="\/subscribe"/);
+  const r = await fetch(`${t.base}/subscribe`, form({ email: "Ann@Example.com" }));
+  assert.equal(r.status, 202);
+  assert.equal(t.sent.length, 1);
+  const token = new URL(t.sent[0].text.match(/https:\/\/s\.example\/confirm\?t=\S+/)[0]).searchParams.get("t");
+  // Nothing goes out before confirmation.
+  await fetch(`${t.base}/v1/incidents`, { method: "POST", headers: admin, body: JSON.stringify({ title: "Early", message: "x" }) });
+  assert.equal(t.sent.length, 1);
+  assert.equal((await fetch(`${t.base}/confirm?t=bad`)).status, 404);
+  assert.equal((await fetch(`${t.base}/confirm?t=${token}`)).status, 200);
+  const inc = await (await fetch(`${t.base}/v1/incidents`, { method: "POST", headers: admin, body: JSON.stringify({ title: "API slow", message: "Looking" }) })).json();
+  assert.equal(t.sent.at(-1).to, "ann@example.com");
+  assert.match(t.sent.at(-1).subject, /Incident: API slow/);
+  await fetch(`${t.base}/v1/incidents/${inc.id}/updates`, { method: "POST", headers: admin, body: JSON.stringify({ status: "resolved", message: "Fixed" }) });
+  assert.match(t.sent.at(-1).subject, /Resolved: API slow/);
+  assert.equal((await (await fetch(`${t.base}/v1/subscribers`, { headers: admin })).json()).active, 1);
+  // GET only shows a button (link scanners must not unsubscribe anyone); POST does it.
+  assert.equal((await fetch(`${t.base}/unsubscribe?t=${token}`)).status, 200);
+  assert.equal(t.state.subscribers.length, 1);
+  assert.equal((await fetch(`${t.base}/unsubscribe?t=${token}`, { method: "POST" })).status, 200);
+  assert.equal(t.state.subscribers.length, 0);
+  const n = t.sent.length;
+  await fetch(`${t.base}/v1/maintenance`, { method: "POST", headers: admin, body: JSON.stringify({ title: "DB", startsAt: "2026-02-01T00:00:00Z", endsAt: "2026-02-01T01:00:00Z" }) });
+  assert.equal(t.sent.length, n);
+  t.close();
+});
+
+test("the form answers identically for new and known addresses and rejects bad input and bots", async () => {
+  const t = await bootMail();
+  const a = await fetch(`${t.base}/subscribe`, form({ email: "a@b.co" }));
+  const b = await fetch(`${t.base}/subscribe`, form({ email: "a@b.co" }));
+  assert.equal(a.status, b.status);
+  assert.equal(t.sent.length, 1);
+  assert.equal((await fetch(`${t.base}/subscribe`, form({ email: "nope" }))).status, 400);
+  const bot = await fetch(`${t.base}/subscribe`, form({ email: "x@y.co", website: "http://spam" }));
+  assert.equal(bot.status, 202);
+  assert.equal(t.sent.length, 1);
+  t.close();
+});
+
+test("a down check emails confirmed subscribers via tick", async () => {
+  const state = newState();
+  state.subscribers = [{ email: "a@b.co", status: "active", token: "t", createdAt: T0, confirmedAt: T0 }];
+  const sent = [];
+  const meta = { title: "Acme", publicUrl: "https://s.example" };
+  const { notifyAll } = await import("./subscribers.mjs");
+  const notify = (ev) => notifyAll(state, ev, meta, async (m) => sent.push(m));
+  await tick(state, [mons[0]], T0, { fetch: async () => ({ status: 500 }), notify });
+  assert.equal(sent.length, 1);
+  assert.match(sent[0].subject, /Incident: Web <b> is not responding/);
+  await tick(state, [mons[0]], T0 + 120_000, { fetch: async () => ({ status: 200, text: async () => "" }), notify });
+  assert.match(sent[1].subject, /Resolved/);
+});
