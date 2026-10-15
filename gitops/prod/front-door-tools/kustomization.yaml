@@ -45,7 +45,7 @@
 #   portfolio-front-tools-9: 136 files, 550076 bytes
 #   portfolio-front-tools-10: 134 files, 550281 bytes
 #   portfolio-front-tools-11: 137 files, 555316 bytes
-#   portfolio-front-tools-12: 129 files, 551499 bytes
+#   portfolio-front-tools-12: 131 files, 554575 bytes
 #   portfolio-front-tools-13: 127 files, 551649 bytes
 #   portfolio-front-tools-14: 125 files, 547584 bytes
 #   portfolio-front-tools-15: 133 files, 556217 bytes
@@ -1784,8 +1784,10 @@ configMapGenerator:
       - cron-dst-drift-check__why-cron-jobs-break-across-dst.html.gz=cron-dst-drift-check__why-cron-jobs-break-across-dst.html.gz
       - cron-heartbeat__cron.mjs.gz=cron-heartbeat__cron.mjs.gz
       - cron-heartbeat__crontab.mjs.gz=cron-heartbeat__crontab.mjs.gz
+      - cron-heartbeat__dashboard.mjs.gz=cron-heartbeat__dashboard.mjs.gz
       - cron-heartbeat__index.html.gz=cron-heartbeat__index.html.gz
       - cron-heartbeat__monitor.mjs.gz=cron-heartbeat__monitor.mjs.gz
+      - cron-heartbeat__notify.mjs.gz=cron-heartbeat__notify.mjs.gz
       - cron-heartbeat__server.mjs.gz=cron-heartbeat__server.mjs.gz
       - cron-heartbeat__usage.mjs.gz=cron-heartbeat__usage.mjs.gz
       - crop-insurance-coverage-calculator__calc.mjs.gz=crop-insurance-coverage-calculator__calc.mjs.gz
