@@ -128,9 +128,9 @@ When someone builds it, these rules apply:
   the existing GitHub Sponsors link, as a plain link with no embedded
   widget (a third-party script would break the privacy line in §5c). This
   is an owner-approved exception to
-  §6's "no third-party donation links", for Buy Me a Coffee only. It goes in
-  only once the owner has created the account and given the handle. Never
-  invent the handle.
+  §6's "no third-party donation links", for Buy Me a Coffee only. The owner
+  gave the handle on 2026-10-15. The URL is exactly
+  `https://buymeacoffee.com/duncanhaywood`; use no other handle or spelling.
 
 ## 3. The API-key switch
 
@@ -377,8 +377,8 @@ yet *counted for us*. Reading the aggregate back is the same open problem
 `portfolio/usage/README.md` already describes for the rest of the fleet, not
 something a venture's own PR can close.
 
-No third-party donation links (one owner-approved exception: Buy Me a Coffee,
-once the owner supplies the handle; see §2's self-deploy rule), and never in front of a feature — a donation
+No third-party donation links (one owner-approved exception: a plain link to
+`https://buymeacoffee.com/duncanhaywood`; see §2's self-deploy rule), and never in front of a feature — a donation
 prompt lives in the README and the footer, nowhere a user has to pass through.
 
 What "free for now" is buying: usage data, which is the only evidence we have
