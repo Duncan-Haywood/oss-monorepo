@@ -1,0 +1,41 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# The server only reads Stripe webhooks and keeps a ledger: it never moves money
+# and never writes to Stripe, so there is no dry-run switch to forget.
+services:
+  - type: web
+    name: referral-keeper
+    runtime: docker
+    dockerContext: ventures/referral-keeper
+    dockerfilePath: ventures/referral-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: LINK_SECRET
+        generateValue: true
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: PUBLIC_URL
+        sync: false
+      - key: LANDING_URL
+        sync: false
+      - key: LANDING_HOSTS
+        sync: false
+      - key: COMPANY_NAME
+        sync: false
+      - key: BRAND_COLOR
+        sync: false
+      - key: OPEN_SIGNUP
+        value: "false"
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: POLICY_JSON
+        sync: false

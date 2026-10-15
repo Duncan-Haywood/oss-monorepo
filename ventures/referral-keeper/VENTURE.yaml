@@ -1,0 +1,61 @@
+name: referral-keeper
+description: >-
+  Self-hosted referral and affiliate program for Stripe: partner links,
+  first-touch attribution, commission on what customers actually paid (net of
+  tax, refunds and chargebacks), partner dashboards and a payout file. Browser
+  planner plus a zero-dependency server with a one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and proven: Rewardful, FirstPromoter,
+# Tolt, PartnerStack and Referral Rock sell affiliate/referral tracking to
+# Stripe-based SaaS and subscription businesses, typically as a monthly fee that
+# rises with tracked revenue or partner count. The gap: indie and small teams who
+# want links, attribution and refund-safe commission in their own account, with
+# no revenue-scaled fee and no third party seeing their purchases.
+# duplicate_check.py top score 0.19 (affiliate-disclosure-checker audits posts;
+# this runs the program). Sibling of cancel-flow and dunning-engine: same buyer,
+# same Stripe webhook pattern, acquisition side instead of retention.
+#
+# First visitor: indie SaaS founders on Indie Hackers, r/SaaS, r/stripe and Hacker
+# News asking "rewardful alternative", "self hosted affiliate program stripe",
+# "referral program for my saas", "affiliate tracking stripe free". Volume not
+# measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet; a hosted
+# version, done-for-you setup or GitHub Sponsors are the paid steps -- hosting
+# under the public name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      Indie SaaS founders will deploy a partner program in their own account
+      once the planner shows commission as a share of lifetime revenue, because
+      the paid platforms bill by tracked revenue and hold the purchase data.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Founders trust a program that never moves money and never writes to Stripe
+      enough to point a live webhook at it, and the payout CSV plus
+      refund-adjusted balances is what makes them keep it switched on.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a partner paid twice, commission paid on a refunded or taxed amount, or a redirect to a host that was not allowed; the idempotency, refund and allow-list paths come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/referral-keeper/
+  analytics: null

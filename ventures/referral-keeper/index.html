@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Referral Keeper — Free Self-Hosted Affiliate Program for Stripe</title>
+  <meta name="description" content="Run your own referral or affiliate program on Stripe without a monthly fee or sharing your customer list. Tracks links, attributes sales, calculates commission net of tax and refunds, and tells you who to pay. Open source, MIT, one-click self-deploy.">
+  <meta property="og:title" content="Referral Keeper — affiliate program for Stripe, self-hosted">
+  <meta property="og:description" content="Partner links, first-touch attribution, commission on what customers actually paid, refund and chargeback reversal, payout CSV. Your Stripe account, your server.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Referral Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Node.js 20+ server; any modern browser for the planner", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source referral and affiliate program for Stripe. Partner links, attribution, commission net of tax and refunds, partner dashboards and a payout file, running in your own account."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does it pay my affiliates?", "acceptedAnswer": {"@type": "Answer", "text": "No. It never moves money. It keeps the ledger and gives you a payout file once balances are past the refund hold and your minimum. You pay by PayPal, Wise or bank transfer and record it, so a bug in this software cannot send money."}}, {"@type": "Question", "name": "Does it need write access to my Stripe account?", "acceptedAnswer": {"@type": "Answer", "text": "No. It works from webhooks alone. An optional restricted key with Invoices read access is used only to look up payment ids on newer API versions. It never creates or changes anything in Stripe."}}, {"@type": "Question", "name": "How is a sale attributed?", "acceptedAnswer": {"@type": "Answer", "text": "A partner link sends visitors to your site with ?ref=code. A one-line script remembers it in a first-party cookie and tags your Stripe Payment Links, buy buttons and pricing tables with client_reference_id. The first partner to bring a customer keeps them."}}, {"@type": "Question", "name": "What happens on a refund or chargeback?", "acceptedAnswer": {"@type": "Answer", "text": "Commission is recalculated from the cumulative refund. A full refund or a dispute removes it. If the partner was already paid, a negative adjustment is netted against their next payout."}}, {"@type": "Question", "name": "Is this tax or legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. Paying partners can carry tax-reporting duties (for example 1099 or VAT) and advertising-disclosure rules where you and they live. You are the operator."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f7f6; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #0f766e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b4f4a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b4f4a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #475569; }
+    .card { background: #fff; border: 1px solid #d3e2df; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 18px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bfbb; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input[type=checkbox] { width: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3eeec; vertical-align: top; }
+    pre { background: #eef5f4; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .big { font-size: 1.5rem; font-weight: 800; color: #0b4f4a; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Let your happiest customers sell for you, and pay them on your own books</h1>
+  <p>Referral Keeper is a partner program for Stripe businesses that doesn't take a cut of your revenue or hold your customer list. Give each partner a link. It remembers who sent each customer, works out commission on what they really paid (after tax, refunds and chargebacks), and hands you a payout file when a balance is ready. Plan it below, then <a href="server.mjs">run the open-source server</a> with your own webhook secret. No account with us, no monthly fee.</p>
+
+  <section class="card" aria-labelledby="plan">
+    <h2 id="plan">What would a partner program cost you per customer?</h2>
+    <div class="grid">
+      <div><label for="price">Plan price per month</label><input id="price" type="number" min="1" value="49"></div>
+      <div><label for="rate">Commission (%)</label><input id="rate" type="number" min="1" max="50" value="20"></div>
+      <div><label for="months">Commission window (months, 0 = lifetime)</label><input id="months" type="number" min="0" max="120" value="12"></div>
+      <div><label for="churn">Monthly churn (%)</label><input id="churn" type="number" min="0.1" max="99" step="0.1" value="5"></div>
+      <div><label for="n">Referred customers per month</label><input id="n" type="number" min="0" value="10"></div>
+    </div>
+    <p>Expected lifetime revenue per customer: <span class="big" id="rev">-</span> &middot; commission you pay: <span class="big" id="com">-</span> (<span id="share">-</span> of that revenue)</p>
+    <p>You keep <span class="big" id="net">-</span> per referred customer. At <span id="nn">-</span> a month that is <span class="big" id="mnet">-</span> of new customer value, for <span id="mcom">-</span> of commission once the program is at steady state.</p>
+    <p class="note">A planning estimate from your own inputs and a constant churn rate; it is not a forecast and does not know how many partners you will recruit. Commission is only owed when a referred customer pays.</p>
+  </section>
+
+  <section class="card">
+    <h2>Why use this instead of what you do today</h2>
+    <table>
+      <tr><th>Today</th><th>Catch</th><th>Referral Keeper</th></tr>
+      <tr><td>Paid affiliate platforms for Stripe (Rewardful, FirstPromoter, Tolt and similar)</td><td>Monthly fee that typically grows with tracked revenue; your customers' purchases flow through a third party</td><td>Runs in your account, no fee, no third party</td></tr>
+      <tr><td>A spreadsheet and a coupon code per friend</td><td>No attribution, forgotten refunds, no hold period, no dashboard for the partner</td><td>Links, first-touch attribution, refund reversal, partner dashboard</td></tr>
+      <tr><td>Building it yourself</td><td>Easy to double-pay on a replayed webhook or pay commission on tax and refunded sales</td><td>Idempotent per invoice, net of tax, cumulative-refund aware, covered by tests</td></tr>
+    </table>
+    <p class="note">Honest limits: it does not pay partners or file their tax forms, has no coupon-code attribution (links and Stripe Checkout only), and no fraud scoring beyond self-referral checks and a hold period. Review each partner before you pay.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/referral-keeper
+STRIPE_WEBHOOK_SECRET=whsec_... ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
+PUBLIC_URL=https://partners.example.com LANDING_URL=https://example.com/pricing \
+COMPANY_NAME=Acme node server.mjs
+
+# add a partner (or set OPEN_SIGNUP=true and share /join)
+curl -s -X POST $PUBLIC_URL/v1/affiliates -H "authorization: Bearer $ADMIN_KEY" \
+  -d '{"name":"Ada","email":"ada@example.com"}'
+
+# on your site, once:  &lt;script src="https://partners.example.com/rk.js" defer&gt;&lt;/script&gt;</pre>
+    <p class="note">Send <code>checkout.session.completed</code>, <code>customer.created</code>, <code>invoice.paid</code>, <code>charge.refunded</code> and <code>charge.dispute.created</code> to <code>/webhook/stripe</code>. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Related tools</h2>
+    <p>Keep the customers you win: <a href="../cancel-flow/">Cancel Flow</a> for voluntary churn and <a href="../dunning-engine/">Dunning Engine</a> for failed cards. See where revenue is heading with <a href="../mrr-pulse/">MRR Pulse</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Does it pay my affiliates?</h3>
+    <p>No. It never moves money. It keeps the ledger and gives you a payout file once balances are past the refund hold and your minimum. You pay by PayPal, Wise or bank transfer and record it, so a bug in this software cannot send money.</p>
+    <h3>Does it need write access to my Stripe account?</h3>
+    <p>No. It works from webhooks alone. An optional restricted key with Invoices read access is used only to look up payment ids on newer API versions. It never creates or changes anything in Stripe.</p>
+    <h3>How is a sale attributed?</h3>
+    <p>A partner link sends visitors to your site with <code>?ref=code</code>. A one-line script remembers it in a first-party cookie and tags your Stripe Payment Links, buy buttons and pricing tables with <code>client_reference_id</code>. The first partner to bring a customer keeps them.</p>
+    <h3>What happens on a refund or chargeback?</h3>
+    <p>Commission is recalculated from the cumulative refund. A full refund or a dispute removes it. If the partner was already paid, a negative adjustment is netted against their next payout.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator: responsible for your partner terms, for paying what you promise, for tax reporting on partner payments (for example 1099 or VAT), and for advertising-disclosure rules that apply to your partners. It is not legal, tax, or financial advice. The planner above runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { projectEconomics, money } from "./commission.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    function plan() {
+      const e = projectEconomics({ price: Number($("price").value), rate: Number($("rate").value) / 100, months: Number($("months").value), churn: Number($("churn").value) / 100, referralsPerMonth: Number($("n").value) });
+      const m = (v) => money(Math.round(v * 100), "usd");
+      $("rev").textContent = m(e.revenue); $("com").textContent = m(e.commission); $("share").textContent = `${(e.commissionShareOfRevenue * 100).toFixed(1)}%`;
+      $("net").textContent = m(e.net); $("nn").textContent = Number($("n").value) || 0; $("mnet").textContent = m(e.monthlyNetNewValue); $("mcom").textContent = m(e.monthlyCommissionAtSteadyState);
+      record("plan");
+    }
+    for (const id of ["price", "rate", "months", "churn", "n"]) $(id).addEventListener("input", plan);
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+    plan();
+  </script>
+</body>
+</html>
