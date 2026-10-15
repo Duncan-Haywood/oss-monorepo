@@ -21,6 +21,26 @@ const same = (a, b) => { const x = Buffer.from(a), y = Buffer.from(b); return x.
 const bearerOk = (req, ...keys) => keys.some((k) => Boolean(k) && same(req.headers.authorization || "", `Bearer ${k}`));
 const parseJson = (raw) => { try { return JSON.parse(raw || "{}"); } catch { throw Object.assign(new Error("body is not valid JSON"), { status: 400 }); } };
 
+// Standard Webhooks (Svix) signature, which Resend uses. Secret is "whsec_<base64>".
+export function verifyResendWebhook(secret, headers, raw, nowMs = Date.now()) {
+  const id = headers["webhook-id"], ts = headers["webhook-timestamp"], sigs = headers["webhook-signature"];
+  if (!secret || !id || !ts || !sigs) return false;
+  if (!(Math.abs(nowMs / 1000 - Number(ts)) <= 300)) return false;
+  const key = secret.startsWith("whsec_") ? Buffer.from(secret.slice(6), "base64") : Buffer.from(secret);
+  const want = createHmac("sha256", key).update(`${id}.${ts}.${raw}`).digest("base64");
+  return sigs.split(" ").some((x) => x.startsWith("v1,") && same(x.slice(3), want));
+}
+
+// Which Resend events must stop all mail: spam complaints, permanent bounces, provider suppression.
+export function resendSuppression(evt) {
+  const d = (evt && evt.data) || {}, to = [].concat(d.to || []);
+  let reason = null;
+  if (evt.type === "email.complained") reason = "complaint";
+  else if (evt.type === "email.bounced" && !/^transient$/i.test(String((d.bounce && d.bounce.type) || "Permanent"))) reason = "bounce";
+  else if (evt.type === "email.suppressed") reason = "provider";
+  return reason ? { reason, emails: to } : null;
+}
+
 export function limiter(max = 600, windowMs = 60_000) {
   const hits = new Map();
   return (ip, now) => { const w = Math.floor(now / windowMs), h = hits.get(ip); if (!h || h.w !== w) { hits.set(ip, { w, n: 1 }); if (hits.size > 10_000) hits.clear(); return true; } return ++h.n <= max; };
@@ -86,6 +106,16 @@ export function handler(cfg) {
         return reply(405, "Method not allowed\n", "text/plain");
       }
 
+      if (req.method === "POST" && path === "/v1/webhooks/resend") {
+        if (!cfg.webhookSecret) return json(404, { error: "set RESEND_WEBHOOK_SECRET to enable" });
+        const raw = await readBody(req);
+        if (!verifyResendWebhook(cfg.webhookSecret, req.headers, raw, now())) return json(401, { error: "bad signature" });
+        const sup = resendSuppression(parseJson(raw));
+        const done = sup ? sup.emails.filter((e) => E.unsubscribe(cfg.state, e, now(), sup.reason)) : [];
+        if (done.length) cfg.save();
+        return json(200, { suppressed: done.length, reason: sup ? sup.reason : null });
+      }
+
       if (req.method === "POST" && (path === "/v1/events" || path === "/v1/contacts")) {
         if (!bearerOk(req, ingestKey)) return json(401, { error: "bad key" });
         const b = parseJson(await readBody(req));
@@ -129,7 +159,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const dryRun = env.DRY_RUN !== "false", base = (env.BASE_URL || `http://localhost:${env.PORT || 8080}`).replace(/\/$/, "");
   const send = env.RESEND_API_KEY && env.MAIL_FROM ? resendSender({ apiKey: env.RESEND_API_KEY, from: env.MAIL_FROM }) : null;
   if (!dryRun && !env.POSTAL_ADDRESS) console.error("warning: POSTAL_ADDRESS is empty. Marketing email in many countries (CAN-SPAM in the US) must carry a postal address.");
-  const cfg = { state, save, adminKey: env.ADMIN_KEY, ingestKey: env.INGEST_KEY, secret: env.UNSUB_SECRET || env.ADMIN_KEY, base, product: env.PRODUCT_NAME || "", address: env.POSTAL_ADDRESS || "", dryRun, send, trustProxy: env.TRUST_PROXY === "true" };
+  const cfg = { state, save, adminKey: env.ADMIN_KEY, ingestKey: env.INGEST_KEY, secret: env.UNSUB_SECRET || env.ADMIN_KEY, base, product: env.PRODUCT_NAME || "", address: env.POSTAL_ADDRESS || "", dryRun, send, webhookSecret: env.RESEND_WEBHOOK_SECRET, trustProxy: env.TRUST_PROXY === "true" };
   http.createServer(handler(cfg)).listen(Number(env.PORT) || 8080, () => console.log(`drip-keeper on :${env.PORT || 8080} (dry run: ${dryRun || !send})`));
   let busy = false;
   setInterval(async () => { if (busy) return; busy = true; try { const r = await runTick(cfg); if (r.sent || r.failed) console.log(`tick: sent ${r.sent}, failed ${r.failed}`); } catch (e) { console.error("tick error", e.message); } finally { busy = false; } }, Math.max(10, Number(env.TICK_SECONDS) || 60) * 1000);
