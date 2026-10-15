@@ -606,6 +606,7 @@
     "lemonsqueezy-payout-to-journal": "2026-10-05",
     "license-compat-check": "2026-10-01",
     "license-drift-check": "2026-09-07",
+    "license-keeper": "2026-10-15",
     "lien-waiver-checker": "2026-10-06",
     "like-kind-exchange-1031-calculator": "2026-09-29",
     "liquidation-pallet-bid-calculator": "2026-09-30",

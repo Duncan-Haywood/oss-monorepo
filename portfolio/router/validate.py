@@ -17,6 +17,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES_DIR = REPO_ROOT / "ventures"
 
 VALID_STAGES = {"idea", "prototype", "launched", "revenue", "scaling", "winding-down"}
+LEAN_STAGES = {"idea", "prototype"}
 VALID_HYPOTHESIS_STATUS = {"untested", "supported", "refuted"}
 VALID_HYPOTHESIS_EVIDENCE = {"customer-contact", "in-repo"}
 
@@ -46,11 +47,20 @@ def check(venture_dir, data, errors):
     if stage not in VALID_STAGES:
         err(f"`stage` is '{stage}', must be one of {sorted(VALID_STAGES)}")
 
+    # Bookkeeping blocks are required once a venture is launched. A prototype may
+    # omit them (the router defaults each to empty); if present they must be valid.
+    lean = stage in LEAN_STAGES
+
+    def absent_ok(key):
+        return lean and data.get(key) is None
+
     hypotheses = data.get("hypotheses")
-    if not isinstance(hypotheses, list) or not hypotheses:
+    if absent_ok("hypotheses"):
+        hypotheses = None
+    elif not isinstance(hypotheses, list) or not hypotheses:
         err("`hypotheses` must be a non-empty list")
     else:
-        for i, h in enumerate(hypotheses):
+        for i, h in enumerate(hypotheses or []):
             if not isinstance(h, dict):
                 err(f"hypotheses[{i}] must be a mapping")
                 continue
@@ -73,7 +83,9 @@ def check(venture_dir, data, errors):
                 err(f"hypotheses[{i}].checked must be a YYYY-MM-DD date, got {checked!r}")
 
     econ = data.get("economics")
-    if not isinstance(econ, dict):
+    if absent_ok("economics"):
+        pass
+    elif not isinstance(econ, dict):
         err("missing `economics` mapping")
     else:
         if not econ.get("currency"):
@@ -85,7 +97,9 @@ def check(venture_dir, data, errors):
                 err(f"`economics.{field}` must be a number or null, got {econ[field]!r}")
 
     budget = data.get("budget")
-    if not isinstance(budget, dict):
+    if absent_ok("budget"):
+        pass
+    elif not isinstance(budget, dict):
         err("missing `budget` mapping")
     else:
         cap = budget.get("monthly_cap")
@@ -95,11 +109,15 @@ def check(venture_dir, data, errors):
             err("`budget.protected` must be true or false")
 
     kill = data.get("kill_criteria")
-    if not isinstance(kill, list) or not kill:
+    if absent_ok("kill_criteria"):
+        pass
+    elif not isinstance(kill, list) or not kill:
         err("`kill_criteria` must be a non-empty list — a venture with no stop condition never gets stopped")
 
     links = data.get("links")
-    if not isinstance(links, dict):
+    if absent_ok("links"):
+        pass
+    elif not isinstance(links, dict):
         err("missing `links` mapping (values may be null)")
 
 

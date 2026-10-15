@@ -41,6 +41,7 @@ REDTEAM = "redteam"
 REDTEAM_SHARE = (0.05, 0.10)
 OUTCOMES = ("success", "partial", "failed")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+REPO_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 PROMPT_RE = re.compile(r"^prompt-(\d+)\.md$")
 
 # The fields `record` writes. A record must carry the REQUIRED ones with valid
@@ -66,6 +67,7 @@ RECORD_FIELDS: dict[str, Any] = {
     "task": None,
     "projects": [],
     "pr": None,
+    "repo": None,  # owner/name holding `pr`; null means this repository
     "commits": [],
     "lines_added": None,
     "lines_removed": None,
@@ -241,7 +243,7 @@ def print_route(r: dict[str, Any]) -> None:
 
 
 def record(root: Path, track: str, version: int, session: str, model: str | None = None,
-           text: str | None = None, day: str | None = None) -> Path:
+           text: str | None = None, day: str | None = None, repo: str | None = None) -> Path:
     routing = load_routing(root)
     if track not in routing["tracks"]:
         raise SystemExit(f"unknown track {track!r}")
@@ -254,7 +256,7 @@ def record(root: Path, track: str, version: int, session: str, model: str | None
         raise SystemExit(f"{path.relative_to(root.parent)} already exists; edit it instead")
     rec = json.loads(json.dumps(RECORD_FIELDS))
     rec.update({"date": day, "session": session, "track": track, "prompt_version": version,
-                "model": model, "input": text,
+                "model": model, "input": text, "repo": repo,
                 "input_sha256": hashlib.sha256(text.encode()).hexdigest() if text else None})
     path.parent.mkdir(exist_ok=True)
     path.write_text(json.dumps(rec, indent=2) + "\n")
@@ -298,6 +300,9 @@ def validate_record(root: Path, path: Path, rec: Any, tracks: dict[str, Any]) ->
     if rec["outcome"] not in OUTCOMES:
         errors.append(f"{where}: outcome must be one of {', '.join(OUTCOMES)} "
                       f"(got {rec['outcome']!r}); fill it in before merging")
+    repo = rec.get("repo")
+    if repo is not None and not (isinstance(repo, str) and REPO_RE.match(repo)):
+        errors.append(f"{where}: repo must be 'owner/name' (the repository holding pr) or null")
     if rec.get("merged") not in (None, True, False):
         errors.append(f"{where}: merged must be true, false or null")
     for key in ("errors", "integrity_issues", "doc_friction"):
@@ -720,6 +725,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--model", help="the model id that made the commits")
     p.add_argument("--input", help="the message that started the run, secrets redacted")
     p.add_argument("--date", help="YYYY-MM-DD, default today")
+    p.add_argument("--repo", help="owner/name of the repository that holds the PR, if not this one "
+                   "(e.g. the upstream research repo), so a review can look the PR up")
     p = sub.add_parser("measure", help="score prompt versions from the run records")
     p.add_argument("--json", action="store_true")
     sub.add_parser("backlog", help="list open process improvements, best first")
@@ -732,7 +739,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(r, indent=2)) if args.json else print_route(r)
         return 0
     if args.cmd == "record":
-        path = record(ROOT, args.track, args.version, args.session, args.model, args.input, args.date)
+        path = record(ROOT, args.track, args.version, args.session, args.model, args.input, args.date, args.repo)
         print(f"Wrote {path.relative_to(ROOT.parent)}. Fill in outcome, pr, errors, "
               "integrity_issues and doc_friction, then commit it as the last commit on your "
               "work branch, before merging.")

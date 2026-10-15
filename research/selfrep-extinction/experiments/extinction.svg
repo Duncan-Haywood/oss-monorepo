@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log10 mean extinction time by machine lifetime L for exact chain, chain Monte Carlo and DES">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Mean extinction time, n0=1 (log10 hours)</text>
+<line x1="64" x2="624" y1="310.0" y2="310.0" stroke="#ddd"/><text x="58" y="314.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="236.3" y2="236.3" stroke="#ddd"/><text x="58" y="240.3" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="162.6" y2="162.6" stroke="#ddd"/><text x="58" y="166.6" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="88.8" y2="88.8" stroke="#ddd"/><text x="58" y="92.8" text-anchor="end" font-family="sans-serif" font-size="11">6</text>
+<text x="14" y="175.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 175.0)">log10 hours</text>
+<text x="134.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 134.0 324)">L=100</text>
+<rect x="78.0" y="215.9" width="36.3" height="94.1" fill="#1f6fb2"/>
+<rect x="115.3" y="215.0" width="36.3" height="95.0" fill="#c0392b"/>
+<rect x="152.7" y="229.4" width="36.3" height="80.6" fill="#2e8b57"/>
+<text x="274.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 274.0 324)">L=200</text>
+<rect x="218.0" y="177.4" width="36.3" height="132.6" fill="#1f6fb2"/>
+<rect x="255.3" y="175.3" width="36.3" height="134.7" fill="#c0392b"/>
+<rect x="292.7" y="192.1" width="36.3" height="117.9" fill="#2e8b57"/>
+<text x="414.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 414.0 324)">L=300</text>
+<rect x="358.0" y="139.7" width="36.3" height="170.3" fill="#1f6fb2"/>
+<rect x="395.3" y="139.8" width="36.3" height="170.2" fill="#c0392b"/>
+<rect x="432.7" y="152.9" width="36.3" height="157.1" fill="#2e8b57"/>
+<text x="554.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 554.0 324)">L=500</text>
+<rect x="498.0" y="64.5" width="36.3" height="245.5" fill="#1f6fb2"/>
+<rect x="535.3" y="107.4" width="36.3" height="202.6" fill="#c0392b"/>
+<rect x="572.7" y="120.1" width="36.3" height="189.9" fill="#2e8b57"/>
+<rect x="74" y="42" width="12" height="10" fill="#1f6fb2"/><text x="92" y="51" font-family="sans-serif" font-size="11">exact chain</text>
+<rect x="74" y="57" width="12" height="10" fill="#c0392b"/><text x="92" y="66" font-family="sans-serif" font-size="11">chain MC</text>
+<rect x="74" y="72" width="12" height="10" fill="#2e8b57"/><text x="92" y="81" font-family="sans-serif" font-size="11">DES cv=1</text>
+</svg>

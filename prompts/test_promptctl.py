@@ -170,6 +170,18 @@ class RecordTest(PromptTestCase):
         with self.assertRaises(SystemExit):
             promptctl.record(self.fx.root, "research", 7, "https://x/session_abc")
 
+    def test_record_repo_is_stored_and_validated(self):
+        path = promptctl.record(self.fx.root, "research", 0, "https://x/s2", day="2026-10-12",
+                                repo="duncan-haywood/oss-research-monorepo")
+        rec = json.loads(path.read_text())
+        self.assertEqual(rec["repo"], "duncan-haywood/oss-research-monorepo")
+        rec.update(outcome="success")
+        path.write_text(json.dumps(rec))
+        self.assertEqual(promptctl.validate(self.fx.root), [])
+        rec["repo"] = "not a repo"
+        path.write_text(json.dumps(rec))
+        self.assertTrue(any("repo must be" in e for e in promptctl.validate(self.fx.root)))
+
     def test_record_never_overwrites(self):
         promptctl.record(self.fx.root, "research", 0, "https://x/s1", day="2026-10-12")
         with self.assertRaises(SystemExit):

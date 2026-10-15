@@ -24,8 +24,8 @@ Two parts, both free and MIT:
 | Churnkey, ProfitWell Retain, Brightback and similar | Paid, usually scaled to your MRR; your customers' data goes to a third party | Runs in your account, no fee, nobody else sees your customers |
 | A flow you build yourself | Easy to get wrong: double discounts, canceling the wrong subscription, offers on trials | Signed links, ownership check, idempotent writes, cooldown, dry-run default |
 
-Honest limits: no hosted dashboard, no A/B testing, no win-back emails, and no
-card-account-updater. It does not claim a save rate; measure it on your own data.
+Honest limits: no hosted dashboard, no A/B testing, and win-back emails are
+plain-text only (off until you set `WINBACK_URL`). It does not claim a save rate; measure it on your own data.
 If the Stripe portal's built-in survey already works for you, keep it.
 
 ## What it does
@@ -56,14 +56,24 @@ If the Stripe portal's built-in survey already works for you, keep it.
 5. **Is replay-safe.** Each session ends once; Stripe writes carry idempotency
    keys; the webhook is de-duplicated; reloading the page does not start a second
    session.
-6. **Reports** `GET /v1/summary` (started, offered, saved, save rate, by reason,
+6. **Wins back, if you turn it on.** Set `WINBACK_URL` (your pricing or
+   sign-up page) and customers who cancelled through the flow get up to two
+   plain-text emails after their subscription actually ends (default 14 and 60
+   days), worded for the reason they gave. Each step is sent once; nothing goes
+   to anyone who opted out or has already subscribed again; every email has a
+   one-click unsubscribe (also as the `List-Unsubscribe` header) and your postal
+   address (`COMPANY_ADDRESS`, which the law in many places requires). The
+   second email can carry a code you create in Stripe (`WINBACK_CODE`). Dry-run
+   logs what it would send. `/v1/summary` adds emailed, opted out and
+   resubscribed. It claims no win-back rate; it counts yours.
+7. **Reports** `GET /v1/summary` (started, offered, saved, save rate, by reason,
    monthly revenue kept by discounts) and `GET /v1/sessions` (admin key).
 
 ## Run it
 
 ```sh
 cd ventures/cancel-flow
-node --test        # 34 tests, no network
+node --test        # 47 tests, no network
 STRIPE_SECRET_KEY=rk_test_... STRIPE_WEBHOOK_SECRET=whsec_... \
 ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
 PUBLIC_URL=https://cancel.example.com COMPANY_NAME=Acme node server.mjs
@@ -77,7 +87,8 @@ Setup in Stripe:
 
 1. Restricted key: Subscriptions write, Coupons write, Customers read.
 2. Webhook endpoint `https://<host>/webhook/stripe` for
-   `customer.subscription.deleted` (records true churn).
+   `customer.subscription.deleted` (records true churn) and, for win-back,
+   `customer.subscription.created`. Win-back also needs Customers read.
 3. In your app, make the Cancel button call `/v1/links` server-side and redirect.
    The admin key must never reach the browser.
 
@@ -91,6 +102,10 @@ Setup in Stripe:
 | `POLICY_JSON` | override offers, e.g. `{"offers":{"too_expensive":{"type":"discount","percent":20,"months":2}},"cooldownDays":180,"supportUrl":"https://example.com/help"}` |
 | `FRAME_ANCESTORS` | allow embedding the page in an iframe, e.g. `https://app.example.com` (default none) |
 | `STATE` | path of the JSON state file |
+| `WINBACK_URL` | turns win-back emails on; where the email sends people (https) |
+| `RESEND_API_KEY`, `MAIL_FROM`, `COMPANY_ADDRESS` | needed to send win-back for real (`DRY_RUN=false`) |
+| `WINBACK_CODE`, `WINBACK_CODE_TEXT` | optional code mentioned in the last email |
+| `WINBACK_JSON` | e.g. `{"steps":[{"afterDays":7},{"afterDays":30}],"maxPerRun":25}` (1 to 4 steps, 1 to 365 days) |
 
 Mint a link from your backend (any language, it is one HTTP call):
 
@@ -116,7 +131,7 @@ easy as signing up); you are the operator. Keep a plain cancel path, and do not
 make the offer step mandatory beyond one screen.
 
 Files: `flow.mjs` (decisions, summary; also runs in the browser), `page.mjs` (hosted
-page), `stripe.mjs` (webhook verification, API calls), `server.mjs` (HTTP shell),
+page), `winback.mjs` (win-back emails), `stripe.mjs` (webhook verification, API calls), `server.mjs` (HTTP shell),
 `index.html` (simulator). Sibling venture for failed payments: `../dunning-engine`.
 
 Support the project: <https://github.com/sponsors/Duncan-Haywood>.

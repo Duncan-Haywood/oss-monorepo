@@ -1,0 +1,63 @@
+name: license-keeper
+description: >-
+  Self-hosted software licensing for Stripe sellers: after checkout it issues
+  Ed25519-signed license keys that the app verifies offline, enforces machine
+  limits, extends subscription licenses on renewal and revokes on refund or
+  dispute. Browser key lab plus a zero-dependency server with a one-click
+  Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and proven: Keygen, Cryptlex,
+# LicenseSpring, Paddle's licensing and Lemon Squeezy / Gumroad keys all serve
+# indie developers selling desktop apps, plugins, CLIs and templates, priced
+# per license or as a platform cut. The gap: sellers on plain Stripe who want
+# keys the app can verify offline, no per-license fee, and their customer
+# list in their own account. Fourth product for the same buyer as
+# dunning-engine, cancel-flow and mrr-pulse (a Stripe seller of software).
+# duplicate_check: no licensing venture existed; license-compat-check and
+# lockfile-license-check are about open-source licences, a different job.
+#
+# First visitor: indie developers on Indie Hackers, r/SideProject, r/stripe,
+# r/electronjs and Hacker News asking "software license key server stripe",
+# "keygen alternative", "self hosted license keys". Volume not measured with
+# an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup, a hosted copy under the deployer's own name, or GitHub
+# Sponsors are the paid steps; hosting under the public name and billing are
+# owner-gated.
+
+hypotheses:
+  - claim: >-
+      Indie developers selling software through Stripe will try the browser key
+      lab and then deploy the server, because the hosted licensing services
+      bill per license and a random key cannot be checked without their API.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Offline-verifiable signed keys, with a server only for activation and
+      refresh, are what makes sellers trust a self-run licensing server over a
+      hosted one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a license issued twice for one payment, or a refunded license still validating online; the idempotency and revocation paths come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/license-keeper/
+  analytics: null
