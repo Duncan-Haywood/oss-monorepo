@@ -33,11 +33,11 @@
   "doc_friction": [
     {
       "file": "prompts/review/prompt-0.md",
-      "note": "assumes every record's PR is in this repo; 167 records come from the upstream research repo so merged cannot be filled"
+      "issue": "assumes every record's PR is in this repo; 167 records come from the upstream research repo so merged cannot be filled"
     },
     {
       "file": "CLAUDE.md",
-      "note": "1614 lines; the relevant checklist is buried"
+      "issue": "1614 lines; the relevant checklist is buried"
     }
   ],
   "goal": null,
