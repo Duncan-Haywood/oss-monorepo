@@ -55,3 +55,12 @@ test("the chart escapes dynamic text", async () => {
   const svg = mrrChart([{ month: "<img onerror=1>", mrr: 100, customers: 1 }], "usd");
   assert.doesNotMatch(svg, /<img/);
 });
+
+test("the cohort table escapes the month and prints the numbers", async () => {
+  const { cohortTable } = await import("./page.mjs");
+  assert.equal(cohortTable([]), "");
+  const html = cohortTable([{ month: "<b>x", size: 4, mrr: 400, logo: [1, 0.75], revenue: [1, 0.5] }]);
+  assert.doesNotMatch(html, /<b>x/);
+  assert.match(html, />75%</);
+  assert.match(html, /50% of starting MRR/);
+});

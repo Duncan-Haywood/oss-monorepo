@@ -59,8 +59,8 @@
 #   portfolio-front-tools-23: 117 files, 553465 bytes
 #   portfolio-front-tools-24: 124 files, 555238 bytes
 #   portfolio-front-tools-25: 126 files, 550071 bytes
-#   portfolio-front-tools-26: 134 files, 556300 bytes
-#   portfolio-front-tools-27: 141 files, 553554 bytes
+#   portfolio-front-tools-26: 133 files, 553880 bytes
+#   portfolio-front-tools-27: 142 files, 556961 bytes
 #   portfolio-front-tools-28: 121 files, 552903 bytes
 #   portfolio-front-tools-29: 128 files, 554756 bytes
 #   portfolio-front-tools-30: 133 files, 556369 bytes
@@ -3682,12 +3682,12 @@ configMapGenerator:
       - nat-gateway-cost-advisor__nat-gateway-vs-vpc-endpoint-cost.html.gz=nat-gateway-cost-advisor__nat-gateway-vs-vpc-endpoint-cost.html.gz
       - nat-gateway-cost-advisor__usage.mjs.gz=nat-gateway-cost-advisor__usage.mjs.gz
       - neon-bill-estimator__cli.mjs.gz=neon-bill-estimator__cli.mjs.gz
-      - neon-bill-estimator__engine.mjs.gz=neon-bill-estimator__engine.mjs.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - neon-bill-estimator__engine.mjs.gz=neon-bill-estimator__engine.mjs.gz
       - neon-bill-estimator__how-to-reduce-your-neon-bill.html.gz=neon-bill-estimator__how-to-reduce-your-neon-bill.html.gz
       - neon-bill-estimator__index.html.gz=neon-bill-estimator__index.html.gz
       - neon-bill-estimator__usage.mjs.gz=neon-bill-estimator__usage.mjs.gz
