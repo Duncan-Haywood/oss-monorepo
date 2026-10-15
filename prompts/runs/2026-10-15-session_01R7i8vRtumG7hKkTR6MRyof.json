@@ -38,10 +38,10 @@
   ],
   "deviations": [
     {
-      "instruction": "Considered DigitalOcean App Platform path from platform/deploy README gaps",
-      "did": "Built Docker Compose instead",
-      "why": "DO has no persistent disk, so 3 of 4 server apps would lose state",
-      "result": "Recorded in README"
+      "file": "platform/deploy/README.md",
+      "why": "The README's known-gaps list suggested more providers; DigitalOcean App Platform has no persistent disk so 3 of 4 server apps would lose state, so I built the Docker Compose path instead.",
+      "did": "Docker Compose download bundle",
+      "result": "works; 25/25 deploy tests"
     }
   ],
   "goal": null,
