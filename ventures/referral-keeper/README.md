@@ -53,3 +53,7 @@ Fork the repository, then open `https://render.com/deploy?repo=<your fork URL>`.
 ## Disclaimer
 
 No warranty; no uptime or delivery guarantee. You operate the programme and are responsible for your Stripe account, your terms with affiliates and customers, affiliate-disclosure rules (affiliates generally must disclose the relationship), any tax reporting on what you pay them, and data-protection rules. Commission figures come from Stripe events the server received; a missed or rejected webhook means a missed commission, so check against Stripe before paying. Not legal, tax or financial advice. MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).
+
+## Other self-deploy paths
+
+`docker-compose.yml` runs it on any box with Docker (the command is at its top). Fly.io: the steps are at the top of `fly.toml`. Both keep state on a volume and run in your own account.
