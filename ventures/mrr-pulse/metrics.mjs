@@ -160,14 +160,16 @@ export function cohorts(subs, now, months = 12) {
 
 // Where today's MRR sits: by plan (price nickname, else product) and by
 // customer. Counts the same subscriptions as liveMap, so the plan totals add up
-// to the headline MRR. A customer with two subscriptions is one customer.
+// to the headline MRR. atRisk is the past-due slice of that total (failed
+// payments still being retried): revenue to chase before it becomes churn. A customer with two subscriptions is one customer.
 export function breakdown(subs, { countPastDue = true, top = 5 } = {}) {
   const plans = {}, customers = {};
-  let total = 0;
+  let total = 0, atRisk = 0, atRiskSubs = 0;
   for (const s of subs) {
     const ok = s.status === "active" || (countPastDue && s.status === "past_due");
     if (!ok || !(s.mrr > 0)) continue;
     total += s.mrr;
+    if (s.status === "past_due") { atRisk += s.mrr; atRiskSubs++; }
     const lines = s.plans && Object.keys(s.plans).length ? s.plans : { "(unnamed)": s.mrr };
     for (const [k, v] of Object.entries(lines)) {
       const e = (plans[k] ||= { plan: k, mrr: 0, subs: 0 });
@@ -179,7 +181,7 @@ export function breakdown(subs, { countPastDue = true, top = 5 } = {}) {
   const byPlan = Object.values(plans).sort((a, b) => b.mrr - a.mrr).map((p) => ({ ...p, share: total ? p.mrr / total : 0 }));
   const ranked = Object.entries(customers).sort((a, b) => b[1] - a[1]);
   const share = (n) => (total ? ranked.slice(0, n).reduce((a, [, v]) => a + v, 0) / total : 0);
-  return { total, plans: byPlan, concentration: { customers: ranked.length, top1: share(1), top5: share(top), topN: top, largest: ranked[0]?.[1] || 0 } };
+  return { total, atRisk: { mrr: atRisk, subs: atRiskSubs, share: total ? atRisk / total : 0 }, plans: byPlan, concentration: { customers: ranked.length, top1: share(1), top5: share(top), topN: top, largest: ranked[0]?.[1] || 0 } };
 }
 
 // Run-rate projection, not a prediction. Takes up to the last `window`
@@ -212,4 +214,16 @@ export function forecast(months, { horizon = 6, window = 3 } = {}) {
     out[name] = labels.map(() => (mrr = Math.max(0, Math.round(mrr * (1 + s.exp - s.loss) + s.adds))));
   }
   return out;
+}
+
+// Monthly history as CSV for a spreadsheet, an accountant or an investor deck.
+// Money is in major units (12.34), one row per month, oldest first. Months
+// rebuilt from dates at today's prices are flagged in the `approximate` column.
+// Any cell that could be read as a formula is prefixed with a quote.
+export function monthsCsv(months, currency = "usd") {
+  const head = ["month", "mrr", "customers", "new", "expansion", "reactivation", "contraction", "churn", "approximate"];
+  const major = (v) => (v / 100).toFixed(2);
+  const rows = months.map((m) => [m.month, major(m.mrr), m.customers, major(m.new), major(m.expansion), major(m.reactivation), major(m.contraction), major(m.churn), m.approximate ? "yes" : "no"]);
+  const cell = (v) => { const s = String(v); return /^[=+\-@\t\r]/.test(s) ? `'${s}` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  return `# currency: ${String(currency).toUpperCase()}, amounts in major units\n` + [head, ...rows].map((r) => r.map(cell).join(",")).join("\n") + "\n";
 }

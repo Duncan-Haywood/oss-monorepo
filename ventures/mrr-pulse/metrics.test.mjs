@@ -120,6 +120,8 @@ test("breakdown: plan totals equal headline MRR and concentration is by customer
   assert.equal(b.total, 10000);
   assert.deepEqual(b.plans.map((p) => [p.plan, p.mrr, p.subs]), [["Pro", 5000, 2], ["Starter", 3000, 1], ["Seats", 2000, 1]]);
   assert.equal(b.plans.reduce((a, p) => a + p.mrr, 0), b.total);
+  assert.deepEqual(b.atRisk, { mrr: 3000, subs: 1, share: 0.3 });
+  assert.equal(breakdown(subs, { countPastDue: false }).atRisk.mrr, 0);
   assert.equal(b.concentration.customers, 2);
   assert.equal(b.concentration.top1, 0.7);
   assert.equal(breakdown(subs, { countPastDue: false }).total, 7000);
@@ -151,4 +153,14 @@ test("forecast never goes below zero", () => {
   const ms = [mo("2026-01", 1000, { churn: 900 }), mo("2026-02", 100, { churn: 100 }), mo("2026-03", 0, { mrr: 10 })];
   const f = forecast(ms, { horizon: 12 });
   assert.ok(f.low.every((v) => v >= 0));
+});
+
+import { monthsCsv } from "./metrics.mjs";
+test("monthsCsv writes major units, flags approximate months, and defuses formulas", () => {
+  const m = { month: "2026-09", mrr: 123456, customers: 3, new: 1000, expansion: 0, reactivation: 0, contraction: 50, churn: 200, approximate: true };
+  const csv = monthsCsv([m, { ...m, month: "=HYPERLINK(1)", approximate: false }], "eur");
+  const lines = csv.trim().split("\n");
+  assert.equal(lines[0], "# currency: EUR, amounts in major units");
+  assert.equal(lines[2], "2026-09,1234.56,3,10.00,0.00,0.00,0.50,2.00,yes");
+  assert.ok(lines[3].startsWith("'=HYPERLINK(1)"));
 });

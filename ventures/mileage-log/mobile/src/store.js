@@ -1,7 +1,7 @@
 // On-device storage only. Nothing here is sent anywhere.
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const K = { engine: "ml.engine", pending: "ml.pending", trips: "ml.trips" };
+const K = { engine: "ml.engine", pending: "ml.pending", trips: "ml.trips", places: "ml.places" };
 const read = async (k, d) => { try { const v = await AsyncStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } };
 const write = (k, v) => AsyncStorage.setItem(k, JSON.stringify(v));
 
@@ -9,6 +9,11 @@ export const loadEngine = (initial) => read(K.engine, initial);
 export const saveEngine = (s) => write(K.engine, s);
 export const loadPending = () => read(K.pending, []);
 export const loadTrips = () => read(K.trips, []);
+export const loadPlaces = () => read(K.places, []);
+export const savePlaces = (p) => write(K.places, p);
+export async function deleteTrip(id) {
+  await write(K.trips, (await loadTrips()).filter((t) => t.id !== id));
+}
 
 export async function addPending(drive) {
   const list = await loadPending();

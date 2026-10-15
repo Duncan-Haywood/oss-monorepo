@@ -23,7 +23,9 @@ export function planTable(b, currency) {
   const rows = b.plans.map((p) => `<tr><td>${esc(p.plan)}</td><td>${esc(formatMoney(p.mrr, currency))}</td><td>${p.subs}</td><td>${(p.share * 100).toFixed(1)}%</td></tr>`).join("");
   const c = b.concentration;
   const note = c ? `Largest customer: ${(c.top1 * 100).toFixed(1)}% of MRR. Top ${Math.min(c.topN, c.customers)} customers: ${(c.top5 * 100).toFixed(1)}% across ${c.customers} paying customers.${c.top1 >= 0.2 ? " One customer above 20% is a risk worth planning for." : ""}` : "";
-  return `<div class="card" style="margin-top:16px;overflow-x:auto"><h2 style="font-size:1rem;margin:0 0 8px">MRR by plan</h2><table><thead><tr><th>Plan</th><th>MRR</th><th>Subs</th><th>Share</th></tr></thead><tbody>${rows}</tbody></table><p class="note">${esc(note)}</p></div>`;
+  const r = b.atRisk;
+  const risk = r && r.subs ? ` ${esc(formatMoney(r.mrr, currency))} (${(r.share * 100).toFixed(1)}%) across ${r.subs} past-due subscription${r.subs === 1 ? "" : "s"} is at risk from failed payments: chase those before they cancel.` : "";
+  return `<div class="card" style="margin-top:16px;overflow-x:auto"><h2 style="font-size:1rem;margin:0 0 8px">MRR by plan</h2><table><thead><tr><th>Plan</th><th>MRR</th><th>Subs</th><th>Share</th></tr></thead><tbody>${rows}</tbody></table><p class="note">${esc(note + risk)}</p></div>`;
 }
 
 // Run-rate projection table: three scenarios, every number printed.
