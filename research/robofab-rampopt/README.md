@@ -50,3 +50,6 @@ None; nothing was built or ordered.
 The Python standard library only; no language model, key or hardware. Produced with AI assistance (Claude).
 
 MIT.
+
+## Figure
+`python3 experiments/figure.py` plots the time-optimal edge over the grid-tuned and refined trapezoid for the 12 rows from the committed `experiments/results.json` and writes `experiments/edge.png` (needs matplotlib; no new results).

@@ -6,6 +6,7 @@ Pure Python, no dependencies. Follow-up to `twin-evaluation` and `twin-pilot` (o
 cd research/twin-ladder
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 5 tests, ~5 s
 PYTHONPATH=src python3 experiments/run.py                 # ~1 min; output in experiments/results.txt
+PYTHONPATH=src python3 experiments/figure.py              # writes experiments/rho_star.svg (threshold curve, E3 settings)
 ```
 
 **Builds on.** The sim-to-real and manipulation-in-simulation direction of the HIRO group (<https://hiro-group.ronc.one/>), the perception/field-robot simulation direction of ARPG (<https://arpg.colorado.edu/>) and the safe-autonomy and UAV simulation direction of RECUV (<https://www.colorado.edu/recuv/>), where policies are evaluated in simulators of several fidelities before real trials. No specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. The estimator is multifidelity Monte Carlo (Peherstorfer, Willcox & Gunzburger 2016; cf. multilevel Monte Carlo, Giles 2008). Sequel to `twin-evaluation` and `twin-pilot`; related to `timestep-twin` and `crn-twin` in this repository.

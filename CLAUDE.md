@@ -1,5 +1,9 @@
 # Working in this repo
 
+**Use judgment over rules** ([`prompts/goals.md`](prompts/goals.md), "Judgment
+over rules"): where anything below would make you build something a sensible
+person would not, don't, and say so in the run record.
+
 **Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) and [`AGENTS.md`](AGENTS.md)
 first.** The portfolio's job is to ship products people use — not to debate
 policy, re-verify old PRs, or maintain admin queues.
@@ -31,6 +35,44 @@ reviews via dedicated reviewer GitHub Apps and can auto-merge internal
 (non-`ventures/*`) PRs once two of them approve and CI is green. It assists
 the "Duplicate PRs" workflow below; it does not replace the judgment calls in
 "Ship without review ceremony".
+
+## Every run ships something useful
+
+**Set by the owner on 2026-10-15.** A run that ends without doing anything
+useful has wasted the compute budget. Every run must land at least one thing of
+real value on `main`, such as a product feature or fix, a deployed page, a
+research result, an open-source tool, marketing or SEO work, or a write-up that
+uses real data to tell the owner something new.
+
+None of these is a reason to stop with nothing done: "nothing to do", a vague
+brief, a blocked task, an empty queue, or finding that your task already
+landed. Take the next item from the queues (`session_gate.py`, `PROJECTS.md`,
+the track prompts). If none has one, **come up with something new that is
+valuable, useful or insightful and ship it.** It can be an open-source tool, a
+product, academic or industry research, marketing, or anything else that
+helps users or the portfolio.
+
+These do not count as useful work: restating known blockers, ledger-only or
+direction-only edits, re-verifying unchanged work, and analysis nobody will act
+on. The guardrails still apply. Never fabricate anything, and never lower the
+quality bar just to have something to ship. A blocker is worth reporting, but
+report it alongside other useful work, not in place of it.
+
+## Long-term direction: automated, unpaid, compliant distribution
+
+**Set by the owner on 2026-10-15.** Beyond search and AI discovery, the
+portfolio should publicize its products far more, automatically and for
+free, on the natural distribution platforms where users already look:
+package registries, extension and plugin stores, tool directories,
+syndicated feeds, labelled bot accounts. It is sales with no sale at the
+end. Agents build each channel's listing and publish pipeline, off by
+default with a dry run; the owner enables a channel once; then it runs
+unattended. **Never break a platform's terms or the law to do it**: no
+unsolicited messages, fake accounts, fake reviews, paid placement, or
+automated posting where a community forbids it. This is a direction for
+many runs, not a task every session must start on. Spec:
+[`portfolio/distribution/README.md`](portfolio/distribution/README.md);
+goal: [`prompts/goals.md`](prompts/goals.md).
 
 ## Every session lands its own work: open the PR, then merge it
 
@@ -82,6 +124,15 @@ free, with usage tracked and disclaimers in place. Features, fixes, landing
 pages, SEO, integrations (behind env vars), and VM-runnable apps beat ledger
 entries and analysis documents.
 
+**Self-deploy principle (owner, 2026-10-15).** The aim is not for us to host
+these apps. Each one is an MIT open-source business that anyone can one-click
+host in their own cloud: credentials go in, they click Deploy, OpenTofu does
+the rest, and nothing of ours runs in between. This is the business model
+(`prompts/goals.md`, Mission) and the finish line for a venture
+(`prompts/ventures/prompt-1.md`). Details, including how OpenTofu is set up and the Buy Me a
+Coffee exception: `PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can
+deploy it themselves".
+
 **Deploy-first.** Products already on `main` with no public URL outrank new
 candidates. Prepare a GitHub Pages artifact or a Hetzner product-box
 deploy; do not clone another undeployed calculator. The host is decided
@@ -90,8 +141,10 @@ deploy; do not clone another undeployed calculator. The host is decided
 
 Target super-niches where users have money and a real problem — especially
 tools that help them earn more. Low variable cost, traditional software, AI
-only where it clearly helps. Payment and payout rails stay off; GitHub
-Sponsors/donations are fine.
+only where it clearly helps. Payment code is allowed only off by default and on
+the deployer's own keys, never the owner's accounts (`prompts/goals.md`,
+"Payments: never the owner's"); the owner's own instances take GitHub Sponsors
+donations only. No new single-page calculators (`prompts/ventures/prompt-1.md`).
 
 ## Session gate (generic briefs only)
 
@@ -147,6 +200,7 @@ node platform/marketing/regen.mjs           # if that exited 1: commit whatever 
 node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
 node --test platform/proposal/*.test.mjs
 node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
+node --test platform/deploy/*.test.mjs
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
 # No pytest? `apt-get update && apt-get install -y python3-pytest` (pip may not reach PyPI). gitops/tests/test_worker_run.py fails ~26 on clean main when `gh` is preinstalled: compare against origin/main before blaming your change.

@@ -6,6 +6,7 @@ Pure Python, no dependencies. Real sensor: a chirp-sequence radar whose radial s
 cd research/alias-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, well under 1 s
 PYTHONPATH=src python3 experiments/run.py                 # about 50 s; output in experiments/results.txt
+python3 experiments/figure.py                           # plots section 2 of results.txt to experiments/rmse_vs_speed.svg (no dependencies)
 ```
 
 **Builds on.** The radar sensor-simulation and ego-velocity direction of ARPG (<https://arpg.colorado.edu/>; radar odometry and radar simulation) and the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. Companion to `doppler-twin` (which estimator to use when targets move), `radar-clutter-twin` and `mount-twin` in this repository. Velocity folding and multi-PRF unfolding are classical radar signal processing (Richards 2014; Skolnik 2008); Doppler-based ego-motion from a stationary-scene sine fit follows Kellner et al. (2013).

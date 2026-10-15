@@ -453,6 +453,7 @@
     "gabor-granger-price-analyzer": "2026-09-30",
     "gambling-loss-deduction-calculator": "2026-09-25",
     "garage-door-bid-calculator": "2026-08-26",
+    "garmin-world-traveler-watchface": "2026-10-15",
     "gbp-bulk-location-check": "2026-10-04",
     "ghost-kitchen-brand-picker": "2026-10-09",
     "ghost-members-export-analyzer": "2026-09-29",
@@ -751,6 +752,8 @@
     "phone-repair-shop-profit-calculator": "2026-10-11",
     "photo-addon-pricing-calculator": "2026-09-16",
     "photo-booth-event-quote": "2026-09-06",
+    "photo-editing": "2026-10-15",
+    "photos-import-tools": "2026-10-15",
     "physician-wrvu-compensation-calculator": "2026-09-30",
     "physician-wrvu-contract-calculator": "2026-09-30",
     "pickleball-facility-pro-forma": "2026-10-05",
@@ -847,6 +850,7 @@
     "restaurant-labor-cost-daypart-analyzer": "2026-09-29",
     "restaurant-pos-menu-mix-analyzer": "2026-09-29",
     "restaurant-tip-pool-calculator": "2026-10-06",
+    "retail-pilot-intel": "2026-10-15",
     "retainage-cashflow-calculator": "2026-08-25",
     "retaining-wall-bid-calculator": "2026-08-26",
     "retirement-plan-startup-credit-calculator": "2026-10-13",
@@ -1227,6 +1231,7 @@
     "youtube-adsense-payout-to-journal": "2026-10-06",
     "youtube-chapters-check": "2026-10-05",
     "youtube-revenue-rpm-analyzer": "2026-09-29",
+    "youtube-sponsorship-rate-calculator": "2026-10-15",
     "za-freelancer-provisional-tax-set-aside-calculator": "2026-10-14",
     "zoho-crm-import-csv-check": "2026-10-04"
   }

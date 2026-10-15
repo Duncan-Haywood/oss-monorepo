@@ -270,7 +270,8 @@ Merge yourself after CI is green:
 
 Only flag the owner when you cannot finish without them:
 
-- Payment collection, payout rails, live billing
+- Payment, payout or billing accounts in the owner's name (payment code on the
+  deployer's own keys is fine: `prompts/goals.md`)
 - Account registration needing card / ID / domain / bank
 - Public publishing (store listing, npm publish, production domain)
 - Unattended paid automation (scheduled jobs calling paid APIs)
