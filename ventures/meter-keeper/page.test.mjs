@@ -39,3 +39,7 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("index links one hop to the drip-keeper sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/drip-keeper\/"/);
+});
