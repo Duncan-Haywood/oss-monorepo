@@ -430,6 +430,25 @@ export function renderProposal(p, { today = "" } = {}) {
   return sections.join("\n");
 }
 
+// ---------- standalone file ----------
+
+// A single self-contained HTML file the client can open in any browser, with no
+// network request and no script. `css` is the proposal stylesheet (the page
+// passes its own); every user-typed value is already escaped by renderProposal.
+export function standaloneHtml(p, { css = "", today = "" } = {}) {
+  const title = `${p.number} ${p.title}`.trim() || "Proposal";
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>${esc(title)}</title>
+<style>body{font:16px/1.5 system-ui,sans-serif;color:#111;background:#fff;max-width:860px;margin:0 auto;padding:24px}table{width:100%;border-collapse:collapse}td,th{padding:6px 8px;border-bottom:1px solid #ddd;text-align:left}.n{text-align:right}@media print{body{padding:0;max-width:none}}
+${css}</style></head>
+<body><div id="preview">
+${renderProposal(p, { today })}
+</div></body></html>
+`;
+}
+
 // ---------- handoff to Estimate Maker ----------
 
 // The proposal's pricing as a draft in Estimate Maker's own schema, so it can
