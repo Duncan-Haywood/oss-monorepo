@@ -20,7 +20,7 @@
   "baseline": "11 per 686 (1.6%) in 2026-10-01..15",
   "opened": "2026-10-15",
   "source": "prompts/process/reports/2026-10-15*.md",
-  "pr": null,
+  "pr": "#7163",
   "result": null,
   "history": [
     {
