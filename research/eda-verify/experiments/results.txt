@@ -1,0 +1,28 @@
+tools: {'yosys': 'Yosys 0.33 (git sha1 2584903a060)', 'iverilog': 'Icarus Verilog version 12.0 (stable) ()', 'openroad': False}
+design: p=8, wb=4 MAC accelerator; formal bound 22 cycles; 20 random seeds
+mutants: 173 enumerated, 102 sampled, 91 compile; killable 66, proved equivalent 16, undecided 9
+  del: killable 3, equivalent 0, undecided 0
+  lit: killable 33, equivalent 8, undecided 7
+  op: killable 15, equivalent 8, undecided 2
+  rom: killable 15, equivalent 0, undecided 0
+
+kill rate over killable mutants (random inputs; mean over seeds, then over mutants):
+  random,  1 vectors: 0.764
+  random,  2 vectors: 0.815
+  random,  4 vectors: 0.867
+  random,  8 vectors: 0.913
+  random, 16 vectors: 0.947
+  random, 32 vectors: 0.970
+  random, 64 vectors: 0.994
+  coverage-directed, 16 vectors (one deterministic set): 0.970
+  formal (bounded 22 cycles): 0.712
+
+killable mutants never caught by 64 random vectors in any seed: 0: 
+  of those, caught by the 16 directed vectors: 0; by formal: 0
+killable mutants formal did not kill (found by simulation): 19: lit@122:0+1[undecided], del@122:delete[undecided], op@127:+->-[undecided], lit@127:1-1[undecided], op@135:+->-[undecided], lit@135:1-1[undecided], lit@137:8-1[undecided], op@139:==->!=[undecided], lit@139:0+1[undecided], lit@150:0+1[undecided], op@151:<-><=[undecided], lit@151:1-1[undecided], lit@151:8+1[undecided], rom@14:+1[undecided], rom@32:+1[undecided], rom@62:+1[undecided], rom@70:+1[undecided], rom@84:+1[undecided], rom@101:+1[undecided]
+
+CPU seconds per mutant: random 64-vector run 1.07, directed (incl. generation) 1.15, formal kill 52.0; equivalence proofs 234.1
+kills per CPU-minute (killable mutants killed by that checker / its total seconds on all killable mutants):
+  random-64 (one seed's run; mean over seeds): 42.0
+  directed-16: 39.1
+  formal: 0.31

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" font-family="sans-serif" font-size="12">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="60" y="18" font-weight="bold">n-gram detector AUROC by family (5 seeds; 1.0 = perfect)</text>
+<line x1="60" x2="750" y1="280.0" y2="280.0" stroke="#ddd"/><text x="54" y="284.0" text-anchor="end">0.80</text>
+<line x1="60" x2="750" y1="217.5" y2="217.5" stroke="#ddd"/><text x="54" y="221.5" text-anchor="end">0.85</text>
+<line x1="60" x2="750" y1="155.0" y2="155.0" stroke="#ddd"/><text x="54" y="159.0" text-anchor="end">0.90</text>
+<line x1="60" x2="750" y1="92.5" y2="92.5" stroke="#ddd"/><text x="54" y="96.5" text-anchor="end">0.95</text>
+<line x1="60" x2="750" y1="30.0" y2="30.0" stroke="#ddd"/><text x="54" y="34.0" text-anchor="end">1.00</text>
+<rect x="70.3" y="172.2" width="19.6" height="107.8" fill="#c0392b"/>
+<rect x="91.9" y="121.3" width="19.6" height="158.7" fill="#e08e0b"/>
+<rect x="113.5" y="42.0" width="19.6" height="238.0" fill="#1f6fb2"/>
+<text x="103.1" y="296" text-anchor="middle">abstracts</text>
+<rect x="156.6" y="39.3" width="19.6" height="240.7" fill="#c0392b"/>
+<rect x="178.2" y="34.7" width="19.6" height="245.3" fill="#e08e0b"/>
+<rect x="199.7" y="30.3" width="19.6" height="249.7" fill="#1f6fb2"/>
+<text x="189.4" y="296" text-anchor="middle">books</text>
+<rect x="242.8" y="66.6" width="19.6" height="213.4" fill="#c0392b"/>
+<rect x="264.4" y="54.3" width="19.6" height="225.7" fill="#e08e0b"/>
+<rect x="286.0" y="39.9" width="19.6" height="240.1" fill="#1f6fb2"/>
+<text x="275.6" y="296" text-anchor="middle">news</text>
+<rect x="329.1" y="225.8" width="19.6" height="54.2" fill="#c0392b"/>
+<rect x="350.7" y="62.8" width="19.6" height="217.2" fill="#e08e0b"/>
+<rect x="372.2" y="30.1" width="19.6" height="249.9" fill="#1f6fb2"/>
+<text x="361.9" y="296" text-anchor="middle">recipes</text>
+<rect x="415.4" y="86.1" width="19.6" height="193.9" fill="#c0392b"/>
+<rect x="436.9" y="66.8" width="19.6" height="213.2" fill="#e08e0b"/>
+<rect x="458.5" y="57.9" width="19.6" height="222.1" fill="#1f6fb2"/>
+<text x="448.1" y="296" text-anchor="middle">reddit</text>
+<rect x="501.6" y="102.8" width="19.6" height="177.2" fill="#c0392b"/>
+<rect x="523.2" y="67.1" width="19.6" height="212.9" fill="#e08e0b"/>
+<rect x="544.7" y="35.6" width="19.6" height="244.4" fill="#1f6fb2"/>
+<text x="534.4" y="296" text-anchor="middle">poetry</text>
+<rect x="587.9" y="49.6" width="19.6" height="230.4" fill="#c0392b"/>
+<rect x="609.4" y="38.0" width="19.6" height="242.0" fill="#e08e0b"/>
+<rect x="631.0" y="32.3" width="19.6" height="247.7" fill="#1f6fb2"/>
+<text x="620.6" y="296" text-anchor="middle">reviews</text>
+<rect x="674.1" y="160.2" width="19.6" height="119.8" fill="#c0392b"/>
+<rect x="695.7" y="129.7" width="19.6" height="150.3" fill="#e08e0b"/>
+<rect x="717.2" y="122.2" width="19.6" height="157.8" fill="#1f6fb2"/>
+<text x="706.9" y="296" text-anchor="middle">wiki</text>
+<rect x="60" y="318" width="12" height="12" fill="#c0392b"/><text x="77" y="328">universal (family unseen)</text>
+<rect x="290" y="318" width="12" height="12" fill="#e08e0b"/><text x="307" y="328">universal + 40 target items</text>
+<rect x="520" y="318" width="12" height="12" fill="#1f6fb2"/><text x="537" y="328">per-family (in-family)</text>
+</svg>
