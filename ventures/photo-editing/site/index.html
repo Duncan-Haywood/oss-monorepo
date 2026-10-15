@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShootFlow | Safe media ingest and production planning for photographers</title>
+  <meta name="description" content="ShootFlow is an early-stage open source toolkit for photographers and videographers: checksummed ingest, catalogs, and render planning that never deletes source media.">
+  <meta name="robots" content="index,follow">
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#20252b;background:#f5f1e8;--ink:#20252b;--muted:#4f5960;--line:#d9d2c5;--accent:#8f3420;--panel:#fffdf8}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink)}
+    main{max-width:820px;margin:auto;padding:3rem 1.25rem}
+    h1{font-size:clamp(2rem,6vw,3.5rem);line-height:1.05;margin:0 0 1rem}
+    p.lede{font-size:1.15rem;color:var(--muted)}
+    section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.25rem;margin:1.5rem 0}
+    h2{margin-top:0}a{color:var(--accent)}
+    footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1.25rem}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Ingest shoots safely and plan the edit.</h1>
+  <p class="lede">An early-stage toolkit for photographers and videographers who want reels, carousels and graded intermediates without spending their lives on file wrangling. The first testable core covers safe ingest, cataloging and render-task planning.</p>
+  <section>
+    <h2>What it does</h2>
+    <ul><li>Copies with checksums, manifests and conflict detection; source media is never deleted</li><li>Catalog of photo and video assets built from ingest manifests</li><li>Strict, resumable render-task and render-status manifests for future workers</li></ul>
+  </section>
+  <section>
+    <h2>Status</h2>
+    <p>Early prototype. A Python library with tests, not a finished product, and no hosted version. The page describes it and links to the source.</p>
+    <p>Clone the source; the README lists the modules and how to run the tests. <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/photo-editing">Source code and README</a>.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This software is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or professional advice. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Back up your media before running any tool that touches it.</p>
+    <p>This page runs no scripts, sets no cookies and collects nothing about you. Optional <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> support does not change what the software does.</p>
+  </footer>
+</main>
+</body>
+</html>
