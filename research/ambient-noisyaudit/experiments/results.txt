@@ -1,0 +1,59 @@
+Mean utility per message over 48 contexts; uniform-error label and auditor; true mix 0.5/0.35/0.15
+'naive' = auditor label taken as truth, smoothing alpha=1; 'em' = maximum likelihood with the auditor's matrix known; 200 audit sets per finite cell
+
+== label accuracy 0.7, auditor accuracy 1.0: true-param Bayes 0.3917  blind 0.3824
+   population limit (n = infinity): naive 0.3917  em 0.3917; naive-implied label accuracy 0.700 (true 0.7), implied P(high) 0.150 (true 0.150)
+      n    naive mean (std)   em mean (std)   P(naive<blind)  P(em<blind)
+      50   0.3898 (0.0015)   0.3896 (0.0016)      0.01           0.01
+     200   0.3910 (0.0005)   0.3909 (0.0005)      0.00           0.00
+    1000   0.3915 (0.0002)   0.3915 (0.0002)      0.00           0.00
+
+== label accuracy 0.7, auditor accuracy 0.9: true-param Bayes 0.3917  blind 0.3824
+   population limit (n = infinity): naive 0.3904  em 0.3917; naive-implied label accuracy 0.629 (true 0.7), implied P(high) 0.177 (true 0.150)
+      n    naive mean (std)   em mean (std)   P(naive<blind)  P(em<blind)
+      50   0.3881 (0.0024)   0.3880 (0.0035)      0.03           0.05
+     200   0.3898 (0.0013)   0.3906 (0.0007)      0.00           0.00
+    1000   0.3905 (0.0005)   0.3914 (0.0003)      0.00           0.00
+
+== label accuracy 0.7, auditor accuracy 0.8: true-param Bayes 0.3917  blind 0.3824
+   population limit (n = infinity): naive 0.3873  em 0.3917; naive-implied label accuracy 0.569 (true 0.7), implied P(high) 0.205 (true 0.150)
+      n    naive mean (std)   em mean (std)   P(naive<blind)  P(em<blind)
+      50   0.3864 (0.0028)   0.3869 (0.0045)      0.10           0.07
+     200   0.3873 (0.0018)   0.3900 (0.0014)      0.01           0.01
+    1000   0.3876 (0.0013)   0.3912 (0.0004)      0.00           0.00
+
+== label accuracy 0.7, auditor accuracy 0.7: true-param Bayes 0.3917  blind 0.3824
+   population limit (n = infinity): naive 0.3853  em 0.3917; naive-implied label accuracy 0.515 (true 0.7), implied P(high) 0.233 (true 0.150)
+      n    naive mean (std)   em mean (std)   P(naive<blind)  P(em<blind)
+      50   0.3845 (0.0031)   0.3838 (0.0079)      0.21           0.23
+     200   0.3849 (0.0019)   0.3891 (0.0019)      0.11           0.01
+    1000   0.3851 (0.0010)   0.3908 (0.0007)      0.02           0.00
+
+== label accuracy 0.9, auditor accuracy 1.0: true-param Bayes 0.4066  blind 0.3824
+   population limit (n = infinity): naive 0.4066  em 0.4066; naive-implied label accuracy 0.900 (true 0.9), implied P(high) 0.150 (true 0.150)
+      n    naive mean (std)   em mean (std)   P(naive<blind)  P(em<blind)
+      50   0.4044 (0.0020)   0.4055 (0.0012)      0.00           0.00
+     200   0.4063 (0.0003)   0.4064 (0.0003)      0.00           0.00
+    1000   0.4065 (0.0001)   0.4065 (0.0001)      0.00           0.00
+
+== label accuracy 0.9, auditor accuracy 0.9: true-param Bayes 0.4066  blind 0.3824
+   population limit (n = infinity): naive 0.4046  em 0.4066; naive-implied label accuracy 0.791 (true 0.9), implied P(high) 0.177 (true 0.150)
+      n    naive mean (std)   em mean (std)   P(naive<blind)  P(em<blind)
+      50   0.4008 (0.0031)   0.4047 (0.0021)      0.00           0.00
+     200   0.4032 (0.0019)   0.4060 (0.0008)      0.00           0.00
+    1000   0.4039 (0.0011)   0.4064 (0.0002)      0.00           0.00
+
+== label accuracy 0.9, auditor accuracy 0.8: true-param Bayes 0.4066  blind 0.3824
+   population limit (n = infinity): naive 0.3992  em 0.4066; naive-implied label accuracy 0.698 (true 0.9), implied P(high) 0.205 (true 0.150)
+      n    naive mean (std)   em mean (std)   P(naive<blind)  P(em<blind)
+      50   0.3962 (0.0044)   0.4029 (0.0042)      0.00           0.01
+     200   0.3984 (0.0025)   0.4055 (0.0012)      0.00           0.00
+    1000   0.3994 (0.0011)   0.4063 (0.0003)      0.00           0.00
+
+== label accuracy 0.9, auditor accuracy 0.7: true-param Bayes 0.4066  blind 0.3824
+   population limit (n = infinity): naive 0.3941  em 0.4066; naive-implied label accuracy 0.614 (true 0.9), implied P(high) 0.233 (true 0.150)
+      n    naive mean (std)   em mean (std)   P(naive<blind)  P(em<blind)
+      50   0.3918 (0.0046)   0.4008 (0.0079)      0.02           0.03
+     200   0.3934 (0.0029)   0.4045 (0.0026)      0.00           0.00
+    1000   0.3935 (0.0014)   0.4059 (0.0008)      0.00           0.00
+
