@@ -33,11 +33,11 @@
   "doc_friction": [
     {
       "file": "prompts/review/prompt-0.md",
-      "note": "steps 1-2 assume PRs are readable; research PRs live in the upstream repo, out of session scope"
+      "issue": "steps 1-2 assume PRs are readable; research PRs live in the upstream repo, out of session scope"
     },
     {
       "file": "prompts/promptctl.py",
-      "note": "unittest discover -s prompts did not finish in 3 minutes"
+      "issue": "unittest discover -s prompts did not finish in 3 minutes"
     }
   ],
   "goal": null,
