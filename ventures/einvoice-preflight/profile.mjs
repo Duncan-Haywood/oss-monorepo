@@ -8,6 +8,9 @@
 const XRECHNUNG_TYPE_CODES = new Set(["326", "380", "381", "384", "389", "875", "876", "877"]);
 const XRECHNUNG_SPEC = /^urn:cen\.eu:en16931:2017#(?:compliant|conformant)#urn:xeinkauf\.de:kosit:(?:xrechnung_3\.\d+|extension:xrechnung_3\.\d+)/i;
 
+const PEPPOL_SPEC = "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0";
+const PEPPOL_PROCESS = "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0";
+
 function finding(rule, message, fix, path) {
   return { rule, message, fix, path };
 }
@@ -150,6 +153,74 @@ export function inspectXrechnungProfile(invoice) {
       "Seller has neither a VAT identifier nor a tax number (BR-DE-16).",
       "Add supplier.vat_id (DE + 9 digits) or supplier.tax_number.",
       "/supplier/vat_id",
+    ));
+  }
+
+  return findings;
+}
+
+export const PEPPOL_RULES = {
+  "PP-001": "Business process (BT-23) is missing or is not the Peppol billing process (PEPPOL-EN16931-R001).",
+  "PP-002": "Specification identifier is not Peppol BIS Billing 3.0 (PEPPOL-EN16931-R004).",
+  "PP-003": "Seller electronic address (BT-34) is missing (PEPPOL-EN16931-R020).",
+  "PP-004": "Buyer electronic address (BT-49) is missing (PEPPOL-EN16931-R010).",
+  "PP-005": "Neither a buyer reference nor an order reference is present (PEPPOL-EN16931-R003).",
+};
+
+function hasEndpoint(party) {
+  return isObject(party) && isObject(party.endpoint) && Boolean(str(party.endpoint.id));
+}
+
+/** Peppol BIS Billing 3.0 rules on top of EN 16931: what a Peppol access point
+ *  rejects even when the invoice is arithmetically sound. Ids are PP-nnn and
+ *  name the PEPPOL-EN16931-R rule they mirror. Offline observation only. */
+export function inspectPeppolProfile(invoice) {
+  if (!isObject(invoice)) return [];
+  const findings = [];
+
+  const process = str(invoice.profile_id);
+  if (process !== PEPPOL_PROCESS) {
+    findings.push(finding(
+      "PP-001",
+      process ? "Business process (BT-23) is not the Peppol billing process." : "Business process (BT-23) is missing.",
+      `Set the business process to ${PEPPOL_PROCESS} (UBL cbc:ProfileID, CII BusinessProcessSpecifiedDocumentContextParameter).`,
+      "/profile_id",
+    ));
+  }
+
+  const spec = str(invoice.specification_id);
+  if (spec !== PEPPOL_SPEC) {
+    findings.push(finding(
+      "PP-002",
+      spec ? "Specification identifier (BT-24) does not name Peppol BIS Billing 3.0." : "Specification identifier (BT-24) is missing.",
+      `Set it to ${PEPPOL_SPEC}. An XRechnung identifier is only right for German buyers.`,
+      "/specification_id",
+    ));
+  }
+
+  if (!hasEndpoint(invoice.supplier)) {
+    findings.push(finding(
+      "PP-003",
+      "Seller electronic address (BT-34) is missing.",
+      "Add supplier.endpoint with the scheme and the id registered on the Peppol network, e.g. scheme 0088 (GLN) or 0192.",
+      "/supplier/endpoint",
+    ));
+  }
+  if (!hasEndpoint(invoice.customer)) {
+    findings.push(finding(
+      "PP-004",
+      "Buyer electronic address (BT-49) is missing.",
+      "Add customer.endpoint with the buyer's Peppol scheme and id; the access point routes on it.",
+      "/customer/endpoint",
+    ));
+  }
+
+  if (!str(invoice.buyer_reference) && !str(invoice.order_reference)) {
+    findings.push(finding(
+      "PP-005",
+      "Neither a buyer reference (BT-10) nor an order reference (BT-13) is present.",
+      "Add buyer_reference (the buyer's routing reference) or order_reference (their purchase-order number).",
+      "/buyer_reference",
     ));
   }
 

@@ -3,7 +3,8 @@
 //   POST /v1/validate        raw body = one invoice (JSON, UBL/CII XML or a
 //                            Factur-X PDF). Content-Type picks the filename
 //                            extension; ?name=invoice.xml overrides it.
-//     add ?profile=xrechnung to also apply the German BR-DE rules (XR-nnn)
+//     add ?profile=xrechnung to also apply the German BR-DE rules (XR-nnn),
+//     or ?profile=peppol for the Peppol BIS Billing 3.0 rules (PP-nnn)
 //   POST /v1/validate/batch  {"documents":[{"name","content","encoding"?}]}
 //                            encoding "base64" is for PDFs; default is text.
 //   POST /v1/generate        {"draft":{...},"format":"ubl"|"cii","profile":"xrechnung"|
@@ -35,7 +36,8 @@ function intEnv(env, key, fallback) {
 }
 
 function profileFrom(url) {
-  return url.searchParams.get("profile") === "xrechnung" ? "xrechnung" : "";
+  const profile = url.searchParams.get("profile");
+  return profile === "xrechnung" || profile === "peppol" ? profile : "";
 }
 
 export function loadConfig(env = process.env) {

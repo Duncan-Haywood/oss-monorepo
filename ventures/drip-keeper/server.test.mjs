@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
 import * as E from "./engine.mjs";
+import { createHmac } from "node:crypto";
 import { handler, runTick, unsubToken, unsubEmail, resendSender } from "./server.mjs";
 
 const H = 3_600_000, ADMIN = "a".repeat(20), SECRET = "s".repeat(20);
@@ -119,4 +120,28 @@ test("resendSender posts the message including headers to Resend", async () => {
   assert.equal(seen.u, "https://api.resend.com/emails");
   assert.equal(JSON.parse(seen.o.body).headers["List-Unsubscribe"], "<u>");
   await assert.rejects(resendSender({ apiKey: "k", from: "f", fetchImpl: async () => ({ ok: false, status: 429 }) })({ to: "b@x.io" }), /429/);
+});
+
+const WH = "whsec_" + Buffer.from("k".repeat(24)).toString("base64");
+const signed = (body, t, id = "msg_1") => { const ts = String(Math.floor(t / 1000)); const sig = createHmac("sha256", Buffer.from("k".repeat(24))).update(`${id}.${ts}.${body}`).digest("base64"); return { "webhook-id": id, "webhook-timestamp": ts, "webhook-signature": `v1,${sig}` }; };
+
+test("resend webhook: off by default, rejects bad signatures, suppresses on complaint and permanent bounce only", async () => {
+  const s = await boot({ webhookSecret: WH });
+  for (const e of ["a@x.io", "b@x.io", "c@x.io"]) await s.call("POST", "/v1/events", { email: e, event: "signed_up" });
+  const post = (evt, hdr) => { const body = JSON.stringify(evt); return s.call("POST", "/v1/webhooks/resend", body, null, hdr || signed(body, s.clock.t)); };
+  assert.equal((await post({ type: "email.complained", data: { to: ["a@x.io"] } }, { "webhook-id": "x" })).status, 401);
+  const stale = JSON.stringify({ type: "email.complained", data: { to: ["a@x.io"] } });
+  assert.equal((await post({ type: "email.complained", data: { to: ["a@x.io"] } }, signed(stale, s.clock.t - 10 * 60_000))).status, 401);
+  assert.ok(!s.cfg.state.contacts["a@x.io"].sup);
+  assert.equal((await post({ type: "email.complained", data: { to: ["a@x.io"] } })).json.suppressed, 1);
+  assert.equal(s.cfg.state.contacts["a@x.io"].sup, "complaint");
+  assert.equal((await post({ type: "email.bounced", data: { to: ["b@x.io"], bounce: { type: "Transient" } } })).json.suppressed, 0);
+  assert.ok(!s.cfg.state.contacts["b@x.io"].sup);
+  assert.equal((await post({ type: "email.bounced", data: { to: ["b@x.io"], bounce: { type: "Permanent" } } })).json.reason, "bounce");
+  assert.equal((await post({ type: "email.delivered", data: { to: ["c@x.io"] } })).json.suppressed, 0);
+  assert.equal((await post({ type: "email.complained", data: { to: ["nobody@x.io"] } })).json.suppressed, 0);
+  s.close();
+  const off = await boot();
+  assert.equal((await off.call("POST", "/v1/webhooks/resend", "{}", null)).status, 404);
+  off.close();
 });
