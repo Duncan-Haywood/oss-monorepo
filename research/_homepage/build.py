@@ -143,6 +143,13 @@ def published_page(page, slug, base_url):
         '<meta name="twitter:card" content="summary_large_image">\n'
     )
     page = page.replace("</head>", meta + "</head>", 1)
+    # Search results and share cards show at most 160 characters of a description.
+    def shorten(m):
+        text = html.unescape(m.group(2))
+        if len(text) > 160:
+            text = text[:159].rsplit(" ", 1)[0].rstrip(" ,;:") + "…"
+        return m.group(1) + html.escape(text) + '"'
+    page = re.sub(r'(<meta (?:name="description"|property="og:description") content=")([^"]*)"', shorten, page)
     return page.replace('<a href="../index.html">', '<a href="../../" data-pf-to="hub">All tools</a><a href="../index.html">', 1)
 
 
