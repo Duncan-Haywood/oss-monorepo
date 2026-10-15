@@ -25,19 +25,25 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 0,
-  "outcome": "Small deepening of the self-deploy funnel: every tool page footer links to deploy/?app=<slug>. Did not build a new venture.",
+  "outcome": "success",
   "errors": [
     "platform/pages/secondary-schema.test.mjs fails on job-application-tracker (2 pages lack JSON-LD); unrelated to this change"
   ],
   "integrity_issues": [],
   "doc_friction": [
-    "CLAUDE.md checklist: node --test platform/pages + marketing + deploy takes ~17 min, exceeds the 10-min tool timeout"
+    {
+      "file": "unspecified",
+      "issue": "CLAUDE.md checklist: node --test platform/pages + marketing + deploy takes ~17 min, exceeds the 10-min tool timeout"
+    }
   ],
   "deviations": [
-    "Chose a small link change over a deep venture; scope was limited by session time"
+    {
+      "file": "unspecified",
+      "why": "Chose a small link change over a deep venture; scope was limited by session time"
+    }
   ],
   "goal": null,
-  "notes": "",
+  "notes": "outcome summary: Small deepening of the self-deploy funnel: every tool page footer links to deploy/?app=<slug>. Did not build a new venture.",
   "corrections": [],
   "redteam": null
 }
