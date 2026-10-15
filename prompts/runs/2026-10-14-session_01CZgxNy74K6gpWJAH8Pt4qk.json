@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-14",
+  "session": "https://claude.ai/code/session_01CZgxNy74K6gpWJAH8Pt4qk",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": "2026-10-14T16:30:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "extend",
+  "projects": [
+    "simdesign-shellconverge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/449",
+  "commits": [
+    "3d9ed648bb57c1ad48427fb4671f4778bba18c27",
+    "4ba40b585cda0f8eb3d1c1bf70abcf57fe79c0ce",
+    "ca66187d4acfc086202c8fb7c140e12b18d900b6",
+    "f3c43ca72693dd9a6456d6d269d2b69e5c9aa0b5"
+  ],
+  "lines_added": 270,
+  "lines_removed": 0,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": 0,
+  "tests_added": 2,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "default python lacked numpy; used /usr/bin/python3",
+    "w=8 scan hit its 25 min timeout; two vertical meshes rerun separately",
+    "remote branch claude/shellconverge could not be deleted (proxy hung up); same commit as PR branch"
+  ],
+  "integrity_issues": [],
+  "notes": "Queue empty. Track 5 drawn at random; mesh refinement follow-up to simdesign-webshell. Two refinement levels only, no convergence rate claimed. Branch is the session-designated one, not a new claude/ branch.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

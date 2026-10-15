@@ -1,0 +1,25 @@
+E1 random instances (300, N in 2..6, T in 20..300, random wake rates, losses in [0,1], eta in {.05,.1,.25,.5}): bounds and budget balance
+  max |total wealth - 1| linear ledger: 1.55e-15;  exponential ledger total wealth >= 1 in 300/300 runs
+  worst (regret - bound), linear: -5.340 (max regret/bound 0.262);  exponential: -1.705   (negative = bound holds)
+E2 tightness: module 0 has loss 0 and the other N-1 modules loss 1 on its n awake rounds, all awake, eta=0.5, pi uniform
+  N= 4 n= 20  regret 3.109  bound 12.773  (ln N/eta = 2.773)
+  N=16 n= 20  regret 6.459  bound 15.545  (ln N/eta = 5.545)
+  N=16 n=200  regret 6.460  bound 105.545  (ln N/eta = 5.545)
+E3 recurring regimes: K specialists asleep outside their own regime + always-awake generalist (loss 0.3); specialist loss 0.1 in regime; forced-to-report specialists lose 0.6 outside
+   cumulative mixture loss per round after 40 cycles, L=25 rounds per regime (eta=0.3 ledger, eta=0.3 hedge)
+  K= 3 T= 3000  oracle 0.0995  ledger 0.1004  forced Hedge 0.3018  fixed-share(.02) 0.3401  |  ledger regret 2.7 <= bound 913.9
+  K= 6 T= 6000  oracle 0.1000  ledger 0.1004  forced Hedge 0.3013  fixed-share(.02) 0.3561  |  ledger regret 2.8 <= bound 1838.9
+  K=12 T=12000  oracle 0.1002  ledger 0.1004  forced Hedge 0.3007  fixed-share(.02) 0.3634  |  ledger regret 2.7 <= bound 3702.6
+E4 memory: loss of the ledger in the first vs last cycle (K=6, L=25): frozen wealth means no relearning after a long absence
+  cycle  0: mean loss 0.1146   (specialist 0.1, generalist 0.3)
+  cycle  1: mean loss 0.0966   (specialist 0.1, generalist 0.3)
+  cycle  2: mean loss 0.1008   (specialist 0.1, generalist 0.3)
+  cycle 10: mean loss 0.1028   (specialist 0.1, generalist 0.3)
+  cycle 39: mean loss 0.0996   (specialist 0.1, generalist 0.3)
+   regime-0 module wealth after cycle 0 / cycle 1 / cycle 10: 0.2335 / 0.2335 / 0.2335
+   wealth of module 0 is unchanged across the other K-1 regimes: True
+E5 admitting a new module: incumbents run T1=300 rounds, entrant (loss 0.05 vs incumbents 0.4) admitted with wealth eps funded pro rata; T2=300 rounds all awake, eta=0.25
+  eps= 0.500  entrant regret   2.81 <=  77.77   rounds to half the market: 0   incumbent bound inflation ln(1/(1-eps))/eta = 2.7726
+  eps= 0.100  entrant regret   9.46 <=  84.21   rounds to half the market: 25   incumbent bound inflation ln(1/(1-eps))/eta = 0.4214
+  eps= 0.010  entrant regret  19.06 <=  93.42   rounds to half the market: 53   incumbent bound inflation ln(1/(1-eps))/eta = 0.0402
+  eps= 0.001  entrant regret  28.67 <= 102.63   rounds to half the market: 80   incumbent bound inflation ln(1/(1-eps))/eta = 0.0040

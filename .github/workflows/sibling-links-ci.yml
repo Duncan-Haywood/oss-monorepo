@@ -61,7 +61,7 @@ concurrency:
 
 jobs:
   sibling-links:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # A node --test run plus one pass over every venture entry page -- a few
     # seconds. Capped for the same reason every other job here is: minutes on
     # this account are metered.

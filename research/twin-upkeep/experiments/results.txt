@@ -1,0 +1,70 @@
+plant a=0.9, b=1.0, q=1.0, r=0.1, s2=1; k*=0.8233; clairvoyant cost J*=1.0741; stable while b < 2.308; info energy at nu=0: v0=E u^2=0.6819
+curvature J_kk=2.3621, gain slope dk*/db=-0.6920, so regret = 0.5656 * m
+
+== 1. Kalman twin of a drifting gain: closed-form predictive variance and regret vs closed-loop simulation (T=200k, 4 seeds, paired with a clairvoyant run) ==
+rho    prior sd   m (formula)  m (sim)   post var   regret (formula)  regret (sim)   twin/prior variance
+0.990  0.05       0.00232      0.00232   0.00232    0.00131           0.00140        0.928
+0.990  0.10       0.00791      0.00790   0.00787    0.00447           0.00466        0.791
+0.990  0.15       0.01501      0.01499   0.01486    0.00849           0.00882        0.667
+0.999  0.05       0.00161      0.00165   0.00161    0.00091           0.00100        0.646
+0.999  0.10       0.00415      0.00420   0.00414    0.00235           0.00247        0.415
+0.999  0.15       0.00681      0.00686   0.00677    0.00385           0.00400        0.302
+
+== 2. A random-walk gain (rho=1): the natural closed-loop signal already tracks it ==
+qd        m           sd(m)   regret    (regret / J*)   P(step destabilises gain)
+1e-06   0.00121    0.0348  0.00069   0.0006          0.00e+00
+1e-05   0.00383    0.0619  0.00217   0.0020          0.00e+00
+1e-04   0.01216    0.1103  0.00688   0.0064          0.00e+00
+1e-03   0.03880    0.1970  0.02194   0.0204          6.24e-09
+1e-02   0.12620    0.3552  0.07137   0.0664          9.14e-04
+
+== 3. Fresh then frozen: a twin calibrated to posterior variance p0 and never updated (rho=0.99, prior sd 0.1) ==
+tracking twin regret 0.00447 (m=0.00791); prior-mean twin regret 0.00566 (variance 0.01000)
+steps since sync   frozen variance   frozen regret   (tracker regret = 0.00447)
+    0              0.00787           0.00445
+    1              0.00791           0.00447
+    5              0.00807           0.00456
+   10              0.00826           0.00467
+   25              0.00871           0.00493
+   50              0.00922           0.00521
+  100              0.00971           0.00549
+  200              0.00996           0.00563
+  500              0.01000           0.00566
+half-life of a frozen twin's advantage over the prior mean: ln(1/2)/(2 ln rho) = 34.5 steps
+
+== 4. Does a dedicated probing budget pay for one drifting gain?  price gamma of information energy vs its marginal value ==
+a     k*     v0      price gamma   value at qd=1e-4 / 1e-3 / 1e-2 (rho=.99)      qd above which dither pays (rho=.99 / rw)
+0.3   0.273  0.075   1.0313        0.00006 / 0.00389 / 0.06236                   0.696 / 0.575
+0.9   0.823  0.682   0.6981        0.00041 / 0.00698 / 0.03891                   >1 (never) / >1 (never)
+1.2   1.103  1.227   0.5532        0.00059 / 0.00701 / 0.03360                   >1 (never) / >1 (never)
+(a stationary drift sd of 0.7/sqrt(1-rho^2) = 5 at the a=0.3 threshold, far outside any small-error regime)
+
+== 5. Two drifting parameters (a, b), random walks, common variance q: the closed-loop blind spot ==
+mean-field: at nu=0 the covariance has no steady state (blind direction (a,b) ~ (k,1) is unobserved) -> regret grows without bound
+q         nu*      nu* / previous (log-log slope in q)   regret at nu*   dither cost   excess*     excess slope
+1e-10   0.0027                                   0.000029       0.000008      0.000037    
+1e-09   0.0039   0.167   /  0.395                0.000074       0.000018      0.000093    
+1e-08   0.0058   0.167   /  0.410                0.000199       0.000039      0.000238    
+1e-07   0.0085   0.167   /  0.426                0.000551       0.000084      0.000635    
+1e-06   0.0124   0.167   /  0.442                0.001575       0.000181      0.001755    
+1e-05   0.0182   0.167   /  0.456                0.004621       0.000389      0.005010    
+1e-04   0.0267   0.167   /  0.468                0.013883       0.000837      0.014721    
+
+== 6. Same model in closed loop (q=2e-7, T=100k, 6 seeds paired with clairvoyant): excess cost of the twin vs excitation nu ==
+nu*=0.0095 (mean-field)
+nu       mean-field regret   sim regret   dither cost   sim total
+0.0000   inf                 0.00057      0.000000      0.00057
+0.0030   0.00121             0.00069      0.000011      0.00070
+0.0095   0.00075             0.00063      0.000106      0.00074
+0.0300   0.00061             0.00061      0.001057      0.00166
+0.1000   0.00056             0.00058      0.011741      0.01232
+0.3000   0.00053             0.00057      0.105669      0.10624
+
+== 7. Stationary (mean-reverting) two-parameter drift: the blind direction saturates at its prior, dither does not pay ==
+rho     prior sd   regret at nu=0   best nu
+0.9900  0.10       0.01029          0.0000
+0.9900  0.20       0.02675          0.0000
+0.9990  0.10       0.00461          0.0000
+0.9990  0.20       0.01014          0.0000
+0.9999  0.10       0.00166          0.0000
+0.9999  0.20       0.00348          0.0000

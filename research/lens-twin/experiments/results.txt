@@ -1,0 +1,59 @@
+Lens twin: real = Brown radial distortion (x_d = x(1 + k1 r^2)), twin = pinhole (k1 = 0). Camera height h = 0.50 m, horizontal axis, flat floor.
+
+== 1. Ground-plane range read by the uncalibrated twin, ratio twin/true = 1/(1 + k1 h^2/R^2) (exact) ==
+  k1     R (m)   rho=h/R   twin range   ratio (sim)   ratio (formula)
+-0.30    0.75     0.667       0.8654       1.15385          1.15385
+-0.30    1.00     0.500       1.0811       1.08108          1.08108
+-0.30    2.00     0.250       2.0382       1.01911          1.01911
+-0.30    4.00     0.125       4.0188       1.00471          1.00471
+-0.30   10.00     0.050      10.0075       1.00075          1.00075
+ 0.20    0.75     0.667       0.6888       0.91837          0.91837
+ 0.20    1.00     0.500       0.9524       0.95238          0.95238
+ 0.20    2.00     0.250       1.9753       0.98765          0.98765
+ 0.20    4.00     0.125       3.9875       0.99688          0.99688
+ 0.20   10.00     0.050       9.9950       0.99950          0.99950
+
+== 2. Standoff braking: policy 'stop when twin range = R0' trained in the pinhole twin; true stopping range ==
+  k1     R0 (m)   true stop (m)   error (cm)   first order k1 h^2/R0 (cm)
+-0.30     0.75          0.5864       -16.36                       -10.00
+-0.30     1.00          0.9093        -9.07                        -7.50
+-0.30     1.50          1.4462        -5.38                        -5.00
+-0.30     3.00          2.9746        -2.54                        -2.50
+-0.10     0.75          0.7131        -3.69                        -3.33
+-0.10     1.00          0.9736        -2.64                        -2.50
+-0.10     1.50          1.4829        -1.71                        -1.67
+-0.10     3.00          2.9916        -0.84                        -0.83
+ 0.10     0.75          0.7808         3.08                         3.33
+ 0.10     1.00          1.0238         2.38                         2.50
+ 0.10     1.50          1.5163         1.63                         1.67
+ 0.10     3.00          3.0083         0.83                         0.83
+
+== 3. A scene line X = d bows in the image by exactly k1 d Y^2 (straight lane edge, d = 0.4) ==
+  k1     Y      bow (sim)    k1 d Y^2
+-0.30   0.1    -0.00120    -0.00120
+-0.30   0.3    -0.01080    -0.01080
+-0.30   0.5    -0.03000    -0.03000
+ 0.20   0.1     0.00080     0.00080
+ 0.20   0.3     0.00720     0.00720
+ 0.20   0.5     0.02000     0.02000
+
+== 4. Calibrating the twin's focal scale s by least squares over rho in [0, rho_max] (k1 = -0.3, s = 1 + 3 k1 rho_max^2/5) ==
+rho_max   s (closed form)   s (grid LSQ)   then range ratio at R = h/rho for rho = 0.1 rho_max, 0.5 rho_max, rho_max
+   0.30           0.98380        0.98379   0.9841  0.9905  1.0111
+   0.50           0.95500        0.95498   0.9557  0.9732  1.0324
+   0.70           0.91180        0.91176   0.9131  0.9466  1.0689
+(ratio 1 would be unbiased; calibration moves the error between near and far rather than removing it)
+
+== 5. Braking after calibrating s (k1 = -0.3, rho_max = 0.5), R0 = 1.0 m: true stop vs uncalibrated ==
+R0 = 1.0: uncalibrated stop 0.9093, calibrated stop 0.9623
+R0 = 2.0: uncalibrated stop 1.9610, calibrated stop 2.0571
+R0 = 4.0: uncalibrated stop 3.9811, calibrated stop 4.1704
+
+== 6. Identifying k1 from one image of a known 7x7 grid on the plane z = 1 (half-width 0.6), 400 draws per row ==
+true k1   sigma (norm. px)   mean est   RMS err   (range ratio error at R=1 m implied by the RMS err, first order)
+  -0.30             0.0005    -0.3000    0.0003   0.0001
+  -0.30             0.0020    -0.3000    0.0011   0.0003
+  -0.30             0.0080    -0.3000    0.0042   0.0010
+   0.20             0.0005     0.2000    0.0003   0.0001
+   0.20             0.0020     0.2000    0.0010   0.0003
+   0.20             0.0080     0.2000    0.0041   0.0010

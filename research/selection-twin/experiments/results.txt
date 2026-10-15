@@ -1,0 +1,71 @@
+Selecting the best of K candidate controllers by simulated cost in a twin (lower cost is better).
+Twin scores = true cost + noise.  Gaussian model: mu_i ~ N(m, v^2), s_i = mu_i + N(0, tau^2).
+
+== 1. Gaussian model: exact laws vs simulation (m=0, v=1, 20000 rounds; mean +- s.e.) ==
+tau   K    claimed th/sim            real th/sim               optimism th/sim         regret th/sim
+0.5     2    -0.6308 /  -0.6256        -0.5046 /  -0.5069         0.1262 /   0.1187         0.0596 /   0.0604
+0.5    10    -1.7204 /  -1.7201        -1.3763 /  -1.3720         0.3441 /   0.3481         0.1625 /   0.1636
+0.5   100    -2.8036 /  -2.8046        -2.2429 /  -2.2435         0.5607 /   0.5611         0.2647 /   0.2638
+0.5  1000    -3.6240 /  -3.6141        -2.8992 /  -2.8790         0.7248 /   0.7351         0.3422 /   0.3565
+1.0     2    -0.7979 /  -0.7958        -0.3989 /  -0.4048         0.3989 /   0.3910         0.1652 /   0.1622
+1.0    10    -2.1761 /  -2.1720        -1.0881 /  -1.0936         1.0881 /   1.0784         0.4507 /   0.4447
+1.0   100    -3.5463 /  -3.5536        -1.7731 /  -1.7790         1.7731 /   1.7746         0.7345 /   0.7303
+1.0  1000    -4.5841 /  -4.5798        -2.2920 /  -2.2742         2.2920 /   2.3055         0.9494 /   0.9703
+2.0     2    -1.2616 /  -1.2689        -0.2523 /  -0.2532         1.0093 /   1.0156         0.3119 /   0.3141
+2.0    10    -3.4408 /  -3.4424        -0.6882 /  -0.6886         2.7526 /   2.7539         0.8506 /   0.8500
+2.0   100    -5.6071 /  -5.6131        -1.1214 /  -1.1239         4.4857 /   4.4892         1.3862 /   1.3790
+2.0  1000    -7.2481 /  -7.2525        -1.4496 /  -1.4410         5.7985 /   5.8114         1.7918 /   1.8043
+
+== 2. Fixed noise: optimism grows like sqrt(2 ln K) but the winner's real cost only improves (v=1, tau=1) ==
+   K     c_K    claimed    real   optimism   sqrt(2 ln K)
+     1  0.000     0.000    0.000     0.000   0.000
+     2  0.564    -0.798   -0.399     0.399   1.177
+     5  1.163    -1.645   -0.822     0.822   1.794
+    10  1.539    -2.176   -1.088     1.088   2.146
+    50  2.249    -3.181   -1.590     1.590   2.797
+   200  2.746    -3.883   -1.942     1.942   3.255
+  1000  3.241    -4.584   -2.292     2.292   3.717
+ 10000  3.852    -5.447   -2.724     2.724   4.292
+
+== 3. Fixed simulation budget: tau^2 = sigma2 K / B.  Real cost of the selected winner (m=0, v=1) ==
+sigma2/B = 4.00:  K=1:0.000  K=2:-0.188  K=3:-0.235  K=4:-0.250  K=5:-0.254  K=6:-0.253  K=8:-0.248  K=10:-0.240  K=13:-0.229  K=16:-0.219  K=20:-0.207  K=30:-0.186  K=50:-0.159  K=100:-0.125  K=300:-0.083  K=1000:-0.051  K=5000:-0.026
+     best K = 5 (real cost -0.254); K=1 gives 0.000; K=5000 gives -0.026
+sigma2/B = 0.40:  K=1:0.000  K=2:-0.421  K=3:-0.571  K=4:-0.638  K=5:-0.671  K=6:-0.687  K=8:-0.695  K=10:-0.688  K=13:-0.670  K=16:-0.649  K=20:-0.622  K=30:-0.567  K=50:-0.491  K=100:-0.392  K=300:-0.262  K=1000:-0.162  K=5000:-0.082
+     best K = 8 (real cost -0.695); K=1 gives 0.000; K=5000 gives -0.082
+sigma2/B = 0.04:  K=1:0.000  K=2:-0.543  K=3:-0.800  K=4:-0.956  K=5:-1.062  K=6:-1.138  K=8:-1.239  K=10:-1.300  K=13:-1.353  K=16:-1.379  K=20:-1.392  K=30:-1.377  K=50:-1.299  K=100:-1.121  K=300:-0.798  K=1000:-0.506  K=5000:-0.259
+     best K = 22 (real cost -1.393); K=1 gives 0.000; K=5000 gives -0.259
+
+== 4. Concrete twin: exact plant, finite-rollout noise only.  a=1.1 b=1.0 s=0.20 r=0.1, H=100, gains ~ U[0.5,1.7] ==
+population of true costs: mean 0.0525, sd 0.0086, median 0.0493, min 0.0444, 99th pct 0.0786  (right-skewed: not Gaussian)
+K=50, N=10 rollouts each (300 rounds).  mean per-candidate score sd tau_hat=0.0026 (per-candidate range 0.0011..0.0057)
+                claimed            real (exact)       oracle best        optimism           regret
+measured   0.0414 +- 0.0001   0.0450 +- 0.0000   0.0445 +- 0.0000   0.0036              0.0005
+Gaussian th 0.0322            0.0339             0.0331             0.0017              0.0008   (using population m, v, tau_hat)
+lowest true cost any gain in [0.5,1.7] can achieve (grid): 0.0444; the naive winner's mean claim 0.0414 is below that
+winner's twin claim is 8.0% below its real cost
+
+== 5. Same concrete twin, fixed total budget of 200 rollouts split over K candidates (N = 200/K each) ==
+   K    N    claimed           real (exact)      regret vs best-of-K   real cost of best-of-K
+   2  100   0.0481 +- 0.0003   0.0482 +- 0.0003   0.0000              0.0482
+   4   50   0.0457 +- 0.0001   0.0460 +- 0.0001   0.0001              0.0459
+  10   20   0.0437 +- 0.0001   0.0451 +- 0.0000   0.0004              0.0447
+  20   10   0.0423 +- 0.0001   0.0451 +- 0.0000   0.0005              0.0445
+  50    4   0.0393 +- 0.0001   0.0453 +- 0.0001   0.0009              0.0445
+ 100    2   0.0358 +- 0.0001   0.0459 +- 0.0001   0.0014              0.0444
+
+== 6. Repairs at K=50, N=10 rollouts per candidate (equal 500-rollout budget; 400 rounds) ==
+naive: argmin twin score; claim = its score.   EB: choose and claim by empirical-Bayes posterior mean (plug-in tau_i^2).
+verify-claim: naive winner re-scored on 10 fresh rollouts (budget +10).   screen+verify: 5 rollouts each, top 5 re-scored with 50 each.
+method            claim (mean)      real (exact)      claim bias (real-claim)   regret vs best-of-50
+naive             0.0414 +- 0.0001   0.0449 +- 0.0000   0.0036 +- 0.0001        0.0005
+EB shrinkage      0.0418 +- 0.0001   0.0449 +- 0.0000   0.0031 +- 0.0001        0.0005
+verify claim only 0.0449 +- 0.0001   0.0449 +- 0.0000   0.0000 +- 0.0001        0.0005
+screen+verify     0.0439 +- 0.0000   0.0448 +- 0.0000   0.0008 +- 0.0000        0.0003
+
+== 7. Gaussian-model screen-and-verify vs naive at equal noise budget (K=100, v=1, tau=1 per unit-budget score) ==
+Precision budget: naive spends K units (tau=1 each).  screen+verify: stage 1 spends K/2 (tau1^2=2), stage 2 spends K/2 on the top t (tau2^2 = t/(K/2)).
+naive               claim -3.545  real -1.775  bias 1.770  regret 0.734
+screen top  2       claim -1.827  real -1.800  bias 0.027  regret 0.705   (tau1=1.414 tau2=0.200)
+screen top  5       claim -2.214  real -2.088  bias 0.126  regret 0.418   (tau1=1.414 tau2=0.316)
+screen top 10       claim -2.485  real -2.171  bias 0.314  regret 0.336   (tau1=1.414 tau2=0.447)
+screen top 20       claim -2.806  real -2.120  bias 0.686  regret 0.387   (tau1=1.414 tau2=0.632)

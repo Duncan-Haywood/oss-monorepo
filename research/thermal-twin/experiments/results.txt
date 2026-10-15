@@ -1,0 +1,69 @@
+Thermal twin: phi' = lam/(1-phi)^2 - phi (time in units of Rth*C), phi = alpha*theta, lam = alpha*c*tau^2. Twin: phi = lam.
+Fold: phi(1-phi)^2 = lam has a root iff lam <= 4/27 = 0.148148 at phi = 1/3.
+
+== 1. Steady hold: twin vs real (beta = 0) ==
+lam     twin phi  real phi  real/twin temp  current ratio 1/(1-phi)  residual |phi(1-phi)^2-lam|  sim phi(t=40)
+0.01    0.0100    0.0102    1.021           1.010                    0.00e+00                    0.0102
+0.03    0.0300    0.0320    1.067           1.033                    0.00e+00                    0.0320
+0.06    0.0600    0.0693    1.154           1.074                    0.00e+00                    0.0693
+0.1     0.1000    0.1330    1.330           1.153                    0.00e+00                    0.1330
+0.13    0.1300    0.2064    1.588           1.260                    0.00e+00                    0.2064
+0.14    0.1400    0.2467    1.762           1.328                    2.78e-17                    0.2467
+0.148   0.1480    0.3212    2.171           1.473                    0.00e+00                    0.3178
+lam = 4/27 (0.148148): real phi = 1/3 vs twin 0.1481 (2.25x temperature, 1.5x current)
+lam = 0.15  no steady hold: steady_phi = None
+lam = 0.16  no steady hold: steady_phi = None
+lam = 0.2   no steady hold: steady_phi = None
+
+== 2. Runaway time above the fold (beta = 0), time to phi = 0.999 in units of Rth*C ==
+lam     eps=lam-4/27  runaway time  ghost 4pi/(9 sqrt eps)  ratio   RK4 time to 0.999 (dt=1e-3)
+0.15    0.00185       30.0152       32.4462               0.925   30.0160
+0.16    0.01185       10.4723       12.8255               0.817   10.4730
+0.18    0.03185       5.5826        7.8235                0.714   5.5830
+0.2     0.05185       3.9813        6.1318                0.649   3.9820
+0.3     0.15185       1.7410        3.5831                0.486   1.7420
+0.5     0.35185       0.8428        2.3539                0.358   0.8430
+1       0.85185       0.3712        1.5128                0.245   0.3720
+closer to the fold:
+eps = 0.01    runaway time 11.597     ghost 13.963     ratio 0.8306
+eps = 0.001   runaway time 41.713     ghost 44.154     ratio 0.9447
+eps = 0.0001  runaway time 137.170    ghost 139.626    ratio 0.9824
+eps = 1e-05   runaway time 439.077    ghost 441.537    ratio 0.9944
+
+== 3. How long a test must run to see the twin is wrong (beta = 0): first time real current exceeds twin's by 5%, i.e. phi = 1-1/1.05 ==
+lam     t(+5% current)  steady phi  (units of Rth*C)
+0.02    nan             0.0209
+0.05    2.131           0.0561
+0.1     0.598           0.1330
+0.14    0.389           0.2467
+a test of length 0.1 Rth*C at lam=0.14 sees phi = 0.0135 (current +1.4%)
+
+== 4. Certified load under a winding temperature limit phi_m (beta = 0): twin torque / real torque ==
+phi_m   twin tau_max^2 (lam)  real lam_max  tau overestimate
+0.050   0.050                 0.0451        1.053
+0.100   0.100                 0.0810        1.111
+0.200   0.200                 0.1280        1.250
+0.333   0.333                 0.1481        1.500
+0.400   0.400                 0.1481        1.643
+0.600   0.600                 0.1481        2.012
+0.800   0.800                 0.1481        2.324
+illustration: alpha = 0.001/K (magnet-like), theta_max = 100 K -> phi_m = 0.1 -> twin overstates the holdable torque by 1.111x; alpha = 0.004/K -> phi_m = 0.4 -> 1.643x
+
+== 5. Fitting the twin's gain on a low-load hot run (beta = 0): constant k_eff = k0 (1 - phi_fit), steady state matched ==
+A twin with k_eff predicts phi = lam_twin(k_eff) where lam scales as 1/k_eff^2: phi_pred(lam) = lam/(1-phi_fit)^2 (in the same units, until temperature limit).
+fit lam   phi_fit   test lam   real phi   refit-twin phi   error
+0.03      0.0320    0.1        0.1330     0.1067           -0.0263
+0.03      0.0320    0.14       0.2467     0.1494           -0.0973
+0.06      0.0693    0.1        0.1330     0.1154           -0.0176
+0.06      0.0693    0.14       0.2467     0.1616           -0.0851
+0.1       0.1330    0.1        0.1330     0.1330           +0.0000
+0.1       0.1330    0.14       0.2467     0.1863           -0.0605
+(refit twin still has no fold: predicts a hold at every lam; at lam = 0.16 it says phi = 0.213, real has none)
+
+== 6. Winding resistance rise (b = beta/alpha) moves the fold ==
+b      lam_max     phi at fold   (b = 0: 4/27 = 0.148148, 1/3)
+0      0.148148    0.3333        steady phi at 0.9*lam_max = 0.2181; runaway time at 1.1*lam_max = 9.137
+0.5    0.127833    0.3028        steady phi at 0.9*lam_max = 0.1946; runaway time at 1.1*lam_max = 9.545
+1      0.113401    0.2808        steady phi at 0.9*lam_max = 0.1778; runaway time at 1.1*lam_max = 9.886
+1.5    0.102441    0.2638        steady phi at 0.9*lam_max = 0.1649; runaway time at 1.1*lam_max = 10.181
+3      0.080692    0.2287        steady phi at 0.9*lam_max = 0.1385; runaway time at 1.1*lam_max = 10.894

@@ -1,0 +1,67 @@
+== 1. Stationary variance: exact vs literal simulation (s=V=1; 400k rounds, 2k burn-in) ==
+N   p     alpha  rule      exact     sim       ratio
+1   0.50  0.30   unbiased  0.42857   0.42940   1.002
+1   0.50  0.30   ef        0.27273   0.27098   0.994
+4   0.25  0.40   unbiased  0.30769   0.30787   1.001
+4   0.25  0.40   ef        0.16136   0.16136   1.000
+6   0.10  0.15   unbiased  0.15385   0.15452   1.004
+6   0.10  0.15   ef        0.03596   0.03546   0.986
+
+== 2. Small-step penalty over uncompressed (N=8): unbiased ~ 1/p, error feedback ~ 1 + alpha s (1/p - 1) ==
+p      alpha   unbiased  1/p     ef        1+a*s*w
+0.50   0.01    2.001     2.00    1.0100    1.0100
+0.50   0.05    2.006     2.00    1.0494    1.0500
+0.25   0.01    4.008     4.00    1.0300    1.0300
+0.25   0.05    4.039     4.00    1.1500    1.1500
+0.10   0.01    10.057    10.00   1.0907    1.0900
+0.10   0.05    10.297    10.00   1.4680    1.4500
+0.05   0.01    20.242    20.00   1.1939    1.1900
+0.05   0.05    21.297    20.00   2.0583    1.9500
+
+== 3. Largest stable outer step alpha s (uncompressed: 2) ==
+N    p      unbiased  error-feedback
+1    0.50   1.000     0.667
+1    0.25   0.500     0.286
+1    0.10   0.200     0.105
+4    0.50   1.600     2.000
+4    0.25   1.143     1.077
+4    0.10   0.615     0.418
+32   0.50   1.939     4.800
+32   0.25   1.829     5.600
+32   0.10   1.561     3.102
+N=1 closed form 2p/(2-p): p=0.5 -> 0.6667, p=0.1 -> 0.1053
+
+== 4. Mean contraction under error feedback: sqrt(1-p) on a band of alpha s, whatever N ==
+p      fastest  band alpha s                  rate at alpha s=0.1  1-alpha s
+0.50   0.7071   [0.1716, 5.8284]        0.8851               0.9000
+0.25   0.8660   [0.0718, 13.9282]        0.8660               0.9000
+0.10   0.9487   [0.0263, 37.9737]        0.9487               0.9000
+0.02   0.9899   [0.0051, 197.9949]        0.9899               0.9000
+
+== 5. Floor at a target mean rate (N=8, s=V=1): best alpha with rate <= target; '-' = unreachable ==
+p = 0.25 (fastest ef rate 0.866)
+  target  full     unbiased  error-feedback
+  0.98    0.0013   0.0051    0.0013
+  0.95    0.0032   0.0130    0.0030
+  0.90    0.0066   0.0270    0.0052
+  0.80    0.0139   0.0580    -
+  0.60    0.0312   0.1380    -
+p = 0.10 (fastest ef rate 0.949)
+  target  full     unbiased  error-feedback
+  0.98    0.0013   0.0128    0.0012
+  0.95    0.0032   0.0332    0.0021
+  0.90    0.0066   0.0703    -
+  0.80    0.0139   0.1588    -
+  0.60    0.0312   0.4350    -
+
+== 6. Spectrum (eta=0.05, sigma=1, H=8, N=16, a = 1, 0.3, 0.1, 0.03): exact loss after T rounds from x=1, best outer step ==
+T = 100
+  p=1.00  unbiased 0.00446 (alpha 0.99)   ef 0.00446 (alpha 0.99)   ef/unbiased 1.000
+  p=0.25  unbiased 0.01093 (alpha 0.58)   ef 0.00534 (alpha 0.83)   ef/unbiased 0.489
+  p=0.10  unbiased 0.01886 (alpha 0.40)   ef 0.00682 (alpha 0.67)   ef/unbiased 0.361
+  p=0.03  unbiased 0.03699 (alpha 0.23)   ef 0.03502 (alpha 0.26)   ef/unbiased 0.947
+T = 400
+  p=1.00  unbiased 0.00153 (alpha 0.40)   ef 0.00153 (alpha 0.40)   ef/unbiased 1.000
+  p=0.25  unbiased 0.00433 (alpha 0.25)   ef 0.00168 (alpha 0.37)   ef/unbiased 0.389
+  p=0.10  unbiased 0.00801 (alpha 0.18)   ef 0.00195 (alpha 0.34)   ef/unbiased 0.243
+  p=0.03  unbiased 0.01680 (alpha 0.11)   ef 0.00289 (alpha 0.27)   ef/unbiased 0.172

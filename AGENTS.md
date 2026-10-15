@@ -47,6 +47,16 @@ push, open the PR straight away, verify, merge it yourself, then confirm
 PRs land, but 100 branches from the prior two weeks were pushed and never got
 a PR. Four finished ventures are among them, and `main` still lacks them.
 
+**Sessions started from [`prompt.md`](prompt.md) record themselves.** The
+master prompt routes each run to a sub-prompt (`prompts/ventures/`,
+`prompts/research/`, `prompts/process/` for the ~5% of runs that study the
+development process, `prompts/explore/` for the ~5% that are free choice, or
+the review track that improves the rest) and asks for
+a run record under `prompts/runs/` in the same PR. Any agent may add one. Its
+`doc_friction` field, listing instructions that were wrong, stale or slow,
+names the file, and it is how this file gets corrected
+([`prompts/README.md`](prompts/README.md)).
+
 ## Build criteria
 
 Prefer products that:
@@ -296,8 +306,9 @@ of done.
 ## Graduating from the pipeline
 
 If anything already on `main` still has no public URL, deploy that first
-(prepare a GitHub Pages artifact or a Hetzner product-box deploy; the
-owner flip is `deploy-settings`). See [`portfolio/hosting/`](portfolio/hosting/README.md).
+(prepare a GitHub Pages artifact; the Hetzner boxes were deleted
+2026-10-01, so there is no product box to deploy to; the owner flip is
+`deploy-settings`). See [`portfolio/hosting/`](portfolio/hosting/README.md).
 Do not add Cloudflare or Vercel. Only then:
 
 If `session_gate.py` names a `build-now` candidate, graduate it:

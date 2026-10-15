@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robofab-armbang"
+version = "0.1.0"
+description = "Time-optimal versus min-jerk carry of a printed part by a planar two-link arm: time saved and grip cost"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

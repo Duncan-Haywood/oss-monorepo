@@ -1,0 +1,45 @@
+plant a=0.9, b=1.0, q=1.0, r=0.1, s2=1; controller k=k*(b)=0.8233, closed-loop c=a-bk=0.0767, real cost J=1.0741; twin gain bh, ch=a-bh*k
+
+== 1. Twin-real cost correlation: closed form vs exact finite-T trace formula vs Monte Carlo (T=200, 6000 paired rollouts) ==
+bh    ch       J(twin)  bias    rho long-run  rho exact T=200  rho MC   |  lam=0.8: formula  MC   |  lam=0: MC
+1.00  +0.0767  1.0741  +0.0000  1.0000        1.0000           1.0000   |  0.6400          0.6460 |  +0.0078
+1.15  -0.0468  1.0701  -0.0040  0.9849        0.9849           0.9845   |  0.6303          0.6364 |  +0.0057
+1.30  -0.1703  1.0997  +0.0256  0.9408        0.9411           0.9398   |  0.6021          0.6089 |  +0.0030
+1.60  -0.4174  1.2930  +0.2189  0.7820        0.7830           0.7815   |  0.5005          0.5096 |  -0.0032
+2.00  -0.7467  2.4133  +1.3392  0.4725        0.4742           0.4848   |  0.3024          0.3114 |  -0.0086
+2.30  -0.9937  84.9446  +83.8705  0.0679        0.0891           0.0966   |  0.0434          0.0325 |  -0.0171
+(twin-only estimate is biased by J(twin)-J; correlation is what a twin is worth as a control variate)
+
+== 2. Small-bias law: 1 - rho vs twin gain error (lam=1) ==
+dbh     1-rho        (1-rho)/(k dbh)^2   predicted (1+c^4)/(1-c^4)^2 = 1.0001
+0.01   6.779e-05    1.0000
+0.02   2.711e-04    0.9999
+0.05   1.693e-03    0.9992
+0.10   6.756e-03    0.9966
+0.20   2.675e-02    0.9866
+0.40   1.029e-01    0.9484
+noise-sharing: rho scales as lam^2 exactly (formula) -- lam=1, .9, .8, .7, .5 at dbh=0.3: 0.9408, 0.7621, 0.6021, 0.4610, 0.2352
+
+== 3. Optimal split and gain: variance ratio to real-only at equal budget; breakeven twin price ==
+rho     breakeven w=ct/cr    gain at w=0.1   w=0.01   w=0.001   optimal N/n at w=0.01
+0.30    0.0236               1.0000          0.9681   0.9282    3.14
+0.50    0.0718               1.0000          0.8391   0.7776    5.77
+0.70    0.1668               0.8752          0.6149   0.5421    9.80
+0.90    0.3929               0.5191          0.2766   0.2156    20.65
+0.94    0.4912               0.4076          0.1894   0.1376    27.55
+0.99    0.7527               0.2062          0.0576   0.0297    70.18
+
+== 4. Simulation of the estimator (bh=1.3, lam=1, T=100; twin costs w=0.02 of a real rollout; budget 20 real-rollout units) ==
+pilot (4000 pairs): sd real 0.15425, sd twin 0.16106, rho 0.9446 (exact 0.9414), beta*=0.9015, true J(T=100)=1.07531, twin mean 1.10067
+optimal split: n=14.34, N=283.0 (N/n=19.7), predicted variance factor 0.2214; rounded n=14, N=283
+real only (n=20)       mean 1.07327 (bias -0.00204)  sd 0.03394  MSE 1.156e-03
+twin only (N=283)      mean 1.09927 (bias +0.02396)  sd 0.00946  MSE 6.637e-04
+control variate        mean 1.07392 (bias -0.00139)  sd 0.01619  MSE 2.641e-04
+empirical variance ratio (cv / real-only) 0.2277 vs predicted 0.2252
+
+== 5. Bias-variance budget map (closed form, T=100 per-step average cost, w=0.02): MSE of real-only, twin-only and control variate ==
+bh    bias      rho     crossover budget B* (real units)   B=20: real / twin / cv          B=200: real / twin / cv          B=2000: real / twin / cv
+1.15  -0.0040   0.9849      1457.5                       1.2e-03 / 3.9e-05 / 1.1e-04   1.2e-04 / 1.8e-05 / 1.1e-05   1.2e-05 / 1.6e-05 / 1.1e-06
+1.30  +0.0256   0.9408        34.8                       1.2e-03 / 6.8e-04 / 2.6e-04   1.2e-04 / 6.6e-04 / 2.6e-05   1.2e-05 / 6.6e-04 / 2.6e-06
+1.60  +0.2189   0.7820         0.5                       1.2e-03 / 4.8e-02 / 6.3e-04   1.2e-04 / 4.8e-02 / 6.3e-05   1.2e-05 / 4.8e-02 / 6.3e-06
+(the control variate is unbiased, so its MSE is its variance; it is lowest in every cell except bh=1.15 at B=20, where the twin-only bias is so small (0.004) that twin-only wins)

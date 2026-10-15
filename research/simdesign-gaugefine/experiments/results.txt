@@ -1,0 +1,8 @@
+20x20 grid over (w, r) per gauge; stress limit 100.0 MPa, tip limit 4.0 mm; meshes h = (2.5, 1.0) mm
+least feasible mass in g (w, r in mm) by measure and mesh; '-' = no feasible cell (or not re-solved on the fine mesh)
+rules b=1.5: peak@2.5: - | peak@1.0: - | patch@2.5: - | patch@1.0: -
+rules b=2: peak@2.5: 35.40 (w=15.3, r=13.4) | peak@1.0: - | patch@2.5: 32.31 (w=14.1, r=0.8) | patch@1.0: 32.33 (w=14.1, r=2.4)
+rules b=3: peak@2.5: 41.13 (w=11.7, r=7.9) | peak@1.0: 45.58 (w=12.9, r=13.4) | patch@2.5: 40.81 (w=11.7, r=0.8) | patch@1.0: 40.81 (w=11.7, r=0.8)
+free  b=1.5: peak@2.5: - | peak@1.0: - | patch@2.5: - | patch@1.0: -
+free  b=2: peak@2.5: 35.40 (w=15.3, r=13.4) | peak@1.0: - | patch@2.5: 32.31 (w=14.1, r=0.0) | patch@1.0: 32.33 (w=14.1, r=2.4)
+free  b=3: peak@2.5: 41.13 (w=11.7, r=7.9) | peak@1.0: 45.58 (w=12.9, r=13.4) | patch@2.5: 40.81 (w=11.7, r=0.0) | patch@1.0: 40.81 (w=11.7, r=0.0)

@@ -1,0 +1,39 @@
+host: {'python': '3.13.16', 'cpus': 4, 'machine': 'x86_64'}   stream 28.9 s, utterance audio [1.87, 2.61, 5.23, 2.11, 1.78, 3.89] s
+
+memory (RSS delta after loading, MB)
+  python+numpy baseline                      29
+  tts piper lessac-low                       89.0
+  vad silero                                 30.0
+  asr faster-whisper tiny.en int8            53.0
+  llm qwen2.5-0.5b q4_k_m (ctx 512)          570.0
+  peak process RSS with every stage loaded (MB): 1105
+
+VAD (Silero, 32 ms frames)
+  clean: 0.145 ms/frame median, p99 0.457, RTF 0.0072
+    hangover 200 ms: found 6/6, splits 1, spurious 0, endpoint fires 255.0 ms (max 262.0) after end of speech
+    hangover 300 ms: found 6/6, splits 0, spurious 0, endpoint fires 351.0 ms (max 358.0) after end of speech
+    hangover 500 ms: found 6/6, splits 0, spurious 0, endpoint fires 575.0 ms (max 582.0) after end of speech
+    hangover 800 ms: found 6/6, splits 0, spurious 0, endpoint fires 863.0 ms (max 870.0) after end of speech
+  noise_20dB: 0.137 ms/frame median, p99 0.364, RTF 0.005
+    hangover 200 ms: found 6/6, splits 1, spurious 0, endpoint fires 250.0 ms (max 262.0) after end of speech
+    hangover 300 ms: found 6/6, splits 1, spurious 0, endpoint fires 346.0 ms (max 358.0) after end of speech
+    hangover 500 ms: found 6/6, splits 0, spurious 0, endpoint fires 570.0 ms (max 582.0) after end of speech
+    hangover 800 ms: found 6/6, splits 0, spurious 0, endpoint fires 858.0 ms (max 870.0) after end of speech
+
+ASR (faster-whisper tiny.en int8, greedy, per closed segment)
+  threads1_clean         median 460 ms  RTF 0.16  mean WER 0.01
+  threads1_noise_20dB    median 472 ms  RTF 0.17  mean WER 0.01
+  threads4_clean         median 306 ms  RTF 0.11  mean WER 0.01
+  threads4_noise_20dB    median 316 ms  RTF 0.114  mean WER 0.01
+
+LLM (Qwen2.5-0.5B-Instruct Q4_K_M, n_ctx 512, max 60 tokens)
+  threads1: first token 66 ms, first sentence 906 ms, 14.8 tok/s; per-utterance first sentence [1234, 1079, 331, 562, 1024, 788]
+  threads4: first token 23 ms, first sentence 267 ms, 47.6 tok/s; per-utterance first sentence [375, 343, 129, 162, 297, 237]
+
+TTS (Piper en_US-lessac-low): first chunk 88 ms median, RTF 0.029, per utterance [120, 121, 54, 71, 106, 67]
+
+reply latency, end of speech -> first audio out (4 threads, clean)
+  hangover 200 ms (measured 255, utterances split 1): median 938 ms, range 786-1059; compute speed-up needed for 0.5/1/2 s: {'500': 2.7, '1000': 0.89, '2000': 0.38}
+  hangover 300 ms (measured 351, utterances split 0): median 1034 ms, range 882-1155; compute speed-up needed for 0.5/1/2 s: {'500': 4.44, '1000': 1.02, '2000': 0.4}
+  hangover 500 ms (measured 575, utterances split 0): median 1258 ms, range 1106-1379; compute speed-up needed for 0.5/1/2 s: {'500': 'inf', '1000': 1.56, '2000': 0.46}
+  hangover 800 ms (measured 863, utterances split 0): median 1546 ms, range 1394-1667; compute speed-up needed for 0.5/1/2 s: {'500': 'inf', '1000': 4.83, '2000': 0.58}

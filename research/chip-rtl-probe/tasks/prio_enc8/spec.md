@@ -1,0 +1,1 @@
+Module `prio_enc8`: ports `input [7:0] req, output [2:0] idx, output valid`. Combinational. `valid` is 1 when any bit of `req` is set. `idx` is the index of the highest set bit of `req`; when `req` is 0, `idx` must be 0.

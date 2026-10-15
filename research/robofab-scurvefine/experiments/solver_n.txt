@@ -1,0 +1,6 @@
+# L=0.12 m, k=inf, wmax=1.0 rad/s: six-part total time (s)
+solver n=  100: 10.314
+solver n=  400: 10.162
+solver n= 1600: 10.124
+solver n= 6400: 10.115
+ramp-resolved trapezoid, fine grid: 10.132

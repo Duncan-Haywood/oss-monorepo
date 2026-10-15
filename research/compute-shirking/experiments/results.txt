@@ -1,0 +1,62 @@
+E1 hidden fraction f* (detected w.p. 1/2, alpha=0.05), power law, beta=0.5: rows sigma', cols reducible share r
+  sigma' \ r    1.00    0.50    0.20    0.05    0.01
+      0.02      0.064   0.121   0.266   0.641   0.947
+      0.05      0.152   0.271   0.510   0.864   0.989
+      0.10      0.280   0.457   0.721   0.952   0.997
+      0.20      0.482   0.684   0.885   0.987   0.999
+  small-noise law f* ~ z sigma'/(beta r):  sigma'=0.02, r=0.5 -> 0.132  exact 0.121
+  r=1 closed form 1-exp(-z sigma'/beta) at sigma'=0.10: 0.2803  general formula 0.2803
+
+E2 eval samples m needed so hidden fraction <= 5% (beta=0.5, k=5 reference runs, alpha=0.05, detection 1/2); '--' = impossible (seed floor)
+  seed floor f_inf = hidden fraction with unlimited eval data
+  rho_seed  r      m needed     f_inf
+    0.00   1.00       9,872     0.000
+    0.00   0.50      38,986     0.000
+    0.00   0.20     241,788     0.000
+    0.00   0.05   3,853,598     0.000
+    0.02   1.00          --     0.070
+    0.02   0.50          --     0.132
+    0.02   0.20          --     0.286
+    0.02   0.05          --     0.667
+    0.05   1.00          --     0.165
+    0.05   0.50          --     0.292
+    0.05   0.20          --     0.538
+    0.05   0.05          --     0.880
+
+E3 exact quadratic GD (d=1000, lam_i=i^-1.5, w0~N(0,I)), m=2000 eval samples, k=5 reference runs, alpha=0.05, 4000 trials
+  T=100: rho_seed=0.083 sigma'=0.0971  local exponent 0.42  f* exact-curve 0.322  f* power-law@local 0.318
+      f=0.000  predicted P(detect) 0.050  simulated 0.053
+      f=0.161  predicted P(detect) 0.185  simulated 0.182
+      f=0.322  predicted P(detect) 0.500  simulated 0.492
+      f=0.643  predicted P(detect) 0.996  simulated 0.985
+  T=1000: rho_seed=0.053 sigma'=0.0677  local exponent 0.58  f* exact-curve 0.177  f* power-law@local 0.176
+      f=0.000  predicted P(detect) 0.050  simulated 0.050
+      f=0.089  predicted P(detect) 0.197  simulated 0.196
+      f=0.177  predicted P(detect) 0.500  simulated 0.508
+      f=0.355  predicted P(detect) 0.975  simulated 0.967
+  T=5000: rho_seed=0.050 sigma'=0.0651  local exponent 0.95  f* exact-curve 0.107  f* power-law@local 0.107
+      f=0.000  predicted P(detect) 0.050  simulated 0.049
+      f=0.054  predicted P(detect) 0.202  simulated 0.202
+      f=0.107  predicted P(detect) 0.500  simulated 0.517
+      f=0.214  predicted P(detect) 0.961  simulated 0.967
+
+E4 cheater economics: job cost K=1; best skip fraction and minimum deterring stake S* = K max_f f/p(f), power law beta=0.5, r=0.2, k=5
+  m=    200  sigma'=0.112  f*(1/2)=0.752  S*/K= 3.17   stake  1.0: skip 0.597 profit 0.346   stake  3.0: skip 0.370 profit 0.020   stake 10.0: skip 0.000 profit 0.000
+  m=  2,000  sigma'=0.041  f*(1/2)=0.450  S*/K= 1.42   stake  1.0: skip 0.256 profit 0.066   stake  3.0: skip 0.000 profit 0.000   stake 10.0: skip 0.000 profit 0.000
+  m= 20,000  sigma'=0.024  f*(1/2)=0.312  S*/K= 1.00   stake  1.0: skip 0.000 profit 0.000   stake  3.0: skip 0.000 profit 0.000   stake 10.0: skip 0.000 profit 0.000
+  m=200,000  sigma'=0.022  f*(1/2)=0.289  S*/K= 1.00   stake  1.0: skip 0.000 profit 0.000   stake  3.0: skip 0.000 profit 0.000   stake 10.0: skip 0.000 profit 0.000
+
+E5 loss test + random step audits (T=1000 steps, beta=0.5, m=2000, k=5, rho_seed=0.03): hidden fraction at detection 1/2
+  sigma'=0.0477
+  r      audits=0   5      20     100    (spot-only closed form 1-0.5^(1/n) for n=5,20,100: 0.129, 0.034, 0.007)
+  1.00     0.145    0.083    0.029    0.006
+  0.30     0.382    0.111    0.030    0.006
+  0.10     0.697    0.117    0.031    0.006
+  0.03     0.928    0.119    0.031    0.006
+  0.01     0.988    0.119    0.031    0.006
+  audit-equivalent of the loss test (audits alone that hide the same fraction at detection 1/2):
+    r=1.00: f*=0.145  ~ 4.41 audits
+    r=0.30: f*=0.382  ~ 1.44 audits
+    r=0.10: f*=0.697  ~ 0.58 audits
+    r=0.03: f*=0.928  ~ 0.26 audits
+    r=0.01: f*=0.988  ~ 0.16 audits

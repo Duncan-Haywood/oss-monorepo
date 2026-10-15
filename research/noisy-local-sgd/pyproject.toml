@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "noisy-local-sgd"
+version = "0.1.0"
+description = "Noise floor of DiLoCo-style local SGD on quadratics: exact stationary loss, H-invariance, momentum vs step size, and the noise-limited optimal sync interval H* ~ kappa"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

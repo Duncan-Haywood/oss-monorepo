@@ -1,0 +1,39 @@
+E1 exact gap moments (d=4, kappa=30, random A, D): Monte Carlo over 200000 tasks, Gaussian and Student-t(5) noise
+  gaussian   mean 3.5236 (exact 3.6005)  var 1791.3381 (exact 1782.1498)
+  student-t5 mean 3.4516 (exact 3.6005)  var 1766.3590 (exact 1782.1498)
+E2 uniform optimality: min over 2000 random directions of efficiency, d=6, Sigma condition number kappa
+  kappa=    1  precision 1.0000   identity 1.0000   diag-precision 1.0000   random SPD A 0.3846
+  kappa=   10  precision 1.0000   identity 0.3511   diag-precision 0.4062   random SPD A 0.2714
+  kappa=  100  precision 1.0000   identity 0.0437   diag-precision 0.0610   random SPD A 0.0384
+  kappa= 1000  precision 1.0000   identity 0.0045   diag-precision 0.0071   random SPD A 0.0043
+E3 Kantorovich price of an isotropic score (Sigma = diag(1, sqrt(kappa), kappa)): efficiency at the extremal direction and tasks ratio
+  kappa=    1  eff 1.0000 = 4k/(1+k)^2 1.0000   tasks: precision     49.6  identity      49.6  ratio    1.0
+  kappa=    4  eff 0.6400 = 4k/(1+k)^2 0.6400   tasks: precision     39.7  identity      62.0  ratio    1.6
+  kappa=   10  eff 0.3306 = 4k/(1+k)^2 0.3306   tasks: precision     45.1  identity     136.4  ratio    3.0
+  kappa=  100  eff 0.0392 = 4k/(1+k)^2 0.0392   tasks: precision     49.1  identity    1252.4  ratio   25.5
+  kappa= 1000  eff 0.0040 = 4k/(1+k)^2 0.0040   tasks: precision     49.6  identity   12412.6  ratio  250.5
+E4 power at the precision score's predicted n (80% target), Sigma=diag(1,20,1), extremal D; 1000 trials
+  n_precision=48, n_identity=261
+  noise=gauss power at n=48: precision 0.800   identity 0.291   identity at n=261: 0.798
+  noise=t     power at n=48: precision 0.811   identity 0.292   identity at n=261: 0.780
+E5 correlated layers: d=2, unit variances, correlation rho; efficiency of identity and diagonal-precision at the worst D (grid over angle)
+  rho=0.00  identity 1.0000 (Kantorovich 1.0000)   diagonal precision 1.0000
+  rho=0.50  identity 0.7500 (Kantorovich 0.7500)   diagonal precision 0.7500
+  rho=0.90  identity 0.1900 (Kantorovich 0.1900)   diagonal precision 0.1900
+  rho=0.99  identity 0.0199 (Kantorovich 0.0199)   diagonal precision 0.0199
+E6 estimated precision Sigma_hat^{-1} from m reference draws (independent of the verifier), d=6, kappa=30: mean efficiency over 300 draws
+  identity 0.3535   diag-precision 0.3868   true precision 1.0000
+  m=    8  mean 0.4596  10th pct 0.1776  (1-d/m = 0.250)
+  m=   12  mean 0.6114  10th pct 0.3615  (1-d/m = 0.500)
+  m=   20  mean 0.7811  10th pct 0.6413  (1-d/m = 0.700)
+  m=   40  mean 0.8818  10th pct 0.7844  (1-d/m = 0.850)
+  m=  100  mean 0.9508  10th pct 0.9125  (1-d/m = 0.940)
+  m=  400  mean 0.9874  10th pct 0.9783  (1-d/m = 0.985)
+  m= 2000  mean 0.9976  10th pct 0.9961  (1-d/m = 0.997)
+E7 ridge (Sigma_hat + lam I)^{-1} with few draws: mean efficiency, m=12, d=6, kappa=30 (trace-normalised lam = c * tr/d)
+  c=0.00  mean efficiency 0.6224
+  c=0.05  mean efficiency 0.6516
+  c=0.20  mean efficiency 0.6159
+  c=0.50  mean efficiency 0.5275
+  c=1.00  mean efficiency 0.4700
+  c=3.00  mean efficiency 0.4067

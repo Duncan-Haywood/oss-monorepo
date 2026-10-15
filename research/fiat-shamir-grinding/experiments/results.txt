@@ -1,0 +1,41 @@
+E1  avoidance probability: exact vs with-replacement vs exp(-qk/T)   (T=1000, k=10)
+  q= 50  exact=0.59731  repl=0.60501  exp=0.60653  bits=0.74
+  q=100  exact=0.34693  repl=0.36603  exp=0.36788  bits=1.53
+  q=200  exact=0.10616  repl=0.13398  exp=0.13534  bits=3.24
+  q=400  exact=0.00587  repl=0.01795  exp=0.01832  bits=7.41
+
+E2  real SHA-256 grinding vs geometric law (seeded)
+  T=40 k=2 q=10  p=0.5577  first-try 0.5487  mean tries 1.82 vs 1/p=1.79
+  T=100 k=3 q=20  p=0.5081  first-try 0.5287  mean tries 1.92 vs 1/p=1.97
+  T=200 k=4 q=30  p=0.5192  first-try 0.5063  mean tries 1.95 vs 1/p=1.93
+
+E3  samples needed to deter (T=10^6, k=10^4 so T/k=100; G=gain, F=slash, c=cost per re-roll)
+  beacon after commitment, F=G:            q=69
+  hash challenge, G/c=2^10:               q=   690  =  10.0x beacon   (ln(G/c)/lam_p = 690)
+  hash challenge, G/c=2^20:               q=  1379  =  20.0x beacon   (ln(G/c)/lam_p = 1379)
+  hash challenge, G/c=2^30:               q=  2067  =  30.0x beacon   (ln(G/c)/lam_p = 2069)
+  hash challenge, G/c=2^40:               q=  2755  =  39.9x beacon   (ln(G/c)/lam_p = 2759)
+  hash challenge, G/c=2^60:               q=  4130  =  59.9x beacon   (ln(G/c)/lam_p = 4138)
+
+E4  attacker profit vs q (T=1000, k=10, G=10^6, c=1): sign flips at q*
+  q=   0  p=1.000e+00  E[tries]=         1.0  profit=    999999.0
+  q= 100  p=3.469e-01  E[tries]=         2.9  profit=    999997.1
+  q= 500  p=9.332e-04  E[tries]=      1071.6  profit=    998928.4
+  q= 745  p=1.017e-06  E[tries]=    983111.5  profit=     16888.5
+  q= 746  p=9.773e-07  E[tries]=   1023238.5  profit=         0.0
+  q= 846  p=5.824e-09  E[tries]= 171705593.9  profit=         0.0
+
+E5  budget-limited attacker (p=0.02, G=1000, c=1)
+  N=   1  P(escape)=0.020  profit=   19.00   (unbounded: 950.0)
+  N=  10  P(escape)=0.183  profit=  173.78   (unbounded: 950.0)
+  N=  50  P(escape)=0.636  profit=  604.04   (unbounded: 950.0)
+  N= 200  P(escape)=0.982  profit=  933.29   (unbounded: 950.0)
+  N=1000  P(escape)=1.000  profit=  950.00   (unbounded: 950.0)
+
+E6  optimal proof-of-work on the challenge: x* = v/lam_p - c0   (T/k=100, G=2^40, c0=1, v=5)
+  lam_p=0.01005  closed-form x*=496.50  brute-force x=496.49
+  PoW cost      0.0  q=  2758.7  total overhead   13793.5
+  PoW cost    124.1  q=  2278.2  total overhead   11515.1
+  PoW cost    496.5  q=  2140.9  total overhead   11200.8
+  PoW cost   1986.0  q=  2003.1  total overhead   12001.3
+  saving vs no PoW: 1.23x

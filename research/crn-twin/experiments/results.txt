@@ -1,0 +1,40 @@
+== E1  correlation of seed-paired returns, T=20: exact rho (formula) | simulated (30,000 episodes); discount gamma=0.9
+  profile      q=0.01           q=0.05           q=0.1            q=0.3          
+  flat       0.990 | 0.990    0.952 | 0.953    0.909 | 0.909    0.767 | 0.766  
+  discount   0.994 | 0.994    0.973 | 0.973    0.946 | 0.948    0.851 | 0.853  
+  ramp       0.981 | 0.981    0.910 | 0.910    0.831 | 0.830    0.599 | 0.597  
+  terminal   0.818 | 0.816    0.358 | 0.352    0.122 | 0.121    0.001 | 0.003  
+
+== E2  what pairing buys: Var(R_A-R_B)/(2 sigma_R^2) = 1-rho (formula | simulated), and episodes for a 90%-power 5% test of a gap of 0.3 sigma_R
+  independent streams need n = 233 episodes per comparison
+  flat     q=0.01  1-rho=0.010 | 0.010   n needed   2.3
+  flat     q=0.05  1-rho=0.048 | 0.046   n needed  11.1
+  flat     q=0.1   1-rho=0.091 | 0.091   n needed  21.3
+  flat     q=0.3   1-rho=0.233 | 0.236   n needed  54.5
+  terminal q=0.01  1-rho=0.182 | 0.180   n needed  42.5
+  terminal q=0.05  1-rho=0.642 | 0.644   n needed 149.8
+  terminal q=0.1   1-rho=0.878 | 0.886   n needed 205.1
+  terminal q=0.3   1-rho=0.999 | 0.990   n needed 233.3
+
+== E3  sizing trap: plan n assuming seeds stay synchronised (rho_assumed = 0.95) for a 90%-power test of a 0.3 sigma_R gap
+  planned n = 12 paired episodes (independent streams would need 234)
+  flat     q=0.05 true rho=0.952  power at n=12: 0.850 (nominal 0.90)   n actually needed ~12
+  flat     q=0.3  true rho=0.767  power at n=12: 0.285 (nominal 0.90)   n actually needed ~55
+  terminal q=0.05 true rho=0.358  power at n=12: 0.156 (nominal 0.90)   n actually needed ~150
+  terminal q=0.1  true rho=0.122  power at n=12: 0.111 (nominal 0.90)   n actually needed ~206
+
+== E4  repair: counter-based draws keyed by (episode, step), extras from a separate stream (same q)
+  flat     q=0.3: rho=1.000000  Var(R_A-R_B)=0.00e+00  (stream mode rho=0.767)
+  terminal q=0.3: rho=1.000000  Var(R_A-R_B)=0.00e+00  (stream mode rho=0.001)
+  terminal q=0.3, n=3 paired episodes, gap 0.3 sigma_R, counter mode: power 1.000
+
+== E5  binary success 1{R > 0}, R_A centred at +0.15 sigma_R, R_B at -0.15 sigma_R (mean gap 0.3 sigma_R)
+  variance of the paired success difference relative to independent streams (simulated, 60,000 episodes)
+  flat     q=0.05 stream   ratio 0.263
+  flat     q=0.05 counter  ratio 0.216
+  flat     q=0.3  stream   ratio 0.459
+  flat     q=0.3  counter  ratio 0.216
+  terminal q=0.05 stream   ratio 0.718
+  terminal q=0.05 counter  ratio 0.214
+  terminal q=0.3  stream   ratio 1.006
+  terminal q=0.3  counter  ratio 0.214

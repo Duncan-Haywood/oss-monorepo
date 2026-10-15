@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "selfrep-alusearch"
+version = "0.1.0"
+description = "Penalty-budget search over printer redesigns with a sag-priced rod option (steel, wood or aluminium)"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

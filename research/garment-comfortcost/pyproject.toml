@@ -1,0 +1,13 @@
+[project]
+name = "garment-comfortcost"
+version = "0.1.0"
+description = "Cost per degree of comfort for fabric levers: joins garment-thermal comfort shifts to garment-teardown costs"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../garment-thermal/src", "../garment-teardown/src"]

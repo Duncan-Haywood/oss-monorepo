@@ -1,0 +1,54 @@
+laser cutting rules vs steel-sheet free twin, peak measure, search mesh h=2.5 mm; seeds (0, 1, 2, 3, 4); g, mm
+sub-search budgets (popsize, maxiter) per gauge: {'base': (4, 17), 'big': (8, 35)}; free twin (continuous depth, gauge None): {'base': (8, 25), 'big': (16, 50)}
+== budget base
+seed 0: rules 41.01 g (gauge 3, w 11.63, r 8.46) | free 35.82 g (depth 2.16) | price 1.145
+seed 1: rules 35.37 g (gauge 2, w 15.30, r 13.59) | free 33.55 g (depth 2.01) | price 1.054
+seed 2: rules 33.32 g (gauge 2, w 14.41, r 10.74) | free 33.67 g (depth 2.00) | price 0.990
+seed 3: rules 33.46 g (gauge 2, w 14.46, r 11.05) | free 33.66 g (depth 1.97) | price 0.994
+seed 4: rules 35.59 g (gauge 2, w 15.61, r 7.61) | free 33.75 g (depth 2.03) | price 1.054
+price mean 1.047 sd 0.063 range 0.155
+-- rules: best feasible mass per gauge by seed (min over seeds, max over seeds, number of seeds feasible)
+gauge 1: never feasible
+gauge 1.5: never feasible
+gauge 2: 33.32 .. 35.59 g, 4/5 feasible, spread 2.26 g
+gauge 3: 40.97 .. 41.99 g, 5/5 feasible, spread 1.02 g
+gauge 4: 49.93 .. 52.13 g, 5/5 feasible, spread 2.21 g
+gauge 5: 53.48 .. 53.75 g, 5/5 feasible, spread 0.27 g
+gauge 6: 59.33 .. 60.03 g, 5/5 feasible, spread 0.70 g
+gauge 8: 76.41 .. 76.88 g, 5/5 feasible, spread 0.46 g
+gauge 10: 117.76 .. 117.93 g, 5/5 feasible, spread 0.17 g
+gauge 12: 167.30 .. 167.59 g, 5/5 feasible, spread 0.29 g
+-- free: best feasible mass per gauge by seed (min over seeds, max over seeds, number of seeds feasible)
+gauge None: 33.55 .. 35.82 g, 5/5 feasible, spread 2.28 g
+== budget big
+seed 0: rules 33.42 g (gauge 2, w 14.34, r 13.66) | free 32.17 g (depth 1.89) | price 1.039
+seed 1: rules 33.29 g (gauge 2, w 14.38, r 11.02) | free 32.69 g (depth 1.93) | price 1.018
+seed 2: rules 35.28 g (gauge 2, w 15.36, r 10.82) | free 32.69 g (depth 1.94) | price 1.079
+seed 3: rules 33.29 g (gauge 2, w 14.38, r 11.02) | free 32.62 g (depth 1.89) | price 1.020
+seed 4: rules 33.45 g (gauge 2, w 14.36, r 13.42) | free 32.61 g (depth 1.94) | price 1.026
+price mean 1.037 sd 0.025 range 0.061
+-- rules: best feasible mass per gauge by seed (min over seeds, max over seeds, number of seeds feasible)
+gauge 1: never feasible
+gauge 1.5: never feasible
+gauge 2: 33.29 .. 35.28 g, 5/5 feasible, spread 1.99 g
+gauge 3: 40.93 .. 40.97 g, 5/5 feasible, spread 0.04 g
+gauge 4: 49.86 .. 49.90 g, 5/5 feasible, spread 0.04 g
+gauge 5: 53.46 .. 53.46 g, 5/5 feasible, spread 0.00 g
+gauge 6: 59.25 .. 59.31 g, 5/5 feasible, spread 0.05 g
+gauge 8: 76.40 .. 76.40 g, 5/5 feasible, spread 0.00 g
+gauge 10: 117.75 .. 117.75 g, 5/5 feasible, spread 0.00 g
+gauge 12: 167.30 .. 167.30 g, 5/5 feasible, spread 0.00 g
+-- free: best feasible mass per gauge by seed (min over seeds, max over seeds, number of seeds feasible)
+gauge None: 32.17 .. 32.69 g, 5/5 feasible, spread 0.52 g
+== base vs big budget, same seed (winning mass g)
+rules seed 0: base 41.01 (gauge 3, b 3.00) -> big 33.42 (gauge 2, b 2.00)
+rules seed 1: base 35.37 (gauge 2, b 2.00) -> big 33.29 (gauge 2, b 2.00)
+rules seed 2: base 33.32 (gauge 2, b 2.00) -> big 35.28 (gauge 2, b 2.00)
+rules seed 3: base 33.46 (gauge 2, b 2.00) -> big 33.29 (gauge 2, b 2.00)
+rules seed 4: base 35.59 (gauge 2, b 2.00) -> big 33.45 (gauge 2, b 2.00)
+free seed 0: base 35.82 (gauge None, b 2.16) -> big 32.17 (gauge None, b 1.89)
+free seed 1: base 33.55 (gauge None, b 2.01) -> big 32.69 (gauge None, b 1.93)
+free seed 2: base 33.67 (gauge None, b 2.00) -> big 32.69 (gauge None, b 1.94)
+free seed 3: base 33.66 (gauge None, b 1.97) -> big 32.62 (gauge None, b 1.89)
+free seed 4: base 33.75 (gauge None, b 2.03) -> big 32.61 (gauge None, b 1.94)
+total wall time of tasks (s): 2870; function evaluations with FE: 42464

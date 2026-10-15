@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "twin-multifidelity"
+version = "0.1.0"
+description = "Estimating a controller's real-world cost with a digital twin as a control variate: exact twin-real cost correlation under common disturbances, optimal sim/real rollout split, and the break-even twin price"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

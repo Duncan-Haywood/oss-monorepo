@@ -94,6 +94,13 @@ require_root() {
 }
 
 systemd_available() {
+  # A unit staged anywhere systemd does not read (the tests point UNITDIR at a
+  # temp dir) cannot be enabled, so on a host where systemd *is* running --
+  # a GitHub-hosted runner -- treat it exactly like a host without systemd.
+  case "$UNITDIR" in
+    /etc/systemd/system|/etc/systemd/system/*|/lib/systemd/system|/usr/lib/systemd/system) ;;
+    *) return 1 ;;
+  esac
   command -v systemctl >/dev/null 2>&1 || return 1
   systemctl daemon-reload >/dev/null 2>&1 || return 1
   return 0

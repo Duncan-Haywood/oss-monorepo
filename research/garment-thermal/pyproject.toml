@@ -1,0 +1,13 @@
+[project]
+name = "garment-thermal"
+version = "0.1.0"
+description = "Two-node heat balance and ISO 7730 comfort with fabric optical properties"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

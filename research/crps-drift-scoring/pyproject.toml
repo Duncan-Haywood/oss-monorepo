@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crps-drift-scoring"
+version = "0.1.0"
+description = "CRPS vs log score for verifiers reporting a continuous drift distribution: exact Gaussian excess laws, bounded overconfidence penalty, 1-Lipschitz outcome sensitivity, finite-variance thresholds"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

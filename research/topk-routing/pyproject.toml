@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "topk-routing"
+version = "0.1.0"
+description = "Top-k expert routing as a capped-simplex Hedge market: price min(1, lambda w_i), exact projection, regret k ln(N/k)/eta + eta T k/2 checked numerically, and dependent rounding to k distinct experts"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

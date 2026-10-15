@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sleeping-ledger"
+version = "0.1.0"
+description = "A self-financed wealth ledger for sleeping (specialist) experts: exact budget balance, regret that scales with each module's own awake time, and the price of admitting a new module"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

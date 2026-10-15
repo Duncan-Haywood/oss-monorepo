@@ -1,65 +1,71 @@
-# Repo prompt
+# Master prompt
 
-The standing prompt that runs this repository going forward. Sessions launched
-without a more specific brief should treat this as their task, alongside
-[`CLAUDE.md`](CLAUDE.md), [`AGENTS.md`](AGENTS.md) and
-[`portfolio/DIRECTION.md`](portfolio/DIRECTION.md).
+Every session started from this file follows it; the scheduled routines say
+"read ./prompt.md". This repository holds two portfolios, products under
+`ventures/` and research under `research/`, and one prompt system. The system
+routes each run to a sub-prompt, measures how runs go, and uses the
+measurements to improve the sub-prompts and the documentation.
+[`prompts/README.md`](prompts/README.md) explains the whole loop.
 
-"Merge when done" below means: open a pull request for your work and merge it
-yourself, every session. This is the explicit request to create that PR. A
-pushed branch is not done. Steps:
-[`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md).
+## 1. Route
 
----
+```
+python3 prompts/promptctl.py route
+```
 
-continue work on the repo aiming to develop, deploy, market,  sell and support revenue generating software products in production. use the resources you have available to you. merge when done. focus on providing valuable work no matter what not on admin restrictions and what not or other blockers. legally copying or taking inspiration from other existing valuable businesses is very valuable and offering the same service at less or in a better way or to a more speicfic niche market is a good approach. https://www.ycombinator.com/companies https://www.techstars.com/portfolio and others are good examples of potential companies. using advanced algorithms ai ml etc to provide value to consumers and businesses is a potentially good approach. ios android apps are another good approach. try to do things that are ambitious and deep enough that it is worth doing. focus on ventures that give the best roi for time invested in development marketing etc but also focus on starting new ones. if something doesn't have the possibility of generating revenue you can mark it for potential open sourcing or use it as a lead magnet and give it away for free. try to pursue ventures with real business potential and keep a portfolio site and also marketing sites for anything that is built out.
+It names the sub-prompt to follow, its version, and the commit trailer. Read
+that file and follow it for the rest of the run. Read
+[`prompts/goals.md`](prompts/goals.md) as well: it holds the goals and
+guardrails, and no sub-prompt can relax them.
 
----
+If the message that started the session asks for something specific, do that
+instead, under the track it belongs to:
+`route --track ventures|research|process|explore|review`. The router picks the review track
+by itself once enough runs have merged since the last review, for a share of
+runs (`review_when_due`) so parallel routines do not all start one. If an open
+pull request titled `prompts: review` already exists, another run has claimed
+that review; route again with `--skip-review`.
 
-**Open source is the destination (added 2026-10-09).** Everything in this
-repository is intended to be open sourced, ventures included — not only the
-ones with no revenue path, which is all the "mark it for potential open
-sourcing" line above covered. A venture can still be a viable for-profit
-business and be open source: the code is free, and the business is the
-hosting, support, convenience, niche expertise and brand around it. So build
-as if the repository were going public tomorrow, and leave every venture you
-touch closer to that:
+About 5% of runs draw the `explore` track: free choice, Google "20% time"
+style. The agent works on whatever it finds most interesting, with its own
+approach, under the same guardrails and landing rules
+([`prompts/explore/prompt-0.md`](prompts/explore/prompt-0.md)).
 
-- **No secrets in the tree.** Keys come from env vars; nothing sensitive in
-  code, fixtures, test data or commit messages.
-- **No private coupling.** A venture builds and runs from its own directory
-  with documented steps — no hardcoded internal hostnames, personal paths, or
-  dependence on this monorepo's private infra just to work.
-- **A README a stranger can follow** — what it does, how to run it, how to
-  set the optional API key, plus the LICENSE (MIT unless there's a reason)
-  and the disclaimer (`PRODUCT_PLAYBOOK.md` §5).
-- **No personal data** about the owner or anyone else; usage stats stay
-  anonymous (`portfolio/usage/`).
-- **Only code we can relicense.** "Legally copying or taking inspiration"
-  above means ideas and public behaviour, never another product's code, copy
-  or assets under an incompatible license.
+## 2. Work, and land it
 
-**One repository is the end state (added 2026-10-13).** This repository is
-where everything ends up. The research portfolio,
-`Duncan-Haywood/oss-research-monorepo`, merges in under `research/` with its
-full commit history, so both histories survive in one repo. That is
-[PR #6143](https://github.com/Duncan-Haywood/oss-monorepo/pull/6143):
+Follow the sub-prompt. Every track lands its work the same way, in
+[`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md): open
+the pull request after your first push and merge it yourself. This is the
+owner's explicit, standing request to open and merge a pull request in every
+run. Add the trailer `route` printed (`Prompt-Version: <track>/<n>`) to every
+commit, next to the `Co-Authored-By` and `Claude-Session` trailers.
 
-- **Keep both histories.** Rewrite the research repository into `research/`
-  (`git filter-repo --to-subdirectory-filter research` or a subtree merge).
-  Merge it here with `--allow-unrelated-histories` and a merge commit. Never
-  squash, rebase or hand-copy the files in. Afterwards,
-  `git log -- research/<slug>` shows each project's original commits.
-- **Import from the research repo's current `main`.** Work continues there
-  until the move lands. #6143's copy is from 2026-10-01, so re-import or merge
-  the newer research history into that branch before landing it.
-- **Leave room for it.** Do not create a top-level `research/` for anything
-  else. Inside `research/`, the research rules (`research/CLAUDE.md`, its
-  brief) apply, not the product rules.
-- **Afterwards**, the research repository is archived (not deleted), and its
-  README points here.
-- **The owner decides when the move resumes.** Preparing for it is every
-  session's job.
+## 3. Record the run, before you merge
 
-Making a repository public is the owner's call (publishing under the
-portfolio's name, `CLAUDE.md`). Preparing for it is every session's job.
+```
+python3 prompts/promptctl.py record --track <track> --version <n> --session <session url> --model <model id> --input "<starting message>"
+```
+
+Fill in the record it writes under `prompts/runs/`: at least `outcome`, `pr`,
+`errors`, `integrity_issues` and `doc_friction`, plus anything else you can
+observe. Take the model from the session's metadata, not from memory. Write
+`null` for anything you cannot see, and redact secrets and personal data from
+`input`. Commit the record as the last commit on your work branch, so it lands
+in the same pull request as the work. A run with nothing to merge commits no
+record and says so in its final message.
+
+**`doc_friction` is how the documentation improves.** List every instruction
+that was wrong, stale, contradictory or that cost you time: in this file, a
+sub-prompt, `AGENTS.md`, `CLAUDE.md` or anything else you read. Give the file
+and one line on what happened. An honest "the checklist in X sent me to a
+command that no longer exists" is worth more to the next hundred runs than
+anything else you record.
+
+## 4. Improve
+
+The review track does the improving. It measures the records
+(`promptctl.py measure`) and decides whether a candidate prompt wins. It
+writes the next candidate and fixes the documentation that the friction
+reports single out. Then it checks whether the last review's changes helped.
+The goals in `prompts/goals.md` belong to the owner: a review proposes
+changes to them and never makes them.

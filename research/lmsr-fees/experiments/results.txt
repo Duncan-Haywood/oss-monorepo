@@ -1,0 +1,42 @@
+E1 no-trade band [q/(1+f), (q+f)/(1+f)] has width f/(1+f) for every belief q; a lone trader ends at q/(1+f) (buying yes)
+ f=0.01  width 0.00990 = f/(1+f) = 0.00990   q=0.7 -> price 0.6931 (lag 0.0069)
+ f=0.05  width 0.04762 = f/(1+f) = 0.04762   q=0.7 -> price 0.6667 (lag 0.0333)
+ f=0.1   width 0.09091 = f/(1+f) = 0.09091   q=0.7 -> price 0.6364 (lag 0.0636)
+ f=0.25  width 0.20000 = f/(1+f) = 0.20000   q=0.7 -> price 0.5600 (lag 0.1400)
+
+E2 smallest log-likelihood ratio a signal needs to move the price (naive trader), by price p
+  f      p=0.05        p=0.2         p=0.5         p=0.8         p=0.95   (up / down)
+ 0.02   0.02/0.50    0.02/0.10    0.04/0.04    0.10/0.02    0.50/0.02 
+ 0.1    0.10/inf     0.12/0.61    0.20/0.20    0.61/0.12     inf/0.10 
+ 0.25   0.24/inf     0.29/inf     0.51/0.51     inf/0.29     inf/0.24 
+
+E3 sequential traders (n=10, signal accuracy 0.65, 4000 markets, b=1): information lost to fees
+  f     mean Brier(final p)  log loss   mean fee   maker net   frac. of signals ignored   price-truth gap (median |p - full-info posterior|)
+ 0.0   0.1152              0.3665     0.0000     -0.3266     0.000                      0.0000
+ 0.02  0.1192              0.3846     0.0584     -0.2502     0.000                      0.0505
+ 0.05  0.1322              0.4283     0.1176     -0.1473     0.000                      0.1140
+ 0.1   0.1587              0.4984     0.1714     -0.0233     0.000                      0.2018
+ 0.2   0.2084              0.6089     0.1545     +0.0703     0.000                      0.3270
+ 0.29  0.2462              0.6855     0.0210     +0.0134     0.000                      0.4137
+ 0.31  0.2500              0.6931     0.0000     +0.0000     1.000                      0.4225
+
+E4 fee revenue on a monotone path is exactly f*b*ln((1-p0)/(1-pT)); subsidy offset (b=1, p0=1/2)
+ pT=0.6   fee/f = 0.2231 b   (fee revenue is unbounded as pT->1; the fee-free loss cap is b ln2 = 0.6931 b)
+ pT=0.8   fee/f = 0.9163 b   (fee revenue is unbounded as pT->1; the fee-free loss cap is b ln2 = 0.6931 b)
+ pT=0.95  fee/f = 2.3026 b   (fee revenue is unbounded as pT->1; the fee-free loss cap is b ln2 = 0.6931 b)
+ pT=0.99  fee/f = 3.9120 b   (fee revenue is unbounded as pT->1; the fee-free loss cap is b ln2 = 0.6931 b)
+
+E5 informed-trader profit: fee-free vs f=0.1, trader q=0.8 vs price 0.5, b=1
+ f=0.0   moves price to 0.8000, profit 0.1927, fee paid 0.0000
+ f=0.1   moves price to 0.7273, profit 0.1179, fee paid 0.0606
+ f=0.25  moves price to 0.6400, profit 0.0497, fee paid 0.0821
+
+E6 how much of a fee does an informed trader pass to the maker?  fee share of trader's gross edge, q=0.8, p=0.5
+ f=0.02  net 0.1752  gross-at-same-trade 0.1920  share paid 0.088
+ f=0.1   net 0.1179  gross-at-same-trade 0.1785  share paid 0.340
+ f=0.25  net 0.0497  gross-at-same-trade 0.1318  share paid 0.623
+
+E7 dead-market cliff: at p=1/2 a signal of LLR lambda moves the price iff f < tanh(lambda/2); for accuracy a that is f < 2a-1
+ a=0.55: lambda=0.2007, cliff f=0.1000 = 2a-1 = 0.1000;  price-1/2 threshold at the cliff 0.2007 (= lambda)
+ a=0.65: lambda=0.6190, cliff f=0.3000 = 2a-1 = 0.3000;  price-1/2 threshold at the cliff 0.6190 (= lambda)
+ a=0.8: lambda=1.3863, cliff f=0.6000 = 2a-1 = 0.6000;  price-1/2 threshold at the cliff 1.3863 (= lambda)

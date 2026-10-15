@@ -1,0 +1,26 @@
+E1 regret vs bound k ln(N/k)/eta + eta T k/2 (N=32, T=2000, tuned eta), three streams, seed 1
+  k= 1 bound    117.7  bern     61.6  chase      2.3  switch     61.8
+  k= 4 bound    364.8  bern    197.8  chase     20.1  switch    170.7
+  k= 8 bound    595.7  bern    308.8  chase     56.0  switch    301.2
+  k=16 bound    842.5  bern    439.3  chase    105.3  switch    359.5
+E2 the cost of choosing k distinct experts: switching stream, regret vs best fixed k-set / bound
+  k= 1 ln(N/k)=3.47  regret    68.0  fraction of bound  0.58
+  k= 2 ln(N/k)=2.77  regret   114.9  fraction of bound  0.55
+  k= 4 ln(N/k)=2.08  regret   186.9  fraction of bound  0.51
+  k= 8 ln(N/k)=1.39  regret   300.4  fraction of bound  0.50
+  k=16 ln(N/k)=0.69  regret   351.6  fraction of bound  0.42
+  k=24 ln(N/k)=0.29  regret   334.9  fraction of bound  0.41
+  k=31 ln(N/k)=0.03  regret    33.8  fraction of bound  0.10
+E3 cap vs plain normalisation to sum k: one expert with loss 0.1, rest 0.5+noise, k=4, N=32, eta=0.3
+  cap=True   total loss  529.59  rounds with an expert priced above 1: 0/300  saturated in last round: 1
+  cap=False  total loss  167.09  rounds with an expert priced above 1: 282/300  saturated in last round: 1
+  uncapped 'plays' over-count the good expert: implied loss 167.09 is infeasible (< capped 529.59)
+E4 rounding to k distinct experts: systematic vs independent Bernoulli variance of realised loss (30000 draws)
+  sorted losses Poisson var 0.0814  systematic var 0.0059  E loss 0.970
+  interleaved   Poisson var 0.4143  systematic var 0.0508  E loss 3.375
+E5 shadow price and saturation on a Bernoulli stream (k=4, tuned eta, seed 5)
+  t=   0  lam=     0.125  saturated experts 0
+  t=  10  lam=     0.147  saturated experts 0
+  t= 100  lam=     0.424  saturated experts 0
+  t= 500  lam=     1.650  saturated experts 2
+  t=1999  lam=     3.273  saturated experts 3

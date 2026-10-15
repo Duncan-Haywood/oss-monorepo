@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "terrain-twin"
+version = "0.1.0"
+description = "Stopping-distance certificates from a twin with independent per-cell terrain friction vs spatially correlated real terrain: exact gamma lower-tail law, certified distance vs real exceedance, repair by measured correlation length"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,37 @@
+inputs from selfrep-growth/selfrep-closure (assumed): W=50.0 h, V=170.34 units per copy; import budget B=4 units/h
+wear-part lives are ASSUMED (spares.LIFE_H); machine mean life from them L=365.9 h (rate 0.00273/h)
+repair: success s=0.9, downtime 5.0 h, reserve 1.0 V; DES 100 runs/row, horizon 20000 h, seed 0 (median [5-95 pct] of surviving runs; dead = share with no working machine)
+
+== A. wear parts: share of breakdowns, unit cost (assumed currency), makeable by the printer alone / with router+laser
+840 mm GT2 belt                              share 0.091  unit cost   2.0  printer no   +cnc/laser no
+900 mm GT2 belt                              share 0.091  unit cost   2.0  printer no   +cnc/laser no
+LM8UU linear bearing                         share 0.457  unit cost   1.0  printer no   +cnc/laser no
+608 bearing                                  share 0.110  unit cost   0.5  printer no   +cnc/laser no
+hot end (e.g. J-head)                        share 0.122  unit cost  20.0  printer no   +cnc/laser no
+thermistor + heater                          share 0.037  unit cost   5.0  printer no   +cnc/laser no
+end-stop switch (inferred from 3 holders)    share 0.055  unit cost   1.0  printer no   +cnc/laser no
+16-tooth GT2 pulley                          share 0.037  unit cost   2.0  printer no   +cnc/laser yes
+
+== B. spare-cost share c derived per seed shop; repair vs replace-only (break-even is c = s)
+replace only                                 c=-1.0000 L=  365.9  DES     7.3 [    6.1-    8.3] dead 0.33  formula     8.6
+repair, spares from shop: printer            c= 0.0213 L=  365.9  DES    62.5 [   55.0-   68.1] dead 0.23  formula    70.8
+repair, spares from shop: printer+cnc+laser  c= 0.0209 L=  365.9  DES    63.0 [   54.7-   69.1] dead 0.23  formula    71.1
+repair, spares from shop: printer+cnc+laser+casting c= 0.0209 L=  365.9  DES    63.0 [   54.7-   69.1] dead 0.23  formula    71.1
+
+== C. design change: LM8UU bearings replaced by printed bushings (printed in-house, so no vitamin cost; ASSUMED life = k x LM8UU life)
+printed bushing life x1.0                    c= 0.0186 L=  365.9  DES    64.2 [   57.7-   71.8] dead 0.23  formula    72.4
+printed bushing life x0.5                    c= 0.0128 L=  251.0  DES    43.3 [   38.0-   49.1] dead 0.34  formula    52.3
+printed bushing life x0.25                   c= 0.0078 L=  154.2  DES    24.0 [   19.8-   28.7] dead 0.51  formula    33.6
+printed bushing life x0.1                    c= 0.0036 L=   71.5  DES     7.8 [    6.3-   10.1] dead 0.79  formula    16.2
+
+== D. sensitivity: all wear-part lives scaled (printer-alone spares)
+lives x0.25: replace only                    c=-1.0000 L=   91.5  DES     0.0 [    0.0-    0.0] dead 1.00  formula     2.1
+lives x0.25: repair                          c= 0.0213 L=   91.5  DES    11.0 [    9.3-   13.1] dead 0.71  formula    17.7
+lives x0.5: replace only                     c=-1.0000 L=  182.9  DES     0.0 [    0.0-    0.0] dead 1.00  formula     4.3
+lives x0.5: repair                           c= 0.0213 L=  182.9  DES    28.7 [   23.3-   32.6] dead 0.45  formula    35.4
+lives x1.0: replace only                     c=-1.0000 L=  365.9  DES     7.3 [    6.1-    8.3] dead 0.33  formula     8.6
+lives x1.0: repair                           c= 0.0213 L=  365.9  DES    62.5 [   55.0-   68.1] dead 0.23  formula    70.8
+lives x2.0: replace only                     c=-1.0000 L=  731.7  DES    16.0 [   13.0-   18.6] dead 0.13  formula    17.2
+lives x2.0: repair                           c= 0.0213 L=  731.7  DES   124.9 [  116.5-  136.9] dead 0.13  formula   141.7
+lives x4.0: replace only                     c=-1.0000 L= 1463.4  DES    33.3 [   28.4-   36.7] dead 0.03  formula    34.4
+lives x4.0: repair                           c= 0.0213 L= 1463.4  DES   210.9 [  199.3-  221.2] dead 0.04  formula   283.3

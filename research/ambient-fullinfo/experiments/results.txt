@@ -1,0 +1,66 @@
+oracle weights [score, keyword, others, intercept] = [1.998, 2.263, -0.019, -6.002]; oracle utility/h on held-out 12.71
+20 seeds, 100 h streams; each fit is scored on fresh 100 h held-out streams with no exploration; '+-' is the std over seeds
+columns: held-out utility/h of the fit | L2 distance of its weights to the oracle weights | labelled windows seen
+
+== fits at hour 20
+prior          eps     fit       utility/h   dist to oracle  labelled
+uninformed   0.002  biased   2.97 +-  1.35   55.17 +- 30.00       244
+uninformed   0.002     ips -24.36 +- 44.00 1845.32 +- 2128.17       244
+uninformed   0.002    full  12.71 +-  0.53    0.32 +-  0.14       244
+uninformed   0.005  biased  -0.64 +-  5.88   68.68 +- 18.55       334
+uninformed   0.005     ips  -9.95 +- 30.45 1567.04 +- 2032.70       334
+uninformed   0.005    full  12.71 +-  0.53    0.32 +-  0.14       334
+uninformed   0.020  biased -18.95 +- 12.57  135.57 +- 16.00       630
+uninformed   0.020     ips -42.84 +- 75.79 1511.06 +- 1622.86       630
+uninformed   0.020    full  12.71 +-  0.53    0.32 +-  0.14       630
+informed     0.002  biased  10.69 +-  0.99    2.67 +-  0.35       332
+informed     0.002     ips -13.47 +- 77.73 207.47 +- 706.45       332
+informed     0.002    full  12.71 +-  0.53    0.32 +-  0.14       332
+informed     0.005  biased  10.92 +-  1.02    2.56 +-  0.37       345
+informed     0.005     ips   9.76 +-  5.49    2.32 +-  0.97       345
+informed     0.005    full  12.71 +-  0.53    0.32 +-  0.14       345
+informed     0.020  biased  11.42 +-  0.83    2.19 +-  0.39       437
+informed     0.020     ips  11.34 +-  1.80    1.83 +-  0.74       437
+informed     0.020    full  12.71 +-  0.53    0.32 +-  0.14       437
+
+== fits at hour 50
+prior          eps     fit       utility/h   dist to oracle  labelled
+uninformed   0.002  biased   2.98 +-  1.86  110.63 +- 42.02       467
+uninformed   0.002     ips -19.91 +- 38.32 4488.14 +- 5616.17       467
+uninformed   0.002    full  12.74 +-  0.59    0.19 +-  0.09       467
+uninformed   0.005  biased  -0.49 +-  6.79  150.51 +- 39.03       563
+uninformed   0.005     ips -13.94 +- 36.63 3563.87 +- 5493.49       563
+uninformed   0.005    full  12.74 +-  0.59    0.19 +-  0.09       563
+uninformed   0.020  biased -14.86 +- 11.29  331.31 +- 30.56      1415
+uninformed   0.020     ips -39.10 +- 57.98 3370.49 +- 3809.33      1415
+uninformed   0.020    full  12.74 +-  0.59    0.19 +-  0.09      1415
+informed     0.002  biased  10.53 +-  0.91    2.71 +-  0.25       846
+informed     0.002     ips   9.32 +-  4.68 763.74 +- 3316.12       846
+informed     0.002    full  12.74 +-  0.59    0.18 +-  0.09       846
+informed     0.005  biased  10.75 +-  0.88    2.60 +-  0.25       879
+informed     0.005     ips  10.64 +-  2.26    2.67 +-  0.60       879
+informed     0.005    full  12.74 +-  0.59    0.18 +-  0.09       879
+informed     0.020  biased  11.27 +-  0.76    2.22 +-  0.21      1096
+informed     0.020     ips  11.80 +-  0.98    1.27 +-  0.52      1096
+informed     0.020    full  12.74 +-  0.59    0.18 +-  0.09      1096
+
+== fits at hour 100
+prior          eps     fit       utility/h   dist to oracle  labelled
+uninformed   0.002  biased   1.59 +-  5.70  178.93 +- 46.21       814
+uninformed   0.002     ips -23.80 +- 50.17 7463.85 +- 10039.66       814
+uninformed   0.002    full  12.72 +-  0.58    0.15 +-  0.05       814
+uninformed   0.005  biased  -0.15 +-  6.29  260.74 +- 63.32       932
+uninformed   0.005     ips -32.73 +- 60.24 6263.45 +- 8509.95       932
+uninformed   0.005    full  12.72 +-  0.58    0.15 +-  0.05       932
+uninformed   0.020  biased -13.08 +-  8.66  658.15 +- 58.98      2691
+uninformed   0.020     ips -45.55 +- 85.65 3798.70 +- 5630.53      2691
+uninformed   0.020    full  12.72 +-  0.58    0.15 +-  0.05      2691
+informed     0.002  biased  10.62 +-  0.77    2.67 +-  0.22      1688
+informed     0.002     ips   9.73 +-  4.38 1501.15 +- 6531.28      1688
+informed     0.002    full  12.72 +-  0.58    0.15 +-  0.05      1688
+informed     0.005  biased  10.84 +-  0.81    2.55 +-  0.21      1757
+informed     0.005     ips  11.14 +-  1.49    1.96 +-  0.79      1757
+informed     0.005    full  12.72 +-  0.58    0.15 +-  0.05      1757
+informed     0.020  biased  11.42 +-  0.77    2.15 +-  0.18      2178
+informed     0.020     ips  12.36 +-  0.56    0.83 +-  0.33      2178
+informed     0.020    full  12.72 +-  0.58    0.15 +-  0.05      2178

@@ -1,0 +1,23 @@
+== 1. Reference problems (sensitivity filter, OC, move 0.2, tol 0.01, max 200 it)
+cantilever  32x20 vf=0.4 rmin=1.2: compliance 52.37 (start 351.94), volume 0.4000, 28 it, grey 0.228, 0.2 s
+mbb         60x20 vf=0.5 rmin=1.5: compliance 203.30 (start 1007.02), volume 0.5000, 94 it, grey 0.212, 1.4 s
+
+== 2. Ablations on half-MBB 60x20, vf 0.5
+filter       p   compliance  grey-share  checkerboard  iterations
+sensitivity 3      203.30      0.212        0.000     94
+sensitivity 1      164.78      0.710        0.000     12
+none        3      203.24      0.016        0.115     65
+none        1      164.40      0.677        0.000     21
+p = 1 is a variable-thickness plate (no penalisation, so no black-and-white topology).
+
+== 3. Mesh refinement, same physical filter radius (0.025 of the beam length), MBB, vf 0.5
+mesh      rmin(px)  compliance  grey  checkerboard  iterations
+ 30x10      0.75      190.89  0.003  0.195    200
+ 60x20      1.50      203.30  0.212  0.000     94
+120x40      3.00      207.10  0.227  0.000    101
+
+== 4. From density field to printable part (MBB 60x20 design from section 1)
+continuous design compliance 203.30; thresholded at the 50% volume quantile: 189.48 (-6.8%)
+connected components of thresholded design: 1; kept the largest (600/600 px)
+shortest solid run along rows/columns: 2 px (upper bound on minimum bar width)
+mirrored full beam 120x20 mm, 6124 triangles, STL volume 6000 mm^3 (pixels x thickness = 6000 mm^3)

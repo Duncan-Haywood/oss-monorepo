@@ -1,0 +1,34 @@
+E1 optimal expected interval score 4*s*phi(z)/alpha (normal, s=1) vs 400k-sample mean
+ alpha=0.5   z=0.674  closed form   2.542   simulated   2.544
+ alpha=0.2   z=1.282  closed form   3.510   simulated   3.513
+ alpha=0.1   z=1.645  closed form   4.125   simulated   4.127
+ alpha=0.05  z=1.960  closed form   4.676   simulated   4.675
+ alpha=0.01  z=2.576  closed form   5.784   simulated   5.785
+
+E2 scale misreport: regret of a symmetric interval with half-width lam*z*s (normal), in units of the optimal score
+ alpha   lam=0.5  0.7    0.85   1.18   1.4    2.0    | narrow(1/1.4)/wide(1.4)
+ 0.2      0.264   0.086   0.020   0.024   0.105   0.470   0.74
+ 0.1      0.519   0.159   0.035   0.037   0.152   0.596   0.94
+ 0.05     0.900   0.254   0.052   0.050   0.189   0.677   1.19
+
+E3 common shift delta: regret vs curvature 2 f(z)/alpha * delta^2 (normal, alpha=0.1)
+ delta=0.05 regret 0.00516  quadratic 0.00516  ratio 1.000
+ delta=0.2  regret 0.08298  quadratic 0.08251  ratio 1.006
+ delta=0.5  regret 0.53348  quadratic 0.51568  ratio 1.035
+ delta=1    regret 2.32371  quadratic 2.06271  ratio 1.127
+
+E4 Cauchy drift (s=1, alpha=0.1): scores have no mean, paired differences do
+ lam=0.6: exact regret 1.3610   paired mean 1.3560 +- 0.0253
+ lam=1.5: exact regret 1.1805   paired mean 1.1806 +- 0.0263
+   running mean of the optimal score itself after   1000 tasks:    55.84
+   running mean of the optimal score itself after  10000 tasks:    88.31
+   running mean of the optimal score itself after 100000 tasks:   123.28
+   running mean of the optimal score itself after 200000 tasks:   119.44
+
+E5 tasks to detect a misreported width (paired, z=1.645, normal, alpha=0.1) and a miscoverage
+ lam=0.5   regret 2.1406  paired var 33.993  n =     20.1
+ lam=0.7   regret 0.6545  paired var 11.086  n =     70.0
+ lam=0.85  regret 0.1436  paired var 2.486  n =    326.2
+ lam=1.18  regret 0.1537  paired var 2.126  n =    243.4
+ lam=1.4   regret 0.6254  paired var 6.382  n =     44.1
+ miscoverage alone (claimed 0.10): true 0.05: n=290, true 0.15: n=467, true 0.2: n=133

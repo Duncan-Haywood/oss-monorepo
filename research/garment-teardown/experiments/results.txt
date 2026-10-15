@@ -1,0 +1,32 @@
+## Burberry, Long Kensington Heritage Trench Coat, us.burberry.com: reported price $2,850; model: trench coat (cotton gabardine, lined)
+high-wage (assumed $18/h): fabric 105 lining 17 trims 22 labour 55 overhead 50 -> FOB 248 (MC 5-95%: 201-302); model retail at assumed multipliers 1201 (MC 778-1735); reported price / model FOB = 11.5x; FOB share of price 8.7%
+mid-wage (assumed $6/h): fabric 105 lining 17 trims 22 labour 20 overhead 41 -> FOB 204 (MC 5-95%: 162-254); model retail at assumed multipliers 989 (MC 635-1445); reported price / model FOB = 13.9x; FOB share of price 7.2%
+low-wage (assumed $1.5/h): fabric 105 lining 17 trims 22 labour 6 overhead 37 -> FOB 186 (MC 5-95%: 144-236); model retail at assumed multipliers 902 (MC 569-1323); reported price / model FOB = 15.3x; FOB share of price 6.5%
+
+replica (cheap cloth, simple trims, 60% of sewing minutes, no markups), cost to make:
+  high-wage (assumed $18/h): fabric+lining 35 trims 8 labour 38 -> total 81
+  mid-wage (assumed $6/h): fabric+lining 35 trims 8 labour 14 -> total 56
+  low-wage (assumed $1.5/h): fabric+lining 35 trims 8 labour 4 -> total 46
+  leanest case (cloth $4/m2, 40% sewing minutes, low wage): 29
+
+## Max Mara, Madame 101801 Icon coat, Net-a-Porter (Singapore site, duties incl.): reported price $3,850; model: long double-breasted wool-blend coat, lined
+high-wage (assumed $18/h): fabric 314 lining 24 trims 30 labour 72 overhead 110 -> FOB 551 (MC 5-95%: 423-700); model retail at assumed multipliers 3042 (MC 1921-4496); reported price / model FOB = 7.0x; FOB share of price 14.3%
+mid-wage (assumed $6/h): fabric 314 lining 24 trims 30 labour 26 overhead 99 -> FOB 493 (MC 5-95%: 369-641); model retail at assumed multipliers 2723 (MC 1691-4059); reported price / model FOB = 7.8x; FOB share of price 12.8%
+low-wage (assumed $1.5/h): fabric 314 lining 24 trims 30 labour 7 overhead 94 -> FOB 469 (MC 5-95%: 345-616); model retail at assumed multipliers 2591 (MC 1591-3892); reported price / model FOB = 8.2x; FOB share of price 12.2%
+
+replica (cheap cloth, simple trims, 60% of sewing minutes, no markups), cost to make:
+  high-wage (assumed $18/h): fabric+lining 42 trims 8 labour 50 -> total 100
+  mid-wage (assumed $6/h): fabric+lining 42 trims 8 labour 18 -> total 68
+  low-wage (assumed $1.5/h): fabric+lining 42 trims 8 labour 5 -> total 55
+  leanest case (cloth $4/m2, 40% sewing minutes, low wage): 34
+
+## one-at-a-time +25% sensitivity of model FOB, trench, mid-wage
+  shell_price_per_m2: +16.0%
+  piece_area_m2: +16.0%
+  marker_efficiency: -14.9%
+  overhead_rate: +5.0%
+  trims: +3.4%
+  lining_price_per_m2: +2.6%
+  sam_minutes: +2.4%
+  cutting_finishing_minutes: +0.7%
+  wage_per_hour: +3.1%

@@ -1,0 +1,13 @@
+[project]
+name = "garment-twonodecheck"
+version = "0.1.0"
+description = "Cross-check of garment-thermal's two-node model against pythermalcomfort's Gagge two-node"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

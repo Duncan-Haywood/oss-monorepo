@@ -1,0 +1,58 @@
+setup: twin residual sd 0.1 m/axis, false-closure offset sd 1.0 m, A=0.9, B=2.0, k=2
+twin-optimal gate g_t=0.0771 (radius 0.278 m = 2.78 twin sd); twin claims reject_true=0.0212, accept_false=0.0374, cost=0.0940
+
+1. exact gate law, k=2 and k=3, vs Monte Carlo (200000 draws)
+k=2 rho=1.0: reject_true exact 0.0212 MC 0.0211; accept_false exact 0.0374 MC 0.0371
+k=2 rho=2.0: reject_true exact 0.3815 MC 0.3802; accept_false exact 0.0364 MC 0.0360
+k=3 rho=1.0: reject_true exact 0.0524 MC 0.0528; accept_false exact 0.0055 MC 0.0055
+k=3 rho=2.0: reject_true exact 0.5876 MC 0.5887; accept_false exact 0.0053 MC 0.0052
+
+2. design-alpha gate: rejection of true closures = alpha^(1/rho^2)  (k=2, alpha=0.01)
+rho=0.5: real rejection 0.0000 (claimed 0.0100)
+rho=1.0: real rejection 0.0100 (claimed 0.0100)
+rho=1.5: real rejection 0.1292 (claimed 0.0100)
+rho=2.0: real rejection 0.3162 (claimed 0.0100)
+rho=3.0: real rejection 0.5995 (claimed 0.0100)
+
+3. twin-tuned gate in a real system whose per-axis residual sd is rho times the twin's
+rho | twin cost claim | real cost at g_t | real-opt gate (twin sd) | real opt cost | regret | regret % | reject_true | accept_false
+0.50 | 0.0940 | 0.0754 | 1.61 | 0.0307 | 0.0447 | 145.5 | 0.0000 | 0.0377
+0.75 | 0.0940 | 0.0762 | 2.23 | 0.0597 | 0.0165 | 27.6 | 0.0011 | 0.0376
+1.00 | 0.0940 | 0.0940 | 2.78 | 0.0940 | 0.0000 | 0.0 | 0.0212 | 0.0374
+1.50 | 0.0940 | 0.2362 | 3.73 | 0.1724 | 0.0638 | 37.0 | 0.1803 | 0.0370
+2.00 | 0.0940 | 0.4161 | 4.52 | 0.2571 | 0.1590 | 61.8 | 0.3815 | 0.0364
+3.00 | 0.0940 | 0.6559 | 5.77 | 0.4248 | 0.2311 | 54.4 | 0.6516 | 0.0347
+4.00 | 0.0940 | 0.7727 | 6.63 | 0.5731 | 0.1996 | 34.8 | 0.7859 | 0.0327
+
+4. claim vs delivery: real cost / twin-claimed cost at the twin gate
+rho=1.5: 2.51x
+rho=2.0: 4.43x
+rho=3.0: 6.98x
+
+5. does the answer depend on the false-closure cost? (rho=2)
+c_false=2: gates twin 0.352 m, real-opt 0.629 m, regret 0.1625 (395.8% of optimal cost)
+c_false=5: gates twin 0.324 m, real-opt 0.566 m, regret 0.1788 (203.7% of optimal cost)
+c_false=20: gates twin 0.278 m, real-opt 0.452 m, regret 0.1590 (61.8% of optimal cost)
+c_false=100: gates twin 0.211 m, real-opt 0.266 m, regret 0.0214 (3.0% of optimal cost)
+c_false=1000: gates twin 0.000 m, real-opt 0.000 m, regret 0.0000 (0.0% of optimal cost)
+
+6. repair: re-fit the residual variance from n ground-truthed real closures (rho=2)
+twin-gate regret 0.15899
+n=1: expected regret 0.10734  (67.5% of the twin-gate regret)
+n=2: expected regret 0.05371  (33.8% of the twin-gate regret)
+n=3: expected regret 0.03490  (21.9% of the twin-gate regret)
+n=5: expected regret 0.02019  (12.7% of the twin-gate regret)
+n=10: expected regret 0.00970  (6.1% of the twin-gate regret)
+n=30: expected regret 0.00313  (2.0% of the twin-gate regret)
+n=100: expected regret 0.00093  (0.6% of the twin-gate regret)
+n=1000: expected regret 0.00009  (0.1% of the twin-gate regret)
+n needed for regret < 1% of twin-gate regret: 59
+
+7. cheap repair: inflate the twin variance by a fixed factor c (rho=2 real, and rho=1 real = twin right)
+c=1: regret if real rho=2 0.15899; if twin was right (rho=1) 0.00000
+c=2: regret if real rho=2 0.04418; if twin was right (rho=1) 0.03020
+c=3: regret if real rho=2 0.00772; if twin was right (rho=1) 0.06692
+c=4: regret if real rho=2 0.00000; if twin was right (rho=1) 0.09876
+c=6: regret if real rho=2 0.01435; if twin was right (rho=1) 0.15082
+c=9: regret if real rho=2 0.05257; if twin was right (rho=1) 0.20974
+c=16: regret if real rho=2 0.12711; if twin was right (rho=1) 0.29667

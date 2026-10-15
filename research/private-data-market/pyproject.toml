@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "private-data-market"
+version = "0.1.0"
+description = "Buying private data with a telescoping log-score market: equilibrium Gaussian-mechanism noise, a hard precision cap, and order effects"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

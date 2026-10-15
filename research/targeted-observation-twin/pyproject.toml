@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "targeted-observation-twin"
+version = "0.1.0"
+description = "Targeted observation planned in a forecast-ensemble twin: exact real error after twin-gain updates, harm radius for over-correlated twins, misplaced-variance site choice, and a real-sample repair"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
