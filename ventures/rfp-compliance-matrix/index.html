@@ -64,6 +64,7 @@ a{color:var(--accent)}
   <p>
     <button type="button" id="dl-csv">Download CSV</button>
     <button type="button" class="secondary" id="copy-md">Copy as Markdown</button>
+    <button type="button" class="secondary" id="dl-outline">Download response outline</button>
   </p>
   <p class="warn">Owner and Status edited here are not saved or included in the download; the CSV has blank Owner and Not started columns for your team to fill in the spreadsheet.</p>
   <h3>Proposal instructions found</h3>
@@ -73,6 +74,16 @@ a{color:var(--accent)}
   <ul id="warnings"></ul>
 </section>
 
+<section class="card" id="coverage" hidden>
+  <h2>Check your draft against the matrix</h2>
+  <p>Paste your draft proposal response (cite requirement IDs like <code>REQ-004</code> if you can). The tool lists the requirements your draft does not seem to address yet. It compares key terms, so it finds gaps to look at; it cannot tell you a requirement is satisfied.</p>
+  <label for="draft" class="sr">Draft response text</label>
+  <textarea id="draft" placeholder="Paste your draft response here"></textarea>
+  <div><button type="button" id="check-draft">Find gaps</button><button type="button" class="secondary" id="dl-gaps">Download gap report (CSV)</button></div>
+  <p id="gap-summary" aria-live="polite"></p>
+  <div class="wrap"><table id="gaps"><thead><tr><th>ID</th><th>Strength</th><th>Status</th><th>Requirement</th><th>Terms not found</th></tr></thead><tbody></tbody></table></div>
+</section>
+
 <section class="card" id="rules">
   <h2>What it does, and what it leaves to you</h2>
   <ul>
@@ -80,7 +91,7 @@ a{color:var(--accent)}
     <li><strong>Leaves out:</strong> the buyer's own duties ("the County will evaluate...").</li>
     <li><strong>Not decided:</strong> whether you can meet a requirement, whether a requirement is reasonable or lawful, evaluation weighting, or anything in a table, image or attachment you did not paste. Read the solicitation and every addendum.</li>
   </ul>
-  <p>Prefer the command line? <code>node cli.mjs rfp.txt --format csv &gt; matrix.csv</code> runs the same code on your own machine (see the README in the repository).</p>
+  <p>Prefer the command line? <code>node cli.mjs rfp.txt --format csv &gt; matrix.csv</code> runs the same code on your own machine (see the README in the repository). Teams can also deploy their own copy with an API and an optional AI pass that splits compound requirements, using their own keys.</p>
 </section>
 
 <section class="card" id="faq">
@@ -100,13 +111,14 @@ a{color:var(--accent)}
 <footer>
   <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, procurement, tax, financial, medical, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
   <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-  <p>Everything runs in your browser. Your text is never uploaded; there are no accounts, cookies, or analytics vendors. We count anonymous feature events (<code>matrix_built</code>, <code>example_loaded</code>, <code>csv_downloaded</code>), never people, only in your own browser's storage, and counting honors Do Not Track and Global Privacy Control.</p>
+  <p>Everything runs in your browser. Your text is never uploaded; there are no accounts, cookies, or analytics vendors. We count anonymous feature events (<code>matrix_built</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>outline_downloaded</code>, <code>draft_checked</code>), never people, only in your own browser's storage, and counting honors Do Not Track and Global Privacy Control.</p>
   <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
   <p class="support">Free and open source under the <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support on GitHub Sponsors</a> if this saved your proposal team an afternoon &mdash; optional, the tool stays free either way.</p>
 </footer>
 
 <script type="module">
-import { extract, toCsv, toMarkdown } from "./extract.mjs";
+import { extract, toCsv, toMarkdown, csvCell } from "./extract.mjs";
+import { toOutlineMarkdown, coverage, coverageToCsv } from "./shred.mjs";
 import { SAMPLE } from "./sample.mjs";
 import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -143,6 +155,7 @@ function run() {
   $("#instr tbody").innerHTML = result.instructions.map((i) => `<tr><td>${esc(i.type)}</td><td>${esc(i.section)}</td><td>${esc(i.text)}</td></tr>`).join("") || `<tr><td colspan="3">None detected.</td></tr>`;
   $("#warnings").innerHTML = result.warnings.map((w) => `<li>${esc(w)}</li>`).join("");
   $("#report").hidden = false;
+  $("#coverage").hidden = false;
   $("#status").textContent = `Done: ${c.total} requirements. Check the matrix against the solicitation before you rely on it.`;
   return true;
 }
@@ -157,6 +170,19 @@ $("#copy-md").addEventListener("click", async () => {
   try { await navigator.clipboard.writeText(toMarkdown(last)); $("#status").textContent = "Copied the matrix as a Markdown table."; }
   catch { $("#status").textContent = "Copy was blocked by the browser; use Download CSV instead."; }
 });
+let lastCov = null;
+$("#dl-outline").addEventListener("click", () => { if (last) { record("outline_downloaded"); download("response-outline.md", toOutlineMarkdown(last), "text/markdown"); } });
+$("#check-draft").addEventListener("click", () => {
+  if (!last) return;
+  const cov = coverage(last, $("#draft").value);
+  lastCov = cov;
+  record("draft_checked");
+  const s = cov.summary;
+  $("#gap-summary").textContent = `${s.addressed} addressed, ${s.partial} partial, ${s.missing} missing.` + (cov.mandatoryGaps.length ? ` Mandatory requirements not clearly addressed: ${cov.mandatoryGaps.join(", ")}.` : " No mandatory gaps found by this heuristic; still read the draft against the solicitation.");
+  const rank = { missing: 0, partial: 1, addressed: 2 };
+  $("#gaps tbody").innerHTML = [...cov.rows].sort((a, b) => rank[a.status] - rank[b.status]).map((r) => `<tr><td>${esc(r.id)}</td><td>${esc(r.strength)}</td><td>${esc(r.status)}</td><td class="req">${esc(r.text)}</td><td>${esc(r.missingTerms.join(" "))}</td></tr>`).join("");
+});
+$("#dl-gaps").addEventListener("click", () => { if (lastCov) download("gap-report.csv", coverageToCsv(lastCov, csvCell), "text/csv"); });
 $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
 if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
 </script>
