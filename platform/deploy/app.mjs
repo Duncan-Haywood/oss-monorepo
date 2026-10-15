@@ -52,14 +52,15 @@ function renderProviders() {
 }
 
 function showCreds() {
-  for (const c of ['aws', 'gcp']) $(c).hidden = !PROVIDERS[provider].needs.includes(c);
+  for (const c of ['aws', 'gcp', 'azure']) $(c).hidden = !PROVIDERS[provider].needs.includes(c);
 }
 
 function refresh() {
   const needs = PROVIDERS[provider].needs;
   const haveCreds = $('gh').value.trim()
     && (!needs.includes('aws') || ($('ak').value.trim() && $('sk').value.trim() && $('rg').value.trim()))
-    && (!needs.includes('gcp') || ($('gk').value.trim() && $('gp').value.trim()));
+    && (!needs.includes('gcp') || ($('gk').value.trim() && $('gp').value.trim()))
+    && (!needs.includes('azure') || ($('zc').value.trim() && $('zs').value.trim() && $('zt').value.trim() && $('zb').value.trim()));
   $('go').disabled = PROVIDERS[provider].downloadOnly || !($('ack').checked && haveCreds && $('app').value);
   $('dl').disabled = !($('ack').checked && $('app').value);
 }
@@ -142,6 +143,21 @@ async function deploy() {
       }
       await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'GCP_PROJECT', value: $('gp').value.trim() });
       await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'GCP_LOCATION', value: $('gl').value.trim() || 'US' });
+      log('The OpenTofu state passphrase was generated in this tab and stored only as a secret in your repository (GitHub never shows it again).');
+    } else if (p.needs.includes('azure')) {
+      log('Encrypting your Azure credentials in this tab and storing them as Actions secrets…');
+      const key = await gh(token, 'GET', `/repos/${me.login}/${name}/actions/secrets/public-key`);
+      const secrets = {
+        ARM_CLIENT_ID: $('zc').value.trim(),
+        ARM_CLIENT_SECRET: $('zs').value.trim(),
+        ARM_TENANT_ID: $('zt').value.trim(),
+        ARM_SUBSCRIPTION_ID: $('zb').value.trim(),
+        TOFU_STATE_PASSPHRASE: randomHex(24),
+      };
+      for (const [k, v] of Object.entries(secrets)) {
+        await gh(token, 'PUT', `/repos/${me.login}/${name}/actions/secrets/${k}`, { encrypted_value: sealSecretForGitHub(v, key.key), key_id: key.key_id });
+      }
+      await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'AZURE_LOCATION', value: $('zl').value.trim() || 'eastus' });
       log('The OpenTofu state passphrase was generated in this tab and stored only as a secret in your repository (GitHub never shows it again).');
     } else if (provider === 'render') {
       log('Render reads the blueprint from this repository; no secrets are stored in it.');

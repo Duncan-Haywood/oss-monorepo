@@ -10,7 +10,7 @@ visitor:
 1. picks one of the ~1,230 browser apps (the list comes from
    `discoverSurfaces()` in `platform/pages/build.mjs`; there is no second list),
 2. picks **GitHub Pages** (free, needs only a GitHub token), **AWS**
-   (S3 + CloudFront through OpenTofu), **Google Cloud Storage** (a public bucket through OpenTofu, service-account key sealed like the AWS keys) or **Android** (a Capacitor shell built in
+   (S3 + CloudFront through OpenTofu), **Google Cloud Storage** (a public bucket through OpenTofu, service-account key sealed like the AWS keys), **Microsoft Azure** (a Storage static website through OpenTofu, service-principal values sealed the same way) or **Android** (a Capacitor shell built in
    the visitor's own GitHub Actions into a sideloadable APK, plus a signed Play
    bundle if they add their own keystore secrets; iOS is not covered),
 3. pastes their own credentials and ticks the operator acknowledgement,
@@ -40,6 +40,7 @@ to `state/` in the visitor's own repository.
 | `templates/github-pages/` | `deploy.yml` (Pages via Actions) |
 | `templates/android/` | `deploy.yml` (Capacitor 6.2.0 pinned, JDK 17, debug APK; signed `.aab` only with the visitor's four `ANDROID_*` secrets); `compose.mjs` writes `capacitor.config.json` and `package.json` |
 | `templates/gcp/` | `deploy.yml`, `destroy.yml`, `tofu/` (OpenTofu 1.8.5, providers pinned; `GOOGLE_CREDENTIALS` secret, `GCP_PROJECT`/`GCP_LOCATION` variables) |
+| `templates/azure/` | `deploy.yml`, `destroy.yml`, `tofu/` (OpenTofu 1.8.5, azurerm 4.14.0; `ARM_*` secrets, `AZURE_LOCATION` variable) |
 | `templates/aws/` | `deploy.yml`, `destroy.yml`, `tofu/` (OpenTofu 1.8.5, providers pinned) |
 
 The donate link (Buy Me a Coffee, plain link) and an operator notice are added
@@ -87,7 +88,7 @@ Not yet validated against a live Fly account.
 
 - No `.terraform.lock.hcl` yet: it needs a `tofu init` run with network access.
   Providers are pinned to exact versions in `versions.tf` meanwhile.
-- More providers (Azure, DigitalOcean Spaces). (DigitalOcean App Platform was considered for servers and skipped: no persistent disk, so most of the server apps would lose state.)
+- More providers (DigitalOcean Spaces). The Azure path is validated with `tofu validate` in CI only, not against a live subscription. (DigitalOcean App Platform was considered for servers and skipped: no persistent disk, so most of the server apps would lose state.)
 - The hub footer and every tool page footer link the page ("Deploy your own
   copy" / "Run your own copy", `deploy/?app=<slug>` preselects the app).
 - The GCS path is validated with `tofu validate` only, not against a live project; it serves from `storage.googleapis.com` (no custom domain, no CDN).
