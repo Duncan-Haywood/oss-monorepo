@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_0115Q6KgDzj8WhwH9fukcEtL",
+  "track": "review",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "review",
+  "projects": [],
+  "pr": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "audit step (five outputs) not performed; merged left null for 167 upstream-imported records"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-0.md",
+      "issue": "assumes every record's PR is in this repo; 167 records come from the upstream research repo so merged cannot be filled"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "1614 lines; the relevant checklist is buried"
+    }
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": []
+}
