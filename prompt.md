@@ -20,11 +20,16 @@ guardrails, and no sub-prompt can relax them.
 
 If the message that started the session asks for something specific, do that
 instead, under the track it belongs to:
-`route --track ventures|research|review`. The router picks the review track
+`route --track ventures|research|process|explore|review`. The router picks the review track
 by itself once enough runs have merged since the last review, for a share of
 runs (`review_when_due`) so parallel routines do not all start one. If an open
 pull request titled `prompts: review` already exists, another run has claimed
 that review; route again with `--skip-review`.
+
+About 5% of runs draw the `explore` track: free choice, Google "20% time"
+style. The agent works on whatever it finds most interesting, with its own
+approach, under the same guardrails and landing rules
+([`prompts/explore/prompt-0.md`](prompts/explore/prompt-0.md)).
 
 ## 2. Work, and land it
 

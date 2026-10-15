@@ -322,6 +322,11 @@ Ship when every line is true:
 
 - [ ] A stranger in the niche can go from landing page to a completed task
       alone.
+- [ ] It has a home/marketing page on the GitHub Pages site, linked from the
+      portfolio homepage — CLIs, servers and apps included, not only browser
+      tools (`prompts/goals.md`, web presence). The page says what it does and
+      for whom, shows it (a screenshot or a demo), and links to try it and to
+      the code.
 - [ ] It runs with no key, no account, and no paid dependency of ours.
 - [ ] LICENSE, disclaimer, and privacy line are in the README **and** the
       product.

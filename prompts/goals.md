@@ -22,6 +22,36 @@ and one platform that runs them:
 - **The platform** (`platform/`, `portfolio/`, `prompts/`): the agents,
   checks and prompts that do the work above. It exists to serve the two
   portfolios, not to grow on its own.
+- **Free choice** (about 5% of effort): in the spirit of Google's "20% time",
+  about one run in twenty works on whatever the agent finds most interesting,
+  with its own approach (`prompts/explore/`). Same guardrails, same bar.
+- **The web presence** (added 2026-10-14): one website, hosted on GitHub
+  (GitHub Pages), from which all of the work above can be easily checked out
+  visually. A visitor lands on one homepage and reaches every product and
+  every research project from it without reading the repository.
+  - **Every project and product has a home page by default**: a home or
+    marketing page that says what it is, who it is for and what it found or
+    does, with screenshots or figures, and links to try it, the code and the
+    write-up. That includes CLIs, servers, apps and research projects, not
+    only browser tools. A new project or product is not done without one.
+
+## Long-term goal: a public face for everything
+
+Set by the owner on 2026-10-15. Most things in this repository should have a
+publicly accessible web page: every venture, every research project, and the
+platform tools a stranger could use or learn from. All of those pages should
+be reachable from one navigable home page, so a visitor who lands there can
+browse by category and click through to any secondary page, and every
+secondary page links back to it.
+
+This is a direction, not a single run's task. Each run that adds or changes
+something user-visible should leave it with a public page and a link from the
+home page (or the index that page links to), and runs that have spare scope
+should close the gap for things that still have none. Pages follow the same
+guardrails as the work they describe: disclaimers and usage tracking on
+venture pages, honest results and AI-assistance notes on research pages.
+Progress is measured by the share of ventures, research projects and public
+platform tools that have a reachable page linked from the home page.
 
 ## Guardrails (every track, every version)
 
@@ -73,7 +103,8 @@ gain on a later one.
 2. **Success:** the run's pull request merged with CI green (or the local
    checklist when runners are starved) and its track's definition of done
    met: `PRODUCT_PLAYBOOK.md` for a venture, a complete README and passing
-   tests for a research project.
+   tests for a research project, and for both a home page on the GitHub
+   Pages site.
 3. **Errors:** CI failures before green, review findings, reverts or fix-ups
    within two weeks, abandoned runs, and leaked work. Leaked work is a branch
    or pull request a run pushed that was not on `main` 24 hours later.
@@ -90,5 +121,20 @@ gain on a later one.
 - **Research:** merged projects that pass the research guardrails and a
   quality audit: the code re-runs, the README numbers match its output, and
   every citation checks out.
+- **Explore:** merged work the agent chose itself, about 5% of runs. Judged
+  on the same success and integrity measures; the review also notes which
+  free-choice ideas graduated into a regular track.
+- **Web presence:** every venture and every research project reachable,
+  with its own home page, from one GitHub-hosted homepage, and nothing on
+  `main` without a page. Deploy and link what exists before polishing the
+  design.
+- **Process:** about 5% of runs study how work gets done here (quality,
+  errors, rework, duplicate and leaked work, what the checks catch) and
+  write an analysis with ranked recommendations
+  (`prompts/process/reports/`). Each study follows up on the last one's
+  recommendations, so the process is judged by whether they helped.
 - **Review:** each review leaves the system measurably better on the scores
   above, or records honestly that it could not tell.
+- **Public presence (all tracks):** the share of ventures, research projects
+  and public platform tools with a public web page reachable from the home
+  page, per the long-term goal above.
