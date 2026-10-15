@@ -60,7 +60,8 @@ export function selfEmploymentTax(input = {}) {
   if (netProfit <= 0) return { invalid: true };
 
   const p = seParts(netProfit, w2Wages);
-  const addlMedicare = additionalMedicare(p.netEarnings, w2Wages, status);
+  // Under $400 there are no SE earnings on Schedule SE, so none reach Form 8959.
+  const addlMedicare = additionalMedicare(p.netEarnings < SE_MINIMUM ? 0 : p.netEarnings, w2Wages, status);
   const halfDeduction = p.total / 2;
   const incomeTax = Math.max(0, netProfit - halfDeduction) * marginalRate;
   const totalSetAside = p.total + addlMedicare + incomeTax;
