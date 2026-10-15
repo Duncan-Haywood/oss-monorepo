@@ -30,6 +30,7 @@ export const KNOWN_BOTS = [
   { token: "Bytespider", operator: "ByteDance", purpose: "training", note: "Associated with ByteDance's AI and content products." },
   { token: "Amazonbot", operator: "Amazon", purpose: "training", note: "Amazon's crawler; stated uses include improving Amazon products and services, including AI features." },
   { token: "Meta-ExternalAgent", operator: "Meta", purpose: "training", note: "Crawls for Meta's AI model training and search features." },
+  { token: "Meta-ExternalFetcher", operator: "Meta", purpose: "user-browsing", note: "Fetches a page because a Meta AI user's request asked it to; Meta documents that it may not honor robots.txt since the fetch is user-initiated." },
   { token: "Diffbot", operator: "Diffbot", purpose: "training", note: "Commercial web-extraction crawler; its structured data is resold as a data feed, including for AI training." },
 ];
 
