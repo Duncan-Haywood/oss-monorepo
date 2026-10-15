@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eda-verify"
+version = "0.1.0"
+description = "Mutation study of automated RTL checks (random, coverage-directed, formal) on a generated MAC accelerator"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
