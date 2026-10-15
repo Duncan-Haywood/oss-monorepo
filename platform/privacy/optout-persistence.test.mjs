@@ -1686,7 +1686,7 @@ const RELATIVE_SELF = relative(
 // +1: `trial-converter` graduated.
 // +1: `form-inbox` graduated.
 // +1: `meter-keeper` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1222;
+const SWITCHES_IN_THE_CATALOGUE = 1223;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
