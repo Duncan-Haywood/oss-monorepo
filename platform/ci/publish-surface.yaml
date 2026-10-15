@@ -449,6 +449,9 @@ workflows:
 - workflow: change-order-margin-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: changelog-keeper-ci.yml
+  classification: none
+  publishes: []
 - workflow: chargeback-evidence-packet-ci.yml
   classification: none
   publishes: []
