@@ -185,3 +185,18 @@ test("parseRoutes rejects missing env vars and relay-owned headers", () => {
   assert.throws(() => parseRoutes(mk(["x"])), /object/);
   assert.throws(() => parseRoutes(mk({ "bad name": "x" })), /bad header/);
 });
+
+test("/v1/metrics exposes per-route gauges in Prometheus format, behind the admin key", async () => {
+  const t = await boot([route]);
+  try {
+    const body = '{"hello":1}';
+    await fetch(`${t.base}/in/gh`, { method: "POST", body, headers: { "x-hub-signature-256": sign("s3", body) } });
+    t.setClock(NOW + 90_000);
+    assert.equal((await fetch(`${t.base}/v1/metrics`)).status, 401);
+    const r = await fetch(`${t.base}/v1/metrics`, { headers: { authorization: "Bearer adm" } });
+    assert.match(r.headers.get("content-type"), /^text\/plain/);
+    const text = await r.text();
+    assert.match(text, /^webhook_relay_events\{route="gh",status="pending"\} 1$/m);
+    assert.match(text, /^webhook_relay_oldest_pending_age_seconds\{route="gh"\} 90$/m);
+  } finally { t.close(); }
+});
