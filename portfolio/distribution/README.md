@@ -42,6 +42,19 @@ manifest-driven listing:
 - **Openly automated social accounts**: e.g. Mastodon or Bluesky accounts
   that are labelled as bots, post only what they say they post (new
   launches, release notes), and follow each instance's bot rules.
+- **An X account** (owner suggestion, 2026-10-15): the same pattern,
+  labelled as automated in X's account settings and bio, posting launches
+  and releases through the API's free tier, within its current posting
+  limits and automation rules. Read those on the day you build it, because
+  they change often. If the free tier no longer allows posting, the channel
+  is drafts for the owner, never a paid tier.
+- **An opt-in email list** (owner suggestion, 2026-10-15): a "get new tools
+  by email" signup on the home page, with double opt-in, one-click
+  unsubscribe, and only what the signup promised. Use a provider's free
+  tier, or a feed-to-email service on our own Atom feed. CAN-SPAM requires
+  a postal address in every email, so choosing which address to show is an
+  owner decision to raise when the channel is built. Subscribers' addresses
+  are personal data: they live with the provider, never in this repository.
 - **Research**: the GitHub Pages site, `CITATION.cff`, Zenodo DOIs, Papers
   with Code-style indexes. Publishing a preprint (arXiv) is under the
   owner's name and stays theirs.

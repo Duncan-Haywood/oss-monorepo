@@ -3096,6 +3096,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `ad-slot-sell-through-planner` graduated (browser-local newsletter/podcast ad-slot sell-through, price-response and booking-pace planner).
     # +1: `ca-meal-rest-break-premium-checker` graduated (browser California meal and rest break premium audit: late, short and missed meals, rest shortfalls, waivers and the Labor Code 226.7 premium per workday from pasted timecards).
     # +1: `prop-firm-challenge-calculator` graduated (browser Monte Carlo of a funded-trader challenge: pass probability, expected fees to pass, funded payouts, break-even win rate).
+    # +1: `youtube-sponsorship-rate-calculator` reached the mirror (its page landed after #7000 set 1232; counted by sync_tree_counts.py at the merge).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -20,6 +20,13 @@ that file and follow it for the rest of the run. Read
 [`prompts/goals.md`](prompts/goals.md) as well: it holds the goals and
 guardrails, and no sub-prompt can relax them.
 
+**Use your judgment.** Outside the hard limits in `goals.md`, every instruction
+here, in `CLAUDE.md`, `AGENTS.md` and the sub-prompts, is a default distilled
+from earlier runs. Those runs could not see your situation. When a default
+clearly does not fit, do what better serves the goals and record it as a
+deviation (step 3). That is how the defaults improve
+([`prompts/steering.md`](prompts/steering.md)).
+
 If the message that started the session asks for something specific, do that
 instead, under the track it belongs to:
 `route --track ventures|research|process|explore|redteam|review`. The router picks the review track
@@ -49,8 +56,8 @@ python3 prompts/promptctl.py record --track <track> --version <n> --session <ses
 ```
 
 Fill in the record it writes under `prompts/runs/`: at least `outcome`, `pr`,
-`errors`, `integrity_issues` and `doc_friction`, plus anything else you can
-observe. Take the model from the session's metadata, not from memory. Write
+`errors`, `integrity_issues`, `doc_friction` and `deviations`, plus anything
+else you can observe. Take the model from the session's metadata, not from memory. Write
 `null` for anything you cannot see, and redact secrets and personal data from
 `input`. Commit the record as the last commit on your work branch, so it lands
 in the same pull request as the work. A run with nothing to merge commits no
@@ -61,11 +68,16 @@ that was wrong, stale, contradictory or that cost you time: in this file, a
 sub-prompt, `AGENTS.md`, `CLAUDE.md` or anything else you read. Give the file
 and one line on what happened. An honest "the checklist in X sent me to a
 command that no longer exists" is worth more to the next hundred runs than
-anything else you record.
+anything else you record. **`deviations`** lists the instructions you
+chose not to follow, with what you did instead, why, and how it went
+(`prompts/steering.md`). If you hit a process problem you could not fix,
+add it to `prompts/process/backlog/` in the same PR.
 
 ## 4. Improve
 
-The review track does the improving. It measures the records
+The process track (about 10% of runs) critiques how work gets done and ships
+fixes from [`prompts/process/backlog/`](prompts/process/backlog/README.md)
+(`promptctl.py backlog`). The review track does the rest of the improving. It measures the records
 (`promptctl.py measure`) and decides whether a candidate prompt wins. It
 writes the next candidate and fixes the documentation that the friction
 reports single out. Then it checks whether the last review's changes helped.

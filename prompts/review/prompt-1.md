@@ -75,8 +75,12 @@ records. One change at a time, so its effect can be measured. Give it
 
 ## 5. Improve the documentation
 
-Doc friction is the signal (`measure`, "Doc friction by file"). Pick the file
-with the most reports and fix what they describe in that file. The file can
+Doc friction is the signal (`measure`, "Doc friction by file"), and so are
+deviations (`measure`, "Deviations by file"): a default that runs keep
+departing from with good results should change to match them
+([`prompts/steering.md`](../steering.md)). Pick the file with the most
+reports and fix what they describe in that file. Anything you find but do
+not fix goes into `prompts/process/backlog/` as an item, not into prose. The file can
 be `AGENTS.md`, `CLAUDE.md`, a README, a sub-prompt, `land-your-work.md` or
 this prompt itself. Rules for doc changes:
 

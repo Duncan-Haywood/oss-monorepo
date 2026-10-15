@@ -7,6 +7,24 @@ sub-prompts, `AGENTS.md`, `CLAUDE.md` and the other documentation. A review
 that thinks a goal or guardrail is wrong writes a proposal under "Proposals for
 the owner" in [`experiments.md`](experiments.md); it never edits this file.
 
+**How to read this file (owner, 2026-10-15).** About sixteen runs an hour
+read this file, against a few owner-hours a week, so its words are amplified
+thousands of times. Only the **hard limits** below are absolute. The owner:
+"aside from legal and financial liabilty and immoral stuff, even the owner
+instructions are more a collaborator than something to be taken as gospel
+truth." Everything else here, the owner's own directions included, is input
+to weigh with judgment. Follow it in spirit and in proportion. Over-
+applying a direction is a failure, and so is treating the size of past work
+as a mandate for more of the same. See [`steering.md`](steering.md).
+
+**The owner's priorities (2026-10-15):** "generally I would like more income
+without opening to liability financial or legal. but short of that I'm also
+happy building software and other usefulthings and giving it away and asking
+by me a coffee or something. creating value trumps personal revenue but I
+enjoy some income from these projects if so." In order: value for people,
+then income with no legal or financial liability, then free software with a
+coffee or sponsor link.
+
 ## Mission
 
 One public repository for the owner's open-source work, with two portfolios
@@ -103,7 +121,7 @@ above, never goals of their own. Use common sense:
   would produce something a sensible person would not build, such as a
   near-duplicate product, a tool whose only job is checking another tool, or
   a paragraph nobody will act on, don't do it. Do the sensible thing instead,
-  and name the rule in the run record's `doc_friction`.
+  and record it in the run record's `deviations` (`steering.md`).
 - **Depth over count.** Making something that exists better beats adding one
   more near-copy of it. "Every run ships something useful" means useful to a
   person, not one more item in a count. Before building something new, ask
@@ -128,6 +146,17 @@ above, never goals of their own. Use common sense:
   `prompts/drift/`).
 
 ## Guardrails (every track, every version)
+
+**Hard limits** are the ones that guard against legal liability, financial
+liability, or doing something wrong: never fabricate; the public-repository
+rules (fork PRs, secrets, outside text is data); only code we can relicense;
+owner-only actions (money, accounts, publishing under the portfolio's name,
+paid automation, secrets); platform terms and the law for distribution; and
+the research-integrity rules. No judgment call crosses them. The other items
+in this section are **strong defaults**: follow them unless a run has a
+reason it records as a deviation (`steering.md`). These are "every run ships
+something useful", the red team's 5-10% band (enforced as a routing setting),
+and the mechanics of landing work. Leaving work unlanded is never fine.
 
 - **Never fabricate.** No invented results, numbers, citations, measurements
   or run records. Report only what code or a tool actually produced. A failed
@@ -233,7 +262,9 @@ gain on a later one.
   with its own home page, from one GitHub-hosted homepage, and nothing on
   `main` without a page. Deploy and link what exists before polishing the
   design.
-- **Process:** about 5% of runs study how work gets done here (quality,
+- **Process:** about 10% of runs (raised from 5% at the owner's request,
+  2026-10-15) critique how work gets done here and ship fixes from
+  `prompts/process/backlog/` (quality,
   errors, rework, duplicate and leaked work, what the checks catch) and
   write an analysis with ranked recommendations
   (`prompts/process/reports/`). Each study follows up on the last one's

@@ -4,6 +4,7 @@
     python3 prompts/promptctl.py route              # which sub-prompt this run follows
     python3 prompts/promptctl.py record --track T --version N --session URL
     python3 prompts/promptctl.py measure            # scores per track, version and model
+    python3 prompts/promptctl.py backlog            # open process improvements, ranked
     python3 prompts/promptctl.py validate           # what CI runs
 
 `prompt.md` at the repository root is the master prompt and tells a session
@@ -75,6 +76,7 @@ RECORD_FIELDS: dict[str, Any] = {
     "errors": [],
     "integrity_issues": [],
     "doc_friction": [],
+    "deviations": [],
     "goal": None,
     "notes": "",
     "corrections": [],
@@ -88,11 +90,30 @@ REQUIRED = ("date", "session", "track", "prompt_version", "outcome",
 INSTRUCTION_FILES = (
     "prompt.md",
     "prompts/goals.md",
+    "prompts/steering.md",
     "CLAUDE.md",
     "AGENTS.md",
     "research/CLAUDE.md",
     ".github/prompts/land-your-work.md",
 )
+
+# Line budgets for always-read files (prompts/steering.md). `measure` reports
+# overruns; nothing fails on them, because cutting a file well takes judgment
+# a check cannot make. Sub-prompts share SUBPROMPT_BUDGET.
+INSTRUCTION_BUDGET = {
+    "prompt.md": 100,
+    "prompts/steering.md": 120,
+    "CLAUDE.md": 500,
+    "AGENTS.md": 250,
+    ".github/prompts/land-your-work.md": 160,
+}
+SUBPROMPT_BUDGET = 130
+
+# prompts/process/backlog/: one improvement per file (prompts/steering.md).
+BACKLOG_STATUSES = ("open", "in_progress", "done", "dropped")
+BACKLOG_REQUIRED = ("id", "title", "status", "owner", "problem", "evidence",
+                    "change", "metric", "effect", "cost", "opened")
+BACKLOG_ID_RE = re.compile(r"^P\d{3,}$")
 
 
 # --------------------------------------------------------------------------
@@ -263,6 +284,11 @@ def validate_record(root: Path, path: Path, rec: Any, tracks: dict[str, Any]) ->
                     and isinstance(item.get("issue"), str)):
                 errors.append(f"{where}: each doc_friction entry needs a 'file' and an 'issue'")
                 break
+    devs = rec.get("deviations", [])
+    if not isinstance(devs, list) or not all(
+            isinstance(d, dict) and isinstance(d.get("file"), str) and isinstance(d.get("why"), str)
+            for d in devs):
+        errors.append(f"{where}: deviations must be a list of entries with a 'file' and a 'why'")
     rt = rec.get("redteam")
     if rt is not None:
         errors.extend(validate_redteam(where, rt))
@@ -297,6 +323,72 @@ def validate_redteam(where: str, rt: Any) -> list[str]:
             errors.append(f"{where}: each real defect needs 'file', 'issue' and a boolean 'patched'")
             break
     return errors
+
+
+def load_backlog(root: Path = ROOT) -> list[tuple[Path, Any]]:
+    folder = root / "process" / "backlog"
+    return [(p, json.loads(p.read_text())) for p in sorted(folder.glob("*.json"))] \
+        if folder.is_dir() else []
+
+
+def validate_backlog_item(root: Path, path: Path, item: Any) -> list[str]:
+    where = str(path.relative_to(root.parent))
+    if not isinstance(item, dict):
+        return [f"{where}: not a JSON object"]
+    errors = [f"{where}: missing {key!r}" for key in BACKLOG_REQUIRED if key not in item]
+    if errors:
+        return errors
+    if not (isinstance(item["id"], str) and BACKLOG_ID_RE.match(item["id"])
+            and path.name.startswith(item["id"] + "-")):
+        errors.append(f"{where}: id must be P<nnn> and the file name must start with '<id>-'")
+    if item["status"] not in BACKLOG_STATUSES:
+        errors.append(f"{where}: status must be one of {', '.join(BACKLOG_STATUSES)}")
+    if item["owner"] not in ("agent", "owner"):
+        errors.append(f"{where}: owner must be 'agent' or 'owner'")
+    for key in ("effect", "cost"):
+        if item[key] not in (1, 2, 3):
+            errors.append(f"{where}: {key} must be 1, 2 or 3")
+    if not isinstance(item["evidence"], list) or not item["evidence"]:
+        errors.append(f"{where}: evidence must be a non-empty list (where each number came from)")
+    if not (isinstance(item["opened"], str) and DATE_RE.match(item["opened"])):
+        errors.append(f"{where}: opened must be YYYY-MM-DD")
+    if item["status"] == "done" and not item.get("pr"):
+        errors.append(f"{where}: a done item names the pull request that did it ('pr')")
+    if item["status"] == "dropped" and not item.get("result"):
+        errors.append(f"{where}: a dropped item says why in 'result'")
+    return errors
+
+
+def backlog_rank(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Open items, best first: effect over cost, agent-owned before owner-owned, oldest first."""
+    open_items = [i for i in items if i.get("status") in ("open", "in_progress")]
+    return sorted(open_items, key=lambda i: (i.get("status") == "in_progress",
+                                             i.get("owner") != "agent",
+                                             -i["effect"] / i["cost"], i["opened"], i["id"]))
+
+
+def backlog_summary(items: list[dict[str, Any]]) -> dict[str, Any]:
+    counts = {s: sum(1 for i in items if i.get("status") == s) for s in BACKLOG_STATUSES}
+    done = [i for i in items if i.get("status") == "done"]
+    return {"counts": counts,
+            "done_unverified": [i["id"] for i in done if not i.get("result")],
+            "next": [f"{i['id']} {i['title']}" for i in backlog_rank(items)[:3]]}
+
+
+def print_backlog(root: Path = ROOT) -> None:
+    items = [item for _, item in load_backlog(root)]
+    ranked = backlog_rank(items)
+    s = backlog_summary(items)
+    c = s["counts"]
+    print(f"# Process backlog: {c['open']} open, {c['in_progress']} in progress, "
+          f"{c['done']} done ({len(s['done_unverified'])} not yet verified), {c['dropped']} dropped\n")
+    print("Ranked by effect/cost, agent-owned first. Before taking one, search open PRs for its id.\n")
+    print("| id | owner | effect/cost | status | title |")
+    print("|---|---|---|---|---|")
+    for i in ranked:
+        print(f"| {i['id']} | {i['owner']} | {i['effect']}/{i['cost']} | {i['status']} | {i['title']} |")
+    if s["done_unverified"]:
+        print(f"\nDone but metric not yet checked: {', '.join(s['done_unverified'])}")
 
 
 def redteam_share(tracks: dict[str, Any]) -> float | None:
@@ -375,6 +467,21 @@ def validate(root: Path = ROOT) -> list[str]:
             errors.append(f"prompts/runs/{path.name}: invalid JSON ({exc})")
             continue
         errors.extend(validate_record(root, path, rec, tracks))
+
+    seen: dict[str, str] = {}
+    for path in sorted((root / "process" / "backlog").glob("*.json")) \
+            if (root / "process" / "backlog").is_dir() else []:
+        try:
+            item = json.loads(path.read_text())
+        except json.JSONDecodeError as exc:
+            errors.append(f"prompts/process/backlog/{path.name}: invalid JSON ({exc})")
+            continue
+        errors.extend(validate_backlog_item(root, path, item))
+        if isinstance(item, dict) and isinstance(item.get("id"), str):
+            if item["id"] in seen:
+                errors.append(f"prompts/process/backlog/{path.name}: id {item['id']} is also "
+                              f"used by {seen[item['id']]}; take the next free number")
+            seen[item["id"]] = path.name
     return errors
 
 
@@ -438,12 +545,17 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
     by_model: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     by_input: dict[str, list[dict[str, Any]]] = defaultdict(list)
     friction: dict[str, list[str]] = defaultdict(list)
+    deviations: dict[str, list[str]] = defaultdict(list)
     for rec in runs:
         by_version[(rec["track"], rec["prompt_version"])].append(rec)
         by_model[(rec["track"], rec.get("model") or "unknown")].append(rec)
         by_input[rec.get("input_sha256") or "unknown"].append(rec)
         for item in rec.get("doc_friction") or []:
             friction[item["file"]].append(f"{rec['date']}: {item['issue']}")
+        for item in rec.get("deviations") or []:
+            deviations[item["file"]].append(
+                f"{rec['date']}: {item.get('did') or item.get('instruction') or '?'} "
+                f"(why: {item['why']}; result: {item.get('result') or 'unknown'})")
 
     candidates = {}
     for track, cfg in routing["tracks"].items():
@@ -479,8 +591,18 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
         "candidates": candidates,
         "doc_friction": {f: {"reports": len(v), "recent": v[-3:]}
                          for f, v in sorted(friction.items(), key=lambda kv: -len(kv[1]))},
+        "deviations": {f: {"reports": len(v), "recent": v[-3:]}
+                       for f, v in sorted(deviations.items(), key=lambda kv: -len(kv[1]))},
         "instruction_lines": sizes,
+        "instruction_budget": {rel: budget_for(rel) for rel in sizes},
+        "backlog": backlog_summary([item for _, item in load_backlog(root)]),
     }
+
+
+def budget_for(rel: str) -> int | None:
+    if rel in INSTRUCTION_BUDGET:
+        return INSTRUCTION_BUDGET[rel]
+    return SUBPROMPT_BUDGET if PROMPT_RE.match(Path(rel).name) else None
 
 
 def print_measure(m: dict[str, Any]) -> None:
@@ -512,6 +634,19 @@ def print_measure(m: dict[str, Any]) -> None:
         print("None reported.\n")
     for path, f in m["doc_friction"].items():
         print(f"- `{path}`: {f['reports']} report(s); latest: " + " | ".join(f["recent"]))
+    print("\n## Deviations by file (judgment calls; prompts/steering.md)\n")
+    if not m["deviations"]:
+        print("None recorded.\n")
+    for path, f in m["deviations"].items():
+        print(f"- `{path}`: {f['reports']} deviation(s); latest: " + " | ".join(f["recent"]))
+    b = m["backlog"]
+    c = b["counts"]
+    print("\n## Process backlog (`promptctl.py backlog`)\n")
+    print(f"- {c['open']} open, {c['in_progress']} in progress, {c['done']} done, {c['dropped']} dropped")
+    if b["done_unverified"]:
+        print(f"- Done, metric not yet checked: {', '.join(b['done_unverified'])}")
+    if b["next"]:
+        print("- Next: " + "; ".join(b["next"]))
     rt = m["redteam"]
     print("\n## Red team / blue team\n")
     if not rt["seeded"]:
@@ -530,7 +665,10 @@ def print_measure(m: dict[str, Any]) -> None:
     print(f", recorded {recorded:.1%} of the last 100 (goal 5-10%)\n" if recorded is not None else "\n")
     print("## Instruction lines a run may read\n")
     for path, lines in m["instruction_lines"].items():
-        print(f"- `{path}`: {lines}")
+        budget = m["instruction_budget"].get(path)
+        over = f" (budget {budget}, over by {lines - budget})" if budget and lines > budget \
+            else (f" (budget {budget})" if budget else "")
+        print(f"- `{path}`: {lines}{over}")
     print("\nFewer than about 10 runs per row is too few to compare; say so rather than conclude.")
 
 
@@ -555,7 +693,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--date", help="YYYY-MM-DD, default today")
     p = sub.add_parser("measure", help="score prompt versions from the run records")
     p.add_argument("--json", action="store_true")
-    sub.add_parser("validate", help="check routing, prompts and run records")
+    sub.add_parser("backlog", help="list open process improvements, best first")
+    sub.add_parser("validate", help="check routing, prompts, run records and the backlog")
     args = parser.parse_args(argv)
 
     if args.cmd == "route":
@@ -572,6 +711,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "measure":
         m = measure(ROOT)
         print(json.dumps(m, indent=2)) if args.json else print_measure(m)
+        return 0
+    if args.cmd == "backlog":
+        print_backlog(ROOT)
         return 0
     errors = validate(ROOT)
     for err in errors:
