@@ -134,6 +134,22 @@ export function summary(state) {
   return out;
 }
 
+// Prometheus text exposition of what the relay holds right now. Gauges, not
+// counters: state is capped and events can be deleted, so totals could go down.
+const esc = (v) => String(v).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\n");
+export function metrics(state, nowMs) {
+  const by = {}, oldest = {};
+  for (const e of Object.values(state.events)) {
+    (by[e.route] ||= { pending: 0, delivered: 0, dead: 0 })[e.status] += 1;
+    if (e.status === "pending") oldest[e.route] = Math.min(oldest[e.route] ?? Infinity, e.receivedAt);
+  }
+  const L = ["# HELP webhook_relay_events Events currently held, by route and status.", "# TYPE webhook_relay_events gauge"];
+  for (const [r, c] of Object.entries(by)) for (const [st, n] of Object.entries(c)) L.push(`webhook_relay_events{route="${esc(r)}",status="${st}"} ${n}`);
+  L.push("# HELP webhook_relay_oldest_pending_age_seconds Age of the oldest event still waiting for delivery.", "# TYPE webhook_relay_oldest_pending_age_seconds gauge");
+  for (const [r, t] of Object.entries(oldest)) L.push(`webhook_relay_oldest_pending_age_seconds{route="${esc(r)}"} ${Math.max(0, Math.floor((nowMs - t) / 1000))}`);
+  return L.join("\n") + "\n";
+}
+
 // For the page: when each attempt would fire if the receiver stays down.
 export function schedule(policy = DEFAULT_POLICY) {
   let t = 0;
