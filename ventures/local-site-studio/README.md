@@ -41,4 +41,4 @@ Next.js 16 · TypeScript · Tailwind v4 · Vercel · Stripe
 
 ## License
 
-Private — all rights reserved.
+MIT — see [`LICENSE`](LICENSE).
