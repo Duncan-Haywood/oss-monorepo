@@ -33,3 +33,10 @@ test("runaway pagination is stopped", async () => {
   const s = createStripe({ key: "k", maxPages: 3, fetchImpl: async () => ({ ok: true, json: async () => ({ data: [{ id: "x", items: { data: [] } }], has_more: true }) }) });
   await assert.rejects(s.listSubscriptions(), /MAX_PAGES/);
 });
+
+test("plan lines sum to the discounted MRR and use nickname, then product", () => {
+  const s = normalizeSubscription({ id: "s", customer: "c", status: "active", discount: { coupon: { percent_off: 10 } }, items: { data: [{ price: { ...price(3333), nickname: "Pro" }, quantity: 1 }, { price: { ...price(6667), product: "prod_seats" }, quantity: 1 }] } });
+  assert.equal(s.mrr, 9000);
+  assert.deepEqual(Object.keys(s.plans).sort(), ["Pro", "prod_seats"]);
+  assert.equal(Object.values(s.plans).reduce((a, b) => a + b, 0), 9000);
+});

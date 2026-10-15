@@ -106,3 +106,22 @@ test("cohorts: logo and revenue retention by signup month", async () => {
   assert.equal(sep.size, 1); assert.deepEqual(sep.logo, [0, 0]);
   assert.equal(rows.find((r) => r.month === "2026-10").size, 0);
 });
+
+import { breakdown } from "./metrics.mjs";
+test("breakdown: plan totals equal headline MRR and concentration is by customer", () => {
+  const subs = [
+    { id: "a", customer: "c1", status: "active", mrr: 6000, plans: { Pro: 4000, Seats: 2000 } },
+    { id: "b", customer: "c1", status: "active", mrr: 1000, plans: { Pro: 1000 } },
+    { id: "c", customer: "c2", status: "past_due", mrr: 3000, plans: { Starter: 3000 } },
+    { id: "d", customer: "c3", status: "canceled", mrr: 9999, plans: { Pro: 9999 } },
+    { id: "e", customer: "c4", status: "trialing", mrr: 500 },
+  ];
+  const b = breakdown(subs);
+  assert.equal(b.total, 10000);
+  assert.deepEqual(b.plans.map((p) => [p.plan, p.mrr, p.subs]), [["Pro", 5000, 2], ["Starter", 3000, 1], ["Seats", 2000, 1]]);
+  assert.equal(b.plans.reduce((a, p) => a + p.mrr, 0), b.total);
+  assert.equal(b.concentration.customers, 2);
+  assert.equal(b.concentration.top1, 0.7);
+  assert.equal(breakdown(subs, { countPastDue: false }).total, 7000);
+  assert.equal(breakdown([]).plans.length, 0);
+});

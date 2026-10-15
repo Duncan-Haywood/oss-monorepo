@@ -157,3 +157,27 @@ export function cohorts(subs, now, months = 12) {
   }
   return rows;
 }
+
+// Where today's MRR sits: by plan (price nickname, else product) and by
+// customer. Counts the same subscriptions as liveMap, so the plan totals add up
+// to the headline MRR. A customer with two subscriptions is one customer.
+export function breakdown(subs, { countPastDue = true, top = 5 } = {}) {
+  const plans = {}, customers = {};
+  let total = 0;
+  for (const s of subs) {
+    const ok = s.status === "active" || (countPastDue && s.status === "past_due");
+    if (!ok || !(s.mrr > 0)) continue;
+    total += s.mrr;
+    const lines = s.plans && Object.keys(s.plans).length ? s.plans : { "(unnamed)": s.mrr };
+    for (const [k, v] of Object.entries(lines)) {
+      const e = (plans[k] ||= { plan: k, mrr: 0, subs: 0 });
+      e.mrr += v; e.subs++;
+    }
+    const c = s.customer || s.id;
+    customers[c] = (customers[c] || 0) + s.mrr;
+  }
+  const byPlan = Object.values(plans).sort((a, b) => b.mrr - a.mrr).map((p) => ({ ...p, share: total ? p.mrr / total : 0 }));
+  const ranked = Object.entries(customers).sort((a, b) => b[1] - a[1]);
+  const share = (n) => (total ? ranked.slice(0, n).reduce((a, [, v]) => a + v, 0) / total : 0);
+  return { total, plans: byPlan, concentration: { customers: ranked.length, top1: share(1), top5: share(top), topN: top, largest: ranked[0]?.[1] || 0 } };
+}

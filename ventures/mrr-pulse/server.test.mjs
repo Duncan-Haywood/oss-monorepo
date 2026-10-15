@@ -74,3 +74,17 @@ test("a Stripe failure returns a generic error, not the key or the upstream mess
     assert.doesNotMatch(await r.text(), /rk_live/);
   } finally { console.error = orig; s.close(); }
 });
+
+test("sync stores a plan breakdown and /v1/plans plus the dashboard serve it", async () => {
+  const list = { current: [sub("a", 1000, "active", Date.UTC(2026, 5, 1), { customer: "c1", plans: { Pro: 1000 } }), sub("b", 500, "active", Date.UTC(2026, 5, 2), { customer: "c2", plans: { Starter: 500 } })] };
+  const cfg = setup(list);
+  await sync(cfg);
+  const { s, url } = await listen(cfg);
+  try {
+    const j = await (await fetch(`${url}/v1/plans`, { headers: AUTH })).json();
+    assert.equal(j.total, 1500); assert.equal(j.plans[0].plan, "Pro");
+    const html = await (await fetch(`${url}/`, { headers: AUTH })).text();
+    assert.match(html, /MRR by plan/); assert.ok(!html.includes("c1"));
+    assert.equal((await fetch(`${url}/v1/plans`)).status, 401);
+  } finally { s.close(); }
+});

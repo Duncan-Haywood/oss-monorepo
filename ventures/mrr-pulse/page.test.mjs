@@ -64,3 +64,11 @@ test("the cohort table escapes the month and prints the numbers", async () => {
   assert.match(html, />75%</);
   assert.match(html, /50% of starting MRR/);
 });
+
+import { planTable } from "./page.mjs";
+test("planTable escapes plan names, shows shares, hides customer ids, warns on concentration", () => {
+  const html = planTable({ total: 100, plans: [{ plan: "<b>Pro</b>", mrr: 100, subs: 1, share: 1 }], concentration: { customers: 1, top1: 1, top5: 1, topN: 5 } }, "usd");
+  assert.ok(!html.includes("<b>Pro</b>") && html.includes("&lt;b&gt;Pro"));
+  assert.match(html, /100\.0%/); assert.match(html, /above 20%/);
+  assert.equal(planTable(null, "usd"), "");
+});
