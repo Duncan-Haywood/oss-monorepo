@@ -59,6 +59,9 @@ test("the API needs the key and the dashboard escapes the company name", async (
     const co = await (await fetch(`${url}/v1/cohorts`, { headers: AUTH })).json();
     assert.ok(Array.isArray(co) && co.some((c) => c.size === 1));
     assert.match(html, /Retention by signup month/);
+    assert.match(html, /Customer concentration/);
+    const cc = await (await fetch(`${url}/v1/concentration`, { headers: AUTH })).json();
+    assert.equal(cc.top1, 1); assert.equal(cc.customers, 1);
     assert.equal((await fetch(`${url}/nope`, { headers: AUTH })).status, 404);
   } finally { s.close(); }
 });

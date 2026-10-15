@@ -157,3 +157,27 @@ export function cohorts(subs, now, months = 12) {
   }
   return rows;
 }
+
+// Customer concentration: how much of today's MRR the biggest customers carry.
+// Subscriptions are grouped by customer (falling back to the subscription id),
+// counted exactly like the headline MRR. Investors and buyers ask for the
+// top-1 and top-10 share; a high top-1 share is the risk this surfaces.
+export function concentration(subs, { countPastDue = true, top = 10 } = {}) {
+  const live = liveMap(subs, { countPastDue });
+  const byId = new Map(subs.map((s) => [s.id, s]));
+  const per = new Map();
+  for (const [id, v] of Object.entries(live)) {
+    const key = byId.get(id)?.customer || id;
+    per.set(key, (per.get(key) || 0) + v);
+  }
+  const ranked = [...per.entries()].map(([customer, mrr]) => ({ customer, mrr })).sort((a, b) => b.mrr - a.mrr || (a.customer < b.customer ? -1 : 1));
+  const total = ranked.reduce((a, r) => a + r.mrr, 0);
+  const share = (n) => (total > 0 ? ranked.slice(0, n).reduce((a, r) => a + r.mrr, 0) / total : null);
+  return {
+    total, customers: ranked.length,
+    top1: share(1), top5: share(5), top10: share(10),
+    // Herfindahl index on revenue shares, 0..1; 1 means one customer pays everything.
+    hhi: total > 0 ? ranked.reduce((a, r) => a + (r.mrr / total) ** 2, 0) : null,
+    top: ranked.slice(0, top).map((r) => ({ ...r, share: r.mrr / total })),
+  };
+}

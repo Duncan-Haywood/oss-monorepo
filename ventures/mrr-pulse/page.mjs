@@ -16,7 +16,16 @@ export function cohortTable(cohorts) {
   return `<div class="card" style="margin-top:16px;overflow-x:auto"><h2 style="font-size:1rem;margin:0 0 8px">Retention by signup month</h2><table><thead><tr><th>Cohort</th><th>Subs</th>${head}</tr></thead><tbody>${body}</tbody></table><p class="note">Share of each month's new subscriptions still active at the end of month N (hover for the share of starting MRR kept, at today's prices). Cohorts older than the history window are not shown.</p></div>`;
 }
 
-export function renderDashboard({ company, summary, months, currency, lastSyncAt, skipped, cohorts = [] }) {
+// Top customers by share of MRR. A customer id is Stripe's own opaque id; the
+// dashboard is behind ADMIN_KEY. A top-1 share above 20% gets a plain warning.
+export function concentrationCard(c, currency) {
+  if (!c || !c.top?.length) return "";
+  const warn = c.top1 !== null && c.top1 > 0.2;
+  const rows = c.top.map((r, i) => `<tr><td>${i + 1}. ${esc(r.customer)}</td><td>${esc(formatMoney(r.mrr, currency))}</td><td>${pc(r.share)}</td></tr>`).join("");
+  return `<div class="card" style="margin-top:16px;overflow-x:auto"><h2 style="font-size:1rem;margin:0 0 8px">Customer concentration</h2><p class="note">Top 1: <b>${pc(c.top1)}</b> · top 5: <b>${pc(c.top5)}</b> · top 10: <b>${pc(c.top10)}</b> of MRR across ${c.customers} customers.${warn ? " One customer is over a fifth of your revenue: losing them would hurt." : ""}</p><table><thead><tr><th>Customer</th><th>MRR</th><th>Share</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+export function renderDashboard({ company, summary, months, currency, lastSyncAt, skipped, cohorts = [], concentration = null }) {
   const $ = (n) => esc(formatMoney(n, currency));
   const r = summary?.rates || {};
   const tile = (label, value, sub = "") => `<div class="t"><div class="l">${esc(label)}</div><div class="v">${value}</div><div class="s">${esc(sub)}</div></div>`;
@@ -27,6 +36,6 @@ export function renderDashboard({ company, summary, months, currency, lastSyncAt
 ${summary ? `<div class="grid">${tile("MRR", $(summary.mrr), summary.growthPct === null ? "" : `${pc(summary.growthPct)} vs last month`)}${tile("ARR (MRR × 12)", $(summary.arr))}${tile("Customers", String(summary.customers), `ARPA ${formatMoney(summary.arpa, currency)}`)}${tile("Net new MRR", $(summary.netNew), summary.month + " so far")}${tile("Net revenue retention", pc(r.nrr), "month " + (r.basis || ""))}${tile("Logo churn", pc(r.logoChurn), "month " + (r.basis || ""))}${tile("Quick ratio", r.quickRatio === null || r.quickRatio === undefined ? "n/a" : r.quickRatio.toFixed(1), "(new+expansion) ÷ (churn+contraction)")}</div>
 <div class="card">${mrrChart(months, currency)}</div>
 <div class="card" style="margin-top:16px;overflow-x:auto"><table><thead><tr><th>Month</th><th>MRR</th><th>Cust.</th><th>New</th><th>Expansion</th><th>Reactiv.</th><th>Contraction</th><th>Churn</th></tr></thead><tbody>${rows}</tbody></table></div>
-${cohortTable(cohorts)}` : `<p>No data yet. Click sync or wait for the first scheduled sync.</p>`}
+${concentrationCard(concentration, currency)}${cohortTable(cohorts)}` : `<p>No data yet. Click sync or wait for the first scheduled sync.</p>`}
 <p class="note">MRR counts active and past-due subscriptions, normalises every price to a month, nets percent-off coupons, and excludes trials, paused subscriptions and metered usage. Months marked ~ were rebuilt from subscription dates at today's prices. Not financial or accounting advice.</p></body></html>`;
 }

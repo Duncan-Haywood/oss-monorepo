@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { monthlyAmount, liveMap, movements, backfill, applySync, summarize, monthEnds, mapAt } from "./metrics.mjs";
+import { monthlyAmount, liveMap, movements, backfill, applySync, summarize, monthEnds, mapAt, concentration } from "./metrics.mjs";
 
 const D = (y, m, d) => Date.UTC(y, m - 1, d);
 
@@ -105,4 +105,28 @@ test("cohorts: logo and revenue retention by signup month", async () => {
   const sep = rows.find((r) => r.month === "2026-09");
   assert.equal(sep.size, 1); assert.deepEqual(sep.logo, [0, 0]);
   assert.equal(rows.find((r) => r.month === "2026-10").size, 0);
+});
+
+test("concentration groups subs by customer and ranks them", () => {
+  const subs = [
+    { id: "s1", customer: "cus_a", status: "active", mrr: 6000 },
+    { id: "s2", customer: "cus_a", status: "past_due", mrr: 2000 },
+    { id: "s3", customer: "cus_b", status: "active", mrr: 1500 },
+    { id: "s4", customer: "cus_c", status: "active", mrr: 500 },
+    { id: "s5", customer: "cus_d", status: "canceled", mrr: 9999 },
+    { id: "s6", customer: "cus_e", status: "trialing", mrr: 9999 },
+  ];
+  const c = concentration(subs);
+  assert.equal(c.total, 10000);
+  assert.equal(c.customers, 3);
+  assert.equal(c.top[0].customer, "cus_a");
+  assert.equal(c.top[0].mrr, 8000);
+  assert.equal(c.top1, 0.8);
+  assert.equal(c.top5, 1);
+  assert.ok(Math.abs(c.hhi - (0.64 + 0.0225 + 0.0025)) < 1e-9);
+  assert.equal(concentration(subs, { countPastDue: false }).top[0].mrr, 6000);
+});
+test("concentration of nothing is null, not NaN", () => {
+  const c = concentration([]);
+  assert.equal(c.top1, null); assert.equal(c.hhi, null); assert.deepEqual(c.top, []);
 });
