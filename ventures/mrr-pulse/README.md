@@ -69,6 +69,13 @@ Stripe key: Dashboard, Developers, API keys, **Create restricted key**, set
 *Subscriptions* to **Read** and everything else to None. The server only ever
 issues GET requests, and the tests assert it.
 
+Alerts (off by default): set `ALERT_WEBHOOK_URL` to a Slack or Discord
+incoming-webhook URL (https only) and the server posts a digest (MRR, growth,
+churn, NRR, quick ratio) every `DIGEST_DAYS` (default 7, `0` turns it off) and
+an alert when this month's churned MRR passes `CHURN_ALERT_PCT` (default 5) of
+the month's starting MRR. The webhook is yours; the message holds totals only,
+no customer names or emails.
+
 Settings: `SYNC_MINUTES` (default 360), `HISTORY_MONTHS` (12), `CURRENCY`,
 `COUNT_PAST_DUE`, `MAX_PAGES` (500 pages of 100), `STATE` (path of the JSON
 file; put it on a persistent disk), `PORT`.
