@@ -213,7 +213,7 @@ class MeasureTest(PromptTestCase):
 
     def test_measure_groups_by_version_model_and_friction(self):
         friction = [{"file": "CLAUDE.md", "issue": "stale command"}]
-        self.fx.run("2026-10-01-a.json", _record(day="2026-10-01", model="m1", merged=True,
+        self.fx.run("2026-10-12-a.json", _record(day="2026-10-01", model="m1", merged=True,
                                                   doc_friction=friction))
         self.fx.run("2026-10-02-b.json", _record(day="2026-10-02", model="m1", outcome="failed",
                                                   merged=False, errors=["ci red"]))
@@ -252,3 +252,42 @@ class RepositoryTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RedteamTest(PromptTestCase):
+    def _with_redteam(self, weight):
+        data = json.loads((self.fx.root / "routing.json").read_text())
+        self.fx.prompt("redteam", 0)
+        data["tracks"]["redteam"] = {"weight": weight, "champion": 0, "candidate": None,
+                                     "candidate_share": 0}
+        self.fx.routing(data)
+
+    def test_share_must_stay_between_five_and_ten_percent(self):
+        self._with_redteam(0.15)  # 0.15 / 2.15 = 7.0%
+        self.assertEqual(promptctl.validate(self.fx.root), [])
+        for weight in (0.05, 0.5):  # 2.4% and 20%
+            self._with_redteam(weight)
+            self.assertTrue(any("redteam is" in e for e in promptctl.validate(self.fx.root)))
+
+    def test_redteam_records_are_checked_and_measured(self):
+        self._with_redteam(0.15)
+        mutant = {"line": 3, "operator": "eq-flip", "caught": False, "triage": "gap",
+                  "caught_after_fix": True}
+        rt = {"campaigns": [{"target": "a.mjs", "mutants": [
+            mutant, {**mutant, "caught": True, "triage": None},
+            {**mutant, "triage": "equivalent", "caught_after_fix": None}]}],
+            "real_defects": [{"file": "a.mjs", "issue": "x", "patched": True}]}
+        self.fx.run("2026-10-12-a.json", _record(track="redteam", redteam=rt))
+        self.assertEqual(promptctl.validate(self.fx.root), [])
+        m = promptctl.measure(self.fx.root)["redteam"]
+        self.assertEqual((m["seeded"], m["caught"], m["escaped"], m["equivalent"]), (3, 1, 1, 1))
+        self.assertEqual((m["catch_rate"], m["catch_rate_after_fix"]), (0.5, 1.0))
+        self.assertEqual((m["real_defects"], m["real_defects_patched"]), (1, 1))
+
+        bad = json.loads(json.dumps(rt))
+        bad["campaigns"][0]["mutants"][1]["triage"] = "equivalent"
+        self.fx.run("2026-10-12-a.json", _record(track="redteam", redteam=bad))
+        self.assertTrue(any("cannot be 'equivalent'" in e for e in promptctl.validate(self.fx.root)))
+        bad["campaigns"][0]["mutants"][1] = {"line": 1, "operator": "x", "caught": "yes"}
+        self.fx.run("2026-10-12-a.json", _record(track="redteam", redteam=bad))
+        self.assertTrue(any("boolean 'caught'" in e for e in promptctl.validate(self.fx.root)))

@@ -38,6 +38,24 @@ Entry format:
   step 1), and compares everything later against this.
 - Result: (first review)
 
+## E1: Red team / blue team track (2026-10-15)
+
+- Change: a fourth track, `redteam`, routed 7% of runs (owner's request; the
+  5-10% band is in `goals.md` and enforced by `validate`). New
+  `prompts/redteam.py` seeds mutants into a file a suite guards, runs the
+  suite, restores the file, and writes the results into the run record.
+  `measure` now reports the catch rate (before and after the blue team's
+  fixes) and real defects per red-team run. Sub-prompt:
+  `prompts/redteam/prompt-0.md`.
+- Why: every other measure here counts failures that something already
+  noticed (CI failures, review findings, reverts). Nothing measured how many
+  bugs go unnoticed. CLAUDE.md records many guards that were green while
+  checking nothing.
+- Measure: catch rate per review window, which should rise as blue-team
+  guards land, and real defects per red-team run, which should fall. The
+  first window is the baseline.
+- Result: (next review)
+
 ## Proposals for the owner
 
 Changes to `prompts/goals.md` that a review thinks are warranted, with the
