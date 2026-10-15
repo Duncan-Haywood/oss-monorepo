@@ -1858,6 +1858,12 @@
     }
     ,
     {
+     "slug": "simdesign-flipseeds",
+     "title": "Do the mass-weighting machine-choice flips of simdesign-coverweight survive across seeds?",
+     "summary": "Follow-up to <code>simdesign-coverweight</code>, whose machine-choice flips between count and mass weighting came from one seed. Over 20 fresh seeds of 20&thinsp;000 sampled brackets and three assumed machines, family <code>log</code> picks the laser cutter by count but the casting setup (or, in 2 seeds at 800, the CNC router) by mass in 20 of 20 seeds at budgets 600 to 800 (95% Wilson interval 0.84 to 1.00; about 2.1 points of mass-weighted coverage given up), family <code>large</code> flips only at budget 800 (20 of 20), and <code>small</code> never flips. The <code>log</code> flips at 1100 and 1400 split 10 of 20 but lose at most 0.26 points, a near-tie. The intervals cover sampling noise only; rules, prices and the volume mass proxy are assumptions. Stylised; simulated only."
+    }
+    ,
+    {
      "slug": "simdesign-processcover",
      "title": "Which share of a bracket family can each shop process make, and which machine should a shop add next?",
      "summary": "Using the assumed rules of <em>simdesign-dfm</em> (FDM, CNC routing, laser cutting, casting) as feasibility checks on 20&nbsp;000 sampled bracket feature sets, geometry alone gives a degenerate answer: FDM covers 89% and no other process covers anything FDM cannot, so no machine adds coverage (a negative result). With a tip-load requirement of 1&ndash;1000&nbsp;N and closed-form beam checks the processes separate: FDM alone covers 30%, adding casting and a laser cutter 41%, and the best next machine depends on the budget and on the part sizes. Greedy selection from <em>selfrep-nextmachine</em> is sometimes 1&ndash;2 coverage points below exhaustive search. Stylised: all rule values, working stresses and prices are assumed, the beam check ignores fillet stress concentration, and nothing was made."
