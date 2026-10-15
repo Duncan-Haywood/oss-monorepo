@@ -39,3 +39,5 @@ python3 experiments/run.py                   # about 1 s; writes experiments/res
 
 ## Outside dependencies (vitamins)
 Python standard library only. The vitamins of the printers it describes are those listed in `selfrep-closure`.
+
+`python3 experiments/figure.py` plots effective doubling time against vitamin import budget for the discrete-event and fluid models (section A) from the committed `experiments/results.txt` and writes `experiments/doubling_vs_budget.svg` (standard library only; no new results; stylised model).
