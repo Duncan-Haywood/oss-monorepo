@@ -1,0 +1,8 @@
+FROM node:22-alpine
+WORKDIR /app
+COPY engine.mjs server.mjs meter-config.example.json ./
+USER node
+ENV PORT=8080 STATE=/tmp/state.json CONFIG=/app/meter-config.example.json
+EXPOSE 8080
+HEALTHCHECK CMD wget -qO- http://127.0.0.1:8080/healthz || exit 1
+CMD ["node", "server.mjs"]

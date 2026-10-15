@@ -131,3 +131,28 @@ test("parseRoutes accepts targets for fan-out and rejects bad lists", async () =
   assert.throws(() => parseRoutes(JSON.stringify([{ name: "a", targets: ["ftp://x"] }])));
   assert.equal(parseRoutes(JSON.stringify([{ name: "a", target: "http://x" }]))[0].targets[0].url, "http://x");
 });
+
+test("rateLimitPerMinute defers over-limit events without spending retries, then releases them", async () => {
+  const { rateLimits } = await import("./server.mjs");
+  const routes = parseRoutes(JSON.stringify([{ name: "a", target: "http://x/hook", rateLimitPerMinute: 2 }]));
+  assert.deepEqual(rateLimits(routes), { "http://x/hook": 2 });
+  const t = await boot([{ ...route, scheme: "none", secret: undefined, target: "http://x/hook" }]);
+  try {
+    const ids = [];
+    for (let i = 0; i < 5; i++) ids.push((await (await fetch(`${t.base}/in/gh`, { method: "POST", body: `b${i}` })).json()).id);
+    let calls = 0;
+    const deps = { limits: rateLimits(routes), alert: async () => {}, fetch: async () => { calls++; return { status: 200, headers: new Headers() }; } };
+    await tick(t.state, NOW, deps);
+    assert.equal(calls, 2);
+    assert.equal(ids.filter((i) => t.state.events[i].status === "pending").length, 3);
+    assert.ok(ids.every((i) => t.state.events[i].attempts.length <= 1));
+    await tick(t.state, NOW + 30_000, deps);
+    assert.equal(calls, 2);
+    await tick(t.state, NOW + 61_000, deps);
+    assert.equal(calls, 4);
+  } finally { t.close(); }
+});
+
+test("rateLimitPerMinute must be a sane whole number", () => {
+  for (const bad of [0, -1, 1.5, "5", 7000]) assert.throws(() => parseRoutes(JSON.stringify([{ name: "a", target: "http://x", rateLimitPerMinute: bad }])), /rateLimitPerMinute/);
+});

@@ -69,6 +69,25 @@ export function ingest(state, { route, target, targets, headers, body, now, poli
 export const due = (state, now) =>
   Object.values(state.events).filter((e) => e.status === "pending" && e.nextAt <= now).sort((a, b) => a.nextAt - b.nextAt);
 
+// Per-target throttle so a burst (a bulk import, a replay of 500 dead events)
+// cannot flatten a small receiver. limits maps target URL -> max delivery
+// attempts per rolling minute. Over-limit events simply stay pending for the
+// next pass: waiting costs no retry budget and is not a failure.
+export function throttle(state, queue, now, limits = {}) {
+  const used = {};
+  for (const e of Object.values(state.events)) {
+    if (!limits[e.target]) continue;
+    for (const a of e.attempts) if (a.at > now - 60_000) used[e.target] = (used[e.target] || 0) + 1;
+  }
+  return queue.filter((e) => {
+    const cap = limits[e.target];
+    if (!cap) return true;
+    if ((used[e.target] || 0) >= cap) return false;
+    used[e.target] = (used[e.target] || 0) + 1;
+    return true;
+  });
+}
+
 // result: {status, ms, error?, retryAfter?}. Returns the event's new status.
 export function recordAttempt(state, id, result, now, policy = DEFAULT_POLICY) {
   const e = state.events[id];

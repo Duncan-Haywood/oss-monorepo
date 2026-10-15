@@ -24,7 +24,7 @@ Two parts, both free and MIT:
 Honest limits: one process and one disk, so it is not a high-availability
 service, and it is built for hundreds to low thousands of events a day, not
 millions (state is one JSON file, capped at 5,000 events). Delivery is
-at-least-once. It does not transform payloads or rate limit yet (it can filter, below).
+at-least-once. It does not transform payloads yet (it can filter and rate limit, below).
 
 ## What it does
 
@@ -56,7 +56,11 @@ at-least-once. It does not transform payloads or rate limit yet (it can filter, 
    matches a prefix, `"not": true` inverts, and an array means all must hold.
    A filtered event is still signature-checked and answered 200 so the sender
    stops retrying, but is not stored or delivered.
-6. **Alerts and replays.** A dead event posts to `ALERT_WEBHOOK_URL` (Slack and
+6. **Rate limits.** `"rateLimitPerMinute": 60` on a route (or on one fan-out
+   target) caps delivery attempts to that URL per rolling minute, so a burst or
+   a bulk replay cannot flatten a small receiver. Events over the cap wait their
+   turn; waiting costs no retry budget.
+7. **Alerts and replays.** A dead event posts to `ALERT_WEBHOOK_URL` (Slack and
    Discord compatible). Replay any event from `/admin` or
    `POST /v1/events/<id>/replay`; it gets a fresh retry budget and its history
    is kept.

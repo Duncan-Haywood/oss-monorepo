@@ -1,0 +1,20 @@
+{
+  "meters": {
+    "api_calls": { "agg": "sum", "stripeEvent": "api_calls" },
+    "active_seats": { "agg": "unique", "stripeEvent": "active_seats" },
+    "storage_gb_peak": { "agg": "max" }
+  },
+  "plans": {
+    "pro": {
+      "currency": "usd",
+      "base": 4900,
+      "minimum": 4900,
+      "lines": [
+        { "meter": "api_calls", "model": "graduated", "included": 10000, "limit": 500000,
+          "tiers": [{ "upTo": 90000, "unit": 0.05 }, { "upTo": null, "unit": 0.03 }] },
+        { "meter": "active_seats", "model": "flat", "unit": 500, "included": 3 },
+        { "meter": "storage_gb_peak", "model": "package", "size": 10, "unit": 100 }
+      ]
+    }
+  }
+}

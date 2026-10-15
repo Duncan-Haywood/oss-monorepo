@@ -56,3 +56,15 @@ channels:
       - the Public API at gql.hashnode.com documents createDraft, publishPost (originalArticleURL) and Post.canonicalUrl; a personal access token goes in the Authorization header. Agents had no network to Hashnode on build day, so the query shape and the terms are unconfirmed until the first live draft
     owner_ask: create the Hashnode account and publication, generate a personal access token, store it as HASHNODE_TOKEN, set HASHNODE_PUBLICATION_ID and DISTRIBUTE_HASHNODE=true; review the first drafts before setting HASHNODE_PUBLISH=true
     dry_run: node platform/distribution/hashnode.mjs
+  - id: github-release-digest
+    rung: artifact
+    built: 2026-10-15
+    code: platform/distribution/releases.mjs
+    workflow: .github/workflows/distribute-releases.yml
+    enabled_by: repository variable DISTRIBUTE_RELEASES=true (uses the workflow's own GITHUB_TOKEN; no external account or secret)
+    what_it_posts: one release per ISO week (tag launches-YYYY-MM-DD) listing tools launched in the last 7 days (platform/pages/launched.json), at most 25, each with a link and its one-line description, plus the free/MIT and not-professional-advice lines
+    dedupe: stateless; a release that already has the week's tag is left alone; no release when nothing launched
+    terms_to_confirm_by_owner_when_enabling:
+      - GitHub Terms of Service and Acceptable Use (releases on our own repository are a first-party feature; no third party is contacted)
+    owner_ask: set DISTRIBUTE_RELEASES=true. Note it creates a tag on the default branch each week.
+    dry_run: node platform/distribution/releases.mjs

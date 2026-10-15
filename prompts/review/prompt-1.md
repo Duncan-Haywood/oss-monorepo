@@ -35,8 +35,10 @@ Read the tables. Then make the numbers true before you trust them:
 Pick about five recent outputs at random, across tracks. Re-run their tests
 and code, and check that the README's numbers match what the code produces.
 For research, check citations; for a venture, its disclaimer and usage
-tracking. Skip mirrored upstream records. Log each problem as a correction
-(integrity issue or error) on the producing run's record.
+tracking. Skip mirrored upstream records and doc-only runs (most of them
+today): audit what is auditable, say in one line what was not, and do not
+count it as friction. Log each problem as a correction (integrity issue or
+error) on the producing run's record.
 
 ## 3. Decide the active candidates
 

@@ -9,7 +9,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { verify, SCHEMES } from "./verify.mjs";
-import { DEFAULT_POLICY, newState, ingest, due, recordAttempt, replay, summary } from "./relay.mjs";
+import { DEFAULT_POLICY, newState, ingest, due, throttle, recordAttempt, replay, summary } from "./relay.mjs";
 import { ADMIN_HTML } from "./admin.mjs";
 import { validateFilter, matches } from "./filter.mjs";
 
@@ -34,6 +34,13 @@ export function parseRoutes(json) {
     if (!targets.every((t) => t && /^https?:\/\//.test(t.url || ""))) throw new Error(`route ${r.name}: target must be an http(s) URL (or targets: up to 10 http(s) URLs)`);
     if (r.filter !== undefined) validateFilter(r.filter, `route ${r.name} filter`);
     for (const t of targets) if (t.filter !== undefined) validateFilter(t.filter, `route ${r.name} target ${t.url} filter`);
+    // rateLimitPerMinute (route-wide, or per target) caps delivery attempts to a URL per rolling minute.
+    const rate = (v, what) => {
+      if (v !== undefined && !(Number.isInteger(v) && v >= 1 && v <= 6000)) throw new Error(`${what}: rateLimitPerMinute must be a whole number from 1 to 6000`);
+      return v;
+    };
+    rate(r.rateLimitPerMinute, `route ${r.name}`);
+    for (const t of targets) rate(t.rateLimitPerMinute, `route ${r.name} target ${t.url}`);
     return { scheme: "none", ...r, targets, target: targets[0].url };
   });
 }
@@ -107,11 +114,21 @@ export function handler(cfg) {
   };
 }
 
-// One delivery pass. deps: {fetch, alert, timeoutMs, concurrency}. Returns log lines.
+// URL -> attempts per minute, the lowest cap any route or target sets for it.
+export function rateLimits(routes) {
+  const out = {};
+  for (const r of routes) for (const t of r.targets) {
+    const cap = t.rateLimitPerMinute ?? r.rateLimitPerMinute;
+    if (cap) out[t.url] = Math.min(out[t.url] ?? Infinity, cap);
+  }
+  return out;
+}
+
+// One delivery pass. deps: {fetch, alert, timeoutMs, concurrency, limits}. Returns log lines.
 export async function tick(state, now, deps) {
   const doFetch = deps.fetch || fetch;
   const log = [];
-  const queue = due(state, now);
+  const queue = throttle(state, due(state, now), now, deps.limits);
   const worker = async () => {
     for (let e = queue.shift(); e; e = queue.shift()) {
       const started = Date.now();
@@ -153,7 +170,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const statePath = env.STATE || "state.json";
   const state = readJson(statePath, newState());
   const save = () => { fs.writeFileSync(`${statePath}.tmp`, JSON.stringify(state)); fs.renameSync(`${statePath}.tmp`, statePath); };
-  const deps = { alert };
+  const deps = { alert, limits: rateLimits(routes) };
   let busy = false;
   setInterval(async () => {
     if (busy) return;
