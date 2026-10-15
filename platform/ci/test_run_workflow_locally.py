@@ -263,6 +263,23 @@ class Screen(unittest.TestCase):
         self.assertEqual(step.seconds, 0.0)
 
 
+class WorkflowBudget(unittest.TestCase):
+    def test_budget_reports_timeout_instead_of_hanging(self):
+        steps = [runner.Step("j", "slow", "sleep 5", "."),
+                 runner.Step("j", "after", "true", ".")]
+        with contextlib.redirect_stdout(io.StringIO()):
+            runner.run_steps(steps, 900, budget=1)
+        self.assertEqual([s.status for s in steps], ["failed", "failed"])
+        self.assertTrue(all(s.reason.startswith("TIMEOUT") for s in steps))
+        self.assertLess(steps[0].seconds, 4)
+
+    def test_no_budget_runs_normally(self):
+        steps = [runner.Step("j", "ok", "true", ".")]
+        with contextlib.redirect_stdout(io.StringIO()):
+            runner.run_steps(steps, 900)
+        self.assertEqual(steps[0].status, "ok")
+
+
 class Execute(unittest.TestCase):
     def run_one(self, command, workdir="."):
         step = runner.Step("j", "n", command, workdir)
