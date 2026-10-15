@@ -1,0 +1,28 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# No third-party key is needed. Render generates ADMIN_KEY, SERVER_KEY and CLIENT_KEY; read them in the service's Environment tab.
+services:
+  - type: web
+    name: flag-keeper
+    runtime: docker
+    dockerContext: ventures/flag-keeper
+    dockerfilePath: ventures/flag-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/flags.json
+      - key: TRUST_PROXY
+        value: "true"
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: SERVER_KEY
+        generateValue: true
+      - key: CLIENT_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        sync: false

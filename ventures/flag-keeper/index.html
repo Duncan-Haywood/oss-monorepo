@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Flag Keeper — Free Self-Hosted Feature Flags</title>
+  <meta name="description" content="A free, open-source alternative to LaunchDarkly, Flagsmith and Unleash: percentage rollouts that stay sticky, targeting rules, segments, prerequisites and a kill switch in one small server. Simulate a rollout and see exactly who would flip before you ship it, in your browser.">
+  <meta property="og:title" content="Flag Keeper — self-hosted feature flags">
+  <meta property="og:description" content="Sticky percentage rollouts, targeting rules, segments, prerequisites, audit log. MIT, one Node process, no per-seat or per-MAU fee.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Flag Keeper", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source feature flags: percentage rollouts that stay sticky, targeting rules, segments, prerequisites, kill switches and an audit log. One Node process with a JSON file, a local-evaluation SDK, and a browser rollout simulator."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not use LaunchDarkly, Flagsmith, Unleash, GrowthBook or PostHog flags?", "acceptedAnswer": {"@type": "Answer", "text": "Hosted flag services are polished and the right call if you want a team dashboard, SSO and an experimentation suite; they price by seats or monthly active users. Unleash and Flagsmith are open source but come with a database and several services to run. Flag Keeper is MIT and one Node process with a JSON file: percentage rollouts, targeting rules, segments, prerequisites, a kill switch and an audit log. It has no visual dashboard yet; you manage flags with the API or a JSON file in git."}}, {"@type": "Question", "name": "Will a user keep their variant when I widen a rollout from 10% to 30%?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. A user's bucket is a stable hash of the flag key and their id, and a rollout fills buckets in order, so widening only turns people on and never takes the feature away from anyone who had it. The Compare box above lists exactly who flips before you save, and the server has the same check at POST /v1/admin/impact."}}, {"@type": "Question", "name": "What happens to my app if the flag server goes down?", "acceptedAnswer": {"@type": "Answer", "text": "With the backend SDK in local mode your app evaluates in-process from the last config it fetched, so an outage does not change anyone's variant. In remote mode, or when the server was never reachable, every check returns the fallback value you pass in, and the SDK never throws."}}, {"@type": "Question", "name": "Is it safe to put a key in my web or mobile app?", "acceptedAnswer": {"@type": "Answer", "text": "Use the CLIENT_KEY there. It can only ask what a given user gets, it cannot read your rules, targets or segments, and it cannot edit anything. The SERVER_KEY reads the full config and belongs in your backend; the ADMIN_KEY edits flags and should only be in your own tooling. Do not send personal data you do not need as targeting attributes."}}, {"@type": "Question", "name": "Can I use it for A/B tests?", "acceptedAnswer": {"@type": "Answer", "text": "It assigns users to variants consistently, including multivariate splits bucketed by account instead of user, and it counts how often each variant was served. It does not compute statistical significance or record conversions; send the variant to your analytics tool and analyse there."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2433; background: #f5f7fb; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1f45c4; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444; }
+    .card { background: #fff; border: 1px solid #dce1ee; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab3d0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { font: 13px ui-monospace, monospace; min-height: 190px; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f45c4; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e8f4; }
+    td.bar div { background: #1f45c4; height: 12px; border-radius: 6px; min-width: 2px; }
+    pre { background: #eef1fa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .err { color: #a11; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Roll out a feature to 10% of users, and know exactly who gets it.</h1>
+  <p>Flag Keeper is an open-source alternative to LaunchDarkly and Flagsmith for small teams. Percentage rollouts stay sticky (widening 10% to 30% never takes the feature from anyone), rules target by plan, country or app version, segments and prerequisites compose, and a kill switch is one request. Try your flags first: the page runs the same engine as the server, in your browser, and uploads nothing.</p>
+
+  <section class="card" aria-labelledby="sim">
+    <h2 id="sim">1. See what a rollout does to your users</h2>
+    <label for="cfg">Flag config (JSON)</label>
+    <textarea id="cfg" spellcheck="false">{
+  "salt": "change-me",
+  "segments": {
+    "internal": { "description": "Our own team", "conditions": [{ "attr": "email", "op": "endsWith", "value": "@example.com" }] },
+    "beta-testers": { "description": "Opted into the beta", "include": ["user-1001", "user-1002"] }
+  },
+  "flags": {
+    "new-checkout": {
+      "key": "new-checkout",
+      "description": "Redesigned checkout. Staff first, beta testers, then 10% of everyone else; widen the rollout weight to ship it.",
+      "enabled": true,
+      "rules": [
+        { "id": "staff", "if": [{ "op": "inSegment", "value": ["internal", "beta-testers"] }], "serve": { "variant": "on" } },
+        { "id": "not-legacy-app", "if": [{ "attr": "appVersion", "op": "semverLt", "value": "3.2.0" }], "serve": { "variant": "off" } }
+      ],
+      "fallthrough": { "rollout": [{ "variant": "on", "weight": 10 }, { "variant": "off", "weight": 90 }] }
+    },
+    "pricing-page-test": {
+      "key": "pricing-page-test",
+      "description": "Three pricing page layouts. Bucketed by account so everyone in a team sees the same page.",
+      "enabled": true,
+      "variants": { "control": "pricing-v1", "tiers": "pricing-v2", "calculator": "pricing-v3", "off": "pricing-v1" },
+      "fallthrough": { "bucketBy": "account", "rollout": [{ "variant": "control", "weight": 34 }, { "variant": "tiers", "weight": 33 }, { "variant": "calculator", "weight": 33 }] }
+    },
+    "ai-summaries": {
+      "key": "ai-summaries",
+      "description": "Needs the new checkout's data model, so it is off wherever new-checkout is off.",
+      "enabled": true,
+      "prerequisites": [{ "flag": "new-checkout", "variant": "on" }],
+      "rules": [{ "id": "paid", "if": [{ "attr": "plan", "op": "in", "value": ["pro", "team"] }], "serve": { "variant": "on" } }],
+      "fallthrough": { "variant": "off" }
+    },
+    "kill-switch-exports": {
+      "key": "kill-switch-exports",
+      "description": "Flip to off to stop CSV exports during an incident. On by default.",
+      "enabled": true,
+      "fallthrough": { "variant": "on" }
+    }
+  }
+}</textarea>
+    <label for="flagkey">Flag to test</label>
+    <input id="flagkey" value="new-checkout">
+    <label for="ctx">Attributes shared by the users you test (JSON; <code>key</code> is added for you)</label>
+    <textarea id="ctx" spellcheck="false" style="min-height:70px">{ "email": "someone@gmail.com", "appVersion": "3.4.0", "plan": "pro" }</textarea>
+    <label for="users">How many simulated users</label>
+    <input id="users" type="number" min="100" max="100000" value="10000">
+    <button id="run" type="button">Simulate</button>
+    <p class="note" id="sum" role="status" aria-live="polite"></p>
+    <table><thead><tr><th scope="col">Variant</th><th scope="col">Users</th><th scope="col">Share</th><th scope="col"></th></tr></thead><tbody id="rows"></tbody></table>
+    <p class="note" id="why"></p>
+  </section>
+
+  <section class="card" aria-labelledby="cmp">
+    <h2 id="cmp">2. Before you save a change: who flips?</h2>
+    <p>Paste the config you are about to ship. The page lists how many of the same simulated users would get a different variant, and which way.</p>
+    <label for="cfg2">Proposed config (JSON)</label>
+    <textarea id="cfg2" spellcheck="false">{
+  "salt": "change-me",
+  "segments": {
+    "internal": {
+      "description": "Our own team",
+      "conditions": [
+        {
+          "attr": "email",
+          "op": "endsWith",
+          "value": "@example.com"
+        }
+      ]
+    },
+    "beta-testers": {
+      "description": "Opted into the beta",
+      "include": [
+        "user-1001",
+        "user-1002"
+      ]
+    }
+  },
+  "flags": {
+    "new-checkout": {
+      "key": "new-checkout",
+      "description": "Redesigned checkout. Staff first, beta testers, then 10% of everyone else; widen the rollout weight to ship it.",
+      "enabled": true,
+      "rules": [
+        {
+          "id": "staff",
+          "if": [
+            {
+              "op": "inSegment",
+              "value": [
+                "internal",
+                "beta-testers"
+              ]
+            }
+          ],
+          "serve": {
+            "variant": "on"
+          }
+        },
+        {
+          "id": "not-legacy-app",
+          "if": [
+            {
+              "attr": "appVersion",
+              "op": "semverLt",
+              "value": "3.2.0"
+            }
+          ],
+          "serve": {
+            "variant": "off"
+          }
+        }
+      ],
+      "fallthrough": {
+        "rollout": [
+          {
+            "variant": "on",
+            "weight": 30
+          },
+          {
+            "variant": "off",
+            "weight": 70
+          }
+        ]
+      }
+    },
+    "pricing-page-test": {
+      "key": "pricing-page-test",
+      "description": "Three pricing page layouts. Bucketed by account so everyone in a team sees the same page.",
+      "enabled": true,
+      "variants": {
+        "control": "pricing-v1",
+        "tiers": "pricing-v2",
+        "calculator": "pricing-v3",
+        "off": "pricing-v1"
+      },
+      "fallthrough": {
+        "bucketBy": "account",
+        "rollout": [
+          {
+            "variant": "control",
+            "weight": 34
+          },
+          {
+            "variant": "tiers",
+            "weight": 33
+          },
+          {
+            "variant": "calculator",
+            "weight": 33
+          }
+        ]
+      }
+    },
+    "ai-summaries": {
+      "key": "ai-summaries",
+      "description": "Needs the new checkout's data model, so it is off wherever new-checkout is off.",
+      "enabled": true,
+      "prerequisites": [
+        {
+          "flag": "new-checkout",
+          "variant": "on"
+        }
+      ],
+      "rules": [
+        {
+          "id": "paid",
+          "if": [
+            {
+              "attr": "plan",
+              "op": "in",
+              "value": [
+                "pro",
+                "team"
+              ]
+            }
+          ],
+          "serve": {
+            "variant": "on"
+          }
+        }
+      ],
+      "fallthrough": {
+        "variant": "off"
+      }
+    },
+    "kill-switch-exports": {
+      "key": "kill-switch-exports",
+      "description": "Flip to off to stop CSV exports during an incident. On by default.",
+      "enabled": true,
+      "fallthrough": {
+        "variant": "on"
+      }
+    }
+  }
+}</textarea>
+    <button id="cmpbtn" type="button">Compare with the config above</button>
+    <p class="note" id="cmpout" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card">
+    <h2>3. Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/flag-keeper
+ADMIN_KEY=$(openssl rand -hex 16) SERVER_KEY=$(openssl rand -hex 16) CLIENT_KEY=$(openssl rand -hex 16) \
+FLAGS_FILE=examples/flags.json node server.mjs
+
+curl -X POST localhost:8080/v1/evaluate -H "Authorization: Bearer $CLIENT_KEY" \
+  -d '{"flag":"new-checkout","context":{"key":"user-42","plan":"pro"}}'
+
+# in your app (Node 18+ or a browser), served by your own server:
+import { createClient } from "https://flags.example.com/sdk.mjs";
+const flags = createClient({ url: "https://flags.example.com", key: CLIENT_KEY });
+if (await flags.isOn("new-checkout", { key: user.id, plan: user.plan })) { /* new path */ }</pre>
+    <p class="note">Backends can pass <code>mode: "local"</code> and the <code>SERVER_KEY</code> to evaluate in-process from a cached config, so a flag-server outage changes nothing. One-click Render deploy, Fly.io and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not use LaunchDarkly, Flagsmith, Unleash, GrowthBook or PostHog flags?</h3>
+    <p>Hosted flag services are polished and the right call if you want a team dashboard, SSO and an experimentation suite; they price by seats or monthly active users. Unleash and Flagsmith are open source but come with a database and several services to run. Flag Keeper is MIT and one Node process with a JSON file: percentage rollouts, targeting rules, segments, prerequisites, a kill switch and an audit log. It has no visual dashboard yet; you manage flags with the API or a JSON file in git.</p>
+    <h3>Will a user keep their variant when I widen a rollout from 10% to 30%?</h3>
+    <p>Yes. A user's bucket is a stable hash of the flag key and their id, and a rollout fills buckets in order, so widening only turns people on and never takes the feature away from anyone who had it. The Compare box above lists exactly who flips before you save, and the server has the same check at POST /v1/admin/impact.</p>
+    <h3>What happens to my app if the flag server goes down?</h3>
+    <p>With the backend SDK in local mode your app evaluates in-process from the last config it fetched, so an outage does not change anyone's variant. In remote mode, or when the server was never reachable, every check returns the fallback value you pass in, and the SDK never throws.</p>
+    <h3>Is it safe to put a key in my web or mobile app?</h3>
+    <p>Use the CLIENT_KEY there. It can only ask what a given user gets, it cannot read your rules, targets or segments, and it cannot edit anything. The SERVER_KEY reads the full config and belongs in your backend; the ADMIN_KEY edits flags and should only be in your own tooling. Do not send personal data you do not need as targeting attributes.</p>
+    <h3>Can I use it for A/B tests?</h3>
+    <p>It assigns users to variants consistently, including multivariate splits bucketed by account instead of user, and it counts how often each variant was served. It does not compute statistical significance or record conversions; send the variant to your analytics tool and analyse there.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../drip-keeper/">Drip Keeper</a> sends lifecycle email, <a href="../waitlist-keeper/">Waitlist Keeper</a> runs a pre-launch referral waitlist, <a href="../feedback-board/">Feedback Board</a> collects feature requests, <a href="../status-keeper/">Status Keeper</a> runs an uptime page and <a href="../webhook-relay/">Webhook Relay</a> delivers your webhooks.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. A feature flag changes what your users see: you are responsible for testing flag changes, for the data you send as targeting attributes, and for any privacy notice or consent your users are owed. It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { simulate, impact, validateConfig } from "./engine.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const read = (id, what) => { try { return JSON.parse($(id).value); } catch (e) { throw new Error(`${what} is not valid JSON: ${e.message}`); } };
+    const load = (id, what) => { const c = read(id, what), errs = validateConfig(c); if (errs.length) throw new Error(`${what}: ${errs.slice(0, 3).join("; ")}`); return c; };
+    const users = () => Math.min(100000, Math.max(100, Number($("users").value) || 10000));
+    $("run").addEventListener("click", () => {
+      $("rows").innerHTML = ""; $("sum").className = "note"; $("why").textContent = "";
+      try {
+        const cfg = load("cfg", "Flag config"), flag = $("flagkey").value.trim();
+        if (!cfg.flags[flag]) throw new Error(`There is no flag called "${flag}". Flags: ${Object.keys(cfg.flags).join(", ")}`);
+        const r = simulate(cfg, flag, { users: users(), attrs: read("ctx", "Attributes") });
+        for (const [v, n] of Object.entries(r.byVariant).sort((a, b) => b[1] - a[1])) {
+          const tr = document.createElement("tr"), pct = (100 * n) / r.users;
+          [v, n.toLocaleString(), pct.toFixed(1) + "%"].forEach((c) => { const td = document.createElement("td"); td.textContent = c; tr.append(td); });
+          const bar = document.createElement("td"), d = document.createElement("div"); bar.className = "bar"; d.style.width = pct + "%"; bar.append(d); tr.append(bar); $("rows").append(tr);
+        }
+        $("sum").textContent = `${r.users.toLocaleString()} simulated users (user-1 to user-${r.users}) evaluated against "${flag}".`;
+        $("why").textContent = "Why: " + Object.entries(r.byReason).map(([k, n]) => `${k} ${n.toLocaleString()}`).join(", ");
+        record("simulate");
+      } catch (e) { $("sum").className = "err"; $("sum").textContent = e.message; }
+    });
+    $("cmpbtn").addEventListener("click", () => {
+      $("cmpout").className = "note";
+      try {
+        const a = load("cfg", "Flag config"), b = load("cfg2", "Proposed config"), flag = $("flagkey").value.trim();
+        if (!a.flags[flag] || !b.flags[flag]) throw new Error(`"${flag}" must exist in both configs.`);
+        const r = impact(a, b, flag, { users: users(), attrs: read("ctx", "Attributes") });
+        const moves = Object.entries(r.moves).map(([m, n]) => `${n.toLocaleString()} would go ${m}`).join("; ");
+        $("cmpout").textContent = r.changed ? `${r.changed.toLocaleString()} of ${r.users.toLocaleString()} users (${(100 * r.changed / r.users).toFixed(1)}%) change variant: ${moves}.` : `No one changes variant across ${r.users.toLocaleString()} users.`;
+        record("compare");
+      } catch (e) { $("cmpout").className = "err"; $("cmpout").textContent = e.message; }
+    });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>
