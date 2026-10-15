@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Trial Converter — Free Self-Hosted Stripe Trial-to-Paid Conversion</title>
+  <meta name="description" content="Turn more Stripe free trials into paying customers: card-on-file trials get an honest price-and-date heads-up, card-less trials get escalating add-a-card emails and an optional one-time extension. Preview the plan, then run the open-source server in your own account. Free, MIT.">
+  <meta property="og:title" content="Trial Converter — trial-to-paid conversion for Stripe, self-hosted">
+  <meta property="og:description" content="Different plans for trials with and without a card. Your Stripe key, your email domain, your server.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Trial Converter", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source Stripe trial conversion. Reads trial subscriptions from webhooks, emails customers a price-and-date heads-up or an add-a-card ask depending on whether a card is on file, can extend a card-less trial once, and runs on your own server with your own Stripe key."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just use Stripe's own trial emails?", "acceptedAnswer": {"@type": "Answer", "text": "Stripe sends a trial_will_end webhook three days before the end and can send a reminder to customers with a card, but it does not ask card-less trials to add a card on a schedule, extend a trial once for someone who has not added one, or tell you your conversion rate with and without a card. Trial Converter does those three things and leaves the rest to Stripe."}}, {"@type": "Question", "name": "Does it charge anyone?", "acceptedAnswer": {"@type": "Answer", "text": "No. It never creates a charge. Stripe converts the trial by itself; Trial Converter only emails the customer, links them to a fresh billing-portal session, and, only if you set EXTEND_DAYS, pushes a card-less trial's end date out once."}}, {"@type": "Question", "name": "Is it safe to try?", "acceptedAnswer": {"@type": "Answer", "text": "It starts in dry-run mode: it records trials and logs every email and extension it would perform, but contacts neither Stripe nor your customers until you set DRY_RUN=false. Try it with a Stripe test-mode key first."}}, {"@type": "Question", "name": "Where does my Stripe key live?", "acceptedAnswer": {"@type": "Answer", "text": "In the environment of the server you deploy in your own account. The author runs nothing in between and never sees your key or your customers."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f8f6; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #0f766e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #134e4a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #134e4a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #435650; }
+    .card { background: #fff; border: 1px solid #cfe3dd; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 18px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #9dbdb4; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input[type=checkbox] { width: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e2eeea; vertical-align: top; }
+    pre { background: #eef6f3; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .tag { display: inline-block; padding: 1px 8px; border-radius: 99px; background: #d5efe8; font-size: .8rem; font-weight: 700; }
+    .big { font-size: 1.5rem; font-weight: 800; color: #134e4a; }
+    @media (prefers-color-scheme: dark) {
+      :root { color: #e6efec; background: #0d1715; } a { color: #5eead4; } h1, h2, .big { color: #99f6e4; } .note, footer { color: #a9c0b9; }
+      .card { background: #14221f; border-color: #26423c; } input, select { background: #0d1715; color: #e6efec; border-color: #3b5c54; }
+      th, td { border-color: #26423c; } pre { background: #0d1715; } .tag { background: #1f3d37; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Turn more free trials into paying customers</h1>
+  <p>A trial with a card on file converts on its own, and the only job is an honest "you will be charged this much on this date". A trial <em>without</em> a card dies quietly unless the customer acts, so it needs a different plan. Pick your trial below to see the emails Trial Converter would send, then <a href="server.mjs">run the open-source server</a> with your own Stripe key. No account with us, no per-conversion fee.</p>
+
+  <section class="card" aria-labelledby="sim">
+    <h2 id="sim">Preview a trial plan</h2>
+    <div class="grid">
+      <div><label for="mode">Card collected at signup?</label><select id="mode"><option value="1">Yes (card on file)</option><option value="0" selected>No (card-less trial)</option></select></div>
+      <div><label for="when">Trial starts (UTC)</label><input id="when" type="datetime-local"></div>
+      <div><label for="len">Trial length in days</label><input id="len" type="number" min="1" max="90" value="14"></div>
+      <div><label for="ext">Extend a card-less trial once by (days, 0 = never)</label><input id="ext" type="number" min="0" max="30" value="0"></div>
+    </div>
+    <p>Plan: <span class="tag" id="cls"></span> <span id="why" class="note"></span></p>
+    <table aria-live="polite"><thead><tr><th scope="col">When (UTC)</th><th scope="col">What happens</th></tr></thead><tbody id="rows"></tbody></table>
+    <label for="tpl">Email preview</label>
+    <select id="tpl"></select>
+    <pre id="mail"></pre>
+  </section>
+
+  <section class="card" aria-labelledby="roi">
+    <h2 id="roi">What is a better conversion rate worth to you?</h2>
+    <p class="note">Your numbers only: this page does not know your conversion rate and does not promise any uplift.</p>
+    <div class="grid">
+      <div><label for="n">Trials started per month</label><input id="n" type="number" min="0" value="200"></div>
+      <div><label for="amt">Price per month</label><input id="amt" type="number" min="0" value="29"></div>
+      <div><label for="r0">Trials converting today (%)</label><input id="r0" type="number" min="0" max="100" value="18"></div>
+      <div><label for="r1">Share you hope for (%)</label><input id="r1" type="number" min="0" max="100" value="22"></div>
+    </div>
+    <p>Extra customers per month: <span class="big" id="cust">-</span> &middot; extra MRR added per month of trials: <span class="big" id="gain">-</span></p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/fp-monorepo &amp;&amp; cd fp-monorepo/ventures/trial-converter
+STRIPE_SECRET_KEY=rk_live_... STRIPE_WEBHOOK_SECRET=whsec_... \
+ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
+PUBLIC_URL=https://trials.example.com RESEND_API_KEY=re_... \
+MAIL_FROM="Acme &lt;hello@example.com&gt;" COMPANY_NAME=Acme \
+node server.mjs          # DRY_RUN=true until you set DRY_RUN=false</pre>
+    <p class="note">Point a Stripe webhook at <code>/webhook/stripe</code> for <code>customer.subscription.created</code>, <code>customer.subscription.updated</code>, <code>customer.subscription.deleted</code>, <code>customer.subscription.paused</code>, <code>invoice.paid</code> and <code>payment_method.attached</code>. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not just use Stripe's own trial emails?</h3>
+    <p>Stripe sends a trial_will_end webhook three days before the end and can send a reminder to customers with a card, but it does not ask card-less trials to add a card on a schedule, extend a trial once for someone who has not added one, or tell you your conversion rate with and without a card. Trial Converter does those three things and leaves the rest to Stripe.</p>
+    <h3>Does it charge anyone?</h3>
+    <p>No. It never creates a charge. Stripe converts the trial by itself; Trial Converter only emails the customer, links them to a fresh billing-portal session, and, only if you set EXTEND_DAYS, pushes a card-less trial's end date out once.</p>
+    <h3>Is it safe to try?</h3>
+    <p>It starts in dry-run mode: it records trials and logs every email and extension it would perform, but contacts neither Stripe nor your customers until you set DRY_RUN=false. Try it with a Stripe test-mode key first.</p>
+    <h3>Where does my Stripe key live?</h3>
+    <p>In the environment of the server you deploy in your own account. The author runs nothing in between and never sees your key or your customers.</p>
+  </section>
+
+  <footer>
+    <p>Related, same Stripe account: <a href="../dunning-engine/">Dunning Engine</a> recovers failed payments after the trial converts, <a href="../cancel-flow/">Cancel Flow</a> catches customers who cancel on purpose, and <a href="../mrr-pulse/">MRR Pulse</a> shows what all three do to MRR, churn and net revenue retention.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. They email your customers and can change a subscription's trial end on your behalf: you are the operator, responsible for your own Stripe account, your terms with customers and the email and consumer-protection rules where they live, including any rules on trial-to-paid notices. It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { planTrial, formatMoney, conversionValue } from "./trial.mjs";
+    import { renderEmail } from "./templates.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const DAY = 86400000;
+    const WHY = {
+      card: "The trial converts by itself. The emails tell the customer the price, the date and how to cancel.",
+      nocard: "Nothing converts unless they add a card, so the emails ask, with rising urgency.",
+    };
+    const fmt = (ms) => new Date(ms).toISOString().slice(0, 16).replace("T", " ");
+    const now = new Date(); now.setUTCMinutes(0, 0, 0);
+    $("when").value = now.toISOString().slice(0, 16);
+    const bounds = () => { const start = Date.parse($("when").value + "Z"); return [start, start + Math.min(90, Math.max(1, Number($("len").value) || 14)) * DAY]; };
+    function plan() {
+      const [start, end] = bounds();
+      if (!Number.isFinite(start)) return;
+      const hasCard = $("mode").value === "1";
+      const steps = planTrial({ start, end, hasCard, policy: { extendDays: Math.max(0, Number($("ext").value) || 0) } });
+      $("cls").textContent = hasCard ? "card on file" : "no card"; $("why").textContent = WHY[hasCard ? "card" : "nocard"];
+      $("rows").innerHTML = steps.map((s) => `<tr><td>${fmt(s.at)}</td><td>${s.kind === "email" ? "Email: " + s.template : `Extend the trial by ${s.days} days if there is still no card`}</td></tr>`).join("")
+        + `<tr><td>${fmt(end)}</td><td>${hasCard ? "Stripe charges the card on file" : "Stripe ends the trial per your missing-card setting"}</td></tr>`;
+      const emails = steps.filter((s) => s.kind === "email").map((s) => s.template);
+      const keep = $("tpl").value;
+      $("tpl").innerHTML = emails.map((t) => `<option>${t}</option>`).join("");
+      if (emails.includes(keep)) $("tpl").value = keep;
+      mail(); record("plan");
+    }
+    function mail() {
+      if (!$("tpl").value) return;
+      const [, end] = bounds();
+      const m = renderEmail($("tpl").value, { name: "Sam", amount: formatMoney(Math.round(Number($("amt").value || 29) * 100), "usd"), interval: "month", company: "Acme", address: "Your address", end_date: new Date(end).toISOString().slice(0, 10), manage_url: "https://trials.example.com/manage/…" });
+      $("mail").textContent = `Subject: ${m.subject}\n\n${m.text}`;
+    }
+    function roi() {
+      const v = conversionValue({ trialsPerMonth: $("n").value, price: $("amt").value, rateNow: $("r0").value, rateTarget: $("r1").value });
+      $("cust").textContent = (Math.round(v.extraCustomers * 10) / 10).toString();
+      $("gain").textContent = formatMoney(Math.round(v.extraMrr * 100), "usd");
+    }
+    for (const id of ["mode", "when", "len", "ext"]) $(id).addEventListener("input", plan);
+    $("tpl").addEventListener("input", mail);
+    for (const id of ["n", "amt", "r0", "r1"]) $(id).addEventListener("input", () => { roi(); mail(); });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+    plan(); roi();
+  </script>
+</body>
+</html>
