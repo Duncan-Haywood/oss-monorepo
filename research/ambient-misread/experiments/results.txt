@@ -1,0 +1,47 @@
+1. Mean utility per message over 48 contexts, uniform errors
+   acc    oracle   bayes   naive   blind   naive-blind  bayes-blind
+   0.333  0.4166  0.3824  0.3405  0.3824  -0.0419      +0.0000
+   0.500  0.4166  0.3844  0.3595  0.3824  -0.0229      +0.0019
+   0.600  0.4166  0.3871  0.3709  0.3824  -0.0115      +0.0047
+   0.700  0.4166  0.3917  0.3824  0.3824  -0.0001      +0.0093
+   0.800  0.4166  0.3983  0.3938  0.3824  +0.0113      +0.0159
+   0.900  0.4166  0.4066  0.4052  0.3824  +0.0228      +0.0241
+   0.950  0.4166  0.4113  0.4109  0.3824  +0.0285      +0.0289
+   1.000  0.4166  0.4166  0.4166  0.3824  +0.0342      +0.0342
+
+1. Mean utility per message over 48 contexts, adjacent errors
+   acc    oracle   bayes   naive   blind   naive-blind  bayes-blind
+   0.333  0.4166  0.3883  0.3679  0.3824  -0.0145      +0.0059
+   0.500  0.4166  0.3927  0.3801  0.3824  -0.0023      +0.0103
+   0.600  0.4166  0.3961  0.3874  0.3824  +0.0050      +0.0137
+   0.700  0.4166  0.4000  0.3947  0.3824  +0.0123      +0.0176
+   0.800  0.4166  0.4047  0.4020  0.3824  +0.0196      +0.0223
+   0.900  0.4166  0.4101  0.4093  0.3824  +0.0269      +0.0276
+   0.950  0.4166  0.4131  0.4130  0.3824  +0.0305      +0.0307
+   1.000  0.4166  0.4166  0.4166  0.3824  +0.0342      +0.0342
+
+2. Break-even accuracy: smallest accuracy (grid step 0.005) at which acting on the label
+   naively is no worse than ignoring it (mean over contexts)
+   uniform: 0.703
+   adjacent: 0.535
+
+3. Share of the oracle-over-blind gain that each policy recovers (uniform errors)
+   acc 0.5: naive -0.67, bayes +0.06  (gain 0.0342)
+   acc 0.7: naive -0.00, bayes +0.27  (gain 0.0342)
+   acc 0.9: naive +0.67, bayes +0.71  (gain 0.0342)
+
+4. Worst-case contexts at accuracy 0.7 (uniform): naive minus blind, five lowest
+   words 12, noise 0.5, others 1, eyes_busy True: -0.0692
+   words 6, noise 0.5, others 1, eyes_busy True: -0.0558
+   words 3, noise 0.5, others 1, eyes_busy True: -0.0418
+   words 3, noise 1.0, others 0, eyes_busy True: -0.0383
+   words 6, noise 1.0, others 0, eyes_busy True: -0.0383
+   contexts where naive < blind at acc 0.7: 18 of 48
+
+5. Monte Carlo check (|closed form - simulation|, 200000 messages, 3 contexts x 4 policies, acc 0.7 uniform)
+   worst abs difference: 0.0016
+
+6. Wrong prior: classifier accuracy 0.7 (uniform); Bayes uses an assumed prior, truth is the model's mix
+   assumed prior true mix       : bayes 0.3917
+   assumed prior flat           : bayes 0.3866
+   assumed prior all high-heavy : bayes 0.3693
