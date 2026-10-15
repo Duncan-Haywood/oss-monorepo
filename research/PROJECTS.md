@@ -536,7 +536,7 @@ on microcontrollers. Horowitz (2014), energy per operation, ISSCC.
 4. `accel-policy`: an accelerator for a small control or grasp network inside track 4's arm
    loop, where the constraint is a deadline at the control rate. Compare it with running the
    same network on a microcontroller, with cycles estimated from datasheet figures.
-5. `accel-sparse`: spend the task's slack on pruning, binary or ternary weights, and lookup-table
+5. `accel-sparse` (first pass landed 2026-10-15 on a substitute digits task because Speech Commands was unreachable; re-run on KWS features, add the lookup-table variant and synthesis still open): spend the task's slack on pruning, binary or ternary weights, and lookup-table
    inference. When does the task's accuracy tolerance let the hardware drop multipliers
    altogether?
 6. `accel-fpga`: put the best design through an open FPGA flow (Yosys with nextpnr, for iCE40 or
