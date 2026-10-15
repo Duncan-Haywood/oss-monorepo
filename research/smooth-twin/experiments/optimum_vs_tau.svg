@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the twin optimum pose and the real-plant regret against the logistic smoothing width tau from 0.02 to 0.5; regret is about 0.08 to 0.2 for tau up to 0.24 then jumps to about 0.8 to 0.98 once tau exceeds 0.25">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Smooth twin: optimum and real regret vs smoothing width tau</text>
+<line x1="64" x2="624" y1="310.4" y2="310.4" stroke="#ddd"/><text x="58" y="314.4" text-anchor="end" font-family="sans-serif" font-size="11">-0.2</text>
+<line x1="64" x2="624" y1="269.9" y2="269.9" stroke="#ddd"/><text x="58" y="273.9" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="229.4" y2="229.4" stroke="#ddd"/><text x="58" y="233.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="188.8" y2="188.8" stroke="#ddd"/><text x="58" y="192.8" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="148.3" y2="148.3" stroke="#ddd"/><text x="58" y="152.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="107.8" y2="107.8" stroke="#ddd"/><text x="58" y="111.8" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="67.2" y2="67.2" stroke="#ddd"/><text x="58" y="71.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.02</text>
+<text x="157.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="180.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.12</text>
+<text x="274.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.26</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">smoothing width tau</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">value</text>
+<polyline points="64.0,254.8 99.0,243.3 157.3,236.1 169.0,235.9 180.7,236.2 215.7,239.1 274.0,251.1 320.7,265.9 344.0,273.9 390.7,288.8 624.0,324.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="254.8" r="3" fill="#c0392b"/>
+<circle cx="99.0" cy="243.3" r="3" fill="#c0392b"/>
+<circle cx="157.3" cy="236.1" r="3" fill="#c0392b"/>
+<circle cx="169.0" cy="235.9" r="3" fill="#c0392b"/>
+<circle cx="180.7" cy="236.2" r="3" fill="#c0392b"/>
+<circle cx="215.7" cy="239.1" r="3" fill="#c0392b"/>
+<circle cx="274.0" cy="251.1" r="3" fill="#c0392b"/>
+<circle cx="320.7" cy="265.9" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="273.9" r="3" fill="#c0392b"/>
+<circle cx="390.7" cy="288.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">twin optimum pose</text>
+<polyline points="64.0,253.7 99.0,239.8 157.3,230.4 169.0,230.2 180.7,230.5 215.7,234.5 274.0,249.4 320.7,265.8 344.0,71.2 390.7,84.3 624.0,106.9" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="253.7" r="3" fill="#1f6fb2"/>
+<circle cx="99.0" cy="239.8" r="3" fill="#1f6fb2"/>
+<circle cx="157.3" cy="230.4" r="3" fill="#1f6fb2"/>
+<circle cx="169.0" cy="230.2" r="3" fill="#1f6fb2"/>
+<circle cx="180.7" cy="230.5" r="3" fill="#1f6fb2"/>
+<circle cx="215.7" cy="234.5" r="3" fill="#1f6fb2"/>
+<circle cx="274.0" cy="249.4" r="3" fill="#1f6fb2"/>
+<circle cx="320.7" cy="265.8" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="390.7" cy="84.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="106.9" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">real regret</text>
+</svg>
