@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1250 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1251 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -14,6 +14,14 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Keep subscribers who only needed a nudge. A cancellation flow for Stripe that asks why, offers a pause or a discount matched to the reason, and reports your save rate. Preview it in the browser, then run the open-source server in your own account. Free, MIT.</summary>
+  </entry>
+  <entry>
+    <title>Drip Keeper — Free Self-Hosted Lifecycle Email</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/drip-keeper/"/>
+    <id>tag:marisstella.dev,2026:tool/drip-keeper</id>
+    <updated>2026-10-15T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">A free, open-source alternative to Customer.io, Loops and Userlist: your app posts events, sequences send onboarding, trial and win-back email, and a goal event stops the rest. Preview exactly what a person would receive and when, in your browser, then run the server in your own account.</summary>
   </entry>
   <entry>
     <title>Dunning Engine — Free Self-Hosted Stripe Failed Payment Recovery</title>
@@ -62,6 +70,22 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Sell desktop apps, plugins and CLI tools with Stripe and issue signed license keys automatically. Generate a key pair, sign a test license and verify it right in your browser, then run the open-source server in your own account. Free, MIT, no per-license fee.</summary>
+  </entry>
+  <entry>
+    <title>Link Keeper — Free Self-Hosted Link Shortener with Click Stats</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/link-keeper/"/>
+    <id>tag:marisstella.dev,2026:tool/link-keeper</id>
+    <updated>2026-10-15T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">A free, open-source alternative to Bitly, Dub and Rebrandly: your own short domain, UTM-tagged campaign links, iOS/Android app routing, expiry, click limits and privacy-friendly stats with no cookies and no stored IPs. Plan a batch of links in your browser first.</summary>
+  </entry>
+  <entry>
+    <title>Meter Keeper — Free Self-Hosted Usage Metering for Stripe</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/meter-keeper/"/>
+    <id>tag:marisstella.dev,2026:tool/meter-keeper</id>
+    <updated>2026-10-15T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">A free, open-source alternative to Lago, Orb and Metronome for small SaaS: send usage events to your own server, get exact per-customer usage, tiered invoice previews, hard-limit checks, and a reliable feed into Stripe Billing Meters. Try your pricing on real usage numbers in your browser first.</summary>
   </entry>
   <entry>
     <title>MRR Pulse — Free Self-Hosted Stripe MRR &amp; Churn Dashboard</title>
@@ -142,29 +166,5 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free tool for tenants: pick your state, enter your move-out date and deposit, and see when your landlord&#39;s deadline to return it ran out, what the statute says about late landlords, and a demand letter you can edit and send. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Testimonial Keeper — Free Self-Hosted Testimonial Collector and Wall of Love</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/testimonial-keeper/"/>
-    <id>tag:marisstella.dev,2026:tool/testimonial-keeper</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Collect customer testimonials with a link, approve the ones you want, and show them on your site with one script tag. Consent stored with every entry. Open source, MIT, one-click self-deploy, no monthly fee.</summary>
-  </entry>
-  <entry>
-    <title>Trial Converter — Free Self-Hosted Stripe Trial-to-Paid Conversion</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/trial-converter/"/>
-    <id>tag:marisstella.dev,2026:tool/trial-converter</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Turn more Stripe free trials into paying customers: card-on-file trials get an honest price-and-date heads-up, card-less trials get escalating add-a-card emails and an optional one-time extension. Preview the plan, then run the open-source server in your own account. Free, MIT.</summary>
-  </entry>
-  <entry>
-    <title>Waitlist Keeper — Free Self-Hosted Referral Waitlist</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/waitlist-keeper/"/>
-    <id>tag:marisstella.dev,2026:tool/waitlist-keeper</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">A free, open-source alternative to Viral Loops and Prefinery: a launch waitlist where confirmed referrals move people up the line, with fraud guards and batch invites. Clean a pasted email list and project your viral growth in your browser, then run the server in your own account.</summary>
   </entry>
 </feed>

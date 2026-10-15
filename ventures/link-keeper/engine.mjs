@@ -45,12 +45,15 @@ export function randomSlug(state, rand = Math.random, len = 6) {
 const UTM_KEYS = ["source", "medium", "campaign", "term", "content"];
 /** Adds utm_* parameters to a URL, replacing existing utm values of the same name and keeping everything else. */
 export function addUtm(url, utm = {}) {
-  const u = new URL(url);
+  // Tagging a destination URL is not a share payload, so this works on a
+  // detached URLSearchParams and writes the result back whole.
+  const u = new URL(url), params = new URLSearchParams(u.search);
   for (const k of UTM_KEYS) {
     const v = utm[k] ?? utm["utm_" + k];
-    if (v !== undefined && v !== null && String(v).trim() !== "") u.searchParams.set("utm_" + k, String(v).trim());
+    if (v !== undefined && v !== null && String(v).trim() !== "") params.set("utm_" + k, String(v).trim());
   }
-  return u.toString();
+  const qs = params.toString();
+  return [u.origin + u.pathname, qs].filter(Boolean).join("?") + u.hash;
 }
 
 export function createLink(state, input, now, { rand = Math.random, allowHosts } = {}) {
