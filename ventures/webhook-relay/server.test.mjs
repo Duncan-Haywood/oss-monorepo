@@ -129,5 +129,5 @@ test("parseRoutes accepts targets for fan-out and rejects bad lists", async () =
   assert.equal(ok[0].targets.length, 2);
   assert.throws(() => parseRoutes(JSON.stringify([{ name: "a", targets: [] }])));
   assert.throws(() => parseRoutes(JSON.stringify([{ name: "a", targets: ["ftp://x"] }])));
-  assert.equal(parseRoutes(JSON.stringify([{ name: "a", target: "http://x" }]))[0].targets[0], "http://x");
+  assert.equal(parseRoutes(JSON.stringify([{ name: "a", target: "http://x" }]))[0].targets[0].url, "http://x");
 });
