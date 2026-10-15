@@ -159,3 +159,5 @@ the owner step is the account, two secrets and `DISTRIBUTE_BLUESKY=true`.
 `mastodon-bot` is also at `artifact` (2026-10-15): same pattern as Bluesky, plus a refusal to post from an account not flagged as a bot. Dry run: `node platform/distribution/mastodon.mjs`.
 
 `hashnode-crosspost` is at `artifact` (2026-10-15): the dev.to pattern on Hashnode's GraphQL API (drafts by default, canonical link back). Dry run: `node platform/distribution/hashnode.mjs`.
+
+`github-release-digest` is at `artifact` (2026-10-15): a weekly release on this repository listing the week's launches, needing no external account (only `DISTRIBUTE_RELEASES=true`). Dry run: `node platform/distribution/releases.mjs`.
