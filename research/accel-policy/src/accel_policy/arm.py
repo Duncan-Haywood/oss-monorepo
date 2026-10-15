@@ -75,31 +75,42 @@ def random_move(rng):
     return qa, qb, rng.uniform(0.25, 0.6)
 
 
-def rollout(controller, qa, qb, T, Ts, latency, dt=0.0005, tail=0.15):
-    """Run a move with a sampled controller. Every Ts the controller reads the state; its torque is applied
-    `latency` seconds later (the previous torque is held until then) and held until the next result.
-    controller(q, qd, qr, qdr, qddr) -> torque. Returns the RMS joint error over the move (rad) and the
-    peak error. Requires latency <= Ts (the deadline)."""
+def rollout(controller, qa, qb, T, Ts, latency, dt=0.0005, tail=0.15, log=None):
+    """Run a move with a sampled controller, integrating event by event so latencies shorter than `dt` are exact.
+    Every Ts the controller reads the state; its torque is applied `latency` seconds later (the previous torque
+    is held until then) and held until the next result arrives. controller(q, qd, qr, qdr, qddr) -> torque.
+    Requires latency <= Ts (the deadline). Returns (RMS joint error in rad, peak error); (inf, inf) if it diverges.
+    If `log` is a list, (q, qd, qr, qdr, qddr) at each sample is appended (used for DAgger)."""
     q, qd = qa.copy(), np.zeros(2)
-    n = int(round((T + tail) / dt))
+    total = T + tail
     tau_hold = inverse_dynamics(q, qd, np.zeros(2)).clip(-TAU_MAX, TAU_MAX)
     pending, t_apply = None, None
-    next_sample = 0.0
-    err2, peak = 0.0, 0.0
-    for k in range(n):
-        t = k * dt
-        if t + 1e-12 >= next_sample:
+    t, next_sample = 0.0, 0.0
+    err2, peak, w = 0.0, 0.0, 0.0
+    while t < total - 1e-12:
+        if pending is not None and t >= t_apply - 1e-12:      # apply first, so latency == Ts still works
+            tau_hold, pending = pending, None
+        if t >= next_sample - 1e-12:
             qr, qdr, qddr = min_jerk(qa, qb, T, t)
+            if log is not None:
+                log.append((q.copy(), qd.copy(), qr, qdr, qddr))
             pending = np.clip(controller(q, qd, qr, qdr, qddr), -TAU_MAX, TAU_MAX)
             t_apply = t + latency
             next_sample += Ts
-        if pending is not None and t + 1e-12 >= t_apply:
-            tau_hold, pending = pending, None
-        q, qd = step(q, qd, tau_hold, dt)
-        qr = min_jerk(qa, qb, T, t)[0]
-        e = np.abs(q - qr)
-        err2 += float(e @ e) / 2
+            if pending is not None and t >= t_apply - 1e-12:
+                tau_hold, pending = pending, None
+        nxt = min(t + dt, next_sample, total)
+        if pending is not None:
+            nxt = min(nxt, t_apply)
+        h = nxt - t
+        if h <= 0:
+            h = 1e-9
+        q, qd = step(q, qd, tau_hold, h)
+        t += h
+        e = np.abs(q - min_jerk(qa, qb, T, t)[0])
+        err2 += float(e @ e) / 2 * h
+        w += h
         peak = max(peak, float(e.max()))
         if not np.all(np.isfinite(q)) or peak > 10:
             return float("inf"), float("inf")
-    return float(np.sqrt(err2 / n)), peak
+    return float(np.sqrt(err2 / w)), peak
