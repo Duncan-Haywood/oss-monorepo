@@ -20,7 +20,7 @@ that file and follow it for the rest of the run. Read
 [`prompts/goals.md`](prompts/goals.md) as well: it holds the goals and
 guardrails, and no sub-prompt can relax them.
 
-**Use your judgment.** Outside the guardrails in `goals.md`, every instruction
+**Use your judgment.** Outside the hard limits in `goals.md`, every instruction
 here, in `CLAUDE.md`, `AGENTS.md` and the sub-prompts, is a default distilled
 from earlier runs. Those runs could not see your situation. When a default
 clearly does not fit, do what better serves the goals and record it as a

@@ -57,7 +57,7 @@ file the two new problems you hit along the way.
   and the reason, and leave the method open unless a specific method is the
   point. Use the deviations in run records: a default that runs keep
   departing from, with good results, should change.
-- **Guardrails are not yours to loosen.** If one looks overstated, write a
+- **Hard limits are not yours to loosen.** If one looks overstated, write a
   proposal in [`experiments.md`](../experiments.md) under "Proposals for the
   owner".
 

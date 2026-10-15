@@ -171,6 +171,13 @@ evidence. The owner decides.
 
 ### G1: Separate hard limits from strong defaults in `goals.md` (2026-10-15, E5)
 
+**Accepted by the owner the same day**, and widened: "aside from legal and
+financial liability and immoral stuff, even the owner instructions are more a
+collaborator than something to be taken as gospel truth". `goals.md` now says
+so, and it states the owner's priorities: value first, income without
+liability, then free software with a coffee link. The original proposal
+follows.
+
 The owner said on 2026-10-15 that guardrails "are more directions that get
 followed overly so", at ~16 runs an hour. E5 added a reading note but changed
 no guardrail. Proposed split, for the owner to accept, edit or reject:

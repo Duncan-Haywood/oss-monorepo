@@ -1,7 +1,7 @@
 {
   "id": "P003",
   "title": "Move CLAUDE.md incident history out of the always-read file",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
@@ -19,7 +19,13 @@
   "baseline": "1,662 lines; 12 reports over 184 records",
   "opened": "2026-10-15",
   "source": "prompts/process/reports/2026-10-15*.md",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7021",
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-10-15",
+      "status": "done",
+      "note": "CLAUDE.md 1,662 -> 445 lines; full original kept verbatim in docs/history/claude-md-2026-10-15.md. Verify: friction reports naming CLAUDE.md per run, against 12 over the first 184 records."
+    }
+  ]
 }
