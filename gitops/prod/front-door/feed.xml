@@ -88,6 +88,14 @@
     <summary type="text">Paste a customer security questionnaire and your saved answers. Each question is matched to your closest past answer, risky matches (changed hours, negations) are flagged, and unanswered questions are listed. Private, in your browser, free.</summary>
   </entry>
   <entry>
+    <title>status-keeper — Free Self-Hosted Status Page and Uptime Monitor</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/status-keeper/"/>
+    <id>tag:marisstella.dev,2026:tool/status-keeper</id>
+    <updated>2026-10-15T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">A free, self-hosted status page with uptime monitoring, 90-day bars, incidents, maintenance windows and alerts. An open-source alternative to Statuspage, Instatus and Better Stack. MIT, zero dependencies.</summary>
+  </entry>
+  <entry>
     <title>Security Deposit Deadline Checker</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tenant-security-deposit-deadline-checker/"/>
     <id>tag:marisstella.dev,2026:tool/tenant-security-deposit-deadline-checker</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-14T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Dutch ZZP tax calculator: enter turnover and expenses to see Box 1 income tax, zelfstandigenaftrek, MKB-winstvrijstelling, Zvw and how much of every invoice to set aside. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>New Zealand Self-Employed Tax Set-Aside Calculator — Income Tax + ACC</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/nz-sole-trader-tax-set-aside-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/nz-sole-trader-tax-set-aside-calculator</id>
-    <updated>2026-10-14T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free New Zealand self-employed tax calculator: enter income and expenses to see income tax, ACC earners&#39; levy, optional student loan repayment and how much of every invoice to set aside. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>
