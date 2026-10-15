@@ -128,3 +128,23 @@ test("csv export lists one row per customer and meter", () => {
   const s = mk(); E.ingest(s, cfg, ev("a"), NOW);
   assert.equal(E.toCsv(s, cfg, NOW), "customer,meter,agg,period_start,quantity\nacme,api,sum,2026-10-01,1\n");
 });
+
+test("limit alerts fire once per threshold per month and retry on failure", async () => {
+  const s = mk();
+  E.ingest(s, cfg, ev("a1", { value: 39_999 }), NOW);
+  assert.equal(s.alertOutbox.length, 0);
+  E.ingest(s, cfg, ev("a2", { value: 1 }), NOW);
+  assert.deepEqual(s.alertOutbox.map((a) => a.threshold), [0.8]);
+  E.ingest(s, cfg, ev("a3", { value: 20_000 }), NOW);
+  assert.deepEqual(s.alertOutbox.map((a) => a.threshold), [0.8, 1]);
+  E.ingest(s, cfg, ev("a4", { value: 5 }), NOW);
+  assert.equal(s.alertOutbox.length, 2);
+  const nextMonth = Date.UTC(2026, 10, 2);
+  E.ingest(s, cfg, ev("a5", { value: 45_000, timestamp: nextMonth }), nextMonth);
+  assert.equal(s.alertOutbox.length, 3);
+  let calls = 0;
+  const r = await E.flushAlerts(s, async () => { if (++calls === 1) throw new Error("webhook 500"); }, NOW);
+  assert.deepEqual([r.sent, r.pending], [2, 1]);
+  assert.equal(s.alertOutbox[0].tries, 1);
+  assert.match(E.validateConfig({ ...cfg, alerts: { at: [2] } }).join(), /alerts\.at/);
+});

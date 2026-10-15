@@ -42,6 +42,7 @@ export function validateConfig(cfg) {
       }
     }
   }
+  if (cfg.alerts?.at && !(Array.isArray(cfg.alerts.at) && cfg.alerts.at.every((x) => x > 0 && x <= 1))) errors.push("alerts.at must be a list of fractions greater than 0 and at most 1, for example [0.8, 1]");
   return errors;
 }
 
@@ -86,6 +87,7 @@ export function ingest(state, cfg, ev, now) {
     value = 1;
   }
   if (forward) state.outbox.push({ id: ev.id, customer: ev.customer, event: meter.stripeEvent, value, ts, tries: 0, next: 0 });
+  queueAlerts(state, cfg, ev.customer, ev.meter, now);
   return { status: "accepted", forward };
 }
 
@@ -171,12 +173,52 @@ export function check(state, cfg, customer, meter, quantity, now) {
   return { allowed: limit == null || after <= limit, used, limit, remaining: limit == null ? null : Math.max(0, limit - used), resetsAt: new Date(p.to).toISOString() };
 }
 
+export const DEFAULT_ALERT_AT = [0.8, 1];
+
+/**
+ * Queue a webhook alert the first time a customer's usage this month reaches each threshold
+ * (default 80% and 100%) of a plan line's hard `limit`. One alert per customer, meter, month and
+ * threshold, so a busy customer does not flood the receiver. Config: `alerts: {at: [0.5, 0.9, 1]}`.
+ */
+export function queueAlerts(state, cfg, customer, meter, now) {
+  const c = state.customers[customer], line = cfg.plans?.[c?.plan]?.lines.find((l) => l.meter === meter);
+  if (!line || !(line.limit > 0)) return [];
+  const p = periodOf(now), used = usage(state, cfg, customer, meter, p.from, p.to), month = monthOf(now);
+  const sent = (state.alertsSent ||= {}), box = (state.alertOutbox ||= []), queued = [];
+  for (const at of cfg.alerts?.at || DEFAULT_ALERT_AT) {
+    const key = `${customer}|${meter}|${month}|${at}`;
+    if (used < line.limit * at || sent[key]) continue;
+    sent[key] = 1;
+    const a = { id: key, type: "usage.threshold", customer, plan: c.plan, meter, threshold: at, used, limit: line.limit, month, resetsAt: new Date(p.to).toISOString(), ts: now, tries: 0, next: 0 };
+    box.push(a); queued.push(a);
+  }
+  return queued;
+}
+
+/** Deliver due alerts with `post(alert)`; any throw retries with backoff until `maxTries`, then the alert is dropped to `dead`. */
+export async function flushAlerts(state, post, now, { max = 50, maxTries = 8 } = {}) {
+  const box = state.alertOutbox || [], keep = []; let sent = 0, dead = 0;
+  let budget = max;
+  for (const a of box) {
+    if (a.next > now || budget <= 0) { keep.push(a); continue; }
+    budget--;
+    try { await post(a); sent++; }
+    catch (e) {
+      a.tries += 1; a.reason = e.message;
+      if (a.tries >= maxTries) { (state.dead ||= []).push(a); dead++; } else { a.next = now + Math.min(3_600_000, 2 ** a.tries * 30_000); keep.push(a); }
+    }
+  }
+  state.alertOutbox = keep;
+  return { sent, dead, pending: keep.length };
+}
+
 /** Drop idempotency records and day buckets older than the retention window. Call occasionally. */
 export function prune(state, now, keepMonths = 14) {
   const cutoff = now - IDEMPOTENCY_DAYS * DAY;
   for (const [id, t] of Object.entries(state.seen)) if (t < cutoff) delete state.seen[id];
   const old = dayOf(now - keepMonths * 31 * DAY);
   for (const meters of Object.values(state.buckets)) for (const days of Object.values(meters)) for (const d of Object.keys(days)) if (d < old) delete days[d];
+  for (const k of Object.keys(state.alertsSent || {})) if (k.split("|")[2] < monthOf(now - 2 * 31 * DAY)) delete state.alertsSent[k];
   const oldMonth = monthOf(now - keepMonths * 31 * DAY);
   for (const k of Object.keys(state.uniqueMonths)) if (k.split("|")[2] < oldMonth) delete state.uniqueMonths[k];
 }
