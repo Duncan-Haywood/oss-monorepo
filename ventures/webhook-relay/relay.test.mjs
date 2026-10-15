@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_POLICY, newState, classify, parseRetryAfter, ingest, due, recordAttempt, replay, prune, summary, schedule, idempotencyKey } from "./relay.mjs";
+import { humanDuration, DEFAULT_POLICY, newState, classify, parseRetryAfter, ingest, due, recordAttempt, replay, prune, summary, schedule, idempotencyKey } from "./relay.mjs";
 
 const T0 = 1_700_000_000_000;
 const mk = (state, body = "{}", headers = {}, now = T0) => ingest(state, { route: "r", target: "http://x", headers, body: Buffer.from(body), now });
@@ -107,6 +107,11 @@ test("summary counts per route; schedule lists the cumulative timeline", () => {
   const sch = schedule();
   assert.equal(sch.length, DEFAULT_POLICY.delays.length + 1);
   assert.equal(sch.at(-1).atSec, DEFAULT_POLICY.delays.reduce((x, y) => x + y, 0));
+  // The first try fires immediately; attempts are numbered 1..n and cumulative.
+  assert.deepEqual(sch[0], { attempt: 1, afterSec: 0, atSec: 0 });
+  assert.deepEqual(sch.map((x) => x.attempt), sch.map((_, i) => i + 1));
+  assert.deepEqual(schedule({ delays: [10, 20] }), [
+    { attempt: 1, afterSec: 0, atSec: 0 }, { attempt: 2, afterSec: 10, atSec: 10 }, { attempt: 3, afterSec: 20, atSec: 30 }]);
 });
 
 test("fan-out: one event per target, deduped per target, independent fates", () => {
@@ -122,4 +127,11 @@ test("fan-out: one event per target, deduped per target, independent fates", () 
   recordAttempt(s, r.ids[1], { status: 400 }, T0);
   assert.equal(s.events[r.ids[0]].status, "delivered");
   assert.equal(s.events[r.ids[1]].status, "dead");
+});
+
+test("classify and humanDuration boundaries: 3xx is not delivered, 24h reads as 1d", () => {
+  assert.equal(classify(299), "delivered");
+  assert.equal(classify(300), "dead");
+  assert.equal(humanDuration(86399), "24h");
+  assert.equal(humanDuration(86400), "1d");
 });
