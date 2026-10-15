@@ -1,0 +1,57 @@
+name: changelog-keeper
+description: >-
+  Self-hosted changelog: write release notes as drafts, publish them to a public
+  page, an RSS and JSON feed, and an embeddable What's new button with an unread
+  dot. Categories, tags, back-dated imports, escaped Markdown subset.
+  Zero-dependency server with a one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real: Headway, Beamer, LaunchNotes,
+# AnnounceKit and Canny's changelog sell a changelog page plus an in-app "What's
+# new" widget to SaaS teams, usually priced by seats, views or projects. The gap:
+# a small team that wants the page, the feed and the unread dot with no per-seat
+# bill and the entries in a file it owns. duplicate_check: release-notes-generator
+# turns commits into notes (an input to this, not a publishing surface);
+# feedback-board collects requests; no venture publishes a changelog.
+#
+# First visitor: indie SaaS founders on Indie Hackers, r/SaaS, r/selfhosted and
+# Hacker News asking "headway alternative", "beamer alternative open source",
+# "changelog page self hosted". Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet; a hosted
+# copy under the deployer's own name, done-for-you setup or GitHub Sponsors are
+# the paid steps -- hosting under the public name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      Small SaaS teams will deploy their own changelog once the demo shows the
+      page, feed and unread-dot button come from one script tag, because the paid
+      tools price by seats or views for something that is a static list.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The unread dot (not the public page) is what makes teams embed it in the
+      app, and a feed is what makes customers subscribe.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a draft appearing on the public page or feeds, or markup from an entry executing; the draft gate and escape-first rendering come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/changelog-keeper/
+  analytics: null
