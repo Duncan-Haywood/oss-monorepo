@@ -23,6 +23,24 @@ and one platform that runs them:
   checks and prompts that do the work above. It exists to serve the two
   portfolios, not to grow on its own.
 
+## Long-term goal: a public face for everything
+
+Set by the owner on 2026-10-15. Most things in this repository should have a
+publicly accessible web page: every venture, every research project, and the
+platform tools a stranger could use or learn from. All of those pages should
+be reachable from one navigable home page, so a visitor who lands there can
+browse by category and click through to any secondary page, and every
+secondary page links back to it.
+
+This is a direction, not a single run's task. Each run that adds or changes
+something user-visible should leave it with a public page and a link from the
+home page (or the index that page links to), and runs that have spare scope
+should close the gap for things that still have none. Pages follow the same
+guardrails as the work they describe: disclaimers and usage tracking on
+venture pages, honest results and AI-assistance notes on research pages.
+Progress is measured by the share of ventures, research projects and public
+platform tools that have a reachable page linked from the home page.
+
 ## Guardrails (every track, every version)
 
 - **Never fabricate.** No invented results, numbers, citations, measurements
@@ -92,3 +110,6 @@ gain on a later one.
   every citation checks out.
 - **Review:** each review leaves the system measurably better on the scores
   above, or records honestly that it could not tell.
+- **Public presence (all tracks):** the share of ventures, research projects
+  and public platform tools with a public web page reachable from the home
+  page, per the long-term goal above.
