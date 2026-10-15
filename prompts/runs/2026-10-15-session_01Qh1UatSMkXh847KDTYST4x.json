@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01Qh1UatSMkXh847KDTYST4x",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "model": "claude-sonnet-5-5",
+  "task": "extend",
+  "projects": [
+    "ambient-ips"
+  ],
+  "pr": null,
+  "commits": [
+    "52114668b800fee4dd58cc1744e451c30cca5b7a"
+  ],
+  "merged": null,
+  "build_ok": true,
+  "tests_added": 0,
+  "outcome": "success",
+  "notes": "Milestone 9 project-pages: one figure parsed from results.txt; token usage not read.",
+  "track": "research",
+  "doc_friction": [],
+  "errors": [],
+  "integrity_issues": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

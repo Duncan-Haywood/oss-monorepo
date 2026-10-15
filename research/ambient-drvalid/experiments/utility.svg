@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Cap selection by IPS vs doubly-robust validation (uninformed prior)">
+<rect width="640" height="400" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Cap selection by IPS vs doubly-robust validation (uninformed prior)</text>
+<text x="14" y="170.0" text-anchor="middle" font-family="sans-serif" font-size="11" transform="rotate(-90 14 170.0)">held-out utility/h</text>
+<line x1="70" x2="624" y1="300.0" y2="300.0" stroke="#ddd"/><text x="64" y="304.0" text-anchor="end" font-family="sans-serif" font-size="11">-184</text>
+<line x1="70" x2="624" y1="235.0" y2="235.0" stroke="#ddd"/><text x="64" y="239.0" text-anchor="end" font-family="sans-serif" font-size="11">-127</text>
+<line x1="70" x2="624" y1="170.0" y2="170.0" stroke="#ddd"/><text x="64" y="174.0" text-anchor="end" font-family="sans-serif" font-size="11">-70.3</text>
+<line x1="70" x2="624" y1="105.0" y2="105.0" stroke="#ddd"/><text x="64" y="109.0" text-anchor="end" font-family="sans-serif" font-size="11">-13.4</text>
+<line x1="70" x2="624" y1="40.0" y2="40.0" stroke="#ddd"/><text x="64" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">43.4</text>
+<text x="93.1" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 93.1 316)">biased</text>
+<text x="139.2" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 139.2 316)">clip10</text>
+<text x="185.4" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 185.4 316)">fixed5</text>
+<text x="231.6" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 231.6 316)">fixed20</text>
+<text x="277.8" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 277.8 316)">fixed100</text>
+<text x="323.9" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 323.9 316)">fixedinf</text>
+<text x="370.1" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 370.1 316)">cv_ips</text>
+<text x="416.2" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 416.2 316)">cv_dr</text>
+<text x="462.4" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 462.4 316)">cv_dr8r</text>
+<text x="508.6" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 508.6 316)">hindsight</text>
+<text x="554.8" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 554.8 316)">random_matched</text>
+<text x="600.9" y="316" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-35 600.9 316)">full</text>
+<rect x="74.6" y="87.8" width="11.3" height="1.8" fill="#c0392b"/>
+<line x1="80.3" x2="80.3" y1="94.3" y2="81.3" stroke="#222"/>
+<rect x="120.8" y="89.6" width="11.3" height="37.9" fill="#c0392b"/>
+<line x1="126.4" x2="126.4" y1="152.8" y2="102.3" stroke="#222"/>
+<rect x="166.9" y="89.6" width="11.3" height="26.0" fill="#c0392b"/>
+<line x1="172.6" x2="172.6" y1="141.8" y2="89.4" stroke="#222"/>
+<rect x="213.1" y="89.6" width="11.3" height="22.1" fill="#c0392b"/>
+<line x1="218.8" x2="218.8" y1="133.4" y2="90.1" stroke="#222"/>
+<rect x="259.3" y="89.6" width="11.3" height="39.9" fill="#c0392b"/>
+<line x1="264.9" x2="264.9" y1="193.2" y2="65.9" stroke="#222"/>
+<rect x="305.4" y="89.6" width="11.3" height="55.8" fill="#c0392b"/>
+<line x1="311.1" x2="311.1" y1="228.5" y2="62.3" stroke="#222"/>
+<rect x="351.6" y="89.6" width="11.3" height="24.4" fill="#c0392b"/>
+<line x1="357.3" x2="357.3" y1="172.8" y2="55.3" stroke="#222"/>
+<rect x="397.8" y="89.6" width="11.3" height="17.8" fill="#c0392b"/>
+<line x1="403.4" x2="403.4" y1="130.5" y2="84.4" stroke="#222"/>
+<rect x="443.9" y="89.6" width="11.3" height="13.1" fill="#c0392b"/>
+<line x1="449.6" x2="449.6" y1="125.8" y2="79.6" stroke="#222"/>
+<rect x="490.1" y="88.7" width="11.3" height="0.9" fill="#c0392b"/>
+<line x1="495.8" x2="495.8" y1="96.7" y2="80.7" stroke="#222"/>
+<rect x="536.3" y="75.7" width="11.3" height="13.9" fill="#c0392b"/>
+<line x1="541.9" x2="541.9" y1="76.6" y2="74.9" stroke="#222"/>
+<rect x="582.4" y="75.1" width="11.3" height="14.5" fill="#c0392b"/>
+<line x1="588.1" x2="588.1" y1="75.8" y2="74.4" stroke="#222"/>
+<rect x="80" y="382" width="10" height="10" fill="#c0392b"/><text x="95" y="391" font-family="sans-serif" font-size="11">eps 0.002</text>
+<rect x="86.9" y="89.6" width="11.3" height="0.2" fill="#1f6fb2"/>
+<line x1="92.6" x2="92.6" y1="97.0" y2="82.6" stroke="#222"/>
+<rect x="133.1" y="89.6" width="11.3" height="72.0" fill="#1f6fb2"/>
+<line x1="138.8" x2="138.8" y1="200.7" y2="122.5" stroke="#222"/>
+<rect x="179.3" y="89.6" width="11.3" height="20.8" fill="#1f6fb2"/>
+<line x1="184.9" x2="184.9" y1="136.9" y2="84.1" stroke="#222"/>
+<rect x="225.4" y="89.6" width="11.3" height="20.2" fill="#1f6fb2"/>
+<line x1="231.1" x2="231.1" y1="134.2" y2="85.5" stroke="#222"/>
+<rect x="271.6" y="89.6" width="11.3" height="35.6" fill="#1f6fb2"/>
+<line x1="277.3" x2="277.3" y1="188.1" y2="62.3" stroke="#222"/>
+<rect x="317.8" y="89.6" width="11.3" height="18.2" fill="#1f6fb2"/>
+<line x1="323.4" x2="323.4" y1="169.1" y2="46.6" stroke="#222"/>
+<rect x="363.9" y="89.6" width="11.3" height="20.2" fill="#1f6fb2"/>
+<line x1="369.6" x2="369.6" y1="141.8" y2="78.0" stroke="#222"/>
+<rect x="410.1" y="89.6" width="11.3" height="30.8" fill="#1f6fb2"/>
+<line x1="415.8" x2="415.8" y1="179.0" y2="61.8" stroke="#222"/>
+<rect x="456.3" y="89.6" width="11.3" height="11.0" fill="#1f6fb2"/>
+<line x1="461.9" x2="461.9" y1="128.2" y2="73.0" stroke="#222"/>
+<rect x="502.4" y="82.2" width="11.3" height="7.4" fill="#1f6fb2"/>
+<line x1="508.1" x2="508.1" y1="86.4" y2="78.1" stroke="#222"/>
+<rect x="548.6" y="75.7" width="11.3" height="13.9" fill="#1f6fb2"/>
+<line x1="554.3" x2="554.3" y1="76.6" y2="74.9" stroke="#222"/>
+<rect x="594.8" y="75.1" width="11.3" height="14.5" fill="#1f6fb2"/>
+<line x1="600.4" x2="600.4" y1="75.8" y2="74.4" stroke="#222"/>
+<rect x="230" y="382" width="10" height="10" fill="#1f6fb2"/><text x="245" y="391" font-family="sans-serif" font-size="11">eps 0.005</text>
+<rect x="99.2" y="89.6" width="11.3" height="15.0" fill="#2e8b57"/>
+<line x1="104.9" x2="104.9" y1="114.5" y2="94.7" stroke="#222"/>
+<rect x="145.4" y="89.6" width="11.3" height="110.0" fill="#2e8b57"/>
+<line x1="151.1" x2="151.1" y1="300.0" y2="99.2" stroke="#222"/>
+<rect x="191.6" y="89.6" width="11.3" height="33.8" fill="#2e8b57"/>
+<line x1="197.2" x2="197.2" y1="200.3" y2="46.6" stroke="#222"/>
+<rect x="237.7" y="89.6" width="11.3" height="20.7" fill="#2e8b57"/>
+<line x1="243.4" x2="243.4" y1="175.3" y2="45.3" stroke="#222"/>
+<rect x="283.9" y="89.6" width="11.3" height="56.6" fill="#2e8b57"/>
+<line x1="289.6" x2="289.6" y1="234.6" y2="58.0" stroke="#222"/>
+<rect x="330.1" y="89.6" width="11.3" height="56.6" fill="#2e8b57"/>
+<line x1="335.7" x2="335.7" y1="234.6" y2="58.0" stroke="#222"/>
+<rect x="376.2" y="89.6" width="11.3" height="1.6" fill="#2e8b57"/>
+<line x1="381.9" x2="381.9" y1="118.7" y2="63.8" stroke="#222"/>
+<rect x="422.4" y="89.6" width="11.3" height="1.6" fill="#2e8b57"/>
+<line x1="428.1" x2="428.1" y1="118.8" y2="63.8" stroke="#222"/>
+<rect x="468.6" y="82.9" width="11.3" height="6.8" fill="#2e8b57"/>
+<line x1="474.2" x2="474.2" y1="88.2" y2="77.5" stroke="#222"/>
+<rect x="514.7" y="81.1" width="11.3" height="8.5" fill="#2e8b57"/>
+<line x1="520.4" x2="520.4" y1="85.4" y2="76.8" stroke="#222"/>
+<rect x="560.9" y="75.3" width="11.3" height="14.3" fill="#2e8b57"/>
+<line x1="566.6" x2="566.6" y1="76.1" y2="74.6" stroke="#222"/>
+<rect x="607.1" y="75.1" width="11.3" height="14.5" fill="#2e8b57"/>
+<line x1="612.7" x2="612.7" y1="75.8" y2="74.4" stroke="#222"/>
+<rect x="380" y="382" width="10" height="10" fill="#2e8b57"/><text x="395" y="391" font-family="sans-serif" font-size="11">eps 0.020</text>
+</svg>

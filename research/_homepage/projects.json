@@ -1663,6 +1663,11 @@
      "summary": "A stylised, mixed follow-up to <em>ambient-drablate</em>: averaging the cap-selection score over 5 random fold assignments (instead of one) with an uninformed prior, 20 seeds. At &epsilon; = 0.02 it lifts the IPS-score selector from 3.5 to 5.3 utility/h and halves its seed spread; at smaller &epsilon; it changes nothing beyond noise. Single-assignment results differ from the earlier project's, showing how much one fold permutation can matter. Every selector stays far below the label-matched control (about 12). Simulated and stylised only."
     },
     {
+     "slug": "ambient-exploreonly",
+     "title": "Does fitting only on the windows an assistant explored at random fix learning from its own feedback?",
+     "summary": "A stylised follow-up to <em>ambient-labelmatch</em> and the reweighting and doubly robust fixes after it. The deployed learner already draws a random sample for free: the windows it spoke on only because its &epsilon; coin came up. Fitting on those windows alone, unweighted, reaches 11.99 utility/h at &epsilon; = 0.02 and 12.25 at 0.05 with an uninformed prior, against &minus;13.08 and &minus;71.85 for the fit on every spoken window (oracle 12.71; 20 seeds), and as a learner it earns 6.49/h online at &epsilon; = 0.005 against &minus;2.04. Exploration costs dismissals (online utility falls at larger &epsilon;), and with an informed prior the plain fit is better at small &epsilon;. Stylised simulation only."
+    },
+    {
      "slug": "ambient-wearable",
      "title": "What limits the battery life of a pendant-style always-on audio wearable?",
      "summary": "A stylised average-current model for an nRF52840-class pendant with a 150 mAh cell, built from a few vendor figures read on 2026-10-13 plus labelled assumptions. The always-on microphone is the floor (about 170 h alone); gating codec and radio on speech at a 30% speech fraction gives about 105 h against 59 h for always streaming. A 74-byte energy-gate routine compiles for Cortex-M4. Nothing is measured on hardware, the datasheets were not read in full and there is no numeric comparison with Omi."
@@ -2039,6 +2044,11 @@
      "summary": "A stylised, preliminary follow-up to <em>garment-twonodeheld</em>. The skin-temperature gate band is retuned by exhaustive grid search for each actuation lag (0, 2, 5, 10&nbsp;min) and each cost per switch (0, 0.01, 0.03&nbsp;C), then scored on held-out rooms. A 10&nbsp;min lag cuts the tuned gate&rsquo;s gain over never switching from 0.23 to 0.15&nbsp;C (&ldquo;between&rdquo; rooms, this repository&rsquo;s choice set). A switch penalty widens the band and removes the chatter. The tuned band is not always better: under the reference choice set it loses to the untuned band by up to 0.035&nbsp;C in 3 of 24 cells, and once to never switching (0.052&nbsp;C). Six training and eight held-out scenarios, assumed lags and penalties, one model; no real fabric or person."
     },
     {
+     "slug": "garment-twonodeprop",
+     "title": "Does a proportional infrared-gating textile beat the on/off thermostat gate?",
+     "summary": "A stylised, preliminary, <em>negative</em> follow-up to <em>garment-twonodelag</em>. A transmittance that ramps linearly with skin temperature is tuned by exhaustive search (72 bands) for each actuation lag (0 to 10&nbsp;min) and scored on held-out rooms against the tuned on/off gate. Proportional wins in 5 of 16 cells and every difference is within 0.010&nbsp;C: the search picks bands only 0.1 to 0.2&nbsp;C wide, i.e. nearly on/off. Forcing a softer ramp (at least 1.4&nbsp;C wide) costs 0.02 to 0.07&nbsp;C. Switching is free in this run, so a switch penalty could change the answer. Six training and eight held-out scenarios; no real fabric or person."
+    },
+    {
      "slug": "garment-twonodeopt",
      "title": "How far is the thermostat-driven infrared-gating textile from the best possible switching schedule when the room temperature steps?",
      "summary": "A stylised, preliminary follow-up to <em>garment-twonodestep</em>. Exhaustive search over open/closed schedules (at most 3 toggles on a 10&nbsp;min grid, instant actuation) in the switchable two-node model, scored by mean |skin temperature &minus; 33.7&nbsp;C| (a proxy, not a comfort index). One toggle is enough (more improve the score by at most 0.001&nbsp;C). The best toggle is not always at the step: it is early or late after a step down. The gate is within 0.02&nbsp;C of the optimum after a step up but 0.06&ndash;0.11&nbsp;C away after a step down (0.18 with 10&nbsp;min lag in one case). One person, two assumed transmittances, a coarse grid; not a claim about any real garment."
@@ -2225,6 +2235,18 @@
      "slug": "swe-prflow",
      "title": "What do 526 closed pull requests say about how the agent loop lands work?",
      "summary": "A stdlib analysis of the creation and merge times of every closed PR here (#1 to #526). 87.5% merged (Wilson 84.3&ndash;90.0%), falling from 93.8% for PRs opened by 10-01 to 81.2% from 10-05 on. Median time to merge is 0.6 minutes, 4.3% of merges happen in four same-second batches after long waits, and PRs opened within 10 seconds of another merged only 60% of the time against 92% for the rest. The last is an association, not a cause. No CI, review or closure-reason data, and the timestamps were hand-transcribed. Preliminary third step of track 10."
+    }
+   ]
+  },
+  {
+   "id": "mimic",
+   "name": "Adversarial human imitation",
+   "blurb": "Can a frozen language model be prompted to write like people, against a detector that is also only prompted? The context suite, the reference detectors and the game loop.",
+   "projects": [
+    {
+     "slug": "mimic-contexts",
+     "title": "How well do prompt-free detectors tell people from a plainly prompted LLM, and do they carry over to unseen kinds of text?",
+     "summary": "Eight text families from RAID (300 human and 300 plain-prompt chat-LLM texts each), split by family: train on five, hold out poetry, reviews and wiki. Prompt-free detectors on the held-out families: character/word n-gram logistic regression AUROC 0.93 (95% interval 0.91&ndash;0.94), a Binoculars-style zero-shot score from Qwen2.5-0.5B 0.80 (0.77&ndash;0.83), perplexity alone 0.76; a length-only detector is at chance (0.52). Zero-shot scores are weak on mpt-chat text (0.65) while n-grams are not (0.95). Limits: the &lsquo;imitator&rsquo; is RAID&rsquo;s own chat generations, not a prompted or optimised one; three chat models; no author-group labels for fairness checks. Preliminary: first step of track 11, no game yet."
     }
    ]
   }

@@ -28,15 +28,18 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 5,
-  "outcome": "shipped forecast feature; mirror regenerated; marketing+pages suites 1298 pass",
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "CLAUDE.md checklist: regen.mjs and the marketing/pages test run each exceed the 120s default tool timeout; worth noting to run in background."
+    {
+      "file": "CLAUDE.md",
+      "issue": "regen.mjs and the marketing/pages test run each exceed the 120s default tool timeout; run them in the background."
+    }
   ],
   "deviations": [],
   "goal": null,
-  "notes": "session_gate also reported stale published snapshot; not refreshed this run.",
+  "notes": "Shipped forecast feature, mirror regenerated, marketing+pages suites 1298 pass. Published snapshot (session_gate) not refreshed this run.",
   "corrections": [],
   "redteam": null
 }
