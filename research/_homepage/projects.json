@@ -1255,8 +1255,8 @@
      "slug": "sag-twin",
      "title": "A battery twin with no internal resistance: how much endurance and how large a burst does the real, sagging cell actually give?",
      "summary": "A UAV battery twin that keeps the open-circuit voltage curve but drops the series resistance overstates endurance by exactly 1/&eta;(<em>u</em>) with &eta; = (1&nbsp;+&nbsp;&radic;(1&minus;<em>u</em>))/2 (up to 2&times; at the maximum-power fold, beyond which the real cell cannot deliver the power at all while the twin still quotes an endurance). With droop and a voltage cutoff, real/twin endurance is 0.86, 0.57, 0.30 at normalised power 0.2, 0.4, 0.6 and 9%, 37%, 66% of the charge is stranded. The deliverable burst power falls linearly with charge, so a burst of 0.5 fails below 51% charge where the twin's floor is zero, a flat 20% reserve covers only a third of the full-charge limit, and keeping a 0.6 burst deliverable leaves 35% of the twin's cruise time. A constant derate fitted at one power errs by +12% to +473% elsewhere, but the resistance is identified to 1&ndash;2% from tens of voltage&ndash;current samples, and a full-charge fit misses resistance that grows as the cell empties (endurance +42% to +85% too high). Stylised: simulated cell, linear curves, constant-power load, no polarisation or self-heating."
-    }
-    ,{
+    },
+    {
      "slug": "free-c2stpower",
      "title": "How many real trajectories does a classifier two-sample test need to reject a wrong digital twin, compared with a paired error test?",
      "summary": "Follow-up to <code>mimic-twinc2st</code> on a stylised pendulum (Coulomb friction, Student-t sensor noise). The rejection threshold is the 95th percentile of the exact twin&rsquo;s own null, and power is the share of replicates above it. For a Coulomb error of 20% the paired error test (same start angles, noisy real vs noise-free twin) has power 0.76 at 50 trajectories and 0.98 at 100, while the boosted-tree C2ST has 0.04 and 0.25 and needs about 200 to reach 1.00. For a 10% error the paired test stalls at 0.09&ndash;0.20 for every <em>n</em> up to 800 (a plausible but untested cause: the squared heavy-tailed noise has infinite variance), while the C2ST reaches 0.62 at 200 and 1.00 at 400. For Gaussian instead of Student-t noise of the same sd the paired test has power 0.04&ndash;0.07 at every <em>n</em>, the C2ST with second-difference features 0.92 at 50. Caveat: the null threshold comes from 60 replicates, and a check on fresh null replicates falsely rejected 0&ndash;29% of the time (nominal 5%), so power at small <em>n</em> is approximate. Stylised, simulated, 24 replicates per cell."
@@ -1875,20 +1875,17 @@
      "slug": "simdesign-coverweight",
      "title": "Does weighting parts by mass change which shop process, and which machine, matters?",
      "summary": "Follow-up to <code>simdesign-processcover</code>: coverage of a sampled bracket family by FDM, CNC, laser and casting, with each part weighted by arm volume (a same-material mass proxy) instead of counted equally. With a tip load, FDM alone covers 0.30 of parts by count and 0.58 by mass, casting 0.22 and 0.46, laser 0.18 either way, and the laser-versus-CNC order flips. At budgets 600&ndash;800 on one seed, exhaustive search picks the laser cutter by count but the casting setup by mass; for the large-part family at 800 it picks the CNC router by count and casting by mass. Stylised: assumed rules and prices, one density, single-seed machine choice. Simulated only."
-    }
-    ,
+    },
     {
      "slug": "simdesign-flipseeds",
      "title": "Do the mass-weighting machine-choice flips of simdesign-coverweight survive across seeds?",
      "summary": "Follow-up to <code>simdesign-coverweight</code>, whose machine-choice flips between count and mass weighting came from one seed. Over 20 fresh seeds of 20&thinsp;000 sampled brackets and three assumed machines, family <code>log</code> picks the laser cutter by count but the casting setup (or, in 2 seeds at 800, the CNC router) by mass in 20 of 20 seeds at budgets 600 to 800 (95% Wilson interval 0.84 to 1.00; about 2.1 points of mass-weighted coverage given up), family <code>large</code> flips only at budget 800 (20 of 20), and <code>small</code> never flips. The <code>log</code> flips at 1100 and 1400 split 10 of 20 but lose at most 0.26 points, a near-tie. The intervals cover sampling noise only; rules, prices and the volume mass proxy are assumptions. Stylised; simulated only."
-    }
-    ,
+    },
     {
      "slug": "simdesign-pricebands",
      "title": "How wide are the budget bands where mass weighting changes the machine choice when prices are uncertain?",
      "summary": "Follow-up to <code>simdesign-flipseeds</code>, whose count-vs-mass machine-choice flips sat exactly on thresholds set by assumed round prices. Machine prices (800, 600, 300) are scaled by independent U(1&minus;s, 1+s) factors, 400 draws over 8 samples of 20&thinsp;000 sampled brackets. For family <code>log</code> the flip band widens from budgets 600&ndash;800 to 500&ndash;1000, but its edges soften to about one half; <code>large</code>'s single nominal flip at 800 appears in 44% of draws at s = 0.2 and spills to 700 and 900; <code>small</code> never flips. Near-tie flips never lose more than 0.5 points. Stylised: assumed prices and rules, uniform independent noise, arbitrary 0.5-point materiality threshold."
-    }
-    ,
+    },
     {
      "slug": "simdesign-processcover",
      "title": "Which share of a bracket family can each shop process make, and which machine should a shop add next?",
@@ -2256,6 +2253,11 @@
      "slug": "osrobot-bodysearch",
      "title": "Does searching an arm&rsquo;s joint count, link lengths and mount, with its controller tuned in the loop, beat a fixed three-link body at the same cost?",
      "summary": "A stdlib model searches link lengths, joint count and mount position of a planar arm, with its inverse-kinematics controller tuned in the loop, against a fixed three-link body at an equal cost budget (300 evaluations, 10 seeds, held-out targets). On a shelf task that needs the tool pointing down, the search reaches 0.95 success against 0.26 for the fixed body with a tuned controller and 0.50 with the mount also tuned; on a long position-only reach the fixed body already succeeds and the search adds nothing. Random search beat a (1+4) evolution strategy here, weakly. Stylised: kinematics and static torque only (no MuJoCo dynamics), and every cost, mass and limit is assumed."
+    },
+    {
+     "slug": "osrobot-uav",
+     "title": "How heavy must a purpose-built UAV for targeted observation be, and when does a hover-capable airframe stop being worth its weight?",
+     "summary": "A stdlib mass-closure sizing model closes a quadrotor, a fixed wing and a fixed wing with a vertical-lift system for the same mission, choosing rotor diameter or wing area for least mass. For 3&nbsp;km out, 20&nbsp;min on station and a 0.5&nbsp;kg payload the plain fixed wing is lightest (1.27&nbsp;kg), against 2.14&nbsp;kg for the quadrotor and 2.08&nbsp;kg for the VTOL wing. The quadrotor does not close at 45&nbsp;min on station; the VTOL wing is lighter than it from 30&nbsp;min or beyond about 10&nbsp;km. Stylised: every technology constant is assumed, no flight stack was run, and a fixed wing cannot hover or launch unaided."
     }
    ]
   },
@@ -2315,6 +2317,11 @@
      "slug": "mimic-contexts",
      "title": "How well do prompt-free detectors tell people from a plainly prompted LLM, and do they carry over to unseen kinds of text?",
      "summary": "Eight text families from RAID (300 human and 300 plain-prompt chat-LLM texts each), split by family: train on five, hold out poetry, reviews and wiki. Prompt-free detectors on the held-out families: character/word n-gram logistic regression AUROC 0.93 (95% interval 0.91&ndash;0.94), a Binoculars-style zero-shot score from Qwen2.5-0.5B 0.80 (0.77&ndash;0.83), perplexity alone 0.76; a length-only detector is at chance (0.52). Zero-shot scores are weak on mpt-chat text (0.65) while n-grams are not (0.95). Limits: the &lsquo;imitator&rsquo; is RAID&rsquo;s own chat generations, not a prompted or optimised one; three chat models; no author-group labels for fairness checks. Preliminary: first step of track 11, no game yet."
+    },
+    {
+     "slug": "mimic-loop",
+     "title": "Can prompt search alone move a frozen 0.5B imitator past a prompted 0.5B detector, and which proposer does it best at equal budget?",
+     "summary": "A first, stylised run of the imitation game: Qwen2.5-0.5B-Instruct as imitator and detector, only prompts change, alternating rounds on two families (reddit, reviews) with four proposers (random, GA, GrIPS-style, local-LLM) at 4 evaluations per side per round. The plain detector starts <em>below</em> chance (paired accuracy 0.12), the final detectors reach 0.12&ndash;0.58 on 24 test pairs with intervals of about &plusmn;0.2, and the proposers cannot be ranked. Length is a major confound: imitators that wrote longer texts fooled the detector more. One seed; a harness and a first look, not a detection result."
     },
     {
      "slug": "mimic-twinc2st",
