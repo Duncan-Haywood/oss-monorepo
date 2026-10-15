@@ -51,3 +51,6 @@ None; nothing was built or ordered. A physical test would need a priced bill of 
 The `mujoco` and `numpy` packages (pip); no language model, key or hardware. Produced with AI assistance (Claude).
 
 MIT.
+
+## Figure
+`python3 experiments/figure.py` plots the minimum grip force against offset from the committed `experiments/results.json` and writes `experiments/force.png` (needs matplotlib; no new results).
