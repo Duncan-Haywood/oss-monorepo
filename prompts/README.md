@@ -7,7 +7,7 @@ prompt.md                  master prompt: route, work, record, improve
 prompts/goals.md           goals, guardrails and how a run is scored (owner-owned)
 prompts/routing.json       tracks, their weights, champion and candidate versions
 prompts/<track>/prompt-<n>.md
-                           sub-prompts: ventures, research, process, review
+                           sub-prompts: ventures, research, process, explore, review
 prompts/runs/*.json        one record per run
 prompts/process/reports/   one process study per file (the process track)
 prompts/experiments.md     every change the review track makes, and its result
@@ -24,7 +24,8 @@ prompts/promptctl.py       route | record | measure | validate
    candidate. The `process` track takes about 5% of draws: it studies the
    development process (quality, errors, rework) and writes a report with
    recommendations under `prompts/process/reports/`. A session with a specific task picks the track itself
-   (`--track`).
+   (`--track`). The `explore` track also takes about 5%: free choice,
+   Google "20% time" style, where the agent picks the work.
 2. **Work.** The session follows the sub-prompt, and every commit carries
    `Prompt-Version: <track>/<n>`. That trailer ties a version, a model and a
    session together in git history.

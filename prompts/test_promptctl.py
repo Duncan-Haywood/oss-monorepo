@@ -249,6 +249,12 @@ class RepositoryTest(unittest.TestCase):
         r = promptctl.route(promptctl.ROOT, rng=random.Random(0))
         self.assertTrue((promptctl.ROOT.parent / r["path"]).is_file())
 
+    def test_free_choice_gets_about_five_percent(self):
+        # The owner's request: about 5% of effort is the agent's own choice.
+        tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
+        weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
+        self.assertAlmostEqual(weights["explore"] / sum(weights.values()), 0.05, places=3)
+
 
 if __name__ == "__main__":
     unittest.main()
