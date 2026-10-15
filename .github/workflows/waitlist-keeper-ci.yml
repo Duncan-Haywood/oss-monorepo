@@ -1,0 +1,51 @@
+name: waitlist-keeper CI
+
+# Test runner for the self-hosted waitlist. The
+# product is static ES modules with no build step and no dependencies, so
+# this does no more than a contributor runs locally: `node --test`. It
+# publishes nothing, registers nothing, and spends no API budget -- it is
+# not the unattended-automation kind of workflow CLAUDE.md gates.
+#
+# Same shape as solo-401k-contribution-calculator-ci.yml.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/waitlist-keeper/**"
+      - ".github/workflows/waitlist-keeper-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/waitlist-keeper/**"
+      - ".github/workflows/waitlist-keeper-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: waitlist-keeper-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site-test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ventures/waitlist-keeper
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test
+      # PRODUCT_PLAYBOOK.md 5b requires a no-warranty clause on every published
+      # page, and it is the half build.mjs cannot inject: what a tool is not
+      # advice *about* is written in the venture's own voice. Checked here so
+      # the venture that needs the clause is the one that goes red, before the
+      # merge, rather than the Pages job on main after it.
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs waitlist-keeper

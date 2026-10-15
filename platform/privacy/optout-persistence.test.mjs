@@ -1682,7 +1682,10 @@ const RELATIVE_SELF = relative(
 // +1: `dunning-engine` graduated.
 // +1: `cancel-flow` graduated.
 // +1: `webhook-relay` graduated.
+<<<<<<< HEAD
 // +1: `rev-rec` graduated.
+=======
+>>>>>>> origin/main
 const SWITCHES_IN_THE_CATALOGUE = 1216;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
