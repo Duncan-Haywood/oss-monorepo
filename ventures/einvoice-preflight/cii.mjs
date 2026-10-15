@@ -107,6 +107,10 @@ function partyFrom(tradeParty) {
     if (email) contact.email = email;
     if (Object.keys(contact).length) mapped.contact = contact;
   }
+  const legalId = firstChild(firstChild(tradeParty, "SpecifiedLegalOrganization"), "ID");
+  if (legalId && (legalId.text || "").trim()) {
+    mapped.legal_id = { id: legalId.text.trim(), scheme: legalId.attrs && legalId.attrs.schemeID ? String(legalId.attrs.schemeID).trim() : "" };
+  }
   const uri = firstChild(firstChild(tradeParty, "URIUniversalCommunication"), "URIID");
   if (uri) {
     const id = (uri.text || "").trim();
@@ -270,5 +274,10 @@ export function parseCiiInvoice(source) {
 
   const payment = paymentFrom(settlement);
   if (payment) invoice.payment = payment;
+  const notes = [
+    ...descendants(header || { name: "", children: [] }, "IncludedNote").map((note) => nestedText(note, "Content")),
+    ...descendants(settlement || { name: "", children: [] }, "SpecifiedTradePaymentTerms").map((terms) => nestedText(terms, "Description")),
+  ].filter(Boolean);
+  if (notes.length) invoice.notes = notes;
   return invoice;
 }

@@ -4,7 +4,8 @@
 //                            Factur-X PDF). Content-Type picks the filename
 //                            extension; ?name=invoice.xml overrides it.
 //     add ?profile=xrechnung to also apply the German BR-DE rules (XR-nnn),
-//     or ?profile=peppol for the Peppol BIS Billing 3.0 rules (PP-nnn)
+//     or ?profile=peppol for the Peppol BIS Billing 3.0 rules (PP-nnn),
+//     or ?profile=france for the French SIREN and payment-mention rules (FR-nnn)
 //   POST /v1/validate/batch  {"documents":[{"name","content","encoding"?}]}
 //                            encoding "base64" is for PDFs; default is text.
 //   POST /v1/generate        {"draft":{...},"format":"ubl"|"cii","profile":"xrechnung"|
@@ -37,7 +38,7 @@ function intEnv(env, key, fallback) {
 
 function profileFrom(url) {
   const profile = url.searchParams.get("profile");
-  return profile === "xrechnung" || profile === "peppol" ? profile : "";
+  return profile === "xrechnung" || profile === "peppol" || profile === "france" ? profile : "";
 }
 
 export function loadConfig(env = process.env) {

@@ -191,6 +191,7 @@
     <p>Not sure which e-invoicing deadline applies to you? The <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a> shows receive and issue dates by country.</p>
     <label><input id="xrechnung" type="checkbox" style="width:auto"> Also apply the German XRechnung rules (BR-DE, Leitweg-ID check digits) &mdash; for invoices to German public bodies</label><br>
     <label><input id="peppol" type="checkbox" style="width:auto"> Also apply the Peppol BIS Billing 3.0 rules (business process, specification id, electronic addresses) &mdash; for invoices sent through a Peppol access point</label><br>
+    <label><input id="france" type="checkbox" style="width:auto"> Also apply the French rules (SIREN/SIRET check digits, late-penalty, 40&nbsp;&euro; recovery indemnity and early-payment-discount mentions) &mdash; for invoices to French buyers under the 2026 e-invoicing reform</label><br>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
@@ -422,7 +423,7 @@
         downloadRemediationCsv.disabled = true;
         return;
       }
-      const result = await preflightDocuments(inputs, { profile: document.getElementById("xrechnung").checked ? "xrechnung" : document.getElementById("peppol").checked ? "peppol" : "" });
+      const result = await preflightDocuments(inputs, { profile: document.getElementById("xrechnung").checked ? "xrechnung" : document.getElementById("peppol").checked ? "peppol" : document.getElementById("france").checked ? "france" : "" });
       render(result);
       for (const report of result.reports) {
         recordUsage(localStorage, optedOut(), "invoice_preflight_checked");
