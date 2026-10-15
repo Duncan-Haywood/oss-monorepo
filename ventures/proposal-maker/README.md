@@ -12,7 +12,7 @@ proposals are stored in `localStorage` on your device and never uploaded.
 - Pricing: fixed price, good-better-best options, hourly with a not-to-exceed cap, or a monthly retainer; one tax rate
 - Deposit and payment milestones as percentages; the final balance is the remainder so the schedule always adds up
 - Assumptions, and template clauses (change orders, revisions, client responsibilities, payment, ownership, cancellation) that follow the numbers you enter
-- Validity date and an acceptance block with signature lines; print or save as PDF (print stylesheet shows only the proposal)
+- Validity date and an acceptance block with signature lines; print or save as PDF (print stylesheet shows only the proposal), or download a single self-contained HTML file to email
 - Saved proposals with draft / sent / accepted / declined (and a derived "expired"), duplicate, win rate, CSV and JSON backup and restore
 - "To estimate" on an accepted proposal adds the pricing as a draft in [Estimate Maker](../estimate-maker/) on the same device
 - All money maths in integer cents (`calc.mjs`); deterministic, no network, all user text escaped
