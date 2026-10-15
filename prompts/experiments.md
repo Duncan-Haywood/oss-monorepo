@@ -38,6 +38,24 @@ Entry format:
   step 1), and compares everything later against this.
 - Result: (first review)
 
+## E1: Mirror with one writer, archive rather than delete (2026-10-14, owner-directed, PR https://github.com/Duncan-Haywood/oss-monorepo/pull/6984)
+- Change: a direct edit, not a candidate, made at the owner's request to keep
+  the two repositories mirrored with no history loss.
+  - `prompts/research/prompt-0.md` and `prompts/ventures/prompt-0.md`: until
+    cutover, research work lands upstream, and keeping the mirror current is
+    standing work. Mirror PRs merge with a merge commit.
+  - `research/_mirror/README.md` and `research/CLAUDE.md`: the upstream
+    repository is archived at cutover, never deleted.
+  - `land-your-work.md`: names the mirror-PR exception to squash-merging.
+- Why: the research track routes 50% of runs here, and `mirror.py sync`
+  deletes files under the mirrored area that upstream lacks. So a project
+  built here before cutover would disappear at the next sync. Deleting the
+  upstream repository would also lose its pull requests, review threads and
+  branches.
+- Measure: research-track runs here that touch `research/` outside a sync
+  (target 0), and `mirror.py check` on `main`.
+- Result: (next review)
+
 ## Proposals for the owner
 
 Changes to `prompts/goals.md` that a review thinks are warranted, with the
