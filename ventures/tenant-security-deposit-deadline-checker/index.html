@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Security Deposit Deadline Checker</title>
+  <meta name="description" content="Free tool for tenants: pick your state, enter your move-out date and deposit, and see when your landlord's deadline to return it ran out, what the statute says about late landlords, and a demand letter you can edit and send. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Is my landlord late returning my security deposit? Free deadline check and letter">
+  <meta property="og:description" content="State-by-state deposit return deadlines with the statute cited, and a demand letter that fills itself in. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Security Deposit Deadline Checker", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Shows when a landlord's deadline to return a security deposit ran out in 19 US jurisdictions, cites the statute, and drafts a demand letter. Runs in the browser."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How long does a landlord have to return a security deposit?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the state: 14 days in New York, 21 in California and Washington, 30 in Texas, Georgia, Massachusetts, New Jersey, Ohio and Pennsylvania, and 45 in Maryland, Virginia and Washington, D.C. This page lists the period for each state it covers with the statute, and counts from your move-out date."}}, {"@type": "Question", "name": "What if my landlord missed the deadline?", "acceptedAnswer": {"@type": "Answer", "text": "Many states let a tenant recover the deposit plus a penalty, often two or three times the amount wrongfully withheld, and some say a landlord who misses the deadline loses the right to keep any of it. A written demand is the usual first step before a small-claims filing. This page drafts one; a court decides whether any penalty applies."}}, {"@type": "Question", "name": "Do I have to give a forwarding address?", "acceptedAnswer": {"@type": "Answer", "text": "In some states, including Texas, Ohio, Pennsylvania, Michigan and Minnesota, the landlord's clock depends on you giving a forwarding address in writing. If you have not, this page says so and drafts a letter that gives it."}}, {"@type": "Question", "name": "Can a landlord keep money for normal wear and tear?", "acceptedAnswer": {"@type": "Answer", "text": "Generally no: ordinary wear from living in a place is not a lawful deduction in most states, but unpaid rent and damage beyond normal wear usually are. The dispute letter this page writes asks the landlord to justify each deduction with receipts."}}, {"@type": "Question", "name": "Is what I type uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b2330; background: #f2f5f8; }
+    body { max-width: 900px; margin: auto; padding: 28px; }
+    a { color: #1d4f91; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.1; margin: 0 0 14px; color: #12335d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #12335d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5568; }
+    .card { background: #fff; border: 1px solid #d9e1ea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #12335d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b7c4d4; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f91; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #12335d; }
+    .headline { font-size: 1.2rem; font-weight: 700; color: #12335d; }
+    .headline.bad { color: #9a3412; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fcfdff; border: 1px solid #d9e1ea; border-radius: 8px; padding: 18px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9e1ea; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FOR TENANTS · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your landlord late returning your security deposit?</h1>
+    <p>Pick your state, enter the date you moved out and the deposit you paid. The page shows <strong>the day your landlord's deadline ran out</strong>, the statute it comes from, what that statute says about a landlord who misses it, and <strong>a demand letter that fills itself in</strong>.</p>
+    <p class="note">General information, not legal advice. State rules change and cities can add their own; read the statute named in the result and check it before you rely on it.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your situation</h2>
+    <div class="grid">
+      <div><label for="state">State</label><select id="state"></select></div>
+      <div><label for="deposit">Deposit you paid ($)</label><input id="deposit" inputmode="decimal" placeholder="1800"></div>
+      <div><label for="moveout">Move-out date (keys returned)</label><input id="moveout" type="date"></div>
+      <div><label for="today">Today</label><input id="today" type="date"></div>
+      <div><label for="forwarding">Date you gave a forwarding address (if you did)</label><input id="forwarding" type="date"></div>
+      <div><label for="returned">Amount returned so far ($)</label><input id="returned" inputmode="decimal" placeholder="0"></div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="itemized"><label for="itemized">I received an itemized statement of deductions</label></div>
+    <h3>For the letter (optional)</h3>
+    <div class="grid">
+      <div><label for="tenant">Your name</label><input id="tenant"></div>
+      <div><label for="landlord">Landlord or property manager</label><input id="landlord"></div>
+      <div><label for="address">Rental address</label><input id="address"></div>
+      <div><label for="fwdaddr">Address to send the money</label><input id="fwdaddr"></div>
+    </div>
+    <label for="disputed">Deductions you dispute (if you got a statement)</label>
+    <textarea id="disputed" rows="3" placeholder="Carpet cleaning $250 (normal wear); paint $400 (lived there 4 years)"></textarea>
+    <p><button type="button" id="go">Check my deadline</button> <button type="button" class="secondary" id="example">Load an example</button></p>
+    <p class="note" id="status">Fill in the state, deposit and dates, then click Check my deadline.</p>
+  </section>
+
+  <section class="card" id="result" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="headline" id="headline"></p>
+    <p id="facts"></p>
+    <div id="notes"></div>
+    <h3>What the statute says about a landlord who misses it</h3>
+    <p id="penalty"></p>
+    <h3>Your letter</h3>
+    <pre class="letter" id="letter"></pre>
+    <p><button type="button" id="copy">Copy letter</button> <button type="button" class="secondary" id="dl">Download letter (text)</button></p>
+    <p class="note">Send it in a way that leaves proof (certified mail or email with a read receipt) and keep a copy, photos of the unit at move-out, and your lease.</p>
+  </section>
+
+  <section class="card">
+    <h2>What it applies, and what it leaves out</h2>
+    <ul>
+      <li><strong>Deadlines:</strong> the number of days (or months) each statute gives the landlord after you move out, counted from your move-out date, or from the day you gave a forwarding address where the state expects one.</li>
+      <li><strong>Covered:</strong> Arizona, California, Colorado, District of Columbia, Florida, Georgia, Massachusetts, Maryland, Michigan, Minnesota, North Carolina, New Jersey, New York, Ohio, Oregon, Pennsylvania, Texas, Virginia and Washington. Other states are not modelled.</li>
+      <li><strong>Not decided:</strong> whether a particular deduction is lawful, whether a penalty applies or how much, local ordinances (some cities have their own rules, for example for interest or earlier deadlines), rules for different property types, lease clauses, and whether your landlord's address for notices is the one you used. Public holidays are not skipped in business-day counts. Statute summaries were last reviewed in October 2026; check the current text.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How long does a landlord have to return a security deposit?</h3>
+    <p>It depends on the state: 14 days in New York, 21 in California and Washington, 30 in Texas, Georgia, Massachusetts, New Jersey, Ohio and Pennsylvania, and 45 in Maryland, Virginia and Washington, D.C. This page lists the period for each state it covers with the statute, and counts from your move-out date.</p>
+    <h3>What if my landlord missed the deadline?</h3>
+    <p>Many states let a tenant recover the deposit plus a penalty, often two or three times the amount wrongfully withheld, and some say a landlord who misses the deadline loses the right to keep any of it. A written demand is the usual first step before a small-claims filing. This page drafts one; a court decides whether any penalty applies.</p>
+    <h3>Do I have to give a forwarding address?</h3>
+    <p>In some states, including Texas, Ohio, Pennsylvania, Michigan and Minnesota, the landlord's clock depends on you giving a forwarding address in writing. If you have not, this page says so and drafts a letter that gives it.</p>
+    <h3>Can a landlord keep money for normal wear and tear?</h3>
+    <p>Generally no: ordinary wear from living in a place is not a lawful deduction in most states, but unpaid rent and damage beyond normal wear usually are. The dispute letter this page writes asks the landlord to justify each deduction with receipts.</p>
+    <h3>Is what I type uploaded anywhere?</h3>
+    <p>No. It is calculated in your browser and nothing is sent.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a lawyer, a tenant-rights organisation or your court's self-help centre. Statutes change and their application depends on facts this page does not know. <strong>You are responsible for checking every date, figure and sentence before you send anything</strong>. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any government, court or landlord organisation.</strong> This tool is independent; it is not sponsored or endorsed by any state agency, court or housing authority.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Nothing you type is uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>deadline_checked</code>, <code>example_loaded</code>, <code>letter_copied</code>, <code>letter_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../security-deposit-return-calculator/">security deposit return calculator</a> (what a landlord may deduct), the <a href="../rent-increase-notice-checker/">rent increase notice checker</a> and the <a href="../rent-vs-buy-breakeven-calculator/">rent vs buy breakeven calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { check, letterText, summaryText, STATES, STATE_CODES, SAMPLE, isoDay, dollars, longDay } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#state").innerHTML = STATE_CODES.map((c) => `<option value="${c}">${esc(STATES[c].name)}</option>`).join("");
+    $("#today").value = new Date().toISOString().slice(0, 10);
+    let lastLetter = "";
+
+    const read = () => ({
+      state: $("#state").value, deposit: $("#deposit").value, moveOut: $("#moveout").value, today: $("#today").value,
+      forwardingGiven: $("#forwarding").value, returned: $("#returned").value, itemized: $("#itemized").checked,
+      tenant: $("#tenant").value.trim(), landlord: $("#landlord").value.trim(), address: $("#address").value.trim(),
+      forwardingAddress: $("#fwdaddr").value.trim(), disputed: $("#disputed").value.trim(),
+    });
+    const write = (v) => {
+      $("#state").value = v.state; $("#deposit").value = v.deposit; $("#moveout").value = v.moveOut; $("#today").value = v.today;
+      $("#forwarding").value = v.forwardingGiven || ""; $("#returned").value = v.returned; $("#itemized").checked = !!v.itemized;
+      $("#tenant").value = v.tenant || ""; $("#landlord").value = v.landlord || ""; $("#address").value = v.address || ""; $("#fwdaddr").value = v.forwardingAddress || "";
+    };
+    function run() {
+      const input = read();
+      const r = check(input);
+      if (!r.ok) { $("#status").textContent = r.errors.join(" "); $("#result").hidden = true; return; }
+      $("#headline").textContent = r.headline;
+      $("#headline").className = "headline" + (r.status === "overdue" || r.status === "late-with-statement" ? " bad" : "");
+      $("#facts").textContent = `${r.stateName}: ${r.cite}. Deposit ${dollars(r.deposit)}, returned ${dollars(r.returned)}, outstanding ${dollars(r.withheld)}.`;
+      $("#notes").innerHTML = r.notes.map((n) => `<p class="note">${esc(n)}</p>`).join("");
+      $("#penalty").textContent = r.penaltyText.charAt(0).toUpperCase() + r.penaltyText.slice(1) + "." + (r.exposureCents ? ` For scale only: ${r.multiplier}× ${dollars(r.withheld)} is ${dollars(r.exposureCents)}. A court decides whether any penalty applies.` : "");
+      lastLetter = letterText(r, input, input.today);
+      $("#letter").textContent = lastLetter || "No letter needed: the deadline has not passed and no statement has arrived. Check again after " + (r.deadline ? isoDay(r.deadline) : "you send your forwarding address") + ".";
+      $("#result").hidden = false;
+      $("#status").textContent = "Done. Review the dates and the letter before sending.";
+      $("#result").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    $("#go").addEventListener("click", () => { run(); record("deadline_checked"); });
+    $("#example").addEventListener("click", () => { write(SAMPLE); run(); record("example_loaded"); });
+    $("#copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText(lastLetter); $("#status").textContent = "Letter copied."; } catch { $("#status").textContent = "Copy failed; select the text and copy it."; } record("letter_copied"); });
+    $("#dl").addEventListener("click", () => {
+      if (!lastLetter) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lastLetter], { type: "text/plain" }));
+      a.download = "security-deposit-letter.txt"; a.click(); record("letter_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

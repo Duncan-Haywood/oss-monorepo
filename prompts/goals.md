@@ -22,6 +22,18 @@ and one platform that runs them:
 - **The platform** (`platform/`, `portfolio/`, `prompts/`): the agents,
   checks and prompts that do the work above. It exists to serve the two
   portfolios, not to grow on its own.
+- **Free choice** (about 5% of effort): in the spirit of Google's "20% time",
+  about one run in twenty works on whatever the agent finds most interesting,
+  with its own approach (`prompts/explore/`). Same guardrails, same bar.
+- **The web presence** (added 2026-10-14): one website, hosted on GitHub
+  (GitHub Pages), from which all of the work above can be easily checked out
+  visually. A visitor lands on one homepage and reaches every product and
+  every research project from it without reading the repository.
+  - **Every project and product has a home page by default**: a home or
+    marketing page that says what it is, who it is for and what it found or
+    does, with screenshots or figures, and links to try it, the code and the
+    write-up. That includes CLIs, servers, apps and research projects, not
+    only browser tools. A new project or product is not done without one.
 
 ## Long-term goal: a public face for everything
 
@@ -59,6 +71,11 @@ platform tools that have a reachable page linked from the home page.
 - **Owner-only actions stay with the owner:** moving money, registering
   accounts, publishing under the portfolio's public name, unattended
   automation that spends paid budget, and pasting secrets.
+- **Red team / blue team takes 5-10% of runs.** The `redteam` track's
+  weight in `routing.json` stays between 5% and 10% of the non-review
+  weight. `promptctl.py validate` fails outside that band. Seeded faults are
+  applied only through `prompts/redteam.py`, which restores the file, and a
+  mutant is never committed.
 
 ### Research guardrails
 
@@ -91,8 +108,10 @@ gain on a later one.
 2. **Success:** the run's pull request merged with CI green (or the local
    checklist when runners are starved) and its track's definition of done
    met: `PRODUCT_PLAYBOOK.md` for a venture, a complete README and passing
-   tests for a research project.
-3. **Errors:** CI failures before green, review findings, reverts or fix-ups
+   tests for a research project, and for both a home page on the GitHub
+   Pages site.
+3. **Errors:** escaped defects (a bug a red-team run finds on `main`),
+   CI failures before green, review findings, reverts or fix-ups
    within two weeks, abandoned runs, and leaked work. Leaked work is a branch
    or pull request a run pushed that was not on `main` 24 hours later.
 4. **Cost:** wall-clock minutes, tokens, and how much instruction text a run
@@ -108,6 +127,19 @@ gain on a later one.
 - **Research:** merged projects that pass the research guardrails and a
   quality audit: the code re-runs, the README numbers match its output, and
   every citation checks out.
+- **Explore:** merged work the agent chose itself, about 5% of runs. Judged
+  on the same success and integrity measures; the review also notes which
+  free-choice ideas graduated into a regular track.
+- **Red team / blue team:** the repository's **catch rate** (seeded faults
+  its tests catch, over non-equivalent faults seeded) rises over time, and
+  its **error rate** (real defects found per red-team run) falls. Every
+  escaped fault triaged as a gap gets a guard that `redteam.py rerun` proves
+  catches it, and every real defect found is patched or named in the PR.
+  `promptctl.py measure` reports both rates from the run records.
+- **Web presence:** every venture and every research project reachable,
+  with its own home page, from one GitHub-hosted homepage, and nothing on
+  `main` without a page. Deploy and link what exists before polishing the
+  design.
 - **Process:** about 5% of runs study how work gets done here (quality,
   errors, rework, duplicate and leaked work, what the checks catch) and
   write an analysis with ranked recommendations
