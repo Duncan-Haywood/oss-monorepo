@@ -1,0 +1,62 @@
+name: feedback-keeper
+description: >-
+  Self-hosted customer feedback board for software teams: voting, public
+  roadmap, changelog with Atom feed, duplicate detection as people type, merge
+  that keeps each vote once, and status-change emails. Browser duplicate finder
+  for an existing request list, plus a zero-dependency server with a one-click
+  Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and proven: Canny, Frill,
+# Featurebase, Upvoty and Productboard Portal serve SaaS teams, priced by
+# tracked users or seats; Fider is the open-source option (AGPL, Postgres).
+# The gap: small teams that want a voting board, roadmap and changelog without a
+# per-user fee, with duplicates handled instead of piling up. Fifth product for
+# the same buyer as dunning-engine, cancel-flow, mrr-pulse, license-keeper and
+# status-keeper (a small software seller). duplicate_check: quick-pick-survey
+# and proposal-maker are unrelated; no feedback-board venture existed.
+#
+# First visitor: indie SaaS founders on Indie Hackers, r/SaaS, r/selfhosted and
+# Hacker News asking "canny alternative", "self hosted feature request board",
+# "open source user feedback roadmap". Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup, a hosted copy under the deployer's own name, or GitHub
+# Sponsors are the paid steps; hosting under the public name and billing are
+# owner-gated.
+
+hypotheses:
+  - claim: >-
+      Small SaaS teams will paste their existing feature-request list into the
+      browser duplicate finder and then deploy the board, because the hosted
+      boards bill per tracked user and none of them shows the duplicates already
+      sitting in a spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Catching duplicates while a visitor types, instead of after the fact, is
+      what keeps vote counts trustworthy enough that founders prioritise by
+      them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a vote counted twice for one browser, or a moderated idea visible before approval; the vote and moderation paths come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/feedback-keeper/
+  analytics: null

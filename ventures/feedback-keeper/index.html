@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Feedback Keeper — Free Self-Hosted Feedback Board and Roadmap</title>
+  <meta name="description" content="A free, open-source alternative to Canny and Frill: a voting board, public roadmap and changelog that finds duplicate requests for you. Paste your existing feature requests below to see which ones are duplicates, in your browser, then run the server in your own account.">
+  <meta property="og:title" content="Feedback Keeper — a self-hosted feedback board that merges duplicates">
+  <meta property="og:description" content="Votes, roadmap, changelog, duplicate detection, status emails. MIT, one Node process, your data.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Feedback Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source customer feedback board for software teams: voting, roadmap, changelog with Atom feed, duplicate detection and status-change emails. Runs on your own server."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just use Canny, Frill, Featurebase or Fider?", "acceptedAnswer": {"@type": "Answer", "text": "Hosted boards are polished and quick to start, but they price by tracked users or seats and keep your customers' requests on their platform. Fider is open source too but is licensed AGPL and needs Postgres. Feedback Keeper is MIT, one Node process with a JSON state file, runs in your own account, and adds duplicate detection and trending sort out of the box. If a hosted board already works for you, keep it."}}, {"@type": "Question", "name": "How does duplicate detection work?", "acceptedAnswer": {"@type": "Answer", "text": "Every idea is turned into a TF-IDF vector over its title and details, and a new idea is compared with the board by cosine similarity. As someone types a title, the board suggests close matches so they vote instead of posting a copy, and you can merge existing duplicates, which keeps each vote once and carries over subscribers and comments. It is word-based, not semantic, so it catches reworded duplicates that share vocabulary and will miss ones that do not."}}, {"@type": "Question", "name": "Do voters need an account?", "acceptedAnswer": {"@type": "Answer", "text": "No. A first-party cookie holds a random id so each browser counts once per idea. That stops accidental double votes, not a determined person clearing cookies, so new ideas are moderated by default and the form has a honeypot and a rate limit."}}, {"@type": "Question", "name": "Does it send email?", "acceptedAnswer": {"@type": "Answer", "text": "Only if you set it up. It starts in dry-run mode and logs who would be emailed. With a Resend key and DRY_RUN=false it emails the people who voted with an email or followed an idea when you move it to planned, in progress, shipped or declined, with a one-click unsubscribe link."}}, {"@type": "Question", "name": "Where is the data?", "acceptedAnswer": {"@type": "Answer", "text": "In one JSON file on your own disk. Back it up with cp. There is no telemetry, and the author never sees your board."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f6f7fb; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #3030c0; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1c1c6b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1c1c6b; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444; }
+    .card { background: #fff; border: 1px solid #dde1ee; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b0b7d6; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { font: 13px ui-monospace, monospace; min-height: 190px; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3030c0; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e8f4; vertical-align: top; }
+    pre { background: #eef0fa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .tag { display: inline-block; padding: 1px 8px; border-radius: 99px; background: #e0e2f7; font-size: .8rem; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Your customers already told you what to build. Stop counting it twice.</h1>
+  <p>Feedback Keeper is an open-source voting board, public roadmap and changelog you run yourself. Its edge is that it spots <em>duplicate requests</em> while people type and lets you merge the ones that slipped through, so the vote counts mean something. Try the matching below on your own list. Everything runs in your browser, so nothing you paste is uploaded.</p>
+
+  <section class="card" aria-labelledby="lab">
+    <h2 id="lab">1. Find the duplicates in your existing requests</h2>
+    <label for="board">One request per line: <code>title | details | votes</code> (details and votes optional)</label>
+    <textarea id="board" spellcheck="false">Dark mode | the white dashboard hurts my eyes at night | 41
+Night theme for the app | | 9
+Export reports to PDF | send the monthly report to my accountant | 27
+Download report as PDF | | 12
+Slack notifications | post new signups into a channel | 33
+Zapier integration | | 18
+Two-factor login | | 22
+Bulk CSV import | upload all my customers at once | 15</textarea>
+    <label for="threshold">Match strictness (higher means fewer, surer matches)</label>
+    <input id="threshold" type="number" min="0.1" max="0.9" step="0.05" value="0.3">
+    <button id="scan" type="button">Find duplicate groups</button>
+    <table><thead><tr><th scope="col">Group</th><th scope="col">Requests</th><th scope="col">Votes if merged</th></tr></thead><tbody id="groups"></tbody></table>
+    <p class="note" id="groupnote" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="new">
+    <h2 id="new">2. See what a new visitor would be shown</h2>
+    <label for="idea">Type a new idea</label>
+    <input id="idea" value="Please add a dark theme, the screen is too bright at night" autocomplete="off">
+    <table><thead><tr><th scope="col">Already suggested</th><th scope="col">Match</th><th scope="col">Votes</th></tr></thead><tbody id="similar"></tbody></table>
+    <p class="note">On the real board this list appears under the title field as people type, with a link to vote instead.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Run the board yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/feedback-keeper
+ADMIN_KEY=$(openssl rand -hex 16) BASE_URL=https://feedback.example.com BOARD_TITLE="Acme feedback" \
+node server.mjs          # moderation on and DRY_RUN=true until you change them</pre>
+    <p class="note">Visitors vote and post without an account. You moderate, change statuses and publish changelog entries through the admin API (<code>Authorization: Bearer $ADMIN_KEY</code>). Moving an idea to planned, in progress or shipped emails the people who followed it once you set <code>DRY_RUN=false</code> and a Resend key. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not just use Canny, Frill, Featurebase or Fider?</h3>
+    <p>Hosted boards are polished and quick to start, but they price by tracked users or seats and keep your customers' requests on their platform. Fider is open source too but is licensed AGPL and needs Postgres. Feedback Keeper is MIT, one Node process with a JSON state file, runs in your own account, and adds duplicate detection and trending sort out of the box. If a hosted board already works for you, keep it.</p>
+    <h3>How does duplicate detection work?</h3>
+    <p>Every idea is turned into a TF-IDF vector over its title and details, and a new idea is compared with the board by cosine similarity. As someone types a title, the board suggests close matches so they vote instead of posting a copy, and you can merge existing duplicates, which keeps each vote once and carries over subscribers and comments. It is word-based, not semantic, so it catches reworded duplicates that share vocabulary and will miss ones that do not.</p>
+    <h3>Do voters need an account?</h3>
+    <p>No. A first-party cookie holds a random id so each browser counts once per idea. That stops accidental double votes, not a determined person clearing cookies, so new ideas are moderated by default and the form has a honeypot and a rate limit.</p>
+    <h3>Does it send email?</h3>
+    <p>Only if you set it up. It starts in dry-run mode and logs who would be emailed. With a Resend key and DRY_RUN=false it emails the people who voted with an email or followed an idea when you move it to planned, in progress, shipped or declined, with a one-click unsubscribe link.</p>
+    <h3>Where is the data?</h3>
+    <p>In one JSON file on your own disk. Back it up with cp. There is no telemetry, and the author never sees your board.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../license-keeper/">License Keeper</a> issues license keys after Stripe checkout, <a href="../status-keeper/">Status Keeper</a> runs an uptime page, <a href="../mrr-pulse/">MRR Pulse</a> shows MRR and churn, and <a href="../dunning-engine/">Dunning Engine</a> recovers failed payments.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator of your own board: you are responsible for moderating what people post, for the privacy notice and consent rules where you and your visitors live, and for any email you send. It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { index, duplicateGroups } from "./similar.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const parse = () => $("board").value.split("\n").map((l, i) => { const [title, body = "", v = "0"] = l.split("|").map((s) => s.trim()); return title ? { id: String(i), title, body, votes: Number(v) || 0 } : null; }).filter(Boolean);
+    const cell = (tr, text) => { const td = document.createElement("td"); td.textContent = text; tr.append(td); };
+    $("scan").addEventListener("click", () => {
+      const docs = parse(), gs = duplicateGroups(docs, Number($("threshold").value) || 0.3);
+      $("groups").innerHTML = "";
+      gs.forEach((g, n) => { const tr = document.createElement("tr"); cell(tr, String(n + 1)); cell(tr, g.map((d) => d.title).join("  ·  ")); cell(tr, String(g.reduce((s, d) => s + d.votes, 0))); $("groups").append(tr); });
+      $("groupnote").textContent = gs.length ? `${gs.length} group(s) look like the same request. Votes are summed assuming nobody voted on more than one.` : "No duplicates at this strictness. Lower it to match more loosely.";
+      record("scan");
+    });
+    function suggest() {
+      const docs = parse(), q = index(docs)($("idea").value, 5, 0.2);
+      $("similar").innerHTML = "";
+      for (const r of q) { const d = docs.find((x) => x.id === r.id), tr = document.createElement("tr"); cell(tr, d.title); cell(tr, Math.round(r.score * 100) + "%"); cell(tr, String(d.votes)); $("similar").append(tr); }
+    }
+    $("idea").addEventListener("input", suggest); $("board").addEventListener("input", suggest); suggest();
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>

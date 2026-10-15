@@ -1,0 +1,32 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# No third-party key is required. Add RESEND_API_KEY + MAIL_FROM and set DRY_RUN=false to email followers.
+services:
+  - type: web
+    name: feedback-keeper
+    runtime: docker
+    dockerContext: ventures/feedback-keeper
+    dockerfilePath: ventures/feedback-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: BOARD_TITLE
+        sync: false
+      - key: BASE_URL
+        sync: false
+      - key: MODERATION
+        value: "true"
+      - key: DRY_RUN
+        value: "true"
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
