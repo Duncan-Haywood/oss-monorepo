@@ -49,7 +49,8 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
 - **MRR by plan and customer concentration** (dashboard and `/v1/plans`):
   MRR, subscriptions and share per plan (price nickname, else product id;
   seat add-ons are their own line), plus the share held by the largest and
-  top five customers. Plan totals equal the headline MRR. Customer ids are
+  top five customers. Plan totals equal the headline MRR. It also reports the past-due slice
+  (`atRisk`): MRR on failed payments still being retried. Customer ids are
   never shown.
 - **Run-rate projection** (dashboard and `/v1/forecast?months=6`): rolls MRR
   forward using the last three complete months' pace. Base = average, low =
