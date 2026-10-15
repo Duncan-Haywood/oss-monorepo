@@ -1536,6 +1536,11 @@
      "summary": "A follow-up to <code>robofab-sliprate</code>. Judging a bar held at one end by its extrapolated creep over a 3&nbsp;s hold (under 2&nbsp;mm) instead of a rotation tolerance does not help: across eight MuJoCo contact settings the minimum holding force varies by 33&times; to 400&times; or more, about as much as under a 1&deg; tolerance. Only a loose 5&deg; tolerance is stable, and only for bars up to 40&nbsp;mm. Negative and preliminary: the settings, not the criterion, drive the verdict. Stylised, one engine, no physical grip."
     },
     {
+     "slug": "robofab-slipthresh",
+     "title": "Is any rate threshold settings-robust for a MuJoCo grasp \"holds\" verdict?",
+     "summary": "A follow-up to <code>robofab-slipcrit</code> that sweeps the rate criterion&rsquo;s task time (0.5&ndash;10&nbsp;s) and tip bound (1&ndash;10&nbsp;mm) over four bars and eight MuJoCo contact settings. The worst-case spread of the minimum holding force falls with the allowed tip speed: 242.7&ndash;400&times; at 2&nbsp;mm/s or less, 89.4&times; at 3.3&ndash;5&nbsp;mm/s, 20&times; at 10&nbsp;mm/s and 1.6&times; only at 20&nbsp;mm/s (0.5&nbsp;s, 10&nbsp;mm), a loose threshold; 10&nbsp;s holds fail at every bound. Robustness comes from a loose threshold, not a better criterion. Stylised and preliminary: one engine, boxes, assumed density and friction."
+    },
+    {
      "slug": "robofab-barimpratio",
      "title": "Does a stiffer friction cone make the held-bar result in robofab-liftload threshold-free?",
      "summary": "A follow-up to <code>robofab-sliprate</code>, which traced the bar&rsquo;s creep to MuJoCo&rsquo;s contact settings. Raising the <code>impratio</code> option from 1 to 1000 cuts the creep of a 10&times;10&times;40&nbsp;mm bar held at one end from 3.66 to 0.004&nbsp;deg/s, roughly as 1/<code>impratio</code>. From <code>impratio</code> 10 the minimum holding forces for 1&deg; and 5&deg; tolerances agree within 26% in all 12 cases, so the answer no longer depends on the threshold. The simulated force is below the uniform-pressure torque bracket in 10 of 12 cases (0.67&ndash;1.17&times; its lower bound) and 1.15&ndash;1.67&times; a point-contact bound built on the five contacts per pad MuJoCo reports. One engine, one bar section, no torsional friction. Stylised and preliminary."
