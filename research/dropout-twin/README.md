@@ -8,6 +8,8 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v   # 7 tests, ~2 s
 PYTHONPATH=src python3 experiments/run.py                 # ~60 s; output in experiments/results.txt
 ```
 
+`python3 experiments/figure.py` plots the claimed-to-real detection range by dropout correlation (section 2) from the committed `experiments/results.txt` and writes `experiments/range_ratio.svg` (standard library only; no new results; stylised simulation).
+
 **Builds on.** The radar/lidar sensor-simulation and sim-to-real perception direction of ARPG (<https://arpg.colorado.edu/>) and the field-robot direction of the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. The method is classical: the two-state Markov (Gilbert–Elliott) burst-error channel (Gilbert 1960; Elliott 1963), run-length/scan statistics (Balakrishnan & Koutras 2002), and sim-to-real context (Zhao, Queralta & Westerlund 2020). Companion to `odometry-twin` and `safety-twin` (a distributional feature a marginal fit cannot see), `occupancy-twin` and `radar-clutter-twin` in this repository.
 
 Stylised: 1-D beam sequence, two-state dropout with one obstacle in one scan (no range/reflectivity dependence or temporal persistence across scans), a simulated "real" sensor, no lidar data. MIT.
