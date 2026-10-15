@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Share of run-ledger rows whose error notes match each failure class">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Share of ledger runs that reported each failure class (%)</text>
+<line x1="64" x2="624" y1="310.0" y2="310.0" stroke="#ddd"/><text x="58" y="314.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="269.3" y2="269.3" stroke="#ddd"/><text x="58" y="273.3" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="228.7" y2="228.7" stroke="#ddd"/><text x="58" y="232.7" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="188.0" y2="188.0" stroke="#ddd"/><text x="58" y="192.0" text-anchor="end" font-family="sans-serif" font-size="11">3</text>
+<line x1="64" x2="624" y1="147.4" y2="147.4" stroke="#ddd"/><text x="58" y="151.4" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="106.7" y2="106.7" stroke="#ddd"/><text x="58" y="110.7" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<line x1="64" x2="624" y1="66.1" y2="66.1" stroke="#ddd"/><text x="58" y="70.1" text-anchor="end" font-family="sans-serif" font-size="11">6</text>
+<text x="14" y="175.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 175.0)">runs (%)</text>
+<text x="110.7" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 110.7 324)">coordination (9/265)</text>
+<rect x="73.3" y="171.9" width="73.7" height="138.1" fill="#1f6fb2"/>
+<text x="204.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 204.0 324)">unlanded (8/265)</text>
+<rect x="166.7" y="187.3" width="73.7" height="122.7" fill="#1f6fb2"/>
+<text x="297.3" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 297.3 324)">unverified (5/265)</text>
+<rect x="260.0" y="233.3" width="73.7" height="76.7" fill="#1f6fb2"/>
+<text x="390.7" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 390.7 324)">tooling (16/265)</text>
+<rect x="353.3" y="64.5" width="73.7" height="245.5" fill="#1f6fb2"/>
+<text x="484.0" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 484.0 324)">rework (8/265)</text>
+<rect x="446.7" y="187.3" width="73.7" height="122.7" fill="#1f6fb2"/>
+<text x="577.3" y="324" text-anchor="end" font-family="sans-serif" font-size="10" transform="rotate(-30 577.3 324)">duplicate (15/265)</text>
+<rect x="540.0" y="79.9" width="73.7" height="230.1" fill="#1f6fb2"/>
+<rect x="74" y="42" width="12" height="10" fill="#1f6fb2"/><text x="92" y="51" font-family="sans-serif" font-size="11">runs reporting</text>
+</svg>
