@@ -71,11 +71,27 @@ Entry format:
   how many of the previous report's recommendations were adopted and whether
   their metrics moved.
 
-## E3: Red team / blue team track (2026-10-15, owner request, PR https://github.com/Duncan-Haywood/oss-monorepo/pull/6987)
+## E3: Free-choice track, about 5% of runs (2026-10-15, owner request)
+
+- Change: new `explore` track (`prompts/explore/prompt-0.md`) at weight 0.05
+  in `routing.json`; ventures and research went from 0.475 to 0.45 each (E2's
+  `process` track took the other 5% the same day). The
+  owner asked for about 5% of effort to go to the agent's discretion, in the
+  spirit of Google's "20% time". `goals.md` (owner-edited), `prompt.md`,
+  `AGENTS.md` and `research/PROJECTS.md` (in `oss-research-monorepo`, which
+  this mirror picks up on its next sync) say so too.
+- Why: owner direction, not a measured failure.
+- Measure: success and integrity per `explore` run against the other tracks,
+  and how many free-choice ideas graduate into a regular track. Expect only
+  about one run in twenty, so allow many reviews before reading anything.
+- Result: (next review)
+
+## E4: Red team / blue team track (2026-10-15, owner request, PR https://github.com/Duncan-Haywood/oss-monorepo/pull/6987)
 
 - Change: a new track, `redteam`, routed 7% of runs (owner's request; the
-  5-10% band is in `goals.md` and enforced by `validate`). With E2's
-  `process` track, ventures and research go from 0.475 to 0.44 each. New
+  5-10% band is in `goals.md` and enforced by `validate`). With the
+  `process` and `explore` tracks (5% each), ventures and research go to
+  0.415 each. New
   `prompts/redteam.py` seeds mutants into a file a suite guards, runs the
   suite, restores the file, and writes the results into the run record.
   `measure` now reports the catch rate (before and after the blue team's
