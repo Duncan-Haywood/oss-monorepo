@@ -28,6 +28,11 @@ jobs:
         run: |
           tofu init -backend=false -input=false
           tofu validate
+      - name: tofu validate (gcp module)
+        working-directory: platform/deploy/templates/gcp/tofu
+        run: |
+          tofu init -backend=false -input=false
+          tofu validate
       - uses: actions/setup-node@v4
         with:
           node-version: 22

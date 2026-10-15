@@ -4,7 +4,7 @@
 //   composeRepo({ slug, title, provider, appFiles, templates }) -> { path: string | Uint8Array }
 //
 // appFiles:  { 'index.html': { text } | { b64 } }  (the venture's static site)
-// templates: { 'github-pages': { 'deploy.yml': '...' }, 'aws': { ... } }  (read from templates/)
+// templates: { 'github-pages': { 'deploy.yml': '...' }, 'aws': { ... }, 'gcp': { ... } }  (read from templates/)
 
 export const DONATE_URL = 'https://buymeacoffee.com/duncanhaywood';
 export const PROVIDERS = {
@@ -18,6 +18,12 @@ export const PROVIDERS = {
     label: 'AWS (S3 + CloudFront)',
     blurb: 'Your own AWS account, set up with OpenTofu. Costs cents a month at low traffic.',
     needs: ['github', 'aws'],
+    repoPrivate: true,
+  },
+  gcp: {
+    label: 'Google Cloud Storage',
+    blurb: 'Your own Google Cloud project, set up with OpenTofu. A public bucket served over HTTPS; costs cents a month at low traffic. Needs a service-account key.',
+    needs: ['github', 'gcp'],
     repoPrivate: true,
   },
   android: {
@@ -260,7 +266,7 @@ function androidProject({ slug, title }) {
 }
 
 function readme({ slug, title, provider }) {
-  const aws = provider === 'aws';
+  const aws = provider === 'aws' || provider === 'gcp';
   const android = provider === 'android';
   return `# ${title}
 
@@ -302,8 +308,7 @@ Delete this repository.
     ? `
 ## Tear it down
 
-**Actions -> Destroy -> Run workflow** removes the bucket and CloudFront
-distribution. Your encrypted OpenTofu state lives in \`state/\`; the passphrase
+**Actions -> Destroy -> Run workflow** removes ${provider === 'gcp' ? 'the Cloud Storage bucket' : 'the bucket and CloudFront\ndistribution'}. Your encrypted OpenTofu state lives in \`state/\`; the passphrase
 is the \`TOFU_STATE_PASSPHRASE\` secret. Without it the state cannot be read, so
 keep a copy.
 
