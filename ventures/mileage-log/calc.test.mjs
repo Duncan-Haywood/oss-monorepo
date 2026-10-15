@@ -111,3 +111,51 @@ test("the example year produces the headline findings", () => {
   assert.ok(r.summary.businessUse > 0.1 && r.summary.businessUse < 0.9);
   assert.ok(r.findings.some((f) => /missing a purpose/.test(f.title)));
 });
+
+import { summarizeByVehicle, vehicleNames, frequentRoutes, tripFromRoute, preparerReportHtml, NO_VEHICLE } from "./calc.mjs";
+
+test("vehicles are kept apart: miles, deduction and business use per car", () => {
+  const trips = [
+    T({ vehicle: "Truck", miles: 100 }), T({ vehicle: "Truck", miles: 50, category: "commute", to: "", purpose: "" }),
+    T({ vehicle: "Van", miles: 40, date: "2026-07-02" }), T({ miles: 5 }),
+  ];
+  const v = summarizeByVehicle(trips, { year: 2026, vehicleOdo: { Truck: { start: 1000, end: 1500 } } });
+  const truck = v.find((x) => x.vehicle === "Truck"), van = v.find((x) => x.vehicle === "Van");
+  assert.equal(truck.business, 100); assert.equal(truck.commute, 50);
+  assert.equal(truck.yearMiles, 500); assert.equal(truck.businessUse, 0.2); assert.equal(truck.unlogged, 350);
+  assert.equal(van.deduction, 30.4);
+  assert.ok(v.some((x) => x.vehicle === NO_VEHICLE));
+  assert.deepEqual(vehicleNames(trips), ["Truck", "Van"]);
+  assert.equal(summarizeByVehicle(trips, { year: 2025 }).length, 0);
+});
+
+test("vehicle survives normalize, CSV and JSON round trip", () => {
+  const t = T({ vehicle: " Van " });
+  assert.equal(t.vehicle, "Van");
+  assert.match(toCsv([t]).split("\n")[0], /vehicle$/);
+  assert.match(toCsv([t]).split("\n")[1], /"Van"$/);
+  const back = importJson(exportJson([t]), []);
+  assert.equal(back.trips[0].vehicle, "Van");
+});
+
+test("frequent routes rank by recurrence, use the median miles, and skip one-offs and personal trips", () => {
+  const mk = (to, miles, date, extra = {}) => T({ from: "Home", to, miles, date, purpose: "Visit " + to, ...extra });
+  const trips = [mk("Supplier", 10, "2026-01-01"), mk("Supplier", 12, "2026-02-01"), mk("Supplier", 11, "2026-03-01"),
+    mk("Bank", 3, "2026-01-02"), mk("Bank", 3, "2026-01-09"), mk("One-off", 50, "2026-01-03"),
+    mk("Gym", 2, "2026-01-04", { category: "personal" }), mk("Gym", 2, "2026-01-05", { category: "personal" })];
+  const r = frequentRoutes(trips);
+  assert.deepEqual(r.map((x) => x.to), ["Supplier", "Bank"]);
+  assert.equal(r[0].miles, 11); assert.equal(r[0].count, 3);
+  const d = tripFromRoute(r[0], "2026-04-01");
+  assert.equal(d.date, "2026-04-01"); assert.equal(d.odoStart, ""); assert.equal(validateTrip(d).ok, true);
+});
+
+test("preparer report is standalone, escapes user text and lists vehicles and gaps", () => {
+  const trips = [T({ vehicle: "Van", to: "<script>x</script>", purpose: "A & B", odoStart: 100, odoEnd: 110 }), T({ purpose: "" })];
+  const html = preparerReportHtml(trips, { year: 2026, generated: "2026-12-31" });
+  assert.ok(html.startsWith("<!doctype html>"));
+  assert.ok(!html.includes("<script>x"));
+  assert.ok(html.includes("&lt;script&gt;x&lt;/script&gt;") && html.includes("A &amp; B"));
+  assert.ok(html.includes("Van") && html.includes("Gaps in this log") && html.includes("Prepared 2026-12-31"));
+  assert.ok(!/<script|src=|href=/.test(html));
+});
