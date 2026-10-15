@@ -8,6 +8,8 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, under 1 s
 PYTHONPATH=src python3 experiments/run.py                 # a few seconds; output in experiments/results.txt
 ```
 
+`python3 experiments/figure.py` plots range bias with and without wrapped-speed compensation (section 4) from the committed `experiments/results.txt` and writes `experiments/compensation.svg` (standard library only; no new results; stylised simulation).
+
 **Builds on.** The radar sensor-simulation and sim-to-real perception direction of ARPG (<https://arpg.colorado.edu/>) and the field-robot direction of the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. Range–Doppler coupling is textbook (Richards 2005; Winkler 2007); Doppler ego-motion follows Kellner et al. (2013). Companion to `alias-twin` and `aliasing-twin` (Doppler folding), `doppler-twin`, `mount-twin` and `multipath-twin` in this repository. See `paper/whitepaper.md`.
 
 Stylised: single up ramp, one target or one ring of stationary points, noise-free beat tone, a simulated "real" radar and no radar data; the map result applies the verified per-point range shift analytically rather than rendering a point cloud through the signal model; triangular ramps, range migration over a frame and multi-target pairing are not modelled. Preliminary. MIT.

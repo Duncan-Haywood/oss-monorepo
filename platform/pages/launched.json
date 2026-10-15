@@ -912,6 +912,7 @@
     "security-camera-bid-calculator": "2026-08-28",
     "security-deposit-return-calculator": "2026-09-08",
     "security-headers-check": "2026-09-10",
+    "security-questionnaire-matcher": "2026-10-15",
     "security-txt-check": "2026-09-16",
     "self-employed-health-insurance-deduction-calculator": "2026-09-30",
     "self-employed-schedule-c-categorizer": "2026-09-29",

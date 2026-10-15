@@ -1,0 +1,14 @@
+key_provider "pbkdf2" "main" {
+  passphrase = "__PASSPHRASE__"
+}
+method "aes_gcm" "main" {
+  keys = key_provider.pbkdf2.main
+}
+state {
+  method   = method.aes_gcm.main
+  enforced = true
+}
+plan {
+  method   = method.aes_gcm.main
+  enforced = true
+}
