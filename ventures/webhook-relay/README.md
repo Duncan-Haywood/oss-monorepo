@@ -24,7 +24,7 @@ Two parts, both free and MIT:
 Honest limits: one process and one disk, so it is not a high-availability
 service, and it is built for hundreds to low thousands of events a day, not
 millions (state is one JSON file, capped at 5,000 events). Delivery is
-at-least-once. It does not transform payloads or rate limit yet.
+at-least-once. It does not transform payloads or rate limit yet (it can filter, below).
 
 ## What it does
 
@@ -48,7 +48,14 @@ at-least-once. It does not transform payloads or rate limit yet.
    instead of `target` and each event is delivered to every URL as its own
    record, with its own retries, dead state and replay, so one broken consumer
    never blocks or re-sends to the others.
-5. **Alerts and replays.** A dead event posts to `ALERT_WEBHOOK_URL` (Slack and
+5. **Filters.** Forward only what you care about. A route (or a single fan-out
+   target, written `{"url": "...", "filter": {...}}`) takes a `filter` on a
+   JSON field (`{"path": "type", "in": ["invoice.*"]}`) or a header
+   (`{"header": "x-github-event", "in": ["push"]}`); `*` at the end of an entry
+   matches a prefix, `"not": true` inverts, and an array means all must hold.
+   A filtered event is still signature-checked and answered 200 so the sender
+   stops retrying, but is not stored or delivered.
+6. **Alerts and replays.** A dead event posts to `ALERT_WEBHOOK_URL` (Slack and
    Discord compatible). Replay any event from `/admin` or
    `POST /v1/events/<id>/replay`; it gets a fresh retry budget and its history
    is kept.
