@@ -69,3 +69,24 @@ test("none passes, a missing secret or unknown scheme fails closed", () => {
   assert.equal(verify("github", { headers: {}, body, secret: "" }).ok, false);
   assert.equal(verify("wat", { headers: {}, body, secret: "k" }).ok, false);
 });
+
+test("gitlab token, woocommerce base64 hmac", () => {
+  assert.equal(verify("gitlab", { headers: { "x-gitlab-token": "k" }, body, secret: "k" }).ok, true);
+  assert.equal(verify("gitlab", { headers: { "x-gitlab-token": "z" }, body, secret: "k" }).ok, false);
+  assert.equal(verify("gitlab", { headers: {}, body, secret: "k" }).ok, false);
+  assert.equal(verify("woocommerce", { headers: { "x-wc-webhook-signature": h("k", body, "base64") }, body, secret: "k" }).ok, true);
+  assert.equal(verify("woocommerce", { headers: { "x-wc-webhook-signature": h("z", body, "base64") }, body, secret: "k" }).ok, false);
+  assert.equal(verify("woocommerce", { headers: {}, body, secret: "k" }).ok, false);
+});
+
+test("linear: hex hmac plus body timestamp window", () => {
+  const mk = (ms) => Buffer.from(JSON.stringify({ action: "create", webhookTimestamp: ms }));
+  const ok = mk(NOW * 1000), old = mk((NOW - 1000) * 1000);
+  const run = (b, sig) => verify("linear", { headers: { "linear-signature": sig }, body: b, secret: "k", nowSec: NOW });
+  assert.equal(run(ok, h("k", ok)).ok, true);
+  assert.equal(run(ok, h("z", ok)).ok, false);
+  assert.match(run(old, h("k", old)).reason, /tolerance/);
+  const nots = Buffer.from('{"a":1}');
+  assert.match(run(nots, h("k", nots)).reason, /webhookTimestamp/);
+  assert.equal(verify("linear", { headers: {}, body: ok, secret: "k", nowSec: NOW }).ok, false);
+});
