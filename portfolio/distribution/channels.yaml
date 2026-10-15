@@ -1,0 +1,17 @@
+# One row per distribution channel. Ladder: none -> artifact -> queued -> live -> measured
+# (portfolio/distribution/README.md). Terms must be read on the day the channel is built.
+channels:
+  - id: bluesky-bot
+    rung: artifact
+    built: 2026-10-15
+    code: platform/distribution/bluesky.mjs
+    workflow: .github/workflows/distribute-bluesky.yml
+    enabled_by: repository variable DISTRIBUTE_BLUESKY=true, plus secrets BSKY_HANDLE and BSKY_APP_PASSWORD (an app password, never the account password)
+    what_it_posts: one post per tool launched in the last 3 days (platform/pages/launched.json), at most 3 per run, link back to the tool page, text ends "Automated post."
+    dedupe: stateless; reads the account's own recent posts and skips any tool whose URL is already there
+    terms_to_confirm_by_owner_when_enabling:
+      - Bluesky Terms of Service and Community Guidelines (automated accounts must be labelled; set the account's bot label/bio when creating it)
+      - AT Protocol createSession / createRecord are the documented public API; app passwords are the documented credential for scripts
+      - rate limits are generous for 3 posts a day; the script never retries a failed post in a loop
+    owner_ask: create a Bluesky account for the portfolio, label it as automated, store the app password as a secret, set the variable
+    dry_run: node platform/distribution/bluesky.mjs
