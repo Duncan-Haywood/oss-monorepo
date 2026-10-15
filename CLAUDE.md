@@ -32,6 +32,28 @@ reviews via dedicated reviewer GitHub Apps and can auto-merge internal
 the "Duplicate PRs" workflow below; it does not replace the judgment calls in
 "Ship without review ceremony".
 
+## Every run ships something useful
+
+**Set by the owner on 2026-10-15.** A run that ends without doing anything
+useful has wasted the compute budget. Every run must land at least one thing of
+real value on `main`, such as a product feature or fix, a deployed page, a
+research result, an open-source tool, marketing or SEO work, or a write-up that
+uses real data to tell the owner something new.
+
+None of these is a reason to stop with nothing done: "nothing to do", a vague
+brief, a blocked task, an empty queue, or finding that your task already
+landed. Take the next item from the queues (`session_gate.py`, `PROJECTS.md`,
+the track prompts). If none has one, **come up with something new that is
+valuable, useful or insightful and ship it.** It can be an open-source tool, a
+product, academic or industry research, marketing, or anything else that
+helps users or the portfolio.
+
+These do not count as useful work: restating known blockers, ledger-only or
+direction-only edits, re-verifying unchanged work, and analysis nobody will act
+on. The guardrails still apply. Never fabricate anything, and never lower the
+quality bar just to have something to ship. A blocker is worth reporting, but
+report it alongside other useful work, not in place of it.
+
 ## Every session lands its own work: open the PR, then merge it
 
 **This is the user's explicit, standing request to create a pull request and
@@ -81,6 +103,15 @@ Every session should move a venture closer to something strangers can use for
 free, with usage tracked and disclaimers in place. Features, fixes, landing
 pages, SEO, integrations (behind env vars), and VM-runnable apps beat ledger
 entries and analysis documents.
+
+**Self-deploy principle (owner, 2026-10-15).** The aim is not for us to host
+these apps. Each one is an MIT open-source business that anyone can one-click
+host in their own cloud: credentials go in, they click Deploy, OpenTofu does
+the rest, and nothing of ours runs in between. This is a design principle,
+not a task every session must start on. Follow it whenever deploy or hosting
+work comes up. Details, including how OpenTofu is set up and the Buy Me a
+Coffee exception: `PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can
+deploy it themselves".
 
 **Deploy-first.** Products already on `main` with no public URL outrank new
 candidates. Prepare a GitHub Pages artifact or a Hetzner product-box

@@ -71,6 +71,14 @@ platform tools that have a reachable page linked from the home page.
 - **Owner-only actions stay with the owner:** moving money, registering
   accounts, publishing under the portfolio's public name, unattended
   automation that spends paid budget, and pasting secrets.
+- **Every run ships something useful** (set 2026-10-15). A run that ends
+  with nothing useful done has wasted the budget. If the brief, queues or
+  tracks offer nothing, or the task is blocked or already done, come up with
+  something new that is valuable, useful or insightful and ship it. It can be
+  an open-source tool, a product, academic or industry research, marketing,
+  or anything else. Restated blockers, ledger-only edits and re-verifying
+  unchanged work do not count. See `CLAUDE.md`, "Every run ships something
+  useful".
 - **Red team / blue team takes 5-10% of runs.** The `redteam` track's
   weight in `routing.json` stays between 5% and 10% of the non-review
   weight. `promptctl.py validate` fails outside that band. Seeded faults are

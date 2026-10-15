@@ -15,6 +15,7 @@ import argparse
 import html
 import json
 import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -64,6 +65,59 @@ def validate(data, ledes):
     return errors
 
 
+IMAGE_EXTS = (".png", ".svg", ".jpg", ".jpeg", ".webp")
+
+
+def find_figure(slug):
+    """First image the project itself produced (experiments/ first), or None."""
+    base = RESEARCH / slug
+    for sub in ("experiments", "results", "figures", "."):
+        d = base / sub
+        if d.is_dir():
+            found = sorted(f for f in (d.iterdir() if sub != "." else d.glob("*")) if f.suffix.lower() in IMAGE_EXTS and f.is_file())
+            if found:
+                return found[0]
+    return None
+
+
+def project_links(slug):
+    base, url = RESEARCH / slug, f"{REPO_URL}/tree/main/research/{slug}"
+    links = [(f"{url}#readme", "README and method", True)]
+    for sub, label in (("paper", "White paper"), ("experiments", "Experiments and results"), ("src", "Code"), ("tests", "Tests")):
+        if (base / sub).is_dir():
+            links.append((f"{url}/{sub}", label, False))
+    return links
+
+
+def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=None):
+    slug = p["slug"]
+    if not (RESEARCH / slug / "README.md").is_file():
+        raise ValueError(f"research/{slug} has no README.md")
+    d = out / slug
+    d.mkdir(parents=True, exist_ok=True)
+    fig = find_figure(slug)
+    figure = ""
+    if fig:
+        shutil.copyfile(fig, d / fig.name)
+        figure = (f'  <h2>A figure from its own output</h2>\n  <figure><img src="{html.escape(fig.name)}" alt="Figure produced by research/{slug}: {html.escape(fig.stem)}" loading="lazy">'
+                  f'<figcaption>{html.escape(str(fig.relative_to(RESEARCH)))}, written by the project\'s own experiment code.</figcaption></figure>')
+    stats = f'<span>{tests} tests</span>' if tests else ""
+    links = "\n".join(f'    <li><a{" class=primary" if prim else ""} href="{u}">{l}</a></li>' for u, l, prim in project_links(slug))
+    page = tmpl
+    for key, val in {
+        "TOKENS": tokens, "THEME_VARS": theme_vars, "SLUG": slug, "TITLE": p["title"], "LEDE": lede, "SUMMARY": p["summary"],
+        "DESC": html.escape(plain(p["summary"])[:240]), "THEME_ID": theme["id"], "THEME_NAME": theme["name"],
+        "STATS": stats, "FIGURE": figure, "LINKS": links, "REPO_URL": REPO_URL, "REPO": REPO,
+    }.items():
+        page = page.replace("{{" + key + "}}", val)
+    leftover = re.findall(r"\{\{\w+\}\}", page)
+    if leftover:
+        raise ValueError(f"research/{slug}: unfilled placeholders {leftover}")
+    if base_url:
+        page = published_page(page, slug, base_url)
+    (d / "index.html").write_text(page)
+
+
 def card(p, theme, lede, tests):
     url = f"{REPO_URL}/tree/main/research/{p['slug']}"
     search = html.escape(" ".join([p["slug"], plain(p["title"]), plain(lede), plain(p["summary"]), theme["name"]]).lower())
@@ -72,9 +126,31 @@ def card(p, theme, lede, tests):
       <div class="card-top"><span class="slug">{p['slug']}</span>{badge}</div>
       <h3><a href="{url}">{p['title']}</a></h3>
       <p class="lede">{lede}</p>
-      <details><summary><span>Abstract <svg class="chev" width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></span><a href="{url}">Code &amp; paper →</a></summary>
+      <details><summary><span>Abstract <svg class="chev" width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></span><a href="{p['slug']}/">Project page →</a></summary>
         <p class="abstract">{p['summary']}</p></details>
     </article>"""
+
+
+def published_page(page, slug, base_url):
+    """When published under a parent site (--base-url): a canonical URL and share-card tags, and a
+    link back to the site's front page (two levels up), as every page on that site carries."""
+    base = html.escape(base_url.rstrip("/") + "/")
+    url = f"{base}research/{slug}/"
+    meta = (
+        f'<link rel="canonical" href="{url}">\n'
+        f'<meta property="og:url" content="{url}">\n'
+        f'<meta property="og:image" content="{base}social-card.png">\n'
+        '<meta name="twitter:card" content="summary_large_image">\n'
+    )
+    page = page.replace("</head>", meta + "</head>", 1)
+    # Search results and share cards show at most 160 characters of a description.
+    def shorten(m):
+        text = html.unescape(m.group(2))
+        if len(text) > 160:
+            text = text[:159].rsplit(" ", 1)[0].rstrip(" ,;:") + "…"
+        return m.group(1) + html.escape(text) + '"'
+    page = re.sub(r'(<meta (?:name="description"|property="og:description") content=")([^"]*)"', shorten, page)
+    return page.replace('<a href="../index.html">', '<a href="../../" data-pf-to="hub">All tools</a><a href="../index.html">', 1)
 
 
 def social_meta(base_url):
@@ -140,6 +216,18 @@ def build(out, base_url=None):
 
     out.mkdir(parents=True, exist_ok=True)
     (out / "index.html").write_text(page)
+    # One home page per project: _site/<slug>/index.html. Any failure fails the build.
+    tmpl = (HERE / "project.html").read_text()
+    head = (HERE / "template.html").read_text()
+    tokens = head[head.index("<style>") + len("<style>"):head.index("*{box-sizing")].strip()
+    failures = []
+    for slug, (p, t) in by_slug.items():
+        try:
+            project_page(p, t, ledes[slug], tests[slug], tokens, theme_vars, tmpl, out, base_url)
+        except Exception as e:  # noqa: BLE001
+            failures.append(f"project page for research/{slug}: {e}")
+    if failures:
+        sys.exit("\n".join(failures))
     print(f"ok: {len(by_slug)} projects, {sum(tests.values())} tests -> {out / 'index.html'}")
 
 
