@@ -1,0 +1,43 @@
+deadline | sequential (model first) vs joint (min area at val floor = seq.val - delta); designs as (segments,hidden,wbits) P
+  2000 | seq (12,128,4) P=16 val=0.775 test=0.752 cells=7667 35.1nJ
+         d=0.00: (12,128,4) P=16 val=0.775 test=0.752 cells=7667 35.1nJ  area x1.00
+         d=0.01: (7,128,4) P=8 val=0.767 test=0.749 cells=5553 21.7nJ  area x0.72
+         d=0.02: (12,64,4) P=8 val=0.760 test=0.738 cells=4483 17.6nJ  area x0.58
+         d=0.03: (7,64,4) P=4 val=0.748 test=0.722 cells=3352 10.9nJ  area x0.44
+         d=0.05: (7,64,3) P=4 val=0.733 test=0.706 cells=2962 9.9nJ  area x0.39
+  3000 | seq (12,128,4) P=8 val=0.775 test=0.752 cells=5550 35.1nJ
+         d=0.00: (12,128,4) P=8 val=0.775 test=0.752 cells=5550 35.1nJ  area x1.00
+         d=0.01: (7,128,4) P=4 val=0.767 test=0.749 cells=4412 21.7nJ  area x0.79
+         d=0.02: (12,64,4) P=4 val=0.760 test=0.738 cells=3342 17.6nJ  area x0.60
+         d=0.03: (7,64,4) P=2 val=0.748 test=0.722 cells=2654 10.9nJ  area x0.48
+         d=0.05: (7,64,3) P=2 val=0.733 test=0.706 cells=2453 9.9nJ  area x0.44
+  5000 | seq (12,128,4) P=4 val=0.775 test=0.752 cells=4409 35.1nJ
+         d=0.00: (12,128,4) P=4 val=0.775 test=0.752 cells=4409 35.1nJ  area x1.00
+         d=0.01: (12,128,3) P=4 val=0.773 test=0.749 cells=4079 32.0nJ  area x0.93
+         d=0.02: (12,64,4) P=2 val=0.760 test=0.738 cells=2644 17.6nJ  area x0.60
+         d=0.03: (12,64,3) P=2 val=0.747 test=0.720 cells=2451 16.0nJ  area x0.56
+         d=0.05: (12,64,3) P=2 val=0.747 test=0.720 cells=2451 16.0nJ  area x0.56
+  8000 | seq (12,128,4) P=4 val=0.775 test=0.752 cells=4409 35.1nJ
+         d=0.00: (12,128,4) P=4 val=0.775 test=0.752 cells=4409 35.1nJ  area x1.00
+         d=0.01: (7,128,4) P=2 val=0.767 test=0.749 cells=3714 21.7nJ  area x0.84
+         d=0.02: (12,64,4) P=2 val=0.760 test=0.738 cells=2644 17.6nJ  area x0.60
+         d=0.03: (7,64,4) P=1 val=0.748 test=0.722 cells=2414 10.9nJ  area x0.55
+         d=0.05: (7,64,3) P=1 val=0.733 test=0.706 cells=2260 9.9nJ  area x0.51
+ 12000 | seq (12,128,4) P=2 val=0.775 test=0.752 cells=3711 35.1nJ
+         d=0.00: (12,128,4) P=2 val=0.775 test=0.752 cells=3711 35.1nJ  area x1.00
+         d=0.01: (7,128,4) P=1 val=0.767 test=0.749 cells=3474 21.7nJ  area x0.94
+         d=0.02: (12,64,4) P=1 val=0.760 test=0.738 cells=2404 17.6nJ  area x0.65
+         d=0.03: (12,64,3) P=1 val=0.747 test=0.720 cells=2258 16.0nJ  area x0.61
+         d=0.05: (12,64,3) P=1 val=0.747 test=0.720 cells=2258 16.0nJ  area x0.61
+ 20000 | seq (12,128,4) P=1 val=0.775 test=0.752 cells=3471 35.1nJ
+         d=0.00: (12,128,4) P=1 val=0.775 test=0.752 cells=3471 35.1nJ  area x1.00
+         d=0.01: (12,128,3) P=1 val=0.773 test=0.749 cells=3377 32.0nJ  area x0.97
+         d=0.02: (12,64,4) P=1 val=0.760 test=0.738 cells=2404 17.6nJ  area x0.69
+         d=0.03: (12,64,3) P=1 val=0.747 test=0.720 cells=2258 16.0nJ  area x0.65
+         d=0.05: (12,64,3) P=1 val=0.747 test=0.720 cells=2258 16.0nJ  area x0.65
+front(val,area,energy) deadline 2000: 23 designs of 176 feasible
+front(val,area,energy) deadline 3000: 25 designs of 204 feasible
+front(val,area,energy) deadline 5000: 28 designs of 216 feasible
+front(val,area,energy) deadline 8000: 26 designs of 224 feasible
+front(val,area,energy) deadline 12000: 27 designs of 236 feasible
+front(val,area,energy) deadline 20000: 27 designs of 240 feasible
