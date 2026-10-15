@@ -19,7 +19,7 @@
   "baseline": "non-zero (26 failures)",
   "opened": "2026-10-15",
   "source": "prompts/process/reports/2026-10-15*.md",
-  "pr": null,
+  "pr": 7126,
   "result": null,
   "history": [
     {
