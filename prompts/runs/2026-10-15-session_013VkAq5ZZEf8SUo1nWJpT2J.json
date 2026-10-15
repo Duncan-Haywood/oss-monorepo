@@ -32,44 +32,22 @@
   "integrity_issues": [],
   "doc_friction": [
     {
-      "file": "(unattributed)",
+      "file": "platform/ci/unlanded_work.py",
       "issue": "unlanded_work.py --sweep: listed 3 branches (proposal-maker, tile-layout-optimizer, agent_review fork guard) whose work is already on main; the sweep seems to flag by commit not content, costing a check."
     },
     {
-      "file": "(unattributed)",
+      "file": "platform/pages/publish-branch.sh",
       "issue": "platform/pages/publish-branch.sh: pages_state.py could not read state without an Actions token, so --require-current cannot confirm after publish."
     }
   ],
   "deviations": [
     {
-      "file": "(unattributed)",
+      "file": "CLAUDE.md",
       "why": "Did not run the full checklist (python suites, browser checks); change is one footer link + checker exemption, ran the pages/marketing/deploy node suites and a full build+check instead."
     }
   ],
   "goal": null,
-  "notes": "Full pages/marketing/deploy node suites: 1 failure was mine (hub link test, fixed in a follow-up commit); 'every secondary prose page ships structured data' fails on clean origin/main too. python pytest suites not run (no pytest). Original outcome text: Refreshed stale gh-pages snapshot + IndexNow; linked the self-deploy page from the hub footer with a check.mjs exemption and test.",
-  "corrections": [
-    {
-      "date": "2026-10-15",
-      "field": "outcome",
-      "from": "Refreshed stale gh-pages snapshot + IndexNow; linked the self-deploy page from t",
-      "to": "success",
-      "why": "free text is not a valid outcome; text kept in notes (review 2026-10-15)"
-    },
-    {
-      "date": "2026-10-15",
-      "field": "doc_friction",
-      "from": "free-text strings",
-      "to": "{file,issue} entries",
-      "why": "malformed entries broke validate and measure"
-    },
-    {
-      "date": "2026-10-15",
-      "field": "deviations",
-      "from": "free-text strings",
-      "to": "{file,why} entries",
-      "why": "malformed entries broke validate and measure"
-    }
-  ],
+  "notes": "Full pages/marketing/deploy node suites: 1 failure was mine (hub link test, fixed in a follow-up commit); 'every secondary prose page ships structured data' fails on clean origin/main too. python pytest suites not run (no pytest). | outcome summary: Refreshed stale gh-pages snapshot + IndexNow; linked the self-deploy page from the hub footer with a check.mjs exemption and test.",
+  "corrections": [],
   "redteam": null
 }

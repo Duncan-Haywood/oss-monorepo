@@ -33,15 +33,7 @@
   "doc_friction": [],
   "deviations": [],
   "goal": null,
-  "notes": "New venture, sibling of dunning-engine (voluntary vs involuntary churn). Zero-dependency Node server with signed links, ownership check, idempotent Stripe writes, cooldown, dry-run default, per-reason save report, plus browser simulator and one-click Render deploy. 34 tests pass against a fake Stripe; not run against live Stripe. Published snapshot refresh left to the post-merge step. Original outcome text: shipped",
-  "corrections": [
-    {
-      "date": "2026-10-15",
-      "field": "outcome",
-      "from": "shipped",
-      "to": "success",
-      "why": "free text is not a valid outcome; text kept in notes (review 2026-10-15)"
-    }
-  ],
+  "notes": "New venture, sibling of dunning-engine (voluntary vs involuntary churn). Zero-dependency Node server with signed links, ownership check, idempotent Stripe writes, cooldown, dry-run default, per-reason save report, plus browser simulator and one-click Render deploy. 34 tests pass against a fake Stripe; not run against live Stripe. Published snapshot refresh left to the post-merge step. | outcome was: shipped",
+  "corrections": [],
   "redteam": null
 }
