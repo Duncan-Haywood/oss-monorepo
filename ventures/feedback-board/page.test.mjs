@@ -46,3 +46,7 @@ test("the Dockerfile copies every module the server imports", () => {
   for (const m of page("render.mjs").matchAll(/from "\.\/([a-z]+\.mjs)"/g)) assert.ok(docker.includes(m[1]), m[1]);
   for (const m of page("board.mjs").matchAll(/from "\.\/([a-z]+\.mjs)"/g)) assert.ok(docker.includes(m[1]), m[1]);
 });
+
+test("it links its sibling Form Inbox", () => {
+  assert.match(page("index.html"), /href="\.\.\/form-inbox\/"/);
+});
