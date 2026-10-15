@@ -29499,3 +29499,39 @@ ventures:
       nothing uploaded" and the source funnel. Distribution 6: "job
       application tracker" and "job application spreadsheet" are
       high-volume searches, and r/jobs and r/resumes ask for this weekly.
+  - slug: youtube-sponsorship-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is a price range framed as a negotiation starting point,
+      never a quote or valuation; being wrong costs a creator a
+      miscalibrated ask, not a filing or a contract obligation. Every input
+      is a number the creator already knows about their own channel.
+    floor_note: >-
+      There is no AI in the product. The value is arithmetic on CPM
+      benchmarks and percentage uplifts against the creator's own median
+      views, and inference would only make the result less checkable.
+    basis: >-
+      Graduated 2026-10-15 as a browser-local YouTube sponsorship pricing
+      calculator. duplicate_check.py found no YouTube sponsorship pricing
+      venture (nearest: the podcast and newsletter siblings at 0.56, on
+      shared words only; youtube-revenue-rpm-analyzer reads AdSense, not
+      sponsorships). What the siblings do not do is price paid-usage /
+      whitelisting and category exclusivity as separate lines, the terms
+      that most often move a real deal. Defensibility 3: CPM logic is
+      public; the edge is no sign-up and the itemised add-ons.
+      Distribution 6: "youtube sponsorship rates" and "how much to charge
+      for a youtube sponsorship" are recurring named-intent queries in
+      r/NewTubers and creator Discords.

@@ -2624,6 +2624,9 @@ workflows:
 - workflow: youtube-revenue-rpm-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: youtube-sponsorship-rate-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: zoho-crm-import-csv-check-ci.yml
   classification: none
   publishes: []
