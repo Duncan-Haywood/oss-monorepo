@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Deploy your own copy</title>
-<meta name="description" content="Pick an open-source tool, paste your own credentials, click Deploy, and run your own copy in your own GitHub or AWS account. Nothing passes through us.">
+<meta name="description" content="Pick an open-source tool, paste your own credentials, click Deploy, and run your own copy in your own GitHub, AWS or Google Cloud account. Nothing passes through us.">
 <style>
   :root { --bg:#fff; --fg:#1a1a1a; --muted:#595959; --line:#d4d4d4; --accent:#0b57d0; --card:#f6f7f9; --warn:#7a3e00; }
   @media (prefers-color-scheme: dark) { :root { --bg:#121212; --fg:#ececec; --muted:#b0b0b0; --line:#3a3a3a; --accent:#8ab4f8; --card:#1c1c1e; --warn:#ffb866; } }
@@ -14,7 +14,7 @@
   h1 { font-size:1.7rem; margin:.2em 0; } h2 { font-size:1.1rem; margin:1.8em 0 .4em; }
   p, li { color:var(--fg); } .muted { color:var(--muted); font-size:.92rem; }
   label { display:block; font-weight:600; margin:.9em 0 .25em; }
-  select, input[type=text], input[type=password], input[type=search] { width:100%; padding:10px; font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:6px; }
+  select, textarea, input[type=text], input[type=password], input[type=search] { width:100%; padding:10px; font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:6px; }
   .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin:.6em 0; }
   .opt { display:flex; gap:10px; align-items:flex-start; font-weight:400; margin:.3em 0; }
   .opt input { margin-top:.35em; }
@@ -57,6 +57,15 @@
       <label for="rg">AWS region</label>
       <input id="rg" type="text" value="us-east-1">
       <p class="muted">Use a dedicated IAM user limited to S3, CloudFront and IAM-policy-document actions. The keys are encrypted in your browser with the new repository's public key and stored as that repository's Actions secrets; they go nowhere else.</p>
+    </div>
+    <div id="gcp" hidden>
+      <label for="gk">Service-account key (JSON)</label>
+      <textarea id="gk" rows="4" autocomplete="off" spellcheck="false" placeholder='{"type": "service_account", …}'></textarea>
+      <label for="gp">Google Cloud project id</label>
+      <input id="gp" type="text" autocomplete="off" spellcheck="false">
+      <label for="gl">Bucket location</label>
+      <input id="gl" type="text" value="US">
+      <p class="muted">Create a dedicated service account with only <em>Storage Admin</em> on your project and download a JSON key. The key is encrypted in your browser with the new repository's public key and stored as that repository's Actions secret; it goes nowhere else. Delete the key when you are done if you will not redeploy. The bucket is public by design (it is a website); if your organization blocks public buckets, pick another provider.</p>
     </div>
   </div>
 

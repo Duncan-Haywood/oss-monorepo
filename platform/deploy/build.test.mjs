@@ -58,7 +58,7 @@ test('every built app composes into a repo for every provider', async () => {
   const catalog = JSON.parse(await fs.readFile(path.join(out, 'catalog.json'), 'utf8'));
   for (const { slug, title } of catalog.slice(0, 40)) {
     const appFiles = JSON.parse(await fs.readFile(path.join(out, 'apps', `${slug}.json`), 'utf8'));
-    for (const provider of ['github-pages', 'aws']) {
+    for (const provider of ['github-pages', 'aws', 'gcp']) {
       const repo = composeRepo({ slug, title, provider, appFiles, templates });
       assert.match(repo['app/index.html'], /buymeacoffee\.com\/duncanhaywood/, slug);
     }
@@ -75,9 +75,19 @@ test('the OpenTofu module pins its versions and encrypts state', async () => {
   assert.doesNotMatch(JSON.stringify(t), /AKIA[0-9A-Z]{16}/);
 });
 
+test('the gcp module pins versions, encrypts state and holds no key', async () => {
+  const t = await loadTemplates();
+  assert.match(t.gcp['tofu/versions.tf'], /required_version = "= 1\.8\.5"/);
+  assert.match(t.gcp['tofu/versions.tf'], /version = "= \d+\.\d+\.\d+"/);
+  assert.match(t.gcp['tofu/encryption.hcl.tmpl'], /enforced = true/);
+  assert.match(t.gcp['deploy.yml'], /tofu_version: 1\.8\.5/);
+  assert.match(t.gcp['destroy.yml'], /tofu destroy/);
+  assert.doesNotMatch(JSON.stringify(t.gcp), /BEGIN (RSA )?PRIVATE KEY/);
+});
+
 test('the workflows never echo a secret and hold no credentials of our own', async () => {
   const t = await loadTemplates();
-  for (const p of ['aws', 'github-pages']) {
+  for (const p of ['aws', 'gcp', 'github-pages']) {
     for (const [name, body] of Object.entries(t[p])) {
       if (!name.endsWith('.yml')) continue;
       assert.doesNotMatch(body, /echo[^\n]*secrets\./, `${p}/${name}`);

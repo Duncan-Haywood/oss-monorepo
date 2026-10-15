@@ -10,6 +10,7 @@ import { zip, crc32 } from './zip.mjs';
 const templates = {
   'github-pages': { 'deploy.yml': 'name: Deploy\n' },
   aws: { 'deploy.yml': 'a', 'destroy.yml': 'b', 'tofu/main.tf': 'c', 'tofu/encryption.hcl.tmpl': 'd' },
+  gcp: { 'deploy.yml': 'a', 'destroy.yml': 'b', 'tofu/main.tf': 'c', 'tofu/encryption.hcl.tmpl': 'd' },
   _license: 'MIT',
 };
 const appFiles = {
@@ -44,10 +45,18 @@ test('aws repo carries tofu/ and both workflows', () => {
   assert.match(r['README.md'], /TOFU_STATE_PASSPHRASE/);
 });
 
+test('gcp repo carries tofu/ and both workflows, and says what Destroy removes', () => {
+  const r = composeRepo({ slug: 's', title: 'T', provider: 'gcp', appFiles, templates });
+  assert.ok(r['.github/workflows/deploy.yml'] && r['.github/workflows/destroy.yml'] && r['tofu/main.tf']);
+  assert.match(r['README.md'], /Cloud Storage bucket/);
+  assert.doesNotMatch(r['README.md'], /CloudFront/);
+  assert.match(r['app/index.html'], /buymeacoffee/);
+});
+
 test('refuses path traversal, missing index, unknown provider', () => {
   assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'aws', appFiles: { 'index.html': { text: 'x' }, '../x': { text: 'y' } }, templates }), /unsafe/);
   assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'aws', appFiles: {}, templates }), /index/);
-  assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'gcp', appFiles, templates }), /unknown provider/);
+  assert.throws(() => composeRepo({ slug: 's', title: 'T', provider: 'azure', appFiles, templates }), /unknown provider/);
 });
 
 test('every provider has a label, a blurb and a privacy flag', () => {
