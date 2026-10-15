@@ -8,7 +8,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { createMonitor } from "./monitor.mjs";
 import { createNotifier, channelsFrom } from "./notify.mjs";
-import { dashboardHtml, publicStatusHtml } from "./dashboard.mjs";
+import { dashboardHtml, publicStatusHtml, badgeSvg } from "./dashboard.mjs";
 
 const env = process.env;
 const port = Number(env.PORT || 8787);
@@ -25,6 +25,13 @@ export function handler(monitor, save, now = Date.now, opts = {}) {
     const url = new URL(req.url, "http://x");
     const send = (code, body, type = "text/plain") => { res.writeHead(code, { "content-type": type }); res.end(body); };
     if (url.pathname === "/healthz") return send(200, "ok\n");
+    const badge = url.pathname.match(/^\/badge\/([a-z0-9][a-z0-9_-]{0,63})\.svg$/);
+    if (badge && opts.publicStatus) {
+      const row = monitor.status(now()).find((r) => r.slug === badge[1]);
+      if (!row) return send(404, "unknown check\n");
+      res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "no-cache, max-age=0" });
+      return res.end(badgeSvg(row.slug, row.state));
+    }
     if (url.pathname === "/s" && opts.publicStatus) return send(200, publicStatusHtml(monitor.status(now()), opts.statusTitle), "text/html; charset=utf-8");
     const supplied = url.searchParams.get("key") ?? (req.headers.authorization || "").replace(/^Bearer /, "");
     if (key && supplied !== key) return send(401, "key required\n");
@@ -37,6 +44,11 @@ export function handler(monitor, save, now = Date.now, opts = {}) {
     if (parts[0] === "status") {
       res.writeHead(200, { "content-type": "application/json" });
       return res.end(JSON.stringify(monitor.status(now()), null, 2));
+    }
+    if ((parts[0] === "pause" || parts[0] === "resume") && parts[1]) {
+      if (!monitor.setPaused(parts[1], parts[0] === "pause", now())) return send(404, "unknown check\n");
+      save();
+      return send(200, "OK\n");
     }
     if (parts[0] === "ping" && parts[1]) {
       const kind = parts[2] === "start" ? "start" : parts[2] === "fail" ? "fail" : "success";
