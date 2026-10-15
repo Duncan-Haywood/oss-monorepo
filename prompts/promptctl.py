@@ -29,7 +29,7 @@ import statistics
 import subprocess
 import sys
 from collections import defaultdict
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -257,6 +257,9 @@ def record(root: Path, track: str, version: int, session: str, model: str | None
     rec = json.loads(json.dumps(RECORD_FIELDS))
     rec.update({"date": day, "session": session, "track": track, "prompt_version": version,
                 "model": model, "input": text, "repo": repo,
+                # Written at the end of the run, so reviews can order records
+                # in time (P003/P006 verification found 281 of 369 had none).
+                "ended": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "input_sha256": hashlib.sha256(text.encode()).hexdigest() if text else None})
     path.parent.mkdir(exist_ok=True)
     path.write_text(json.dumps(rec, indent=2) + "\n")
