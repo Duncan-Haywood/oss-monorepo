@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_011mxpwo1ggFDBJHb2fM6U2s",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "usage": null,
+  "tool_calls": null,
+  "task": "extend",
+  "projects": [
+    "ambient-dsaudit"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/576",
+  "commits": [
+    "b98d2b2"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "Started in oss-monorepo, routed to research, worked upstream via add_repo. Sibling draft PR #553 (mimic-loop) left alone. Citations from memory, flagged in README.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}
