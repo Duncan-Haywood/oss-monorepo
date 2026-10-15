@@ -2111,6 +2111,11 @@
      "summary": "Small MLP policies, cloned from a computed-torque controller for a two-link arm with DAgger and quantised to 8 and 4 bits, with inference latency modelled for microcontroller loops and <em>P</em>-lane accelerators (assumed constants) and the closed loop simulated with that latency. <strong>Preliminary and mostly negative:</strong> the int8 policies track at least 300&times; worse than the teacher, which itself barely notices a sample of delay, so policy accuracy rather than hardware speed limits control; the deadline model says hardware only matters above about 10&nbsp;kHz or for larger networks. Stylised; hardware figures are not measured."
     },
     {
+     "slug": "accel-fpga",
+     "title": "Does the keyword-spotting engine fit a small open-toolchain FPGA, and how fast does it clock?",
+     "summary": "The <em>accel-kws</em> serial-MAC engine, wrapped with on-chip weight ROMs and run through Yosys and nextpnr-ice40 for 15 geometries (hidden width 8&ndash;128, 2/4/8-bit weights) on the iCE40 UP5K and HX8K, 3 seeds each. All 15 fit: at most 1,138 of the UP5K&rsquo;s 5,280 logic cells (22%) and 24 of its 30 block RAMs, because Yosys put the weights in block RAM, so logic grows with weight bits rather than width. Post-route Fmax is 15&ndash;22&nbsp;MHz on UP5K and 37&ndash;54&nbsp;MHz on HX8K, so one inference takes 0.04&ndash;0.70&nbsp;ms. <strong>Stylised:</strong> the weights are random (Speech Commands was unreachable), accuracies are borrowed from <em>accel-kws</em>, and nothing was run on a board or measured for power."
+    },
+    {
      "slug": "accel-sparse",
      "title": "When does a task's accuracy tolerance let an accelerator drop its multipliers?",
      "summary": "Pruning, int4/int8, ternary and binary variants of a 64-32-10 MLP on scikit-learn's 8&times;8 digits (a substitute task: Speech Commands was unreachable), with a modelled energy per inference for a zero-skipping serial engine, over 10 splits. Pruning 75% of int8 weights costs 0.2 points and cuts modelled energy to 36% of dense int8; ternary costs 1.4 points and binary 3.0. Within 1&ndash;2 points of float32 the cheapest design still has multipliers, because operand reads dominate in the assumed model; multiplier energy must be about 10&times; the assumed value before dropping it clearly pays. Stylised: assumed 45 nm constants, no RTL or synthesis, no lookup-table variant, toy task."
@@ -2170,6 +2175,11 @@
      "slug": "swe-backfill",
      "title": "What does git history say about the agent loop that the run log cannot?",
      "summary": "A stdlib reader of 517 commits touching <code>research/&lt;slug&gt;/</code> (396 projects, 2026-09-28 to 2026-10-15) fills in what the run log lacks. All 157 projects created since 2026-10-13 are in the log; the 217 it never lists were made in two bulk days (09-29 and 09-30) before the log began. Half of all projects (49%) sit in follow-up families, creations arrive in bursts (median gap 4 minutes), and only 6 of 234 fully observed projects (2.6%, 95% interval 1% to 5%) have a later commit whose subject says it corrects something, a lower bound on defects, not an estimate. No tokens, cost, pull request or CI data; preliminary."
+    },
+    {
+     "slug": "swe-audit",
+     "title": "Do the portfolio's committed results reproduce when the code is re-run?",
+     "summary": "A seeded sample of 40 <code>research/</code> projects with a runnable experiment was re-run on a clean copy and diffed against the committed <code>results.txt</code>. 36 of 40 (90%, 95% Wilson interval 77% to 96%) reproduced: 34 byte-identical and 2 differing only in a timing line. Three timed out at 300 s (four jobs in parallel) and one needs a voice model that is not in the repository, so those four are inconclusive, not failures. Of 713 decimal numbers in the sampled READMEs, 85% appear verbatim in committed result files (the rest are derived or in prose). A mechanical reproduction check on a small sample, with no citation audit, so the correctness term is only partly estimated. Preliminary."
     },
     {
      "slug": "swe-prflow",

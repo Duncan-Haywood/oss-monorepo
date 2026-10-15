@@ -146,3 +146,13 @@ test("duplicate invoice numbers are flagged without repeating the number", () =>
   ]);
   assert.deepEqual([...duplicates].sort(), ["first.json", "second.json"]);
 });
+
+test("the same invoice number from different sellers is not a duplicate", () => {
+  const other = { ...VALID, supplier: { id: "S2", name: "Other Supplier" } };
+  const duplicates = flagDuplicateInvoiceNumbers([
+    { name: "a.json", invoice: VALID },
+    { name: "b.json", invoice: other },
+    { name: "c.json", invoice: VALID },
+  ]);
+  assert.deepEqual([...duplicates].sort(), ["a.json", "c.json"]);
+});

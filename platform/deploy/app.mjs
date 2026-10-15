@@ -54,14 +54,14 @@ function renderProviders() {
 function refresh() {
   const needs = PROVIDERS[provider].needs;
   const haveCreds = $('gh').value.trim() && (!needs.includes('aws') || ($('ak').value.trim() && $('sk').value.trim() && $('rg').value.trim()));
-  $('go').disabled = !($('ack').checked && haveCreds && $('app').value);
+  $('go').disabled = PROVIDERS[provider].downloadOnly || !($('ack').checked && haveCreds && $('app').value);
   $('dl').disabled = !($('ack').checked && $('app').value);
 }
 
 async function build() {
   const slug = $('app').value;
   const title = catalog.find((a) => a.slug === slug)?.title ?? slug;
-  if (provider === 'render') {
+  if (provider === 'render' || provider === 'docker') {
     const [templates, serverFiles] = await Promise.all([getJSON('templates.json'), getJSON(`servers/${slug}.json`)]);
     return { slug, files: composeRepo({ slug, title, provider, serverFiles, templates }) };
   }
@@ -172,7 +172,9 @@ async function download() {
     const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `${slug}-self-deploy.zip` });
     a.click();
     URL.revokeObjectURL(a.href);
-    log(`Built ${Object.keys(files).length} files. Unzip, push to a new repository (set the secrets listed in README.md) or run the tofu/ module locally.`);
+    log(`Built ${Object.keys(files).length} files. ` + (provider === 'docker'
+      ? 'Unzip, then follow README.md: sh setup.sh && docker compose up -d --build.'
+      : 'Unzip, push to a new repository (set the secrets listed in README.md) or run the tofu/ module locally.'));
   } catch (e) {
     log(`Stopped: ${e.message}`);
   }
