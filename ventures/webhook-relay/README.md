@@ -69,7 +69,9 @@ at-least-once. It does not transform payloads yet (it can filter and rate limit,
 8. **Alerts and replays.** A dead event posts to `ALERT_WEBHOOK_URL` (Slack and
    Discord compatible). Replay any event from `/admin` or
    `POST /v1/events/<id>/replay`; it gets a fresh retry budget and its history
-   is kept.
+   is kept. After an outage, **Replay all dead** in `/admin` (or
+   `POST /v1/replay`, optionally `?route=stripe`) revives every dead event,
+   oldest first; delivered events are never re-sent.
 
 ## Run it
 
