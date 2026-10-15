@@ -33,7 +33,10 @@
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "prompts/research/prompt-0.md says research work lands upstream; a mirror-sync milestone is the only research work that lands here, which took several reads to confirm."
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Says research work lands upstream; the mirror-sync milestone is the only research work that lands here, which took several reads to confirm."
+    }
   ],
   "deviations": [],
   "goal": null,
