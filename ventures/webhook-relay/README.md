@@ -24,8 +24,7 @@ Two parts, both free and MIT:
 Honest limits: one process and one disk, so it is not a high-availability
 service, and it is built for hundreds to low thousands of events a day, not
 millions (state is one JSON file, capped at 5,000 events). Delivery is
-at-least-once. It does not transform payloads, fan out one event to several
-targets, or rate limit yet.
+at-least-once. It does not transform payloads or rate limit yet.
 
 ## What it does
 
@@ -45,7 +44,11 @@ targets, or rate limit yet.
    done. 408, 425, 429, 5xx and network errors retry at 10s, 1m, 5m, 30m, 2h,
    6h, 12h, 24h (honouring `Retry-After`, capped at a day). Any other 4xx means
    your app refused it, so the event is parked **dead** instead of hammering.
-4. **Alerts and replays.** A dead event posts to `ALERT_WEBHOOK_URL` (Slack and
+4. **Fans out.** Give a route `"targets": ["https://a", "https://b"]` (up to 10)
+   instead of `target` and each event is delivered to every URL as its own
+   record, with its own retries, dead state and replay, so one broken consumer
+   never blocks or re-sends to the others.
+5. **Alerts and replays.** A dead event posts to `ALERT_WEBHOOK_URL` (Slack and
    Discord compatible). Replay any event from `/admin` or
    `POST /v1/events/<id>/replay`; it gets a fresh retry budget and its history
    is kept.

@@ -108,3 +108,18 @@ test("summary counts per route; schedule lists the cumulative timeline", () => {
   assert.equal(sch.length, DEFAULT_POLICY.delays.length + 1);
   assert.equal(sch.at(-1).atSec, DEFAULT_POLICY.delays.reduce((x, y) => x + y, 0));
 });
+
+test("fan-out: one event per target, deduped per target, independent fates", () => {
+  const s = newState();
+  const hd = { "webhook-id": "msg_1" };
+  const r = ingest(s, { route: "r", targets: ["http://a", "http://b", "http://a"], headers: hd, body: Buffer.from("{}"), now: T0 });
+  assert.equal(r.ids.length, 2);
+  assert.equal(r.duplicate, false);
+  const again = ingest(s, { route: "r", targets: ["http://a", "http://b"], headers: hd, body: Buffer.from("{}"), now: T0 + 1 });
+  assert.equal(again.duplicate, true);
+  assert.deepEqual(again.ids, r.ids);
+  recordAttempt(s, r.ids[0], { status: 200 }, T0);
+  recordAttempt(s, r.ids[1], { status: 400 }, T0);
+  assert.equal(s.events[r.ids[0]].status, "delivered");
+  assert.equal(s.events[r.ids[1]].status, "dead");
+});
