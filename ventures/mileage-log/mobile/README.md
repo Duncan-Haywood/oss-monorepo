@@ -10,6 +10,19 @@ from how you classified drives to the same place before and says why. Trips
 are saved in the same format as the web app, so the IRS-rate pricing, Schedule C
 Part IV split, audit-readiness check and CSV export are shared (`../calc.mjs`).
 
+## Named places, so the log passes its own audit
+
+A drive is detected as two coordinates, but the IRS-style log (and this
+repository's web audit) needs a destination and a purpose on every deductible
+trip. Name a place once ("Home", "Smith job site", `src/places.mjs`) and every
+later drive to or from it is labelled. A business destination remembers its
+usual purpose and client, so the next drive there is pre-filled, and when the
+category model is sure and the destination is named, **Confirm N drives I
+recognise** files them in one tap. No reverse-geocoding service is used, because
+that would send your coordinates to a third party. The app also lists recent
+trips (with delete) and shares a tax-preparer report (the web app's standalone
+HTML) or CSV.
+
 ## Why use it
 
 Paid alternatives: MileIQ, Everlance, TripLog, QuickBooks Self-Employed
@@ -19,7 +32,7 @@ for the person who would otherwise keep a notebook.
 
 ## Status: first working version, not yet run on a device
 
-- Tested under `node --test` (`npm test`): detection (drive, red light vs real
+- Tested under `node --test` (`npm test`): named places and one-tap confirmation, a check that every name `App.js` imports exists, detection (drive, red light vs real
   stop, walking, GPS teleports, missing speed), category suggestion, and the
   hand-off into the web app's trip format.
 - The Expo screens, background task and permission flow are written to
