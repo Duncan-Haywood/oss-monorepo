@@ -246,6 +246,7 @@ What the lines are for, and the traps in running them:
 - **`platform/ci` suites** import by bare module name, so run them from
   inside that directory as the line does. `python3 -m pytest platform/ci`
   from the root fails collection.
+- **Tool timeout**: a foreground call dies at 10 minutes, and the marketing, pages and deploy node suites together take longer. Run each `node --test` line with `run_in_background` and read its output when it exits.
 - **Shallow clones**: two `platform/webcheck` tests pin historic blobs and
   skip in a shallow clone. Run `git fetch --unshallow origin main` if you
   want them to run.
