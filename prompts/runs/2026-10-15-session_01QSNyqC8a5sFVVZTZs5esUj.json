@@ -27,8 +27,8 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": null,
-  "integrity_issues": null,
+  "errors": [],
+  "integrity_issues": [],
   "doc_friction": [
     {
       "file": "platform/pages/publish-branch.sh",
