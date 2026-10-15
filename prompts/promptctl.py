@@ -26,6 +26,7 @@ import math
 import random
 import re
 import statistics
+import subprocess
 import sys
 from collections import defaultdict
 from datetime import date
@@ -137,10 +138,34 @@ def load_runs(root: Path = ROOT) -> list[tuple[Path, dict[str, Any]]]:
     return runs
 
 
+def _landing_order(runs: list[tuple[Path, dict[str, Any]]]) -> dict[str, int]:
+    """File name -> rank by when git first added it (0 = oldest). Records carry
+    only a date, so within a day `load_runs` orders them by session id, which
+    is random; that scrambled "since the last review" (five reviews in one day)."""
+    if not runs:
+        return {}
+    try:
+        out = subprocess.run(
+            ["git", "log", "--diff-filter=A", "--name-only", "--format=", "--",
+             str(runs[0][0].parent)],
+            cwd=runs[0][0].parent, capture_output=True, text=True, timeout=60,
+        ).stdout
+    except (OSError, subprocess.SubprocessError):
+        return {}
+    names = [Path(line).name for line in out.splitlines() if line.strip()]
+    # git lists newest first; an uncommitted record is not listed and is newest.
+    return {name: len(names) - i for i, name in enumerate(names)}
+
+
 def runs_since_review(runs: list[tuple[Path, dict[str, Any]]]) -> int:
     """Non-review runs recorded after the most recent review run."""
+    rank = _landing_order(runs)
+    ordered = sorted(
+        enumerate(runs),
+        key=lambda ir: (str(ir[1][1].get("date", "")), rank.get(ir[1][0].name, 1 << 30), ir[0]),
+    )
     count = 0
-    for _, rec in runs:
+    for _, (_, rec) in ordered:
         if rec.get("track") == REVIEW:
             count = 0
         else:
