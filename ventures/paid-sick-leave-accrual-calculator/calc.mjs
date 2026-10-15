@@ -40,7 +40,7 @@ export const STATE_LIST = Object.entries(STATES).map(([id, s]) => ({ id, label: 
 export function parse(input) {
   const i = input || {};
   const errors = [];
-  const state = STATES[i.state] ? i.state : "";
+  const state = Object.hasOwn(STATES, i.state) ? i.state : "";
   if (!state) errors.push("Choose the state.");
   const num = (k, label, { min = 0, max = Infinity, int = false } = {}) => {
     const raw = Number(i[k]);

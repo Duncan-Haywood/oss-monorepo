@@ -193,7 +193,7 @@ const key = (s) => norm(s);
 
 export function analyze(sales, stock = [], opts = {}) {
   const o = { ...DEFAULTS, ...opts };
-  const z = Z[o.serviceLevel] ?? Z[0.95];
+  const z = Object.hasOwn(Z, o.serviceLevel) ? Z[o.serviceLevel] : Z[0.95];
   if (!sales.length) return { invalid: "No sales to analyze." };
   if (!(o.leadDays > 0) || o.cycleDays < 0) return { invalid: "Lead time must be above zero days and the order cycle cannot be negative." };
   const first = Math.min(...sales.map((s) => s.t)), lastSale = Math.max(...sales.map((s) => s.t));

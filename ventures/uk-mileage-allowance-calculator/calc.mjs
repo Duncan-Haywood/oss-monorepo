@@ -40,7 +40,7 @@ export function amap(vehicle, miles) {
 export function compute(input) {
   const errors = [];
   const status = input.status === "self-employed" ? "self-employed" : "employee";
-  const vehicle = RATES[input.vehicle] ? input.vehicle : "car";
+  const vehicle = Object.hasOwn(RATES, input.vehicle) ? input.vehicle : "car";
   const miles = num(input.miles);
   if (miles === null || Number.isNaN(miles) || miles < 0) errors.push("Enter your business miles for the tax year (0 or more).");
   const taxRate = num(input.taxRate);
@@ -77,7 +77,7 @@ export function compute(input) {
     if (miles > RATES[vehicle].threshold && vehicle === "car") findings.push({ severity: "info", title: `Miles after the first 10,000 are approved at 25p, not 45p: ${a.rest.toLocaleString("en-GB")} of yours.` });
     findings.push({ severity: "info", title: "Claim with form P87 if your total job expenses are under £2,500, or on Self Assessment. You can go back up to 4 tax years." });
   } else {
-    const c4 = CLASS4_RATES[input.class4] ?? 0;
+    const c4 = Object.hasOwn(CLASS4_RATES, input.class4) ? CLASS4_RATES[input.class4] : 0;
     out.saving = r2(allowance * (rate + c4));
     out.simplified = allowance;
     findings.push({ severity: "high", title: `Simplified mileage: deduct £${allowance.toFixed(2)} from profit, saving about £${out.saving.toFixed(2)} in income tax${c4 ? " and Class 4 NI" : ""}.` });

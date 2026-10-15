@@ -67,3 +67,30 @@ test("small business offset is 16% of tax, capped at $1,000", () => {
   assert.ok(small.offset + small.sbito <= small.grossTax);
   assert.ok(big.findings.some((f) => /small business income tax offset/.test(f.title)));
 });
+
+test("low income tax offset: continuous at $45,000 and tapers at 1.5c above it", () => {
+  assert.equal(lito(44999), 325.05);
+  assert.equal(lito(45000), 325);
+  assert.equal(lito(55000), 175);
+});
+test("HELP rate of exactly 10 percent is accepted, above 10 is not", () => {
+  assert.equal(run({ helpRate: "10" }).errors.length, 0);
+  assert.ok(run({ helpRate: "10.5" }).errors.length);
+});
+test("set-aside percentages are total over income and over profit", () => {
+  const r = run({});
+  assert.equal(r.setAsidePct, 15.73); // 17,308 / 110,000
+  assert.equal(r.setAsideOfNet, 20.13); // 17,308 / 86,000
+});
+test("zero profit gives 0 percent of profit, not NaN", () => {
+  const r = run({ revenue: "1000", expenses: "1000" });
+  assert.equal(r.setAsideOfNet, 0);
+  assert.equal(r.setAsidePct, 0);
+});
+test("an unknown or inherited year key falls back instead of throwing", () => {
+  for (const y of ["constructor", "__proto__", "toString", "1999-00"]) {
+    const r = run({ year: y });
+    assert.equal(r.year, "2025-26");
+    assert.equal(r.total, 17308);
+  }
+});

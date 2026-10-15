@@ -55,7 +55,7 @@ function additionalMedicare(netEarnings, w2Wages, status) {
 export function selfEmploymentTax(input = {}) {
   const netProfit = num(input.netProfit);
   const w2Wages = num(input.w2Wages);
-  const status = ADDITIONAL_MEDICARE_THRESHOLDS[input.filingStatus] ? input.filingStatus : "single";
+  const status = Object.hasOwn(ADDITIONAL_MEDICARE_THRESHOLDS, input.filingStatus) ? input.filingStatus : "single";
   const marginalRate = Math.min(num(input.marginalRate), 1);
   if (netProfit <= 0) return { invalid: true };
 

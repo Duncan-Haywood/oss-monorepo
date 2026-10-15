@@ -121,7 +121,7 @@ export function overall415cLimit(year, age) {
  * looked up or estimated on their behalf.
  */
 export function computeHeadroom(input = {}) {
-  const year = LIMITS[input.year] ? input.year : DEFAULTS.year;
+  const year = Object.hasOwn(LIMITS, input.year) ? input.year : DEFAULTS.year;
   const age = num(input.age, DEFAULTS.age);
   const payPeriodsRemaining = num(input.payPeriodsRemaining, 0);
   const ytdElectiveDeferral = num(input.ytdElectiveDeferral, 0);

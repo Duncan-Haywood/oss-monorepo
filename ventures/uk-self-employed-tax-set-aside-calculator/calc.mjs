@@ -83,8 +83,8 @@ export function studentLoan(profit, plan, y) {
 
 export function compute(input) {
   const errors = [];
-  const year = YEARS[input.year] ? String(input.year) : "2026-27";
-  const plan = SL[input.plan] ? input.plan : "none";
+  const year = Object.hasOwn(YEARS, input.year) ? String(input.year) : "2026-27";
+  const plan = Object.hasOwn(SL, input.plan) ? input.plan : "none";
   const Y = YEARS[year];
   const revenue = num(input.revenue);
   const expenses = num(input.expenses) ?? 0;
