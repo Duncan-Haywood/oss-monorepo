@@ -90,5 +90,10 @@ gain on a later one.
 - **Research:** merged projects that pass the research guardrails and a
   quality audit: the code re-runs, the README numbers match its output, and
   every citation checks out.
+- **Process:** about 5% of runs study how work gets done here (quality,
+  errors, rework, duplicate and leaked work, what the checks catch) and
+  write an analysis with ranked recommendations
+  (`prompts/process/reports/`). Each study follows up on the last one's
+  recommendations, so the process is judged by whether they helped.
 - **Review:** each review leaves the system measurably better on the scores
   above, or records honestly that it could not tell.
