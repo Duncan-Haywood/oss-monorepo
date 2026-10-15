@@ -50,6 +50,11 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
   forward using the last three complete months' pace. Base = average, low =
   worst month, high = best month. Needs two complete months; arithmetic on
   the past, not a prediction.
+- **Customer concentration** (dashboard and `/v1/concentration`): the share of
+  MRR held by the largest subscription, the top 5 and the top 10, with a
+  low / moderate / high band (high: one subscription is 25% or more of MRR).
+  Shares only, no customer or subscription ids. A customer with several
+  subscriptions counts once per subscription.
 - One currency per instance (`CURRENCY`, default: your most common); other
   subscriptions are left out and the dashboard says how many.
 
@@ -64,7 +69,7 @@ COMPANY_NAME=Acme node server.mjs
 
 Open `http://localhost:8080` and sign in with any user name and `ADMIN_KEY` as
 the password. API (same key as `Authorization: Bearer ...`): `GET /v1/metrics`,
-`GET /v1/months`, `GET /v1/cohorts`, `GET /v1/forecast`, `POST /v1/sync`.
+`GET /v1/months`, `GET /v1/cohorts`, `GET /v1/forecast`, `GET /v1/concentration`, `POST /v1/sync`.
 
 Stripe key: Dashboard, Developers, API keys, **Create restricted key**, set
 *Subscriptions* to **Read** and everything else to None. The server only ever
