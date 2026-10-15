@@ -64,6 +64,43 @@ GitHub login" over storing credentials). Do not add Cloudflare or Vercel as
 the way a new product goes live — GitHub Pages and the existing Hetzner
 boxes are the host.
 
+### Rule of thumb: anyone can deploy it themselves (owner, 2026-10-15)
+
+Build every app so that a stranger can run their own copy of it, in their own
+cloud account, without us. That lets other people set up businesses from
+this repo. The flow is: pick an app, pick a cloud provider, paste in
+credentials, click **Deploy**. This is a direction for future work, not a
+feature that exists yet. When someone builds it, these rules apply:
+
+- **All IaC, no backend of ours.** The deploy page is a static page like
+  every other one. The page creates a small deploy repo in the visitor's
+  GitHub account using their own GitHub token, then stores their cloud
+  credentials there as Actions secrets. The page encrypts the credentials in
+  the browser with the repo's public key (a libsodium sealed box) before
+  sending them. It then dispatches a workflow that runs OpenTofu. Keep the
+  OpenTofu state encrypted (OpenTofu's native state encryption) and in the
+  visitor's own repo. Also offer "download the IaC" so a visitor can run
+  `tofu apply` locally and never give GitHub a credential.
+- **Several providers, chosen by the visitor.** Static apps can go to GitHub
+  Pages, AWS (S3 + CloudFront), Google Cloud Storage, Azure Storage static
+  websites or DigitalOcean Spaces. Apps that need a running process get a
+  cloud-init VM on Hetzner, DigitalOcean or AWS. "Not Cloudflare, not Vercel"
+  is about where *we* host. It does not limit where a visitor deploys their
+  own copy.
+- **One platform feature, not 1,200 per-venture ones.** Build it once under
+  `platform/deploy/`. Derive the list of apps from `discoverSurfaces()` in
+  `platform/pages/build.mjs`. Do not keep a second list. Giving each venture
+  its own deploy button is the fleet-parity trap.
+- **Credentials never touch anything of ours.** Nothing we run or log ever
+  sees them. The page states exactly where they go: GitHub, encrypted, and
+  then the visitor's cloud provider. The visitor pays their own cloud bill,
+  and the no-SLA clause in §5b applies to their copy too.
+- **Money stays donations.** The only ask is a Buy Me a Coffee link, beside
+  the existing GitHub Sponsors link. This is an owner-approved exception to
+  §6's "no third-party donation links", for Buy Me a Coffee only. It goes in
+  only once the owner has created the account and given the handle. Never
+  invent the handle.
+
 ## 3. The API-key switch
 
 Ship the product fully useful with **no key at all**, and let a key unlock the
@@ -309,7 +346,8 @@ yet *counted for us*. Reading the aggregate back is the same open problem
 `portfolio/usage/README.md` already describes for the rest of the fleet, not
 something a venture's own PR can close.
 
-No third-party donation links, and never in front of a feature — a donation
+No third-party donation links (one owner-approved exception: Buy Me a Coffee,
+once the owner supplies the handle; see §2's self-deploy rule), and never in front of a feature — a donation
 prompt lives in the README and the footer, nowhere a user has to pass through.
 
 What "free for now" is buying: usage data, which is the only evidence we have
