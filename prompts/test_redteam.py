@@ -44,6 +44,12 @@ class SitesTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             redteam.apply(CALC.replace("gross - fees", "gross-fees"), site)
 
+    def test_docstrings_and_block_comments_are_left_alone(self):
+        py = '"""Doc.\n\nx == y and 3\n"""\ndef f():\n    """a == b."""\n    return a == b\n'
+        self.assertEqual([(s.line, s.operator) for s in redteam.sites(py, "py")], [(7, "eq-flip")])
+        js = "/**\n * a < b\n */\nconst x = a < b;\n"
+        self.assertEqual([(s.line, s.operator) for s in redteam.sites(js, "js")], [(4, "lt-to-le")])
+
     def test_python_operators(self):
         found = redteam.sites("x = a == b and max(c, 2)\n# y = a == b\n", "py")
         self.assertEqual({s.operator for s in found},

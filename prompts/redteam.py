@@ -100,6 +100,12 @@ SKIP_LINE = re.compile(
     r"^\s*(//|#|\*|/\*|import\b|from\s+\S+\s+import\b|export\s*\{|\"\"\"|''')")
 
 
+# Docstrings and block comments, which span lines and change no behaviour.
+BLOCK_OPEN = {"py": re.compile(r'^\s*(?:[rbuRBU]{0,2})("""|\'\'\')'),
+              "js": re.compile(r"^\s*(/\*)")}
+BLOCK_CLOSE = {'"""': '"""', "'''": "'''", "/*": "*/"}
+
+
 def lang_of(path: Path) -> str | None:
     return {".mjs": "js", ".js": "js", ".py": "py"}.get(path.suffix)
 
@@ -122,7 +128,18 @@ def _in_string(line: str, col: int) -> bool:
 def sites(text: str, lang: str) -> list[Site]:
     """Every place one operator applies, outside comments and string literals."""
     out = []
+    in_block = None  # the closing token of a docstring or /* */ comment we are inside
     for n, line in enumerate(text.split("\n"), 1):
+        if in_block:
+            if in_block in line:
+                in_block = None
+            continue
+        opener = BLOCK_OPEN[lang].match(line)
+        if opener:
+            close = BLOCK_CLOSE[opener.group(1)]
+            if line.count(close) < (2 if close == opener.group(1) else 1):
+                in_block = close
+            continue
         if SKIP_LINE.match(line) or "redteam: skip" in line:
             continue
         code = line.split("//", 1)[0] if lang == "js" else line.split("  #", 1)[0]
