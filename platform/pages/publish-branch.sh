@@ -315,8 +315,8 @@ echo "Checking the built artifact..."
 : > "$dist/.nojekyll"
 
 # The self-deploy page (platform/deploy/). Written after `check.mjs` because it
-# is a separate static app with its own tests, not a catalogue page: nothing in
-# the hub links into it yet, and `check.mjs` would read its 1,200 data files as
+# is a separate static app with its own tests, not a catalogue page: the hub
+# footer links to it (check.mjs exempts that one link), and `check.mjs` would read its 1,200 data files as
 # orphans.
 echo "Building the self-deploy page..."
 node "$repo_root/platform/deploy/build.mjs" --out="$dist/deploy" >/dev/null
