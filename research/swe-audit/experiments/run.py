@@ -1,4 +1,4 @@
-"""Audit a seeded sample of research/ projects. Usage: python3 experiments/run.py [N] [SEED]"""
+"""Audit a seeded sample of research/ projects. Usage: python3 experiments/run.py [N] [SEED] [TIMEOUT_SECONDS]"""
 import os
 import sys
 from collections import Counter
@@ -10,9 +10,10 @@ from swe_audit.audit import audit, summarise, wilson  # noqa: E402
 RESEARCH = os.path.abspath(os.path.join(HERE, "..", ".."))
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 40
 SEED = int(sys.argv[2]) if len(sys.argv) > 2 else 20261015
+TIMEOUT = int(sys.argv[3]) if len(sys.argv) > 3 else 300
 
-rows = audit(RESEARCH, N, SEED, timeout=300)
-print(f"sample: {len(rows)} projects, seed {SEED}, timeout 300 s each\n")
+rows = audit(RESEARCH, N, SEED, timeout=TIMEOUT)
+print(f"sample: {len(rows)} projects, seed {SEED}, timeout {TIMEOUT} s each\n")
 print(f"{'project':34s} {'status':12s} {'difflines':>9s} {'secs':>6s}  README decimals in output")
 for r in rows:
     rd = f"{r['readme'][0]}/{r['readme'][1]}" if r["readme"] else "-"

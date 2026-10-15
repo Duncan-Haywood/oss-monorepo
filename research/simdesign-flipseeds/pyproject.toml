@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-flipseeds"
+version = "0.1.0"
+description = "Do the mass-weighting machine-choice flips of simdesign-coverweight survive across seeds? Flip rates with Wilson intervals"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
