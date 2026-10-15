@@ -89,7 +89,7 @@ def project_links(slug):
     return links
 
 
-def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out):
+def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=None):
     slug = p["slug"]
     if not (RESEARCH / slug / "README.md").is_file():
         raise ValueError(f"research/{slug} has no README.md")
@@ -113,6 +113,8 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out):
     leftover = re.findall(r"\{\{\w+\}\}", page)
     if leftover:
         raise ValueError(f"research/{slug}: unfilled placeholders {leftover}")
+    if base_url:
+        page = published_page(page, slug, base_url)
     (d / "index.html").write_text(page)
 
 
@@ -127,6 +129,21 @@ def card(p, theme, lede, tests):
       <details><summary><span>Abstract <svg class="chev" width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></span><a href="{p['slug']}/">Project page →</a></summary>
         <p class="abstract">{p['summary']}</p></details>
     </article>"""
+
+
+def published_page(page, slug, base_url):
+    """When published under a parent site (--base-url): a canonical URL and share-card tags, and a
+    link back to the site's front page (two levels up), as every page on that site carries."""
+    base = html.escape(base_url.rstrip("/") + "/")
+    url = f"{base}research/{slug}/"
+    meta = (
+        f'<link rel="canonical" href="{url}">\n'
+        f'<meta property="og:url" content="{url}">\n'
+        f'<meta property="og:image" content="{base}social-card.png">\n'
+        '<meta name="twitter:card" content="summary_large_image">\n'
+    )
+    page = page.replace("</head>", meta + "</head>", 1)
+    return page.replace('<a href="../index.html">', '<a href="../../" data-pf-to="hub">All tools</a><a href="../index.html">', 1)
 
 
 def social_meta(base_url):
@@ -199,7 +216,7 @@ def build(out, base_url=None):
     failures = []
     for slug, (p, t) in by_slug.items():
         try:
-            project_page(p, t, ledes[slug], tests[slug], tokens, theme_vars, tmpl, out)
+            project_page(p, t, ledes[slug], tests[slug], tokens, theme_vars, tmpl, out, base_url)
         except Exception as e:  # noqa: BLE001
             failures.append(f"project page for research/{slug}: {e}")
     if failures:

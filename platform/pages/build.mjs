@@ -8911,7 +8911,7 @@ ${entries.join('\n')}
  * own — they are the same kind of page (this build's, not a venture's) and a
  * crawler following `robots.txt` reaches them through the same index.
  */
-export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys = []) {
+export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys = [], researchSlugs = []) {
   const urls = [`  <url><loc>${baseUrl}</loc></url>`]
     .concat(categoryIds.map((id) => `  <url><loc>${baseUrl}${categoryPagePath(id)}</loc></url>`))
     // The About page is a hub-level surface, not a venture's, so it is listed
@@ -8922,6 +8922,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     // this build writes, so it is listed here or nowhere.
     .concat([`  <url><loc>${baseUrl}${COMPARE_PATH}</loc></url>`])
     .concat([`  <url><loc>${baseUrl}${RESEARCH_PATH}</loc></url>`])
+    // Each research project's own home page, written by the research builder.
+    .concat(researchSlugs.map((slug) => `  <url><loc>${baseUrl}${RESEARCH_PATH}${slug}/</loc></url>`))
     // And the guides index, for the same reason. See `GUIDES_PATH`: it is the
     // only page on the site that is *about* the 342 informational pages the
     // ventures wrote, which is the half of the catalogue organic search
@@ -9556,6 +9558,13 @@ export async function buildSite({
   );
 
   buildResearchPage(outDir, base);
+  const researchSlugs = [];
+  for (const entry of await fs.readdir(path.join(outDir, RESEARCH_PATH), { withFileTypes: true })) {
+    if (entry.isDirectory() && (await fs.stat(path.join(outDir, RESEARCH_PATH, entry.name, 'index.html')).catch(() => null))) {
+      researchSlugs.push(entry.name);
+    }
+  }
+  researchSlugs.sort();
 
   // The comparison index. After the categories because it links every one of
   // them, and before the sitemaps for the same reason they are.
@@ -9605,6 +9614,7 @@ export async function buildSite({
       base,
       categoryGroups.map(({ category }) => category.id),
       compareProducts.map((group) => group.key),
+      researchSlugs,
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));

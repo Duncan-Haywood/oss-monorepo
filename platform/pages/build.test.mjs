@@ -4480,6 +4480,9 @@ test('the hub sitemap holds the hub, the categories, About, /compare/, /research
   // Called with no categories it still emits a valid urlset naming the hub —
   // the shape every caller before this change relied on.
   assert.ok(renderHubSitemap(BASE).includes(`<loc>${BASE}</loc>`));
+
+  // Each research project's home page is listed under /research/.
+  assert.ok(renderHubSitemap(BASE, [], [], ['accel-kws']).includes(`<loc>${BASE}${RESEARCH_PATH}accel-kws/</loc>`));
 });
 
 test('tools whose audience browses a section are filed in it', async () => {
