@@ -37,8 +37,8 @@
   ],
   "deviations": [
     {
-      "instruction": "step 2 audit, step 4 candidate",
-      "did": "skipped",
+      "file": "prompts/review/prompt-1.md",
+      "what": "skipped step 2 audit and step 4 candidate",
       "why": "nothing auditable locally; all candidates under 10 runs",
       "result": "unknown"
     }
