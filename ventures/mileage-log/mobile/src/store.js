@@ -1,7 +1,7 @@
 // On-device storage only. Nothing here is sent anywhere.
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const K = { engine: "ml.engine", pending: "ml.pending", trips: "ml.trips", places: "ml.places", vehicles: "ml.vehicles", active: "ml.activeVehicle" };
+const K = { engine: "ml.engine", pending: "ml.pending", trips: "ml.trips", places: "ml.places", vehicles: "ml.vehicles", active: "ml.activeVehicle", schedule: "ml.schedule" };
 const read = async (k, d) => { try { const v = await AsyncStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } };
 const write = (k, v) => AsyncStorage.setItem(k, JSON.stringify(v));
 
@@ -15,6 +15,8 @@ export const loadVehicles = () => read(K.vehicles, []);
 export const saveVehicles = (v) => write(K.vehicles, v);
 export const loadActiveVehicle = () => read(K.active, "");
 export const saveActiveVehicle = (v) => write(K.active, v);
+export const loadSchedule = () => read(K.schedule, null);
+export const saveSchedule = (s) => write(K.schedule, s);
 export const saveTrips = (t) => write(K.trips, t);
 export async function deleteTrip(id) {
   await write(K.trips, (await loadTrips()).filter((t) => t.id !== id));
