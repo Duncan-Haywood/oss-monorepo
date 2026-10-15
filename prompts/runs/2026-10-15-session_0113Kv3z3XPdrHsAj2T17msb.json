@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_0113Kv3z3XPdrHsAj2T17msb",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "webhook-relay"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7169",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "checklist says run bare regen.mjs and commit whatever it rewrites; in a fresh clone that is ~2.7k unrelated gz files, so I skipped it"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "did not commit regen.mjs output: churn unrelated to my change (webhook-relay page untouched)"
+    }
+  ],
+  "goal": null,
+  "notes": "Added per-route/per-target delivery headers with env-expanded secrets to webhook-relay. regen.mjs --verify exited 1 on clean main and bare regen rewrote ~2.7k gitops/prod gz files (drip-keeper mirror files untracked); I reverted that churn rather than commit it.",
+  "corrections": [],
+  "redteam": null
+}
