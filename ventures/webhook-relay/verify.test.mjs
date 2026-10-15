@@ -37,6 +37,23 @@ test("slack signs v0:ts:body and checks the timestamp", () => {
   assert.equal(verify("slack", { headers, body, secret: "k", nowSec: NOW + 9999 }).ok, false);
 });
 
+test("paddle: ts;h1 over ts:body, rotation list, stale and tampered rejected", () => {
+  const ts = String(NOW);
+  const good = h("k", `${ts}:${body}`);
+  const hd = (v) => ({ "paddle-signature": v });
+  assert.equal(verify("paddle", { headers: hd(`ts=${ts};h1=${good}`), body, secret: "k", nowSec: NOW }).ok, true);
+  assert.equal(verify("paddle", { headers: hd(`ts=${ts};h1=${h("old", `${ts}:${body}`)};h1=${good}`), body, secret: "k", nowSec: NOW }).ok, true);
+  assert.equal(verify("paddle", { headers: hd(`ts=${ts};h1=${good}`), body: Buffer.from("{}"), secret: "k", nowSec: NOW }).ok, false);
+  assert.match(verify("paddle", { headers: hd(`ts=${ts};h1=${good}`), body, secret: "k", nowSec: NOW + 1000 }).reason, /tolerance/);
+  assert.equal(verify("paddle", { headers: {}, body, secret: "k", nowSec: NOW }).ok, false);
+});
+
+test("typeform: sha256= prefix on a base64 digest", () => {
+  assert.equal(verify("typeform", { headers: { "typeform-signature": `sha256=${h("k", body, "base64")}` }, body, secret: "k" }).ok, true);
+  assert.equal(verify("typeform", { headers: { "typeform-signature": `sha256=${h("z", body, "base64")}` }, body, secret: "k" }).ok, false);
+  assert.equal(verify("typeform", { headers: {}, body, secret: "k" }).ok, false);
+});
+
 test("standard webhooks: whsec_ base64 key, space-separated signature list", () => {
   const raw = Buffer.from("super secret key bytes");
   const secret = `whsec_${raw.toString("base64")}`;
