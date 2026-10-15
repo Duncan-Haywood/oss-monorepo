@@ -46,3 +46,11 @@ test("page wires vehicles, repeat trips and the preparer report, all client-side
   assert.match(html, /preparerReportHtml/);
   assert.match(html, /frequentRoutes/);
 });
+
+test("privacy policy page exists, is in the sitemap and makes no tracking claims it cannot keep", () => {
+  const html = page("privacy.html");
+  assert.match(html, /no analytics/);
+  assert.match(html, /Nothing\./);
+  assert.doesNotMatch(html, /<script|fetch\(/);
+  assert.match(page("sitemap.xml"), /privacy\.html/);
+});
