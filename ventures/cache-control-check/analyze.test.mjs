@@ -218,3 +218,25 @@ test('buildReport echoes back the caching headers it read, normalised to null wh
   assert.equal(report.probe.headers.vary, null);
   assert.equal(report.probe.headers.etag, null);
 });
+
+test('expires-before-date fires when Expires equals Date, and does not throw when Date is absent', () => {
+  const base = { ok: true, status: 200, protocol: 'https:', path: '/', setCookie: [] };
+  const same = buildReport('https://example.com/', {
+    ...base, headers: { date: 'Wed, 01 Jan 2025 00:00:00 GMT', expires: 'Wed, 01 Jan 2025 00:00:00 GMT' },
+  });
+  assert.ok(findingIds(same).includes('expires-before-date'));
+  const later = buildReport('https://example.com/', {
+    ...base, headers: { date: 'Wed, 01 Jan 2025 00:00:00 GMT', expires: 'Wed, 01 Jan 2025 00:00:01 GMT' },
+  });
+  assert.ok(!findingIds(later).includes('expires-before-date'));
+  const noDate = buildReport('https://example.com/', { ...base, headers: { expires: 'Wed, 01 Jan 2025 00:00:00 GMT' } });
+  assert.ok(!findingIds(noDate).includes('expires-before-date'));
+});
+
+test('buildReport marks a successful probe as ok and a failed one as not ok in the echoed probe', () => {
+  const good = buildReport('https://example.com/', { ok: true, headers: {}, setCookie: [] });
+  assert.equal(good.probe.ok, true);
+  assert.equal(good.ok, true);
+  const bad = buildReport('https://example.com/', { ok: false, error: 'x' });
+  assert.equal(bad.probe.ok, false);
+});
