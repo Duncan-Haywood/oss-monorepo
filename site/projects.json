@@ -2002,6 +2002,11 @@
      "summary": "A stylised, preliminary optimisation study (closed-form buckling check, assumed rules, material and load). Replacing the w/b &le; 8 slenderness rule with a lateral-torsional safety factor of at least 3 lets the differential-evolution optimiser use the 1.5&nbsp;mm gauge at w &asymp; 18.7&nbsp;mm: 31.1&ndash;31.4&nbsp;g against 35.8&ndash;36.0&nbsp;g under the old rule, about 12% lighter (three seeds each). The guard does not bind at that optimum; the stress limit does. The result depends on the assumed factor: no feasible 1.5&nbsp;mm design was found for a factor of 5 or more. Simulated only; edge crippling, imperfections and cutting stress are not modelled."
     },
     {
+     "slug": "simdesign-loadbind",
+     "title": "When does the buckling guard of the laser-cut bracket start to bind as load and arm length change?",
+     "summary": "A stylised, preliminary sweep (closed-form buckling check, assumed rules, material and loads; two seeds). Over tip loads of 50&ndash;400&nbsp;N and arms of 60&ndash;120&nbsp;mm, a lateral-torsional factor &ge;&nbsp;3 guard binds in only one of six cases: 120&nbsp;mm arms, where the unguarded optimum has a factor of 1.9 and the guard costs 16% in mass (69 g vs 59 g). The old w/b &le; 8 rule was 14&ndash;25% heavier than the buckling guard in five of six cases. Gauge steps make mass non-smooth in load; the result moves with the assumed factor."
+    },
+    {
      "slug": "simdesign-edgescan",
      "title": "How sharp is the feasible edge of the 2&nbsp;mm laser-cut bracket web at 0.1&nbsp;mm resolution, and is it mesh noise?",
      "summary": "A small scan (stylised, preliminary). Re-scanning web width w in 0.1&nbsp;mm steps (15.5&ndash;17.5&nbsp;mm) at three radii and three meshes, the peak von Mises stress is not monotone in w in any of the nine series. Its residual jitter about a quadratic trend is 0.9&ndash;2.4&nbsp;MPa, shrinking with refinement, and the stress just below each feasible edge is only 0.1&ndash;1.7&nbsp;MPa over the 100&nbsp;MPa limit, so the edge is a band of about 0.5&nbsp;mm and the refinement shift reported in <em>simdesign-widerweb</em> is not separated from mesh noise. The source of the jitter is not identified. Simulated only."
