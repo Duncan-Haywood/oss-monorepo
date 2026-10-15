@@ -49,3 +49,7 @@ test("robots and sitemap let crawlers find the page; deploy files point at this 
   assert.match(file("render.yaml"), /dockerContext: ventures\/drip-keeper/);
   assert.match(file("Dockerfile"), /COPY engine\.mjs server\.mjs/);
 });
+
+test("index links one hop to the meter-keeper sibling", () => {
+  assert.match(file("index.html"), /href="\.\.\/meter-keeper\/"/);
+});
