@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the largest real-minus-twin state gap, relative to the step x0, against x0 from 0.1 to 1.5; it is exactly zero until the actuator saturates near kp*x0 = U, then grows to 0.289 at x0 = 1.5">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Windup twin: twin error vs initial step size</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="267.1" y2="267.1" stroke="#ddd"/><text x="58" y="271.1" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="210.2" y2="210.2" stroke="#ddd"/><text x="58" y="214.2" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="153.3" y2="153.3" stroke="#ddd"/><text x="58" y="157.3" text-anchor="end" font-family="sans-serif" font-size="11">0.3</text>
+<line x1="64" x2="624" y1="96.4" y2="96.4" stroke="#ddd"/><text x="58" y="100.4" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="181.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="240.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.7</text>
+<text x="246.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.72</text>
+<text x="270.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<text x="329.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="476.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.5</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">step x0</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">relative gap</text>
+<polyline points="64.0,324.0 181.9,324.0 240.8,324.0 246.7,324.0 270.3,317.3 329.3,276.3 476.6,159.5 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="181.9" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="240.8" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="246.7" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="270.3" cy="317.3" r="3" fill="#c0392b"/>
+<circle cx="329.3" cy="276.3" r="3" fill="#c0392b"/>
+<circle cx="476.6" cy="159.5" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">max |x_real - x_twin| / x0</text>
+</svg>

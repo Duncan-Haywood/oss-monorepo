@@ -1,0 +1,155 @@
+mimic-crossplay: every imitator prompt against every detector prompt of the mimic-loop runs
+Detector paired accuracy over 48 titles (24 loop-test + 24 fresh); 0.50 = chance; lower = better imitator.
+
+== reddit  detector model Qwen/Qwen2.5-0.5B-Instruct  (10 imitator prompts x 7 detector prompts)
+Nash value (detector accuracy) 0.396  95% title-bootstrap [0.283, 0.475]
+pure max-min (detector guarantees) 0.396   pure min-max (imitator guarantees) 0.396
+exploitability at the computed mixture: imitator -1.1e-16, detector 5.6e-17
+            D0     D1     D2     D3     D4     D5     D6
+     I0   0.19   0.42   0.29   0.33   0.23   0.27   0.40
+     I1   0.21   0.31   0.25   0.31   0.19   0.23   0.48
+     I2   0.19   0.40   0.29   0.31   0.19   0.23   0.44
+     I3   0.38   0.48   0.38   0.42   0.33   0.42   0.54
+     I4   0.31   0.50   0.33   0.46   0.31   0.33   0.50
+     I5   0.17   0.35   0.23   0.27   0.19   0.23   0.42
+     I6   0.17   0.38   0.27   0.31   0.21   0.25   0.40
+     I7   0.29   0.52   0.35   0.50   0.33   0.40   0.50
+     I8   0.35   0.48   0.40   0.48   0.35   0.35   0.56
+     I9   0.35   0.38   0.31   0.44   0.38   0.35   0.42
+Game restricted to imitators that pass the length/copy check (['I3', 'I4', 'I8', 'I9']): Nash value 0.435, pure max-min 0.417, min-max 0.438
+Spearman correlation, imitator mean text length vs mean detector accuracy: 0.76
+Regenerated texts equal the mimic-loop's stored samples in 16 of 16 snapshots
+Nash imitator mixture: I0=0.50, I6=0.50
+Nash detector mixture: D6=1.00
+Imitators (I): origin(proposer,round) | mean detector acc | mean len (ref 396) | copy4 | valid | distinct2 (human 0.84)
+  I0 [['random', 0], ['ga', 0], ['grips', 0], ['llm', 0]] 0.30 55 0.019 False 0.97
+  I1 [['random', 1], ['random', 2], ['random', 3]] 0.28 69 0.014 False 0.97
+  I2 [['ga', 1]] 0.29 65 0.016 False 0.97
+  I3 [['ga', 2]] 0.42 161 0.016 True 0.94
+  I4 [['ga', 3]] 0.39 190 0.011 True 0.90
+  I5 [['grips', 1]] 0.26 48 0.011 False 0.97
+  I6 [['grips', 2], ['grips', 3]] 0.28 57 0.018 False 0.90
+  I7 [['llm', 1]] 0.41 145 0.017 False 0.95
+  I8 [['llm', 2]] 0.43 229 0.008 True 0.93
+  I9 [['llm', 3]] 0.38 319 0.011 True 0.89
+Detectors (D): origin | mean acc vs all imitators | acc vs plain imitator
+  D0 [['random', 0], ['ga', 0], ['grips', 0], ['llm', 0]] 0.26 0.19
+  D1 [['random', 1], ['random', 2], ['random', 3]] 0.42 0.42
+  D2 [['ga', 1], ['ga', 2]] 0.31 0.29
+  D3 [['ga', 3]] 0.38 0.33
+  D4 [['grips', 1]] 0.27 0.23
+  D5 [['grips', 2], ['grips', 3]] 0.31 0.27
+  D6 [['llm', 1], ['llm', 2], ['llm', 3]] 0.46 0.40
+
+-- reddit / random: rows = imitator rounds 0-3, columns = detector rounds 0-3 (prompts I[0, 1, 1, 1] x D[0, 1, 1, 1])
+            r0     r1     r2     r3
+     r0   0.19   0.42   0.42   0.42
+     r1   0.21   0.31   0.31   0.31
+     r2   0.21   0.31   0.31   0.31
+     r3   0.21   0.31   0.31   0.31
+reversals: 0 of 36 quadruples at eps 0.15; 9 at eps 0
+final imitator: vs its own last detector 0.31, mean over all detectors 0.28, worst 0.48; final detector: vs plain imitator 0.42, mean over all imitators 0.42
+
+-- reddit / ga: rows = imitator rounds 0-3, columns = detector rounds 0-3 (prompts I[0, 2, 3, 4] x D[0, 2, 2, 3])
+            r0     r1     r2     r3
+     r0   0.19   0.29   0.29   0.33
+     r1   0.19   0.29   0.29   0.31
+     r2   0.38   0.38   0.38   0.42
+     r3   0.31   0.33   0.33   0.46
+reversals: 0 of 36 quadruples at eps 0.15; 0 at eps 0
+final imitator: vs its own last detector 0.46, mean over all detectors 0.39, worst 0.50; final detector: vs plain imitator 0.33, mean over all imitators 0.38
+
+-- reddit / grips: rows = imitator rounds 0-3, columns = detector rounds 0-3 (prompts I[0, 5, 6, 6] x D[0, 4, 5, 5])
+            r0     r1     r2     r3
+     r0   0.19   0.23   0.27   0.27
+     r1   0.17   0.19   0.23   0.23
+     r2   0.17   0.21   0.25   0.25
+     r3   0.17   0.21   0.25   0.25
+reversals: 0 of 36 quadruples at eps 0.15; 0 at eps 0
+final imitator: vs its own last detector 0.25, mean over all detectors 0.28, worst 0.40; final detector: vs plain imitator 0.27, mean over all imitators 0.31
+
+-- reddit / llm: rows = imitator rounds 0-3, columns = detector rounds 0-3 (prompts I[0, 7, 8, 9] x D[0, 6, 6, 6])
+            r0     r1     r2     r3
+     r0   0.19   0.40   0.40   0.40
+     r1   0.29   0.50   0.50   0.50
+     r2   0.35   0.56   0.56   0.56
+     r3   0.35   0.42   0.42   0.42
+reversals: 0 of 36 quadruples at eps 0.15; 3 at eps 0
+final imitator: vs its own last detector 0.42, mean over all detectors 0.38, worst 0.44; final detector: vs plain imitator 0.40, mean over all imitators 0.46
+
+== reviews  detector model Qwen/Qwen2.5-0.5B-Instruct  (9 imitator prompts x 10 detector prompts)
+Nash value (detector accuracy) 0.292  95% title-bootstrap [0.167, 0.339]
+pure max-min (detector guarantees) 0.292   pure min-max (imitator guarantees) 0.292
+exploitability at the computed mixture: imitator 0.0e+00, detector 0.0e+00
+            D0     D1     D2     D3     D4     D5     D6     D7     D8     D9
+     I0   0.15   0.23   0.29   0.15   0.08   0.12   0.15   0.15   0.21   0.23
+     I1   0.19   0.27   0.35   0.12   0.19   0.21   0.21   0.27   0.29   0.19
+     I2   0.21   0.38   0.40   0.31   0.25   0.21   0.19   0.25   0.25   0.21
+     I3   0.12   0.27   0.38   0.15   0.10   0.10   0.12   0.23   0.23   0.29
+     I4   0.23   0.38   0.44   0.21   0.21   0.23   0.21   0.33   0.29   0.29
+     I5   0.19   0.23   0.33   0.19   0.19   0.17   0.19   0.25   0.25   0.23
+     I6   0.17   0.23   0.29   0.19   0.19   0.17   0.19   0.27   0.23   0.21
+     I7   0.25   0.33   0.33   0.25   0.27   0.27   0.31   0.29   0.27   0.21
+     I8   0.15   0.23   0.29   0.15   0.17   0.15   0.19   0.17   0.29   0.17
+Game restricted to imitators that pass the length/copy check (['I0', 'I1', 'I2', 'I3', 'I4', 'I5', 'I6', 'I7', 'I8']): Nash value 0.292, pure max-min 0.292, min-max 0.292
+Spearman correlation, imitator mean text length vs mean detector accuracy: 0.30
+Regenerated texts equal the mimic-loop's stored samples in 16 of 16 snapshots
+Nash imitator mixture: I0=1.00
+Nash detector mixture: D2=1.00
+Imitators (I): origin(proposer,round) | mean detector acc | mean len (ref 395) | copy4 | valid | distinct2 (human 0.86)
+  I0 [['random', 0], ['random', 1], ['ga', 0], ['ga', 1], ['grips', 0], ['grips', 1], ['llm', 0]] 0.17 193 0.014 True 0.86
+  I1 [['random', 2]] 0.23 336 0.009 True 0.83
+  I2 [['random', 3]] 0.26 220 0.018 True 0.82
+  I3 [['ga', 2]] 0.20 238 0.007 True 0.84
+  I4 [['ga', 3]] 0.28 270 0.007 True 0.85
+  I5 [['grips', 2], ['grips', 3]] 0.22 199 0.031 True 0.82
+  I6 [['llm', 1]] 0.21 340 0.016 True 0.82
+  I7 [['llm', 2]] 0.28 370 0.012 True 0.79
+  I8 [['llm', 3]] 0.19 337 0.009 True 0.84
+Detectors (D): origin | mean acc vs all imitators | acc vs plain imitator
+  D0 [['random', 0], ['ga', 0], ['grips', 0], ['llm', 0]] 0.18 0.15
+  D1 [['random', 1]] 0.28 0.23
+  D2 [['random', 2], ['random', 3]] 0.34 0.29
+  D3 [['ga', 1]] 0.19 0.15
+  D4 [['ga', 2], ['ga', 3]] 0.18 0.08
+  D5 [['grips', 1], ['grips', 2]] 0.18 0.12
+  D6 [['grips', 3]] 0.19 0.15
+  D7 [['llm', 1]] 0.25 0.15
+  D8 [['llm', 2]] 0.26 0.21
+  D9 [['llm', 3]] 0.22 0.23
+
+-- reviews / random: rows = imitator rounds 0-3, columns = detector rounds 0-3 (prompts I[0, 0, 1, 2] x D[0, 1, 2, 2])
+            r0     r1     r2     r3
+     r0   0.15   0.23   0.29   0.29
+     r1   0.15   0.23   0.29   0.29
+     r2   0.19   0.27   0.35   0.35
+     r3   0.21   0.38   0.40   0.40
+reversals: 0 of 36 quadruples at eps 0.15; 0 at eps 0
+final imitator: vs its own last detector 0.40, mean over all detectors 0.26, worst 0.40; final detector: vs plain imitator 0.29, mean over all imitators 0.34
+
+-- reviews / ga: rows = imitator rounds 0-3, columns = detector rounds 0-3 (prompts I[0, 0, 3, 4] x D[0, 3, 4, 4])
+            r0     r1     r2     r3
+     r0   0.15   0.15   0.08   0.08
+     r1   0.15   0.15   0.08   0.08
+     r2   0.12   0.15   0.10   0.10
+     r3   0.23   0.21   0.21   0.21
+reversals: 0 of 36 quadruples at eps 0.15; 0 at eps 0
+final imitator: vs its own last detector 0.21, mean over all detectors 0.28, worst 0.44; final detector: vs plain imitator 0.08, mean over all imitators 0.18
+
+-- reviews / grips: rows = imitator rounds 0-3, columns = detector rounds 0-3 (prompts I[0, 0, 5, 5] x D[0, 5, 5, 6])
+            r0     r1     r2     r3
+     r0   0.15   0.12   0.12   0.15
+     r1   0.15   0.12   0.12   0.15
+     r2   0.19   0.17   0.17   0.19
+     r3   0.19   0.17   0.17   0.19
+reversals: 0 of 36 quadruples at eps 0.15; 0 at eps 0
+final imitator: vs its own last detector 0.19, mean over all detectors 0.22, worst 0.33; final detector: vs plain imitator 0.15, mean over all imitators 0.19
+
+-- reviews / llm: rows = imitator rounds 0-3, columns = detector rounds 0-3 (prompts I[0, 6, 7, 8] x D[0, 7, 8, 9])
+            r0     r1     r2     r3
+     r0   0.15   0.15   0.21   0.23
+     r1   0.17   0.27   0.23   0.21
+     r2   0.25   0.29   0.27   0.21
+     r3   0.15   0.17   0.29   0.17
+reversals: 0 of 36 quadruples at eps 0.15; 10 at eps 0
+final imitator: vs its own last detector 0.17, mean over all detectors 0.19, worst 0.29; final detector: vs plain imitator 0.23, mean over all imitators 0.22

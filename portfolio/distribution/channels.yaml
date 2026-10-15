@@ -68,3 +68,17 @@ channels:
       - GitHub Terms of Service and Acceptable Use (releases on our own repository are a first-party feature; no third party is contacted)
     owner_ask: set DISTRIBUTE_RELEASES=true. Note it creates a tag on the default branch each week.
     dry_run: node platform/distribution/releases.mjs
+  - id: npm-cli-packages
+    rung: artifact
+    built: 2026-10-15
+    code: platform/distribution/npm.mjs
+    workflow: .github/workflows/distribute-npm.yml
+    enabled_by: repository variable DISTRIBUTE_NPM=true plus secret NPM_TOKEN (an npm automation token); optional variable NPM_SCOPE (e.g. @yourname) to publish under a scope
+    what_it_posts: one npm package per zero-dependency venture CLI (cli.mjs plus the sibling files it imports, an MIT LICENSE, the venture README with a free/open-source/not-advice footer), at most 5 new packages per run, version 0.1.0; a bin wrapper makes `npx <name>` work because npm's bin symlink defeats the CLIs' direct-invocation guard
+    dedupe: stateless; a package name that already exists on the registry is skipped, so nothing is ever republished or overwritten
+    terms_to_confirm_by_owner_when_enabling:
+      - npm Terms of Use and Open-Source Terms (publishing under your own account; free public packages)
+      - npm's policy on name squatting and spam: the run is capped and each package is a working tool, but check the cap suits you
+      - decide scope vs unscoped names before the first publish, because a published name cannot be reclaimed
+    owner_ask: create or choose the npm account, store NPM_TOKEN as a repository secret, set NPM_SCOPE if wanted, then set DISTRIBUTE_NPM=true
+    dry_run: node platform/distribution/npm.mjs

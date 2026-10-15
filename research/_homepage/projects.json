@@ -2300,6 +2300,11 @@
      "slug": "eda-flowtune",
      "title": "Does the best ABC recipe for one design transfer to another?",
      "summary": "All 400 ABC pass sequences (up to three passes of seven) mapped to SKY130 on eight small datapath designs, so every optimum is known. The best recipe differs per design and transfers badly: one design&rsquo;s best recipe scores a mean 1.31&times; (worst 2.06&times;) the other&rsquo;s optimum, and score rankings of recipes correlate only weakly across designs (Spearman &minus;0.51 to 0.46). A leave-one-out consensus recipe is only slightly better than a median sequence (1.22&times; against 1.26&times;), and warm-starting a hill climber with it helps one design (<em>mac4</em>) but is within noise of random search on average at budgets 10 to 40. Stylised: eight hand-picked toy designs, ABC&rsquo;s static delay, no place and route; the OpenROAD-settings half of the milestone is not done."
+    },
+    {
+     "slug": "eda-verify",
+     "title": "How many injected RTL bugs do random, coverage-directed and formal checks catch, and at what cost?",
+     "summary": "Mutation study on the MAC accelerator: 91 compilable mutants (operator, literal, deletion and ROM edits), of which 66 are killable and 16 are proved equivalent by induction. 64 random vectors kill 99% of the killable ones, 16 coverage-directed vectors 97% (16 random: 95%), and bounded Yosys formal checking 71% because 19 SAT runs timed out. Cost per kill: about 1&nbsp;s for simulation against 52&nbsp;s for a formal kill. Stylised: one design, one bound, one solver."
     }
    ]
   },
@@ -2406,6 +2411,16 @@
      "slug": "mimic-loop",
      "title": "Can prompt search alone move a frozen 0.5B imitator past a prompted 0.5B detector, and which proposer does it best at equal budget?",
      "summary": "A first, stylised run of the imitation game: Qwen2.5-0.5B-Instruct as imitator and detector, only prompts change, alternating rounds on two families (reddit, reviews) with four proposers (random, GA, GrIPS-style, local-LLM) at 4 evaluations per side per round. The plain detector starts <em>below</em> chance (paired accuracy 0.12), the final detectors reach 0.12&ndash;0.58 on 24 test pairs with intervals of about &plusmn;0.2, and the proposers cannot be ranked. Length is a major confound: imitators that wrote longer texts fooled the detector more. One seed; a harness and a first look, not a detection result."
+    },
+    {
+     "slug": "mimic-crossplay",
+     "title": "Does the prompt-only imitation game settle or cycle, and does beating the latest detector mean beating the others?",
+     "summary": "Follow-up to <code>mimic-loop</code>. Every imitator prompt any of its eight runs produced is scored against every detector prompt (Qwen2.5-0.5B-Instruct on both sides, 48 titles per cell, detector paired accuracy, 0.50 = chance), giving a 10&times;7 matrix on reddit and 9&times;10 on reviews. Both zero-sum games have a pure equilibrium with value below chance (reddit 0.396, 95% title-bootstrap 0.28 to 0.47; reviews 0.292, 0.17 to 0.34): no detector prompt guarantees chance, and no cell exceeds 0.56. On reviews the unadapted plain imitator prompt is the equilibrium imitator. Mean text length correlates with detector accuracy (Spearman 0.76 on reddit, 0.30 on reviews). No cycles at a 0.15 noise margin; overfitting to the latest opponent is small and not established. Stylised: one loop seed, a 0.5B detector that starts below chance. The model-size question is left open."
+    },
+    {
+     "slug": "mimic-anycontext-detect",
+     "title": "Does a prompt-free human-vs-machine detector hold up on context families it never saw?",
+     "summary": "Detector side of <code>mimic-anycontext</code>, run without an LLM because the model download was blocked. A TF-IDF n-gram logistic-regression detector is fitted on seven of eight RAID-derived families and scored on the eighth: mean AUROC 0.934 against 0.985 when fitted inside the family, worst on recipes (0.843), abstracts and wiki. Forty labelled target items close most of the gap on recipes. Held-out generators cost little (AUROC 0.90&ndash;1.00) and length does not explain it. Stylised: plain-prompt machine text only, one detector type; the prompt-optimising imitator is not tested."
     },
     {
      "slug": "mimic-twinc2st",

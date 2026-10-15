@@ -1,0 +1,69 @@
+name: visit-keeper
+description: >-
+  Self-hosted, cookie-free web analytics: a script under 1 KB, daily-rotating
+  anonymous visitor hashes (no IP or user-agent stored), pageviews, visits,
+  bounce rate, sources, UTM campaigns, countries, devices, live visitors, and
+  goals with revenue credited to the source that brought the customer. Public
+  share pages, CSV/JSON export. Zero-dependency server with one-click Render,
+  Fly.io and Docker deploys.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and proven: Plausible, Fathom,
+# Simple Analytics, Pirsch and Cloudflare Web Analytics sell or give away
+# privacy-friendly analytics; Google Analytics is the free default most sites
+# still run. Free self-hosted baselines are Umami, Matomo, GoatCounter and
+# Plausible Community Edition, all of which need a database or a heavier stack.
+# The gap this fills: a site owner who wants to read the whole collector in an
+# afternoon, run it as one process with one file, and see goals attributed to
+# the traffic source (which channel brings paying customers) without a funnel
+# product. Also the portfolio's own missing piece: Pages has no server-side
+# analytics (portfolio/usage/usage.yaml live_url_visitors is null) and this is
+# what a deployer would run to measure their copy.
+# duplicate_check: no analytics collector in ventures/ (product-analytics-
+# pricing-calculator prices vendors; it does not collect). Sibling of
+# status-keeper and cancel-flow: same buyer (indie SaaS and small-site owners),
+# same self-deploy shape.
+#
+# First visitor: people searching "plausible alternative self hosted", "google
+# analytics alternative no cookies", "privacy friendly analytics" on Hacker
+# News, r/selfhosted, r/webdev and Indie Hackers. Volume not measured.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet; hosted
+# version, done-for-you setup or GitHub Sponsors are the paid steps -- hosting
+# under the public name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      Indie developers and small-site owners will deploy a one-file analytics
+      collector in their own account once the page shows the snippet and what is
+      (not) stored, because the paid tools bill by pageviews and the free ones
+      need a database.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Goals credited to the arrival source (conversions per visit from each
+      source) are the feature that makes a site owner look at the dashboard
+      weekly, because pageview totals alone do not say which channel to feed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A report that visitors can be re-identified from the state file or across days; privacy claims come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/visit-keeper/
+  analytics: null
