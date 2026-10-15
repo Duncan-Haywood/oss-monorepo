@@ -27,7 +27,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 6,
-  "outcome": "Added deploy/scheduled-watch.yml (daily GitHub Actions check in the deployer's own fork, baselines committed, issue on change/inconclusive), a watchlist, README section and 6 tests.",
+  "outcome": "success",
   "errors": [
     "14 pre-existing vendor-watch tests fail in this sandbox (same count on clean main; network-dependent)"
   ],
@@ -37,7 +37,7 @@
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Did not run the full CI-starvation checklist; change is additive files inside one venture.",
+  "notes": "Added deploy/scheduled-watch.yml (daily Actions check in the deployer's fork, baselines committed, issue on change/inconclusive), watchlist, README section, 6 tests. Did not run the full CI-starvation checklist; change is additive files inside one venture.",
   "corrections": [],
   "redteam": null
 }
