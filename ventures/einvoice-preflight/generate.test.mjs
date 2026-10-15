@@ -8,7 +8,7 @@ const draft = () => ({
   number: "RE-2026-001",
   issue_date: "2026-10-15",
   due_date: "2026-11-14",
-  buyer_reference: "04011000-12345-34",
+  buyer_reference: "04011000-12345-03",
   order_reference: "PO-77",
   seller: {
     name: "Muster Software GmbH", street: "Hauptstrasse 1", city: "Berlin", postal_code: "10115", country: "DE",

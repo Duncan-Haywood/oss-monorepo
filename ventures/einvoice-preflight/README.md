@@ -16,6 +16,16 @@ When a PDF unwraps, the result names the standard attachment
 (`factur-x.xml`, `zugferd-invoice.xml`, or `xrechnung.xml`) and the syntax
 (CII or UBL). Custom attachment names are not echoed.
 
+**XRechnung profile (Germany).** Tick "Also apply the German XRechnung rules"
+on the page, or call the API with `POST /v1/validate?profile=xrechnung`, to add
+nine `XR-001`..`XR-009` rules that mirror the BR-DE business rules a German
+public buyer's portal enforces: buyer reference (BT-10), Leitweg-ID check
+digits (ISO 7064 MOD 97-10, verified against published samples), payment
+instructions, seller contact, seller and buyer city and postcode, invoice type
+code, the XRechnung 3.x specification identifier, and a seller tax identifier.
+Off by default. JS (page and API) only; the Python CLI does not apply it yet.
+It is an offline observation, not the KoSIT validator.
+
 ```sh
 cd ventures/einvoice-preflight
 # Browser: open index.html, or `python3 -m http.server 8765` and visit

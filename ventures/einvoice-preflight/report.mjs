@@ -1,4 +1,5 @@
 import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
+import { inspectXrechnungProfile } from "./profile.mjs";
 import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
 import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
@@ -33,7 +34,7 @@ export async function parseInvoiceSource(name, source) {
   return (await inspectInvoiceSource(name, source)).invoice;
 }
 
-export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES } = {}) {
+export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES, profile = "" } = {}) {
   const reports = [];
   const readErrors = [];
   const parsed = [];
@@ -62,6 +63,7 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
     try {
       const { invoice, envelope } = await inspectInvoiceSource(name, source);
       const errors = checkInvoice(invoice);
+      if (profile === "xrechnung") errors.push(...inspectXrechnungProfile(invoice));
       reports.push({ file: name, errors, envelope });
       parsed.push({ name, invoice });
     } catch (error) {

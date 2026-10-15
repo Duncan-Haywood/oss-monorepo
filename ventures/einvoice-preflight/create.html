@@ -203,7 +203,7 @@
       set("seller", { name: "Muster Software GmbH", street: "Hauptstrasse 1", postal_code: "10115", city: "Berlin", country: "DE", vat_id: "DE136695976", endpoint_scheme: "EM", endpoint_id: "billing@muster.example", contact_name: "Erika Muster", contact_phone: "+49 30 123456", contact_email: "billing@muster.example" });
       set("buyer", { name: "Kunde AG", street: "Marktplatz 2", postal_code: "20095", city: "Hamburg", country: "DE", endpoint_scheme: "EM", endpoint_id: "ap@kunde.example" });
       set("payment", { iban: "DE02120300000000202051", bic: "BYLADEM1001", account_name: "Muster Software GmbH" });
-      $("buyer_reference").value = "04011000-12345-34";
+      $("buyer_reference").value = "04011000-12345-03";
       $("lines").innerHTML = "";
       lineRow({ description: "Consulting", quantity: 2, unit: "HUR", unit_price: 100, tax_percent: 19 });
       lineRow({ description: "Printed handbook", quantity: 3, unit: "C62", unit_price: 50, tax_percent: 7 });
