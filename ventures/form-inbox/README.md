@@ -15,7 +15,7 @@ Two parts, both free and MIT:
 | Netlify Forms and other host features | Tied to one host | Any static host; one endpoint URL |
 | A homemade mail script | You secure and maintain it; no inbox, review or export | Tested, escaped, rate limited, with an admin inbox |
 
-Honest limits: no file uploads, no autoresponder to the visitor, one admin key (no per-user logins), and heuristic spam scoring, not a trained model.
+Honest limits: no file uploads, autoresponder is a fixed text, one admin key (no per-user logins), and heuristic spam scoring, not a trained model.
 
 ## Use it
 
@@ -29,7 +29,7 @@ Honest limits: no file uploads, no autoresponder to the visitor, one admin key (
 
 Create forms at `/admin` (any user name, `ADMIN_KEY` as the password). JSON works too: `POST /f/<id>` with `Content-Type: application/json`. Fields starting with `_` are control fields and are not stored: `_gotcha` is the honeypot, and `_ts` (milliseconds since epoch when the page loaded) lets the server penalise instant submissions.
 
-Per form you can set **allowed sites** (browsers on other sites are refused), a **thank-you URL** (only ever the one you configured, so it cannot be used as an open redirect) and an **email address** for notifications.
+Per form you can set **allowed sites** (browsers on other sites are refused), a **thank-you URL** (only ever the one you configured, so it cannot be used as an open redirect) an **email address** for notifications, and an optional **auto-reply** text. The auto-reply goes only to the address in the visitor's email field, only for submissions that are not spam, at most once a day per address and form, and contains only the text you wrote (nothing the visitor typed), so the endpoint cannot be used to mail strangers. It needs email configured and follows `DRY_RUN`.
 
 ## Spam scoring
 
@@ -45,7 +45,7 @@ ADMIN_KEY=$(openssl rand -hex 16) COMPANY_NAME=Acme node server.mjs
 
 API: `GET /admin/f/<id>.csv` (spreadsheet-formula-safe CSV export, same key as `Authorization: Bearer ...`).
 
-Optional: `ALERT_WEBHOOK_URL` (Slack/Discord, https) pings on each real submission; `RESEND_API_KEY` + `MAIL_FROM` email the address set on a form, starting in dry-run (`DRY_RUN=false` turns real email on). Other settings: `STATE` (JSON file path; keep it on a persistent disk), `PORT`, `PUBLIC_URL`, `TRUST_PROXY=true` behind a proxy, `HIDE_SPONSOR_LINK=true`. The newest 5,000 submissions are kept.
+Optional: `ALERT_WEBHOOK_URL` (Slack/Discord, https) pings on each real submission; `RESEND_API_KEY` + `MAIL_FROM` email the address set on a form, starting in dry-run (`DRY_RUN=false` turns real email on). Other settings: `STATE` (JSON file path; keep it on a persistent disk), `PORT`, `PUBLIC_URL`, `TRUST_PROXY=true` behind a proxy, `HIDE_SPONSOR_LINK=true`, `RETENTION_DAYS` (delete submissions older than this many days, checked hourly; default keeps them). The newest 5,000 submissions are kept.
 
 ## One-click deploy
 

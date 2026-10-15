@@ -99,3 +99,20 @@ test("oversized bodies are rejected", async () => {
   const r = await fetch(`${s.base}/f/${s.form.id}`, { method: "POST", headers: { "content-type": "text/plain" }, body: "a=".padEnd(200_000, "x") }).catch(() => ({ status: 413 }));
   assert.equal(r.status, 413); s.close();
 });
+
+test("auto-reply sends only the admin's text, once a day, never for spam", async () => {
+  const s = await boot({ form: { notifyEmail: "me@shop.example", autoReply: "Thanks, we reply within 2 days." } });
+  const go = (body) => post(`${s.base}/f/${s.form.id}`, body);
+  await go({ email: "ann@x.com", message: "<b>buy my stuff http://evil</b>" });
+  const ar = s.sent.find((m) => m.to === "ann@x.com");
+  assert.ok(ar); assert.match(ar.text, /within 2 days/); assert.ok(!ar.text.includes("evil")); assert.equal(ar.replyTo, "me@shop.example");
+  await go({ email: "ann@x.com", message: "second one here" });
+  assert.equal(s.sent.filter((m) => m.to === "ann@x.com").length, 1);
+  await go({ email: "bot@x.com", message: "hi", _gotcha: "x" });
+  await go({ email: "a@x.com\nbcc:v@y.com", message: "inject" });
+  assert.equal(s.sent.filter((m) => m.to !== "me@shop.example" && m.to !== "ann@x.com").length, 0);
+  s.tick(86_400_001);
+  await go({ email: "ann@x.com", message: "third one here" });
+  assert.equal(s.sent.filter((m) => m.to === "ann@x.com").length, 2);
+  s.close();
+});

@@ -6,7 +6,7 @@
 import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
-import { newState, normalize, score, createForm, addSubmission, recentFingerprints, markSpam, removeSubmission, removeForm, submissions, toCsv, notification } from "./forms.mjs";
+import { newState, normalize, score, createForm, addSubmission, recentFingerprints, markSpam, removeSubmission, removeForm, submissions, toCsv, notification, autoReply, purgeOlderThan } from "./forms.mjs";
 import { adminPage, formPage, thanksPage } from "./render.mjs";
 
 const env = process.env;
@@ -42,6 +42,7 @@ export function handler(cfg) {
   const now = cfg.now || Date.now;
   const lim = { submit: limiter(10, 60_000), read: limiter(300, 60_000), ...cfg.limits };
   const { state } = cfg;
+  const replied = new Map(); // `${form}:${address}` -> last autoreply time; memory only
   return async (req, res) => {
     const url = new URL(req.url, "http://x");
     const ip = (cfg.trustProxy && String(req.headers["x-forwarded-for"] || "").split(",")[0].trim()) || req.socket.remoteAddress || "?";
@@ -84,6 +85,14 @@ export function handler(cfg) {
             const msg = { to: f.notifyEmail, ...notification(f, s, base) };
             if (cfg.dryRun) console.log(`[dry run] would email ${f.notifyEmail}: ${msg.subject}`);
             else cfg.sendEmail?.(msg).catch((e) => console.error("email failed:", e.message));
+          }
+          const ar = autoReply(f, data);
+          const k = ar && `${f.id}:${ar.to.toLowerCase()}`;
+          if (ar && !(replied.has(k) && now() - replied.get(k) < 86_400_000)) {
+            if (replied.size > 10_000) replied.clear();
+            replied.set(k, now());
+            if (cfg.dryRun) console.log(`[dry run] would auto-reply to ${ar.to}`);
+            else cfg.sendEmail?.(ar).catch((e) => console.error("auto-reply failed:", e.message));
           }
         }
         // Spam gets the same answer as a real submission, so bots learn nothing.
@@ -140,7 +149,7 @@ const webhook = (url) => async (text) => {
 };
 
 async function sendResend(msg) {
-  const res = await fetch("https://api.resend.com/emails", { method: "POST", headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" }, body: JSON.stringify({ from: env.MAIL_FROM, to: [msg.to], subject: msg.subject, text: msg.text }) });
+  const res = await fetch("https://api.resend.com/emails", { method: "POST", headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" }, body: JSON.stringify({ from: env.MAIL_FROM, to: [msg.to], subject: msg.subject, text: msg.text, ...(msg.replyTo ? { reply_to: msg.replyTo } : {}) }) });
   if (!res.ok) throw new Error(`resend ${res.status}`);
 }
 
@@ -152,7 +161,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const statePath = env.STATE || "state.json";
   const state = { ...newState(), ...readJson(statePath, {}) };
   const save = () => { fs.writeFileSync(`${statePath}.tmp`, JSON.stringify(state), { mode: 0o600 }); fs.renameSync(`${statePath}.tmp`, statePath); };
+  const days = Number(env.RETENTION_DAYS || 0);
+  const purge = () => { if (purgeOlderThan(state, days)) save(); };
   save();
+  if (days > 0) { purge(); setInterval(purge, 3_600_000).unref(); }
   const cfg = {
     state, save, adminKey: env.ADMIN_KEY, company: env.COMPANY_NAME || "Forms", sponsor: env.HIDE_SPONSOR_LINK !== "true",
     baseUrl: env.PUBLIC_URL, trustProxy: env.TRUST_PROXY === "true",
