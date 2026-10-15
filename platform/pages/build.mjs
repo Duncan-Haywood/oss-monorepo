@@ -3560,6 +3560,8 @@ const CATEGORY_RULES = [
         'personal-trainer-package-pricing-calculator',
         'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
+        // `youtube-sponsorship-rate-calculator` joined 2026-10-15 on its first commit: a creator pricing their own sponsored video is one person working out their own income.
+        'youtube-sponsorship-rate-calculator',
         'sponsor-ready',
         // `section-1256-futures-tax-calculator` joined 2026-10-08 on its first commit: back-office was at its 3 MB offline bound,
         // and a futures trader pricing what the 60/40 rule leaves them is one person working out their own income.

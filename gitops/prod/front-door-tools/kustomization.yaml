@@ -33,51 +33,51 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548378 bytes
-#   portfolio-front-tools-1: 92 files, 555573 bytes
-#   portfolio-front-tools-2: 144 files, 553620 bytes
-#   portfolio-front-tools-3: 128 files, 549971 bytes
+#   portfolio-front-tools-0: 145 files, 548390 bytes
+#   portfolio-front-tools-1: 92 files, 555585 bytes
+#   portfolio-front-tools-2: 144 files, 553624 bytes
+#   portfolio-front-tools-3: 128 files, 549977 bytes
 #   portfolio-front-tools-4: 136 files, 556748 bytes
-#   portfolio-front-tools-5: 130 files, 549978 bytes
-#   portfolio-front-tools-6: 127 files, 556375 bytes
-#   portfolio-front-tools-7: 120 files, 554680 bytes
-#   portfolio-front-tools-8: 130 files, 555876 bytes
-#   portfolio-front-tools-9: 136 files, 550159 bytes
-#   portfolio-front-tools-10: 134 files, 550390 bytes
-#   portfolio-front-tools-11: 137 files, 555465 bytes
-#   portfolio-front-tools-12: 129 files, 551416 bytes
-#   portfolio-front-tools-13: 127 files, 551646 bytes
-#   portfolio-front-tools-14: 125 files, 547575 bytes
-#   portfolio-front-tools-15: 132 files, 553050 bytes
-#   portfolio-front-tools-16: 119 files, 549947 bytes
-#   portfolio-front-tools-17: 134 files, 554152 bytes
-#   portfolio-front-tools-18: 122 files, 548397 bytes
-#   portfolio-front-tools-19: 121 files, 554108 bytes
-#   portfolio-front-tools-20: 128 files, 546830 bytes
-#   portfolio-front-tools-21: 120 files, 554498 bytes
-#   portfolio-front-tools-22: 121 files, 554754 bytes
-#   portfolio-front-tools-23: 117 files, 550922 bytes
-#   portfolio-front-tools-24: 128 files, 557009 bytes
-#   portfolio-front-tools-25: 125 files, 551548 bytes
-#   portfolio-front-tools-26: 132 files, 550599 bytes
-#   portfolio-front-tools-27: 139 files, 553817 bytes
-#   portfolio-front-tools-28: 119 files, 553947 bytes
-#   portfolio-front-tools-29: 126 files, 556495 bytes
-#   portfolio-front-tools-30: 134 files, 554526 bytes
-#   portfolio-front-tools-31: 134 files, 556650 bytes
-#   portfolio-front-tools-32: 120 files, 555180 bytes
-#   portfolio-front-tools-33: 137 files, 546987 bytes
-#   portfolio-front-tools-34: 113 files, 551359 bytes
-#   portfolio-front-tools-35: 98 files, 557041 bytes
-#   portfolio-front-tools-36: 128 files, 557035 bytes
-#   portfolio-front-tools-37: 122 files, 553508 bytes
-#   portfolio-front-tools-38: 126 files, 550702 bytes
-#   portfolio-front-tools-39: 124 files, 556476 bytes
-#   portfolio-front-tools-40: 134 files, 555566 bytes
-#   portfolio-front-tools-41: 139 files, 553025 bytes
-#   portfolio-front-tools-42: 123 files, 539605 bytes
-#   portfolio-front-tools-43: 120 files, 551905 bytes
-#   portfolio-front-tools-44: 98 files, 515247 bytes
+#   portfolio-front-tools-5: 130 files, 549963 bytes
+#   portfolio-front-tools-6: 127 files, 556391 bytes
+#   portfolio-front-tools-7: 120 files, 554697 bytes
+#   portfolio-front-tools-8: 130 files, 555909 bytes
+#   portfolio-front-tools-9: 136 files, 550143 bytes
+#   portfolio-front-tools-10: 134 files, 550357 bytes
+#   portfolio-front-tools-11: 137 files, 555461 bytes
+#   portfolio-front-tools-12: 129 files, 551443 bytes
+#   portfolio-front-tools-13: 127 files, 551648 bytes
+#   portfolio-front-tools-14: 125 files, 547585 bytes
+#   portfolio-front-tools-15: 132 files, 553137 bytes
+#   portfolio-front-tools-16: 119 files, 549950 bytes
+#   portfolio-front-tools-17: 134 files, 554197 bytes
+#   portfolio-front-tools-18: 122 files, 548315 bytes
+#   portfolio-front-tools-19: 121 files, 554127 bytes
+#   portfolio-front-tools-20: 128 files, 546819 bytes
+#   portfolio-front-tools-21: 120 files, 554488 bytes
+#   portfolio-front-tools-22: 121 files, 554765 bytes
+#   portfolio-front-tools-23: 117 files, 550931 bytes
+#   portfolio-front-tools-24: 128 files, 557003 bytes
+#   portfolio-front-tools-25: 125 files, 551556 bytes
+#   portfolio-front-tools-26: 132 files, 550591 bytes
+#   portfolio-front-tools-27: 139 files, 553794 bytes
+#   portfolio-front-tools-28: 119 files, 553902 bytes
+#   portfolio-front-tools-29: 126 files, 556499 bytes
+#   portfolio-front-tools-30: 134 files, 554625 bytes
+#   portfolio-front-tools-31: 134 files, 556654 bytes
+#   portfolio-front-tools-32: 120 files, 555145 bytes
+#   portfolio-front-tools-33: 137 files, 546902 bytes
+#   portfolio-front-tools-34: 113 files, 551324 bytes
+#   portfolio-front-tools-35: 98 files, 557046 bytes
+#   portfolio-front-tools-36: 128 files, 557034 bytes
+#   portfolio-front-tools-37: 122 files, 553515 bytes
+#   portfolio-front-tools-38: 126 files, 550722 bytes
+#   portfolio-front-tools-39: 124 files, 556516 bytes
+#   portfolio-front-tools-40: 134 files, 555636 bytes
+#   portfolio-front-tools-41: 139 files, 553060 bytes
+#   portfolio-front-tools-42: 123 files, 539656 bytes
+#   portfolio-front-tools-43: 120 files, 551908 bytes
+#   portfolio-front-tools-44: 102 files, 527692 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -5987,6 +5987,10 @@ configMapGenerator:
       - youtube-revenue-rpm-analyzer__calc.mjs.gz=youtube-revenue-rpm-analyzer__calc.mjs.gz
       - youtube-revenue-rpm-analyzer__index.html.gz=youtube-revenue-rpm-analyzer__index.html.gz
       - youtube-revenue-rpm-analyzer__usage.mjs.gz=youtube-revenue-rpm-analyzer__usage.mjs.gz
+      - youtube-sponsorship-rate-calculator__calculator.mjs.gz=youtube-sponsorship-rate-calculator__calculator.mjs.gz
+      - youtube-sponsorship-rate-calculator__index.html.gz=youtube-sponsorship-rate-calculator__index.html.gz
+      - youtube-sponsorship-rate-calculator__share.mjs.gz=youtube-sponsorship-rate-calculator__share.mjs.gz
+      - youtube-sponsorship-rate-calculator__usage.mjs.gz=youtube-sponsorship-rate-calculator__usage.mjs.gz
       - za-freelancer-provisional-tax-set-aside-calculator__calc.mjs.gz=za-freelancer-provisional-tax-set-aside-calculator__calc.mjs.gz
       - za-freelancer-provisional-tax-set-aside-calculator__index.html.gz=za-freelancer-provisional-tax-set-aside-calculator__index.html.gz
       - za-freelancer-provisional-tax-set-aside-calculator__usage.mjs.gz=za-freelancer-provisional-tax-set-aside-calculator__usage.mjs.gz
