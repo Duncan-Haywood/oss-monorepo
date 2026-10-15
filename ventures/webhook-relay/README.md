@@ -60,7 +60,13 @@ at-least-once. It does not transform payloads yet (it can filter and rate limit,
    target) caps delivery attempts to that URL per rolling minute, so a burst or
    a bulk replay cannot flatten a small receiver. Events over the cap wait their
    turn; waiting costs no retry budget.
-7. **Alerts and replays.** A dead event posts to `ALERT_WEBHOOK_URL` (Slack and
+7. **Adds headers.** `"headers": {"Authorization": "Bearer ${APP_TOKEN}"}` on a
+   route (or on one fan-out target; target wins) is sent with every delivery,
+   for receivers that want their own auth. `${NAME}` is read from the relay's
+   environment at start (a missing variable stops the relay), so the secret
+   never sits in `ROUTES_JSON` or the state file. Relay-owned headers
+   (`host`, `x-relay-*`, `content-length`...) cannot be overridden.
+8. **Alerts and replays.** A dead event posts to `ALERT_WEBHOOK_URL` (Slack and
    Discord compatible). Replay any event from `/admin` or
    `POST /v1/events/<id>/replay`; it gets a fresh retry budget and its history
    is kept.
