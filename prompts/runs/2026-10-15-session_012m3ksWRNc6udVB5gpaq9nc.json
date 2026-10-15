@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_012m3ksWRNc6udVB5gpaq9nc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "mrr-pulse"
+  ],
+  "pr": 7101,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "shipped mrr-pulse customer concentration; PR 7101",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    "CLAUDE.md: the local checklist's regen.mjs and gitops pytest steps exceed the 120s foreground timeout; not stated"
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Did not finish the full local checklist (gitops pytest result not read) before opening the PR.",
+  "corrections": [],
+  "redteam": null
+}
