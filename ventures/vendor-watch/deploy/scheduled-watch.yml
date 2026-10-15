@@ -1,0 +1,96 @@
+# Vendor Watch, scheduled. Runs in YOUR fork, on YOUR Actions minutes.
+#
+# Setup (about two minutes):
+#   1. Fork this repository (or copy ventures/vendor-watch into a repo of your own).
+#   2. Copy this file to .github/workflows/vendor-watch.yml in your repo.
+#   3. Put the public pages you are authorized to monitor, one URL per line,
+#      in ventures/vendor-watch/deploy/watchlist.txt.
+#   4. Enable Actions. That is all: no secrets, no server, no account with us.
+#
+# Each run checks every URL with the same code as the browser tool and the CLI,
+# commits the new baselines to your repo (so the diff history is yours), and
+# opens or updates ONE issue titled "Vendor Watch: pages changed" when a page
+# changed or a check was inconclusive. Nothing is sent anywhere but the pages
+# you list and api.github.com for your own repository.
+name: vendor-watch
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: vendor-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ventures/vendor-watch
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: ventures/vendor-watch/package-lock.json
+
+      - run: npm ci
+
+      - name: Check the watchlist
+        id: check
+        env:
+          VENDOR_WATCH_STORE: deploy/baselines.json
+        run: |
+          set +e
+          urls=$(grep -v '^[[:space:]]*#' deploy/watchlist.txt | grep -v '^[[:space:]]*$')
+          if [ -z "$urls" ]; then
+            echo "deploy/watchlist.txt has no URLs" >&2
+            exit 2
+          fi
+          # Word-splitting is intended: one URL per line, none contain spaces.
+          # shellcheck disable=SC2086
+          npm run --silent watch -- --quiet $urls > report.txt 2>&1
+          code=$?
+          cat report.txt
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          # 1 = changed, 3 = inconclusive: both are reported below, not failures.
+          if [ "$code" -eq 2 ]; then exit 2; fi
+          exit 0
+
+      - name: Commit baselines
+        run: |
+          git config user.name "vendor-watch[bot]"
+          git config user.email "vendor-watch@users.noreply.github.com"
+          git add deploy/baselines.json
+          git diff --cached --quiet || git commit -m "vendor-watch: update baselines"
+          git push
+
+      - name: Open or update the issue
+        if: steps.check.outputs.code == '1' || steps.check.outputs.code == '3'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CODE: ${{ steps.check.outputs.code }}
+        run: |
+          title="Vendor Watch: pages changed"
+          {
+            if [ "$CODE" = "1" ]; then echo "At least one watched page changed."; else echo "Nothing changed, but at least one check was inconclusive (the page could not be read; the last good snapshot is kept)."; fi
+            echo
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo '```'
+            cat report.txt
+            echo '```'
+            echo
+            echo "Evidence feed, not legal or compliance advice. Review the source pages before relying on this."
+          } > body.md
+          n=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$n" ]; then gh issue comment "$n" --body-file body.md; else gh issue create --title "$title" --body-file body.md; fi
