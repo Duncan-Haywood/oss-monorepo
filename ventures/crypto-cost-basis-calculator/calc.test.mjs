@@ -18,6 +18,8 @@ test("dates: ISO, US format, timestamps; impossible dates rejected", () => {
   assert.equal(parseDate("2024-03-05T14:22:00Z"), "2024-03-05");
   assert.equal(parseDate("2024-02-30"), null);
   assert.equal(parseDate("yesterday"), null);
+  assert.equal(parseDate("2024-3-5"), "2024-03-05");
+  assert.equal(parseDate("2024-12-5 08:00"), "2024-12-05");
 });
 
 test("type words map to buy, income, sell, transfer", () => {
