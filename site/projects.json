@@ -1256,6 +1256,11 @@
      "title": "A battery twin with no internal resistance: how much endurance and how large a burst does the real, sagging cell actually give?",
      "summary": "A UAV battery twin that keeps the open-circuit voltage curve but drops the series resistance overstates endurance by exactly 1/&eta;(<em>u</em>) with &eta; = (1&nbsp;+&nbsp;&radic;(1&minus;<em>u</em>))/2 (up to 2&times; at the maximum-power fold, beyond which the real cell cannot deliver the power at all while the twin still quotes an endurance). With droop and a voltage cutoff, real/twin endurance is 0.86, 0.57, 0.30 at normalised power 0.2, 0.4, 0.6 and 9%, 37%, 66% of the charge is stranded. The deliverable burst power falls linearly with charge, so a burst of 0.5 fails below 51% charge where the twin's floor is zero, a flat 20% reserve covers only a third of the full-charge limit, and keeping a 0.6 burst deliverable leaves 35% of the twin's cruise time. A constant derate fitted at one power errs by +12% to +473% elsewhere, but the resistance is identified to 1&ndash;2% from tens of voltage&ndash;current samples, and a full-charge fit misses resistance that grows as the cell empties (endurance +42% to +85% too high). Stylised: simulated cell, linear curves, constant-power load, no polarisation or self-heating."
     }
+    ,{
+     "slug": "free-c2stpower",
+     "title": "How many real trajectories does a classifier two-sample test need to reject a wrong digital twin, compared with a paired error test?",
+     "summary": "Follow-up to <code>mimic-twinc2st</code> on a stylised pendulum (Coulomb friction, Student-t sensor noise). The rejection threshold is the 95th percentile of the exact twin&rsquo;s own null, and power is the share of replicates above it. For a Coulomb error of 20% the paired error test (same start angles, noisy real vs noise-free twin) has power 0.76 at 50 trajectories and 0.98 at 100, while the boosted-tree C2ST has 0.04 and 0.25 and needs about 200 to reach 1.00. For a 10% error the paired test stalls at 0.09&ndash;0.20 for every <em>n</em> up to 800 (a plausible but untested cause: the squared heavy-tailed noise has infinite variance), while the C2ST reaches 0.62 at 200 and 1.00 at 400. For Gaussian instead of Student-t noise of the same sd the paired test has power 0.04&ndash;0.07 at every <em>n</em>, the C2ST with second-difference features 0.92 at 50. Caveat: the null threshold comes from 60 replicates, and a check on fresh null replicates falsely rejected 0&ndash;29% of the time (nominal 5%), so power at small <em>n</em> is approximate. Stylised, simulated, 24 replicates per cell."
+    }
    ]
   },
   {
@@ -1352,6 +1357,11 @@
      "slug": "chip-systolic-hidden",
      "title": "Does the array/MAC-engine gap change when the hidden width is fixed at 8 and only the input fan-in grows?",
      "summary": "The quantised-MLP comparison of <em>chip-systolic-fanin</em> on an F-8-4 network (F = 8, 16, 32; 4-bit weights), all 12 array configurations matched to an integer NumPy reference in Icarus Verilog and scored with Yosys against MAC-lane engines. A negative result: the best MAC engine wins at every F, by 1.35&times;, 1.22&times; and 1.20&times; in cells&times;cycles per vector, so the gap narrows but does not close. One network family, one seed, gate counts only; no layout or power."
+    },
+    {
+     "slug": "chip-mac-lanes",
+     "title": "Which MAC-lane count is best for a tiny quantised MLP if every P from 1 to 20 is built and checked?",
+     "summary": "Every MAC-lane count P = 1&ndash;20 of <em>chip-accel</em>'s engine on an F-16-4 quantised network (F = 16, 32), all 40 designs simulated in Icarus Verilog bit for bit against an integer NumPy reference with measured cycles equal to the formula, then scored with Yosys. The best P is 8 at F = 16 and 16 at F = 32, so the earlier hand-picked sweep already contained the optimum; P &gt; 16 only adds cells at equal cycles, and no non-power-of-two P wins (best is 44&ndash;62% behind). Cell count is far from monotone in P (F = 32: P = 15 has 2.4&times; the cells of P = 16), a possible generator artefact left untested. One network family, one seed, gate counts only; no layout or power."
     },
     {
      "slug": "chip-systolic-hidewide",
@@ -1608,6 +1618,21 @@
      "summary": "Extending the stylised urgency-label model, the audit labels are themselves wrong. Taking them as truth biases the estimated label accuracy (0.57 instead of 0.70 with a 0.8-accuracy auditor) and does not improve with more audits: the policy loses 47% of the label&rsquo;s gain over ignoring it at label accuracy 0.7, and 31% at 0.9. A 0.9 auditor costs only 8&ndash;14%. Maximum likelihood over the unseen true class, given the auditor&rsquo;s accuracy, recovers the true-parameter value, but it needs that accuracy known (not identifiable from one auditor) and is no better at 50 audits with a poor auditor. Stylised; both label and auditor are made-up uniform-error matrices."
     },
     {
+     "slug": "ambient-dsaudit",
+     "title": "Can an assistant learn its urgency label&rsquo;s reliability from two noisy auditors, and what does a wrongly assumed auditor accuracy cost?",
+     "summary": "Extending the noisy-audit model, a wrongly assumed accuracy for a 0.8-accuracy auditor costs 31% of a 0.9 label&rsquo;s gain if the auditor is trusted fully, 17% if assumed 0.9 and 6% if assumed 0.6 (about 39&ndash;47% at either extreme for a 0.7 label). With two independent auditors on every message, Dawid&ndash;Skene EM learns all three confusion matrices with none supplied: it recovers the true-parameter value exactly in the population limit and at n&nbsp;=&nbsp;1000 is within 0.0005 of the oracle given the same number of labels, 0.0009 to 0.0128 above taking one auditor as truth. At n&nbsp;=&nbsp;50 with two 0.7 auditors it still falls below ignoring the label in 18% of audit sets. Stylised: uniform errors, independent auditors, round-number utilities; nothing measured on people."
+    },
+    {
+     "slug": "ambient-dscorr",
+     "title": "What does Dawid&ndash;Skene do when the two auditors share their errors?",
+     "summary": "Extending the two-auditor model, the second auditor copies the first with probability &rho; (each stays 0.8 accurate). Dawid&ndash;Skene reads their agreement as correctness: the accuracy it assigns auditor 1 rises from 0.80 to 0.91 at &rho;&nbsp;=&nbsp;0.5 and 1.00 at &rho;&nbsp;=&nbsp;1. At label accuracy 0.9 its policy utility falls from 0.4066 (&rho;&nbsp;=&nbsp;0) to 0.4026 and 0.3992, where it equals taking one auditor as truth, and never goes below that in this model; an oracle told auditor 1&rsquo;s accuracy is unaffected. Stylised: one shared-error model, uniform errors, round-number utilities; nothing measured on people."
+    },
+    {
+     "slug": "ambient-dshard",
+     "title": "What if the two auditors only share errors on hard messages, and can a hardness-aware EM fix Dawid&ndash;Skene?",
+     "summary": "A fraction <em>h</em> of messages is hard for both auditors (accuracy 0.5 or chance) and the rest easy, with each auditor still 0.8 accurate overall. Dawid&ndash;Skene again over-trusts the auditors (0.84 for a true 0.8 at <em>h</em>&nbsp;=&nbsp;0.3, hard accuracy 0.5), but the utility cost is far smaller than with copying: at label accuracy 0.9 its policy utility is 0.4060 against 0.4066 for the true parameters. Only in the extreme cell (30% of messages at chance, the rest perfectly easy) does it fall to the naive estimator&rsquo;s 0.3992, and it never goes below it. A hardness-aware EM with an informed start recovers the classifier&rsquo;s matrix and the policy utility at the population level, but the hard share itself is not identified: different starts fit the same joint distribution with P(hard) from 0.24 to 0.35. Stylised, simulated results only."
+    },
+    {
      "slug": "ambient-bandit",
      "title": "Can an always-on assistant learn when to speak from accept/dismiss feedback alone, and what does it cost in dismissals?",
      "summary": "A simulated assistant learns an interruption policy online (greedy, &epsilon;-greedy or Thompson-sampled logistic model) from the user&rsquo;s reaction only when it speaks. With an uninformed prior none of the three learns a useful policy in 100&nbsp;h; with a prior that the intent score is informative, greedy reaches 90% of an offline oracle&rsquo;s rate after a median 22.5&nbsp;h and about 185 dismissals, and Thompson sampling takes 32.5&nbsp;h. It still earns 10.4 against the oracle&rsquo;s 12.7 per hour, and after a drop in classifier quality it does far worse than frozen offline weights (0.3 vs 4.4 per hour). Stylised: independent windows, instant noise-free feedback, picked costs."
@@ -1846,6 +1871,24 @@
      "title": "How much does a bolt hole cost a tension plate, and which rule sets its width?",
      "summary": "A flat plate carrying one required hole is sized for minimum mass under a working-stress limit with three stress models (net section, a fixed Kt&nbsp;=&nbsp;3, and 2D finite elements over <em>d/W</em>) and with per-process hole rules (minimum hole, centre-to-edge distance, ligament, stock thickness). FE reproduces the large-plate limit of Kt&nbsp;=&nbsp;3 as the hole shrinks. Ignoring the concentration gives plates 1.9&ndash;2.7&times; overstressed where stress binds; Kt&nbsp;=&nbsp;3 is safe but 8&ndash;26% heavier for FDM. Where an edge-distance rule binds (CNC routing, laser from 8&nbsp;mm, casting from 8&nbsp;mm) the stress model is irrelevant and the plate is 2&ndash;4&times; stronger than needed. Stylised: rule values, load and materials are assumed, 2D plane stress, no bolt contact or fatigue, mesh not fully converged (about 1% low), nothing built."
     },
+    {
+     "slug": "simdesign-coverweight",
+     "title": "Does weighting parts by mass change which shop process, and which machine, matters?",
+     "summary": "Follow-up to <code>simdesign-processcover</code>: coverage of a sampled bracket family by FDM, CNC, laser and casting, with each part weighted by arm volume (a same-material mass proxy) instead of counted equally. With a tip load, FDM alone covers 0.30 of parts by count and 0.58 by mass, casting 0.22 and 0.46, laser 0.18 either way, and the laser-versus-CNC order flips. At budgets 600&ndash;800 on one seed, exhaustive search picks the laser cutter by count but the casting setup by mass; for the large-part family at 800 it picks the CNC router by count and casting by mass. Stylised: assumed rules and prices, one density, single-seed machine choice. Simulated only."
+    }
+    ,
+    {
+     "slug": "simdesign-flipseeds",
+     "title": "Do the mass-weighting machine-choice flips of simdesign-coverweight survive across seeds?",
+     "summary": "Follow-up to <code>simdesign-coverweight</code>, whose machine-choice flips between count and mass weighting came from one seed. Over 20 fresh seeds of 20&thinsp;000 sampled brackets and three assumed machines, family <code>log</code> picks the laser cutter by count but the casting setup (or, in 2 seeds at 800, the CNC router) by mass in 20 of 20 seeds at budgets 600 to 800 (95% Wilson interval 0.84 to 1.00; about 2.1 points of mass-weighted coverage given up), family <code>large</code> flips only at budget 800 (20 of 20), and <code>small</code> never flips. The <code>log</code> flips at 1100 and 1400 split 10 of 20 but lose at most 0.26 points, a near-tie. The intervals cover sampling noise only; rules, prices and the volume mass proxy are assumptions. Stylised; simulated only."
+    }
+    ,
+    {
+     "slug": "simdesign-pricebands",
+     "title": "How wide are the budget bands where mass weighting changes the machine choice when prices are uncertain?",
+     "summary": "Follow-up to <code>simdesign-flipseeds</code>, whose count-vs-mass machine-choice flips sat exactly on thresholds set by assumed round prices. Machine prices (800, 600, 300) are scaled by independent U(1&minus;s, 1+s) factors, 400 draws over 8 samples of 20&thinsp;000 sampled brackets. For family <code>log</code> the flip band widens from budgets 600&ndash;800 to 500&ndash;1000, but its edges soften to about one half; <code>large</code>'s single nominal flip at 800 appears in 44% of draws at s = 0.2 and spills to 700 and 900; <code>small</code> never flips. Near-tie flips never lose more than 0.5 points. Stylised: assumed prices and rules, uniform independent noise, arbitrary 0.5-point materiality threshold."
+    }
+    ,
     {
      "slug": "simdesign-processcover",
      "title": "Which share of a bracket family can each shop process make, and which machine should a shop add next?",
@@ -2178,6 +2221,11 @@
      "summary": "Random search, a grid, simulated annealing, a genetic algorithm, NSGA-II and a TPE-style Bayesian method are compared at equal evaluation budgets on an 80-design space (MAC lanes &times; bit width &times; ABC script) of a toy quantised-MLP accelerator, using Pareto hypervolume over 100 seeds. TPE reaches 0.917 of the true-front hypervolume at 16 evaluations against 0.891 for random, and 0.980 against 0.943 at 30; annealing trails random throughout. Stylised: the space is tiny (random search at 40 evaluations already scores 0.965), hyperparameters are untuned, objectives are generic-gate counts, and nothing is said about real chips."
     },
     {
+     "slug": "eda-fidelity",
+     "title": "Do cheap rungs of the chip-design tool ladder rank designs like synthesis, and how much synthesis time does screening save?",
+     "summary": "A three-rung ladder over 40 logged MAC-engine designs: a free analytic model (cells &asymp; lanes&times;bits<sup>2</sup>), cycle-accurate simulation, and Yosys synthesis. The analytic rung ranks the cells&times;cycles objective with Spearman 0.74 against synthesis (0.95 for cells alone) and finds 2 of the 5 best designs. Successive halving that screens on the cheap rungs reaches the optimum with certainty at 20&nbsp;s of tool time, against 0.10 for random search at the same budget and 205&nbsp;s for synthesising everything. Stylised: one toy design family with its optimum at a corner, no place-and-route rung, and the search is a replay over the committed log."
+    },
+    {
      "slug": "eda-flowtune",
      "title": "Does the best ABC recipe for one design transfer to another?",
      "summary": "All 400 ABC pass sequences (up to three passes of seven) mapped to SKY130 on eight small datapath designs, so every optimum is known. The best recipe differs per design and transfers badly: one design&rsquo;s best recipe scores a mean 1.31&times; (worst 2.06&times;) the other&rsquo;s optimum, and score rankings of recipes correlate only weakly across designs (Spearman &minus;0.51 to 0.46). A leave-one-out consensus recipe is only slightly better than a median sequence (1.22&times; against 1.26&times;), and warm-starting a hill climber with it helps one design (<em>mac4</em>) but is within noise of random search on average at budgets 10 to 40. Stylised: eight hand-picked toy designs, ABC&rsquo;s static delay, no place and route; the OpenROAD-settings half of the milestone is not done."
@@ -2198,6 +2246,11 @@
      "slug": "osrobot-morph",
      "title": "Does co-designing an arm's link lengths and controller beat tuning the controller on a fixed body?",
      "summary": "A stdlib planar two-link arm model searches the split of a fixed 0.50&nbsp;m reach together with PD gains, against an equal-link body with tuned gains, at equal search budget. The tray is reachable only for splits of 0.40 to 0.60. Co-design gained 1.9% in held-out move time (0.283 against 0.289&nbsp;s), within three-seed noise, while tuning the controller cut hand-set gains' 0.460&nbsp;s by about 37%. Stylised, preliminary and mostly negative: one body parameter and an assumed torque limit."
+    },
+    {
+     "slug": "osrobot-lab",
+     "title": "Can a small twin of a liquid-handling bench catch protocol errors before they run, and how much pipetting error does a serial dilution tolerate?",
+     "summary": "A stdlib deck-and-pipette twin tracks tips, well volumes, liquid labels and straight-line travel over labware, and checks protocols before they run. On 522 injected faults across three reference protocols it flags 366 (355 with the intended code) where a syntax-only baseline flags 100; the misses are mostly equivalent mutants. Collisions appear only where a move crosses taller labware (a tube rack in one protocol; forced travel heights up to 70&nbsp;mm collide, 90&nbsp;mm and above do not). With an assumed pipetting-error curve, a 12-well two-fold serial dilution has a final-well CV of 0.187 at 10&nbsp;&micro;L transfers, 0.100 at 20 and 0.035 at 100&nbsp;&micro;L. Stylised and circular by construction: the faults match the checks, and every geometry, timing and error value is assumed."
     },
     {
      "slug": "osrobot-bodysearch",
@@ -2227,9 +2280,24 @@
      "summary": "A three-level value rubric (follow-up, new question, listed milestone) scored over all 408 <code>research/</code> projects by two automated passes, one from names and order and one from README text, plus a blind 30-project hand sample. The two automated passes agree at chance level (linear Cohen&rsquo;s kappa 0.07, 95% bootstrap 0.01 to 0.13); a flaw in the name pass (108 <code>*-twin</code> projects counted as one follow-up chain) explains part, and fixing it after the fact lifts kappa to 0.25. Against the hand sample the text pass reaches 0.45 (0.24 to 0.65) and the fixed name pass 0.57 (0.24 to 0.81), n&nbsp;=&nbsp;30, scored by the rubric&rsquo;s author. Follow-ups add about as many lines as new projects (median 318 vs 328), so by the rubric they return less per line, a ratio that is largely built in. Preliminary and negative on the automated passes; no correctness term."
     },
     {
+     "slug": "swe-prompt",
+     "title": "How many runs does a prompt experiment need, and is it safe to peek at it?",
+     "summary": "Three stopping rules for a champion-versus-candidate brief experiment were simulated on outcome distributions drawn from the run ledger (success rate 237/244) and from <code>swe-value</code>&rsquo;s project values: one look at the end, a look after every pair, and a mixture sequential probability ratio test. Looking after every pair declared an identical brief different in 21% of 2,000 experiments on success rate and 40% on value (nominal 5%); the mixture test stayed at 0.4% and 3.9%, at the price of power (92% against 99% at a +0.2 shift in value, stopping after 181 of 400 pairs on average). At a 97% success rate a fixed test needs about 2,200 runs to see a 0.971 to 0.991 change, so success rate is a poor primary metric. <strong>Stylised and preliminary:</strong> all 244 ledger rows are the same prompt, effects are hypothetical, and the value scores are weak; no candidate brief has been run."
+    },
+    {
+     "slug": "swe-allocate",
+     "title": "Which track should the next run work on, and does a smarter pick beat a uniform one?",
+     "summary": "Four track-allocation policies (uniform, greedy value per line, bootstrap Thompson sampling, and a knapsack-style UCB) were replayed offline on 7 tracks, using the 408-project scores from <code>swe-value</code> (value 1 to 3, cost in lines added) under a 20,000-line budget and 300 seeds. Greedy and Thompson reach about 79&ndash;83% (pass A) and 75&ndash;79% (pass B) of the best-single-track oracle, against 58&ndash;60% for the current uniform pick; the UCB variant explores too much to help (62&ndash;66%). <strong>This is a stylised, preliminary result:</strong> arms are assumed stationary, yet value per line falls with order in 4 of 7 tracks (Spearman &minus;0.36 to &minus;0.57), the value scores themselves agree only weakly, lines are a poor proxy for tokens, and no live trial was run, so no policy is adopted."
+    },
+    {
      "slug": "swe-audit",
      "title": "Do the portfolio's committed results reproduce when the code is re-run?",
-     "summary": "A seeded sample of 40 <code>research/</code> projects with a runnable experiment was re-run on a clean copy and diffed against the committed <code>results.txt</code>. 36 of 40 (90%, 95% Wilson interval 77% to 96%) reproduced: 34 byte-identical and 2 differing only in a timing line. Three timed out at 300 s (four jobs in parallel) and one needs a voice model that is not in the repository, so those four are inconclusive, not failures. Of 713 decimal numbers in the sampled READMEs, 85% appear verbatim in committed result files (the rest are derived or in prose). A mechanical reproduction check on a small sample, with no citation audit, so the correctness term is only partly estimated. Preliminary."
+     "summary": "A seeded sample of 40 <code>research/</code> projects with a runnable experiment was re-run on a clean copy and diffed against the committed <code>results.txt</code>. 36 of 40 (90%, 95% Wilson interval 77% to 96%) reproduced: 34 byte-identical and 2 differing only in a timing line. Three timed out at 300 s (four jobs in parallel) and one needs a voice model that is not in the repository, so those four are inconclusive, not failures. Of 713 decimal numbers in the sampled READMEs, 85% appear verbatim in committed result files (the rest are derived or in prose). A second sample of 60 (8 overlapping) brought the pooled total to 92 distinct projects: 81 reproduced (88%, Wilson 80% to 93%), none of the 81 finished runs gave different numbers, and the 11 others are missing tools (Yosys, MuJoCo, a voice model) or timeouts. A mechanical reproduction check on a small sample, with no citation audit, so the correctness term is only partly estimated. Preliminary."
+    },
+    {
+     "slug": "swe-schedule",
+     "title": "How many parallel agent runs duplicate each other when they start in the same minute, and what removes the waste?",
+     "summary": "A stdlib Monte Carlo of start-time collisions among runs that pick from a pool of 11 tracks. Four blind simultaneous starts leave 12.8% of runs redundant (closed form agrees), claim-checking alone barely helps because all runs read before any claim is pushed, a start gap longer than the claim latency drives waste to about 1&ndash;2%, and scheduler-assigned slots remove it entirely up to the pool size. Every timing constant is assumed, the pool is uniform, and queueing against usage limits is not yet modelled. Stylised; first step of milestone 5 of track 10."
     },
     {
      "slug": "swe-prflow",
@@ -2252,6 +2320,16 @@
      "slug": "mimic-loop",
      "title": "Can prompt search alone move a frozen 0.5B imitator past a prompted 0.5B detector, and which proposer does it best at equal budget?",
      "summary": "A first, stylised run of the imitation game: Qwen2.5-0.5B-Instruct as imitator and detector, only prompts change, alternating rounds on two families (reddit, reviews) with four proposers (random, GA, GrIPS-style, local-LLM) at 4 evaluations per side per round. The plain detector starts <em>below</em> chance (paired accuracy 0.12), the final detectors reach 0.12&ndash;0.58 on 24 test pairs with intervals of about &plusmn;0.2, and the proposers cannot be ranked. Length is a major confound: imitators that wrote longer texts fooled the detector more. One seed; a harness and a first look, not a detection result."
+    },
+    {
+     "slug": "mimic-twinc2st",
+     "title": "Does a classifier two-sample test catch digital-twin errors that a paired trajectory error misses?",
+     "summary": "A stylised pendulum with Coulomb friction and heavy-tailed (Student-t) sensor noise is the &lsquo;real&rsquo; system; twins differ in friction, noise shape or noise level. A classifier two-sample test (5-fold CV AUROC, 800 vs 800 trajectories, 3 seeds) separates real from twin trajectories with boosted trees: a friction error of 0.03 (10%) that moves the noise-free trajectory by only 0.006 rad RMSE &mdash; a quarter of the 0.02 rad noise sd &mdash; gives AUROC 0.72, and 0.91 at 20%. A twin with the right dynamics but Gaussian instead of Student-t noise of the same sd has paired error exactly 0 yet AUROC 0.92 once second-difference features are added (0.59 on raw angles). A logistic regression on raw angles stays at chance (0.51) throughout, because the start angles are symmetric. Limits: one toy system, two noise models, three seeds, a handful of classifier settings; simulated only, nothing about real hardware. Preliminary, no LLM involved: a side piece of track 11."
+    },
+    {
+     "slug": "mimic-mujocotwin",
+     "title": "Does a classifier two-sample test see the integrator, timestep and friction gaps of a MuJoCo digital twin?",
+     "summary": "A MuJoCo hinge pendulum (RK4, 0.002 s, dry friction, Student-t sensor noise) is the &lsquo;real&rsquo; system; twins change the integrator, timestep or friction. A boosted-tree classifier two-sample test (800 trajectories per class, 3 seeds) has AUROC 0.98 for semi-implicit Euler at 0.02 s (paired RMSE 0.028 rad), 0.90 at 0.01 s, 0.67 at 0.005 s (0.007 rad) and 0.53 at 0.002 s (0.003 rad), which is not separable from the null 0.51. A friction error of 10% gives 0.52 and 20% gives 0.61. Gaussian instead of Student-t noise of the same sd has zero paired error but AUROC 0.92. Limits: one toy system, one classifier, 3 seeds; the &lsquo;real&rsquo; system is itself simulated. Stylised, preliminary."
     }
    ]
   }

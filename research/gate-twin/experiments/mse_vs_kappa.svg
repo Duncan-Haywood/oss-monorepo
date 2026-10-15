@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log line plot of post-update MSE against outlier scale kappa: the ungated MSE grows from 0.5 to about 1.25e6 at kappa 10000 while the gated MSE stays between 0.54 and 0.59">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Gate twin: post-update MSE vs outlier scale kappa</text>
+<line x1="64" x2="624" y1="298.4" y2="298.4" stroke="#ddd"/><text x="58" y="302.4" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="261.0" y2="261.0" stroke="#ddd"/><text x="58" y="265.0" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="223.6" y2="223.6" stroke="#ddd"/><text x="58" y="227.6" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="186.2" y2="186.2" stroke="#ddd"/><text x="58" y="190.2" text-anchor="end" font-family="sans-serif" font-size="11">1000</text>
+<line x1="64" x2="624" y1="148.8" y2="148.8" stroke="#ddd"/><text x="58" y="152.8" text-anchor="end" font-family="sans-serif" font-size="11">10000</text>
+<line x1="64" x2="624" y1="111.4" y2="111.4" stroke="#ddd"/><text x="58" y="115.4" text-anchor="end" font-family="sans-serif" font-size="11">100000</text>
+<line x1="64" x2="624" y1="74.0" y2="74.0" stroke="#ddd"/><text x="58" y="78.0" text-anchor="end" font-family="sans-serif" font-size="11">1e+06</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1000</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10000</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">outlier scale kappa</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">post-update MSE</text>
+<polyline points="64.0,309.6 106.1,308.5 130.8,306.7 161.9,302.0 204.0,289.4 270.8,258.4 344.0,219.9 484.0,145.2 624.0,70.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#c0392b"/>
+<circle cx="106.1" cy="308.5" r="3" fill="#c0392b"/>
+<circle cx="130.8" cy="306.7" r="3" fill="#c0392b"/>
+<circle cx="161.9" cy="302.0" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="289.4" r="3" fill="#c0392b"/>
+<circle cx="270.8" cy="258.4" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="219.9" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="145.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">ungated</text>
+<polyline points="64.0,308.3 106.1,307.5 130.8,307.1 161.9,307.0 204.0,307.2 270.8,307.5 344.0,307.6 484.0,307.6 624.0,307.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="308.3" r="3" fill="#1f6fb2"/>
+<circle cx="106.1" cy="307.5" r="3" fill="#1f6fb2"/>
+<circle cx="130.8" cy="307.1" r="3" fill="#1f6fb2"/>
+<circle cx="161.9" cy="307.0" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="307.2" r="3" fill="#1f6fb2"/>
+<circle cx="270.8" cy="307.5" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="307.6" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="307.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="307.7" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">gated</text>
+</svg>

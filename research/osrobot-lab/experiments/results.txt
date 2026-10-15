@@ -1,0 +1,49 @@
+Fault injection: every eligible site mutated once; a mutant is detected if the checker reports any finding.
+'expected' counts mutants whose findings include the code the fault was written to trigger.
+
+clean protocols with any finding (twin or structural): 0 of 3
+
+fault                              mutants  twin any  expected  structural
+typo labware                            50        50        50          50
+well off plate                          50        50        50          50
+drop pick_up_tip                        35        35        35           0
+second pick_up_tip                      35        35        35           0
+reuse a used tip                        32        32        32           0
+drop the last drop_tip                   3         3         3           0
+volume 350 uL                           50        50        50           0
+volume 5 uL                             50        50        50           0
+overdraw source (5000 uL)               50        50        39           0
+skip tip change between samples         32         7         7           0
+low travel (30 mm)                     135         4         4           0
+total                                  522       366       355         100
+
+not flagged with SOURCE_EMPTY: 11 of the 50 'overdraw source (5000 uL)' mutants
+not flagged with CROSS_CONTAM: 25 of the 32 'skip tip change between samples' mutants
+not flagged with COLLISION: 131 of the 135 'low travel (30 mm)' mutants
+
+Low-travel (30 mm tip height) mutants by protocol: a collision needs the straight path to cross taller labware.
+  serial_dilution    mutants  66  collisions   0
+  replicate_plate    mutants  24  collisions   0
+  master_mix         mutants  45  collisions   4
+
+master_mix: collisions when every move uses one travel height z (mm); labware tops: plate 14.5, reservoir 44, tip rack 64, tube rack 85.
+  z =  10 mm:  4 colliding moves
+  z =  20 mm:  4 colliding moves
+  z =  50 mm:  4 colliding moves
+  z =  70 mm:  4 colliding moves
+  z =  90 mm:  0 colliding moves
+  z = 100 mm:  0 colliding moves
+
+Twin time estimate and tips for the clean protocols (all timing constants assumed):
+  serial_dilution     88 commands   22 tips     5.3 min
+  replicate_plate     32 commands    8 tips     1.9 min
+  master_mix          50 commands    5 tips     2.3 min
+
+Serial 2-fold dilution over 12 wells, 4000 Monte Carlo runs per volume (assumed pipetting error CV = 1% + 0.8/v).
+Final well A12 concentration relative to the nominal 0.5^11 (stock = 1). Verdict: no nominal finding and CV at most 10%.
+ vx (uL)  nominal findings  mean ratio      CV    5-95% range  verdict
+      10         VOL_RANGE       0.997   0.187   0.72- 1.32     FAIL
+      20              none       0.999   0.100   0.84- 1.17     PASS
+      30              none       0.999   0.072   0.88- 1.12     PASS
+      50              none       0.999   0.051   0.92- 1.08     PASS
+     100              none       1.000   0.035   0.94- 1.06     PASS

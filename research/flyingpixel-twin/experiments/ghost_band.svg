@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of ghost-band width in beam standard deviations against tolerance eps over D: the closed form and the direct scan coincide, falling from 4.65 at 0.01 to 0 at 0.5">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Flying-pixel twin: ghost-band width vs tolerance eps/D (equal energies)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="269.7" y2="269.7" stroke="#ddd"/><text x="58" y="273.7" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="215.3" y2="215.3" stroke="#ddd"/><text x="58" y="219.3" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="161.0" y2="161.0" stroke="#ddd"/><text x="58" y="165.0" text-anchor="end" font-family="sans-serif" font-size="11">3</text>
+<line x1="64" x2="624" y1="106.6" y2="106.6" stroke="#ddd"/><text x="58" y="110.6" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.01</text>
+<text x="109.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="281.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="509.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">eps / D</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">band width (beam std)</text>
+<polyline points="64.0,71.2 75.4,100.8 109.7,145.2 166.9,184.7 281.1,232.5 395.4,267.0 509.7,296.5 612.6,321.3 624.0,324.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="75.4" cy="100.8" r="3" fill="#c0392b"/>
+<circle cx="109.7" cy="145.2" r="3" fill="#c0392b"/>
+<circle cx="166.9" cy="184.7" r="3" fill="#c0392b"/>
+<circle cx="281.1" cy="232.5" r="3" fill="#c0392b"/>
+<circle cx="395.4" cy="267.0" r="3" fill="#c0392b"/>
+<circle cx="509.7" cy="296.5" r="3" fill="#c0392b"/>
+<circle cx="612.6" cy="321.3" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">closed form</text>
+<polyline points="64.0,71.2 75.4,100.8 109.7,145.2 166.9,184.7 281.1,232.5 395.4,267.0 509.7,296.5 612.6,321.3 624.0,324.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="75.4" cy="100.8" r="3" fill="#1f6fb2"/>
+<circle cx="109.7" cy="145.2" r="3" fill="#1f6fb2"/>
+<circle cx="166.9" cy="184.7" r="3" fill="#1f6fb2"/>
+<circle cx="281.1" cy="232.5" r="3" fill="#1f6fb2"/>
+<circle cx="395.4" cy="267.0" r="3" fill="#1f6fb2"/>
+<circle cx="509.7" cy="296.5" r="3" fill="#1f6fb2"/>
+<circle cx="612.6" cy="321.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">direct scan</text>
+</svg>
