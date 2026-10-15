@@ -19,7 +19,7 @@
   "baseline": "231 problems; failure on 3 of 3 recent merges",
   "opened": "2026-10-15",
   "source": "PR 7021 CI, 2026-10-15",
-  "pr": null,
+  "pr": 7067,
   "result": null,
   "history": [
     {
