@@ -1,0 +1,55 @@
+# Reference mission: 3 km out, 20 min on station, 0.5 kg / 5 W payload, 20% energy reserve
+multirotor : mass   2.14 kg  battery  0.66 kg (  94.8 Wh)  rotor dia  33.0 cm
+vtol wing  : mass   2.08 kg  battery  0.28 kg (  40.9 Wh)  wing area 0.15 m2
+fixed wing : mass   1.27 kg  battery  0.13 kg (  19.1 Wh)  wing area 0.14 m2
+
+# Sweep 1: loiter time at 3 km (minutes), 0.5 kg payload; all-up mass in kg
+loiter_min  multirotor  fixedwing  vtol  lightest
+         1    1.13    1.16    1.75  multirotor
+         2    1.17    1.16    1.76  fixed wing
+         5    1.27    1.18    1.81  fixed wing
+        10    1.48    1.21    1.89  fixed wing
+        20    2.14    1.27    2.08  fixed wing
+        30     3.8    1.33    2.34  fixed wing
+        45    none    1.45    2.84  fixed wing
+        60    none    1.59    3.52  fixed wing
+        90    none    1.92    6.52  fixed wing
+
+# Sweep 2: distance to the site (km), 10 min on station, 0.5 kg payload
+dist_km  multirotor  fixedwing  vtol  lightest
+   0.25    1.31    1.17     1.8  fixed wing
+   0.50    1.32    1.18    1.81  fixed wing
+   1.00    1.35    1.18    1.82  fixed wing
+   2.00    1.42    1.19    1.85  fixed wing
+   3.00    1.48    1.21    1.89  fixed wing
+   5.00    1.63    1.23    1.95  fixed wing
+   8.00     1.9    1.27    2.06  fixed wing
+  12.00    2.37    1.33    2.21  fixed wing
+
+# Sweep 3: payload mass (kg) at the reference mission
+payload  multirotor  fixedwing   vtol
+   0.10        0.83       0.76        1.2
+   0.25        1.31       0.95       1.52
+   0.50        2.14       1.27       2.08
+   1.00        3.91        1.9       3.33
+   2.00        7.73        3.2       6.08
+   4.00        none       5.75      13.09
+
+# Purpose-built against a frozen design: the reference multirotor and fixed wing, flown on other missions
+(loiter time left in minutes at that distance, battery and mass frozen; 'x' = cannot reach and return)
+dist_km  frozen_mr  frozen_fw   built-for-purpose mass for 20 min: mr / fw
+    0.5       23.5       25.6   1.86 / 1.23
+    1.0       22.8       24.5   1.91 / 1.24
+    3.0       20.0       20.0   2.14 / 1.27
+    6.0       15.9       13.3   2.59 / 1.31
+    9.0       11.7        6.6   3.22 / 1.35
+   12.0        7.6          x   4.16 / 1.4
+   15.0        3.4          x   5.76 / 1.45
+
+# Sensitivity of the reference all-up mass (kg) to the pack energy density, one assumption at a time
+E_PACK 150 Wh/kg   multirotor 2.70  fixed wing 1.30
+E_PACK 250 Wh/kg   multirotor 1.65  fixed wing 1.22
+FM 0.6             multirotor 2.64  fixed wing 1.27
+FM 0.8             multirotor 1.88  fixed wing 1.27
+CD0 0.05           multirotor 2.14  fixed wing 1.32
+ETA_PROP 0.6       multirotor 2.14  fixed wing 1.29
