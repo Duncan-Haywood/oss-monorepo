@@ -19,7 +19,7 @@
   "projects": [
     "mrr-pulse"
   ],
-  "pr": null,
+  "pr": 7090,
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
@@ -27,16 +27,22 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 3,
-  "outcome": "mrr-pulse: retention-by-signup-month cohort table (dashboard + /v1/cohorts), closes the README's stated 'no cohort explorer' gap",
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "CLAUDE.md checklist: node --test platform/marketing + platform/pages exceeds 120s in one foreground call; needed nohup/background.",
-    "session_gate.py said refresh the published snapshot first; not done this run (needs a publish after merge)."
+    {
+      "file": "CLAUDE.md",
+      "issue": "checklist line node --test platform/marketing + platform/pages exceeds 120s in one foreground call; needed a background run"
+    },
+    {
+      "file": "portfolio/ledger/session_gate.py",
+      "issue": "says refresh the published snapshot first, but that is only possible after the merge; ambiguous ordering"
+    }
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Cohort logo retention is exact from start/end dates; revenue retention uses today's prices (documented). Browser demo not extended.",
+  "notes": "Cohort logo retention is exact from start/end dates; revenue retention uses today's prices (documented). Browser demo not extended. Outcome text: cohort retention table on mrr-pulse dashboard and /v1/cohorts.",
   "corrections": [],
   "redteam": null
 }
