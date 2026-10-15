@@ -115,6 +115,35 @@ function party(node) {
       break;
     }
   }
+  const addressNode = descendants(partyNode, "PostalAddress")[0];
+  if (addressNode) {
+    const street = textOf(addressNode, "StreetName", false);
+    const city = textOf(addressNode, "CityName", false);
+    const postal = textOf(addressNode, "PostalZone", false);
+    const country = nestedText(addressNode, "Country", "IdentificationCode");
+    if (street) mapped.street = street;
+    if (city) mapped.city = city;
+    if (postal) mapped.postal_code = postal;
+    if (country) mapped.country = country;
+  }
+  const contactNode = descendants(partyNode, "Contact")[0];
+  if (contactNode) {
+    const contact = {};
+    const cName = textOf(contactNode, "Name", false);
+    const phone = textOf(contactNode, "Telephone", false);
+    const email = textOf(contactNode, "ElectronicMail", false);
+    if (cName) contact.name = cName;
+    if (phone) contact.phone = phone;
+    if (email) contact.email = email;
+    if (Object.keys(contact).length) mapped.contact = contact;
+  }
+  for (const scheme of descendants(partyNode, "PartyTaxScheme")) {
+    if (nestedText(scheme, "TaxScheme", "ID").toUpperCase() === "FC") {
+      const number = textOf(scheme, "CompanyID", false);
+      if (number) mapped.tax_number = number;
+      break;
+    }
+  }
   const endpointNode = descendants(partyNode, "EndpointID")[0];
   if (endpointNode) {
     const id = endpointNode.text.trim();
@@ -318,6 +347,8 @@ export function parseUblInvoice(source) {
   const period = invoicePeriod(root);
   if (period) invoice.period = period;
   Object.assign(invoice, commercialReferences(root));
+  const specification = textOf(root, "CustomizationID", false);
+  if (specification) invoice.specification_id = specification;
   const adjustments = headerAdjustments(root);
   if (adjustments.length) invoice.adjustments = adjustments;
   return invoice;

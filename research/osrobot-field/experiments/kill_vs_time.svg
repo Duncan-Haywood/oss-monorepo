@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" font-family="sans-serif" font-size="12">
+<rect width="100%" height="100%" fill="white"/>
+<rect x="60" y="30" width="470" height="270" fill="none" stroke="#999"/>
+<text x="52" y="304" text-anchor="end">0</text>
+<text x="52" y="250.0" text-anchor="end">0.2</text>
+<text x="52" y="196.0" text-anchor="end">0.4</text>
+<text x="52" y="142.0" text-anchor="end">0.6</text>
+<text x="52" y="87.99999999999999" text-anchor="end">0.8</text>
+<text x="52" y="34.0" text-anchor="end">1</text>
+<text x="60.0" y="316" text-anchor="middle">0</text>
+<text x="183.68421052631578" y="316" text-anchor="middle">50</text>
+<text x="307.36842105263156" y="316" text-anchor="middle">100</text>
+<text x="431.05263157894734" y="316" text-anchor="middle">150</text>
+<polyline fill="none" stroke="#1b6ca8" stroke-width="2" points="471.4,141.2 286.6,160.4 187.9,191.7 151.5,215.5 131.0,234.1 109.2,259.0"/>
+<circle cx="471.4" cy="141.2" r="3" fill="#1b6ca8"/>
+<circle cx="286.6" cy="160.4" r="3" fill="#1b6ca8"/>
+<circle cx="187.9" cy="191.7" r="3" fill="#1b6ca8"/>
+<circle cx="151.5" cy="215.5" r="3" fill="#1b6ca8"/>
+<circle cx="131.0" cy="234.1" r="3" fill="#1b6ca8"/>
+<circle cx="109.2" cy="259.0" r="3" fill="#1b6ca8"/>
+<text x="476.4" y="135.2" font-size="10" fill="#1b6ca8">v=0.25</text>
+<text x="291.6" y="154.4" font-size="10" fill="#1b6ca8">v=0.5</text>
+<text x="192.9" y="185.7" font-size="10" fill="#1b6ca8">v=1.0</text>
+<text x="156.5" y="209.5" font-size="10" fill="#1b6ca8">v=1.5</text>
+<text x="136.0" y="228.1" font-size="10" fill="#1b6ca8">v=2.0</text>
+<text x="114.2" y="253.0" font-size="10" fill="#1b6ca8">v=3.0</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="187.9,191.7 225.7,170.4 298.5,128.8 501.3,67.5"/>
+<circle cx="187.9" cy="191.7" r="3" fill="#c0392b"/>
+<circle cx="225.7" cy="170.4" r="3" fill="#c0392b"/>
+<circle cx="298.5" cy="128.8" r="3" fill="#c0392b"/>
+<circle cx="501.3" cy="67.5" r="3" fill="#c0392b"/>
+<text x="192.9" y="185.7" font-size="10" fill="#c0392b">overlap=0.0</text>
+<text x="230.7" y="164.4" font-size="10" fill="#c0392b">overlap=0.25</text>
+<text x="303.5" y="122.8" font-size="10" fill="#c0392b">overlap=0.5</text>
+<text x="506.3" y="61.5" font-size="10" fill="#c0392b">overlap=0.75</text>
+<text x="295.0" y="330" text-anchor="middle">time to weed the 60 x 30 m field (min)</text>
+<text x="14" y="165.0" transform="rotate(-90 14 165.0)" text-anchor="middle">share of weeds killed</text>
+<rect x="60" y="346" width="14" height="4" fill="#1b6ca8"/><text x="80" y="352">speed (m/s), no overlap</text>
+<rect x="280" y="346" width="14" height="4" fill="#c0392b"/><text x="300" y="352">lane overlap, 1 m/s</text>
+</svg>

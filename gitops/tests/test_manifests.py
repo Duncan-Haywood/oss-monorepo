@@ -3075,7 +3075,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `dunning-engine` graduated (self-hosted Stripe failed-payment recovery: browser plan simulator plus zero-dependency server).
     # +1: `webhook-relay` graduated (self-hosted webhook relay: verify, store, retry, replay; browser outage simulator plus zero-dependency server).
     # +1: `rev-rec` graduated (self-hosted Stripe revenue recognition: deferred revenue schedule and journal CSV, browser demo plus zero-dependency server).
-    total = 1249  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1249 tools" wording.
+    total = 1250  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1250 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
