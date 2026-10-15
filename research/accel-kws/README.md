@@ -62,3 +62,5 @@ None required for this simulation-only milestone. No hardware was specified, bou
 
 ## Outside dependencies
 The MFCC front end (NumPy only, not synthesised); the weight and bias memories (modelled as external arrays, no SRAM macro or ROM synthesised); a standard-cell library and place and route (not used); the Speech Commands recordings (a third-party mirror); the energy constants (assumed). Open tools only: Yosys, Icarus Verilog, NumPy, SciPy, PyArrow.
+
+**Figure.** `python experiments/figure.py` (needs matplotlib) redraws `experiments/pareto.png`, accuracy against modelled energy for all 40 configurations, from the committed `experiments/results.txt` only; it runs nothing new.

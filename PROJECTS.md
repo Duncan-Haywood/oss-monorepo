@@ -116,7 +116,7 @@ in both. oss-monorepo's `research/_mirror/mirror.py` keeps its `research/` an ex
    - *Progress (2026-10-15):* `site/build.py` now writes `_site/<slug>/index.html` from
      `site/project.html` for all projects (abstract, test count, links, AI note, and the first
      image under the project's `experiments/`), the homepage card links to it, and the build
-     fails if a page cannot be built. Only 7 projects ship an image today, so most pages have no
+     fails if a page cannot be built. Only 10 projects ship an image today, so most pages have no
      figure yet. Still open: have each project's experiment code write a figure, and the
      `oss-monorepo` products half.
    - **Products (*oss-monorepo*).** Every venture gets a home or marketing page from the Pages
