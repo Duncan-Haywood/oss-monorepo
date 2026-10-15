@@ -15,9 +15,11 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "Deepen waitlist-keeper: data deletion, source tracking, dashboard, embed widget",
+  "projects": [
+    "waitlist-keeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7183",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,14 +27,14 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 3,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
   "goal": null,
-  "notes": "",
+  "notes": "Chose deepening over a new venture (near-copy rule, no calculators). Ran local checks: ventures test glob 22 pass, checklist_coverage, regen --verify, sync_tree_counts. Did not run browser checks.",
   "corrections": [],
   "redteam": null
 }
