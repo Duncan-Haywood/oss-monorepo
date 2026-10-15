@@ -25,7 +25,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "partial: measured, wrote drift report 2026-10-15-b and experiments E6 with an owner proposal; the planned CLAUDE.md prune was refused by the permission classifier, so no doc was cut",
+  "outcome": "partial",
   "errors": [
     "permission classifier denied rewriting CLAUDE.md (self-modification)"
   ],
@@ -41,7 +41,7 @@
     }
   ],
   "goal": null,
-  "notes": "No audit of five outputs was run; time spent on measure and drift numbers only.",
+  "notes": "measured, wrote drift report 2026-10-15-b and experiments E6 with an owner proposal; the planned CLAUDE.md prune was refused by the permission classifier, so no doc was cut. No audit of five outputs was run; time spent on measure and drift numbers only.",
   "corrections": [],
   "redteam": null
 }
