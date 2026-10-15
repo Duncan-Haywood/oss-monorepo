@@ -277,6 +277,31 @@ export function proposalValue(p) {
   return Math.min(...totals);
 }
 
+// Proposals worth a nudge: sent, still live, and either quiet for `quietDays`
+// since they went out or expiring within `soonDays`. Most lost proposals are
+// not declined, they are never answered.
+export function followUps(proposals, today, { quietDays = 3, soonDays = 3 } = {}) {
+  const out = [];
+  for (const p of proposals) {
+    if (status(p, today) !== "sent") continue;
+    const quiet = p.sentOn ? daysBetween(p.sentOn, today) : null;
+    const left = p.validUntil ? daysBetween(today, p.validUntil) : null;
+    const expiring = left !== null && left <= soonDays;
+    if (!expiring && !(quiet !== null && quiet >= quietDays)) continue;
+    out.push({ id: p.id, number: p.number, clientName: p.clientName, title: p.title, quietDays: quiet, daysLeft: left, reason: expiring ? "expiring" : "quiet", value: proposalValue(p), currency: p.currency });
+  }
+  return out.sort((a, b) => (a.daysLeft ?? 1e9) - (b.daysLeft ?? 1e9) || (b.quietDays ?? 0) - (a.quietDays ?? 0));
+}
+
+// Plain-text nudge the user can copy. Short on purpose; names the date, not pressure.
+export function followUpText(f) {
+  const hi = f.clientName ? `Hi ${f.clientName},` : "Hi,";
+  const when = f.reason === "expiring" && f.daysLeft !== null
+    ? (f.daysLeft <= 0 ? "The proposal is valid through today." : `The proposal is valid for ${f.daysLeft} more day${f.daysLeft === 1 ? "" : "s"}.`)
+    : "";
+  return `${hi}\n\nI wanted to check that proposal ${f.number}${f.title ? ` (${f.title})` : ""} reached you and see whether you have any questions. ${when} Happy to adjust the scope or timing if that helps.\n\nThanks`.replace(/ {2,}/g, " ");
+}
+
 export function nextNumber(items, prefix = "PROP-") {
   let max = 0, width = 4;
   const re = new RegExp(`^${prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(\\d+)$`);
