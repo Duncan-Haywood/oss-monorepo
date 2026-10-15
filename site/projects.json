@@ -1359,6 +1359,11 @@
      "summary": "The quantised-MLP comparison of <em>chip-systolic-fanin</em> on an F-8-4 network (F = 8, 16, 32; 4-bit weights), all 12 array configurations matched to an integer NumPy reference in Icarus Verilog and scored with Yosys against MAC-lane engines. A negative result: the best MAC engine wins at every F, by 1.35&times;, 1.22&times; and 1.20&times; in cells&times;cycles per vector, so the gap narrows but does not close. One network family, one seed, gate counts only; no layout or power."
     },
     {
+     "slug": "chip-mac-lanes",
+     "title": "Which MAC-lane count is best for a tiny quantised MLP if every P from 1 to 20 is built and checked?",
+     "summary": "Every MAC-lane count P = 1&ndash;20 of <em>chip-accel</em>'s engine on an F-16-4 quantised network (F = 16, 32), all 40 designs simulated in Icarus Verilog bit for bit against an integer NumPy reference with measured cycles equal to the formula, then scored with Yosys. The best P is 8 at F = 16 and 16 at F = 32, so the earlier hand-picked sweep already contained the optimum; P &gt; 16 only adds cells at equal cycles, and no non-power-of-two P wins (best is 44&ndash;62% behind). Cell count is far from monotone in P (F = 32: P = 15 has 2.4&times; the cells of P = 16), a possible generator artefact left untested. One network family, one seed, gate counts only; no layout or power."
+    },
+    {
      "slug": "chip-systolic-hidewide",
      "title": "Does the MAC-engine lead survive a wider hidden layer (H = 16) and more MAC lanes?",
      "summary": "The <em>chip-systolic-hidden</em> comparison repeated on an F-16-4 quantised network (F = 16, 32; 4-bit weights), all 8 array configurations matched to an integer NumPy reference in Icarus Verilog and scored with Yosys against MAC-lane engines up to P = 16. A negative result: the best MAC engine wins at both F, by 1.30&times; and 1.27&times; in cells&times;cycles per vector. At F = 32 the best lane count (P = 16, 3% ahead of P = 8) is again the largest tried, so its optimum may lie further out. One network family, one seed, gate counts only; no layout or power."
