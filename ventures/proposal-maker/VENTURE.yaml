@@ -8,7 +8,9 @@ description: >-
   clauses (not legal advice), validity date, acceptance block with signature
   lines, print or save as PDF, draft/sent/accepted/declined tracking, duplicate,
   JSON backup and a handoff of accepted pricing to Estimate Maker. Data stays on
-  the device.
+  the device. An optional zero-dependency signing server (Docker, Fly.io, Render)
+  gives clients a private link to accept or decline with a typed-name signature,
+  a SHA-256 certificate, and email or webhook notices.
 stage: prototype
 owner: duncan
 
@@ -32,8 +34,9 @@ owner: duncan
 # maker", and r/freelance, r/webdev and r/consulting threads asking for one.
 # Volume not measured with an external tool.
 #
-# Honest limits, stated on the page: no e-signature or audit trail (printed
-# signature lines), no online payment, one tax rate, single browser storage
+# Honest limits, stated on the page: no e-signature in the page itself (printed
+# signature lines; the optional self-hosted signing server, sign.mjs and
+# server.mjs, adds typed-name acceptance with a hashed certificate), no online payment, one tax rate, single browser storage
 # (backup prompt). The clause text is generic template wording filled in from the
 # numbers the user types; it is not legal advice and the page says to have a
 # lawyer review any contract.

@@ -1,0 +1,20 @@
+# Any box with Docker:
+#   ADMIN_KEY=$(openssl rand -hex 16) SITES=example.com docker compose up -d
+# Put it behind HTTPS (Caddy, nginx, a tunnel) before real use, and set TRUST_PROXY=1 when it does.
+services:
+  visit-keeper:
+    build: .
+    restart: unless-stopped
+    ports: ["8080:8080"]
+    volumes: ["state:/data"]
+    environment:
+      ADMIN_KEY: ${ADMIN_KEY:?set ADMIN_KEY}
+      SITES: ${SITES:?set SITES}
+      STATE: /data/state.json
+      TITLE: ${TITLE:-}
+      PUBLIC_SITES: ${PUBLIC_SITES:-}
+      TRUST_PROXY: ${TRUST_PROXY:-}
+      COUNTRY_HEADER: ${COUNTRY_HEADER:-}
+      SECRET: ${SECRET:-}
+volumes:
+  state:

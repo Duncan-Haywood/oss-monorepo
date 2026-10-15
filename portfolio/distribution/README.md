@@ -161,3 +161,5 @@ the owner step is the account, two secrets and `DISTRIBUTE_BLUESKY=true`.
 `hashnode-crosspost` is at `artifact` (2026-10-15): the dev.to pattern on Hashnode's GraphQL API (drafts by default, canonical link back). Dry run: `node platform/distribution/hashnode.mjs`.
 
 `github-release-digest` is at `artifact` (2026-10-15): a weekly release on this repository listing the week's launches, needing no external account (only `DISTRIBUTE_RELEASES=true`). Dry run: `node platform/distribution/releases.mjs`.
+
+`npm-cli-packages` is at `artifact` (2026-10-15): 142 venture CLIs become `npx`-runnable npm packages, five new ones per weekly run, none overwritten. Dry run: `node platform/distribution/npm.mjs`; inspect one with `node platform/distribution/npm.mjs --pack <slug> <dir>`. Owner step: npm account, `NPM_TOKEN`, optional `NPM_SCOPE`, `DISTRIBUTE_NPM=true`.
