@@ -9,6 +9,20 @@ refreshes. Keeping the mirror current is standing work. The rules are under Repo
 
 New projects come from the priority tracks in [`PROJECTS.md`](PROJECTS.md).
 
+## Every run ships something useful
+
+Set by the owner on 2026-10-15. A run that ends without doing anything useful
+has wasted the compute budget. Every run lands at least one thing of real value
+on `main`, such as a research result, a new or improved project, an open-source
+tool, or a write-up that uses real data to tell the owner something new. "Nothing
+to do", a blocked milestone, an empty track, or finding that your task already
+landed is never a reason to stop. Take the next milestone in `PROJECTS.md`, and
+if none fits, come up with something new that is valuable, useful or
+insightful and ship it. It can be academic or industry research, an
+open-source tool, a product, marketing, or anything else. Restated blockers and
+re-verifying unchanged work do not count. The research integrity rules still
+apply: never fabricate a result to have something to ship.
+
 ## Land what you push
 
 A branch that never reaches `main` is lost work: nobody sees it, and the next run redoes it.
