@@ -42,10 +42,10 @@
 #   portfolio-front-tools-6: 127 files, 556335 bytes
 #   portfolio-front-tools-7: 120 files, 554727 bytes
 #   portfolio-front-tools-8: 130 files, 555758 bytes
-#   portfolio-front-tools-9: 138 files, 555244 bytes
-#   portfolio-front-tools-10: 136 files, 554681 bytes
-#   portfolio-front-tools-11: 137 files, 555881 bytes
-#   portfolio-front-tools-12: 130 files, 551202 bytes
+#   portfolio-front-tools-9: 138 files, 554742 bytes
+#   portfolio-front-tools-10: 136 files, 556667 bytes
+#   portfolio-front-tools-11: 137 files, 552686 bytes
+#   portfolio-front-tools-12: 131 files, 556507 bytes
 #   portfolio-front-tools-13: 128 files, 555532 bytes
 #   portfolio-front-tools-14: 131 files, 556095 bytes
 #   portfolio-front-tools-15: 130 files, 548853 bytes
@@ -1352,6 +1352,7 @@ configMapGenerator:
       - cancel-flow__server.mjs.gz=cancel-flow__server.mjs.gz
       - cancel-flow__stripe.mjs.gz=cancel-flow__stripe.mjs.gz
       - cancel-flow__usage.mjs.gz=cancel-flow__usage.mjs.gz
+      - cancel-flow__winback.mjs.gz=cancel-flow__winback.mjs.gz
       - candle-batch-cost-calculator__calc.mjs.gz=candle-batch-cost-calculator__calc.mjs.gz
       - candle-batch-cost-calculator__index.html.gz=candle-batch-cost-calculator__index.html.gz
       - candle-batch-cost-calculator__usage.mjs.gz=candle-batch-cost-calculator__usage.mjs.gz
@@ -1435,12 +1436,12 @@ configMapGenerator:
       - cat-adjuster-fee-calculator__is-this-cat-adjuster-fee-schedule-worth-it.html.gz=cat-adjuster-fee-calculator__is-this-cat-adjuster-fee-schedule-worth-it.html.gz
       - cat-adjuster-fee-calculator__share.mjs.gz=cat-adjuster-fee-calculator__share.mjs.gz
       - cat-adjuster-fee-calculator__usage.mjs.gz=cat-adjuster-fee-calculator__usage.mjs.gz
-      - cat-adjuster-fee-calculator__vs-spreadsheet-comparison.html.gz=cat-adjuster-fee-calculator__vs-spreadsheet-comparison.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cat-adjuster-fee-calculator__vs-spreadsheet-comparison.html.gz=cat-adjuster-fee-calculator__vs-spreadsheet-comparison.html.gz
       - cat-adjuster-fee-calculator__vs-the-headline-per-claim-rate.html.gz=cat-adjuster-fee-calculator__vs-the-headline-per-claim-rate.html.gz
       - catering-quote-calculator__catering-pricing-guide.html.gz=catering-quote-calculator__catering-pricing-guide.html.gz
       - catering-quote-calculator__cli.mjs.gz=catering-quote-calculator__cli.mjs.gz
@@ -1576,12 +1577,12 @@ configMapGenerator:
       - climbing-gym-profit-calculator__how-much-does-a-climbing-gym-make.html.gz=climbing-gym-profit-calculator__how-much-does-a-climbing-gym-make.html.gz
       - climbing-gym-profit-calculator__index.html.gz=climbing-gym-profit-calculator__index.html.gz
       - climbing-gym-profit-calculator__usage.mjs.gz=climbing-gym-profit-calculator__usage.mjs.gz
-      - cloud-bucket-exposure-check__check.mjs.gz=cloud-bucket-exposure-check__check.mjs.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cloud-bucket-exposure-check__check.mjs.gz=cloud-bucket-exposure-check__check.mjs.gz
       - cloud-bucket-exposure-check__engine.mjs.gz=cloud-bucket-exposure-check__engine.mjs.gz
       - cloud-bucket-exposure-check__how-to-fix-a-publicly-listable-bucket.html.gz=cloud-bucket-exposure-check__how-to-fix-a-publicly-listable-bucket.html.gz
       - cloud-bucket-exposure-check__index.html.gz=cloud-bucket-exposure-check__index.html.gz
@@ -1718,12 +1719,12 @@ configMapGenerator:
       - countertop-bid-calculator__index.html.gz=countertop-bid-calculator__index.html.gz
       - countertop-bid-calculator__share.mjs.gz=countertop-bid-calculator__share.mjs.gz
       - countertop-bid-calculator__usage.mjs.gz=countertop-bid-calculator__usage.mjs.gz
-      - countertop-bid-calculator__vs-a-flat-price-per-square-foot.html.gz=countertop-bid-calculator__vs-a-flat-price-per-square-foot.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - countertop-bid-calculator__vs-a-flat-price-per-square-foot.html.gz=countertop-bid-calculator__vs-a-flat-price-per-square-foot.html.gz
       - countertop-bid-calculator__vs-moraware.html.gz=countertop-bid-calculator__vs-moraware.html.gz
       - courier-van-route-profit-calculator__calc.mjs.gz=courier-van-route-profit-calculator__calc.mjs.gz
       - courier-van-route-profit-calculator__how-much-profit-per-route-for-delivery-van-contractors.html.gz=courier-van-route-profit-calculator__how-much-profit-per-route-for-delivery-van-contractors.html.gz
