@@ -20,7 +20,7 @@
   "opened": "2026-10-15",
   "source": "prompts/process/reports/2026-10-15*.md",
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7021",
-  "result": null,
+  "result": "Not checkable: 'started'/'ended' is null on 281 of 369 records, so friction cannot be split before/after the 2026-10-15T03:55Z merge. Of the 88 records with a timestamp, 81 precede it (1 names CLAUDE.md) and 7 follow (0 do). CLAUDE.md is now 457 lines (was 1,662); 51 CLAUDE.md friction reports in 45 of 369 records overall (0.12/record vs 12/184 = 0.065 at baseline, but mostly bulk-mirrored research records, so not comparable). Too few timestamped cases to tell; promptctl record now stamps 'ended'. Re-check after ~30 new records.",
   "history": [
     {
       "date": "2026-10-15",
