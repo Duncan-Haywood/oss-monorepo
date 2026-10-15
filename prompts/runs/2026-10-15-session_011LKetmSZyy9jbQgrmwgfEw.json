@@ -23,7 +23,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
@@ -42,5 +42,13 @@
   ],
   "goal": null,
   "notes": "Milestone mirror-sync only. tokens/cost/tool_calls not read (no get_session tool); null. Merged state filled by PR outcome.",
-  "corrections": []
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR 6992 is merged on main (git log and PR read)"
+    }
+  ]
 }
