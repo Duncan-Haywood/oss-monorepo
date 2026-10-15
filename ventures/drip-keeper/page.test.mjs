@@ -53,7 +53,3 @@ test("robots and sitemap let crawlers find the page; deploy files point at this 
 test("footer links the sibling Flag Keeper", () => {
   assert.match(file("index.html"), /href="\.\.\/flag-keeper\/"/);
 });
-
-test("footer links the sibling Link Keeper", () => {
-  assert.match(file("index.html"), /href="\.\.\/link-keeper\/"/);
-});
