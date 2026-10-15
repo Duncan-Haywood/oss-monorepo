@@ -11,6 +11,9 @@ permissions:
   id-token: write
 jobs:
   publish:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 15
     steps:
