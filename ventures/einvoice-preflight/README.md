@@ -26,6 +26,14 @@ code, the XRechnung 3.x specification identifier, and a seller tax identifier.
 Off by default. JS (page and API) only; the Python CLI does not apply it yet.
 It is an offline observation, not the KoSIT validator.
 
+**Peppol profile.** Tick "Also apply the Peppol BIS Billing 3.0 rules" on the
+page, or call `POST /v1/validate?profile=peppol`, to add five `PP-001`..`PP-005`
+rules that mirror what a Peppol access point rejects: the business process
+(BT-23, R001), the Peppol 3.0 specification identifier (R004), seller and buyer
+electronic addresses (R020, R010) and a buyer or order reference (R003). Off by
+default, JS only, and an offline observation, not the OpenPeppol Schematron.
+The UN/CEFACT CII reader now also captures the party electronic address.
+
 ```sh
 cd ventures/einvoice-preflight
 # Browser: open index.html, or `python3 -m http.server 8765` and visit
