@@ -2564,6 +2564,9 @@ workflows:
 - workflow: vinyl-liner-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: visit-keeper-ci.yml
+  classification: none
+  publishes: []
 - workflow: voiceover-project-rate-calculator-ci.yml
   classification: none
   publishes: []
