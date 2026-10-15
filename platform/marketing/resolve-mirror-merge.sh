@@ -38,6 +38,8 @@ set -euo pipefail
 # silently narrow this script's scope to a directory nothing writes.
 MIRROR_DIR="gitops/prod/front-door-tools"
 GENERATOR="platform/marketing/front-door-tools.mjs"
+# Also written by the generator (MIRROR_ALIAS_FILE), so it conflicts the same way.
+ALIAS_FILE="gitops/prod/front-door/00-mirror-alias.conf"
 
 cd "$(git rev-parse --show-toplevel)"
 
@@ -60,7 +62,7 @@ fi
 outside=()
 for path in "${conflicted[@]}"; do
   case "$path" in
-    "$MIRROR_DIR"/*) ;;
+    "$MIRROR_DIR"/*|"$ALIAS_FILE") ;;
     *) outside+=("$path") ;;
   esac
 done
@@ -81,11 +83,14 @@ echo "Resolving ${#conflicted[@]} conflicted mirror file(s) by regenerating."
 # generator — but `--ours` leaves a valid tree if the generator then fails, and
 # a kustomization carrying `<<<<<<<` markers is not valid YAML.
 git checkout --ours -- "$MIRROR_DIR"
-git add -- "$MIRROR_DIR"
+if printf '%s\n' "${conflicted[@]}" | grep -qxF "$ALIAS_FILE"; then
+  git checkout --ours -- "$ALIAS_FILE"
+fi
+git add -- "$MIRROR_DIR" "$ALIAS_FILE"
 
 node "$GENERATOR" --write
 
-git add -- "$MIRROR_DIR"
+git add -- "$MIRROR_DIR" "$ALIAS_FILE"
 
 echo
 echo "Verifying the regenerated mirror against the merged sources."
