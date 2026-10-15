@@ -53,6 +53,34 @@ venture pages, honest results and AI-assistance notes on research pages.
 Progress is measured by the share of ventures, research projects and public
 platform tools that have a reachable page linked from the home page.
 
+## Long-term goal: automated, unpaid, compliant distribution
+
+Set by the owner on 2026-10-15. Publicize the work far more, automatically
+and for free: get every product (and, where it fits, every research project)
+onto the natural distribution platforms where its users already look, such
+as package registries, extension and plugin stores, tool directories,
+syndicated feeds and openly labelled bot accounts, on top of the search and
+AI-assistant discovery already built. Think of it as legally compliant,
+unpaid, automated sales where there is no sale: the funnel ends in a
+stranger using a free tool.
+
+This is a direction, not a single run's task. Agents build each channel's
+listing and publish pipeline, off by default with a dry run. The owner
+enables a channel once (account, token, one variable), and from then on it
+publishes unattended. The working spec, including the channel list and the
+compliance rules, is
+[`portfolio/distribution/README.md`](../portfolio/distribution/README.md).
+Progress is measured by the number of products live on at least one channel
+beyond search, and the usage those channels bring.
+
+**No terms of service are ever broken for it.** Every channel follows its
+platform's terms, API and bot rules, rate limits and self-promotion rules as
+written, and the law (CAN-SPAM, GDPR, CASL, PECR, FTC disclosure). Never:
+unsolicited email or messages, fake or sock-puppet accounts, fake reviews or
+vote manipulation, automated posting where a community forbids it, paid
+placement, or evading a platform's limits. Account creation and publishing
+under the portfolio's public name stay owner-only.
+
 ## Guardrails (every track, every version)
 
 - **Never fabricate.** No invented results, numbers, citations, measurements
@@ -158,3 +186,7 @@ gain on a later one.
 - **Public presence (all tracks):** the share of ventures, research projects
   and public platform tools with a public web page reachable from the home
   page, per the long-term goal above.
+- **Distribution (all tracks):** the number of products publishing
+  automatically to at least one natural distribution channel beyond search,
+  within every platform's terms, and the measured use those channels bring
+  (`portfolio/distribution/`).
