@@ -32,7 +32,10 @@
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "prompts/research/prompt-0.md: says research work lands upstream; this run did milestone mirror-sync in oss-monorepo instead of a new project, as PROJECTS.md 'Repository merge' directs; fine but the prompt does not mention that add_repo plus a full clone is needed just to read upstream PROJECTS.md."
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Says research work lands upstream but not that add_repo plus a full clone is needed to read upstream PROJECTS.md; this run did the mirror-sync milestone instead of a new project."
+    }
   ],
   "deviations": [],
   "goal": null,
