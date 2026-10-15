@@ -26,8 +26,9 @@ export function parseRoutes(json) {
     seen.add(r.name);
     if (!SCHEMES.includes(r.scheme || "none")) throw new Error(`route ${r.name}: unknown scheme ${r.scheme}`);
     if ((r.scheme || "none") !== "none" && !r.secret) throw new Error(`route ${r.name}: scheme ${r.scheme} needs a secret`);
-    if (!/^https?:\/\//.test(r.target || "")) throw new Error(`route ${r.name}: target must be an http(s) URL`);
-    return { scheme: "none", ...r };
+    const targets = r.targets !== undefined ? r.targets : [r.target];
+    if (!Array.isArray(targets) || !targets.length || targets.length > 10 || !targets.every((t) => /^https?:\/\//.test(t || ""))) throw new Error(`route ${r.name}: target must be an http(s) URL (or targets: up to 10 http(s) URLs)`);
+    return { scheme: "none", ...r, targets, target: targets[0] };
   });
 }
 
@@ -67,7 +68,7 @@ export function handler(cfg) {
         if (!v.ok) { console.log(`rejected ${route.name}: ${v.reason}`); return send(401, `signature check failed: ${v.reason}\n`, "text/plain"); }
         const forward = {};
         for (const [k, val] of Object.entries(req.headers)) if (!SKIP_FORWARD.has(k) && typeof val === "string") forward[k] = val;
-        const r = ingest(cfg.state, { route: route.name, target: route.target, headers: forward, body, now: now(), policy });
+        const r = ingest(cfg.state, { route: route.name, targets: route.targets, headers: forward, body, now: now(), policy });
         if (!r.duplicate) cfg.save();
         return send(200, r);
       }
