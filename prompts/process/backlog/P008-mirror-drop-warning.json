@@ -19,7 +19,7 @@
   "opened": "2026-10-15",
   "source": "prompts/process/reports/2026-10-15*.md",
   "pr": 7140,
-  "result": null,
+  "result": "too early to call the friction metric (baseline 2 reports/184 records; all 424 records are dated 2026-10-15, so none can be ordered after the fix). Mechanism works: `regen.mjs --verify` on b5b9aaf3c0 exits 0 with 'committed surface is current'.",
   "history": [],
   "notes": "regen (all modes) now prints each fixable-excluded venture page with its reason; --verify exits 1 when one exists. Currently none, so main stays green. Also regenerated 3 stale artifacts found at baseline."
 }

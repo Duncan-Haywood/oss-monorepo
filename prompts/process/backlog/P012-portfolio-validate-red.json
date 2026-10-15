@@ -20,7 +20,7 @@
   "opened": "2026-10-15",
   "source": "PR 7021 CI, 2026-10-15",
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7107",
-  "result": null,
+  "result": "helped: on origin/main b5b9aaf3c0 (2026-10-15) `portfolio/router/validate.py` prints 'All 1257 VENTURE.yaml files are valid' (baseline 231 problems) and `promptctl.py validate` prints 'ok ... 423 run record(s) are valid'. The CI `validate` conclusion on later merges was not read (no token in this session).",
   "history": [
     "2026-10-15: portfolio/router/validate.py now reports 'All 1244 VENTURE.yaml files are valid' on main; the recurring red `validate` was also run-record format (5 fix commits to malformed records on 2026-10-14/15). promptctl record now prints the enforced shapes."
   ]
