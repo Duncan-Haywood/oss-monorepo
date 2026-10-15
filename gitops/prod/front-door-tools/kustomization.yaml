@@ -48,8 +48,8 @@
 #   portfolio-front-tools-12: 128 files, 553059 bytes
 #   portfolio-front-tools-13: 129 files, 554409 bytes
 #   portfolio-front-tools-14: 129 files, 550750 bytes
-#   portfolio-front-tools-15: 131 files, 554955 bytes
-#   portfolio-front-tools-16: 120 files, 546102 bytes
+#   portfolio-front-tools-15: 131 files, 550658 bytes
+#   portfolio-front-tools-16: 121 files, 553785 bytes
 #   portfolio-front-tools-17: 136 files, 554677 bytes
 #   portfolio-front-tools-18: 122 files, 553466 bytes
 #   portfolio-front-tools-19: 128 files, 555516 bytes
@@ -2162,6 +2162,7 @@ configMapGenerator:
       - einvoice-preflight__index.html.gz=einvoice-preflight__index.html.gz
       - einvoice-preflight__means.mjs.gz=einvoice-preflight__means.mjs.gz
       - einvoice-preflight__period.mjs.gz=einvoice-preflight__period.mjs.gz
+      - einvoice-preflight__profile.mjs.gz=einvoice-preflight__profile.mjs.gz
       - einvoice-preflight__reference.mjs.gz=einvoice-preflight__reference.mjs.gz
       - einvoice-preflight__remittance.mjs.gz=einvoice-preflight__remittance.mjs.gz
       - einvoice-preflight__report.mjs.gz=einvoice-preflight__report.mjs.gz
@@ -2252,12 +2253,12 @@ configMapGenerator:
       - equipment-auction-buyer-premium-calculator__vs-a-flat-percent-rule.html.gz=equipment-auction-buyer-premium-calculator__vs-a-flat-percent-rule.html.gz
       - equipment-auction-buyer-premium-calculator__why-is-sales-tax-charged-on-the-buyers-premium.html.gz=equipment-auction-buyer-premium-calculator__why-is-sales-tax-charged-on-the-buyers-premium.html.gz
       - equipment-lease-buyout-calculator__calc.mjs.gz=equipment-lease-buyout-calculator__calc.mjs.gz
-      - equipment-lease-buyout-calculator__index.html.gz=equipment-lease-buyout-calculator__index.html.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - equipment-lease-buyout-calculator__index.html.gz=equipment-lease-buyout-calculator__index.html.gz
       - equipment-lease-buyout-calculator__should-i-buy-out-my-equipment-lease.html.gz=equipment-lease-buyout-calculator__should-i-buy-out-my-equipment-lease.html.gz
       - equipment-lease-buyout-calculator__usage.mjs.gz=equipment-lease-buyout-calculator__usage.mjs.gz
       - equipment-lease-buyout-calculator__vs-comparing-the-buyout-price-to-fair-market-value.html.gz=equipment-lease-buyout-calculator__vs-comparing-the-buyout-price-to-fair-market-value.html.gz
