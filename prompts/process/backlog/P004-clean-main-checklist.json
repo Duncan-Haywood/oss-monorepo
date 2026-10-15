@@ -21,5 +21,10 @@
   "source": "prompts/process/reports/2026-10-15*.md",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-10-15",
+      "note": "test_worker_run.py now green with a preinstalled gh (worker.sh WORKER_PATH_PREFIX, set by the test harness); CLAUDE.md platform/ci loop runs every module and lists failures. Still open: 4 platform/ci modules fail on clean main (test_check_money_sign, test_check_step_grid, test_publish_surface, test_validate_workflows), so the checklist exit code is still non-zero."
+    }
+  ]
 }
