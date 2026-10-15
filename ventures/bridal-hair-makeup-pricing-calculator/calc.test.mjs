@@ -181,3 +181,13 @@ test('a trial-requested flag above 1 is rejected', () => {
 test('a start hour past 24 is rejected', () => {
   assert.throws(() => calculateQuote({ ...DEFAULTS, startHour: 25 }), /at most/);
 });
+
+// Red-team guards (2026-10-15): the default booking has no travel surcharge
+// and no makeup-only guests, so a sign flip on either term went unnoticed.
+test('a travel surcharge adds to the subtotal and makeup-only guests add their time plus buffer', () => {
+  const base = calculateQuote(DEFAULTS);
+  const r = calculateQuote({ ...DEFAULTS, travelSurcharge: 20, makeupOnlyCount: 1 });
+  close(r.preMinimumSubtotal - base.preMinimumSubtotal, 20 + DEFAULTS.makeupOnlyPrice);
+  close(r.totalServiceMinutes - base.totalServiceMinutes,
+    DEFAULTS.minutesPerMakeupOnly + DEFAULTS.bufferMinutesPerPerson);
+});

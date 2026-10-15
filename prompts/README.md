@@ -7,7 +7,8 @@ prompt.md                  master prompt: route, work, record, improve
 prompts/goals.md           goals, guardrails and how a run is scored (owner-owned)
 prompts/routing.json       tracks, their weights, champion and candidate versions
 prompts/<track>/prompt-<n>.md
-                           sub-prompts: ventures, research, process, explore, review
+                           sub-prompts: ventures, research, process, explore, redteam, review
+prompts/redteam.py         seed faults, measure the catch rate, prove the fixes
 prompts/runs/*.json        one record per run
 prompts/process/reports/   one process study per file (the process track)
 prompts/experiments.md     every change the review track makes, and its result
@@ -56,6 +57,17 @@ A documentation change reaches every run at once, so it cannot be A/B tested.
 It is judged by a before and after comparison instead, which is weaker
 evidence; the log should say so.
 
+## Red team / blue team
+
+The `redteam` track gets 5-10% of runs (`goals.md`; `validate` enforces the
+band). A run seeds small bugs into one file at a time with
+`redteam.py campaign`, runs that file's own tests, and restores the file. The
+share caught is the **catch rate**. It also hunts for real defects, the
+**error rate**. Then it adds a test for every escaped bug that matters and
+proves it with `redteam.py rerun`. The mutants and their results go into the
+run record, and `measure` derives both rates from them under "Red team / blue
+team", so no rate is ever typed by hand.
+
 ## Promotion rule
 
 `measure` suggests one; the review decides and writes down why.
@@ -74,6 +86,7 @@ python3 prompts/promptctl.py route [--track T] [--skip-review] [--json]
 python3 prompts/promptctl.py record --track T --version N --session URL [--model M] [--input TEXT]
 python3 prompts/promptctl.py measure [--json]
 python3 prompts/promptctl.py validate
+python3 prompts/redteam.py campaign|rerun|tally|targets
 python3 -m unittest discover -s prompts
 ```
 

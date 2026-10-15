@@ -67,9 +67,15 @@ const daysBetween = (a, b) => Math.round((b.getTime() - a.getTime()) / 86400000)
 // 1/10000-dollar integer to a dollar string; whole-cent values show two decimals, others four.
 export const money = (p) => {
   const whole = p % 100 === 0;
-  return `$${(p / 10000).toLocaleString("en-US", { minimumFractionDigits: whole ? 2 : 4, maximumFractionDigits: whole ? 2 : 4 })}`;
+  const format = (p) => `$${(p / 10000).toLocaleString("en-US", { minimumFractionDigits: whole ? 2 : 4, maximumFractionDigits: whole ? 2 : 4 })}`;
+  const text = format(Math.abs(p));
+  return p < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };
-export const dollars = (p) => `$${(Math.round(p / 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+export const dollars = (p) => {
+  const format = (p) => `$${(Math.round(p / 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const text = format(Math.abs(p));
+  return p < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const pctOf = (a, b) => (b === 0 ? 0 : ((a - b) / b) * 100);
 const norm = (s) => String(s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
 

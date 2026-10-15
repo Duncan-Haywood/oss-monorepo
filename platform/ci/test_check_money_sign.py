@@ -48,6 +48,27 @@ class FindingsIn(unittest.TestCase):
             "Number.EPSILON) * 100) / 100).toFixed(2)}`;"
         )
 
+    def test_flags_the_other_currency_names(self):
+        # Found by the first red-team run (2026-10-15): the same "$-50.00"
+        # defect, shipped under names the guard did not read.
+        self.assert_flagged("export const dollars = (c) => `$${(c / 100).toFixed(2)}`;")
+        self.assert_flagged(
+            "export function formatUsd(value) {\n"
+            "  if (value < 10) return `$${value.toFixed(2)}`;\n"
+            "  return `$${Math.round(value)}`;\n}",
+            name="calc.mjs",
+        )
+
+    def test_reports_the_line_number_and_text_of_the_formatter(self):
+        source = "// header\nconst money = (n) => `$${n.toFixed(2)}`;\n"
+        self.assertEqual(list(guard.findings_in(self.write("calc.mjs", source))),
+                         [(2, "const money = (n) => `$${n.toFixed(2)}`;")])
+
+    def test_passes_a_magnitude_formatter_whose_caller_signs(self):
+        self.assert_clean(
+            "const dollars = (value) => `$${Math.round(Math.abs(value)).toLocaleString('en-US')}`;"
+        )
+
     def test_flags_the_declaration_spelling(self):
         self.assert_flagged(
             "function money(value) {\n"

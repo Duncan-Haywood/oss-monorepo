@@ -844,6 +844,7 @@ function findFindings(workflows, rows, a, rates) {
 export function formatUsd(value) {
   if (!Number.isFinite(value)) return '—';
   if (value === 0) return '$0.00';
-  if (value < 10) return `$${value.toFixed(2)}`;
-  return `$${Math.round(value).toLocaleString('en-US')}`;
+  const size = Math.abs(value);
+  const text = size < 10 ? `$${size.toFixed(2)}` : `$${Math.round(size).toLocaleString('en-US')}`;
+  return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }
