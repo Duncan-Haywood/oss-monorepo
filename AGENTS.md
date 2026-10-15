@@ -49,8 +49,9 @@ a PR. Four finished ventures are among them, and `main` still lacks them.
 
 **Sessions started from [`prompt.md`](prompt.md) record themselves.** The
 master prompt routes each run to a sub-prompt (`prompts/ventures/`,
-`prompts/research/`, `prompts/explore/` for the ~5% of runs that are free
-choice, or the review track that improves the rest) and asks for
+`prompts/research/`, `prompts/process/` for the ~5% of runs that study the
+development process, `prompts/explore/` for the ~5% that are free choice, or
+the review track that improves the rest) and asks for
 a run record under `prompts/runs/` in the same PR. Any agent may add one. Its
 `doc_friction` field, listing instructions that were wrong, stale or slow,
 names the file, and it is how this file gets corrected

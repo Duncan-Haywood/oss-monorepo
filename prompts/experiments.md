@@ -38,10 +38,45 @@ Entry format:
   step 1), and compares everything later against this.
 - Result: (first review)
 
-## E1: Free-choice track, about 5% of runs (2026-10-15, owner request)
+## E1: Mirror with one writer, archive rather than delete (2026-10-14, owner-directed, PR https://github.com/Duncan-Haywood/oss-monorepo/pull/6984)
+- Change: a direct edit, not a candidate, made at the owner's request to keep
+  the two repositories mirrored with no history loss.
+  - `prompts/research/prompt-0.md` and `prompts/ventures/prompt-0.md`: until
+    cutover, research work lands upstream, and keeping the mirror current is
+    standing work. Mirror PRs merge with a merge commit.
+  - `research/_mirror/README.md` and `research/CLAUDE.md`: the upstream
+    repository is archived at cutover, never deleted.
+  - `land-your-work.md`: names the mirror-PR exception to squash-merging.
+- Why: the research track routes 50% of runs here, and `mirror.py sync`
+  deletes files under the mirrored area that upstream lacks. So a project
+  built here before cutover would disappear at the next sync. Deleting the
+  upstream repository would also lose its pull requests, review threads and
+  branches.
+- Measure: research-track runs here that touch `research/` outside a sync
+  (target 0), and `mirror.py check` on `main`.
+
+## E2: A process track, about 5% of runs (2026-10-15, owner request)
+
+- Change: new track `process` (`prompts/process/prompt-0.md`) with weight
+  0.05 in `routing.json`; ventures and research go from 0.5 to 0.475 each.
+  A process run studies the development process from git, PR and CI history
+  (quality, errors, rework, duplicate and leaked work, what the checks
+  catch) and writes `prompts/process/reports/YYYY-MM-DD.md` with ranked
+  recommendations. It may implement one small agent-owned fix. The track
+  goal was added to `goals.md` at the owner's request.
+- Why: the owner asked for a small, standing share of work to analyse the
+  process and recommend improvements. The review track covers prompts and
+  docs from run records only.
+- Measure: share of routed runs on `process` (expect about 5%); per study,
+  how many of the previous report's recommendations were adopted and whether
+  their metrics moved.
+- Result: (next review)
+
+## E3: Free-choice track, about 5% of runs (2026-10-15, owner request)
 
 - Change: new `explore` track (`prompts/explore/prompt-0.md`) at weight 0.05
-  in `routing.json`; ventures and research went from 0.5 to 0.475 each. The
+  in `routing.json`; ventures and research went from 0.475 to 0.45 each (E2's
+  `process` track took the other 5% the same day). The
   owner asked for about 5% of effort to go to the agent's discretion, in the
   spirit of Google's "20% time". `goals.md` (owner-edited), `prompt.md`,
   `AGENTS.md` and `research/PROJECTS.md` (in `oss-research-monorepo`, which
