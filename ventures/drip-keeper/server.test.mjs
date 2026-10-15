@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import http from "node:http";
 import * as E from "./engine.mjs";
 import { createHmac } from "node:crypto";
-import { handler, runTick, unsubToken, unsubEmail, resendSender } from "./server.mjs";
+import { handler, runTick, unsubToken, unsubEmail, resendSender, verifyStripeWebhook, stripeToEvent } from "./server.mjs";
 
 const H = 3_600_000, ADMIN = "a".repeat(20), SECRET = "s".repeat(20);
 const SEQ = [{ id: "onboard", trigger: "signed_up", exitOn: ["upgraded"], steps: [{ subject: "Hi {{name|there}}", text: "Welcome." }, { waitHours: 24, subject: "Two", text: "Second." }] }];
@@ -144,4 +144,36 @@ test("resend webhook: off by default, rejects bad signatures, suppresses on comp
   const off = await boot();
   assert.equal((await off.call("POST", "/v1/webhooks/resend", "{}", null)).status, 404);
   off.close();
+});
+
+const SK = "whsec_test_stripe";
+const stripeSig = (body, t) => { const ts = Math.floor(t / 1000); return { "stripe-signature": `t=${ts},v1=${createHmac("sha256", SK).update(`${ts}.${body}`).digest("hex")}` }; };
+
+test("stripe webhook: off by default, verifies signature, a payment exits the trial sequence", async () => {
+  const off = await boot();
+  assert.equal((await off.call("POST", "/v1/webhooks/stripe", "{}", null)).status, 404);
+  off.close();
+  const s = await boot({ stripeSecret: SK });
+  s.cfg.state.sequences = E.validateSequences([{ id: "trial", trigger: "signed_up", exitOn: ["subscribed", "purchased"], steps: [{ subject: "Hi", text: "x" }, { waitHours: 24, subject: "Two", text: "y" }] }, { id: "winback", trigger: "canceled", steps: [{ subject: "Come back", text: "z" }] }]);
+  await s.call("POST", "/v1/events", { email: "a@x.io", event: "signed_up" });
+  const post = (evt, hdr) => { const body = JSON.stringify(evt); return s.call("POST", "/v1/webhooks/stripe", body, null, hdr || stripeSig(body, s.clock.t)); };
+  const inv = { type: "invoice.paid", data: { object: { customer: "cus_1", customer_email: "A@x.io", billing_reason: "subscription_create" } } };
+  assert.equal((await post(inv, { "stripe-signature": "t=1,v1=00" })).status, 401);
+  assert.equal((await post(inv, stripeSig(JSON.stringify(inv), s.clock.t - 10 * 60_000))).status, 401);
+  const r = await post(inv);
+  assert.deepEqual(r.json.exited, ["trial"]);
+  assert.equal(s.cfg.state.contacts["a@x.io"].props.stripe_customer, "cus_1");
+  assert.equal((await post({ type: "invoice.paid", data: { object: { billing_reason: "subscription_cycle", customer_email: "a@x.io" } } })).json.ignored, true);
+  // cancellation carries only the customer id; it is found from the earlier invoice and enrolls the win-back
+  const c = await post({ type: "customer.subscription.deleted", data: { object: { customer: "cus_1" } } });
+  assert.deepEqual(c.json.enrolled, ["winback"]);
+  assert.equal((await post({ type: "customer.subscription.deleted", data: { object: { customer: "cus_unknown" } } })).json.ignored, true);
+  s.close();
+});
+
+test("stripe helpers", () => {
+  assert.equal(verifyStripeWebhook("k", undefined, "{}"), false);
+  assert.equal(stripeToEvent({ type: "checkout.session.completed", data: { object: { customer_details: { email: "b@x.io" } } } }).event, "purchased");
+  assert.equal(stripeToEvent({ type: "charge.refunded", data: { object: {} } }), null);
+  assert.equal(stripeToEvent(null), null);
 });

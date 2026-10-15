@@ -1,7 +1,7 @@
 // Five-field cron parsing and the "is this job late?" decision, shared by the
-// browser tool and the self-hosted server. Pure functions, no I/O, UTC only:
-// a monitor that silently depends on the host timezone pages you at 3am twice
-// a year.
+// browser tool and the self-hosted server. Pure functions, no I/O. UTC unless a
+// schedule names an IANA zone (`tz`): the host timezone is never consulted, because
+// a monitor that silently depends on it pages you at 3am twice a year.
 
 const FIELDS = [
   { name: "minute", min: 0, max: 59 },
@@ -53,7 +53,31 @@ function parseField(text, idx) {
   return values;
 }
 
-export function parseCron(expression) {
+const fmtCache = new Map();
+function formatter(tz) {
+  let f = fmtCache.get(tz);
+  if (!f) {
+    f = new Intl.DateTimeFormat("en-US", { timeZone: tz, hourCycle: "h23", year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric", weekday: "short" });
+    fmtCache.set(tz, f);
+  }
+  return f;
+}
+
+/** Throws on an unknown IANA zone name; returns the name. */
+export function checkTimezone(tz) {
+  if (typeof tz !== "string" || !tz || tz.length > 64) throw new Error("timezone must be an IANA name such as Europe/London");
+  try { formatter(tz); } catch { throw new Error(`unknown timezone "${tz}": use an IANA name such as Europe/London`); }
+  return tz;
+}
+
+/** Wall-clock fields of an instant (ms) in `tz`. */
+export function localParts(ms, tz) {
+  const o = {};
+  for (const p of formatter(tz).formatToParts(new Date(ms))) o[p.type] = p.value;
+  return { month: Number(o.month), day: Number(o.day), hour: Number(o.hour), minute: Number(o.minute), dow: DAYS.indexOf(o.weekday.toLowerCase()), key: `${o.year}-${o.month}-${o.day} ${o.hour}:${o.minute}` };
+}
+
+export function parseCron(expression, tz) {
   if (typeof expression !== "string") throw new Error("cron expression must be text");
   let text = expression.trim().replace(/\s+/g, " ");
   if (MACROS[text.toLowerCase()]) text = MACROS[text.toLowerCase()];
@@ -65,6 +89,7 @@ export function parseCron(expression) {
     minute: sets[0], hour: sets[1], dom: sets[2], month: sets[3], dow: sets[4],
     domStar: parts[2].startsWith("*"), dowStar: parts[4].startsWith("*"),
     text,
+    tz: tz && tz.toUpperCase() !== "UTC" ? checkTimezone(tz) : null,
   };
 }
 
@@ -77,9 +102,33 @@ function matches(c, d) {
   return domOk && dowOk;
 }
 
+function dayOk(c, p) {
+  return (!c.domStar && !c.dowStar) ? (c.dom.has(p.day) || c.dow.has(p.dow)) : (c.dom.has(p.day) && c.dow.has(p.dow));
+}
+
+// Zoned search. Steps by instants and reads the wall clock, so DST needs no special
+// casing in the stepping. Two DST rules, same as Vixie cron:
+//  - fall back: a wall time that happens twice counts once (the job runs once);
+//  - spring forward: a wall time that does not exist is skipped that day.
+function nextRunZoned(c, after) {
+  let t = Math.floor(after / 60000) * 60000 + 60000;
+  const limit = after + 5 * 366 * 86400000;
+  while (t <= limit) {
+    const p = localParts(t, c.tz);
+    if (!c.month.has(p.month) || !dayOk(c, p)) { t += Math.max(30, (24 - p.hour) * 60 - p.minute - 30) * 60000; continue; }
+    if (!c.hour.has(p.hour)) { t += (60 - p.minute) * 60000; continue; }
+    if (!c.minute.has(p.minute)) { t += 60000; continue; }
+    const repeat = [30, 60, 120].some((m) => localParts(t - m * 60000, c.tz).key === p.key);
+    if (!repeat) return new Date(t);
+    t += 60000;
+  }
+  return null;
+}
+
 /** The first scheduled minute strictly after `after` (a Date), or null within 5 years. */
-export function nextRun(cron, after) {
-  const c = typeof cron === "string" ? parseCron(cron) : cron;
+export function nextRun(cron, after, tz) {
+  const c = typeof cron === "string" ? parseCron(cron, tz) : cron;
+  if (c.tz) return nextRunZoned(c, after.getTime());
   const d = new Date(Math.floor(after.getTime() / 60000) * 60000 + 60000);
   const limit = after.getTime() + 5 * 366 * 86400000;
   while (d.getTime() <= limit) {
@@ -95,8 +144,8 @@ export function nextRun(cron, after) {
   return null;
 }
 
-export function nextRuns(cron, after, count = 5) {
-  const c = typeof cron === "string" ? parseCron(cron) : cron;
+export function nextRuns(cron, after, count = 5, tz) {
+  const c = typeof cron === "string" ? parseCron(cron, tz) : cron;
   const out = [];
   let cursor = after;
   while (out.length < count) {
@@ -109,30 +158,30 @@ export function nextRuns(cron, after, count = 5) {
 }
 
 /** Typical gap between runs in seconds (median of the next 8 gaps). */
-export function typicalIntervalSeconds(cron, from) {
-  const runs = nextRuns(cron, from, 9);
+export function typicalIntervalSeconds(cron, from, tz) {
+  const runs = nextRuns(cron, from, 9, tz);
   if (runs.length < 2) return null;
   const gaps = runs.slice(1).map((r, i) => (r - runs[i]) / 1000).sort((a, b) => a - b);
   return gaps[Math.floor(gaps.length / 2)];
 }
 
 /** Largest gap among the next 12 runs: the longest silence that is still healthy. */
-export function longestGapSeconds(cron, from) {
-  const runs = nextRuns(cron, from, 13);
+export function longestGapSeconds(cron, from, tz) {
+  const runs = nextRuns(cron, from, 13, tz);
   if (runs.length < 2) return null;
   return Math.max(...runs.slice(1).map((r, i) => (r - runs[i]) / 1000));
 }
 
 /** A grace period that tolerates normal jitter without hiding a missed run: 10% of the interval, 1 min to 1 h. */
-export function suggestGraceSeconds(cron, from) {
-  const gap = typicalIntervalSeconds(cron, from);
+export function suggestGraceSeconds(cron, from, tz) {
+  const gap = typicalIntervalSeconds(cron, from, tz);
   if (gap === null) return 300;
   return Math.max(60, Math.min(3600, Math.round(gap * 0.1 / 60) * 60 || 60));
 }
 
 /**
  * Decide a check's state at `now`.
- * check: { schedule?: cron text, periodSeconds?: number, graceSeconds, lastPing?: ms, lastStart?: ms, lastFail?: ms, createdAt: ms, paused?: bool }
+ * check: { schedule?: cron text, tz?: IANA zone, periodSeconds?: number, graceSeconds, lastPing?: ms, lastStart?: ms, lastFail?: ms, createdAt: ms, paused?: bool }
  * Returns { state: "new"|"up"|"late"|"down"|"running"|"failed"|"paused", dueAt: ms|null, reason }.
  */
 export function evaluate(check, now) {
@@ -144,7 +193,7 @@ export function evaluate(check, now) {
   const base = check.lastPing ?? check.createdAt;
   let dueAt;
   if (check.schedule) {
-    dueAt = nextRun(check.schedule, new Date(base))?.getTime() ?? null;
+    dueAt = nextRun(check.schedule, new Date(base), check.tz)?.getTime() ?? null;
   } else if (check.periodSeconds) {
     dueAt = base + check.periodSeconds * 1000;
   } else {

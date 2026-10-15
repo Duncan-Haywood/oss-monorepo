@@ -41,6 +41,34 @@ export function resendSuppression(evt) {
   return reason ? { reason, emails: to } : null;
 }
 
+// Stripe signature: header "t=<unix>,v1=<hex>[,v1=...]", HMAC-SHA256 of "<t>.<raw body>" with the endpoint secret.
+export function verifyStripeWebhook(secret, header, raw, nowMs = Date.now()) {
+  if (!secret || !header) return false;
+  const parts = String(header).split(",").map((p) => p.trim().split("="));
+  const t = (parts.find((p) => p[0] === "t") || [])[1];
+  if (!t || !(Math.abs(nowMs / 1000 - Number(t)) <= 300)) return false;
+  const want = createHmac("sha256", secret).update(`${t}.${raw}`).digest("hex");
+  return parts.some((p) => p[0] === "v1" && p[1] && same(p[1], want));
+}
+
+// Map a Stripe event to a Drip Keeper event, so "stop the trial emails when they pay" needs no code in your app.
+//   checkout.session.completed -> purchased   invoice.paid (first invoice) -> subscribed
+//   invoice.payment_failed -> payment_failed   customer.subscription.deleted -> canceled (found by customer id)
+export function stripeToEvent(evt) {
+  const o = (evt && evt.data && evt.data.object) || {}, customer = typeof o.customer === "string" ? o.customer : null;
+  switch (evt && evt.type) {
+    case "checkout.session.completed":
+      return { event: "purchased", email: (o.customer_details && o.customer_details.email) || o.customer_email, customer };
+    case "invoice.paid":
+      return o.billing_reason === "subscription_create" ? { event: "subscribed", email: o.customer_email, customer } : null;
+    case "invoice.payment_failed":
+      return { event: "payment_failed", email: o.customer_email, customer };
+    case "customer.subscription.deleted":
+      return { event: "canceled", email: null, customer };
+    default: return null;
+  }
+}
+
 export function limiter(max = 600, windowMs = 60_000) {
   const hits = new Map();
   return (ip, now) => { const w = Math.floor(now / windowMs), h = hits.get(ip); if (!h || h.w !== w) { hits.set(ip, { w, n: 1 }); if (hits.size > 10_000) hits.clear(); return true; } return ++h.n <= max; };
@@ -116,6 +144,19 @@ export function handler(cfg) {
         return json(200, { suppressed: done.length, reason: sup ? sup.reason : null });
       }
 
+      if (req.method === "POST" && path === "/v1/webhooks/stripe") {
+        if (!cfg.stripeSecret) return json(404, { error: "set STRIPE_WEBHOOK_SECRET to enable" });
+        const raw = await readBody(req, 1_000_000);
+        if (!verifyStripeWebhook(cfg.stripeSecret, req.headers["stripe-signature"], raw, now())) return json(401, { error: "bad signature" });
+        const mapped = stripeToEvent(parseJson(raw));
+        if (!mapped) return json(200, { ignored: true });
+        let email = mapped.email;
+        if (!email && mapped.customer) email = (Object.values(cfg.state.contacts).find((c) => c.props.stripe_customer === mapped.customer) || {}).email;
+        if (!email) return json(200, { ignored: true, reason: "no known contact for this customer" });
+        const r = E.track(cfg.state, { email, event: mapped.event, props: mapped.customer ? { stripe_customer: mapped.customer } : {}, at: now() });
+        cfg.save(); return json(200, r);
+      }
+
       if (req.method === "POST" && (path === "/v1/events" || path === "/v1/contacts")) {
         if (!bearerOk(req, ingestKey)) return json(401, { error: "bad key" });
         const b = parseJson(await readBody(req));
@@ -159,7 +200,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const dryRun = env.DRY_RUN !== "false", base = (env.BASE_URL || `http://localhost:${env.PORT || 8080}`).replace(/\/$/, "");
   const send = env.RESEND_API_KEY && env.MAIL_FROM ? resendSender({ apiKey: env.RESEND_API_KEY, from: env.MAIL_FROM }) : null;
   if (!dryRun && !env.POSTAL_ADDRESS) console.error("warning: POSTAL_ADDRESS is empty. Marketing email in many countries (CAN-SPAM in the US) must carry a postal address.");
-  const cfg = { state, save, adminKey: env.ADMIN_KEY, ingestKey: env.INGEST_KEY, secret: env.UNSUB_SECRET || env.ADMIN_KEY, base, product: env.PRODUCT_NAME || "", address: env.POSTAL_ADDRESS || "", dryRun, send, webhookSecret: env.RESEND_WEBHOOK_SECRET, trustProxy: env.TRUST_PROXY === "true" };
+  const cfg = { state, save, adminKey: env.ADMIN_KEY, ingestKey: env.INGEST_KEY, secret: env.UNSUB_SECRET || env.ADMIN_KEY, base, product: env.PRODUCT_NAME || "", address: env.POSTAL_ADDRESS || "", dryRun, send, webhookSecret: env.RESEND_WEBHOOK_SECRET, stripeSecret: env.STRIPE_WEBHOOK_SECRET, trustProxy: env.TRUST_PROXY === "true" };
   http.createServer(handler(cfg)).listen(Number(env.PORT) || 8080, () => console.log(`drip-keeper on :${env.PORT || 8080} (dry run: ${dryRun || !send})`));
   let busy = false;
   setInterval(async () => { if (busy) return; busy = true; try { const r = await runTick(cfg); if (r.sent || r.failed) console.log(`tick: sent ${r.sent}, failed ${r.failed}`); } catch (e) { console.error("tick error", e.message); } finally { busy = false; } }, Math.max(10, Number(env.TICK_SECONDS) || 60) * 1000);

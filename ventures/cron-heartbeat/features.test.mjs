@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { fileURLToPath } from "node:url";
 import http from "node:http";
 import fs from "node:fs";
 import { createMonitor } from "./monitor.mjs";
@@ -54,10 +55,11 @@ test("dashboard escapes check names and public page hides reasons", () => {
 test("server: dashboard needs the key, /s is public only when enabled, Bearer header works", async () => {
   const spawnServer = async (port, extra) => {
     const { spawn } = await import("node:child_process");
-    const p = spawn(process.execPath, ["server.mjs"], { env: { ...process.env, PORT: String(port), PING_KEY: "k", CHECKS_JSON: '{"a":{"periodSeconds":60}}', STATE: `/tmp/ch-feat-${port}.json`, ...extra }, stdio: "pipe" });
+    const p = spawn(process.execPath, [fileURLToPath(new URL("./server.mjs", import.meta.url))], { env: { ...process.env, PORT: String(port), PING_KEY: "k", CHECKS_JSON: '{"a":{"periodSeconds":60}}', STATE: `/tmp/ch-feat-${port}.json`, ...extra }, stdio: "pipe" });
     await new Promise((r) => p.stdout.once("data", r));
     return p;
   };
+  for (const p of [18791, 18792]) fs.rmSync(`/tmp/ch-feat-${p}.json`, { force: true }); // a stale file from an earlier run would inflate pings
   const on = await spawnServer(18791, { PUBLIC_STATUS: "1" });
   const off = await spawnServer(18792, {});
   try {
@@ -77,13 +79,13 @@ test("server: dashboard needs the key, /s is public only when enabled, Bearer he
 });
 
 test("deploy files: Dockerfile ships every imported module and keeps state on a volume; fly and render keep one awake instance", () => {
-  const d = fs.readFileSync("Dockerfile", "utf8");
+  const d = fs.readFileSync(new URL("./Dockerfile", import.meta.url), "utf8");
   for (const f of ["cron.mjs", "monitor.mjs", "notify.mjs", "dashboard.mjs", "server.mjs"]) assert.ok(d.includes(f), f);
   assert.match(d, /STATE=\/data\/state\.json/);
   assert.match(d, /VOLUME \/data/);
-  assert.match(fs.readFileSync("fly.toml", "utf8"), /auto_stop_machines = "off"/);
-  const r = fs.readFileSync("render.yaml", "utf8");
+  assert.match(fs.readFileSync(new URL("./fly.toml", import.meta.url), "utf8"), /auto_stop_machines = "off"/);
+  const r = fs.readFileSync(new URL("./render.yaml", import.meta.url), "utf8");
   assert.match(r, /plan: starter/);
   assert.match(r, /mountPath: \/data/);
-  assert.match(fs.readFileSync("docker-compose.yml", "utf8"), /state:\/data/);
+  assert.match(fs.readFileSync(new URL("./docker-compose.yml", import.meta.url), "utf8"), /state:\/data/);
 });

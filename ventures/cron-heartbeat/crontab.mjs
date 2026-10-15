@@ -1,7 +1,7 @@
 // Turns pasted crontab text into monitor entries: validity, next runs, the
 // longest healthy silence, a suggested grace period, a wrapped command line
 // and the checks.json the self-hosted server reads.
-import { parseCron, nextRuns, longestGapSeconds, suggestGraceSeconds, formatDuration } from "./cron.mjs";
+import { checkTimezone, parseCron, nextRuns, longestGapSeconds, suggestGraceSeconds, formatDuration } from "./cron.mjs";
 
 const MACRO_RE = /^@[a-z]+$/i;
 
@@ -34,15 +34,21 @@ export function wrapCommand(command, pingUrl) {
 
 export function analyzeCrontab(text, now, baseUrl = "https://monitor.example.com") {
   const entries = [], taken = new Set();
+  let tz = null; // CRON_TZ= (cronie, Vixie) applies to the lines below it
   const lines = String(text || "").split(/\r?\n/);
   lines.forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
+    const zone = line.match(/^CRON_TZ\s*=\s*["']?([^"'\s]*)["']?$/);
+    if (zone) {
+      try { tz = zone[1] ? checkTimezone(zone[1]) : null; } catch (e) { entries.push({ line: i + 1, schedule: line, command: "", error: e.message }); tz = null; }
+      return;
+    }
     if (/^[A-Za-z_][A-Za-z0-9_]*\s*=/.test(line)) return; // MAILTO=, PATH=, ...
     const { schedule, command } = splitLine(line);
-    const entry = { line: i + 1, schedule, command };
+    const entry = { line: i + 1, schedule, command, tz };
     try {
-      const cron = parseCron(schedule);
+      const cron = parseCron(schedule, tz);
       if (!command) throw new Error("no command after the schedule");
       entry.slug = slugify(command, taken);
       entry.nextRuns = nextRuns(cron, now, 5);
@@ -59,7 +65,7 @@ export function analyzeCrontab(text, now, baseUrl = "https://monitor.example.com
     entries.push(entry);
   });
   const ok = entries.filter((e) => !e.error);
-  const config = Object.fromEntries(ok.map((e) => [e.slug, { schedule: e.schedule, graceSeconds: e.graceSeconds }]));
+  const config = Object.fromEntries(ok.map((e) => [e.slug, { schedule: e.schedule, ...(e.tz ? { tz: e.tz } : {}), graceSeconds: e.graceSeconds }]));
   return { entries, config, configJson: JSON.stringify(config, null, 2) };
 }
 
