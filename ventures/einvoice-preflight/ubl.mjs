@@ -144,6 +144,11 @@ function party(node) {
       break;
     }
   }
+  const legalNode = descendants(partyNode, "PartyLegalEntity").flatMap((entity) => descendants(entity, "CompanyID"))[0];
+  if (legalNode && legalNode.text.trim()) {
+    const scheme = (legalNode.attrs && legalNode.attrs.schemeID) ? legalNode.attrs.schemeID.trim() : "";
+    mapped.legal_id = { id: legalNode.text.trim(), scheme };
+  }
   const endpointNode = descendants(partyNode, "EndpointID")[0];
   if (endpointNode) {
     const id = endpointNode.text.trim();
@@ -353,6 +358,11 @@ export function parseUblInvoice(source) {
   if (businessProcess) invoice.profile_id = businessProcess;
   const adjustments = headerAdjustments(root);
   if (adjustments.length) invoice.adjustments = adjustments;
+  const notes = [
+    ...root.children.filter((child) => child.name === "Note").map((child) => child.text.trim()),
+    ...root.children.filter((child) => child.name === "PaymentTerms").flatMap((terms) => descendants(terms, "Note").map((n) => n.text.trim())),
+  ].filter(Boolean);
+  if (notes.length) invoice.notes = notes;
   return invoice;
 }
 

@@ -34,6 +34,22 @@ electronic addresses (R020, R010) and a buyer or order reference (R003). Off by
 default, JS only, and an offline observation, not the OpenPeppol Schematron.
 The UN/CEFACT CII reader now also captures the party electronic address.
 
+**France profile.** Tick "Also apply the French rules" on the page, or call
+`POST /v1/validate?profile=france`, to add seven `FR-001`..`FR-007` rules for
+invoices to French buyers under the e-invoicing reform (reception mandatory
+from 1 September 2026, issuing phased in after): the seller and buyer SIREN or
+SIRET (`legal_id`, scheme 0002) must be present and pass the Luhn check digit
+(La Poste's SIREN 356000000 uses its documented digit-sum exception), the
+SIREN inside a French VAT number must be the seller's own, and the three
+mentions the Code de commerce has always required on a B2B invoice must
+appear in the notes or payment terms: late-payment penalty rate (L441-10),
+the fixed 40 euro recovery indemnity (D441-5) and the early-payment discount
+condition (L441-9). Factur-X subject codes `#PMD#`, `#PMT#` and `#AAB#` are
+recognised, as are French and English wording. The UBL and CII readers now
+capture the party legal identifier and the invoice and payment-terms notes.
+Off by default, JS only, and an offline observation, not a certified
+platform's validator or legal advice. Findings never echo the number.
+
 ```sh
 cd ventures/einvoice-preflight
 # Browser: open index.html, or `python3 -m http.server 8765` and visit

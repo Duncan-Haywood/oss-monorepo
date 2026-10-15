@@ -226,3 +226,151 @@ export function inspectPeppolProfile(invoice) {
 
   return findings;
 }
+
+// ---------------------------------------------------------------------------
+// French profile (FR-nnn): the identifier and mention rules behind France's
+// e-invoicing reform (mandatory reception from 1 September 2026, issuing
+// phased in after) and the Code de commerce payment mentions that a French
+// B2B invoice has always carried. Offline observation of what a platform or a
+// French buyer's accounts-payable would bounce; not a Plateforme Agréée's
+// validator and not legal advice. Findings never repeat a typed identifier.
+
+export const FRENCH_RULES = {
+  "FR-001": "French seller has no SIREN or SIRET on the invoice.",
+  "FR-002": "A SIREN or SIRET is the wrong length or fails its Luhn check digit.",
+  "FR-003": "The SIREN inside the seller's French VAT number differs from the seller's SIREN or SIRET.",
+  "FR-004": "French buyer has no SIREN or SIRET, so the invoice cannot be routed to them.",
+  "FR-005": "Late-payment penalty rate mention is missing (Code de commerce L441-10).",
+  "FR-006": "Fixed 40 euro recovery indemnity mention is missing (Code de commerce D441-5).",
+  "FR-007": "Early-payment discount (escompte) mention is missing (Code de commerce L441-9).",
+};
+
+function digitsOnly(value) {
+  return String(value ?? "").replace(/[\s.\-]/g, "");
+}
+
+function luhnValid(digits) {
+  if (!/^\d+$/.test(digits)) return false;
+  let sum = 0;
+  let double = false;
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let d = Number(digits[i]);
+    if (double) { d *= 2; if (d > 9) d -= 9; }
+    sum += d;
+    double = !double;
+  }
+  return sum % 10 === 0;
+}
+
+/** SIREN: 9 digits, Luhn. SIRET: 14 digits, Luhn, except La Poste's SIREN
+ *  356000000, whose establishments only need a digit sum divisible by 5. */
+export function sirenValid(value) {
+  const d = digitsOnly(value);
+  return d.length === 9 && luhnValid(d);
+}
+
+export function siretValid(value) {
+  const d = digitsOnly(value);
+  if (d.length !== 14 || !/^\d+$/.test(d)) return false;
+  if (d.startsWith("356000000")) return [...d].reduce((s, c) => s + Number(c), 0) % 5 === 0;
+  return luhnValid(d);
+}
+
+function legalIdOf(party) {
+  if (!isObject(party)) return "";
+  const raw = party.legal_id;
+  const id = isObject(raw) ? raw.id : raw;
+  return digitsOnly(typeof id === "string" || typeof id === "number" ? id : "");
+}
+
+function isFrench(party) {
+  if (!isObject(party)) return false;
+  return str(party.country).toUpperCase() === "FR" || /^FR/i.test(str(party.vat_id));
+}
+
+function noteText(invoice) {
+  const notes = Array.isArray(invoice.notes) ? invoice.notes : [];
+  const payment = isObject(invoice.payment) ? invoice.payment : {};
+  return [...notes, payment.terms_text].filter((n) => typeof n === "string").join("\n");
+}
+
+export function inspectFrenchProfile(invoice) {
+  if (!isObject(invoice)) return [];
+  const findings = [];
+  const supplier = isObject(invoice.supplier) ? invoice.supplier : {};
+  const customer = isObject(invoice.customer) ? invoice.customer : {};
+
+  const sellerId = legalIdOf(supplier);
+  const buyerId = legalIdOf(customer);
+  const sellerFrench = isFrench(supplier);
+
+  if (sellerFrench && !sellerId) {
+    findings.push(finding(
+      "FR-001",
+      "French seller has no SIREN or SIRET (legal registration identifier, BT-30).",
+      "Add supplier.legal_id with the 9-digit SIREN or 14-digit SIRET (scheme 0002). The reform's directory routes on it.",
+      "/supplier/legal_id",
+    ));
+  }
+  if (isFrench(customer) && !buyerId) {
+    findings.push(finding(
+      "FR-004",
+      "French buyer has no SIREN or SIRET (BT-47), so a platform cannot route the invoice to them.",
+      "Add customer.legal_id with the buyer's SIREN or SIRET (scheme 0002); ask them for it, it is on their Kbis.",
+      "/customer/legal_id",
+    ));
+  }
+
+  for (const [role, id, path] of [["Seller", sellerId, "/supplier/legal_id"], ["Buyer", buyerId, "/customer/legal_id"]]) {
+    if (id && !(sirenValid(id) || siretValid(id))) {
+      findings.push(finding(
+        "FR-002",
+        `${role} SIREN/SIRET is not 9 or 14 digits or fails its Luhn check digit.`,
+        "Copy the number again from the Kbis or the INSEE avis de situation; one wrong digit fails the check.",
+        path,
+      ));
+    }
+  }
+
+  const vat = digitsOnly(str(supplier.vat_id).replace(/^FR/i, ""));
+  if (/^FR/i.test(str(supplier.vat_id)) && sellerId && vat.length === 11 && (sirenValid(sellerId) || siretValid(sellerId))) {
+    if (vat.slice(2) !== sellerId.slice(0, 9)) {
+      findings.push(finding(
+        "FR-003",
+        "The SIREN inside the seller's French VAT number is not the seller's SIREN.",
+        "A French VAT number is FR, two key digits, then the SIREN. Check that VAT number and legal_id belong to the same company.",
+        "/supplier/vat_id",
+      ));
+    }
+  }
+
+  const isCredit = str(invoice.document_type) === "credit_note";
+  if (sellerFrench && !isCredit) {
+    const text = noteText(invoice);
+    if (!/#PMD#|p[eé]nalit|late[- ]payment|taux d'int[eé]r[eê]t/i.test(text)) {
+      findings.push(finding(
+        "FR-005",
+        "No late-payment penalty rate is stated (L441-10).",
+        "Add a note such as: Pénalités de retard : taux BCE + 10 points (minimum three times the legal interest rate). Factur-X uses subject code PMD.",
+        "/notes",
+      ));
+    }
+    if (!/#PMT#|recouvrement|indemnit|recovery/i.test(text)) {
+      findings.push(finding(
+        "FR-006",
+        "No fixed recovery indemnity is stated (D441-5).",
+        "Add a note such as: Indemnité forfaitaire pour frais de recouvrement : 40 €. Factur-X uses subject code PMT.",
+        "/notes",
+      ));
+    }
+    if (!/#AAB#|escompte|early[- ]payment|discount/i.test(text)) {
+      findings.push(finding(
+        "FR-007",
+        "No early-payment discount (escompte) condition is stated (L441-9).",
+        "Add a note such as: Pas d'escompte pour paiement anticipé (or the rate you grant). Factur-X uses subject code AAB.",
+        "/notes",
+      ));
+    }
+  }
+  return findings;
+}
