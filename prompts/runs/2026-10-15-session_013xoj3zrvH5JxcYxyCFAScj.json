@@ -25,21 +25,21 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "review: filled merged on 4 records, second drift report, E6, review prompt step 1 fix; 2 outputs audited",
-  "errors": 0,
-  "integrity_issues": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/review/prompt-1.md",
-      "note": "step 2 asks for ~5 audited outputs and step 1 assumes all records are local; 167 are mirrored upstream. Did two audits only"
+      "issue": "step 2 asks for ~5 audited outputs and step 1 assumes all records are local; 167 are mirrored upstream. Did two audits only"
     },
     {
       "file": "CLAUDE.md",
-      "note": "1669 lines still on main; read prompt.md and goals.md only, skipped the rest per judgment"
+      "issue": "1669 lines still on main; read only prompt.md, goals.md and the review prompt"
     }
   ],
   "goal": null,
-  "notes": "",
+  "notes": "Filled merged on 4 records, second drift report, E6, review prompt step 1 fix; audited 2 outputs (not 5).",
   "corrections": [],
   "redteam": null
 }
