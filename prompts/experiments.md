@@ -318,3 +318,15 @@ field will.
   doc-only. Fixed in earlier E-entries and verified: PRODUCT_PLAYBOOK self-deploy
   line is no longer stale.
 - Result: (next review)
+
+## E13: eighth review of 2026-10-15
+
+- Change: `CLAUDE.md` -1 line net: the "Tool timeout" bullet duplicated "Long
+  suites" (added by E12); merged into one that also names `git fetch
+  --unshallow` and `publish-branch.sh`, which three reports say time out too.
+- Why: `CLAUDE.md` is the top friction file (36 reports); shorter beats longer.
+- Measure: timeout friction reports on `CLAUDE.md` per run after this review.
+- Follow-up on E12: ventures/2 (6 runs) and research/1 (5) still under 10;
+  no verdict, no new candidate. Audit skipped again: records are mirrored or
+  doc-only. `validate` green on 318 records.
+- Result: (next review)
