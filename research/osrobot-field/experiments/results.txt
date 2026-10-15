@@ -1,0 +1,93 @@
+# osrobot-field results: 60 x 30 m field, 30 seeds per row (fields and random draws are common across rows)
+# Reference: weeds 0.3/m2 clustered, 20% of 5 m blocks muddy, p_max 0.7, false positives 0.01/m2, lane overlap 0
+
+# Sweep 1: travel speed during the detecting pass (scout tour speed fixed at 1.5 m/s)
+                           kill      min       Wh  treats  wasted
+inline v=0.25             0.588    166.3      276     331    33.9
+scout v=0.25              0.585    171.9      312     332    36.1
+inline v=0.5              0.517     91.6      228     293    32.1
+scout v=0.5               0.518     97.2      262     296    34.5
+inline v=1.0              0.401     51.7      189     231    28.7
+scout v=1.0               0.399     57.0      220     232    31.0
+inline v=1.5              0.313     37.0      168     185    26.9
+scout v=1.5               0.314     42.0      196     187    28.3
+inline v=2.0              0.244     28.7      153     148    24.5
+scout v=2.0               0.245     33.6      179     151    27.0
+inline v=3.0              0.152     19.9      134     100    23.6
+scout v=3.0               0.150     23.9      155     100    24.2
+
+# Sweep 2: lane overlap at v=1.0 (both planners), p_max 0.7
+                           kill      min       Wh  treats  wasted
+inline overlap=0.0        0.401     51.7      189     231    28.7
+scout overlap=0.0         0.399     57.0      220     232    31.0
+inline overlap=0.25       0.480     67.0      242     280    37.2
+scout overlap=0.25        0.477     72.4      274     277    36.6
+inline overlap=0.5        0.634     96.4      343     373    52.7
+scout overlap=0.5         0.631    102.1      380     371    52.6
+inline overlap=0.75       0.861    178.4      609     526    91.1
+scout overlap=0.75        0.836    183.8      649     514    91.7
+
+# Sweep 3: cheapest configuration that reaches mean kill >= TARGET, by sensor quality
+# grid: planner x speed {0.25,0.5,1,1.5,2,3} x overlap {0,.25,.5,.75}; fp rate 0.01/m2
+# TARGET 0.8
+p_max   best config                      kill      min       Wh   best by energy                     Wh
+0.5     inline v=0.5 ov=0.75            0.838    317.2      675   inline v=0.5 ov=0.75              675
+0.7     inline v=1.0 ov=0.75            0.861    178.4      609   inline v=0.25 ov=0.5              482
+0.9     inline v=1.5 ov=0.75            0.859    131.8      585   inline v=0.25 ov=0.25             372
+1.0     inline v=1.0 ov=0.5             0.812    101.8      374   inline v=0.25 ov=0.0              320
+# TARGET 0.9
+p_max   best config                      kill      min       Wh   best by energy                     Wh
+0.5     none reaches the target       
+0.7     inline v=0.5 ov=0.75            0.940    320.9      694   inline v=0.5 ov=0.75              694
+0.9     inline v=1.0 ov=0.75            0.940    181.3      624   inline v=0.25 ov=0.5              502
+1.0     inline v=1.5 ov=0.75            0.902    133.3      594   inline v=0.5 ov=0.5               430
+
+# Sweep 4: weed density (per m2), v=1.0, overlap 0, p_max 0.7
+                           kill      min       Wh  treats  wasted
+inline d=0.05             0.411     41.8      133      54    19.4
+scout d=0.05              0.409     44.6      147      53    18.9
+inline d=0.15             0.399     46.2      157     124    23.5
+scout d=0.15              0.412     50.4      179     125    21.5
+inline d=0.3              0.401     51.7      189     231    28.7
+scout d=0.3               0.399     57.0      220     232    31.0
+inline d=0.6              0.403     64.6      261     447    38.6
+scout d=0.6               0.400     71.0      304     446    39.3
+inline d=1.2              0.405     90.0      404     880    60.8
+scout d=1.2               0.402     96.8      462     874    59.7
+
+# Sweep 5: share of muddy blocks, v=1.0, overlap 0, p_max 0.7
+                           kill      min       Wh  treats  wasted
+inline mud=0.0            0.401     46.0      165     231    28.7
+scout mud=0.0             0.399     50.1      190     232    31.0
+inline mud=0.2            0.401     51.7      189     231    28.7
+scout mud=0.2             0.399     57.0      220     232    31.0
+inline mud=0.4            0.401     57.8      214     231    28.7
+scout mud=0.4             0.399     64.3      252     232    31.0
+inline mud=0.6            0.401     64.4      241     231    28.7
+scout mud=0.6             0.399     72.2      287     232    31.0
+
+# Sweep 6: false-positive rate (per m2), v=1.0, overlap 0, p_max 0.7
+                           kill      min       Wh  treats  wasted
+inline fp=0.0             0.401     50.7      183     214    11.1
+scout fp=0.0              0.398     55.5      211     212    11.4
+inline fp=0.01            0.401     51.7      189     231    28.7
+scout fp=0.01             0.399     57.0      220     232    31.0
+inline fp=0.05            0.404     56.0      213     305   101.0
+scout fp=0.05             0.404     61.8      249     304   100.1
+inline fp=0.2             0.403     71.9      303     577   373.6
+scout fp=0.2              0.401     79.0      352     574   370.6
+
+# Sweep 7: blur constant V_BLUR (m/s; detection ~ exp(-v/V_BLUR)), inline, overlap 0, p_max 0.7
+                           kill      min       Wh  treats  wasted
+V_BLUR=1.0 v=0.5          0.401     88.0      207     231    28.7
+V_BLUR=1.0 v=1.0          0.244     46.8      162     148    24.5
+V_BLUR=1.0 v=2.0          0.091     24.0      126      66    20.6
+V_BLUR=2.0 v=0.5          0.517     91.6      228     293    32.1
+V_BLUR=2.0 v=1.0          0.401     51.7      189     231    28.7
+V_BLUR=2.0 v=2.0          0.244     28.7      153     148    24.5
+V_BLUR=4.0 v=0.5          0.588     93.8      240     331    33.9
+V_BLUR=4.0 v=1.0          0.517     55.3      209     293    32.1
+V_BLUR=4.0 v=2.0          0.401     33.6      180     231    28.7
+V_BLUR=8.0 v=0.5          0.619     94.7      245     347    34.4
+V_BLUR=8.0 v=1.0          0.588     57.6      222     331    33.9
+V_BLUR=8.0 v=2.0          0.517     37.2      200     293    32.1

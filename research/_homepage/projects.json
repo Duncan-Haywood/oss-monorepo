@@ -2258,6 +2258,11 @@
      "slug": "osrobot-uav",
      "title": "How heavy must a purpose-built UAV for targeted observation be, and when does a hover-capable airframe stop being worth its weight?",
      "summary": "A stdlib mass-closure sizing model closes a quadrotor, a fixed wing and a fixed wing with a vertical-lift system for the same mission, choosing rotor diameter or wing area for least mass. For 3&nbsp;km out, 20&nbsp;min on station and a 0.5&nbsp;kg payload the plain fixed wing is lightest (1.27&nbsp;kg), against 2.14&nbsp;kg for the quadrotor and 2.08&nbsp;kg for the VTOL wing. The quadrotor does not close at 45&nbsp;min on station; the VTOL wing is lighter than it from 30&nbsp;min or beyond about 10&nbsp;km. Stylised: every technology constant is assumed, no flight stack was run, and a fixed wing cannot hover or launch unaided."
+    },
+    {
+     "slug": "osrobot-field",
+     "title": "For a weeding robot with a cheap camera, is it better to treat weeds as it drives or to scout first and come back, and what does a weak sensor cost?",
+     "summary": "A stdlib simulation of a lane-following weeding robot on a 60&times;30&nbsp;m field with clustered weeds, a motion-blurred noisy detector and muddy squares. Scouting then touring the targets kills the same share of weeds as treating inline (0.399 against 0.401 at 1&nbsp;m/s) and is slower in all 23 paired rows, by 2.8 to 7.8&nbsp;min. Lane overlap repays a weak sensor at a steep price: 0 to 0.75 overlap raises the kill share from 0.40 to 0.86 and the time from 52 to 178&nbsp;min; no grid configuration reaches a 0.9 kill share at a 0.5 hit rate. Stylised: every constant is assumed, the speed results move with the blur assumption, and the planner comparison is a statement about this cost model."
     }
    ]
   },
