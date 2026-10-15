@@ -1109,6 +1109,13 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       else if (!path.extname(resolved)) {
         // A extension-less link is served as a directory if one is there.
         if (await exists(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
+        else if (extension !== '.html') {
+          // A bundler-style import ('./App', './src/store') names a module
+          // without its extension (React Native sources shipped as files).
+          for (const ext of ['.js', '.jsx', '.mjs', '.ts', '.tsx']) {
+            if (await exists(resolved + ext)) { resolved += ext; break; }
+          }
+        }
       }
       // Every tool page footer links `deploy/?app=<slug>` (the "Run your own copy" link), and the page is
       // written after this check runs.
