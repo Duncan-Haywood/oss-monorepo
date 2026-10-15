@@ -1,6 +1,6 @@
 // Heartbeat monitor core: config + persisted state in, alerts out. Separate from
 // the HTTP shell (server.mjs) so the alert rules are testable without sockets.
-import { evaluate, parseCron } from "./cron.mjs";
+import { evaluate, parseCron, checkTimezone } from "./cron.mjs";
 
 const HISTORY_MAX = 50;
 const SLUG = /^[a-z0-9][a-z0-9_-]{0,63}$/;
@@ -12,11 +12,13 @@ export function validateConfig(config) {
     if (!SLUG.test(slug)) throw new Error(`bad check name "${slug}": use lowercase letters, digits, - and _`);
     const c = raw || {};
     if (!c.schedule && !c.periodSeconds) throw new Error(`${slug}: set "schedule" (cron) or "periodSeconds"`);
-    if (c.schedule) parseCron(c.schedule);
+    if (c.tz !== undefined && !c.schedule) throw new Error(`${slug}: "tz" only applies to a cron "schedule"`);
+    if (c.schedule) parseCron(c.schedule, c.tz);
     if (c.periodSeconds !== undefined && !(Number(c.periodSeconds) >= 10)) throw new Error(`${slug}: periodSeconds must be at least 10`);
     if (c.graceSeconds !== undefined && !(Number(c.graceSeconds) >= 0)) throw new Error(`${slug}: graceSeconds must be 0 or more`);
     out[slug] = {
       schedule: c.schedule || null,
+      tz: c.tz && String(c.tz).toUpperCase() !== "UTC" ? checkTimezone(c.tz) : null,
       periodSeconds: c.periodSeconds ? Number(c.periodSeconds) : null,
       graceSeconds: c.graceSeconds !== undefined ? Number(c.graceSeconds) : 300,
       paused: Boolean(c.paused),
