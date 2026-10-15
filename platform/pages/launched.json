@@ -308,6 +308,7 @@
     "drywall-bid-calculator": "2026-08-26",
     "duct-cleaning-bid-calculator": "2026-08-26",
     "dumpster-rental-margin-calculator": "2026-09-06",
+    "cancel-flow": "2026-10-15",
     "dunning-engine": "2026-10-15",
     "duplicate-payment-audit": "2026-09-07",
     "dynamodb-capacity-mode-advisor": "2026-10-01",
