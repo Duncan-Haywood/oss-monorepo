@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Carry time versus peak joint-speed limit for trapezoidal, two S-curve and time-optimal profiles in a stylised simulation">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Carry time vs joint-speed limit (stylised simulation)</text>
+<line x1="64" x2="624" y1="255.6" y2="255.6" stroke="#ddd"/><text x="58" y="259.6" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="180.9" y2="180.9" stroke="#ddd"/><text x="58" y="184.9" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="82.0" y2="82.0" stroke="#ddd"/><text x="58" y="86.0" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">inf</text>
+<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="400.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="512.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="12">peak joint-speed limit wmax (rad/s)</text>
+<text x="14" y="182.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 182.0)">carry time (s, log scale)</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="64.0,271.2 176.0,237.5 288.0,205.0 400.0,179.1 512.0,138.3 624.0,65.2"/>
+<line x1="76" x2="100" y1="58" y2="58" stroke="#1f6fb2" stroke-width="2"/><text x="106" y="62" font-family="sans-serif" font-size="11">trapezoid</text>
+<polyline fill="none" stroke="#e67e22" stroke-width="2" points="64.0,265.0 176.0,233.5 288.0,203.1 400.0,176.7 512.0,137.7 624.0,64.9"/>
+<line x1="76" x2="100" y1="74" y2="74" stroke="#e67e22" stroke-width="2"/><text x="106" y="78" font-family="sans-serif" font-size="11">S-curve 0.5</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="64.0,252.2 176.0,221.6 288.0,197.1 400.0,173.6 512.0,136.0 624.0,64.8"/>
+<line x1="76" x2="100" y1="90" y2="90" stroke="#c0392b" stroke-width="2"/><text x="106" y="94" font-family="sans-serif" font-size="11">S-curve 1.0</text>
+<polyline fill="none" stroke="#2e8b57" stroke-width="2" points="64.0,299.2 176.0,246.5 288.0,210.5 400.0,182.3 512.0,140.6 624.0,66.9"/>
+<line x1="76" x2="100" y1="106" y2="106" stroke="#2e8b57" stroke-width="2"/><text x="106" y="110" font-family="sans-serif" font-size="11">time-optimal</text>
+</svg>

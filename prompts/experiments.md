@@ -126,7 +126,25 @@ Entry format:
   first window is the baseline.
 - Result: (next review)
 
-## E5: Steering by judgment, a process backlog, process track to 10% (2026-10-15, owner request)
+## E5: Judgment over rules, depth over count, drift audit (2026-10-15, owner-directed)
+
+- Change: `goals.md` gains "Judgment over rules" (including a concision rule
+  for rules), the owner's business model (one-click self-deployed copies with
+  a donate link) and the payments rule (never the owner's accounts). Ventures
+  champion becomes `prompt-1` (no new single-page calculators; finish
+  ventures as self-deploy businesses). Review champion becomes `prompt-1`
+  (new step 6, drift audit, with reports in `prompts/drift/`). Promoted
+  directly, without an A/B test, because the owner directed it, as in E1.
+- Why: `prompts/drift/2026-10-15.md`. 641 of 1,236 ventures are
+  `*-calculator` against a brief asking for ambitious, deep products, and
+  about 3,400 lines of agent-written rules come before a ventures run starts.
+- Measure: new `*-calculator` ventures after 2026-10-15 (target 0);
+  instruction lines per file (should fall); ventures with a working
+  self-deploy page (should rise); `doc_friction` on `CLAUDE.md` and
+  `DIRECTION.md`.
+- Result: (next review)
+
+## E6: Steering by judgment, a process backlog, process track to 10% (2026-10-15, owner request)
 
 - Change, all owner-directed rather than A/B (the owner asked for more
   critique-and-solution work on the process itself, for "suggestive direction
@@ -152,8 +170,14 @@ Entry format:
     the same window) and cannot absorb ~1.6 process runs an hour.
   - `routing.json`: process 0.05 to 0.10; ventures and research 0.415 to
     0.39 each. Red team stays at 7% of non-review weight.
-  - Review prompt: reads deviations alongside friction; unfixed findings
-    become backlog items.
+  - Review prompt (prompt-1, E5's champion): reads deviations alongside
+    friction; unfixed findings become backlog items.
+  - `CLAUDE.md` 1,662 to about 450 lines (backlog P003), history moved
+    verbatim to `docs/history/claude-md-2026-10-15.md`; it puts E5's
+    "Fewer, shorter rules" into effect on the largest file.
+  - Built alongside E5 (#7020) in a parallel session; merged, not
+    duplicated: deviations are where E5's "name the rule in the run record"
+    now goes.
 - Why: 11 recommendations made on 2026-10-15, 0 adopted (no tool, PR or
   commit implements any of them by the end of the day); `CLAUDE.md` 1,662
   lines with 12 friction reports; 2 of 3 process runs that day duplicated a
@@ -169,7 +193,7 @@ Entry format:
 Changes to `prompts/goals.md` that a review thinks are warranted, with the
 evidence. The owner decides.
 
-### G1: Separate hard limits from strong defaults in `goals.md` (2026-10-15, E5)
+### G1: Separate hard limits from strong defaults in `goals.md` (2026-10-15, E6)
 
 **Accepted by the owner the same day**, and widened: "aside from legal and
 financial liability and immoral stuff, even the owner instructions are more a
@@ -179,7 +203,7 @@ liability, then free software with a coffee link. The original proposal
 follows.
 
 The owner said on 2026-10-15 that guardrails "are more directions that get
-followed overly so", at ~16 runs an hour. E5 added a reading note but changed
+followed overly so", at ~16 runs an hour. E6 added a reading note but changed
 no guardrail. Proposed split, for the owner to accept, edit or reject:
 
 - **Hard limits (never crossed, no judgment call):** never fabricate; the
@@ -198,5 +222,5 @@ no guardrail. Proposed split, for the owner to accept, edit or reject:
 Evidence that the strict reading costs something: `CLAUDE.md` grew to 1,662
 lines by recording each incident as a permanent rule, and 43% of commits in
 2026-10-01..15 were "new venture" (process study addendum). Too few runs
-record deviations yet to measure the effect of the split; E5's `deviations`
+record deviations yet to measure the effect of the split; E6's `deviations`
 field will.

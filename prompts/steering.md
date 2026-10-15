@@ -1,9 +1,10 @@
 # How this system is steered
 
-Set at the owner's request on 2026-10-15: "suggestive direction setting",
-improving the process run by run without over-handicapping the agents'
-intelligence and initiative, and leaning on their judgment rather than hard
-and fast rules. This file says how instructions here are written, followed and
+Set at the owner's request on 2026-10-15: "I want the process to iteratively
+be improved without over handicapping the agent's intelligence and
+intiiative. it's suggestive direction setting I think as rough idea", and
+"giving more to the agent's intelligence and discretion rather than enforcing
+hard and fast rules makes sense." This file says how instructions here are written, followed and
 changed. It binds whoever edits an instruction file, the review and process
 tracks above all.
 

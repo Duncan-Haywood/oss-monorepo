@@ -14,6 +14,7 @@ prompts/redteam.py         seed faults, measure the catch rate, prove the fixes
 prompts/runs/*.json        one record per run
 prompts/process/reports/   one process study per file (the process track)
 prompts/experiments.md     every change the review track makes, and its result
+prompts/drift/             drift reports: does the work still match the owner's words?
 prompts/promptctl.py       route | record | measure | validate
 ```
 
