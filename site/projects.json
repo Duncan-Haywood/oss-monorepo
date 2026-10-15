@@ -1529,6 +1529,11 @@
      "slug": "robofab-sliprate",
      "title": "Is the off-centre bar result in robofab-liftload a grasp effect or solver creep?",
      "summary": "A follow-up to <code>robofab-liftload</code> that replaces its pass/fail threshold with the bar&rsquo;s rotation rate. A 10&times;10&times;40&nbsp;mm bar held at one end creeps at about 3.7&nbsp;deg/s from 0.3 to 3&nbsp;N and still 2.2&nbsp;deg/s at 20&nbsp;N, so no force stops it. The rate scales with the contact time constant and drops tenfold when <code>impratio</code> goes from 1 to 10; torsional friction lowers it 2.5&ndash;3&times;. Free drops occur only at 0.1&nbsp;N. The earlier verdict reflects simulator settings, not the grasp. Stylised: one engine, boxes, assumed density and friction."
+    },
+    {
+     "slug": "robofab-barimpratio",
+     "title": "Does a stiffer friction cone make the held-bar result in robofab-liftload threshold-free?",
+     "summary": "A follow-up to <code>robofab-sliprate</code>, which traced the bar&rsquo;s creep to MuJoCo&rsquo;s contact settings. Raising the <code>impratio</code> option from 1 to 1000 cuts the creep of a 10&times;10&times;40&nbsp;mm bar held at one end from 3.66 to 0.004&nbsp;deg/s, roughly as 1/<code>impratio</code>. From <code>impratio</code> 10 the minimum holding forces for 1&deg; and 5&deg; tolerances agree within 26% in all 12 cases, so the answer no longer depends on the threshold. The simulated force is below the uniform-pressure torque bracket in 10 of 12 cases (0.67&ndash;1.17&times; its lower bound) and 1.15&ndash;1.67&times; a point-contact bound built on the five contacts per pad MuJoCo reports. One engine, one bar section, no torsional friction. Stylised and preliminary."
     }
    ]
   },
