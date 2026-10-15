@@ -24,7 +24,7 @@ Two parts, both free and MIT:
 | Churnkey, ProfitWell Retain, Brightback and similar | Paid, usually scaled to your MRR; your customers' data goes to a third party | Runs in your account, no fee, nobody else sees your customers |
 | A flow you build yourself | Easy to get wrong: double discounts, canceling the wrong subscription, offers on trials | Signed links, ownership check, idempotent writes, cooldown, dry-run default |
 
-Honest limits: no hosted dashboard, no A/B testing, and win-back emails are
+Honest limits: no hosted dashboard, and win-back emails are
 plain-text only (off until you set `WINBACK_URL`). It does not claim a save rate; measure it on your own data.
 If the Stripe portal's built-in survey already works for you, keep it.
 
@@ -66,14 +66,22 @@ If the Stripe portal's built-in survey already works for you, keep it.
    second email can carry a code you create in Stripe (`WINBACK_CODE`). Dry-run
    logs what it would send. `/v1/summary` adds emailed, opted out and
    resubscribed. It claims no win-back rate; it counts yours.
-7. **Reports** `GET /v1/summary` (started, offered, saved, save rate, by reason,
+7. **A/B tests offers.** Add `experiments` to `POLICY_JSON`, for example
+   `{"experiments":{"too_expensive":{"variants":{"B":{"type":"discount","percent":15,"months":6}}}}}`.
+   The offer in `offers` stays the control (arm A); customers are split evenly by a
+   hash of customer and reason, so one customer always sees the same arm.
+   `/v1/summary` then reports `experiments`: offers, saves, save rate and monthly
+   revenue kept per arm, a two-sided two-proportion p-value, and a verdict that stays
+   "keep collecting" until both arms have 30 offers and p < 0.05. Small shops will
+   wait a long time for 30 per arm; treat early gaps as noise.
+8. **Reports** `GET /v1/summary` (started, offered, saved, save rate, by reason,
    monthly revenue kept by discounts) and `GET /v1/sessions` (admin key).
 
 ## Run it
 
 ```sh
 cd ventures/cancel-flow
-node --test        # 47 tests, no network
+node --test        # 52 tests, no network
 STRIPE_SECRET_KEY=rk_test_... STRIPE_WEBHOOK_SECRET=whsec_... \
 ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
 PUBLIC_URL=https://cancel.example.com COMPANY_NAME=Acme node server.mjs

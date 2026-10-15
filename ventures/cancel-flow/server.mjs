@@ -7,7 +7,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { createHmac, timingSafeEqual, randomBytes } from "node:crypto";
 import { verifySignature, createStripe } from "./stripe.mjs";
-import { decide, describeOffer, summarize, REASONS, mergePolicy } from "./flow.mjs";
+import { decide, describeOffer, summarize, summarizeExperiments, assignVariant, REASONS, mergePolicy } from "./flow.mjs";
 import { renderCancelPage } from "./page.mjs";
 import { runWinback, summarizeWinback, readUnsubToken } from "./winback.mjs";
 
@@ -114,7 +114,8 @@ export function handler(cfg) {
           if (!REASONS[body.reason]) return fail(400, "Please choose a reason.");
           s.reason = body.reason; s.comment = String(body.comment || "").slice(0, 500);
           const history = Object.values(sessions).filter((x) => x.customer === tok.c && x.id !== s.id);
-          const d = decide({ reason: s.reason, sub, history, policy, now: now() });
+          s.variant = assignVariant({ customer: tok.c, reason: s.reason, policy });
+          const d = decide({ reason: s.reason, sub, history, policy, now: now(), variant: s.variant });
           if (d.action === "blocked") { cfg.save(); return fail(409, d.why === "already_canceling" ? "Your subscription is already set to cancel." : "This subscription can't be changed here."); }
           s.decision = d.action === "offer" ? d.offer : null;
           s.offer = d.action === "offer" && d.offer.type !== "help" ? { ...d.offer } : null;
@@ -148,7 +149,7 @@ export function handler(cfg) {
       if (url.pathname.startsWith("/v1/")) {
         if (!bearerOk(req, cfg.adminKey)) return fail(401, "admin key required");
         const all = Object.values(cfg.state.sessions);
-        if (req.method === "GET" && url.pathname === "/v1/summary") return send(200, { dryRun: cfg.dryRun, ...summarize(all), ...(cfg.winbackUrl ? { winback: summarizeWinback(all, cfg.state.optouts) } : {}) });
+        if (req.method === "GET" && url.pathname === "/v1/summary") return send(200, { dryRun: cfg.dryRun, ...summarize(all), experiments: summarizeExperiments(all), ...(cfg.winbackUrl ? { winback: summarizeWinback(all, cfg.state.optouts) } : {}) });
         if (req.method === "GET" && url.pathname === "/v1/sessions") {
           return send(200, all.slice(-200).map(({ id, sub, customer, ...rest }) => ({ id, ...rest, at: new Date(rest.at).toISOString() })));
         }
