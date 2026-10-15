@@ -33,52 +33,52 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548374 bytes
-#   portfolio-front-tools-1: 92 files, 555573 bytes
-#   portfolio-front-tools-2: 144 files, 553611 bytes
-#   portfolio-front-tools-3: 128 files, 549947 bytes
-#   portfolio-front-tools-4: 136 files, 556584 bytes
-#   portfolio-front-tools-5: 130 files, 549978 bytes
-#   portfolio-front-tools-6: 127 files, 556384 bytes
-#   portfolio-front-tools-7: 119 files, 554227 bytes
-#   portfolio-front-tools-8: 129 files, 549636 bytes
-#   portfolio-front-tools-9: 136 files, 551974 bytes
-#   portfolio-front-tools-10: 137 files, 557040 bytes
-#   portfolio-front-tools-11: 137 files, 548088 bytes
-#   portfolio-front-tools-12: 128 files, 554221 bytes
-#   portfolio-front-tools-13: 129 files, 554408 bytes
-#   portfolio-front-tools-14: 129 files, 550033 bytes
-#   portfolio-front-tools-15: 129 files, 551066 bytes
-#   portfolio-front-tools-16: 123 files, 556173 bytes
-#   portfolio-front-tools-17: 134 files, 550938 bytes
-#   portfolio-front-tools-18: 123 files, 552302 bytes
-#   portfolio-front-tools-19: 127 files, 556941 bytes
-#   portfolio-front-tools-20: 123 files, 552149 bytes
-#   portfolio-front-tools-21: 124 files, 550346 bytes
-#   portfolio-front-tools-22: 122 files, 553789 bytes
-#   portfolio-front-tools-23: 119 files, 549975 bytes
-#   portfolio-front-tools-24: 119 files, 551139 bytes
-#   portfolio-front-tools-25: 135 files, 556676 bytes
-#   portfolio-front-tools-26: 128 files, 554242 bytes
-#   portfolio-front-tools-27: 141 files, 554567 bytes
-#   portfolio-front-tools-28: 128 files, 552721 bytes
-#   portfolio-front-tools-29: 122 files, 555607 bytes
-#   portfolio-front-tools-30: 130 files, 549490 bytes
-#   portfolio-front-tools-31: 136 files, 555932 bytes
-#   portfolio-front-tools-32: 122 files, 556203 bytes
-#   portfolio-front-tools-33: 140 files, 554255 bytes
-#   portfolio-front-tools-34: 130 files, 549143 bytes
-#   portfolio-front-tools-35: 108 files, 553398 bytes
-#   portfolio-front-tools-36: 104 files, 554605 bytes
-#   portfolio-front-tools-37: 126 files, 556758 bytes
-#   portfolio-front-tools-38: 124 files, 556773 bytes
-#   portfolio-front-tools-39: 130 files, 554367 bytes
-#   portfolio-front-tools-40: 128 files, 546548 bytes
-#   portfolio-front-tools-41: 138 files, 556058 bytes
-#   portfolio-front-tools-42: 136 files, 555292 bytes
-#   portfolio-front-tools-43: 123 files, 555078 bytes
-#   portfolio-front-tools-44: 118 files, 552764 bytes
-#   portfolio-front-tools-45: 67 files, 344823 bytes
+#   portfolio-front-tools-0: 145 files, 548385 bytes
+#   portfolio-front-tools-1: 92 files, 555575 bytes
+#   portfolio-front-tools-2: 144 files, 553629 bytes
+#   portfolio-front-tools-3: 128 files, 549961 bytes
+#   portfolio-front-tools-4: 136 files, 553135 bytes
+#   portfolio-front-tools-5: 131 files, 551803 bytes
+#   portfolio-front-tools-6: 126 files, 556379 bytes
+#   portfolio-front-tools-7: 119 files, 553843 bytes
+#   portfolio-front-tools-8: 131 files, 556425 bytes
+#   portfolio-front-tools-9: 137 files, 556396 bytes
+#   portfolio-front-tools-10: 137 files, 554166 bytes
+#   portfolio-front-tools-11: 138 files, 553707 bytes
+#   portfolio-front-tools-12: 128 files, 554117 bytes
+#   portfolio-front-tools-13: 129 files, 554377 bytes
+#   portfolio-front-tools-14: 129 files, 550063 bytes
+#   portfolio-front-tools-15: 129 files, 551029 bytes
+#   portfolio-front-tools-16: 123 files, 556134 bytes
+#   portfolio-front-tools-17: 134 files, 551048 bytes
+#   portfolio-front-tools-18: 123 files, 552396 bytes
+#   portfolio-front-tools-19: 127 files, 556756 bytes
+#   portfolio-front-tools-20: 123 files, 552069 bytes
+#   portfolio-front-tools-21: 124 files, 550316 bytes
+#   portfolio-front-tools-22: 122 files, 553689 bytes
+#   portfolio-front-tools-23: 119 files, 549949 bytes
+#   portfolio-front-tools-24: 119 files, 551212 bytes
+#   portfolio-front-tools-25: 135 files, 556591 bytes
+#   portfolio-front-tools-26: 128 files, 554429 bytes
+#   portfolio-front-tools-27: 141 files, 554680 bytes
+#   portfolio-front-tools-28: 128 files, 552705 bytes
+#   portfolio-front-tools-29: 122 files, 555700 bytes
+#   portfolio-front-tools-30: 130 files, 549437 bytes
+#   portfolio-front-tools-31: 136 files, 555869 bytes
+#   portfolio-front-tools-32: 122 files, 556347 bytes
+#   portfolio-front-tools-33: 140 files, 554383 bytes
+#   portfolio-front-tools-34: 130 files, 549394 bytes
+#   portfolio-front-tools-35: 108 files, 553418 bytes
+#   portfolio-front-tools-36: 104 files, 554574 bytes
+#   portfolio-front-tools-37: 126 files, 556847 bytes
+#   portfolio-front-tools-38: 124 files, 556916 bytes
+#   portfolio-front-tools-39: 130 files, 554339 bytes
+#   portfolio-front-tools-40: 128 files, 546673 bytes
+#   portfolio-front-tools-41: 138 files, 556013 bytes
+#   portfolio-front-tools-42: 136 files, 555268 bytes
+#   portfolio-front-tools-43: 123 files, 555162 bytes
+#   portfolio-front-tools-44: 118 files, 552924 bytes
+#   portfolio-front-tools-45: 67 files, 344798 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -679,6 +679,10 @@ configMapGenerator:
       - actions-cache-poisoning-check__vs-checking-by-hand.html.gz=actions-cache-poisoning-check__vs-checking-by-hand.html.gz
       - actions-cache-poisoning-check__vs-zizmor.html.gz=actions-cache-poisoning-check__vs-zizmor.html.gz
       - actions-cache-poisoning-check__what-is-github-actions-cache-poisoning.html.gz=actions-cache-poisoning-check__what-is-github-actions-cache-poisoning.html.gz
+      - actions-checkout-credentials-check__check.mjs.gz=actions-checkout-credentials-check__check.mjs.gz
+      - actions-checkout-credentials-check__check.py.gz=actions-checkout-credentials-check__check.py.gz
+      - actions-checkout-credentials-check__index.html.gz=actions-checkout-credentials-check__index.html.gz
+      - actions-checkout-credentials-check__usage.mjs.gz=actions-checkout-credentials-check__usage.mjs.gz
       - actions-injection-check__check.py.gz=actions-injection-check__check.py.gz
       - actions-injection-check__classify.mjs.gz=actions-injection-check__classify.mjs.gz
       - actions-injection-check__index.html.gz=actions-injection-check__index.html.gz
@@ -762,15 +766,15 @@ configMapGenerator:
       - adjunct-course-offer-calculator__index.html.gz=adjunct-course-offer-calculator__index.html.gz
       - adjunct-course-offer-calculator__usage.mjs.gz=adjunct-course-offer-calculator__usage.mjs.gz
       - adu-payback-calculator__calc.mjs.gz=adu-payback-calculator__calc.mjs.gz
-      - adu-payback-calculator__index.html.gz=adu-payback-calculator__index.html.gz
-      - adu-payback-calculator__usage.mjs.gz=adu-payback-calculator__usage.mjs.gz
-      - affiliate-disclosure-checker__cli.mjs.gz=affiliate-disclosure-checker__cli.mjs.gz
-      - affiliate-disclosure-checker__engine.mjs.gz=affiliate-disclosure-checker__engine.mjs.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - adu-payback-calculator__index.html.gz=adu-payback-calculator__index.html.gz
+      - adu-payback-calculator__usage.mjs.gz=adu-payback-calculator__usage.mjs.gz
+      - affiliate-disclosure-checker__cli.mjs.gz=affiliate-disclosure-checker__cli.mjs.gz
+      - affiliate-disclosure-checker__engine.mjs.gz=affiliate-disclosure-checker__engine.mjs.gz
       - affiliate-disclosure-checker__index.html.gz=affiliate-disclosure-checker__index.html.gz
       - affiliate-disclosure-checker__usage.mjs.gz=affiliate-disclosure-checker__usage.mjs.gz
       - affiliate-disclosure-checker__vs-checking-a-post-by-eye.html.gz=affiliate-disclosure-checker__vs-checking-a-post-by-eye.html.gz
@@ -898,14 +902,14 @@ configMapGenerator:
       - app-store-screenshot-check__why-store-uploads-get-rejected.html.gz=app-store-screenshot-check__why-store-uploads-get-rejected.html.gz
       - app-subscription-proceeds-calculator__app-store-30-vs-15-percent-subscription-value.html.gz=app-subscription-proceeds-calculator__app-store-30-vs-15-percent-subscription-value.html.gz
       - app-subscription-proceeds-calculator__engine.mjs.gz=app-subscription-proceeds-calculator__engine.mjs.gz
-      - app-subscription-proceeds-calculator__index.html.gz=app-subscription-proceeds-calculator__index.html.gz
-      - app-subscription-proceeds-calculator__usage.mjs.gz=app-subscription-proceeds-calculator__usage.mjs.gz
-      - apparel-decoration-price-calculator__calculator.mjs.gz=apparel-decoration-price-calculator__calculator.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - app-subscription-proceeds-calculator__index.html.gz=app-subscription-proceeds-calculator__index.html.gz
+      - app-subscription-proceeds-calculator__usage.mjs.gz=app-subscription-proceeds-calculator__usage.mjs.gz
+      - apparel-decoration-price-calculator__calculator.mjs.gz=apparel-decoration-price-calculator__calculator.mjs.gz
       - apparel-decoration-price-calculator__index.html.gz=apparel-decoration-price-calculator__index.html.gz
       - apparel-decoration-price-calculator__should-i-charge-extra-for-a-second-print-location.html.gz=apparel-decoration-price-calculator__should-i-charge-extra-for-a-second-print-location.html.gz
       - apparel-decoration-price-calculator__usage.mjs.gz=apparel-decoration-price-calculator__usage.mjs.gz
@@ -1029,15 +1033,15 @@ configMapGenerator:
       - auto-repair-effective-labor-rate__calc.mjs.gz=auto-repair-effective-labor-rate__calc.mjs.gz
       - auto-repair-effective-labor-rate__index.html.gz=auto-repair-effective-labor-rate__index.html.gz
       - auto-repair-effective-labor-rate__should-i-keep-taking-warranty-work.html.gz=auto-repair-effective-labor-rate__should-i-keep-taking-warranty-work.html.gz
-      - auto-repair-effective-labor-rate__usage.mjs.gz=auto-repair-effective-labor-rate__usage.mjs.gz
-      - auto-repair-effective-labor-rate__vs-autoleap.html.gz=auto-repair-effective-labor-rate__vs-autoleap.html.gz
-      - auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz=auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz
-      - auto-repair-effective-labor-rate__vs-shop-ware.html.gz=auto-repair-effective-labor-rate__vs-shop-ware.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - auto-repair-effective-labor-rate__usage.mjs.gz=auto-repair-effective-labor-rate__usage.mjs.gz
+      - auto-repair-effective-labor-rate__vs-autoleap.html.gz=auto-repair-effective-labor-rate__vs-autoleap.html.gz
+      - auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz=auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz
+      - auto-repair-effective-labor-rate__vs-shop-ware.html.gz=auto-repair-effective-labor-rate__vs-shop-ware.html.gz
       - auto-repair-effective-labor-rate__vs-shopmonkey.html.gz=auto-repair-effective-labor-rate__vs-shopmonkey.html.gz
       - auto-repair-effective-labor-rate__vs-tekmetric.html.gz=auto-repair-effective-labor-rate__vs-tekmetric.html.gz
       - auto-repair-effective-labor-rate__what-is-my-effective-labor-rate.html.gz=auto-repair-effective-labor-rate__what-is-my-effective-labor-rate.html.gz
@@ -1153,15 +1157,15 @@ configMapGenerator:
       - bid-win-rate-optimizer__index.html.gz=bid-win-rate-optimizer__index.html.gz
       - bid-win-rate-optimizer__usage.mjs.gz=bid-win-rate-optimizer__usage.mjs.gz
       - bigcommerce-product-csv-check__calc.mjs.gz=bigcommerce-product-csv-check__calc.mjs.gz
-      - bigcommerce-product-csv-check__index.html.gz=bigcommerce-product-csv-check__index.html.gz
-      - bigcommerce-product-csv-check__usage.mjs.gz=bigcommerce-product-csv-check__usage.mjs.gz
-      - bigquery-query-cost-advisor__bigquery-on-demand-vs-editions-cost.html.gz=bigquery-query-cost-advisor__bigquery-on-demand-vs-editions-cost.html.gz
-      - bigquery-query-cost-advisor__cli.mjs.gz=bigquery-query-cost-advisor__cli.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - bigcommerce-product-csv-check__index.html.gz=bigcommerce-product-csv-check__index.html.gz
+      - bigcommerce-product-csv-check__usage.mjs.gz=bigcommerce-product-csv-check__usage.mjs.gz
+      - bigquery-query-cost-advisor__bigquery-on-demand-vs-editions-cost.html.gz=bigquery-query-cost-advisor__bigquery-on-demand-vs-editions-cost.html.gz
+      - bigquery-query-cost-advisor__cli.mjs.gz=bigquery-query-cost-advisor__cli.mjs.gz
       - bigquery-query-cost-advisor__engine.mjs.gz=bigquery-query-cost-advisor__engine.mjs.gz
       - bigquery-query-cost-advisor__index.html.gz=bigquery-query-cost-advisor__index.html.gz
       - bigquery-query-cost-advisor__usage.mjs.gz=bigquery-query-cost-advisor__usage.mjs.gz
@@ -1289,13 +1293,13 @@ configMapGenerator:
       - ca-gst-hst-small-supplier-checker__calc.mjs.gz=ca-gst-hst-small-supplier-checker__calc.mjs.gz
       - ca-gst-hst-small-supplier-checker__index.html.gz=ca-gst-hst-small-supplier-checker__index.html.gz
       - ca-gst-hst-small-supplier-checker__usage.mjs.gz=ca-gst-hst-small-supplier-checker__usage.mjs.gz
-      - ca-meal-rest-break-premium-checker__calc.mjs.gz=ca-meal-rest-break-premium-checker__calc.mjs.gz
-      - ca-meal-rest-break-premium-checker__california-meal-break-premium-pay-explained.html.gz=ca-meal-rest-break-premium-checker__california-meal-break-premium-pay-explained.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ca-meal-rest-break-premium-checker__calc.mjs.gz=ca-meal-rest-break-premium-checker__calc.mjs.gz
+      - ca-meal-rest-break-premium-checker__california-meal-break-premium-pay-explained.html.gz=ca-meal-rest-break-premium-checker__california-meal-break-premium-pay-explained.html.gz
       - ca-meal-rest-break-premium-checker__index.html.gz=ca-meal-rest-break-premium-checker__index.html.gz
       - ca-meal-rest-break-premium-checker__usage.mjs.gz=ca-meal-rest-break-premium-checker__usage.mjs.gz
       - ca-self-employed-tax-set-aside-calculator__calc.mjs.gz=ca-self-employed-tax-set-aside-calculator__calc.mjs.gz
@@ -1431,12 +1435,12 @@ configMapGenerator:
       - cash-flow-risk-forecaster__calc.mjs.gz=cash-flow-risk-forecaster__calc.mjs.gz
       - cash-flow-risk-forecaster__index.html.gz=cash-flow-risk-forecaster__index.html.gz
       - cash-flow-risk-forecaster__usage.mjs.gz=cash-flow-risk-forecaster__usage.mjs.gz
-      - cat-adjuster-fee-calculator__calc.mjs.gz=cat-adjuster-fee-calculator__calc.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cat-adjuster-fee-calculator__calc.mjs.gz=cat-adjuster-fee-calculator__calc.mjs.gz
       - cat-adjuster-fee-calculator__index.html.gz=cat-adjuster-fee-calculator__index.html.gz
       - cat-adjuster-fee-calculator__is-this-cat-adjuster-fee-schedule-worth-it.html.gz=cat-adjuster-fee-calculator__is-this-cat-adjuster-fee-schedule-worth-it.html.gz
       - cat-adjuster-fee-calculator__share.mjs.gz=cat-adjuster-fee-calculator__share.mjs.gz
@@ -1573,12 +1577,12 @@ configMapGenerator:
       - client-rebooking-predictor__calc.mjs.gz=client-rebooking-predictor__calc.mjs.gz
       - client-rebooking-predictor__index.html.gz=client-rebooking-predictor__index.html.gz
       - client-rebooking-predictor__usage.mjs.gz=client-rebooking-predictor__usage.mjs.gz
-      - climbing-gym-profit-calculator__calc.mjs.gz=climbing-gym-profit-calculator__calc.mjs.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - climbing-gym-profit-calculator__calc.mjs.gz=climbing-gym-profit-calculator__calc.mjs.gz
       - climbing-gym-profit-calculator__how-much-does-a-climbing-gym-make.html.gz=climbing-gym-profit-calculator__how-much-does-a-climbing-gym-make.html.gz
       - climbing-gym-profit-calculator__index.html.gz=climbing-gym-profit-calculator__index.html.gz
       - climbing-gym-profit-calculator__usage.mjs.gz=climbing-gym-profit-calculator__usage.mjs.gz
