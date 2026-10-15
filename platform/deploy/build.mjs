@@ -15,6 +15,8 @@ const VENDOR = ['nacl-fast.mjs', 'blake2b.mjs', 'TWEETNACL-LICENSE', 'BLAKEJS-LI
 async function readTree(dir, prefix = '') {
   const out = {};
   for (const e of await fs.readdir(dir, { withFileTypes: true })) {
+    // `tofu init` (CI runs it before the tests) leaves .terraform/ and a lock file here.
+    if (e.name === '.terraform' || e.name === '.terraform.lock.hcl') continue;
     const rel = prefix + e.name;
     if (e.isDirectory()) Object.assign(out, await readTree(path.join(dir, e.name), `${rel}/`));
     else out[rel] = await fs.readFile(path.join(dir, e.name), 'utf8');
