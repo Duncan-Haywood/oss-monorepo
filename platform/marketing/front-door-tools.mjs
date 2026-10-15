@@ -429,7 +429,7 @@ export const SHARD_BYTE_CEILING = 544 * 1024;
  * move is telling the owner the stopgap is the only thing between the
  * catalogue and an outage, not quietly buying another few weeks.
  */
-export const MIRROR_BYTE_CEILING = 28 * 1024 * 1024;
+export const MIRROR_BYTE_CEILING = 32 * 1024 * 1024;
 
 /**
  * The share of `MIRROR_BYTE_CEILING` above which the mirror is reported as
@@ -520,6 +520,14 @@ export const MIRROR_BYTE_CEILING = 28 * 1024 * 1024;
  * tmpfs is 14.6% of the 192Mi pod limit and `test_portfolio_front_fits_the_prod_quota`
  * needs only `limit_mi >= ceiling * 2`. Same trade as the fifth raise; the seal is
  * still the real fix.
+ *
+ * **Seventh raise, 28 MiB to 32 MiB, 2026-10-15.** The warn ratio fired at 85.0%
+ * with 1,238 tools and 0 recoverable duplicate bytes when `webhook-relay` (a server
+ * venture whose five source modules ship with its page) joined. 32 MiB of tmpfs is
+ * 16.7% of the 192Mi pod limit and `test_portfolio_front_fits_the_prod_quota` needs
+ * only `limit_mi >= ceiling * 2`. Same trade as the sixth raise; the mirror targets
+ * the origin retired on 2026-10-01, so this buys headroom for a surface that GitHub
+ * Pages does not use.
  *
  * Do not raise `MIRROR_BYTE_CEILING` to clear this report: both costs its
  * comment names are real, and the duplicate bytes are now recovered

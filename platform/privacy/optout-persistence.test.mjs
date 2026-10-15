@@ -1681,7 +1681,8 @@ const RELATIVE_SELF = relative(
 // +1: `youtube-sponsorship-rate-calculator` graduated.
 // +1: `dunning-engine` graduated.
 // +1: `cancel-flow` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1211;
+// +1: `webhook-relay` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1212;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.

@@ -3073,7 +3073,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `us-freelancer-tax-set-aside-calculator` graduated (browser US freelancer SE tax, federal tax with QBI, state tax and 1040-ES set-aside). #6981 and #6982 each wrote 1223 against a base without the other; re-synced after both merged.
     # +1: `cancel-flow` graduated (self-hosted Stripe cancellation flow: reason-matched save offers, browser simulator plus zero-dependency server).
     # +1: `dunning-engine` graduated (self-hosted Stripe failed-payment recovery: browser plan simulator plus zero-dependency server).
-    total = 1238  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1238 tools" wording.
+    # +1: `webhook-relay` graduated (self-hosted webhook relay: verify, store, retry, replay; browser outage simulator plus zero-dependency server).
+    total = 1239  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1239 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
