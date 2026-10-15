@@ -6,7 +6,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { createStripe } from "./stripe.mjs";
-import { backfill, applySync, liveMap, summarize, cohorts, breakdown, forecast, monthsCsv } from "./metrics.mjs";
+import { backfill, applySync, liveMap, summarize, cohorts, breakdown, forecast, concentration, monthsCsv } from "./metrics.mjs";
 import { renderDashboard } from "./page.mjs";
 import { notify, validWebhook } from "./alerts.mjs";
 
@@ -70,10 +70,11 @@ export function handler(cfg) {
       if (!authorized(req.headers.authorization, cfg.adminKey)) return send(401, "sign in with ADMIN_KEY as the password\n", "text/plain", { "www-authenticate": 'Basic realm="MRR Pulse", charset="UTF-8"' });
       const months = monthList(cfg.state);
       if (req.method === "GET" && url.pathname === "/") {
-        return send(200, renderDashboard({ company: cfg.company || "Your company", summary: summarize(months), months, currency: cfg.state.currency || "usd", lastSyncAt: cfg.state.lastSyncAt, skipped: cfg.state.skipped, cohorts: cfg.state.cohorts || [], forecast: forecast(months), breakdown: cfg.state.breakdown }), "text/html; charset=utf-8", { "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'" });
+        return send(200, renderDashboard({ company: cfg.company || "Your company", summary: summarize(months), months, currency: cfg.state.currency || "usd", lastSyncAt: cfg.state.lastSyncAt, skipped: cfg.state.skipped, cohorts: cfg.state.cohorts || [], forecast: forecast(months), breakdown: cfg.state.breakdown, concentration: concentration(cfg.state.last || {}) }), "text/html; charset=utf-8", { "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'" });
       }
       if (req.method === "GET" && url.pathname === "/v1/metrics") return send(200, { currency: cfg.state.currency, lastSyncAt: cfg.state.lastSyncAt, summary: summarize(months) });
       if (req.method === "GET" && url.pathname === "/v1/forecast") return send(200, forecast(months, { horizon: Math.min(24, Math.max(1, Number(url.searchParams.get("months")) || 6)) }));
+      if (req.method === "GET" && url.pathname === "/v1/concentration") return send(200, concentration(cfg.state.last || {}));
       if (req.method === "GET" && url.pathname === "/v1/cohorts") return send(200, cfg.state.cohorts || []);
       if (req.method === "GET" && url.pathname === "/v1/plans") return send(200, cfg.state.breakdown || { total: 0, plans: [], concentration: null });
       if (req.method === "GET" && url.pathname === "/v1/months.csv") return send(200, monthsCsv(months, cfg.state.currency || "usd"), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="mrr-pulse-months.csv"' });

@@ -59,12 +59,12 @@
 #   portfolio-front-tools-23: 117 files, 553293 bytes
 #   portfolio-front-tools-24: 129 files, 554499 bytes
 #   portfolio-front-tools-25: 125 files, 555216 bytes
-#   portfolio-front-tools-26: 133 files, 556865 bytes
-#   portfolio-front-tools-27: 142 files, 556299 bytes
-#   portfolio-front-tools-28: 122 files, 554625 bytes
-#   portfolio-front-tools-29: 127 files, 550022 bytes
-#   portfolio-front-tools-30: 133 files, 556743 bytes
-#   portfolio-front-tools-31: 131 files, 552083 bytes
+#   portfolio-front-tools-26: 132 files, 552715 bytes
+#   portfolio-front-tools-27: 142 files, 556817 bytes
+#   portfolio-front-tools-28: 121 files, 551180 bytes
+#   portfolio-front-tools-29: 128 files, 553997 bytes
+#   portfolio-front-tools-30: 133 files, 556236 bytes
+#   portfolio-front-tools-31: 132 files, 556212 bytes
 #   portfolio-front-tools-32: 122 files, 547513 bytes
 #   portfolio-front-tools-33: 137 files, 553706 bytes
 #   portfolio-front-tools-34: 124 files, 553975 bytes
@@ -3691,12 +3691,12 @@ configMapGenerator:
       - nanny-tax-calculator__index.html.gz=nanny-tax-calculator__index.html.gz
       - nanny-tax-calculator__usage.mjs.gz=nanny-tax-calculator__usage.mjs.gz
       - nat-gateway-cost-advisor__cli.mjs.gz=nat-gateway-cost-advisor__cli.mjs.gz
-      - nat-gateway-cost-advisor__engine.mjs.gz=nat-gateway-cost-advisor__engine.mjs.gz
   - name: portfolio-front-tools-27
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - nat-gateway-cost-advisor__engine.mjs.gz=nat-gateway-cost-advisor__engine.mjs.gz
       - nat-gateway-cost-advisor__index.html.gz=nat-gateway-cost-advisor__index.html.gz
       - nat-gateway-cost-advisor__nat-gateway-vs-vpc-endpoint-cost.html.gz=nat-gateway-cost-advisor__nat-gateway-vs-vpc-endpoint-cost.html.gz
       - nat-gateway-cost-advisor__usage.mjs.gz=nat-gateway-cost-advisor__usage.mjs.gz
@@ -3838,12 +3838,12 @@ configMapGenerator:
       - overtime-pay-calculator__why-overtime-resets-every-workweek.html.gz=overtime-pay-calculator__why-overtime-resets-every-workweek.html.gz
       - owner-operator-load-chain-planner__cli.mjs.gz=owner-operator-load-chain-planner__cli.mjs.gz
       - owner-operator-load-chain-planner__engine.mjs.gz=owner-operator-load-chain-planner__engine.mjs.gz
-      - owner-operator-load-chain-planner__how-to-string-truckload-loads-together-and-cut-deadhead.html.gz=owner-operator-load-chain-planner__how-to-string-truckload-loads-together-and-cut-deadhead.html.gz
   - name: portfolio-front-tools-28
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - owner-operator-load-chain-planner__how-to-string-truckload-loads-together-and-cut-deadhead.html.gz=owner-operator-load-chain-planner__how-to-string-truckload-loads-together-and-cut-deadhead.html.gz
       - owner-operator-load-chain-planner__index.html.gz=owner-operator-load-chain-planner__index.html.gz
       - owner-operator-load-chain-planner__usage.mjs.gz=owner-operator-load-chain-planner__usage.mjs.gz
       - owner-operator-per-diem-calculator__calc.mjs.gz=owner-operator-per-diem-calculator__calc.mjs.gz
@@ -3964,13 +3964,13 @@ configMapGenerator:
       - pdf-accessibility-tag-check__vs-uploading-to-an-online-checker.html.gz=pdf-accessibility-tag-check__vs-uploading-to-an-online-checker.html.gz
       - pdf-accessibility-tag-check__why-does-my-pdf-fail-when-it-looks-fine.html.gz=pdf-accessibility-tag-check__why-does-my-pdf-fail-when-it-looks-fine.html.gz
       - pension-lump-sum-vs-annuity-calculator__calc.mjs.gz=pension-lump-sum-vs-annuity-calculator__calc.mjs.gz
-      - pension-lump-sum-vs-annuity-calculator__index.html.gz=pension-lump-sum-vs-annuity-calculator__index.html.gz
-      - pension-lump-sum-vs-annuity-calculator__usage.mjs.gz=pension-lump-sum-vs-annuity-calculator__usage.mjs.gz
   - name: portfolio-front-tools-29
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pension-lump-sum-vs-annuity-calculator__index.html.gz=pension-lump-sum-vs-annuity-calculator__index.html.gz
+      - pension-lump-sum-vs-annuity-calculator__usage.mjs.gz=pension-lump-sum-vs-annuity-calculator__usage.mjs.gz
       - percentage-rent-audit-checker__calc.mjs.gz=percentage-rent-audit-checker__calc.mjs.gz
       - percentage-rent-audit-checker__index.html.gz=percentage-rent-audit-checker__index.html.gz
       - percentage-rent-audit-checker__usage.mjs.gz=percentage-rent-audit-checker__usage.mjs.gz
@@ -4097,12 +4097,12 @@ configMapGenerator:
       - pollination-contract-checker__cli.mjs.gz=pollination-contract-checker__cli.mjs.gz
       - pollination-contract-checker__index.html.gz=pollination-contract-checker__index.html.gz
       - pollination-contract-checker__usage.mjs.gz=pollination-contract-checker__usage.mjs.gz
-      - pool-opening-closing-price-calculator__calc.mjs.gz=pool-opening-closing-price-calculator__calc.mjs.gz
   - name: portfolio-front-tools-30
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pool-opening-closing-price-calculator__calc.mjs.gz=pool-opening-closing-price-calculator__calc.mjs.gz
       - pool-opening-closing-price-calculator__index.html.gz=pool-opening-closing-price-calculator__index.html.gz
       - pool-opening-closing-price-calculator__usage.mjs.gz=pool-opening-closing-price-calculator__usage.mjs.gz
       - pool-plaster-bid-calculator__calc.mjs.gz=pool-plaster-bid-calculator__calc.mjs.gz
@@ -4235,12 +4235,12 @@ configMapGenerator:
       - prometheus-cardinality-cost__index.html.gz=prometheus-cardinality-cost__index.html.gz
       - prometheus-cardinality-cost__usage.mjs.gz=prometheus-cardinality-cost__usage.mjs.gz
       - prometheus-cardinality-cost__why-prometheus-metrics-bills-explode-and-which-labels-to-drop.html.gz=prometheus-cardinality-cost__why-prometheus-metrics-bills-explode-and-which-labels-to-drop.html.gz
-      - prop-firm-challenge-calculator__calc.mjs.gz=prop-firm-challenge-calculator__calc.mjs.gz
   - name: portfolio-front-tools-31
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - prop-firm-challenge-calculator__calc.mjs.gz=prop-firm-challenge-calculator__calc.mjs.gz
       - prop-firm-challenge-calculator__index.html.gz=prop-firm-challenge-calculator__index.html.gz
       - prop-firm-challenge-calculator__usage.mjs.gz=prop-firm-challenge-calculator__usage.mjs.gz
       - prop-firm-challenge-calculator__vs-a-trading-spreadsheet.html.gz=prop-firm-challenge-calculator__vs-a-trading-spreadsheet.html.gz

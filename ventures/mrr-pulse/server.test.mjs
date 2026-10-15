@@ -92,3 +92,19 @@ test("sync stores a plan breakdown and /v1/plans plus the dashboard serve it", a
     assert.equal((await fetch(`${url}/v1/plans`)).status, 401);
   } finally { s.close(); }
 });
+
+test("/v1/concentration needs the key and returns shares without subscription ids", async () => {
+  const list = { current: [sub("sub_secret1", 3000), sub("sub_secret2", 1000)] };
+  const cfg = setup(list);
+  await sync(cfg);
+  const { s, url } = await listen(cfg);
+  try {
+    assert.equal((await fetch(`${url}/v1/concentration`)).status, 401);
+    const r = await fetch(`${url}/v1/concentration`, { headers: AUTH });
+    const body = await r.text();
+    assert.equal(r.status, 200);
+    assert.equal(JSON.parse(body).top1, 0.75);
+    assert.doesNotMatch(body, /sub_secret/);
+    assert.match(await (await fetch(`${url}/`, { headers: AUTH })).text(), /Customer concentration/);
+  } finally { s.close(); }
+});

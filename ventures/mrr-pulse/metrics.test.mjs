@@ -155,6 +155,21 @@ test("forecast never goes below zero", () => {
   assert.ok(f.low.every((v) => v >= 0));
 });
 
+import { concentration } from "./metrics.mjs";
+
+test("concentration reports top-N shares and a risk band, with no ids", () => {
+  const c = concentration({ a: 500, b: 300, c: 100, d: 100 });
+  assert.equal(c.subscriptions, 4);
+  assert.equal(c.top1, 0.5);
+  assert.equal(c.top5, 1);
+  assert.deepEqual(c.top, [0.5, 0.3, 0.1, 0.1]);
+  assert.equal(c.risk, "high");
+  assert.equal(concentration(Object.fromEntries(Array.from({ length: 40 }, (_, i) => [`s${i}`, 100]))).risk, "low");
+  assert.equal(concentration({ a: 120, ...Object.fromEntries(Array.from({ length: 10 }, (_, i) => [`s${i}`, 100])) }).risk, "moderate");
+  assert.equal(concentration({}), null);
+  assert.ok(!JSON.stringify(c).includes('"a"'));
+});
+
 import { monthsCsv } from "./metrics.mjs";
 test("monthsCsv writes major units, flags approximate months, and defuses formulas", () => {
   const m = { month: "2026-09", mrr: 123456, customers: 3, new: 1000, expansion: 0, reactivation: 0, contraction: 50, churn: 200, approximate: true };
