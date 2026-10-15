@@ -1,7 +1,7 @@
 {
   "id": "P009",
   "title": "resolve-mirror-merge.sh should regenerate generated files, not refuse",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 1,
   "cost": 1,
