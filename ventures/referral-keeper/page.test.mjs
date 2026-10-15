@@ -56,3 +56,7 @@ test("the Dockerfile copies every module the server imports", () => {
   walk("server.mjs");
   for (const f of seen) assert.ok(docker.includes(f), `${f} missing from the Dockerfile`);
 });
+
+test("the footer links its sibling Testimonial Keeper", () => {
+  assert.match(page("index.html"), /href="\.\.\/testimonial-keeper\/"/);
+});
