@@ -8,6 +8,8 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, under 1 s
 PYTHONPATH=src python3 experiments/run.py                 # a second; output in experiments/results.txt
 ```
 
+`python3 experiments/figure.py` plots the twin's safe-speed error against the quadratic-drag truth, by fit speed (section 5) from the committed `experiments/results.txt` and writes `experiments/safe_speed.svg` (standard library only; no new results; stylised simulation).
+
 **Builds on.** The digital-twin simulation-fidelity and sim-to-real direction of the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>) and RECUV (<https://www.colorado.edu/recuv/>) on UAV and field-robot simulation and safe autonomy, and ARPG (<https://arpg.colorado.edu/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. Quadratic drag and linearisation are classical (Anderson 2016; Khalil 2002; Ljung 1999 for system identification). Companion to `timestep-twin`, `uav-energy-twin`, `friction-twin` and `impact-twin` in this repository.
 
 Stylised: simulated "real" system, no field data. MIT.

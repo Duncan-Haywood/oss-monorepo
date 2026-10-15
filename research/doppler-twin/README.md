@@ -8,6 +8,8 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, ~2 s
 PYTHONPATH=src python3 experiments/run.py                 # ~10 s; output in experiments/results.txt
 ```
 
+`python3 experiments/figure.py` plots the mean-to-median variance ratio by contamination rate (section 1) from the committed `experiments/results.txt` and writes `experiments/mean_vs_median.svg` (standard library only; no new results; stylised simulation).
+
 **Builds on.** The radar sensor-simulation and sim-to-real perception direction of ARPG (<https://arpg.colorado.edu/>) and the field-robot direction of the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. The setting is Doppler ego-motion estimation as in Kellner et al. (2013), where moving targets are the outliers; the statistics are classical (Tukey 1960 contaminated normal; Huber 1964). Companion to `radar-clutter-twin` and `cfar-family-twin` (same kind of "too clean radar twin" failure, on detection rather than estimation) in this repository.
 
 Stylised: 1-D radial location model with zero-mean Gaussian contamination (a real moving-target offset is not zero-mean in a given scene and would bias both estimators), independent returns, known `σ`, a simulated "real" scene, no radar data; RANSAC and Huber-type estimators, which are what practitioners use, are not evaluated. Preliminary. MIT.

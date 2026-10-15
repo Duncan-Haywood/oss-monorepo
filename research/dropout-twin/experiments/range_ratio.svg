@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Ratio of the detection range claimed by the independent-dropout twin to the range a correlated-dropout sensor supports, by dropout correlation">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Detection range the i.i.d. twin claims vs real (stylised)</text>
+<line x1="64" x2="624" y1="328.0" y2="328.0" stroke="#ddd"/><text x="58" y="332.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="264.0" y2="264.0" stroke="#ddd"/><text x="58" y="268.0" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="200.0" y2="200.0" stroke="#ddd"/><text x="58" y="204.0" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="136.0" y2="136.0" stroke="#ddd"/><text x="58" y="140.0" text-anchor="end" font-family="sans-serif" font-size="11">6</text>
+<line x1="64" x2="624" y1="72.0" y2="72.0" stroke="#ddd"/><text x="58" y="76.0" text-anchor="end" font-family="sans-serif" font-size="11">8</text>
+<text x="134.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="274.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="414.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="554.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="296.0" y2="296.0" stroke="#888" stroke-dasharray="4 3"/><text x="620" y="292.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#555">1 = twin is right</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">lag-1 dropout correlation lambda</text>
+<text x="14" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 184.0)">claimed range / real range</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="134.0,296.0 274.0,264.0 414.0,200.0 554.0,61.4"/>
+<circle cx="134.0" cy="296.0" r="3" fill="#1f6fb2"/>
+<circle cx="274.0" cy="264.0" r="3" fill="#1f6fb2"/>
+<circle cx="414.0" cy="200.0" r="3" fill="#1f6fb2"/>
+<circle cx="554.0" cy="61.4" r="3" fill="#1f6fb2"/>
+<line x1="390" x2="414" y1="74" y2="74" stroke="#1f6fb2" stroke-width="2"/><text x="420" y="78" font-family="sans-serif" font-size="11">k = 1 beam</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="134.0,296.0 274.0,276.8 414.0,238.4 554.0,155.2"/>
+<circle cx="134.0" cy="296.0" r="3" fill="#c0392b"/>
+<circle cx="274.0" cy="276.8" r="3" fill="#c0392b"/>
+<circle cx="414.0" cy="238.4" r="3" fill="#c0392b"/>
+<circle cx="554.0" cy="155.2" r="3" fill="#c0392b"/>
+<line x1="390" x2="414" y1="90" y2="90" stroke="#c0392b" stroke-width="2"/><text x="420" y="94" font-family="sans-serif" font-size="11">k = 2 beams</text>
+</svg>
