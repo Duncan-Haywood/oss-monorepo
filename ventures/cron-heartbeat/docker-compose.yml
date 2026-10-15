@@ -1,0 +1,20 @@
+# Any box with Docker:  PING_KEY=change-me docker compose up -d
+services:
+  cron-heartbeat:
+    build: .
+    restart: unless-stopped
+    ports: ["8080:8080"]
+    volumes: ["state:/data"]
+    environment:
+      PING_KEY: ${PING_KEY:?set PING_KEY}
+      CHECKS_JSON: ${CHECKS_JSON:-{"example":{"periodSeconds":86400,"graceSeconds":3600}}}
+      PUBLIC_STATUS: ${PUBLIC_STATUS:-0}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+      ALERT_NTFY_URL: ${ALERT_NTFY_URL:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      ALERT_EMAIL_TO: ${ALERT_EMAIL_TO:-}
+      ALERT_EMAIL_FROM: ${ALERT_EMAIL_FROM:-}
+volumes:
+  state:
