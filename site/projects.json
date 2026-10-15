@@ -2079,6 +2079,11 @@
      "slug": "accel-kws",
      "title": "How small can a keyword-spotting accelerator get, and what does each bit of precision cost?",
      "summary": "A one-hidden-layer MLP on pooled MFCC features of Speech Commands v0.02 (10 keywords plus unknown), quantised to 2&ndash;8 bit weights, mapped to a serial-MAC RTL engine that matches an integer NumPy reference bit for bit on all 40 swept configurations. Test accuracy saturates near 75% (0.752 at 128 hidden units, 4 bits); 4-bit weights are within 0.4 points of 8-bit at 64 and 128 units, 2 bits collapses at small width, and a 64-unit 4-bit design (0.722) uses about 31% of the best design&rsquo;s modelled energy. Modelled classifier energy is 0.0045&ndash;0.19&nbsp;&micro;W at 4 inferences per second, far below the 1.8&nbsp;mW microphone floor in <em>ambient-wearable</em>. Stylised: assumed 45&nbsp;nm energy constants not re-checked, generic-gate area without memories, no front end, a third-party dataset mirror, and a weak feature set."
+    },
+    {
+     "slug": "accel-codesign",
+     "title": "Under a latency deadline, how much engine area does picking the most accurate model first cost, compared with choosing model and lane count together?",
+     "summary": "Exhaustive joint search over the 40 measured <em>accel-kws</em> keyword-spotting models and six MAC lane counts (240 designs), against a model-first flow, at deadlines of 2,000&ndash;20,000 cycles. The most accurate model (validation 0.775, test 0.752) needs 16 lanes at 2,000 cycles and 7,667 generic cells; accepting 2 validation points less (test 0.738) cuts area by 31&ndash;42%, and 3 points by 35&ndash;56%. Stylised and only partly the milestone: models are a fixed measured table (the dataset was unreachable), cycles for more than one lane are analytic and not RTL-simulated, memory bandwidth is not counted, area is generic gates, and no NSGA-II or Bayesian search was run (the space is small enough to enumerate)."
     }
    ]
   },
