@@ -30,6 +30,10 @@ Tests (42): the S-curve profile reaches 1, integrates correctly, has continuous 
 
 ## Results
 
+![Carry time from `experiments/results.json`, stylised simulation](experiments/carry_time.svg)
+
+*Figure: carry time from the committed run output, regenerated with `python3 experiments/figure.py` (standard library only). Stylised model; nothing here is measured on a real arm.*
+
 `experiments/results.txt` has, per arm size (link 0.08, 0.12, 0.2 m) and jaw cap (k = 2, 5, none) and six speed limits (none, 6, 4, 3, 2, 1 rad/s), the six-part totals for the trapezoid, the j = 0.5 and j = 1 S-curves and the time-optimal profile, the S-curve costs over the trapezoid, and the time-optimal saving. For 0.12 m links with k = 5 and no speed limit: trapezoid 0.939 s, j = 0.5 0.966 s, j = 1 1.067 s, time-optimal 0.782 s. All 54 rows had all six parts feasible. The min-jerk comparator is not re-run here (see `robofab-trapezoid`).
 
 ## Limitations

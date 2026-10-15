@@ -11,3 +11,6 @@ PYTHONPATH=src python3 experiments/run.py                 # ~2 min; output in ex
 **Builds on.** The digital-twin simulation-fidelity and field-robot direction of the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>) and the lab-workcell twins of the HIRO Group (<https://hiro-group.ronc.one/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. The method is classical simulation output analysis: batch means (Schmeiser 1982; Law & Kelton 2000) and the M/M/1 waiting-time asymptotics of Daley (1968) and Whitt (1989). Companion to `queue-twin` (wrong service law) and `twin-evaluation` (twin as control variate) in this repository.
 
 Stylised: Gaussian AR(1) and M/M/1 output, fixed-length runs, one batch rule (b=30), a simulated "real" system, no lab data. The M/M/1 formula is cited, not derived; simulation agrees within the noise of the estimate (see the paper). MIT.
+
+## Figure
+`python3 experiments/figure.py` plots realised coverage of a nominal 95% interval for naive and batch-means intervals (section 2) from the committed `experiments/results.txt` and writes `experiments/coverage.svg` (standard library only; no new results; stylised simulation).

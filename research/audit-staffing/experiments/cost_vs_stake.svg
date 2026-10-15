@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Total verifier cost against the stake posted per job: cost falls as the stake rises, reaches a minimum near a stake of nine, then rises again">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Verifier cost vs stake (stylised queueing model)</text>
+<line x1="64" x2="624" y1="328.0" y2="328.0" stroke="#ddd"/><text x="58" y="332.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="256.0" y2="256.0" stroke="#ddd"/><text x="58" y="260.0" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="184.0" y2="184.0" stroke="#ddd"/><text x="58" y="188.0" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<line x1="64" x2="624" y1="112.0" y2="112.0" stroke="#ddd"/><text x="58" y="116.0" text-anchor="end" font-family="sans-serif" font-size="11">60</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#ddd"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">80</text>
+<text x="99.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="169.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="239.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="309.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="379.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">9</text>
+<text x="449.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">15</text>
+<text x="519.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">30</text>
+<text x="589.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">60</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">stake S per job</text>
+<text x="14" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 184.0)">total cost per unit time</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="99.0,51.4 169.0,113.8 239.0,174.3 309.0,217.0 379.0,241.8 449.0,234.5 519.0,194.8 589.0,93.9"/>
+<circle cx="99.0" cy="51.4" r="3" fill="#1f6fb2"/>
+<circle cx="169.0" cy="113.8" r="3" fill="#1f6fb2"/>
+<circle cx="239.0" cy="174.3" r="3" fill="#1f6fb2"/>
+<circle cx="309.0" cy="217.0" r="3" fill="#1f6fb2"/>
+<circle cx="379.0" cy="241.8" r="3" fill="#1f6fb2"/>
+<circle cx="449.0" cy="234.5" r="3" fill="#1f6fb2"/>
+<circle cx="519.0" cy="194.8" r="3" fill="#1f6fb2"/>
+<circle cx="589.0" cy="93.9" r="3" fill="#1f6fb2"/>
+<line x1="390" x2="414" y1="74" y2="74" stroke="#1f6fb2" stroke-width="2"/><text x="420" y="78" font-family="sans-serif" font-size="11">cost (Erlang-C staffing + capital)</text>
+</svg>

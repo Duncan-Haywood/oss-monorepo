@@ -49,3 +49,6 @@ None needed (simulation only).
 
 ## Outside dependencies (vitamins)
 Open-source Python packages only (numpy, scipy, scikit-fem; pytest for tests). No hardware; the exact solution is classical.
+
+## Figure
+`python experiments/figure.py` plots peak-stress error against element size at the hole from the committed `experiments/results.json` and writes `experiments/errors.png` (needs matplotlib; no new results).

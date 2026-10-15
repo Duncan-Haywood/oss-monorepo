@@ -50,3 +50,5 @@ Mass and cost columns are **assumed** inputs (see Limitations); the bracket is t
 
 ## Outside dependencies (vitamins)
 The model itself uses only the Python standard library. The vitamins of the printer it describes are listed in `experiments/results.txt`: nuts, bolts, rods, bearings, belts, motors, controller, hot end, glass and tubing. Source for every part and quantity: the RepRap wiki page above.
+
+`python3 experiments/figure.py` plots cost closure with its 5-95% assumed-price range for the three seed shops (lm8uu variant) from the committed `experiments/results.txt` and writes `experiments/closure_by_shop.svg` (standard library only; no new results; stylised model).

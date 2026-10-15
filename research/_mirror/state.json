@@ -1,11 +1,11 @@
 {
   "adapted": {
     ".github/workflows/pages.yml": "a7437fadf50173ebbd3660220b87cdf3ce0d49a2",
-    "CLAUDE.md": "b00b45f54ec3f852492657d386545556918e0bbd",
+    "CLAUDE.md": "ac0b0b684219eb3d5533c4cb77417ca06762b979",
     "prompt.md": "b02a674e96d0db323483a135660758a5a753bab0",
-    "site/build.py": "268de238caac84fa82d84a4930e9b3a203ae354f",
+    "site/build.py": "906c17b7dab217115775acd534e99409d38eed5b",
     "site/template.html": "7e07eca5987c7a86fd63dd9f7301de2635de4da4"
   },
   "upstream": "https://github.com/Duncan-Haywood/oss-research-monorepo",
-  "upstream_commit": "dd118d1a0818b0d3179a8b609bc86ad7fc91837f"
+  "upstream_commit": "5cd95981afa1e830ebbcd296faf6b059de640f10"
 }

@@ -30,6 +30,10 @@ Tests (`tests/test_trap.py` plus the earlier ones): the profile is continuous, i
 
 ## Results
 
+![Carry time from `experiments/results.json`, stylised simulation](experiments/carry_time.svg)
+
+*Figure: carry time from the committed run output, regenerated with `python3 experiments/figure.py` (standard library only). Stylised model; nothing here is measured on a real arm.*
+
 `experiments/results.txt` has, for each of three arm sizes (link 0.08, 0.12, 0.2 m) and three jaw caps (k = 2, 5, none), six speed limits (none, 6, 4, 3, 2, 1 rad/s): the six-part min-jerk, trapezoid and time-optimal totals, the saving of the time-optimal profile over each, the saving of the trapezoid over min-jerk, and the mean best ramp fraction. For 0.12 m links with k = 5: unlimited 1.019 s (min-jerk), 0.931 s (trapezoid), 0.782 s (time-optimal); at 3 rad/s 6.320, 3.430 and 3.409 s; at 1 rad/s 18.959, 10.214 and 10.162 s. Time-optimal saving over the best trapezoid, by speed limit, across the nine arm and jaw-cap cases: wmax 6 rad/s 0.6 to 19.8%; 4 rad/s 0.5 to 8.6%; 3 rad/s 0.5 to 4.9%; 2 rad/s 0.4 to 2.9%; 1 rad/s 0.4 to 0.8%.
 
 ## Limitations

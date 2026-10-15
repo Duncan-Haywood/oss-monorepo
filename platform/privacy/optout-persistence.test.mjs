@@ -1677,6 +1677,7 @@ const RELATIVE_SELF = relative(
 // +1: `tenant-security-deposit-deadline-checker` graduated.
 // +1: `rfp-compliance-matrix` graduated.
 // +1: `job-application-tracker` graduated.
+// +1: `youtube-sponsorship-rate-calculator` graduated.
 const SWITCHES_IN_THE_CATALOGUE = 1207;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
