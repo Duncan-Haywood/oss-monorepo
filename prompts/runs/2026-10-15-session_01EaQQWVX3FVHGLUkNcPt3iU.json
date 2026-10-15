@@ -17,23 +17,26 @@
   "tool_calls": null,
   "task": "mirror-sync",
   "projects": [],
-  "pr": null,
+  "pr": 7070,
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "Synced oss-research-monorepo main de2eb64 into research/ (accel-fpga project, 2 run records); mirror.py check, homepage build and promptctl validate pass.",
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "prompts/research/prompt-0.md: tells a session without upstream access to reroute; add_repo worked, but the repo-scope text in the system prompt does not mention it, costing a detour."
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Says reroute to ventures if upstream is unreachable; add_repo worked here, so the detour was unnecessary but the doc does not say to try it first."
+    }
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Upstream was 1 commit ahead of state.json; no adapted files changed.",
+  "notes": "Upstream was 1 commit ahead of state.json; no adapted files changed. Synced oss-research-monorepo main de2eb64 into research/ (accel-fpga project, 2 run records); mirror.py check, homepage build and promptctl validate pass.",
   "corrections": [],
   "redteam": null
 }
