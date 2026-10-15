@@ -239,3 +239,17 @@ field will.
   page exists, adoption not measured. Result: too few runs.
 - Research/1 candidate: 1 run against 185 champion runs. Too few runs.
 - Result: (next review)
+
+## E8: third review of 2026-10-15
+
+- Change: ventures candidate `prompt-2` replaces the "no near-copies"
+  sentence with a command that counts name suffixes of the newest ventures
+  (share 0.2). `AGENTS.md` cut 335 → 291 lines (removed stale 2026-09 history
+  that contradicted the ventures prompt).
+- Why: 11 of the 15 newest ventures are `*-calculator`; AGENTS.md was over
+  its budget.
+- Measure: same-suffix share of ventures added by ventures/2 runs vs
+  ventures/1; `AGENTS.md` friction per run.
+- Follow-up on E6: `CLAUDE.md` is 452 lines (prune landed); friction after it
+  not yet measurable. Research/1: still 1 run, too few.
+- Result: (next review)
