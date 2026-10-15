@@ -1496,6 +1496,11 @@
      "summary": "A follow-up to <code>robofab-edgeconv</code> (stylised). Golden-section refinement of the trapezoid's ramp fraction lowers its six-part total by 0.00 to 0.60% across the twelve speed-limited rows. With the solver at 6400 nodes the time-optimal edge, +0.11 to +0.88% over the grid-tuned trapezoid, falls to +0.05 to +0.28% over the refined one, still positive in every row. The smallest edges are comparable to the solver's residual discretisation error, so their sign is not firmly established. One planar arm, assumed parameters, no motor dynamics; simulated only."
     },
     {
+     "slug": "robofab-motorcurve",
+     "title": "Does the time-optimal carry's edge over a tuned trapezoid survive a motor torque-speed line?",
+     "summary": "Follow-up to <code>robofab-torquebound</code> (stylised, preliminary). The same nine torque- and jaw-bound rows are re-solved with each joint's torque limit falling linearly with speed, 5&nbsp;N&nbsp;m &times; (1 &minus; |speed|/w<sub>0</sub>), for no-load speeds w<sub>0</sub> of 20, 10, 6 and 4&nbsp;rad/s. The time-optimal carry stays faster than the tuned trapezoid in every one of the 45 cells, but its edge is no longer one number: 3.5% to 28.6%, against 9.0% to 22.9% under a constant limit. Where a jaw cap binds on the smaller arms the edge shrinks as w<sub>0</sub> falls (22.9% to 5.0% for the 0.08&nbsp;m arm, k&nbsp;=&nbsp;2); where only torque binds it grows (9.0% to 28.6% for the 0.2&nbsp;m arm). The constant-limit profiles reach joint speeds up to 139&nbsp;rad/s, which no motor does. One planar arm, assumed parameters, a linear motor model, not checked in MuJoCo; simulated only."
+    },
+    {
      "slug": "robofab-torquebound",
      "title": "Does the time-optimal carry's edge over a tuned trapezoid survive when torque or the jaw cap binds?",
      "summary": "Follow-up to <code>robofab-toppconv</code> (stylised, preliminary). The nine no-speed-limit rows of <code>robofab-scurve</code> (three arm sizes, jaw cap 2&times;, 5&times; or none, six printed parts each) are recomputed with the time-optimal solver at 400 to 25600 nodes and the trapezoid on a fine ramp grid with 40 and 160 extra samples per ramp. The time-optimal carry is 9.4% to 23.0% faster than the trapezoid in every row; the solver is converged to within 0.004% by 6400 nodes, and denser ramp sampling slows the trapezoid by 0.05% to 0.5%, raising the edge by at most 0.4 points. So, unlike the sub-1% edge under a speed limit, the torque- and jaw-bound gap is not a resolution artefact in this toy. A trapezoid-only comparison on assumed parameters; not a claim about real arms."
@@ -1616,6 +1621,16 @@
      "slug": "ambient-noisyaudit",
      "title": "What does a noisy auditor do to an assistant that learns its urgency label&rsquo;s reliability from audits?",
      "summary": "Extending the stylised urgency-label model, the audit labels are themselves wrong. Taking them as truth biases the estimated label accuracy (0.57 instead of 0.70 with a 0.8-accuracy auditor) and does not improve with more audits: the policy loses 47% of the label&rsquo;s gain over ignoring it at label accuracy 0.7, and 31% at 0.9. A 0.9 auditor costs only 8&ndash;14%. Maximum likelihood over the unseen true class, given the auditor&rsquo;s accuracy, recovers the true-parameter value, but it needs that accuracy known (not identifiable from one auditor) and is no better at 50 audits with a poor auditor. Stylised; both label and auditor are made-up uniform-error matrices."
+    },
+    {
+     "slug": "ambient-goldaudit",
+     "title": "How many gold-labelled audits replace noisy ones when the auditor&rsquo;s accuracy is unknown?",
+     "summary": "Extending the stylised noisy-audit model, 200 or 1000 audits from a 0.8-accuracy auditor read as truth give mean utility 0.387&ndash;0.388 (label accuracy 0.7) and do not improve with n, while 25 gold audits already match them and 10 do not. Pooling noisy with gold audits as truth is worse than gold alone. Fitting the mix, the label matrix and the auditor&rsquo;s matrix jointly by EM, with 10 gold and 200 noisy audits, reaches 0.4054 against 0.4066 for the true parameters at label accuracy 0.9 (gold alone: 0.3955). The advantage vanishes by 200 gold audits. Stylised: uniform-error matrices, one auditor accuracy, EM started at the true value, round-number utilities."
+    },
+    {
+     "slug": "ambient-auditbudget",
+     "title": "How should a fixed audit budget be split between gold-labelled and noisy audits?",
+     "summary": "Extending the stylised gold-audit model with a price: a gold audit costs 3, 10 or 30 noisy audits, with budgets of 200 and 1000. Spending everything on noisy audits read as truth is the worst or near-worst split in all 12 cells (0.387&ndash;0.388 at label accuracy 0.7). There is no single best share, but 25% of the budget on gold, fitted jointly with the noisy audits by EM, is within 0.0009 of the best in every cell and 50% within 0.0016. When gold is expensive, all-gold is worse (0.3843 at B&nbsp;=&nbsp;200, cost 30). Stylised: uniform-error matrices, one auditor accuracy, round-number utilities."
     },
     {
      "slug": "ambient-dsaudit",
@@ -1972,6 +1987,16 @@
      "summary": "A stylised, preliminary study of one short steel bar (24&times;8&times;2&nbsp;mm, tip shear). Three uniformly refined hexahedral meshes give an observed order of about 2.6 and a Richardson limit of 9618&nbsp;N, 0.12% below the finest mesh. The limit is still 13.7% above the slender-beam closed form, so the gap is not discretisation error (plausibly shear deformation and clamp warping; untested). One geometry, one mesh triple."
     },
     {
+     "slug": "simdesign-buckleguard",
+     "title": "What does it cost to replace the w/b &le; 8 rule of the laser-cut bracket with a buckling-factor guard?",
+     "summary": "A stylised, preliminary optimisation study (closed-form buckling check, assumed rules, material and load). Replacing the w/b &le; 8 slenderness rule with a lateral-torsional safety factor of at least 3 lets the differential-evolution optimiser use the 1.5&nbsp;mm gauge at w &asymp; 18.7&nbsp;mm: 31.1&ndash;31.4&nbsp;g against 35.8&ndash;36.0&nbsp;g under the old rule, about 12% lighter (three seeds each). The guard does not bind at that optimum; the stress limit does. The result depends on the assumed factor: no feasible 1.5&nbsp;mm design was found for a factor of 5 or more. Simulated only; edge crippling, imperfections and cutting stress are not modelled."
+    },
+    {
+     "slug": "simdesign-edgescan",
+     "title": "How sharp is the feasible edge of the 2&nbsp;mm laser-cut bracket web at 0.1&nbsp;mm resolution, and is it mesh noise?",
+     "summary": "A small scan (stylised, preliminary). Re-scanning web width w in 0.1&nbsp;mm steps (15.5&ndash;17.5&nbsp;mm) at three radii and three meshes, the peak von Mises stress is not monotone in w in any of the nine series. Its residual jitter about a quadratic trend is 0.9&ndash;2.4&nbsp;MPa, shrinking with refinement, and the stress just below each feasible edge is only 0.1&ndash;1.7&nbsp;MPa over the 100&nbsp;MPa limit, so the edge is a band of about 0.5&nbsp;mm and the refinement shift reported in <em>simdesign-widerweb</em> is not separated from mesh noise. The source of the jitter is not identified. Simulated only."
+    },
+    {
      "slug": "simdesign-widerweb",
      "title": "Do wider webs of the 2&nbsp;mm laser-cut bracket stay feasible on fine meshes when the slenderness rule is relaxed?",
      "summary": "A small scan (stylised, preliminary). With the assumed slenderness limit w/b raised from 8 to 12.5, web widths of 15 to 20&nbsp;mm at fillet radii 8, 12 and 14&nbsp;mm are feasible under the peak-stress measure from w&nbsp;=&nbsp;16.0&ndash;17.0&nbsp;mm upward at every mesh tried (h&nbsp;=&nbsp;1.5, 1.0 and 0.75&nbsp;mm), so the empty fine-mesh feasible sets of <em>simdesign-meshconverge</em> came from the rule window. Refinement from 1.5 to 1.0&nbsp;mm raises the lightest feasible width by 0.5&nbsp;mm (about 1&nbsp;g, 3%) at all three radii; at 0.75&nbsp;mm it is unchanged at two radii and falls back one step at r&nbsp;=&nbsp;14&nbsp;mm, so the shift is not resolved beyond about one scan step. The relaxed rule stands in for out-of-plane buckling, which the 2D model cannot see, so these designs are not validated. Simulated results only."
@@ -2199,6 +2224,11 @@
      "slug": "accel-sparse",
      "title": "When does a task's accuracy tolerance let an accelerator drop its multipliers?",
      "summary": "Pruning, int4/int8, ternary and binary variants of a 64-32-10 MLP on scikit-learn's 8&times;8 digits (a substitute task: Speech Commands was unreachable), with a modelled energy per inference for a zero-skipping serial engine, over 10 splits. Pruning 75% of int8 weights costs 0.2 points and cuts modelled energy to 36% of dense int8; ternary costs 1.4 points and binary 3.0. Within 1&ndash;2 points of float32 the cheapest design still has multipliers, because operand reads dominate in the assumed model; multiplier energy must be about 10&times; the assumed value before dropping it clearly pays. Stylised: assumed 45 nm constants, no RTL or synthesis, no lookup-table variant, toy task."
+    },
+    {
+     "slug": "accel-lut",
+     "title": "Does weight-sharing lookup-table inference beat a multiply-accumulate engine for a small accelerator?",
+     "summary": "A k-means weight-sharing codebook with a per-input product table (no multiplier per weight) against int8 serial MAC engines, on the 64-32-10 digits MLP of <code>accel-sparse</code>, dense and 75% pruned, over 10 splits. Negative: within 2 points of float32 the table engine does not beat int8 (dense: 3.51 nJ for 8 shared values against 3.56 nJ for int8; pruned: 1.55 against 1.51 nJ), and it only looks better against a baseline that rereads activations per weight. An analytic sweep puts the break-even at layers of about 128 outputs or more, and then only if table reads cost a quarter of an array read. Stylised: assumed 45 nm constants, no retraining or RTL, substitute task."
     }
    ]
   },
@@ -2221,6 +2251,11 @@
      "slug": "eda-fidelity",
      "title": "Do cheap rungs of the chip-design tool ladder rank designs like synthesis, and how much synthesis time does screening save?",
      "summary": "A three-rung ladder over 40 logged MAC-engine designs: a free analytic model (cells &asymp; lanes&times;bits<sup>2</sup>), cycle-accurate simulation, and Yosys synthesis. The analytic rung ranks the cells&times;cycles objective with Spearman 0.74 against synthesis (0.95 for cells alone) and finds 2 of the 5 best designs. Successive halving that screens on the cheap rungs reaches the optimum with certainty at 20&nbsp;s of tool time, against 0.10 for random search at the same budget and 205&nbsp;s for synthesising everything. Stylised: one toy design family with its optimum at a corner, no place-and-route rung, and the search is a replay over the committed log."
+    },
+    {
+     "slug": "eda-surrogate",
+     "title": "Can cheap word-level RTL features predict synthesised cell counts well enough to screen a design search, and does that survive a new design family?",
+     "summary": "A surrogate for Yosys generic-gate cell counts, trained on 24 word-level features (multiplier, adder, mux and register sizes read after <code>proc; opt</code>, about 30&times; cheaper than synthesis) over 133 designs in four generator families I wrote: MAC engines, FIR filters, ALUs and sorting networks. On families it saw, a non-negative linear cost model has a 3.9% median error and within-family Spearman 0.995, beating boosted trees (8.5%). When a whole family is held out, median errors run from 10.5% to 210.7% and the best model changes with the family, but rank agreement stays at Spearman 0.75&ndash;1.00. Ordering a 36-design pool by predicted cells&times;cycles found a design within 2% of the best after 1&ndash;5 syntheses against 12.4 (MAC) and 18.6 (FIR) for random order, both optima sitting at an edge of the space, so the test is weak. Stylised: synthesis-only target, no place and route, small designs."
     },
     {
      "slug": "eda-flowtune",
