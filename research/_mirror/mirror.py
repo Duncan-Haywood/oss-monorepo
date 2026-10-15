@@ -188,6 +188,10 @@ def convert_runs(text: str) -> dict[str, dict[str, Any]]:
             continue
         rec = json.loads(line)
         out = dict(rec)
+        pv = rec.get("prompt_version")
+        if isinstance(pv, str) and pv.rsplit("/", 1)[-1].isdigit():
+            # Some upstream runs wrote the trailer ("research/1"); promptctl wants the integer.
+            out["prompt_version"] = int(pv.rsplit("/", 1)[-1])
         # What check() compares: the fields upstream wrote, plus the two set here.
         out["_upstream_keys"] = sorted(set(rec) | {"track", "source"})
         out.setdefault("track", "research")

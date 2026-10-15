@@ -197,6 +197,13 @@ class UnitTest(unittest.TestCase):
             "2026-10-13-session_abc-2.json", "2026-10-13-session_abc-3.json",
             "2026-10-13-session_abc.json"])
 
+    def test_trailer_style_prompt_version_becomes_integer(self):
+        rec = dict(RUN, prompt_version="research/1")
+        out = next(iter(mirror.convert_runs(json.dumps(rec)).values()))
+        self.assertEqual(out["prompt_version"], 1)
+        out = next(iter(mirror.convert_runs(json.dumps(RUN)).values()))
+        self.assertEqual(out["prompt_version"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()
