@@ -27,13 +27,13 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 30,
-  "outcome": "shipped a new deep venture (read-only Stripe sync, movement maths, 12-month backfill, auth'd dashboard, browser CSV demo, Render deploy)",
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
   "goal": null,
-  "notes": "Full marketing/pages node suite takes >9 min here; left to CI. Merge of main conflicted only in generated kustomization.yaml; resolved by regen.",
+  "notes": "Full marketing/pages node suite takes >9 min here; left to CI. Merge of main conflicted only in generated kustomization.yaml; resolved by regen. Outcome: shipped a new deep venture (read-only Stripe sync, movement maths, 12-month backfill, auth'd dashboard, browser CSV demo, Render deploy).",
   "corrections": [],
   "redteam": null
 }
