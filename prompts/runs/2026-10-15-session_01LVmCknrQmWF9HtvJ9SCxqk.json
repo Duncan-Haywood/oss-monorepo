@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01LVmCknrQmWF9HtvJ9SCxqk",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "model": "claude-sonnet-5-5",
+  "task": "extend",
+  "projects": [
+    "accel-lut"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/588",
+  "merged": null,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "pip installed to wrong interpreter once"
+  ],
+  "integrity_issues": [],
+  "notes": "routing.json absent so prompt 0; token usage not read; citations (Han 2016, Horowitz 2014) from memory and flagged unverified in the README",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

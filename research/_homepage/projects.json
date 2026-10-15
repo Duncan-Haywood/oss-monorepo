@@ -1618,6 +1618,11 @@
      "summary": "Extending the stylised urgency-label model, the audit labels are themselves wrong. Taking them as truth biases the estimated label accuracy (0.57 instead of 0.70 with a 0.8-accuracy auditor) and does not improve with more audits: the policy loses 47% of the label&rsquo;s gain over ignoring it at label accuracy 0.7, and 31% at 0.9. A 0.9 auditor costs only 8&ndash;14%. Maximum likelihood over the unseen true class, given the auditor&rsquo;s accuracy, recovers the true-parameter value, but it needs that accuracy known (not identifiable from one auditor) and is no better at 50 audits with a poor auditor. Stylised; both label and auditor are made-up uniform-error matrices."
     },
     {
+     "slug": "ambient-goldaudit",
+     "title": "How many gold-labelled audits replace noisy ones when the auditor&rsquo;s accuracy is unknown?",
+     "summary": "Extending the stylised noisy-audit model, 200 or 1000 audits from a 0.8-accuracy auditor read as truth give mean utility 0.387&ndash;0.388 (label accuracy 0.7) and do not improve with n, while 25 gold audits already match them and 10 do not. Pooling noisy with gold audits as truth is worse than gold alone. Fitting the mix, the label matrix and the auditor&rsquo;s matrix jointly by EM, with 10 gold and 200 noisy audits, reaches 0.4054 against 0.4066 for the true parameters at label accuracy 0.9 (gold alone: 0.3955). The advantage vanishes by 200 gold audits. Stylised: uniform-error matrices, one auditor accuracy, EM started at the true value, round-number utilities."
+    },
+    {
      "slug": "ambient-dsaudit",
      "title": "Can an assistant learn its urgency label&rsquo;s reliability from two noisy auditors, and what does a wrongly assumed auditor accuracy cost?",
      "summary": "Extending the noisy-audit model, a wrongly assumed accuracy for a 0.8-accuracy auditor costs 31% of a 0.9 label&rsquo;s gain if the auditor is trusted fully, 17% if assumed 0.9 and 6% if assumed 0.6 (about 39&ndash;47% at either extreme for a 0.7 label). With two independent auditors on every message, Dawid&ndash;Skene EM learns all three confusion matrices with none supplied: it recovers the true-parameter value exactly in the population limit and at n&nbsp;=&nbsp;1000 is within 0.0005 of the oracle given the same number of labels, 0.0009 to 0.0128 above taking one auditor as truth. At n&nbsp;=&nbsp;50 with two 0.7 auditors it still falls below ignoring the label in 18% of audit sets. Stylised: uniform errors, independent auditors, round-number utilities; nothing measured on people."
@@ -1972,6 +1977,16 @@
      "summary": "A stylised, preliminary study of one short steel bar (24&times;8&times;2&nbsp;mm, tip shear). Three uniformly refined hexahedral meshes give an observed order of about 2.6 and a Richardson limit of 9618&nbsp;N, 0.12% below the finest mesh. The limit is still 13.7% above the slender-beam closed form, so the gap is not discretisation error (plausibly shear deformation and clamp warping; untested). One geometry, one mesh triple."
     },
     {
+     "slug": "simdesign-buckleguard",
+     "title": "What does it cost to replace the w/b &le; 8 rule of the laser-cut bracket with a buckling-factor guard?",
+     "summary": "A stylised, preliminary optimisation study (closed-form buckling check, assumed rules, material and load). Replacing the w/b &le; 8 slenderness rule with a lateral-torsional safety factor of at least 3 lets the differential-evolution optimiser use the 1.5&nbsp;mm gauge at w &asymp; 18.7&nbsp;mm: 31.1&ndash;31.4&nbsp;g against 35.8&ndash;36.0&nbsp;g under the old rule, about 12% lighter (three seeds each). The guard does not bind at that optimum; the stress limit does. The result depends on the assumed factor: no feasible 1.5&nbsp;mm design was found for a factor of 5 or more. Simulated only; edge crippling, imperfections and cutting stress are not modelled."
+    },
+    {
+     "slug": "simdesign-edgescan",
+     "title": "How sharp is the feasible edge of the 2&nbsp;mm laser-cut bracket web at 0.1&nbsp;mm resolution, and is it mesh noise?",
+     "summary": "A small scan (stylised, preliminary). Re-scanning web width w in 0.1&nbsp;mm steps (15.5&ndash;17.5&nbsp;mm) at three radii and three meshes, the peak von Mises stress is not monotone in w in any of the nine series. Its residual jitter about a quadratic trend is 0.9&ndash;2.4&nbsp;MPa, shrinking with refinement, and the stress just below each feasible edge is only 0.1&ndash;1.7&nbsp;MPa over the 100&nbsp;MPa limit, so the edge is a band of about 0.5&nbsp;mm and the refinement shift reported in <em>simdesign-widerweb</em> is not separated from mesh noise. The source of the jitter is not identified. Simulated only."
+    },
+    {
      "slug": "simdesign-widerweb",
      "title": "Do wider webs of the 2&nbsp;mm laser-cut bracket stay feasible on fine meshes when the slenderness rule is relaxed?",
      "summary": "A small scan (stylised, preliminary). With the assumed slenderness limit w/b raised from 8 to 12.5, web widths of 15 to 20&nbsp;mm at fillet radii 8, 12 and 14&nbsp;mm are feasible under the peak-stress measure from w&nbsp;=&nbsp;16.0&ndash;17.0&nbsp;mm upward at every mesh tried (h&nbsp;=&nbsp;1.5, 1.0 and 0.75&nbsp;mm), so the empty fine-mesh feasible sets of <em>simdesign-meshconverge</em> came from the rule window. Refinement from 1.5 to 1.0&nbsp;mm raises the lightest feasible width by 0.5&nbsp;mm (about 1&nbsp;g, 3%) at all three radii; at 0.75&nbsp;mm it is unchanged at two radii and falls back one step at r&nbsp;=&nbsp;14&nbsp;mm, so the shift is not resolved beyond about one scan step. The relaxed rule stands in for out-of-plane buckling, which the 2D model cannot see, so these designs are not validated. Simulated results only."
@@ -2199,6 +2214,11 @@
      "slug": "accel-sparse",
      "title": "When does a task's accuracy tolerance let an accelerator drop its multipliers?",
      "summary": "Pruning, int4/int8, ternary and binary variants of a 64-32-10 MLP on scikit-learn's 8&times;8 digits (a substitute task: Speech Commands was unreachable), with a modelled energy per inference for a zero-skipping serial engine, over 10 splits. Pruning 75% of int8 weights costs 0.2 points and cuts modelled energy to 36% of dense int8; ternary costs 1.4 points and binary 3.0. Within 1&ndash;2 points of float32 the cheapest design still has multipliers, because operand reads dominate in the assumed model; multiplier energy must be about 10&times; the assumed value before dropping it clearly pays. Stylised: assumed 45 nm constants, no RTL or synthesis, no lookup-table variant, toy task."
+    },
+    {
+     "slug": "accel-lut",
+     "title": "Does weight-sharing lookup-table inference beat a multiply-accumulate engine for a small accelerator?",
+     "summary": "A k-means weight-sharing codebook with a per-input product table (no multiplier per weight) against int8 serial MAC engines, on the 64-32-10 digits MLP of <code>accel-sparse</code>, dense and 75% pruned, over 10 splits. Negative: within 2 points of float32 the table engine does not beat int8 (dense: 3.51 nJ for 8 shared values against 3.56 nJ for int8; pruned: 1.55 against 1.51 nJ), and it only looks better against a baseline that rereads activations per weight. An analytic sweep puts the break-even at layers of about 128 outputs or more, and then only if table reads cost a quarter of an array read. Stylised: assumed 45 nm constants, no retraining or RTL, substitute task."
     }
    ]
   },
