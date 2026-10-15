@@ -20,7 +20,7 @@
   "baseline": "4 closed pairs + 2 merged pairs + 1 repeated name in 2026-10-01..15",
   "opened": "2026-10-15",
   "source": "prompts/process/reports/2026-10-15*.md",
-  "pr": null,
+  "pr": 7149,
   "result": null,
   "history": []
 }
