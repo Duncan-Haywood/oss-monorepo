@@ -47,3 +47,7 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("links the security questionnaire matcher", () => {
+  assert.match(page("index.html"), /href="\.\.\/security-questionnaire-matcher\/"/);
+});
