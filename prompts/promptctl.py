@@ -251,17 +251,17 @@ def validate_record(root: Path, path: Path, rec: Any, tracks: dict[str, Any]) ->
     if errors:
         return errors
     day = rec["date"]
-    # A mirrored upstream line that recorded neither date nor session: "never
-    # measured" is not a fault to repair, and the mirror pins those fields.
-    unmeasured = (rec.get("source") == MIRRORED_RUNS_SOURCE
-                  and day is None and rec["session"] is None)
+    # A mirrored upstream line that recorded no date: "never measured" is not
+    # a fault to repair (inventing one would be worse), and the mirror pins it.
+    unmeasured = (rec.get("source") == MIRRORED_RUNS_SOURCE and day is None)
     if unmeasured:
         pass
     elif not (isinstance(day, str) and DATE_RE.match(day)):
         errors.append(f"{where}: date must be YYYY-MM-DD")
     elif not path.name.startswith(day):
         errors.append(f"{where}: file name must start with the record's date {day}")
-    if not unmeasured and not (isinstance(rec["session"], str) and rec["session"].strip()):
+    if not (unmeasured and rec["session"] is None) and not (
+            isinstance(rec["session"], str) and rec["session"].strip()):
         errors.append(f"{where}: session must be the session URL")
     track, version = rec["track"], rec["prompt_version"]
     if track not in tracks:

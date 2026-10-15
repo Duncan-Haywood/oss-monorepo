@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Highest first-mode frequency reachable within the holder limit against carriage mass: steel is highest, then aluminium, then hardwood, and all fall as the carriage gets heavier">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Highest reachable first-mode frequency vs carriage mass (stylised)</text>
+<line x1="64" x2="624" y1="328.0" y2="328.0" stroke="#ddd"/><text x="58" y="332.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="280.0" y2="280.0" stroke="#ddd"/><text x="58" y="284.0" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="232.0" y2="232.0" stroke="#ddd"/><text x="58" y="236.0" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<line x1="64" x2="624" y1="184.0" y2="184.0" stroke="#ddd"/><text x="58" y="188.0" text-anchor="end" font-family="sans-serif" font-size="11">60</text>
+<line x1="64" x2="624" y1="136.0" y2="136.0" stroke="#ddd"/><text x="58" y="140.0" text-anchor="end" font-family="sans-serif" font-size="11">80</text>
+<line x1="64" x2="624" y1="88.0" y2="88.0" stroke="#ddd"/><text x="58" y="92.0" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#ddd"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">120</text>
+<text x="120.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="232.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="400.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="624.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">carriage mass (kg)</text>
+<text x="14" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 184.0)">first-mode frequency (Hz)</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="120.0,66.4 232.0,128.1 400.0,171.0 624.0,200.3"/>
+<circle cx="120.0" cy="66.4" r="3" fill="#1f6fb2"/>
+<circle cx="232.0" cy="128.1" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="171.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="200.3" r="3" fill="#1f6fb2"/>
+<line x1="440" x2="464" y1="74" y2="74" stroke="#1f6fb2" stroke-width="2"/><text x="470" y="78" font-family="sans-serif" font-size="11">steel</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="120.0,125.7 232.0,192.6 400.0,227.9 624.0,249.0"/>
+<circle cx="120.0" cy="125.7" r="3" fill="#c0392b"/>
+<circle cx="232.0" cy="192.6" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="227.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="249.0" r="3" fill="#c0392b"/>
+<line x1="440" x2="464" y1="90" y2="90" stroke="#c0392b" stroke-width="2"/><text x="470" y="94" font-family="sans-serif" font-size="11">aluminium</text>
+<polyline fill="none" stroke="#2e8b57" stroke-width="2" points="120.0,237.0 232.0,272.8 400.0,288.4 624.0,297.3"/>
+<circle cx="120.0" cy="237.0" r="3" fill="#2e8b57"/>
+<circle cx="232.0" cy="272.8" r="3" fill="#2e8b57"/>
+<circle cx="400.0" cy="288.4" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="297.3" r="3" fill="#2e8b57"/>
+<line x1="440" x2="464" y1="106" y2="106" stroke="#2e8b57" stroke-width="2"/><text x="470" y="110" font-family="sans-serif" font-size="11">hardwood</text>
+</svg>

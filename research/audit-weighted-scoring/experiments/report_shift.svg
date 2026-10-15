@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Reported probability against true belief 0.2, 0.5 and 0.9 for audit slopes b of 0.1, 0.3 and 0.6, all below the truthful diagonal">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Naive scheme under report-dependent audits: what is reported (E1, a=0.2)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="267.2" y2="267.2" stroke="#ddd"/><text x="58" y="271.2" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="210.4" y2="210.4" stroke="#ddd"/><text x="58" y="214.4" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="153.6" y2="153.6" stroke="#ddd"/><text x="58" y="157.6" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="96.8" y2="96.8" stroke="#ddd"/><text x="58" y="100.8" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#ddd"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">p=0.2</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">p=0.5</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">p=0.9</text>
+<text x="344.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="12">true belief p</text>
+<text x="14" y="182.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 182.0)">optimal report</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="64.0,277.8 344.0,196.7 624.0,72.8"/>
+<circle cx="64.0" cy="277.8" r="2.5" fill="#c0392b"/>
+<circle cx="344.0" cy="196.7" r="2.5" fill="#c0392b"/>
+<circle cx="624.0" cy="72.8" r="2.5" fill="#c0392b"/>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="64.0,299.9 344.0,218.4 624.0,76.8"/>
+<circle cx="64.0" cy="299.9" r="2.5" fill="#1f6fb2"/>
+<circle cx="344.0" cy="218.4" r="2.5" fill="#1f6fb2"/>
+<circle cx="624.0" cy="76.8" r="2.5" fill="#1f6fb2"/>
+<polyline fill="none" stroke="#2e8b57" stroke-width="2" points="64.0,324.0 344.0,324.0 624.0,79.3"/>
+<circle cx="64.0" cy="324.0" r="2.5" fill="#2e8b57"/>
+<circle cx="344.0" cy="324.0" r="2.5" fill="#2e8b57"/>
+<circle cx="624.0" cy="79.3" r="2.5" fill="#2e8b57"/>
+<polyline fill="none" stroke="#8e44ad" stroke-width="2" points="64.0,267.2 344.0,182.0 624.0,68.4"/>
+<circle cx="64.0" cy="267.2" r="2.5" fill="#8e44ad"/>
+<circle cx="344.0" cy="182.0" r="2.5" fill="#8e44ad"/>
+<circle cx="624.0" cy="68.4" r="2.5" fill="#8e44ad"/>
+<rect x="76" y="52" width="18" height="10" fill="#c0392b"/><text x="100" y="62" font-family="sans-serif" font-size="11">b=0.1</text>
+<rect x="76" y="68" width="18" height="10" fill="#1f6fb2"/><text x="100" y="78" font-family="sans-serif" font-size="11">b=0.3</text>
+<rect x="76" y="84" width="18" height="10" fill="#2e8b57"/><text x="100" y="94" font-family="sans-serif" font-size="11">b=0.6</text>
+<rect x="76" y="100" width="18" height="10" fill="#8e44ad"/><text x="100" y="110" font-family="sans-serif" font-size="11">truthful</text>
+</svg>
