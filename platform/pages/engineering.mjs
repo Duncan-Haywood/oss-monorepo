@@ -657,7 +657,7 @@ footer{color:var(--muted);font-size:13px;padding:8px 0 40px}
 <body>
 <div class="wrap">
 <header>
-  <div class="crumbs"><a href="../">Catalogue</a> · <a href="../research/">Research</a> · <a href="${REPO_URL}">Repository</a></div>
+  <div class="crumbs"><a href="../" data-pf-to="hub">Catalogue</a> · <a href="../research/">Research</a> · <a href="${REPO_URL}">Repository</a></div>
   <h1>Engineering status</h1>
   <p class="lede">The monorepo as an engineering manager would read it: what shipped, what each agent session worked on, where the effort and compute went, and what is blocked on the owner. Rebuilt from <code>main</code> at ${head} on ${esc(model.today)} every time the site is published.</p>
 </header>
