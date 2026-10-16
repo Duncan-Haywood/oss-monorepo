@@ -33,53 +33,53 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548385 bytes
-#   portfolio-front-tools-1: 92 files, 555577 bytes
-#   portfolio-front-tools-2: 144 files, 553629 bytes
+#   portfolio-front-tools-0: 145 files, 548386 bytes
+#   portfolio-front-tools-1: 92 files, 555576 bytes
+#   portfolio-front-tools-2: 144 files, 553632 bytes
 #   portfolio-front-tools-3: 128 files, 549957 bytes
-#   portfolio-front-tools-4: 136 files, 553251 bytes
-#   portfolio-front-tools-5: 131 files, 551808 bytes
+#   portfolio-front-tools-4: 136 files, 553252 bytes
+#   portfolio-front-tools-5: 131 files, 551766 bytes
 #   portfolio-front-tools-6: 126 files, 556402 bytes
-#   portfolio-front-tools-7: 119 files, 553775 bytes
-#   portfolio-front-tools-8: 131 files, 556371 bytes
-#   portfolio-front-tools-9: 136 files, 551388 bytes
-#   portfolio-front-tools-10: 145 files, 555038 bytes
-#   portfolio-front-tools-11: 136 files, 554905 bytes
+#   portfolio-front-tools-7: 119 files, 553784 bytes
+#   portfolio-front-tools-8: 131 files, 556357 bytes
+#   portfolio-front-tools-9: 136 files, 551382 bytes
+#   portfolio-front-tools-10: 145 files, 555062 bytes
+#   portfolio-front-tools-11: 136 files, 554851 bytes
 #   portfolio-front-tools-12: 126 files, 551465 bytes
-#   portfolio-front-tools-13: 132 files, 554681 bytes
-#   portfolio-front-tools-14: 135 files, 553877 bytes
+#   portfolio-front-tools-13: 132 files, 554618 bytes
+#   portfolio-front-tools-14: 135 files, 553892 bytes
 #   portfolio-front-tools-15: 124 files, 555522 bytes
-#   portfolio-front-tools-16: 129 files, 554363 bytes
-#   portfolio-front-tools-17: 129 files, 556356 bytes
-#   portfolio-front-tools-18: 127 files, 550493 bytes
-#   portfolio-front-tools-19: 123 files, 553501 bytes
-#   portfolio-front-tools-20: 123 files, 552184 bytes
-#   portfolio-front-tools-21: 129 files, 553438 bytes
-#   portfolio-front-tools-22: 127 files, 554319 bytes
-#   portfolio-front-tools-23: 118 files, 556980 bytes
-#   portfolio-front-tools-24: 117 files, 554064 bytes
-#   portfolio-front-tools-25: 137 files, 554447 bytes
-#   portfolio-front-tools-26: 126 files, 551153 bytes
-#   portfolio-front-tools-27: 140 files, 556376 bytes
+#   portfolio-front-tools-16: 129 files, 554376 bytes
+#   portfolio-front-tools-17: 129 files, 556363 bytes
+#   portfolio-front-tools-18: 127 files, 550473 bytes
+#   portfolio-front-tools-19: 123 files, 553504 bytes
+#   portfolio-front-tools-20: 123 files, 552182 bytes
+#   portfolio-front-tools-21: 129 files, 553386 bytes
+#   portfolio-front-tools-22: 127 files, 554354 bytes
+#   portfolio-front-tools-23: 118 files, 556983 bytes
+#   portfolio-front-tools-24: 117 files, 554072 bytes
+#   portfolio-front-tools-25: 137 files, 554365 bytes
+#   portfolio-front-tools-26: 126 files, 551174 bytes
+#   portfolio-front-tools-27: 140 files, 556377 bytes
 #   portfolio-front-tools-28: 131 files, 556010 bytes
-#   portfolio-front-tools-29: 124 files, 553416 bytes
-#   portfolio-front-tools-30: 129 files, 555239 bytes
-#   portfolio-front-tools-31: 137 files, 555098 bytes
-#   portfolio-front-tools-32: 129 files, 552777 bytes
-#   portfolio-front-tools-33: 126 files, 555249 bytes
-#   portfolio-front-tools-34: 137 files, 555841 bytes
-#   portfolio-front-tools-35: 115 files, 556977 bytes
+#   portfolio-front-tools-29: 124 files, 553414 bytes
+#   portfolio-front-tools-30: 129 files, 555247 bytes
+#   portfolio-front-tools-31: 137 files, 555034 bytes
+#   portfolio-front-tools-32: 129 files, 552774 bytes
+#   portfolio-front-tools-33: 126 files, 555275 bytes
+#   portfolio-front-tools-34: 137 files, 555838 bytes
+#   portfolio-front-tools-35: 115 files, 556978 bytes
 #   portfolio-front-tools-36: 97 files, 554632 bytes
-#   portfolio-front-tools-37: 128 files, 551272 bytes
-#   portfolio-front-tools-38: 122 files, 546343 bytes
-#   portfolio-front-tools-39: 127 files, 554741 bytes
-#   portfolio-front-tools-40: 127 files, 555724 bytes
-#   portfolio-front-tools-41: 138 files, 553419 bytes
-#   portfolio-front-tools-42: 142 files, 556936 bytes
-#   portfolio-front-tools-43: 130 files, 551813 bytes
-#   portfolio-front-tools-44: 125 files, 553616 bytes
-#   portfolio-front-tools-45: 63 files, 347572 bytes
-#   portfolio-front-tools-46: 54 files, 266548 bytes
+#   portfolio-front-tools-37: 128 files, 551288 bytes
+#   portfolio-front-tools-38: 122 files, 546344 bytes
+#   portfolio-front-tools-39: 127 files, 554738 bytes
+#   portfolio-front-tools-40: 127 files, 555718 bytes
+#   portfolio-front-tools-41: 138 files, 553362 bytes
+#   portfolio-front-tools-42: 142 files, 556933 bytes
+#   portfolio-front-tools-43: 130 files, 551817 bytes
+#   portfolio-front-tools-44: 125 files, 553621 bytes
+#   portfolio-front-tools-45: 65 files, 357178 bytes
+#   portfolio-front-tools-46: 54 files, 262772 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -6165,13 +6165,13 @@ configMapGenerator:
       - wix-product-csv-check__index.html.gz=wix-product-csv-check__index.html.gz
       - wix-product-csv-check__usage.mjs.gz=wix-product-csv-check__usage.mjs.gz
       - woocommerce-product-csv-check__calc.mjs.gz=woocommerce-product-csv-check__calc.mjs.gz
+      - woocommerce-product-csv-check__index.html.gz=woocommerce-product-csv-check__index.html.gz
+      - woocommerce-product-csv-check__usage.mjs.gz=woocommerce-product-csv-check__usage.mjs.gz
   - name: portfolio-front-tools-46
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - woocommerce-product-csv-check__index.html.gz=woocommerce-product-csv-check__index.html.gz
-      - woocommerce-product-csv-check__usage.mjs.gz=woocommerce-product-csv-check__usage.mjs.gz
       - wordpress-plugin-review-check__check.mjs.gz=wordpress-plugin-review-check__check.mjs.gz
       - wordpress-plugin-review-check__index.html.gz=wordpress-plugin-review-check__index.html.gz
       - wordpress-plugin-review-check__scan.mjs.gz=wordpress-plugin-review-check__scan.mjs.gz
@@ -6188,6 +6188,8 @@ configMapGenerator:
       - workers-comp-premium-calculator__calc.mjs.gz=workers-comp-premium-calculator__calc.mjs.gz
       - workers-comp-premium-calculator__index.html.gz=workers-comp-premium-calculator__index.html.gz
       - workers-comp-premium-calculator__usage.mjs.gz=workers-comp-premium-calculator__usage.mjs.gz
+      - workflow-audit__index.html.gz=workflow-audit__index.html.gz
+      - workflow-audit__usage.mjs.gz=workflow-audit__usage.mjs.gz
       - world-clock-widget__index.html.gz=world-clock-widget__index.html.gz
       - world-clock-widget__solar.mjs.gz=world-clock-widget__solar.mjs.gz
       - world-clock-widget__usage.mjs.gz=world-clock-widget__usage.mjs.gz
