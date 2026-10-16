@@ -33,6 +33,21 @@ export const RULES = {
   CA: { limit: 270, requiresAbode: false, kind: "presumption", note: "Residency turns on domicile and where your ties are strongest. Time in the state beyond about nine months is commonly treated as a presumption of residency that you would have to rebut." },
 };
 
+// "Convenience of the employer" rules, as commonly described: a state that may
+// tax wages for days you work remotely outside it, unless your employer
+// required you to be out of state. `strict` states apply it to everyone;
+// `retaliatory` states apply it mainly against residents of states that do the
+// same. Summarised from published guidance; the user is told to check it.
+export const EMPLOYER_RULES = {
+  NY: { kind: "strict", note: "New York treats days worked remotely for a New York employer as New York days unless the employer required you to work elsewhere (not merely allowed it)." },
+  NE: { kind: "strict", note: "Nebraska is commonly listed with the convenience-of-the-employer states for remote work outside Nebraska." },
+  DE: { kind: "strict", note: "Delaware is commonly listed with the convenience-of-the-employer states for remote work outside Delaware." },
+  AR: { kind: "strict", note: "Arkansas is commonly listed with the convenience-of-the-employer states for remote work outside Arkansas." },
+  PA: { kind: "retaliatory", note: "Pennsylvania is commonly described as applying the rule against residents of states that apply it to Pennsylvanians." },
+  NJ: { kind: "retaliatory", note: "New Jersey is commonly described as applying the rule against residents of states that apply it to New Jersey residents." },
+  CT: { kind: "retaliatory", note: "Connecticut is commonly described as applying the rule against residents of states that apply it to Connecticut residents." },
+};
+
 export const NO_WAGE_TAX = ["AK", "FL", "NH", "NV", "SD", "TN", "TX", "WA", "WY"];
 
 // ---- dates -----------------------------------------------------------------
@@ -271,6 +286,9 @@ export function analyze(spec) {
     workTotal += 1;
   }
 
+  const emp = spec.employerState && /^[A-Z]{2}$/.test(spec.employerState) ? spec.employerState : null;
+  const empRule = emp && EMPLOYER_RULES[emp] ? EMPLOYER_RULES[emp] : null;
+
   const states = codes.map((code) => {
     const flags = present[code];
     let days = 0;
@@ -310,7 +328,31 @@ export function analyze(spec) {
     };
   }).sort((a, b) => b.days - a.days || a.code.localeCompare(b.code));
 
+  // Convenience-of-the-employer view: remote workdays outside the employer's
+  // state that the employer's state may still claim, and how much of that is
+  // also wages the physical state can tax (a double-tax exposure to credit).
+  let employer = null;
+  if (emp && empRule) {
+    const outside = states.filter((s) => s.code !== emp && s.workdays > 0);
+    const pulledDays = outside.reduce((n, s) => n + s.workdays, 0);
+    const wageOf = (days) => (spec.wages != null && workTotal ? Math.round((spec.wages * days) / workTotal * 100) / 100 : null);
+    const physical = (states.find((s) => s.code === emp) || { workdays: 0 }).workdays;
+    const taxedBoth = outside.filter((s) => !NO_WAGE_TAX.includes(s.code));
+    const dualDays = taxedBoth.reduce((n, s) => n + s.workdays, 0);
+    employer = {
+      code: emp, name: STATE_NAMES[emp] || emp, kind: empRule.kind, note: empRule.note,
+      physicalDays: Math.round(physical * 100) / 100,
+      remoteDays: Math.round(pulledDays * 100) / 100,
+      claimableDays: Math.round((physical + pulledDays) * 100) / 100,
+      claimableWages: wageOf(physical + pulledDays),
+      doubleTaxDays: Math.round(dualDays * 100) / 100,
+      doubleTaxWages: wageOf(dualDays),
+      byState: outside.map((s) => ({ code: s.code, days: s.workdays, noWageTax: NO_WAGE_TAX.includes(s.code) })),
+    };
+  }
+
   const notices = [];
+  if (employer && employer.remoteDays > 0) notices.push(`${employer.name} may claim wages for ${fmtNum(employer.remoteDays, 1)} remote workday(s) you spent outside it${employer.kind === "retaliatory" ? " (only if the state you worked in applies the same rule to its own residents)" : ""}; ${fmtNum(employer.doubleTaxDays, 1)} of them were in states that tax wages themselves, so ask about a credit.`);
   if (conflicts.length) notices.push(`${conflicts.reduce((n, c) => n + c.days, 0)} day(s) fall in stays in different states that overlap by more than a travel day. Both states are counted for those days; check the dates.`);
   if (gapsToDate && !home) notices.push(`${gapsToDate} day(s) up to the as-of date are not in any stay. They are not counted anywhere; add a stay or pick the state you assume you were in.`);
   if (home && gapRanges.length) notices.push(`Days not in any stay are assumed to be in ${home}.`);
@@ -319,7 +361,7 @@ export function analyze(spec) {
   return {
     year: spec.year, totalDays: total, asOf, convention, states, conflicts,
     gaps: { toDate: gapsToDate, unplanned, ranges: gapRanges },
-    workTotal, wages: spec.wages ?? null, notices,
+    workTotal, wages: spec.wages ?? null, employer, notices,
     daysCounted: states.reduce((n, s) => n + s.days, 0),
   };
 }
