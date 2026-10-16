@@ -17,6 +17,8 @@ export function createKeeper({ url, key, fetchImpl = fetch, onError = () => {} }
     /** Create or update a deal. Changing `stage` records the move; `status: "won"|"lost"` closes it. */
     upsert: (deal) => call("POST", "/v1/deals", deal),
     activity: (id, at) => call("POST", `/v1/deals/${encodeURIComponent(id)}/activity`, at == null ? {} : { at }),
+    /** A draft follow-up note for you to edit and send; { text, source: "model" | "fallback" }. */
+    followUp: (id) => call("POST", `/v1/deals/${encodeURIComponent(id)}/followup`),
     pipeline: () => call("GET", "/v1/pipeline"),
     forecast: (opts = {}) => call("GET", `/v1/forecast?${new URLSearchParams(Object.entries(opts).map(([k, v]) => [k, String(v)]))}`),
   };

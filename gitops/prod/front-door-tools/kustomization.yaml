@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 145 files, 555017 bytes
 #   portfolio-front-tools-11: 136 files, 554871 bytes
 #   portfolio-front-tools-12: 126 files, 551443 bytes
-#   portfolio-front-tools-13: 130 files, 549914 bytes
+#   portfolio-front-tools-13: 132 files, 554967 bytes
 #   portfolio-front-tools-14: 134 files, 550920 bytes
 #   portfolio-front-tools-15: 124 files, 555496 bytes
 #   portfolio-front-tools-16: 129 files, 554198 bytes
@@ -64,9 +64,9 @@
 #   portfolio-front-tools-28: 131 files, 555817 bytes
 #   portfolio-front-tools-29: 123 files, 555013 bytes
 #   portfolio-front-tools-30: 130 files, 549349 bytes
-#   portfolio-front-tools-31: 134 files, 549557 bytes
-#   portfolio-front-tools-32: 129 files, 556869 bytes
-#   portfolio-front-tools-33: 130 files, 556157 bytes
+#   portfolio-front-tools-31: 134 files, 556235 bytes
+#   portfolio-front-tools-32: 129 files, 550057 bytes
+#   portfolio-front-tools-33: 129 files, 553316 bytes
 #   portfolio-front-tools-34: 134 files, 553537 bytes
 #   portfolio-front-tools-35: 114 files, 550322 bytes
 #   portfolio-front-tools-36: 97 files, 553167 bytes
@@ -1885,6 +1885,8 @@ configMapGenerator:
       - de-freiberufler-tax-set-aside-calculator__calc.mjs.gz=de-freiberufler-tax-set-aside-calculator__calc.mjs.gz
       - de-freiberufler-tax-set-aside-calculator__index.html.gz=de-freiberufler-tax-set-aside-calculator__index.html.gz
       - de-freiberufler-tax-set-aside-calculator__usage.mjs.gz=de-freiberufler-tax-set-aside-calculator__usage.mjs.gz
+      - deal-keeper__ai.mjs.gz=deal-keeper__ai.mjs.gz
+      - deal-keeper__byok.mjs.gz=deal-keeper__byok.mjs.gz
       - deal-keeper__engine.mjs.gz=deal-keeper__engine.mjs.gz
       - deal-keeper__import.mjs.gz=deal-keeper__import.mjs.gz
       - deal-keeper__index.html.gz=deal-keeper__index.html.gz
@@ -4328,7 +4330,6 @@ configMapGenerator:
       - property-tax-appeal-calculator__index.html.gz=property-tax-appeal-calculator__index.html.gz
       - property-tax-appeal-calculator__usage.mjs.gz=property-tax-appeal-calculator__usage.mjs.gz
       - proposal-maker__ai.mjs.gz=proposal-maker__ai.mjs.gz
-      - proposal-maker__byok.mjs.gz=proposal-maker__byok.mjs.gz
       - proposal-maker__calc.mjs.gz=proposal-maker__calc.mjs.gz
       - proposal-maker__index.html.gz=proposal-maker__index.html.gz
       - proposal-maker__server.mjs.gz=proposal-maker__server.mjs.gz
@@ -4378,12 +4379,12 @@ configMapGenerator:
       - qsbs-exclusion-calculator__usage.mjs.gz=qsbs-exclusion-calculator__usage.mjs.gz
       - qsbs-exclusion-calculator__vs-doing-the-math-by-hand.html.gz=qsbs-exclusion-calculator__vs-doing-the-math-by-hand.html.gz
       - quarterly-estimated-tax-calendar__calc.mjs.gz=quarterly-estimated-tax-calendar__calc.mjs.gz
+      - quarterly-estimated-tax-calendar__index.html.gz=quarterly-estimated-tax-calendar__index.html.gz
   - name: portfolio-front-tools-32
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - quarterly-estimated-tax-calendar__index.html.gz=quarterly-estimated-tax-calendar__index.html.gz
       - quarterly-estimated-tax-calendar__usage.mjs.gz=quarterly-estimated-tax-calendar__usage.mjs.gz
       - quarterly-estimated-tax-calendar__vs-a-spreadsheet.html.gz=quarterly-estimated-tax-calendar__vs-a-spreadsheet.html.gz
       - quarterly-estimated-tax-calendar__vs-keeper.html.gz=quarterly-estimated-tax-calendar__vs-keeper.html.gz
@@ -4512,12 +4513,12 @@ configMapGenerator:
       - rental-ledger__how-to-depreciate-a-rental-property.html.gz=rental-ledger__how-to-depreciate-a-rental-property.html.gz
       - rental-ledger__index.html.gz=rental-ledger__index.html.gz
       - rental-ledger__usage.mjs.gz=rental-ledger__usage.mjs.gz
+      - rental-ledger__vs-spreadsheet.html.gz=rental-ledger__vs-spreadsheet.html.gz
   - name: portfolio-front-tools-33
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - rental-ledger__vs-spreadsheet.html.gz=rental-ledger__vs-spreadsheet.html.gz
       - rental-property-schedule-e-categorizer__calc.mjs.gz=rental-property-schedule-e-categorizer__calc.mjs.gz
       - rental-property-schedule-e-categorizer__index.html.gz=rental-property-schedule-e-categorizer__index.html.gz
       - rental-property-schedule-e-categorizer__usage.mjs.gz=rental-property-schedule-e-categorizer__usage.mjs.gz
