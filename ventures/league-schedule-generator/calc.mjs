@@ -853,6 +853,54 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
   return rows;
 }
 
+// ---------------------------------------------------------------- pool play
+
+/**
+ * Splits teams (listed best seed first) into `k` pools by snake draft: seeds 1..k go to pools A..,
+ * the next k go back the other way, and so on, so no pool collects all the strong seeds. Pool sizes
+ * differ by at most one. Returns [{ name: "Pool A", teams: [...] }].
+ */
+export function splitPools(teams, k) {
+  if (!Number.isInteger(k) || k < 1) throw new Error("Pools must be a whole number, 1 or more.");
+  if (teams.length < 2 * k) throw new Error(`${k} pools need at least ${2 * k} teams (two each); you have ${teams.length}.`);
+  const pools = Array.from({ length: k }, (_, i) => ({ name: `Pool ${String.fromCharCode(65 + (i % 26))}${i >= 26 ? Math.floor(i / 26) : ""}`, teams: [] }));
+  teams.forEach((t, i) => {
+    const row = Math.floor(i / k);
+    const col = i % k;
+    pools[row % 2 === 0 ? col : k - 1 - col].teams.push(t);
+  });
+  return pools;
+}
+
+/**
+ * Pool play: each pool gets its own round robin on the same dates and settings (each pool has its
+ * own courts, so pools never compete for a court). `spec.courts` names are reused per pool when given.
+ * Returns [{ name, schedule }], every schedule checked by validateSchedule.
+ */
+export function buildPoolPlay(spec, k) {
+  return splitPools(spec.teams, k).map((pool) => {
+    const remap = (obj) => Object.fromEntries(Object.entries(obj || {}).filter(([i]) => pool.teams.includes(spec.teams[i]))
+      .map(([i, v]) => [pool.teams.indexOf(spec.teams[i]), v]));
+    const schedule = buildSchedule({ ...spec, teams: pool.teams, blackouts: remap(spec.blackouts), timeLimits: remap(spec.timeLimits) });
+    return { name: pool.name, schedule };
+  });
+}
+
+/**
+ * Play-off seeding from pool tables: every pool winner first (best record first), then every
+ * runner-up, and so on, taking `perPool` from each pool. Ties across pools break on points, goal
+ * difference, goals for, then pool order. `tables` is one standings() result per pool.
+ */
+export function poolAdvancers(tables, perPool) {
+  const out = [];
+  for (let place = 0; place < perPool; place++) {
+    const tier = tables.map((t, p) => ({ row: t[place], p })).filter((x) => x.row)
+      .sort((x, y) => y.row.points - x.row.points || y.row.gd - x.row.gd || y.row.gf - x.row.gf || x.p - y.p);
+    out.push(...tier.map((x) => x.row.name));
+  }
+  return out;
+}
+
 const nextPow2 = (k) => { let p = 1; while (p < k) p *= 2; return p; };
 
 /** Standard single-elimination seed order for a bracket of `size` (1 v size, 2 v size-1, ...). */
