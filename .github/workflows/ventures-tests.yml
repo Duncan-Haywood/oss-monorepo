@@ -55,6 +55,10 @@ jobs:
             echo "::group::$s"
             # shellcheck disable=SC2086
             node --test $files || { echo "FAILED $s"; rc=1; }
+            # PRODUCT_PLAYBOOK.md 5b: every published page carries a no-warranty
+            # clause. Run per touched venture so the one that needs it goes red
+            # before the merge (formerly a step in each <slug>-ci.yml).
+            node platform/pages/clauses.mjs "$s" || { echo "FAILED clauses $s"; rc=1; }
             echo "::endgroup::"
           done
           exit $rc

@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01A9y2QZ54GLbeGzyJsVBJb6",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T04:39:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/backlog/P017-path-scoped-instructions.json",
+      "issue": "Change step 2 (move CLAUDE.md checklist to a skill) is blocked by ~15 tools parsing CLAUDE.md; the item did not say so."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Record step says use the session url; fine. runcost attach not run: no transcript path available in this scheduled run."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Backlog P017, partial: stopped mandatory whole-file DIRECTION.md reads in CLAUDE.md and AGENTS.md. Did not run runcost attach (no transcript available).",
+  "corrections": [],
+  "redteam": null
+}
