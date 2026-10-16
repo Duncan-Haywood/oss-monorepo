@@ -13,6 +13,17 @@ would break an ATS parser reading your resume, in one paste**, which used
 to take manually eyeballing a text dump or paying for an account-gated
 scanner that uploads your resume to someone else's server.
 
+## Wording suggestions on your own AI key (optional)
+
+After the posting match, a box offers wording changes. With no key it names,
+for each missing term, the resume line closest to how the posting uses it,
+and says to add the term only if it is true. With your own key (Anthropic,
+OpenAI, Gemini, or any OpenAI-compatible endpoint, via
+`platform/llm/byok.mjs`) a model rewrites up to five of your existing lines;
+the page flags any number in a suggestion that your resume does not contain.
+The key is never stored; the only request the page can make goes to the
+provider you pick. Engine: `tailor.mjs` (tests: `tailor.test.mjs`).
+
 ## Why this exists
 
 An applicant tracking system extracts a resume's text mechanically — the

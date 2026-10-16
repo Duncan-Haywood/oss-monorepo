@@ -100,7 +100,7 @@
       <button type="button" id="match">Match my resume to this posting</button>
       <button type="button" class="secondary" id="load-posting">Load an example posting</button>
     </p>
-    <p class="note" id="match-status">Uses the resume text from step 2 and the posting above. Nothing is sent anywhere.</p>
+    <p class="note" id="match-status">Uses the resume text from step 2 and the posting above. Nothing is sent anywhere unless you add an AI key in the wording-changes box below the result.</p>
   </section>
 
   <section class="card" id="match-card" aria-live="polite" hidden>
@@ -115,6 +115,22 @@
     <p class="note">The percentage is this page's own weighted coverage of the terms it could read from the posting
     (repeated, required and title terms count more; "nice to have" terms count less). It is not an applicant tracking system's
     score. Plain-word and phrase matching cannot tell that two different words mean the same thing unless it knows the pair.</p>
+  </section>
+
+  <section class="card" id="tailor-card" hidden>
+    <h2>Suggest wording changes (optional)</h2>
+    <p class="note">Without a key you get, for each missing term, the line of your resume closest to how the posting uses it, and a plain instruction. With your own key from Anthropic, OpenAI, Google Gemini or any OpenAI-compatible endpoint, a model rewrites up to five of your existing lines. Your resume text and the posting are then sent from this browser to the provider you choose, and nowhere else; the key stays in this tab and is not saved. Suggestions are drafts: keep a change only if it is true.</p>
+    <label for="prov">AI provider (optional)</label>
+    <select id="prov"><option value="">None: no AI call</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="openai-compatible">Other (OpenAI-compatible URL)</option></select>
+    <label for="model">Model (required except for Anthropic)</label>
+    <input id="model" type="text" autocomplete="off">
+    <label for="base">Base URL (OpenAI-compatible only)</label>
+    <input id="base" type="text" autocomplete="off" placeholder="https://openrouter.ai/api/v1">
+    <label for="key">Your API key</label>
+    <input id="key" type="password" autocomplete="off">
+    <p><button type="button" id="tailor">Suggest wording changes</button></p>
+    <p class="note" id="tailor-status" role="status"></p>
+    <div id="tailor-out"></div>
   </section>
 
   <section class="card">
@@ -146,7 +162,7 @@
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not career, legal, or any other professional advice, and it does not tell you whether any specific employer's applicant tracking system will accept your resume — only whether the text you pasted shows documented signs of a broken format. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — the text you paste is not saved anywhere by this tool.</p>
-    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>match_run</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded to us; there are no accounts, cookies, or analytics vendors. The one request this page can make is to the AI provider you choose, when you press Suggest wording changes with your own key: it carries your resume text and the posting, and nothing else. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>match_run</code>, <code>tailor_run</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Pricing your own client work rather than applying for a role? The <a href="../freelance-retainer-calculator/">freelance retainer calculator</a> works a sustainable monthly retainer out of your income goal, capacity, overhead, and utilization — nothing uploaded.</p>
     <p>Applying to many roles at once? The <a href="../job-application-tracker/">job application tracker</a> keeps your list, shows which follow-ups are due and which sources reply, and never uploads it.</p>
@@ -157,6 +173,7 @@
   <script type="module">
     import { analyze, summarize } from "./checker.mjs";
     import { matchPosting, summarizeMatch } from "./match.mjs";
+    import { tailor } from "./tailor.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -242,8 +259,13 @@ Nice to have:
 
     const chip = (t, cls) => `<li class="chip ${cls}">${escapeHtml(t)}</li>`;
 
+    let lastMatch = null;
     function runMatch() {
       const result = matchPosting(els.text.value, $("#posting-text").value);
+      lastMatch = result.ok ? result : null;
+      $("#tailor-card").hidden = !result.ok;
+      $("#tailor-out").replaceChildren();
+      $("#tailor-status").textContent = "";
       const { level, text } = summarizeMatch(result);
       const card = $("#match-card");
       if (!result.ok) {
@@ -274,6 +296,39 @@ Nice to have:
         return;
       }
       runMatch();
+    });
+
+    function llm() {
+      const provider = $("#prov").value;
+      if (!provider || !$("#key").value) return {};
+      return { provider, apiKey: $("#key").value, model: $("#model").value.trim() || undefined, baseUrl: $("#base").value.trim() || undefined, browser: true };
+    }
+
+    $("#tailor").addEventListener("click", async () => {
+      if (!lastMatch) return;
+      const out = $("#tailor-out"), status = $("#tailor-status");
+      out.replaceChildren();
+      status.textContent = "Working...";
+      try {
+        const r = await tailor(llm(), els.text.value, $("#posting-text").value, lastMatch);
+        const add = (tag, text, cls) => { const e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; out.append(e); return e; };
+        if (r.source === "model") {
+          status.textContent = "Written by your model. These are drafts: keep a change only if it is true of you.";
+          const pre = add("pre", r.text); pre.style.whiteSpace = "pre-wrap";
+          if (r.invented.length) add("p", "Check these numbers: they appear in a suggestion but not in your resume: " + r.invented.join(", ") + ".", "error");
+        } else {
+          status.textContent = r.error ? "The AI call failed (" + r.error + "), so these are the no-key suggestions." : "No AI call was made. These suggestions come from your own text.";
+          const ul = document.createElement("ul");
+          for (const s of r.starter) {
+            const li = document.createElement("li");
+            const b = document.createElement("strong"); b.textContent = s.term; li.append(b, document.createTextNode(": " + s.advice));
+            if (s.line) { const q = document.createElement("div"); q.className = "note"; q.textContent = "Closest line: " + s.line; li.append(q); }
+            ul.append(li);
+          }
+          out.append(ul);
+        }
+        record("tailor_run");
+      } catch (e) { status.textContent = "Could not suggest changes: " + e.message; }
     });
 
     $("#load-posting").addEventListener("click", () => {
