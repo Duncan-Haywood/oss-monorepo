@@ -206,6 +206,13 @@ test("icsToStays: all-day end is exclusive, locations and titles resolve, adjace
   assert.equal(parseStays(r.lines.join("\n"), 2025).errors.length, 0);
 });
 
+test("Maryland (183 or more) and Maine (more than 183) thresholds follow the 'more than limit' convention", () => {
+  assert.equal(RULES.MD.limit, 182);
+  assert.equal(RULES.ME.limit, 183);
+  assert.equal(RULES.MD.requiresAbode, true);
+  assert.equal(RULES.ME.requiresAbode, true);
+});
+
 test("convenience-of-the-employer view pulls remote workdays back to the employer's state", () => {
   // 5 workdays in NY, 5 in NJ, 5 in FL (no wage tax); employer in NY.
   const lines = ["2025-06-02 to 2025-06-06 NY", "2025-06-09 to 2025-06-13 NJ", "2025-06-16 to 2025-06-20 FL"];
