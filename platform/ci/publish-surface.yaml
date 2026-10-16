@@ -455,6 +455,9 @@ workflows:
 - workflow: depreciation-recapture-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: devsec-toolkit-ci.yml
+  classification: none
+  publishes: []
 - workflow: distribute-bluesky.yml
   classification: none
   publishes: []
