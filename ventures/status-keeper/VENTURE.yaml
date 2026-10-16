@@ -28,6 +28,13 @@ owner: duncan
 
 hypotheses:
   - claim: >-
+      The same operator who wants a status page also loses sleep over a lapsed
+      certificate or domain, so expiry watchers with one alert per threshold are
+      what get status-keeper deployed over a bare uptime pinger.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
       Early-stage SaaS founders will deploy a status page once it takes one click
       and one env var, because Statuspage charges per subscriber tier and Uptime
       Kuma has no customer-facing incident timeline.

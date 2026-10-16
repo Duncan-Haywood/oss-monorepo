@@ -12,7 +12,7 @@ export function statusJson(state, defs, cfg, now) {
     status: { indicator: st, description: LABELS[st] },
     components: defs.map((d) => {
       const m = state.monitors[d.id];
-      return { id: d.id, name: d.name || d.id, status: inMaintenance(state, d.id, now) ? "maintenance" : m?.status ?? "unknown", uptime30d: uptimePct(m, 30, now), uptime90d: uptimePct(m, 90, now), responseMs: m?.lastMs ?? null };
+      return { id: d.id, name: d.name || d.id, status: inMaintenance(state, d.id, now) ? "maintenance" : m?.status ?? "unknown", uptime30d: uptimePct(m, 30, now), uptime90d: uptimePct(m, 90, now), responseMs: m?.lastMs ?? null, ...(m?.expiresAt ? { type: d.type, expiresAt: iso(m.expiresAt), daysLeft: Math.floor((m.expiresAt - now) / 86_400_000) } : {}) };
     }),
     incidents: state.incidents.slice(0, 20).map((i) => ({ id: i.id, title: i.title, status: i.status, impact: i.impact, startedAt: iso(i.startedAt), resolvedAt: i.resolvedAt ? iso(i.resolvedAt) : null, updates: i.updates.map((u) => ({ at: iso(u.at), status: u.status, message: u.message })) })),
     maintenance: state.maintenance.filter((m) => m.endsAt > now).map((m) => ({ id: m.id, title: m.title, startsAt: iso(m.startsAt), endsAt: iso(m.endsAt) })),
@@ -44,7 +44,7 @@ export function statusPage(state, defs, cfg, now) {
     const status = inMaintenance(state, d.id, now) ? "maintenance" : m?.status ?? "unknown";
     const bars = dayBars(m, 90, now).map((b) => `<i title="${esc(b.date)}: ${b.pct === null ? "no data" : fmtPct(b.pct)}" style="background:${LEVEL_COLOR[b.level]}"></i>`).join("");
     const word = { up: "Operational", down: "Down", maintenance: "Maintenance", unknown: "Pending" }[status];
-    return `<section class="c"><div class="h"><strong>${esc(d.name || d.id)}</strong><span style="color:${status === "up" ? COLORS.operational : status === "down" ? COLORS.major_outage : status === "maintenance" ? COLORS.maintenance : COLORS.unknown}">${word}</span></div><div class="bars" role="img" aria-label="Last 90 days of uptime">${bars}</div><div class="f"><span>90 days ago</span><span>${fmtPct(uptimePct(m, 90, now))} uptime</span><span>Today</span></div></section>`;
+    return `<section class="c"><div class="h"><strong>${esc(d.name || d.id)}</strong><span style="color:${status === "up" ? COLORS.operational : status === "down" ? COLORS.major_outage : status === "maintenance" ? COLORS.maintenance : COLORS.unknown}">${word}</span></div><div class="bars" role="img" aria-label="Last 90 days of uptime">${bars}</div><div class="f"><span>90 days ago</span><span>${fmtPct(uptimePct(m, 90, now))} uptime</span><span>Today</span></div>${m?.expiresAt ? `<div class="f"><span>${d.type === "domain" ? "Registered until" : "Certificate valid until"} ${esc(iso(m.expiresAt).slice(0, 10))}</span><span>${Math.max(0, Math.floor((m.expiresAt - now) / 86_400_000))} days left</span></div>` : ""}</section>`;
   }).join("");
   const upcoming = state.maintenance.filter((m) => m.endsAt > now).map((m) => `<p class="m"><strong>${esc(m.title)}</strong><br>${iso(m.startsAt)} to ${iso(m.endsAt)}</p>`).join("");
   const incidents = state.incidents.slice(0, 15).map((i) => `<article class="i"><h3>${esc(i.title)} <small>${esc(i.status)}</small></h3>${[...i.updates].reverse().map((u) => `<p><strong>${esc(u.status)}</strong> <time>${iso(u.at)}</time><br>${esc(u.message)}</p>`).join("")}</article>`).join("") || "<p>No incidents reported.</p>";
