@@ -1,0 +1,10 @@
+b = 1.5 mm, w = 18.4 mm (lightest design of simdesign-bucklebound). FE = 3D hex eigenbuckling.
+arm mesh(nx,ny,nz) FE_crit closed ratio(FE/closed) seconds
+vertical (18, 2, 1)   25051.69   24550.74  1.020    11
+vertical (36, 4, 1)   24803.75   24550.74  1.010    42
+vertical (36, 4, 2)   24733.07   24550.74  1.007   104
+horizontal (18, 2, 1)    1580.97    1322.34  1.196     8
+horizontal (36, 4, 1)    1566.62    1322.34  1.185    38
+horizontal (36, 4, 2)    1562.06    1322.34  1.181   113
+governing safety factor at F=100 N, finest mesh: vertical 3.49, horizontal 15.62
+closed forms: vertical 3.47, horizontal 13.22
