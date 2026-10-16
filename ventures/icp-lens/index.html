@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ICP Lens — Free Ideal Customer Profile Builder and Lead Scorer</title>
+  <meta name="description" content="A free, open-source alternative to lead-scoring add-ons: learn your ideal customer profile from your own won and lost list, rank your prospects by lookalike fit with a leave-one-out accuracy check, and draft compliant first outreach on your own AI key. Runs in your browser.">
+  <meta property="og:title" content="ICP Lens — who do your best customers have in common, and who else looks like them?">
+  <meta property="og:description" content="Learn your ICP from your own wins and losses, rank prospects by fit, and see how accurate the ranking really is. MIT, in your browser, bring your own AI key.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "ICP Lens", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source ideal-customer-profile learner for small B2B sales teams: finds what your best customers have in common from your own won and lost list, ranks prospects by lookalike fit with a leave-one-out accuracy check, and drafts compliant first outreach on your own AI key."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is this different from Apollo, ZoomInfo, Clay or Lusha?", "acceptedAnswer": {"@type": "Answer", "text": "Those sell you a database of other people's contact details and enrichment credits. ICP Lens does the step they leave to guesswork: working out what your best customers have in common, using your own won and lost list, and ranking the prospects you already have. It holds no contact database, buys nothing, scrapes nothing and never sends a message. Use it on a list you built from your own CRM, a trade-show export or a directory you are allowed to use."}}, {"@type": "Question", "name": "How does the lookalike score work?", "acceptedAnswer": {"@type": "Answer", "text": "It is a naive Bayes model over the columns you give it. For each value (an industry, a size band, a lead source) it measures how much more common that value is among your wins than your losses, smooths it so one lucky account cannot dominate, and adds the evidence up per prospect. The result is a ranking, not a probability of closing. Each prospect shows the three facts that raised it and the two that lowered it."}}, {"@type": "Question", "name": "How do I know the ranking is any good?", "acceptedAnswer": {"@type": "Answer", "text": "Before showing a ranking it re-scores every labelled row with that row held out (leave-one-out) and reports the AUC and how much more often the top fifth of rows were wins than average. An AUC of 0.50 means no better than a coin flip. If your columns do not separate wins from losses it says so and warns that the ranking is noise instead of presenting it."}}, {"@type": "Question", "name": "How much data do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 8 won and 8 lost rows to learn anything, and a few dozen of each before the profile is stable. With less, use the manual rules box: write your ideal customer as rules such as employees >= 20 and industry in saas, fintech and get a score that is the share of rules each prospect meets."}}, {"@type": "Question", "name": "Does it send emails?", "acceptedAnswer": {"@type": "Answer", "text": "No. It writes a first draft that you read, edit and send yourself from your own mailbox. Every draft ends with your name, postal address and a plain opt-out line, and a checker flags missing identification, a missing opt-out, fake urgency, fake reply headers and absolute claims. It cannot tell whether you have a lawful basis to contact someone, so check CAN-SPAM, PECR, GDPR, CASL and TCPA for your recipients."}}, {"@type": "Question", "name": "Where does my data go?", "acceptedAnswer": {"@type": "Answer", "text": "Nowhere. The lists are read in your browser tab and never uploaded. If you add your own API key for Anthropic, OpenAI, Gemini or any compatible endpoint and press Write with AI, the one prospect's name, the fit reasons and your offer line are sent to that provider from your browser, and the key stays in your browser. Without a key it uses a template and makes no request."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2433; background: #f5f7fb; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1f45c4; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444; }
+    .card { background: #fff; border: 1px solid #dce1ee; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea, input[type=text], input[type=password], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab3d0; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    textarea { min-height: 150px; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f45c4; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.alt { background: #fff; color: #1f45c4; border: 1px solid #1f45c4; }
+    button.small { padding: 5px 9px; margin: 0; font-size: .8rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 8px 0 14px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e8f4; vertical-align: top; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    pre { background: #eef1fa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .err { color: #9b1c1c; font-weight: 600; }
+    .stat { display: inline-block; margin: 6px 22px 6px 0; } .stat b { display: block; font-size: 1.5rem; color: #14307a; }
+    .warn { background: #fff6e0; border: 1px solid #e8cf8a; border-radius: 8px; padding: 9px 12px; }
+    .tier { display: inline-block; min-width: 1.4em; text-align: center; border-radius: 5px; padding: 1px 6px; font-weight: 700; background: #e6ecff; color: #14307a; }
+    .tier.A { background: #d9f2e1; color: #145a2a; } .tier.C { background: #eee; color: #555; }
+    details { margin: 6px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 16px; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Who do your best customers have in common, and who else looks like them?</h1>
+  <p>ICP Lens is an open-source lead scorer for small B2B sales teams. Paste a list where your past deals are marked won or lost and your prospects are left blank. It learns what your wins share, ranks the prospects by lookalike fit with the reasons in plain words, and tells you how accurate the ranking really is before you trust it. Then it drafts a first email that you edit and send yourself.</p>
+
+  <section class="card" aria-labelledby="s1">
+    <h2 id="s1">1. Rank your prospects</h2>
+    <label for="list">Your list as CSV (header row, then one company per row). Add a <code>status</code> column: <code>won</code> or <code>lost</code> on past deals, blank on prospects. Names, emails and other identifiers are ignored as signals.</label>
+    <textarea id="list" spellcheck="false" placeholder="name,industry,employees,country,source,status&#10;Acme,saas,60,US,referral,won&#10;Globex,retail,400,UK,outbound,lost&#10;Initech,saas,45,US,inbound,"></textarea>
+    <button id="run" type="button">Learn my ICP and rank</button>
+    <button id="demo" type="button" class="alt">Try 160 synthetic companies</button>
+    <details>
+      <summary>No history yet? Describe your ideal customer as rules instead</summary>
+      <label for="rules">One rule per line, for example <code>employees &gt;= 20</code>, <code>industry in saas, fintech</code>, <code>country != RU</code></label>
+      <textarea id="rules" spellcheck="false" style="min-height:90px"></textarea>
+      <button id="runrules" type="button" class="alt">Score by my rules</button>
+    </details>
+    <p class="note err" id="err" role="alert"></p>
+    <div id="out" aria-live="polite"></div>
+  </section>
+
+  <section class="card" aria-labelledby="s2">
+    <h2 id="s2">2. Draft a first email (you review and send it)</h2>
+    <p class="note">Pick a prospect with its Draft button above. Without a key you get a plain template. With your own key the draft is written by the model; the key stays in this browser tab and only that prospect's name, the fit reasons and your offer line are sent to your provider.</p>
+    <div class="grid">
+      <div><label for="sname">Your name</label><input id="sname" type="text" autocomplete="name"></div>
+      <div><label for="scompany">Your company</label><input id="scompany" type="text" autocomplete="organization"></div>
+    </div>
+    <label for="soffer">What you offer, in one sentence</label>
+    <input id="soffer" type="text">
+    <label for="saddr">Your postal address (required in the footer by CAN-SPAM and similar laws)</label>
+    <input id="saddr" type="text" autocomplete="street-address">
+    <div class="grid">
+      <div><label for="prov">AI provider (optional)</label>
+        <select id="prov"><option value="">None: use the template</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="openai-compatible">Other (OpenAI-compatible URL)</option></select></div>
+      <div><label for="model">Model (required except for Anthropic)</label><input id="model" type="text"></div>
+      <div><label for="base">Base URL (OpenAI-compatible only)</label><input id="base" type="text" placeholder="https://openrouter.ai/api/v1"></div>
+      <div><label for="key">Your API key</label><input id="key" type="password" autocomplete="off"></div>
+    </div>
+    <p id="who" class="note">No prospect chosen yet.</p>
+    <label for="draft">Draft</label>
+    <textarea id="draft" spellcheck="true"></textarea>
+    <button id="check" type="button" class="alt">Check it</button>
+    <p class="note" id="draftnote" role="status"></p>
+    <ul id="issues"></ul>
+  </section>
+
+  <section class="card">
+    <h2>3. Use it in your own product or run your own copy</h2>
+    <p>The engine is two dependency-free files that run in a browser and in Node 18+. Embed it in your own tool or put your name on a copy and sell it; it is MIT.</p>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/icp-lens
+
+import { analyze } from "./engine.mjs";
+const r = analyze(csvText);            // r.validation.auc, r.profile, r.prospects[0].because
+node cli.mjs leads.csv &gt; ranked.json  // same thing from a terminal, CSV in, JSON out</pre>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>How is this different from Apollo, ZoomInfo, Clay or Lusha?</h3>
+    <p>Those sell you a database of other people&#x27;s contact details and enrichment credits. ICP Lens does the step they leave to guesswork: working out what your best customers have in common, using your own won and lost list, and ranking the prospects you already have. It holds no contact database, buys nothing, scrapes nothing and never sends a message. Use it on a list you built from your own CRM, a trade-show export or a directory you are allowed to use.</p>
+    <h3>How does the lookalike score work?</h3>
+    <p>It is a naive Bayes model over the columns you give it. For each value (an industry, a size band, a lead source) it measures how much more common that value is among your wins than your losses, smooths it so one lucky account cannot dominate, and adds the evidence up per prospect. The result is a ranking, not a probability of closing. Each prospect shows the three facts that raised it and the two that lowered it.</p>
+    <h3>How do I know the ranking is any good?</h3>
+    <p>Before showing a ranking it re-scores every labelled row with that row held out (leave-one-out) and reports the AUC and how much more often the top fifth of rows were wins than average. An AUC of 0.50 means no better than a coin flip. If your columns do not separate wins from losses it says so and warns that the ranking is noise instead of presenting it.</p>
+    <h3>How much data do I need?</h3>
+    <p>At least 8 won and 8 lost rows to learn anything, and a few dozen of each before the profile is stable. With less, use the manual rules box: write your ideal customer as rules such as employees &gt;= 20 and industry in saas, fintech and get a score that is the share of rules each prospect meets.</p>
+    <h3>Does it send emails?</h3>
+    <p>No. It writes a first draft that you read, edit and send yourself from your own mailbox. Every draft ends with your name, postal address and a plain opt-out line, and a checker flags missing identification, a missing opt-out, fake urgency, fake reply headers and absolute claims. It cannot tell whether you have a lawful basis to contact someone, so check CAN-SPAM, PECR, GDPR, CASL and TCPA for your recipients.</p>
+    <h3>Where does my data go?</h3>
+    <p>Nowhere. The lists are read in your browser tab and never uploaded. If you add your own API key for Anthropic, OpenAI, Gemini or any compatible endpoint and press Write with AI, the one prospect&#x27;s name, the fit reasons and your offer line are sent to that provider from your browser, and the key stays in your browser. Without a key it uses a template and makes no request.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../deal-keeper/">Deal Keeper</a> forecasts the pipeline and flags stale deals, <a href="../proposal-maker/">Proposal Maker</a> writes the quote, <a href="../drip-keeper/">Drip Keeper</a> runs the follow-up emails, <a href="../form-inbox/">Form Inbox</a> catches the enquiries and <a href="../churn-radar/">Churn Radar</a> watches the customers you won.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. Fit scores are statistical rankings from the data you provide, can be wrong, are not a prediction that anyone will buy, and are not legal, tax, or financial advice; do not use them to make decisions about individuals. AI-written drafts may contain errors and are drafts for you to check. You are responsible for who you contact and how: follow CAN-SPAM, PECR, GDPR, CASL, TCPA and the terms of every platform you use. Everything on this page runs in your browser and nothing you paste is uploaded. The only request it can make is to the AI provider you choose, when you press Write with AI. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { analyze, applyRules, syntheticCsv } from "./engine.mjs";
+    import { draftEmail, complianceIssues } from "./outreach.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const el = (tag, text, cls) => { const e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; return e; };
+    function table(head, rows) {
+      const t = document.createElement("table"), hr = document.createElement("tr");
+      for (const [h, n] of head) { const th = el("th", h, n ? "n" : ""); th.scope = "col"; hr.append(th); }
+      const th = document.createElement("thead"); th.append(hr); t.append(th);
+      const tb = document.createElement("tbody");
+      for (const cells of rows) { const tr = document.createElement("tr"); cells.forEach((c, i) => { const td = c instanceof Node ? c : el(i === 0 ? "th" : "td", String(c), head[i][1] ? "n" : ""); if (i === 0 && td.tagName === "TH") td.scope = "row"; tr.append(td); }); tb.append(tr); }
+      t.append(tb); return t;
+    }
+    let chosen = null;
+    function choose(p) { chosen = p; $("who").textContent = `Drafting for: ${p.name}`; $("draft").value = ""; $("issues").replaceChildren(); $("draftnote").textContent = "Press Write draft below."; $("write")?.remove(); const b = el("button", "Write draft", ""); b.id = "write"; b.type = "button"; b.addEventListener("click", write); $("draftnote").before(b); $("s2").scrollIntoView({ behavior: "smooth" }); }
+    const sender = () => ({ name: $("sname").value.trim(), company: $("scompany").value.trim(), offer: $("soffer").value.trim(), address: $("saddr").value.trim() });
+    function llm() {
+      const provider = $("prov").value; if (!provider || !$("key").value) return {};
+      return { provider, apiKey: $("key").value, model: $("model").value.trim() || undefined, baseUrl: $("base").value.trim() || undefined, browser: true };
+    }
+    async function write() {
+      if (!chosen) return;
+      $("draftnote").textContent = "Writing...";
+      try {
+        const r = await draftEmail(llm(), chosen, sender());
+        $("draft").value = r.text;
+        $("draftnote").textContent = r.source === "model" ? "Written by your model. It is a draft: check every fact before you send it." : `Template used (no AI call was made${r.error ? ": " + r.error : ""}). Edit it, then check it.`;
+        showIssues(r.issues); record("draft");
+      } catch (e) { $("draftnote").textContent = "Could not draft: " + e.message; }
+    }
+    function showIssues(list) {
+      const ul = $("issues"); ul.replaceChildren();
+      for (const i of list) ul.append(el("li", i));
+      if (!list.length) ul.append(el("li", "No problems found by the checker. It cannot judge whether you have a lawful basis to contact this person."));
+    }
+    $("check").addEventListener("click", () => showIssues(complianceIssues($("draft").value, sender())));
+    function stat(box, b, s) { const d = el("span", "", "stat"); d.append(el("b", b), document.createTextNode(s)); box.append(d); }
+    function showRanked(r, label) {
+      const out = $("out"); out.replaceChildren();
+      if (label) out.append(el("p", label, "note"));
+      if (r.note) out.append(el("p", r.note, r.learned ? "warn" : "err"));
+      if (!r.learned) return;
+      const v = r.validation, box = el("div", "");
+      stat(box, String(r.wins), "won rows used"); stat(box, String(r.losses), "lost rows used"); stat(box, v.auc == null ? "n/a" : v.auc.toFixed(2), "leave-one-out AUC (0.50 is a coin flip)");
+      stat(box, v.lift == null ? "n/a" : v.lift.toFixed(1) + "x", `how much more often the top fifth were wins than average (${(v.topFifthWinRate * 100).toFixed(0)}% vs ${(v.base * 100).toFixed(0)}%)`);
+      out.append(box);
+      out.append(el("h2", "What your wins have in common"));
+      if (r.profile.length) out.append(table([["Column"], ["Value"], ["Wins / rows", 1], ["Over-represented", 1]], r.profile.map((p) => [p.feature, p.value, `${p.wins} / ${p.total}`, p.lift.toFixed(1) + "x"])));
+      else out.append(el("p", "No value stands out among your wins.", "note"));
+      if (r.dropped.length) out.append(el("p", "Not used as signals: " + r.dropped.map((d) => `${d.column} (${d.reason})`).join("; ") + ".", "note"));
+      out.append(el("h2", "Prospects, best fit first"));
+      if (!r.prospects.length) out.append(el("p", "No rows with a blank status to rank. Leave status empty on the companies you want scored.", "note"));
+      else out.append(rankTable(r.prospects, (p) => [...p.because, ...p.against.map((a) => "against: " + a)]));
+      record("rank");
+    }
+    function rankTable(ps, why) {
+      return table([["#", 1], ["Company"], ["Fit", 1], ["Tier"], ["Why"], [""]], ps.slice(0, 50).map((p) => {
+        const w = document.createElement("td"); for (const x of why(p)) w.append(el("div", x));
+        const t = document.createElement("td"); t.append(el("span", p.tier, "tier " + p.tier));
+        const b = document.createElement("td"); const btn = el("button", "Draft", "small alt"); btn.type = "button"; btn.setAttribute("aria-label", "Draft an email for " + p.name); btn.addEventListener("click", () => choose({ name: p.name, because: p.because || p.met || [] })); b.append(btn);
+        return [String(p.rank), p.name, String(p.fit), t, w, b];
+      }));
+    }
+    $("run").addEventListener("click", () => {
+      $("err").textContent = "";
+      try { showRanked(analyze($("list").value), "Read as of today."); } catch (e) { $("err").textContent = e.message; }
+    });
+    $("demo").addEventListener("click", () => {
+      $("err").textContent = ""; $("list").value = syntheticCsv(7, 160);
+      showRanked(analyze($("list").value), "Synthetic companies generated in your browser to show the output; they are not real customers and the accuracy figures say nothing about your sales.");
+    });
+    $("runrules").addEventListener("click", () => {
+      $("err").textContent = "";
+      try {
+        const r = applyRules($("list").value, $("rules").value), out = $("out"); out.replaceChildren();
+        if (r.errors.length) out.append(el("p", r.errors.slice(0, 4).join(" "), "err"));
+        if (!r.rules.length) return;
+        out.append(el("p", "Scored by the share of your rules each company meets. This is your own definition, not something learned from data.", "note"));
+        out.append(rankTable(r.prospects, (p) => [...p.met.map((m) => "meets: " + m), ...p.missed.map((m) => "misses: " + m)]));
+        record("rules");
+      } catch (e) { $("err").textContent = e.message; }
+    });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>
