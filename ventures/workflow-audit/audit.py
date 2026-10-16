@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Workflow Audit: run eleven GitHub Actions workflow checks and merge the results.
+"""Workflow Audit: run twelve GitHub Actions workflow checks and merge the results.
 
     python3 audit.py                       # scan ./.github/workflows, print a report
     python3 audit.py path/to/repo          # scan another checkout
@@ -41,7 +41,28 @@ CHECKS = [
     ("runtime-deprecation", "type", {"deprecated-runtime": "low"}),
     ("timeout", "type", {"job-missing-timeout": "low", "job-timeout-at-default": "low"}),
     ("unpinned-action", "type", {"unpinned-third-party-action": "medium", "unpinned-first-party-action": "low", "unpinned-docker-action": "low"}),
+    ("deploy-concurrency", "type", {"no-concurrency": "medium", "per-run-concurrency-group": "medium", "cancel-in-progress-on-deploy": "medium", "split-concurrency-group": "low", "mutable-ref-checkout": "low"}),
 ]
+
+# Checks whose CLI is not `<script> <root> --format json`: (args builder, flattener).
+# deploy-concurrency takes workflow paths and prints one object per file with a
+# `findings` list; flatten it to the same shape every other check emits.
+def _deploy_args(script, root):
+    wf = Path(root) / ".github" / "workflows"
+    return [sys.executable, str(script), str(wf), "--json"]
+
+
+def _deploy_flatten(data):
+    reports = data if isinstance(data, list) else [data]
+    return [
+        {"type": f.get("id"), "file": f.get("file", r.get("file", "")), "line": f.get("line"),
+         "scope": f.get("job"), "detail": f"{f.get('title', '')}: {f.get('detail', '')}".strip(": "),
+         "remediation": (f.get("fix") or "").split("\n")[0]}
+        for r in reports if isinstance(r, dict) for f in r.get("findings", [])
+    ]
+
+
+ADAPTERS = {"deploy-concurrency": (_deploy_args, _deploy_flatten)}
 
 REMEDIATION_FALLBACK = {
     "write-all": "Set `permissions:` to the least the job needs (often `contents: read`).",
@@ -56,9 +77,12 @@ def run_check(name, root):
     script = CHECKS_DIR / f"{name}.py"
     if not script.exists():
         return [], f"{name}: checker missing"
+    build, flatten = ADAPTERS.get(name, (None, None))
+    if build and not (Path(root) / ".github" / "workflows").is_dir():
+        return [], None
     try:
         proc = subprocess.run(
-            [sys.executable, str(script), str(root), "--format", "json"],
+            build(script, root) if build else [sys.executable, str(script), str(root), "--format", "json"],
             capture_output=True, text=True, timeout=120,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
@@ -69,6 +93,8 @@ def run_check(name, root):
         data = json.loads(proc.stdout or "[]")
     except ValueError:
         return [], f"{name}: unreadable output"
+    if flatten:
+        return flatten(data), None
     return (data if isinstance(data, list) else []), None
 
 
@@ -143,7 +169,7 @@ def render_text(findings, errors):
 def summary_line(findings, c=None):
     c = c or counts(findings)
     if not findings:
-        return "No findings: none of the eleven patterns checked were present. This is not a security audit."
+        return "No findings: none of the twelve patterns checked were present. This is not a security audit."
     return f"{len(findings)} finding(s): {c['high']} high, {c['medium']} medium, {c['low']} low."
 
 

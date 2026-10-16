@@ -38,3 +38,7 @@ test('action.yml is a composite action with the documented inputs', () => {
   const run = action.slice(action.indexOf('run: |'));
   assert.doesNotMatch(run, /\$\{\{\s*inputs\./);
 });
+
+test('links the standalone runtime-deprecation check', () => {
+  assert.match(index, /href="\.\.\/actions-runtime-deprecation-check\/"/);
+});

@@ -1,0 +1,78 @@
+inputs from selfrep-growth/selfrep-closure (assumed): W=50.0 h, V=170.3 units per copy
+horizon 20000 h, start from 1 new machine, 60 runs per row, seed 0; c=0.2 s=0.9 reserve=1.0; B=40 units/h, L=2000 h, h=50 h
+work = working fleet (tail-quarter mean, median over surviving runs); down = machines queued or on a bench; dead = share of runs extinct.
+join = spares bought on joining the queue (selfrep-repairlabour); service = bought when a bench frees up, machine retired if stock is short then.
+
+== unbounded queue vs replace-only, by pay rule (B=40)
+K=1 join                       work   413.8 down  2914.8 dead 0.00
+K=1 service                    work   487.8 down  3403.5 dead 0.00
+K=1 replace-only               work   457.6 down     0.0 dead 0.02
+K=2 join                       work   446.1 down  2805.5 dead 0.00
+K=2 service                    work   518.0 down  3284.5 dead 0.00
+K=2 replace-only               work   457.6 down     0.0 dead 0.02
+K=4 join                       work   503.6 down  2586.3 dead 0.00
+K=4 service                    work   571.9 down  3031.5 dead 0.00
+K=4 replace-only               work   457.6 down     0.0 dead 0.02
+K=8 join                       work   629.0 down  2164.2 dead 0.00
+K=8 service                    work   681.3 down  2534.6 dead 0.00
+K=8 replace-only               work   457.6 down     0.0 dead 0.02
+K=16 join                      work   861.0 down  1385.3 dead 0.00
+K=16 service                   work   909.9 down  1603.8 dead 0.00
+K=16 replace-only              work   457.6 down     0.0 dead 0.02
+
+== queue-cap sweep (B=40, K=1 and K=4)
+K=1 join cap=0                 work   457.6 down     0.0 dead 0.02
+K=1 join cap=1                 work   486.7 down     1.9 dead 0.00
+K=1 join cap=2                 work   484.4 down     2.9 dead 0.00
+K=1 join cap=3                 work   487.8 down     3.9 dead 0.00
+K=1 join cap=5                 work   491.7 down     5.9 dead 0.00
+K=1 join cap=8                 work   487.4 down     8.9 dead 0.00
+K=1 join cap=12                work   487.4 down    12.9 dead 0.00
+K=1 join cap=20                work   488.2 down    20.9 dead 0.00
+K=1 join cap=50                work   490.1 down    50.9 dead 0.00
+K=1 join cap=200               work   486.8 down   200.9 dead 0.00
+K=1 join cap=None              work   413.8 down  2914.8 dead 0.00
+
+K=1 service cap=0              work   457.6 down     0.0 dead 0.02
+K=1 service cap=1              work   486.2 down     1.9 dead 0.00
+K=1 service cap=2              work   487.8 down     2.9 dead 0.00
+K=1 service cap=3              work   485.8 down     3.9 dead 0.00
+K=1 service cap=5              work   485.2 down     5.9 dead 0.00
+K=1 service cap=8              work   487.7 down     8.9 dead 0.00
+K=1 service cap=12             work   483.6 down    12.9 dead 0.00
+K=1 service cap=20             work   484.2 down    20.9 dead 0.00
+K=1 service cap=50             work   484.9 down    50.9 dead 0.00
+K=1 service cap=200            work   488.5 down   200.9 dead 0.00
+K=1 service cap=None           work   487.8 down  3403.5 dead 0.00
+
+K=4 join cap=0                 work   457.6 down     0.0 dead 0.02
+K=4 join cap=1                 work   571.5 down     4.7 dead 0.00
+K=4 join cap=2                 work   570.0 down     5.6 dead 0.00
+K=4 join cap=3                 work   572.5 down     6.6 dead 0.00
+K=4 join cap=5                 work   569.3 down     8.6 dead 0.00
+K=4 join cap=8                 work   571.7 down    11.7 dead 0.00
+K=4 join cap=12                work   573.3 down    15.6 dead 0.00
+K=4 join cap=20                work   569.8 down    23.6 dead 0.00
+K=4 join cap=50                work   571.2 down    53.6 dead 0.00
+K=4 join cap=200               work   569.4 down   203.6 dead 0.00
+K=4 join cap=None              work   503.6 down  2586.3 dead 0.00
+
+K=4 service cap=0              work   457.6 down     0.0 dead 0.02
+K=4 service cap=1              work   567.8 down     4.7 dead 0.00
+K=4 service cap=2              work   570.1 down     5.6 dead 0.00
+K=4 service cap=3              work   570.6 down     6.6 dead 0.00
+K=4 service cap=5              work   571.1 down     8.6 dead 0.00
+K=4 service cap=8              work   572.7 down    11.6 dead 0.00
+K=4 service cap=12             work   571.4 down    15.7 dead 0.00
+K=4 service cap=20             work   571.7 down    23.6 dead 0.00
+K=4 service cap=50             work   570.0 down    53.6 dead 0.00
+K=4 service cap=200            work   568.7 down   203.6 dead 0.00
+K=4 service cap=None           work   571.9 down  3031.5 dead 0.00
+
+== import-limited (B=4)
+K=1 join                       work    68.2 down   197.7 dead 0.05
+K=1 service                    work    74.4 down   231.5 dead 0.05
+K=2 join                       work    96.2 down   106.4 dead 0.05
+K=2 service                    work   101.8 down   122.0 dead 0.05
+K=4 join                       work   142.3 down     6.6 dead 0.05
+K=4 service                    work   143.0 down     7.0 dead 0.05

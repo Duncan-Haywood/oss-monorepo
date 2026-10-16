@@ -1,5 +1,5 @@
 name: 'Workflow Audit'
-description: 'Scan .github/workflows for eleven documented GitHub Actions risks (injection, poisoning, secrets, permissions, timeouts, unpinned action refs). Read-only, no network, no dependencies.'
+description: 'Scan .github/workflows for twelve documented GitHub Actions risks (injection, poisoning, secrets, permissions, timeouts, unpinned action refs). Read-only, no network, no dependencies.'
 author: 'Duncan Haywood'
 branding:
   icon: shield

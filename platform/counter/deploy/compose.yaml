@@ -1,0 +1,26 @@
+# One-command deploy on any VPS or home server with Docker:
+#   COUNTER_HOST=count.example.org COUNTER_ORIGIN=https://duncan-haywood.github.io docker compose up -d
+# Caddy fetches the TLS certificate for COUNTER_HOST itself (point its DNS A record here first).
+services:
+  counter:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    restart: always
+    environment:
+      COUNTER_ORIGIN: ${COUNTER_ORIGIN:?set COUNTER_ORIGIN to the Pages origin, e.g. https://duncan-haywood.github.io}
+    volumes:
+      - counts:/data
+  caddy:
+    image: caddy:2-alpine
+    restart: always
+    depends_on: [counter]
+    ports: ["80:80", "443:443"]
+    environment:
+      COUNTER_HOST: ${COUNTER_HOST:?set COUNTER_HOST to the public hostname, e.g. count.example.org}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+volumes:
+  counts:
+  caddy_data:
