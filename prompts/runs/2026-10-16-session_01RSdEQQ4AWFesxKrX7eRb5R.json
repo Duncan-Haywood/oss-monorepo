@@ -1,0 +1,367 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01RSdEQQ4AWFesxKrX7eRb5R",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-16T11:11:07Z",
+  "ended": "2026-10-16T11:11:30Z",
+  "wall_minutes": 1.02,
+  "tokens_in": 734562,
+  "tokens_out": 3238,
+  "cost_usd": 0.3586,
+  "tool_calls": 13,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "Redteam on youtube-sponsorship-rate-calculator: catch 10/15 non-equivalent before, all after. 5 gaps in share.mjs numeric bounds closed.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/youtube-sponsorship-rate-calculator/calculator.mjs",
+        "test": "node --test ventures/youtube-sponsorship-rate-calculator/**/*.test.mjs  (in .)",
+        "seed": 353561098,
+        "commit": "2c0c590d1",
+        "sites": 41,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/calculator.mjs",
+            "line": 68,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "const USAGE_UPLIFT = { none: 0, \"30d\": 0.2, \"90d\": 0.4, perpetual: 1.0 };",
+            "after": "const USAGE_UPLIFT = { none: 1, \"30d\": 0.2, \"90d\": 0.4, perpetual: 1.0 };",
+            "line_text": "const USAGE_UPLIFT = { none: 0, \"30d\": 0.2, \"90d\": 0.4, perpetual: 1.0 };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/calculator.mjs",
+            "line": 69,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "const EXCLUSIVITY_UPLIFT = { none: 0, \"30d\": 0.15, \"90d\": 0.3 };",
+            "after": "const EXCLUSIVITY_UPLIFT = { none: 1, \"30d\": 0.15, \"90d\": 0.3 };",
+            "line_text": "const EXCLUSIVITY_UPLIFT = { none: 0, \"30d\": 0.15, \"90d\": 0.3 };",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/calculator.mjs",
+            "line": 79,
+            "col": 44,
+            "operator": "gt-to-ge",
+            "before": "const v = Number.isFinite(views) && views > 0 ? views : 0;",
+            "after": "const v = Number.isFinite(views) && views >= 0 ? views : 0;",
+            "line_text": "  const v = Number.isFinite(views) && views > 0 ? views : 0;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "views>=0 vs >0: both give v=0 for 0 views, output identical"
+          },
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/calculator.mjs",
+            "line": 89,
+            "col": 22,
+            "operator": "div-to-times",
+            "before": "const thousands = v / 1000;",
+            "after": "const thousands = v * 1000;",
+            "line_text": "  const thousands = v / 1000;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/calculator.mjs",
+            "line": 92,
+            "col": 32,
+            "operator": "times-to-div",
+            "before": "const baseHighFee = thousands * cpmHigh;",
+            "after": "const baseHighFee = thousands / cpmHigh;",
+            "line_text": "  const baseHighFee = thousands * cpmHigh;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/calculator.mjs",
+            "line": 105,
+            "col": 36,
+            "operator": "times-to-div",
+            "before": "usageLow: Math.round(baseLowFee * usageUplift),",
+            "after": "usageLow: Math.round(baseLowFee / usageUplift),",
+            "line_text": "    usageLow: Math.round(baseLowFee * usageUplift),",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/calculator.mjs",
+            "line": 106,
+            "col": 38,
+            "operator": "times-to-div",
+            "before": "usageHigh: Math.round(baseHighFee * usageUplift),",
+            "after": "usageHigh: Math.round(baseHighFee / usageUplift),",
+            "line_text": "    usageHigh: Math.round(baseHighFee * usageUplift),",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/calculator.mjs",
+            "line": 109,
+            "col": 36,
+            "operator": "times-to-div",
+            "before": "totalLow: Math.round(baseLowFee * factor),",
+            "after": "totalLow: Math.round(baseLowFee / factor),",
+            "line_text": "    totalLow: Math.round(baseLowFee * factor),",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/youtube-sponsorship-rate-calculator/share.mjs",
+        "test": "node --test ventures/youtube-sponsorship-rate-calculator/**/*.test.mjs  (in .)",
+        "seed": 1035829037,
+        "commit": "2c0c590d1",
+        "sites": 11,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/share.mjs",
+            "line": 18,
+            "col": 23,
+            "operator": "eq-flip",
+            "before": "if (input?.[field] === \"\") {",
+            "after": "if (input?.[field] !== \"\") {",
+            "line_text": "    if (input?.[field] === \"\") {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/share.mjs",
+            "line": 23,
+            "col": 31,
+            "operator": "and-to-or",
+            "before": "if (Number.isFinite(value) && value >= 0) params.set(field, String(value));",
+            "after": "if (Number.isFinite(value) || value >= 0) params.set(field, String(value));",
+            "line_text": "    if (Number.isFinite(value) && value >= 0) params.set(field, String(value));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added encode/decode/formValues zero and bounds tests in share.test.mjs"
+          },
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/share.mjs",
+            "line": 23,
+            "col": 40,
+            "operator": "ge-to-gt",
+            "before": "if (Number.isFinite(value) && value >= 0) params.set(field, String(value));",
+            "after": "if (Number.isFinite(value) && value > 0) params.set(field, String(value));",
+            "line_text": "    if (Number.isFinite(value) && value >= 0) params.set(field, String(value));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added encode/decode/formValues zero and bounds tests in share.test.mjs"
+          },
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/share.mjs",
+            "line": 23,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "if (Number.isFinite(value) && value >= 0) params.set(field, String(value));",
+            "after": "if (Number.isFinite(value) && value >= 1) params.set(field, String(value));",
+            "line_text": "    if (Number.isFinite(value) && value >= 0) params.set(field, String(value));",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added encode/decode/formValues zero and bounds tests in share.test.mjs"
+          },
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/share.mjs",
+            "line": 32,
+            "col": 50,
+            "operator": "or-to-and",
+            "before": "const params = new URLSearchParams(String(value || \"\").replace(/^[?#]/, \"\"));",
+            "after": "const params = new URLSearchParams(String(value && \"\").replace(/^[?#]/, \"\"));",
+            "line_text": "  const params = new URLSearchParams(String(value || \"\").replace(/^[?#]/, \"\"));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/share.mjs",
+            "line": 41,
+            "col": 32,
+            "operator": "and-to-or",
+            "before": "if (Number.isFinite(number) && number >= 0) result[field] = number;",
+            "after": "if (Number.isFinite(number) || number >= 0) result[field] = number;",
+            "line_text": "    if (Number.isFinite(number) && number >= 0) result[field] = number;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/share.mjs",
+            "line": 41,
+            "col": 42,
+            "operator": "ge-to-gt",
+            "before": "if (Number.isFinite(number) && number >= 0) result[field] = number;",
+            "after": "if (Number.isFinite(number) && number > 0) result[field] = number;",
+            "line_text": "    if (Number.isFinite(number) && number >= 0) result[field] = number;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added encode/decode/formValues zero and bounds tests in share.test.mjs"
+          },
+          {
+            "file": "ventures/youtube-sponsorship-rate-calculator/share.mjs",
+            "line": 56,
+            "col": 59,
+            "operator": "neq-flip",
+            "before": "NUMERIC_FIELDS.map((field) => [field, decoded?.[field] !== undefined ? String(decoded[field]) : \"\"]),",
+            "after": "NUMERIC_FIELDS.map((field) => [field, decoded?.[field] === undefined ? String(decoded[field]) : \"\"]),",
+            "line_text": "    NUMERIC_FIELDS.map((field) => [field, decoded?.[field] !== undefined ? String(decoded[field]) : \"\"]),",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added encode/decode/formValues zero and bounds tests in share.test.mjs"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/sign-keeper/index.html",
+        "issue": "crawlable orphan (no inbound sibling link) made siblings budget test red on main",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "53690378-24d3-5886-b77c-c1d1427adde0",
+    "transcripts": 1,
+    "first": "2026-10-16T11:11:07Z",
+    "last": "2026-10-16T11:12:08Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 11,
+        "input": 22,
+        "output": 3238,
+        "thinking": 233,
+        "cache_read": 687373,
+        "cache_write_5m": 0,
+        "cache_write_1h": 47167,
+        "api_equivalent_usd": 0.3586,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 11,
+      "input": 22,
+      "output": 3238,
+      "thinking": 233,
+      "cache_read": 687373,
+      "cache_write_5m": 0,
+      "cache_write_1h": 47167,
+      "api_equivalent_usd": 0.3586,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.936,
+    "tool_calls": 13,
+    "tools": {
+      "Bash": 12,
+      "ToolSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.02,
+      "active_minutes": 1.02,
+      "model_minutes": 0.72,
+      "tool_minutes": 0.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "estimate: one campaign pair plus three tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 278.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
