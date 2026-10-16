@@ -1,10 +1,10 @@
 {
- "checked_at": "2026-10-16T03:20Z",
+ "checked_at": "2026-10-16T03:30Z",
  "checks": [
   {
-   "detail": "upstream main 895ecf82e610 is not in this repository's history: merge it (with a merge commit, never a squash) before deleting upstream",
+   "detail": "upstream main 895ecf82e610 is in this repository's history",
    "name": "main history",
-   "ok": false
+   "ok": true
   },
   {
    "detail": "all 632 upstream branches and orphaned pull request heads are kept at their current tips: 98 as archive/ branches here, 534 only in branches.bundle on archive/research-meta",
@@ -22,5 +22,5 @@
   "the old Pages URL (the homepage is built here at /research/)",
   "links to upstream pull requests from outside these two repositories"
  ],
- "ready": false
+ "ready": true
 }
