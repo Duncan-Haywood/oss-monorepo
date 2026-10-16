@@ -183,3 +183,8 @@ test("validation and the CSV export", () => {
   assert.match(csv, /2025-04-01\.\.2025-08-29/);
   assert.ok(RULES.NY.limit === 183 && RULES.OR.limit === 200);
 });
+
+test("Rhode Island is a more-than-183-days-plus-abode state", () => {
+  assert.equal(RULES.RI.limit, 183);
+  assert.equal(RULES.RI.requiresAbode, true);
+});
