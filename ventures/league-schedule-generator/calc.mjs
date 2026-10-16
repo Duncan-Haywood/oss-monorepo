@@ -542,6 +542,74 @@ export function validateSchedule(schedule) {
   return { ok: errors.length === 0, errors };
 }
 
+// ---------------------------------------------------------------- rainouts
+
+/**
+ * Rainouts and cancellations. Each line of `text` is a date, optionally followed by team names
+ * (comma separated): "2026-10-13" cancels every match that night, "2026-10-13 Lob Squad" only that
+ * team's match. A cancelled match moves to the earliest later playable date on which both teams are
+ * free (no blackout, not already playing) and a court and time slot are open; the rest of the
+ * schedule is left exactly as it was, so nobody's other fixtures change. Returns a new schedule
+ * (the input is not mutated) plus `moves` and `errors`.
+ */
+export function applyRainouts(schedule, text) {
+  const s = JSON.parse(JSON.stringify(schedule));
+  const cfg = s.config;
+  const weekdaySet = new Set(cfg.weekdays);
+  const skipSet = new Set(cfg.skipDays);
+  const moves = [];
+  const errors = [];
+  const nameIdx = (name) => s.teams.findIndex((t) => t.toLowerCase() === name.toLowerCase());
+  const slotOf = (m) => cfg.times.indexOf(m.time) * cfg.courts.length + cfg.courts.indexOf(m.court);
+  for (const raw of String(text ?? "").split(/\n+/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^(\d{4}-\d{1,2}-\d{1,2})\s*[:,-]?\s*(.*)$/);
+    const day = m ? parseDate(m[1]) : null;
+    if (day === null) { errors.push(`"${line}": start each line with a real date like 2026-10-13.`); continue; }
+    const wanted = [];
+    for (const nm of parseNameList(m[2])) {
+      const i = nameIdx(nm);
+      if (i < 0) errors.push(`"${nm}" is not one of the teams.`); else wanted.push(i);
+    }
+    const round = s.rounds.find((r) => r.day === day);
+    if (!round) { errors.push(`${dayIso(day)}: no matches are scheduled that night.`); continue; }
+    const cancelled = round.matches.filter((x) => !m[2].trim() || wanted.includes(x.home) || wanted.includes(x.away));
+    if (!cancelled.length) { errors.push(`${dayIso(day)}: none of those teams play that night.`); continue; }
+    round.matches = round.matches.filter((x) => !cancelled.includes(x));
+    for (const mt of cancelled) {
+      let d = day + 1;
+      let placed = null;
+      for (let guard = 0; guard < 400 && !placed; guard++, d++) {
+        d = nextPlayDay(d, weekdaySet, skipSet);
+        if (d === null) break;
+        const blocked = (t) => (cfg.blackouts[t] || []).includes(d);
+        if (blocked(mt.home) || blocked(mt.away)) continue;
+        const target = s.rounds.find((r) => r.day === d);
+        if (target && target.matches.some((x) => [x.home, x.away].some((t) => t === mt.home || t === mt.away))) continue;
+        const taken = new Set((target ? target.matches : []).map(slotOf));
+        const total = cfg.courts.length * cfg.times.length;
+        const want = slotOf(mt);
+        const free = !taken.has(want) ? want : Array.from({ length: total }, (_, k) => k).find((k) => !taken.has(k));
+        if (free === undefined) continue;
+        placed = { d, target, free };
+      }
+      if (!placed) { errors.push(`${mt.homeName} v ${mt.awayName}: no free date found after ${dayIso(day)}.`); round.matches.push(mt); continue; }
+      const moved = { ...mt, court: cfg.courts[placed.free % cfg.courts.length], time: cfg.times[Math.floor(placed.free / cfg.courts.length)], moved: true, slot: placed.free };
+      if (placed.target) placed.target.matches.push(moved);
+      else s.rounds.push({ number: null, label: "Rescheduled", makeup: true, day: placed.d, bye: null, matches: [moved] });
+      moves.push({ from: day, to: placed.d, home: mt.homeName, away: mt.awayName, court: moved.court, time: moved.time });
+    }
+  }
+  s.rounds = s.rounds.filter((r) => r.matches.length || (r.bye !== null && r.bye !== undefined)).sort((a, b) => a.day - b.day);
+  for (const r of s.rounds) r.matches.sort((a, b) => a.slot - b.slot);
+  let mk = 0;
+  for (const r of s.rounds) if (r.makeup) r.label = `Makeup ${++mk}`;
+  if (moves.length) s.notices = [...s.notices, `${moves.length} match(es) moved after a rainout. Everything else is unchanged.`];
+  s.stats = scheduleStats(s);
+  return { schedule: s, moves, errors };
+}
+
 // ---------------------------------------------------------------- views and exports
 
 export function teamSchedule(schedule, teamIdx) {
@@ -764,7 +832,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "courts", "times", "seed", "minutes", "results", "playoff"];
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "courts", "times", "seed", "minutes", "results", "playoff", "rainouts"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -792,6 +860,7 @@ export function decodeFields(text) {
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
+      rainouts: str(o.rainouts),
     };
   } catch { return null; }
 }
