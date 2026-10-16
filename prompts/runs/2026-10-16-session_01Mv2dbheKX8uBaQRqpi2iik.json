@@ -19,7 +19,7 @@
   "projects": [
     "crypto-cost-basis-calculator"
   ],
-  "pr": null,
+  "pr": 7407,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -39,7 +39,7 @@
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Refreshed the stale gh-pages snapshot (session gate item), then deepened crypto-cost-basis-calculator with in-browser Coinbase and Kraken export importers (11 new tests). Unpriced rows are left empty and flagged. Importer formats follow published layouts, unverified against real accounts.",
+  "notes": "Refreshed the stale gh-pages snapshot (session gate item), then deepened crypto-cost-basis-calculator with in-browser Coinbase and Kraken export importers (11 new tests). Unpriced rows are left empty and flagged. Importer formats follow published layouts, unverified against real accounts. Also closed the sign-keeper/changelog-keeper crawlable orphan that had reddened sibling-links on main, and refreshed gh-pages.",
   "corrections": [],
   "redteam": null
 }
