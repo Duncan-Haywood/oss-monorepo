@@ -16,6 +16,10 @@ this repo.
 write niche SEO content, wire usage analytics, and deploy runnable software.
 Default to action on `ventures/*`, not portfolio administration.
 
+SEO now ranks near the top (owner, 2026-10-16; `prompts/goals.md`): on the
+Pages site and in each venture's `README.md`, so strangers can find what we
+ship. Shared-template fixes beat one-page edits.
+
 A good session ends with something a user could run, click, or install — not
 with a document about what should be built.
 
