@@ -1,0 +1,28 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# No third-party key is required: the help center has no outside dependencies.
+services:
+  - type: web
+    name: help-keeper
+    runtime: docker
+    dockerContext: ventures/help-keeper
+    dockerfilePath: ventures/help-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: TRUST_PROXY
+        value: "true"
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: SITE_NAME
+        sync: false
+      - key: CONTACT
+        sync: false
+      - key: PUBLIC_URL
+        sync: false
