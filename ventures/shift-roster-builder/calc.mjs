@@ -115,6 +115,17 @@ export function parseAvailability(text) {
 const ROLE_CELL = /^roles?\s*:/i;
 const parseRoles = (cell) => cell.replace(ROLE_CELL, "").split(/[|/&+]/).map((r) => r.trim().toLowerCase()).filter(Boolean);
 
+// "prev: Sun 10pm" = when this person's last shift LAST week ended, so the rest rule also holds across the week boundary.
+// Stored as minutes relative to this week's Monday 00:00 (negative). A time after 24:00 ("Sun 1am" is read as Sun 01:00).
+const PREV_CELL = /^prev(ious)?\s*:/i;
+function parsePrevEnd(cell) {
+  const m = cell.replace(PREV_CELL, "").trim().match(/^(\S+)\s+(.+)$/);
+  if (!m) return null;
+  const d = dayIndex(m[1]), t = parseTime(m[2]);
+  if (d < 0 || Number.isNaN(t)) return null;
+  return (d - 7) * 1440 + t;
+}
+
 // One person per line: name, hourly wage, max hours per week, min hours per week, availability, [roles: a|b]
 export function parseStaff(text) {
   const staff = [], errors = [];
@@ -136,9 +147,15 @@ export function parseStaff(text) {
     if (staff.some((s) => s.name.toLowerCase() === c[0].toLowerCase())) { errors.push(`${where}: "${c[0]}" is listed twice`); return; }
     const tail = c.slice(4);
     const roles = tail.filter((x) => ROLE_CELL.test(x)).flatMap(parseRoles);
-    const av = parseAvailability(tail.filter((x) => !ROLE_CELL.test(x)).join(","));
+    let prevEnd = null;
+    const prevCell = tail.find((x) => PREV_CELL.test(x));
+    if (prevCell) {
+      prevEnd = parsePrevEnd(prevCell);
+      if (prevEnd === null) errors.push(`${where} (${c[0]}): could not read "${prevCell}"; write it like "prev: Sun 10pm" (when their last shift last week ended)`);
+    }
+    const av = parseAvailability(tail.filter((x) => !ROLE_CELL.test(x) && !PREV_CELL.test(x)).join(","));
     av.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
-    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any });
+    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any, prevEnd });
   });
   if (!staff.length && !errors.length) errors.push("Add at least one person.");
   if (staff.length > MAX_STAFF) errors.push(`That is ${staff.length} people; this tool handles up to ${MAX_STAFF}.`);
@@ -225,7 +242,7 @@ export function buildContext(staff, slots, options = {}) {
 
 function validList(ctx, p, list) {
   const { slots, staff, restMin, o } = ctx;
-  let minutes = 0, maxEnd = -Infinity;
+  let minutes = 0, maxEnd = staff[p].prevEnd ?? -Infinity;
   const days = new Set();
   for (const i of list) {
     const s = slots[i];
@@ -425,7 +442,8 @@ function whyUnfilled(ctx, owner, i) {
     const mins = nl.reduce((t, k) => t + ctx.slots[k].end - ctx.slots[k].start, 0);
     if (mins > ctx.staff[p].maxHours * 60 + 1e-9) { why.hours++; continue; }
     if (base.some((k) => ctx.slots[k].start < slot.end && slot.start < ctx.slots[k].end)) { why.overlap++; continue; }
-    const gapBad = base.some((k) => slot.start < ctx.slots[k].end + ctx.restMin && ctx.slots[k].start < slot.end + ctx.restMin);
+    const gapBad = slot.start < (ctx.staff[p].prevEnd ?? -Infinity) + ctx.restMin
+      || base.some((k) => slot.start < ctx.slots[k].end + ctx.restMin && ctx.slots[k].start < slot.end + ctx.restMin);
     if (gapBad) why.rest++; else why.days++;
   }
   let text;
@@ -498,7 +516,7 @@ export function buildRoster(staff, slots, options = {}) {
   res.people.forEach((p) => {
     if (p.short > 0.01) warnings.push(`${p.name} gets ${num(p.hours)} hours, ${num(p.short)} under their minimum of ${num(p.minHours)}.`);
   });
-  if (slots.some((s) => s.endMin > 1440 && s.day === 6)) warnings.push("A Sunday-night shift runs into Monday; the rest rule is checked inside this one week only.");
+  if (slots.some((s) => s.endMin > 1440 && s.day === 6) && staff.every((p) => p.prevEnd == null)) warnings.push("A Sunday-night shift runs into Monday; the rest rule is checked inside this one week only. To carry it into next week, add \"prev: Sun 10pm\" to each person next week.");
 
   const assignments = slots.map((s, i) => ({ slot: s, person: res.owner[i] >= 0 ? staff[res.owner[i]].name : null }));
   const grid = staff.map((p, k) => ({
@@ -549,7 +567,8 @@ export function coverOptions(staff, slots, roster, slotIndex, options = {}) {
     const mins = nl.reduce((t, k) => t + slots[k].end - slots[k].start, 0);
     if (base.some((k) => slots[k].start < slot.end && slot.start < slots[k].end)) reason = "already on a shift at that time";
     else if (mins > staff[p].maxHours * 60 + 1e-9) reason = "would go over their weekly hour limit";
-    else if (base.some((k) => slot.start < slots[k].end + ctx.restMin && slots[k].start < slot.end + ctx.restMin)) reason = "would break the rest rule";
+    else if (slot.start < (staff[p].prevEnd ?? -Infinity) + ctx.restMin
+      || base.some((k) => slot.start < slots[k].end + ctx.restMin && slots[k].start < slot.end + ctx.restMin)) reason = "would break the rest rule";
     else reason = "would break the days-in-a-row limit";
     blocked.push({ name: staff[p].name, reason });
   }

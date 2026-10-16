@@ -102,3 +102,27 @@ test("searches are persisted without hammering the disk, and flushed on demand",
   assert.ok(s.saves() - before <= 1); s.cfg.flush(); assert.ok(s.saves() - before <= 2);
   s.close();
 });
+
+test("widget.js is served cross-origin, has no secrets baked in, and uses no innerHTML", async () => {
+  const s = await boot();
+  const r = await fetch(`${s.base}/widget.js`); const js = await r.text();
+  assert.equal(r.status, 200); assert.match(r.headers.get("content-type"), /javascript/); assert.equal(r.headers.get("access-control-allow-origin"), "*");
+  assert.doesNotMatch(js, /innerHTML|document\.write|eval\(/); assert.ok(!js.includes(KEY)); assert.match(js, /\/api\/search/);
+  new Function(js); // parses
+  s.close();
+});
+
+test("widget type-ahead (live=1) answers but is not logged; the settled query is, and carries the contact link", async () => {
+  const s = await boot();
+  const live = await (await fetch(`${s.base}/api/search?q=refund+policy&live=1`)).json();
+  assert.equal(live.results.length, 0); assert.equal(live.contact, "mailto:help@acme.test"); assert.equal(Object.keys(s.state.queries).length, 0);
+  await fetch(`${s.base}/api/search?q=refund+policy`); assert.equal(s.state.queries["refund policy"].zero, 1);
+  s.close();
+});
+
+test("admin shows the embed snippet with this server's address", async () => {
+  const s = await boot();
+  const html = await (await fetch(`${s.base}/admin`, { headers: auth })).text();
+  assert.ok(html.includes(`&lt;script src=&quot;${s.base}/widget.js&quot; defer&gt;&lt;/script&gt;`), "snippet escaped and addressed to this server");
+  s.close();
+});

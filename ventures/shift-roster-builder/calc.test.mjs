@@ -317,3 +317,21 @@ test("coverOptions: an open shift has no current owner and reports an unreadable
   assert.deepEqual(c.blocked, [{ name: "Ana", reason: "already on a shift at that time" }]);
   assert.ok(coverOptions(staff, slots, null, 0).error);
 });
+
+test("prev: carries the rest rule across the week boundary", () => {
+  const staff = staffOf("Ana, 20, 40, 0, , prev: Sun 11pm\nBo, 20, 40, 0, ");
+  assert.equal(staff[0].prevEnd, -1440 + 23 * 60);
+  assert.equal(staff[1].prevEnd, null);
+  const slots = slotsOf("Mon, 6am, 10am, 1, Open");
+  const r = buildRoster(staff, slots);
+  const csv = rosterCsv(r);
+  assert.ok(csv.includes("Bo"), "Bo takes the open: Ana ended 11pm Sunday, only 7h of rest");
+  assert.ok(!csv.includes("Ana"));
+  const only = buildRoster(staffOf("Ana, 20, 40, 0, , prev: Sun 11pm"), slots);
+  assert.ok(/rest/i.test(JSON.stringify(only)), "the unfilled reason names the rest rule");
+});
+
+test("prev: errors on unreadable text", () => {
+  const r = parseStaff("Ana, 20, 40, 0, , prev: lately");
+  assert.ok(r.errors.some((e) => e.includes("prev")));
+});
