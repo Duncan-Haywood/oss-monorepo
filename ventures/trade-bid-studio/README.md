@@ -12,6 +12,32 @@ It is also the single front door to the portfolio's 121 trade-specific
 "consolidate" step from `docs/reports/2026-10-16-calculator-glut.md`: one
 discoverable product instead of 121 separate pages, with every old URL kept.
 
+## Start from your trade
+
+Pick a trade and the studio fills in a **line-item takeoff** for that trade:
+each line is quantity x crew hours per unit and quantity x materials per unit,
+plus crew size, setup, a minimum on-site charge and drive time. The totals
+become the labor hours and materials the bid engine prices, and the wage,
+burden, overhead and margin defaults come along too. Every figure is editable.
+
+The starting rates are not invented here. Each trade's preset in
+[`presets/`](presets/) is taken from that trade's own `*-bid-calculator` (its
+production rates, coverage and default prices), and every line records where
+its numbers came from (`source`). That makes the 119 trade calculators one
+product with a shared engine and the trades as data, the consolidation
+`docs/reports/2026-10-16-calculator-glut.md` asked for. The specialist pages
+stay up: each preset names what its specialist models beyond line items
+(condition multipliers, pitch factors, disposal tiers, printed proposals) and
+the studio links there. Deep link to a trade with `#trade=<id>`, e.g.
+`#trade=asphalt-sealcoat`.
+
+`liquidation-pallet` and `storage-auction-max` have no preset on purpose: they
+work out the most to pay at an auction, not a price to quote a customer.
+
+```bash
+node build-presets.mjs          # presets/*.json -> presets.mjs (a test fails if stale)
+```
+
 Open [`index.html`](index.html) in a browser or serve the directory
 statically. Zero dependencies, no network calls beyond loading `trades.json`.
 
