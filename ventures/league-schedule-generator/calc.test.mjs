@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   applyRainouts, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs,
-  scheduleText, parseResults, standings, seedOrder, playoffBracket, bracketText, sampleFields, encodeFields, decodeFields,
+  scheduleText, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, bracketText, sampleFields, encodeFields, decodeFields,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -354,7 +354,7 @@ test("the example league validates and uses a makeup round for the blackout", ()
 });
 
 test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
-  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A" };
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", timeLimits: "A: 18:00" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
   assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60 });
@@ -396,4 +396,53 @@ test("rainout respects blackouts", () => {
   const r = applyRainouts(s, `${dayIso(s.rounds[0].day)} A`);
   assert.ok(r.moves.every((m) => dayIso(m.to) !== "2026-10-13"));
   assert.equal(validateSchedule(r.schedule).ok, true);
+});
+
+const LIMIT_BASE = { teams: "A\nB\nC\nD\nE\nF", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "17:00, 18:00, 19:00" };
+
+test("parseTimeLimits reads teams and times and reports bad lines", () => {
+  const r = parseTimeLimits("A: 6pm, 17:00\nZed: 17:00\nB can only play 19:00\nnonsense\nC: late", ["A", "B", "C"]);
+  assert.deepEqual(r.limits, { 0: ["17:00", "18:00"], 1: ["19:00"] });
+  assert.equal(r.errors.length, 3);
+});
+
+test("a team limited to one time is only ever scheduled then, and the validator agrees", () => {
+  const { spec, errors } = readSpec({ ...LIMIT_BASE, timeLimits: "A: 17:00\nB: 17:00, 18:00" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  for (const r of s.rounds) for (const m of r.matches) {
+    if (m.home === 0 || m.away === 0) assert.equal(m.time, "17:00");
+    if (m.home === 1 || m.away === 1) assert.notEqual(m.time, "19:00");
+  }
+  assert.deepEqual(s.notices.filter((n) => n.includes("only plays")), []);
+  assert.equal(validateSchedule(s).ok, true, validateSchedule(s).errors.join(" "));
+});
+
+test("an impossible limit is reported as a notice rather than silently broken", () => {
+  // three teams limited to the same single time but two matches a round on three courts-times: someone must clash only if slots run out
+  const { spec } = readSpec({ ...LIMIT_BASE, courts: "Court 1", timeLimits: "A: 17:00\nB: 17:00\nC: 17:00\nD: 17:00" });
+  const s = buildSchedule(spec);
+  assert.ok(s.notices.some((n) => n.includes("only plays at")), s.notices.join(" | "));
+  assert.equal(validateSchedule(s).ok, false);
+});
+
+test("a limit to a time the league does not use is ignored with a notice", () => {
+  const { spec } = readSpec({ ...LIMIT_BASE, timeLimits: "A: 21:00" });
+  const s = buildSchedule(spec);
+  assert.ok(s.notices.some((n) => n.includes("not among")));
+  assert.equal(validateSchedule(s).ok, true);
+});
+
+test("rainout moves keep a time-limited team at its time", () => {
+  const { spec } = readSpec({ ...LIMIT_BASE, timeLimits: "A: 17:00" });
+  const s = buildSchedule(spec);
+  const r = applyRainouts(s, `${dayIso(s.rounds[0].day)} A`);
+  assert.equal(r.moves.length, 1);
+  assert.equal(r.moves[0].time, "17:00");
+  assert.equal(validateSchedule(r.schedule).ok, true, validateSchedule(r.schedule).errors.join(" "));
+});
+
+test("time limits survive a share link", () => {
+  const f = { ...sampleFields(), timeLimits: "Lob Squad: 18:00" };
+  assert.equal(decodeFields(encodeFields(f)).timeLimits, "Lob Squad: 18:00");
 });
