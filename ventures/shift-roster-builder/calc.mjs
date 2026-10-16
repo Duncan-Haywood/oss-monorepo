@@ -121,7 +121,11 @@ const PREV_CELL = /^prev(ious)?\s*:/i;
 function parsePrevEnd(cell) {
   const m = cell.replace(PREV_CELL, "").trim().match(/^(\S+)\s+(.+)$/);
   if (!m) return null;
-  const d = dayIndex(m[1]), t = parseTime(m[2]);
+  const d = dayIndex(m[1]);
+  let t = parseTime(m[2]);
+  // "Sun 25:00" = 1am Monday: an overnight shift that ran past midnight (written by carryOverStaff).
+  const late = /^(2[4-9]|30):([0-5]\d)$/.exec(m[2].trim());
+  if (Number.isNaN(t) && late) t = Number(late[1]) * 60 + Number(late[2]);
   if (d < 0 || Number.isNaN(t)) return null;
   return (d - 7) * 1440 + t;
 }
@@ -677,6 +681,65 @@ export function rosterMessages(r, weekStart = null) {
     out.push({ person: p.name, shifts: slots.length, text });
   }
   return out;
+}
+
+// Last week's roster CSV (from rosterCsv) -> each person's latest shift end, as minutes from last Monday 00:00.
+export function lastShiftEnds(csv) {
+  const ends = new Map();
+  const lines = String(csv || "").split(/\r?\n/).filter((l) => l.trim());
+  for (const line of lines.slice(1)) {
+    const c = []; let cur = "", inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (inQ) { if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; } else if (ch === '"') inQ = false; else cur += ch; }
+      else if (ch === '"') inQ = true; else if (ch === ",") { c.push(cur); cur = ""; } else cur += ch;
+    }
+    c.push(cur);
+    const who = (c[5] || "").trim();
+    if (!who || who === "UNFILLED") continue;
+    const d = dayIndex((c[0] || "").replace(/\s*\(overnight\)/i, "").trim());
+    const start = parseTime(c[1]);
+    let end = parseTime(c[2]);
+    if (d < 0 || Number.isNaN(start) || Number.isNaN(end)) continue;
+    if (end <= start) end += 1440;
+    const abs = d * 1440 + end;
+    const key = who.toLowerCase();
+    if (!ends.has(key) || abs > ends.get(key).abs) ends.set(key, { name: who, abs });
+  }
+  return ends;
+}
+
+// Sets "prev:" on every staff line whose person worked last week, replacing any old one. Other lines are untouched.
+export function carryOverStaff(staffText, lastWeekCsv) {
+  const ends = lastShiftEnds(lastWeekCsv);
+  let changed = 0;
+  const out = String(staffText || "").split(/\r?\n/).map((raw) => {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) return raw;
+    const cells = splitLine(line);
+    const e = ends.get((cells[0] || "").toLowerCase());
+    if (!e) return raw;
+    const day = Math.min(6, Math.floor(e.abs / 1440)), min = e.abs - day * 1440;
+    const kept = cells.filter((x) => !PREV_CELL.test(x));
+    while (kept.length < 4) kept.push(""); // prev: sits after wage, max, min; blank cells take the defaults
+    kept.push(`prev: ${DAYS[day]} ${Math.floor(min / 60)}:${String(min % 60).padStart(2, "0")}`);
+    changed++;
+    return kept.join(line.includes("\t") ? "\t" : ", ");
+  });
+  return { text: out.join("\n"), changed };
+}
+
+// Labor cost as a share of projected sales, against an optional target.
+// Returns null when sales is not a positive number. maxPayroll is the payroll
+// that would hit the target exactly; headroom is how much of it is unspent.
+export function laborPercent(payroll, sales, targetPct = null) {
+  const s = Number(sales), c = Number(payroll);
+  if (!(s > 0) || !Number.isFinite(c) || c < 0) return null;
+  const pct = (c / s) * 100;
+  const t = Number(targetPct);
+  if (!(t > 0)) return { pct, target: null, maxPayroll: null, headroom: null, over: false };
+  const maxPayroll = (s * t) / 100;
+  return { pct, target: t, maxPayroll, headroom: maxPayroll - c, over: pct > t + 1e-9 };
 }
 
 export function hoursCsv(r) {
