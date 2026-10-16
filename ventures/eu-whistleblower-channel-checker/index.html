@@ -143,7 +143,7 @@
     const read = () => { const o = {}; for (const id of ids) o[id] = $("#" + id).value; return o; };
     function run() {
       const r = compute(read());
-      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      if (r.errors?.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
       last = r;
       $("#due").textContent = r.required ? "An internal reporting channel is required (" + r.obligation.article + ")" : "No internal channel duty under the Directive at this size";
       $("#summary").textContent = summaryText(r);
