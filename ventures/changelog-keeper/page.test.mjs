@@ -20,3 +20,8 @@ test("landing page: no-warranty clause, sample data is labelled, canonical, FAQ,
   assert.ok(!/<script[^>]+src="https?:/.test(html));
   assert.equal(esc("<&>"), "&lt;&amp;&gt;");
 });
+
+test("landing page links its sibling Sign Keeper", () => {
+  const html = fs.readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/sign-keeper\/"/);
+});
