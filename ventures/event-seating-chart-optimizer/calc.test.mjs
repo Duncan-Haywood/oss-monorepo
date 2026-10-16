@@ -220,3 +220,16 @@ test("reseat is deterministic and honours pins", () => {
   assert.ok(res.tables[0].guests.includes("Maya Okafor"));
   assert.ok(res.tables[0].guests.includes("Priest Anselm"));
 });
+
+import { printSheetHtml } from "./calc.mjs";
+test("printSheetHtml: one page per table, every guest listed, markup escaped, no scripts", () => {
+  const spec = sampleSpec();
+  const res = optimize(spec);
+  const html = printSheetHtml(spec, res, "A <b>&</b> B");
+  assert.equal((html.match(/<h2>Table \d+<\/h2>/g) || []).length, res.tables.length);
+  for (const t of res.tables) for (const n of t.guests) assert.ok(html.includes(n.replace(/&/g, "&amp;")), n);
+  assert.ok(!/<script/i.test(html) && !/https?:\/\//.test(html));
+  assert.ok(html.includes("A &lt;b&gt;&amp;&lt;/b&gt; B"));
+  const evil = { ...res, tables: [{ number: 1, guests: ['<img src=x onerror=alert(1)>'], size: 1 }] };
+  assert.ok(!printSheetHtml(spec, evil).includes("<img"));
+});

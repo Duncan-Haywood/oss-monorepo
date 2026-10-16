@@ -343,6 +343,35 @@ export function planCsv(spec, result) {
   return rows.map((r) => r.map(esc).join(",")).join("\n");
 }
 
+const escHtml = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+/**
+ * Print-ready seating sheet as one self-contained HTML file: a page per table
+ * (big table number, guest list, tent-fold place cards) plus an A-Z finder so
+ * guests can look themselves up. No scripts, no external requests; every typed
+ * name is escaped.
+ */
+export function printSheetHtml(spec, result, title = "Seating plan") {
+  const t = escHtml(title);
+  const pages = result.tables.map((tb) => {
+    const cards = tb.guests.map((n) => `<div class="card"><span>${escHtml(n)}</span><small>Table ${tb.number}</small></div>`).join("");
+    const list = tb.guests.map((n) => `<li>${escHtml(n)}</li>`).join("");
+    return `<section class="page"><h2>Table ${tb.number}</h2><ol>${list}</ol><div class="cards">${cards}</div></section>`;
+  }).join("");
+  const finder = result.tables.flatMap((tb) => tb.guests.map((n) => ({ n, t: tb.number })))
+    .sort((a, b) => a.n.localeCompare(b.n, "en", { sensitivity: "base" }))
+    .map((r) => `<tr><td>${escHtml(r.n)}</td><td>${r.t}</td></tr>`).join("");
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${t}</title><style>
+body{font:16px/1.4 system-ui,sans-serif;margin:0;padding:1rem;color:#1a1a1a;background:#fff}
+@media (prefers-color-scheme:dark){body{background:#111;color:#eee}.card{border-color:#888}}
+h1,h2{margin:.2em 0}.page{page-break-after:always;break-after:page;padding:1rem 0;border-bottom:1px solid #8884}
+h2{font-size:2.4rem}ol{columns:2;margin:.5rem 0 1rem}.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem}
+.card{border:1px dashed #555;padding:1rem;text-align:center;border-radius:6px;break-inside:avoid}.card span{display:block;font-size:1.4rem}.card small{opacity:.7}
+table{border-collapse:collapse;width:100%;max-width:32rem}td{padding:.25rem .5rem;border-bottom:1px solid #8884}td+td{text-align:right;font-weight:600}
+@media print{body{background:#fff;color:#000}.card{border-color:#000}}
+</style></head><body><h1>${t}</h1>${pages}<section class="page"><h2>Find your table</h2><table>${finder}</table></section></body></html>`;
+}
+
 export const SAMPLE_GUESTS = [
   "Maya Okafor | Okafor family", "Daniel Okafor | Okafor family", "Grace Okafor | Okafor family", "Joy Okafor | Okafor family",
   "Liam Brandt | Brandt family", "Sofia Brandt | Brandt family", "Henrik Brandt | Brandt family",

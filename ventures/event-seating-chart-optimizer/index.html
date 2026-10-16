@@ -88,6 +88,7 @@
     <h3>Wishes it could not meet</h3>
     <ul id="broken"></ul>
     <button type="button" id="download">Download the plan (CSV)</button>
+    <button type="button" id="download-print">Download print sheet (table signs, place cards, A-Z finder)</button>
     <div id="moves"></div>
   </section>
 
@@ -142,7 +143,7 @@
   </footer>
 
   <script type="module">
-    import { parseGuests, parseRules, validateSpec, optimize, reseat, parsePlanCsv, verifyPlan, planCsv, sampleSpec, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount } from "./calc.mjs";
+    import { parseGuests, parseRules, validateSpec, optimize, reseat, parsePlanCsv, verifyPlan, planCsv, printSheetHtml, sampleSpec, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -236,6 +237,14 @@
       const blob = new Blob([planCsv(last.spec, last.res)], { type: "text/csv" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob); a.download = "seating-plan.csv"; a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#download-print").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([printSheetHtml(last.spec, last.res)], { type: "text/html" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = "seating-print-sheet.html"; a.click();
       URL.revokeObjectURL(a.href);
       record("report_downloaded");
     });
