@@ -9,9 +9,6 @@ After using this, you can now see which sponsorship signals are missing and
 in what order to fix them, which used to take a manual pass through
 FUNDING.yml, README, About, and community-health files.
 
-See [`portfolio/pipeline/candidates/oss-sponsor-readiness.md`](../../portfolio/pipeline/candidates/oss-sponsor-readiness.md)
-for the scoring writeup this venture graduated from.
-
 This is a different question than grant-deadline-tracker or
 grant-reporting-tracker: those track funder deadlines and reports. This one
 scores a public repo for GitHub Sponsors readiness.
