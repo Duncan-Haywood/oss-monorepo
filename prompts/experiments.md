@@ -423,3 +423,16 @@ field will.
   E18: `merged_unknown` stays high (most rows 'unknown') because fetch needs
   API access; not a failure of derive.py itself.
 - Result: (next review)
+
+## E20: stale doc lines from the same review (2026-10-16)
+
+- Change: `CLAUDE.md` checklist no longer states a stale count of expected
+  `gitops/tests` failures (said ~26; baseline today was 2); `review/prompt-1.md`
+  step 1 says what to do when `derive.py fetch` gets a 403 (+2 lines).
+- Why: friction reports on both; 26 runs since the last review.
+- Measure: friction reports naming the CLAUDE.md pytest line, and on
+  `review/prompt-1.md` step 1, per run after this window.
+- Candidates: ventures/2 (17) vs ventures/1 (53): intervals overlap, keep
+  collecting. research/1 (8) under 10. Audit skipped: records mirrored or
+  doc-only. `derive.py fetch` 403; `merged` left unknown.
+- Result: (next review)
