@@ -1,0 +1,25 @@
+{
+ "macros": [
+  {
+   "macro": "sky130_sram_1rw1r_44x64_8",
+   "width": 44,
+   "access_pj": 10.35346
+  },
+  {
+   "macro": "sky130_sram_1rw1r_80x64_8",
+   "width": 80,
+   "access_pj": 16.77799
+  },
+  {
+   "macro": "sky130_sram_1rw1r_64x256_8",
+   "width": 64,
+   "access_pj": 45.61834
+  },
+  {
+   "macro": "sky130_sram_1rw1r_128x256_8",
+   "width": 128,
+   "access_pj": 89.54866
+  }
+ ],
+ "sky130_flop_pj": 0.046358487243492855
+}
