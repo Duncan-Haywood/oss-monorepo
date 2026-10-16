@@ -20,13 +20,20 @@ const readBody = (req, max = 1_000_000) => new Promise((resolve, reject) => {
 const bearerOk = (req, key) => { const a = Buffer.from(req.headers.authorization || ""), b = Buffer.from(`Bearer ${key}`); return Boolean(key) && a.length === b.length && timingSafeEqual(a, b); };
 
 /** POSTs a hot-lead alert to your own URL, signed: x-radar-signature = sha256=HMAC(secret, body). 2xx is delivered. */
-export function webhookSender({ url, secret, fetchImpl = fetch }) {
+export function webhookSender({ url, secret, format = "json", fetchImpl = fetch }) {
   return async (alert) => {
-    const body = JSON.stringify(alert), headers = { "content-type": "application/json", "user-agent": "pql-radar" };
+    const body = JSON.stringify(formatAlert(alert, format)), headers = { "content-type": "application/json", "user-agent": "pql-radar" };
     if (secret) headers["x-radar-signature"] = `sha256=${createHmac("sha256", secret).update(body).digest("hex")}`;
     const r = await fetchImpl(url, { method: "POST", headers, body, signal: AbortSignal.timeout(10_000) });
     if (!r.ok) throw new Error(`webhook ${r.status}`);
   };
+}
+
+/** "slack" and "discord" turn the alert into a message those incoming webhooks accept as-is; "json" is the raw alert. */
+export function formatAlert(a, format = "json") {
+  if (format !== "slack" && format !== "discord") return a;
+  const text = `Hot lead: ${a.account} (score ${a.score}${a.calibrated ? "" : ", uncalibrated"})` + (a.reasons?.length ? `\n- ${a.reasons.join("\n- ")}` : "");
+  return format === "slack" ? { text } : { content: text };
 }
 
 const state_has = (cfg, id) => Boolean(cfg.state.accounts[id]);
@@ -126,7 +133,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   for (const k of ["API_KEY", "ADMIN_KEY"]) if (!env[k] || env[k].length < 16) { console.error(`Set ${k} (16+ characters).`); process.exit(1); }
   const file = env.STATE || "/tmp/state.json", state = loadState(file);
   const save = () => { fs.writeFileSync(`${file}.tmp`, JSON.stringify(state)); fs.renameSync(`${file}.tmp`, file); };
-  const postAlert = env.ALERT_WEBHOOK_URL ? webhookSender({ url: env.ALERT_WEBHOOK_URL, secret: env.ALERT_WEBHOOK_SECRET }) : null;
+  const postAlert = env.ALERT_WEBHOOK_URL ? webhookSender({ url: env.ALERT_WEBHOOK_URL, secret: env.ALERT_WEBHOOK_SECRET, format: env.ALERT_FORMAT }) : null;
   http.createServer(handler({ state, save, apiKey: env.API_KEY, adminKey: env.ADMIN_KEY, stripeSecret: env.STRIPE_WEBHOOK_SECRET, sdk: fs.readFileSync(new URL("./sdk.mjs", import.meta.url), "utf8") })).listen(Number(env.PORT) || 8080, () => console.log(`pql-radar on :${env.PORT || 8080}`));
   setInterval(async () => { try { if (postAlert) await runAlerts(state, postAlert, Date.now()); E.prune(state, Date.now()); save(); } catch (e) { console.error("daily pass failed:", e.message); } }, 3_600_000).unref();
 }

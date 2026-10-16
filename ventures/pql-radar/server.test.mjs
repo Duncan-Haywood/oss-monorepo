@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
-import { handler, runAlerts, webhookSender } from "./server.mjs";
+import { handler, runAlerts, webhookSender, formatAlert } from "./server.mjs";
 import { signPayload } from "./stripe.mjs";
 import * as E from "./engine.mjs";
 import { createRadar } from "./sdk.mjs";
@@ -105,4 +105,14 @@ test("the SDK tracks, never throws, and reads hot leads", async () => {
   await createRadar({ url: "http://127.0.0.1:1", key: KEY, onError: (e) => errors.push(e) }).track("x", "y");
   assert.equal(errors.length, 2);
   srv.close();
+});
+
+test("slack and discord formats wrap the alert as a chat message", async () => {
+  const a = { type: "lead.hot", account: "acme", score: 0.91, calibrated: true, reasons: ["tried 5 different features"] };
+  assert.deepEqual(formatAlert(a), a);
+  assert.equal(formatAlert(a, "slack").text, "Hot lead: acme (score 0.91)\n- tried 5 different features");
+  assert.equal(formatAlert({ ...a, calibrated: false }, "discord").content.split("\n")[0], "Hot lead: acme (score 0.91, uncalibrated)");
+  const sent = [];
+  await webhookSender({ url: "https://hooks.slack.com/x", format: "slack", fetchImpl: async (u, i) => { sent.push(i); return { ok: true }; } })(a);
+  assert.match(JSON.parse(sent[0].body).text, /acme/);
 });
