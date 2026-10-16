@@ -128,6 +128,14 @@
     <summary type="text">Paste your GitHub Actions workflow YAML and find every actions/checkout step without persist-credentials: false, with jobs that also upload artifacts (the artipacked pattern) listed first. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>GitHub Actions Runtime Deprecation Check — Find Steps on End-of-Life Node Runtimes</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-runtime-deprecation-check/"/>
+    <id>tag:marisstella.dev,2026:tool/actions-runtime-deprecation-check</id>
+    <updated>2026-10-15T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your GitHub Actions workflow YAML and list every actions/* step pinned to a major that runs on a deprecated Node runtime (Node 12 or 16) or that GitHub has shut down. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Cancel Flow — Free Self-Hosted Stripe Cancellation Flow</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cancel-flow/"/>
     <id>tag:marisstella.dev,2026:tool/cancel-flow</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">Collect feature requests, let customers vote, catch duplicates as they type, publish a roadmap and a changelog with RSS. One small open-source server you run yourself. Free, MIT, no per-user fee. Try the duplicate finder in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Flag Keeper — Free Self-Hosted Feature Flags</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/flag-keeper/"/>
-    <id>tag:marisstella.dev,2026:tool/flag-keeper</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="Self-hosted business apps"/>
-    <summary type="text">A free, open-source alternative to LaunchDarkly, Flagsmith and Unleash: percentage rollouts that stay sticky, targeting rules, segments, prerequisites and a kill switch in one small server. Simulate a rollout and see exactly who would flip before you ship it, in your browser.</summary>
   </entry>
 </feed>
