@@ -386,7 +386,7 @@ const REWRITABLE = new Set(['.html', '.xml', '.txt', '.json', '.mjs', '.js', '.w
 // Ordered: the first rule whose test matches wins.
 const CATEGORY_RULES = [
   {
-    // Added 2026-10-16 (P013): the self-hosted SaaS-operations apps had been
+    // Added 2026-10-16 (P017): the self-hosted SaaS-operations apps had been
     // filed by slug into `ci` and the catch-all, which tripped the catch-all
     // bound (14) and told a visitor a dunning engine was a CI check. First so
     // it wins over the `ci` list, which still names several of them.
@@ -394,10 +394,15 @@ const CATEGORY_RULES = [
     title: 'Self-hosted business apps',
     accent: '#2b4c7e',
     blurb: 'Open-source business software you run on your own server: failed-payment recovery, cancellation flows, MRR and revenue recognition, lifecycle email, referrals, feature flags, status pages, help centres, booking pages, cookie-free analytics and more. Deploy your own copy with your own keys; you own the data.',
+    // Named apps first; then any venture that ships a server and a deploy
+    // manifest (surfaceKind 'app') that no other section claims, so the next
+    // self-hosted app lands here instead of in the catch-all.
     test: (slug) =>
       /-keeper$/.test(slug)
-      || ['cancel-flow', 'cron-heartbeat', 'dunning-engine', 'feedback-board', 'form-inbox', 'mrr-pulse',
-        'rev-rec', 'support-desk', 'trial-converter', 'webhook-relay'].includes(slug),
+      || ['cancel-flow', 'churn-radar', 'cron-heartbeat', 'dunning-engine', 'feedback-board', 'form-inbox',
+        'mrr-pulse', 'rev-rec', 'support-desk', 'trial-converter', 'webhook-relay'].includes(slug)
+      || (surfaceKind(path.join(REPO_ROOT, 'ventures', slug), slug) === 'app'
+        && !CATEGORY_RULES.slice(1).some((rule) => rule.test(slug))),
   },
   {
     // `1099k-reconciliation-worksheet` moved here from `backoffice` 2026-10-10: it reconciles a marketplace's 1099-K against a seller's own sales, a
