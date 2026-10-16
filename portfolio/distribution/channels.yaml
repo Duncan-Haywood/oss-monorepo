@@ -125,3 +125,17 @@ channels:
       - same PyPI terms and name-squatting policy as pypi-python-clis; the combined weekly cap is 5 + 3 new projects
     owner_ask: none beyond pypi-python-clis
     dry_run: node platform/distribution/pypi-packages.mjs
+  - id: homebrew-tap
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/homebrew.mjs
+    workflow: .github/workflows/distribute-homebrew.yml
+    enabled_by: repository variable DISTRIBUTE_HOMEBREW=true, variable HOMEBREW_TAP_REPO (e.g. you/homebrew-tools), and secret HOMEBREW_TAP_TOKEN (a token with contents:write on that one repository only)
+    what_it_posts: one `Formula/<slug>.rb` per venture CLI already published by npm-cli-packages, in the owner's own tap repository (not homebrew-core). The formula installs the npm tarball and its sha256 is computed from the tarball the registry serves; a package not yet on npm is skipped. At most 10 new formulas per run.
+    dedupe: stateless; a formula file already in the tap is never rewritten
+    depends_on: npm-cli-packages must be live first
+    terms_to_confirm_by_owner_when_enabling:
+      - Homebrew taps are third-party repositories, so no Homebrew approval is involved; GitHub Terms apply to the tap repository
+      - agents did not read live terms on build day, and the generated formulas were not run through `brew audit` (no Homebrew in the build session)
+    owner_ask: create an empty homebrew-<name> repository, store HOMEBREW_TAP_TOKEN, set HOMEBREW_TAP_REPO and DISTRIBUTE_HOMEBREW=true (after DISTRIBUTE_NPM has published packages)
+    dry_run: node platform/distribution/homebrew.mjs
