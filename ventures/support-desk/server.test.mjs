@@ -129,3 +129,23 @@ test("a ticket page lists the requester's earlier tickets and the admin shows a 
   assert.match(admin, new RegExp(`&lt;form method=&quot;post&quot; action=&quot;http://127\\.0\\.0\\.1:\\d+/m/${s.mb.id}`));
   s.close();
 });
+
+test("a customer rates a ticket once staff have answered; the dashboard and CSV show it", async () => {
+  const s = await boot();
+  await json(`${s.base}/in/${s.mb.inboundToken}`, { from: "ann@x.com", subject: "Help", text: "broken", messageId: "<r1>" });
+  const t = s.state.tickets.t1;
+  await form(`${s.base}/t/${t.token}`, { rating: "good" });
+  assert.equal(t.rating, undefined); // nothing to rate before a reply
+  await form(`${s.base}/admin/t/1/reply`, { text: "fixed", after: "closed" }, auth);
+  assert.match(await (await fetch(`${s.base}/t/${t.token}`)).text(), /Did we solve it/);
+  await form(`${s.base}/t/${t.token}`, { rating: "bad", comment: "<b>still broken</b>" });
+  await form(`${s.base}/t/${t.token}`, { rating: "nonsense" });
+  assert.equal(t.rating.score, "bad");
+  const view = await (await fetch(`${s.base}/t/${t.token}`)).text();
+  assert.doesNotMatch(view, /Did we solve it/);
+  const admin = await (await fetch(`${s.base}/admin/t/1`, { headers: auth })).text();
+  assert.match(admin, /not satisfied/); assert.doesNotMatch(admin, /<b>still broken/);
+  assert.match(await (await fetch(`${s.base}/admin`, { headers: auth })).text(), /0%<\/b>satisfied \(1 rated\)/);
+  assert.match(await (await fetch(`${s.base}/admin/export.csv`, { headers: auth })).text(), /,bad\n/);
+  s.close();
+});
