@@ -136,6 +136,11 @@ The processes that are the same across ventures: agent definitions, skills,
 reusable CI. If a procedure is being copy-pasted between ventures, it belongs
 here instead.
 
+[`platform/uitest/`](platform/uitest/README.md) is an open-source tool that any
+project can use: AI-agent end-to-end UI testing for any web app. It runs as a
+CLI or a GitHub Action, works with your own model key, and still runs its
+deterministic checks without one.
+
 ### portfolio/
 
 `ledger/` records revenue, cost, agent-hours, and outcomes per venture.

@@ -1,0 +1,193 @@
+name: 'uitest: agent-driven UI tests'
+description: >-
+  Test a web app the way a user would: an AI agent (your own model key) works through
+  plain-language goals in a real browser, alongside scripted steps and a no-key smoke check.
+  JUnit, Markdown job summary, screenshots.
+author: Duncan-Haywood
+branding:
+  icon: check-square
+  color: green
+
+inputs:
+  spec:
+    description: 'Path to a uitest JSON spec (scenarios, steps, goals). Optional if url/serve/start and goal are given.'
+    required: false
+    default: ''
+  url:
+    description: 'Base URL of an app that is already running (a preview deploy, a service container).'
+    required: false
+    default: ''
+  serve:
+    description: 'A static build directory to serve on a free local port (e.g. dist).'
+    required: false
+    default: ''
+  start:
+    description: 'Command that starts the app (e.g. "npm start"). Use with wait-for.'
+    required: false
+    default: ''
+  wait-for:
+    description: 'URL to poll until the started app answers.'
+    required: false
+    default: ''
+  path:
+    description: 'Where the goal or smoke scenario starts (default /).'
+    required: false
+    default: ''
+  goal:
+    description: 'A plain-language task for the agent, e.g. "Sign up with a new email and reach the dashboard".'
+    required: false
+    default: ''
+  expect:
+    description: 'What must be true for the goal to pass.'
+    required: false
+    default: ''
+  crawl:
+    description: 'Also smoke-test up to this many same-site pages linked from the start pages.'
+    required: false
+    default: '0'
+  workers:
+    description: 'Scenarios to run at once, each in its own browser context.'
+    required: false
+    default: '1'
+  max-steps:
+    description: 'Agent actions allowed per goal.'
+    required: false
+    default: '15'
+  console-errors:
+    description: 'fail | warn | ignore: how JavaScript errors count.'
+    required: false
+    default: 'fail'
+  request-failures:
+    description: 'fail | warn | ignore: how same-site 4xx/5xx and network failures count.'
+    required: false
+    default: 'warn'
+  api-key:
+    description: 'Model API key (pass a secret). Without one, goals are skipped and only deterministic checks run.'
+    required: false
+    default: ''
+  provider:
+    description: 'anthropic | openai | gemini | openai-compatible. Defaults to anthropic when api-key is set.'
+    required: false
+    default: ''
+  model:
+    description: 'Model name. Required for every provider except anthropic.'
+    required: false
+    default: ''
+  base-url:
+    description: 'For openai-compatible: the /v1 base URL (OpenRouter, Groq, a self-hosted model).'
+    required: false
+    default: ''
+  out:
+    description: 'Report directory.'
+    required: false
+    default: 'uitest-report'
+  fail-on-skip:
+    description: 'Fail the step when nothing was verified (every scenario skipped, e.g. no key on a fork PR).'
+    required: false
+    default: 'true'
+  upload-report:
+    description: 'Upload the report directory as a workflow artifact.'
+    required: false
+    default: 'true'
+  report-name:
+    description: 'Artifact name; make it unique per job when running several (e.g. in a matrix).'
+    required: false
+    default: 'uitest-report'
+  playwright-version:
+    description: 'Playwright version to install (into a scratch directory, not your project).'
+    required: false
+    default: '1.56.1'
+
+outputs:
+  result:
+    description: 'pass | fail | skipped'
+    value: ${{ steps.run.outputs.result }}
+  exit-code:
+    description: '0 pass, 1 fail, 2 nothing verified, 3 usage error'
+    value: ${{ steps.run.outputs.exit-code }}
+  report-dir:
+    description: 'Directory holding report.json, junit.xml, summary.md and screenshots/'
+    value: ${{ inputs.out }}
+
+runs:
+  using: composite
+  steps:
+    - name: Cache Playwright's Chromium
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: uitest-pw-${{ runner.os }}-${{ inputs.playwright-version }}
+
+    - name: Install Playwright (scratch directory)
+      shell: bash
+      env:
+        PW_VERSION: ${{ inputs.playwright-version }}
+      run: |
+        node -e 'const [maj] = process.versions.node.split("."); if (+maj < 18) { console.error(`uitest needs Node 18+, found ${process.version}; add actions/setup-node first`); process.exit(1); }'
+        dir="$RUNNER_TEMP/uitest-playwright"
+        mkdir -p "$dir"
+        npm install --prefix "$dir" --no-audit --no-fund --silent "playwright@$PW_VERSION"
+        "$dir/node_modules/.bin/playwright" install --with-deps chromium
+        echo "PLAYWRIGHT=$dir/node_modules/playwright/index.js" >> "$GITHUB_ENV"
+
+    - name: Run uitest
+      id: run
+      shell: bash
+      # Inputs reach the command as environment variables, never pasted into
+      # the script, so a goal with quotes or $() in it is just text.
+      env:
+        IN_SPEC: ${{ inputs.spec }}
+        IN_URL: ${{ inputs.url }}
+        IN_SERVE: ${{ inputs.serve }}
+        IN_START: ${{ inputs.start }}
+        IN_WAIT_FOR: ${{ inputs.wait-for }}
+        IN_PATH: ${{ inputs.path }}
+        IN_GOAL: ${{ inputs.goal }}
+        IN_EXPECT: ${{ inputs.expect }}
+        IN_CRAWL: ${{ inputs.crawl }}
+        IN_MAX_STEPS: ${{ inputs.max-steps }}
+        IN_WORKERS: ${{ inputs.workers }}
+        IN_CONSOLE: ${{ inputs.console-errors }}
+        IN_REQUESTS: ${{ inputs.request-failures }}
+        IN_OUT: ${{ inputs.out }}
+        IN_FAIL_ON_SKIP: ${{ inputs.fail-on-skip }}
+        IN_API_KEY: ${{ inputs.api-key }}
+        IN_PROVIDER: ${{ inputs.provider }}
+        IN_MODEL: ${{ inputs.model }}
+        IN_BASE_URL: ${{ inputs.base-url }}
+        UITEST: ${{ github.action_path }}/uitest.mjs
+      run: |
+        args=()
+        [ -n "$IN_SPEC" ] && args+=("$IN_SPEC")
+        [ -n "$IN_URL" ] && args+=(--url "$IN_URL")
+        [ -n "$IN_SERVE" ] && args+=(--serve "$IN_SERVE")
+        [ -n "$IN_START" ] && args+=(--start "$IN_START")
+        [ -n "$IN_WAIT_FOR" ] && args+=(--wait-for "$IN_WAIT_FOR")
+        [ -n "$IN_PATH" ] && args+=(--path "$IN_PATH")
+        [ -n "$IN_GOAL" ] && args+=(--goal "$IN_GOAL")
+        [ -n "$IN_EXPECT" ] && args+=(--expect "$IN_EXPECT")
+        args+=(--crawl "$IN_CRAWL" --workers "$IN_WORKERS" --max-steps "$IN_MAX_STEPS" --console-errors "$IN_CONSOLE" --request-failures "$IN_REQUESTS" --out "$IN_OUT")
+        if [ -n "$IN_API_KEY" ] || [ -n "$IN_BASE_URL" ]; then
+          export LLM_PROVIDER="${IN_PROVIDER:-$([ -n "$IN_BASE_URL" ] && echo openai-compatible || echo anthropic)}"
+          export LLM_API_KEY="$IN_API_KEY" LLM_MODEL="$IN_MODEL" LLM_BASE_URL="$IN_BASE_URL"
+        fi
+        set +e
+        node "$UITEST" "${args[@]}"
+        code=$?
+        set -e
+        echo "exit-code=$code" >> "$GITHUB_OUTPUT"
+        case $code in
+          0) echo "result=pass" >> "$GITHUB_OUTPUT" ;;
+          2) echo "result=skipped" >> "$GITHUB_OUTPUT"
+             if [ "$IN_FAIL_ON_SKIP" != "true" ]; then echo "::warning::uitest verified nothing (every scenario skipped)"; exit 0; fi ;;
+          *) echo "result=fail" >> "$GITHUB_OUTPUT" ;;
+        esac
+        exit $code
+
+    - name: Upload report
+      if: always() && inputs.upload-report == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.report-name }}
+        path: ${{ inputs.out }}
+        if-no-files-found: ignore
