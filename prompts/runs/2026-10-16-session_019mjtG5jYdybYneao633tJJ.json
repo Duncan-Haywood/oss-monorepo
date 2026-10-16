@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_019mjtG5jYdybYneao633tJJ",
+  "prompt_version": 0,
+  "input": "how did the search on what other software etc companies do go? let's add findings on this to a log section on the ghp if it's not done yet. it should be ongoing.",
+  "model": null,
+  "task": "extend",
+  "projects": [
+    "swe-orgs"
+  ],
+  "pr": null,
+  "commits": [],
+  "merged": null,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "sources not fetchable from the container (DNS failure for about.gitlab.com, sec.gov, paulgraham.com, linear.app); verified by web search only"
+  ],
+  "integrity_issues": [],
+  "notes": "batch 3 (4 sources, 18 total); site/build.py now renders research/<slug>/LOG.md as a research log on project pages and lists ongoing logs on the homepage",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

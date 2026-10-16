@@ -1,28 +1,32 @@
-sources 14, practices 14, validation problems 0
-ledger rows 268; rows with any reported error 105
+sources 18, practices 18, validation problems 0
+ledger rows 280; rows with any reported error 110
 
 failure class: rows matching / rows (Wilson 95%)
-  coordination    9/268 =  3.4%  ( 1.8% to  6.3%)
-  unlanded        8/268 =  3.0%  ( 1.5% to  5.8%)
-  unverified      6/268 =  2.2%  ( 1.0% to  4.8%)
-  tooling        16/268 =  6.0%  ( 3.7% to  9.5%)
-  rework          8/268 =  3.0%  ( 1.5% to  5.8%)
-  duplicate      15/268 =  5.6%  ( 3.4% to  9.0%)
+  coordination   10/280 =  3.6%  ( 2.0% to  6.4%)
+  unlanded        8/280 =  2.9%  ( 1.5% to  5.5%)
+  unverified      6/280 =  2.1%  ( 1.0% to  4.6%)
+  tooling        17/280 =  6.1%  ( 3.8% to  9.5%)
+  rework          9/280 =  3.2%  ( 1.7% to  6.0%)
+  duplicate      16/280 =  5.7%  ( 3.5% to  9.1%)
 
 practice  transfer  status                                   target        ceiling  priority
-  P1   yes      adopted (prompt.md, Landing work)        unlanded       3.0%    3.0%
-  P6   partial  not adopted                              tooling        6.0%    3.0%
-  P7   yes      adopted (prompt.md steps 4 and 6)        unlanded       3.0%    3.0%
-  P10  partial  adopted (track 10 metric has three terms duplicate      5.6%    2.8%
-  P5   yes      not adopted                              unverified     2.2%    2.2%
-  P9   yes      partly adopted (prompt.md: integrity is  unverified     2.2%    2.2%
-  P12  yes      adopted (swe-ledger)                     unverified     2.2%    2.2%
-  P4   partial  adopted (mirror under way)               coordination   3.4%    1.7%
-  P11  partial  not adopted                              coordination   3.4%    1.7%
-  P2   partial  not adopted                              rework         3.0%    1.5%
-  P3   partial  partly adopted (audit pass exists, not p rework         3.0%    1.5%
-  P14  partial  not adopted                              rework         3.0%    1.5%
-  P13  partial  not adopted                              unverified     2.2%    1.1%
-  P8   no       not adopted                              coordination   3.4%    0.0%
+  P6   partial  not adopted                              tooling        6.1%    3.0%
+  P1   yes      adopted (prompt.md, Landing work)        unlanded       2.9%    2.9%
+  P7   yes      adopted (prompt.md steps 4 and 6)        unlanded       2.9%    2.9%
+  P10  partial  adopted (track 10 metric has three terms duplicate      5.7%    2.9%
+  P16  yes      partly adopted (research/_mirror/mirror. unlanded       2.9%    2.9%
+  P18  partial  partly adopted (runs claim one milestone duplicate      5.7%    2.9%
+  P5   yes      not adopted                              unverified     2.1%    2.1%
+  P9   yes      partly adopted (prompt.md: integrity is  unverified     2.1%    2.1%
+  P12  yes      adopted (swe-ledger)                     unverified     2.1%    2.1%
+  P15  yes      partly adopted (oss-monorepo guard_state unverified     2.1%    2.1%
+  P4   partial  adopted (mirror under way)               coordination   3.6%    1.8%
+  P11  partial  not adopted                              coordination   3.6%    1.8%
+  P2   partial  not adopted                              rework         3.2%    1.6%
+  P3   partial  partly adopted (audit pass exists, not p rework         3.2%    1.6%
+  P14  partial  not adopted                              rework         3.2%    1.6%
+  P13  partial  not adopted                              unverified     2.1%    1.1%
+  P8   no       not adopted                              coordination   3.6%    0.0%
+  P17  no       not adopted                              coordination   3.6%    0.0%
 
 open candidates (transfer yes, not adopted, ceiling >= 5%):
