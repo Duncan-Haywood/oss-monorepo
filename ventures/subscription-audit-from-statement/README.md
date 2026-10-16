@@ -27,6 +27,10 @@ year. A price rise is a charge 2% and 25 cents above the one before. A charge wi
 one and a half cycles is "ended" and left out of the totals. Not modelled: unbilled free trials,
 app-store or payment-app charges that hide the merchant, shared plans, taxes, currency, refunds.
 
+## Service directory
+
+`services.mjs` recognises about 100 well-known services (streaming, music, storage, news, fitness, software, VPN, shopping memberships, learning). Variants of one service merge into one line and show its own site. Recurring charges billed through Apple, Google Play, Amazon digital or PayPal hide the app's name, so they are flagged with where to look on your account. The directory lists only each service's domain; a recognised name is a guess from bank text, not proof of the plan.
+
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.

@@ -72,9 +72,9 @@
 #   portfolio-front-tools-36: 97 files, 550552 bytes
 #   portfolio-front-tools-37: 128 files, 545933 bytes
 #   portfolio-front-tools-38: 117 files, 555984 bytes
-#   portfolio-front-tools-39: 130 files, 555183 bytes
-#   portfolio-front-tools-40: 131 files, 554199 bytes
-#   portfolio-front-tools-41: 131 files, 553459 bytes
+#   portfolio-front-tools-39: 129 files, 555669 bytes
+#   portfolio-front-tools-40: 132 files, 554304 bytes
+#   portfolio-front-tools-41: 132 files, 556925 bytes
 #   portfolio-front-tools-42: 140 files, 554086 bytes
 #   portfolio-front-tools-43: 139 files, 555345 bytes
 #   portfolio-front-tools-44: 124 files, 553015 bytes
@@ -5366,6 +5366,7 @@ configMapGenerator:
       - subpath-robots-check__why-a-subpath-site-cannot-govern-its-robots-txt.html.gz=subpath-robots-check__why-a-subpath-site-cannot-govern-its-robots-txt.html.gz
       - subscription-audit-from-statement__calc.mjs.gz=subscription-audit-from-statement__calc.mjs.gz
       - subscription-audit-from-statement__index.html.gz=subscription-audit-from-statement__index.html.gz
+      - subscription-audit-from-statement__services.mjs.gz=subscription-audit-from-statement__services.mjs.gz
       - subscription-audit-from-statement__usage.mjs.gz=subscription-audit-from-statement__usage.mjs.gz
       - subscription-proration-calculator__calc.mjs.gz=subscription-proration-calculator__calc.mjs.gz
       - subscription-proration-calculator__index.html.gz=subscription-proration-calculator__index.html.gz
@@ -5394,13 +5395,13 @@ configMapGenerator:
       - supabase-rls-check__analyze.mjs.gz=supabase-rls-check__analyze.mjs.gz
       - supabase-rls-check__check.mjs.gz=supabase-rls-check__check.mjs.gz
       - supabase-rls-check__index.html.gz=supabase-rls-check__index.html.gz
-      - supabase-rls-check__probe.mjs.gz=supabase-rls-check__probe.mjs.gz
-      - supabase-rls-check__usage.mjs.gz=supabase-rls-check__usage.mjs.gz
   - name: portfolio-front-tools-40
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - supabase-rls-check__probe.mjs.gz=supabase-rls-check__probe.mjs.gz
+      - supabase-rls-check__usage.mjs.gz=supabase-rls-check__usage.mjs.gz
       - supabase-rls-check__vs-manually-checking-the-dashboard.html.gz=supabase-rls-check__vs-manually-checking-the-dashboard.html.gz
       - supabase-rls-check__vs-vibeappscanner.html.gz=supabase-rls-check__vs-vibeappscanner.html.gz
       - supabase-rls-check__why-does-disabling-rls-expose-my-supabase-data.html.gz=supabase-rls-check__why-does-disabling-rls-expose-my-supabase-data.html.gz
@@ -5531,12 +5532,12 @@ configMapGenerator:
       - timber-sale-offer-checker__index.html.gz=timber-sale-offer-checker__index.html.gz
       - timber-sale-offer-checker__usage.mjs.gz=timber-sale-offer-checker__usage.mjs.gz
       - time-off-request-planner__calc.mjs.gz=time-off-request-planner__calc.mjs.gz
-      - time-off-request-planner__how-to-approve-vacation-requests-fairly.html.gz=time-off-request-planner__how-to-approve-vacation-requests-fairly.html.gz
   - name: portfolio-front-tools-41
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - time-off-request-planner__how-to-approve-vacation-requests-fairly.html.gz=time-off-request-planner__how-to-approve-vacation-requests-fairly.html.gz
       - time-off-request-planner__index.html.gz=time-off-request-planner__index.html.gz
       - time-off-request-planner__usage.mjs.gz=time-off-request-planner__usage.mjs.gz
       - time-tracker__calc.mjs.gz=time-tracker__calc.mjs.gz
