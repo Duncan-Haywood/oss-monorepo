@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_019e4YYjKQkRMMGuFj1aEQA9",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T10:46:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "track-9 osrobot follow-up (wind)",
+  "projects": [
+    "research/osrobot-uavwind"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7375",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Says to check branches pushed in last 3 hours for claims; no command given, only the open-PR list was checked."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "osrobot-uavwind: steady-wind extension of osrobot-uav. Translational-lift credit caveat reported honestly; conservative column is the headline. A first draft of the frozen VTOL column and a trivial wind-margin line were wrong and removed before commit. Cost fields left null (runcost.py attach not run).",
+  "corrections": [],
+  "redteam": null
+}

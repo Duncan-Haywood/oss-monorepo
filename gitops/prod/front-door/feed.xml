@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1267 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1268 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -78,6 +78,14 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">A free, open-source alternative to MadKudu and Pocus for small SaaS: learn from your own signups which first-week behaviour comes before paying, with an honest out-of-time accuracy check. Paste an export and try it in your browser first.</summary>
+  </entry>
+  <entry>
+    <title>Sign Keeper — Free Self-Hosted E-Signature Links with a Tamper-Evident Audit Trail</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sign-keeper/"/>
+    <id>tag:marisstella.dev,2026:tool/sign-keeper</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <category term="Self-hosted business apps"/>
+    <summary type="text">Send a signing link, collect a typed signature with consent, and keep a certificate anyone can re-verify. A free, open-source, self-hosted alternative to per-envelope e-signature pricing.</summary>
   </entry>
   <entry>
     <title>Slot Keeper — Self-Hosted Booking Pages, a Calendly Alternative</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">Point any HTML form at your own server: spam scoring with visible reasons, an inbox, CSV export and email or Slack notifications. Open source, MIT, no per-submission fee. Test the spam filter in your browser.</summary>
-  </entry>
-  <entry>
-    <title>World Traveler</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/garmin-world-traveler-watchface/"/>
-    <id>tag:marisstella.dev,2026:tool/garmin-world-traveler-watchface</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">A Garmin Connect IQ watch face with a fixed 24-hour ring and 42 world cities placed at their current local hour. No permissions, no network.</summary>
   </entry>
 </feed>
