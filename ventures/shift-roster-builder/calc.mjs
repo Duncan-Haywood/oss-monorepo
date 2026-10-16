@@ -475,6 +475,20 @@ export function buildRoster(staff, slots, options = {}) {
     critical.sort((a, b) => b.extraUnfilledHours - a.extraUnfilledHours || a.name.localeCompare(b.name));
   }
 
+  // What would one more hire fix? Add a hypothetical person free at any time (per role the open shifts need),
+  // rebuild, and report the uncovered hours it would cover and the payroll it adds.
+  let hireTest = null;
+  if (res.unfilled.length && ctx.P < MAX_STAFF) {
+    const wage = staff.reduce((t, p) => t + p.wage, 0) / staff.length;
+    const roles = [...new Set(res.unfilled.map((i) => slots[i].role).filter(Boolean))];
+    const maxHours = 40;
+    const extra = { name: "New hire", wage, maxHours, minHours: 0, roles, days: Array.from({ length: 7 }, () => [[0, 1440]]), anyTime: true };
+    const hctx = buildContext([...staff, extra], slots, { ...o, restarts: 1, iterations: Math.max(5000, ctx.S * 40) });
+    const hres = summarise(hctx, search(hctx, 1, Math.max(5000, ctx.S * 40)).owner);
+    const covered = res.unfilledHours - hres.unfilledHours;
+    if (covered > 1e-9) hireTest = { wage, maxHours, coveredHours: covered, stillUnfilledHours: hres.unfilledHours, extraCost: hres.cost - res.cost };
+  }
+
   const warnings = [];
   staff.forEach((p, k) => {
     if (!ctx.elig[k].some(Boolean)) warnings.push(`${p.name} is not available for any of the shifts, so they get no hours.`);
@@ -496,7 +510,7 @@ export function buildRoster(staff, slots, options = {}) {
   return {
     ok: true, options: o, slots: ctx.S, totalHours: ctx.totalHours,
     cost: res.cost, hours: res.hours, otHours: res.otHours, unfilledHours: res.unfilledHours, unfilledSlots: res.unfilled.length,
-    people: res.people, assignments, grid, unfilled, onlyOne, critical, warnings,
+    people: res.people, assignments, grid, unfilled, onlyOne, critical, hireTest, warnings,
     listed: { cost: base.cost, otHours: base.otHours, unfilledHours: base.unfilledHours, unfilledSlots: base.unfilled.length },
     savingVsListed, score: best.score, owner: res.owner,
     filledAll: res.unfilled.length === 0,
