@@ -377,3 +377,25 @@ test("hour targets split the week's hours in proportion to each person's cap", (
   assert.ok(Math.abs(ctx.target[0] - 12) < 1e-9);
   assert.ok(Math.abs(ctx.target[1] - 4) < 1e-9);
 });
+
+test("off: removes whole days and clock ranges without rewriting availability", () => {
+  const r = parseStaff("Ana, 20, 40, 0, any, off: Wed; Fri 5pm-close");
+  assert.deepEqual(r.errors, []);
+  const d = r.staff[0].days;
+  assert.deepEqual(d[2], []);
+  assert.deepEqual(d[4], [[0, 1020]]);
+  assert.deepEqual(d[0], [[0, 1440]]);
+});
+
+test("off: keeps a person off a shift the solver would otherwise give them", () => {
+  const staff = parseStaff("Ana, 10, 40, 0, any, off: Wed\nBo, 30, 40, 0, any").staff;
+  const slots = parseShifts("Wed, 9, 17, 1").slots;
+  const r = buildRoster(staff, slots);
+  assert.equal(staff[0].name, "Ana");
+  assert.equal(r.owner[0], 1);
+});
+
+test("off: reports unreadable text", () => {
+  assert.equal(parseStaff("Ana, 20, 40, 0, any, off: Blursday").errors.length, 1);
+  assert.equal(parseStaff("Ana, 20, 40, 0, any, off: Wed 9-").errors.length, 1);
+});
