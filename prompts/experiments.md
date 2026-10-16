@@ -497,3 +497,16 @@ field will.
 - Audit: 3 areas re-run, all pass. `derive.py fetch` got 21 of 23 PRs.
 - Drift: see `prompts/drift/2026-10-16e.md`.
 - Result: (next review)
+
+## E24: review 2026-10-16 (sixth of the day)
+
+- Change: none to prompts or docs; measurement refresh (`prompts/derived/`)
+  and drift report only. Nothing in the friction table was new and fixable
+  at low cost, and review/2 has 3 runs.
+- Measure: n/a.
+- Candidates: ventures/2 (22, 91%) vs ventures/1 (68, 91%), research/1 (18,
+  100%) vs research/0 (348, 98%): overlap, keep collecting. review/2: 2 runs.
+- Audit: league-schedule-generator re-run, 59 pass. Research audit not
+  runnable (no pytest, apt fails).
+- Drift: see `prompts/drift/2026-10-16f.md`.
+- Result: (next review)
