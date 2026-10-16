@@ -6,7 +6,7 @@
 import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
-import { newState, createMailbox, normalizeInbound, ingest, addReply, addNote, updateTicket, addMacro, removeMacro, autoClose, purgeOlderThan, toCsv, refOf, isEmail } from "./desk.mjs";
+import { newState, createMailbox, normalizeInbound, ingest, addReply, addNote, updateTicket, addMacro, removeMacro, rateTicket, autoClose, purgeOlderThan, toCsv, refOf, isEmail } from "./desk.mjs";
 import { adminPage, ticketPage, macrosPage, customerPage, thanksPage } from "./render.mjs";
 
 const env = process.env;
@@ -158,14 +158,16 @@ export function handler(cfg) {
         if (!t) return send(404, "not found\n", "text/plain");
         if (req.method === "POST") {
           if (!lim.submit(`${ip}:${t.id}`, now())) return send(429, "too many messages; try again in a minute\n", "text/plain");
-          const text = String(Object.fromEntries(new URLSearchParams(await readBody(req, 100_000))).text || "").trim();
+          const f = Object.fromEntries(new URLSearchParams(await readBody(req, 100_000)));
+          if (f.rating) { if (rateTicket(t, f.rating, f.comment, now())) cfg.save(); return redirect(`/t/${t.token}?rated=1`); }
+          const text = String(f.text || "").trim();
           if (text) {
             const r = ingest(state, t.mailbox, { fromEmail: t.requester.email, fromName: t.requester.name, subject: `${t.subject} ${refOf(t)}`, text, messageId: "", inReplyTo: "", automated: false }, now(), "portal");
             if (r.ticket) cfg.save();
           }
           return redirect(`/t/${t.token}`);
         }
-        return send(200, customerPage(cfg, state, t));
+        return send(200, customerPage(cfg, state, t, url.searchParams.get("rated") ? "Thanks for the feedback." : ""));
       }
 
       if (path.startsWith("/admin")) {
