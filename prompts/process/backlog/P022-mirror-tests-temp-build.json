@@ -4,11 +4,15 @@
   "opened": "2026-10-16",
   "source": "P021 split of P014",
   "pr": 7424,
-  "result": null,
+  "result": "Helped: the mirror is no longer tracked (P024), and the gitops/marketing tests run against it absent on main; git ls-tree origin/main shows 0 files.",
   "history": [
     {
       "date": "2026-10-16",
       "note": "Process run: front-door-tools.mjs --write --out <dir> (touches nothing tracked); front-door-tools.test.mjs and gitops/tests build the mirror into a temp dir. test_manifests.py + test_front_door_serving.py pass with gitops/prod/front-door-tools moved away (84 passed, 19 skipped)."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Verify run: tests no longer depend on the committed tree because the tree is gone from main."
     }
   ],
   "touches": [

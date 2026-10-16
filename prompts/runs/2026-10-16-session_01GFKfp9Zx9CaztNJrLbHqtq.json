@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01GFKfp9Zx9CaztNJrLbHqtq",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md (scheduled routine)",
+  "input_sha256": "59d01ac434214c3b28068efd43837662cbd0547c5aaeca59b276d434c835cd09",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T18:47:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "swe-schedule follow-up",
+  "projects": [
+    "swe-sharedfiles"
+  ],
+  "pr": 7500,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Shallow clone needed git fetch --unshallow, which exceeded the 120s tool timeout and had to run in background."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Measured shared-file merge exposure from git history. Token/cost fields left null.",
+  "corrections": [],
+  "redteam": null
+}

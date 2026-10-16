@@ -756,6 +756,39 @@ export function scheduleText(schedule, bracket = null) {
   return lines.join("\n");
 }
 
+const htmlEsc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+/**
+ * One self-contained web page for the league: schedule with a pick-your-team filter, standings and
+ * play-off bracket when given. No external requests, so an organiser can drop it on any static host
+ * (GitHub Pages, Netlify, a school site) or email it. Every typed name is escaped.
+ */
+export function leaguePageHtml(schedule, { title = "League schedule", table = null, bracket = null } = {}) {
+  const teams = schedule.teams;
+  const t = htmlEsc(title);
+  const rounds = schedule.rounds.map((r) => {
+    const rows = r.matches.map((m) => `<tr data-t="${m.home} ${m.away}"><td>${htmlEsc(m.time)}</td><td>${htmlEsc(m.court)}</td><td>${htmlEsc(m.homeName)}</td><td>${htmlEsc(m.awayName)}</td></tr>`);
+    if (r.bye !== null && r.bye !== undefined) rows.push(`<tr data-t="${r.bye}" class="bye"><td colspan="4">Bye: ${htmlEsc(teams[r.bye])}</td></tr>`);
+    return `<section class="round"><h3>${htmlEsc(r.label)} <span>${htmlEsc(dayLabel(r.day))}</span></h3><table><thead><tr><th>Time</th><th>Court</th><th>Home</th><th>Away</th></tr></thead><tbody>${rows.join("")}</tbody></table></section>`;
+  }).join("\n");
+  const stand = table ? `<h2>Standings</h2><table><thead><tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead><tbody>${table.map((r) => `<tr><td>${r.rank}</td><td>${htmlEsc(r.name)}</td><td>${r.played}</td><td>${r.won}</td><td>${r.drawn}</td><td>${r.lost}</td><td>${r.gd}</td><td>${r.points}</td></tr>`).join("")}</tbody></table>` : "";
+  const brk = bracket ? `<h2>Play-offs</h2><pre>${htmlEsc(bracketText(bracket))}</pre>` : "";
+  const opts = teams.map((n, i) => `<option value="${i}">${htmlEsc(n)}</option>`).join("");
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${t}</title>
+<style>body{font:16px/1.5 system-ui,sans-serif;max-width:46rem;margin:0 auto;padding:1rem;color:#1a1a1a;background:#fff}table{border-collapse:collapse;width:100%;margin-bottom:1rem}th,td{text-align:left;padding:.3rem .5rem;border-bottom:1px solid #ddd}h3 span{font-weight:400;color:#555}select{font:inherit;padding:.3rem}.bye td{color:#555;font-style:italic}pre{background:#f5f5f5;padding:.75rem;overflow:auto}footer{color:#555;font-size:.85rem;margin-top:2rem}@media print{select,label{display:none}}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#333}pre{background:#1c1c1c}h3 span,.bye td,footer{color:#aaa}}</style></head>
+<body><h1>${t}</h1>
+<p><label>Show only <select id="f"><option value="">Everyone</option>${opts}</select></label></p>
+${rounds}
+${stand}
+${brk}
+<footer>Made with the free league schedule generator. Check dates and venues with your organiser.</footer>
+<script>(function(){var f=document.getElementById("f");function a(){var v=f.value;document.querySelectorAll("tr[data-t]").forEach(function(r){r.hidden=v!==""&&r.getAttribute("data-t").split(" ").indexOf(v)<0});document.querySelectorAll(".round").forEach(function(s){s.hidden=!s.querySelector("tr[data-t]:not([hidden])")})}f.addEventListener("change",a)})();</script>
+</body></html>
+`;
+}
+
 // ---------------------------------------------------------------- results, standings, play-offs
 
 /** Lines like "Hawks 3 - 2 Owls". Names are matched against the team list. */
