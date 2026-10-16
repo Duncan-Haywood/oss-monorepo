@@ -611,6 +611,39 @@ export function rosterIcs(r, weekStart, person = null) {
   return lines.join("\r\n") + "\r\n";
 }
 
+// Plain-text message per person ("Hi Sam, here is your week: ..."), ready to paste into a text or chat.
+// weekStart ("YYYY-MM-DD", a Monday) is optional; with it each line carries the date, e.g. "Mon 6 Oct".
+export function rosterMessages(r, weekStart = null) {
+  let base = null;
+  if (weekStart) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(weekStart));
+    if (!m) throw new Error("weekStart must be YYYY-MM-DD");
+    base = Date.UTC(+m[1], +m[2] - 1, +m[3]);
+  }
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const dayLabel = (d) => {
+    if (base === null) return DAYS[d];
+    const dt = new Date(base + d * 86400000);
+    return `${DAYS[d]} ${dt.getUTCDate()} ${MONTHS[dt.getUTCMonth()]}`;
+  };
+  const byPerson = new Map();
+  for (const a of r.assignments) {
+    if (!a.person) continue;
+    if (!byPerson.has(a.person)) byPerson.set(a.person, []);
+    byPerson.get(a.person).push(a.slot);
+  }
+  const out = [];
+  for (const p of r.people) {
+    const slots = (byPerson.get(p.name) || []).slice().sort((a, b) => a.day - b.day || a.startMin - b.startMin);
+    const lines = slots.map((s) => `${dayLabel(s.day)}: ${fmtClock(s.startMin)}-${fmtClock(s.endMin)}${s.label ? " " + s.label : ""}${s.role ? ` (${s.role})` : ""}`);
+    const text = slots.length
+      ? `Hi ${p.name}, your shifts this week:\n${lines.join("\n")}\nTotal ${num(p.hours)} hours. Reply if you cannot make one.`
+      : `Hi ${p.name}, you have no shifts this week.`;
+    out.push({ person: p.name, shifts: slots.length, text });
+  }
+  return out;
+}
+
 export function hoursCsv(r) {
   const rows = ["person,shifts,hours,overtime_hours,estimated_payroll,minimum_hours,hours_under_minimum"];
   for (const p of r.people) rows.push([p.name.includes(",") ? `"${p.name}"` : p.name, p.shifts, p.hours.toFixed(2), p.otHours.toFixed(2), p.cost.toFixed(2), p.minHours, p.short.toFixed(2)].join(","));

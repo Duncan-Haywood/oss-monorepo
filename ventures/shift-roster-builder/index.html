@@ -119,6 +119,8 @@
     <div style="margin-top:12px"><label for="weekstart">Week starting (a Monday), for calendar files</label>
       <input id="weekstart" type="date"> <select id="icsperson" aria-label="Whose shifts"></select>
       <button type="button" class="secondary" id="download-ics">Download calendar (.ics)</button></div>
+    <div style="margin-top:12px"><button type="button" class="secondary" id="make-messages">Write a text for each person</button>
+      <div id="messages" aria-live="polite"></div></div>
   </section>
 
   <section class="card">
@@ -160,7 +162,7 @@
   </footer>
 
   <script type="module">
-    import { parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -252,6 +254,22 @@
       if (!last) return;
       try { const who = $("#icsperson").value || null; download(who ? `roster-${who}.ics` : "roster.ics", rosterIcs(last, $("#weekstart").value, who), "text/calendar"); }
       catch (e) { status.textContent = e.message === "weekStart must be a Monday" ? "Pick a date that is a Monday." : "Pick the Monday the week starts on."; }
+    });
+
+    $("#make-messages").addEventListener("click", () => {
+      if (!last) return;
+      let msgs;
+      try { msgs = rosterMessages(last, $("#weekstart").value || null); } catch (e) { msgs = rosterMessages(last); }
+      const box = $("#messages"); box.textContent = "";
+      for (const m of msgs) {
+        const row = document.createElement("div"); row.style.marginTop = "8px";
+        const ta = document.createElement("textarea"); ta.readOnly = true; ta.rows = Math.min(8, m.text.split("\n").length + 1);
+        ta.value = m.text; ta.setAttribute("aria-label", "Message for " + m.person); ta.style.width = "100%";
+        const b = document.createElement("button"); b.type = "button"; b.className = "secondary"; b.textContent = "Copy for " + m.person;
+        b.addEventListener("click", () => { ta.select(); try { navigator.clipboard.writeText(m.text); } catch (e) { document.execCommand("copy"); } record("messages_copied"); });
+        row.append(ta, b); box.append(row);
+      }
+      record("messages_made");
     });
 
     // Remember the team on this device only; nothing is sent anywhere.
