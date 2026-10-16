@@ -91,6 +91,7 @@
     </div>
     <label for="results">Results so far, one per line, to rank the teams (blank = seeded in the order you listed them): <code>Hawks 3 - 2 Owls</code></label>
     <textarea id="results" rows="3" placeholder="Hawks 3 - 2 Owls"></textarea>
+    <input type="checkbox" id="h2h" style="margin-top:6px"> <label for="h2h" style="display:inline">Break ties on points by head-to-head results first</label>
 
     <h2 style="margin-top:18px">5. Rainouts and cancellations (optional)</h2>
     <label for="rainouts">One per line: a date cancels every match that night, a date plus team names cancels only their match. Each cancelled match moves to the earliest later night both teams are free and a court is open; nothing else changes. <code>2026-10-13</code> or <code>2026-10-13 Lob Squad</code></label>
@@ -272,7 +273,7 @@
       if (resText.trim()) {
         const pr = parseResults(resText, s.teams);
         warnings.push(...pr.errors);
-        table = standings(s.teams, pr.results);
+        table = standings(s.teams, pr.results, { headToHead: $("#h2h").checked });
         seeds = table.map((r) => r.name);
       }
       let bracketTxt = "";
