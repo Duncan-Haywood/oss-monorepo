@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import {
+import { laborPercent,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -424,4 +424,15 @@ test("carry over: last week's CSV sets prev: so the rest rule holds across the b
   const sh = parseShifts("Mon, 6am, 10am, 1");
   const roster = buildRoster(st.staff.slice(0, 1), sh.slots);
   assert.equal(roster.assignments[0].person, null);
+
+test("laborPercent: share of sales, target headroom, bad input", () => {
+  const a = laborPercent(2800, 10000, 30);
+  assert.ok(Math.abs(a.pct - 28) < 1e-9);
+  assert.equal(a.maxPayroll, 3000);
+  assert.equal(a.headroom, 200);
+  assert.equal(a.over, false);
+  assert.equal(laborPercent(3500, 10000, 30).over, true);
+  assert.equal(laborPercent(2800, 10000).target, null);
+  assert.equal(laborPercent(2800, 0), null);
+  assert.equal(laborPercent(2800, "abc"), null);
 });
