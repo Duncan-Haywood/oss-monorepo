@@ -19,7 +19,7 @@
   "baseline": "see P025 (76 files across four ventures)",
   "opened": "2026-10-16",
   "source": "process run 2026-10-16, split of P025",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7581",
   "result": "ebay-fee-calculator: 13.6% FVF, $0.40 per-order default (tiers/2.35% band noted, not modelled, as in P027); explainer prose recomputed from the engine; suite 499/499. calc.test.mjs keeps explicit 13.25%/$0.30 fixtures by design, so grep still finds them there.",
   "history": [
     {
