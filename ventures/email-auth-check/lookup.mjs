@@ -39,11 +39,29 @@ export const DKIM_SELECTORS = [
  *   (timeout, network error, an unexpected RCODE) where the record's true
  *   state was never actually learned, which must never be read as "absent".
  */
-export async function dohQueryTxt(name, { fetchImpl = globalThis.fetch, timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
+export async function dohQueryTxt(name, opts = {}) {
+  const r = await dohFetchAnswers(name, 'TXT', 16, opts);
+  return r.ok ? { ok: true, records: r.answers.map((a) => unquoteTxtData(a.data)), error: null } : { ok: false, records: null, error: r.error };
+}
+
+/**
+ * Same transport as dohQueryTxt, for record types where only "is there any
+ * answer" matters (the SPF void-lookup check). `count` is 0 for NXDOMAIN or
+ * an empty answer; `ok: false` is a transport failure, never read as empty.
+ *
+ * @returns {{ok: boolean, count: number|null, error: string|null}}
+ */
+export async function dohQueryCount(name, type, opts = {}) {
+  const typeCode = { A: 1, AAAA: 28, MX: 15 }[type];
+  const r = await dohFetchAnswers(name, type, typeCode, opts);
+  return r.ok ? { ok: true, count: r.answers.length, error: null } : { ok: false, count: null, error: r.error };
+}
+
+async function dohFetchAnswers(name, type, typeCode, { fetchImpl = globalThis.fetch, timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
   if (typeof fetchImpl !== 'function') {
-    return { ok: false, records: null, error: 'no fetch implementation available in this runtime' };
+    return { ok: false, answers: null, error: 'no fetch implementation available in this runtime' };
   }
-  const url = `${DOH_ENDPOINT}?name=${encodeURIComponent(name)}&type=TXT`;
+  const url = `${DOH_ENDPOINT}?name=${encodeURIComponent(name)}&type=${type}`;
   const controller = typeof AbortController === 'function' ? new AbortController() : null;
   const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
   try {
@@ -52,23 +70,20 @@ export async function dohQueryTxt(name, { fetchImpl = globalThis.fetch, timeoutM
       signal: controller ? controller.signal : undefined,
     });
     if (!res.ok) {
-      return { ok: false, records: null, error: `HTTP ${res.status} from the DNS resolver` };
+      return { ok: false, answers: null, error: `HTTP ${res.status} from the DNS resolver` };
     }
     const body = await res.json();
     // RFC 1035 RCODEs, as Cloudflare's JSON API reports them in `Status`.
-    if (body.Status === 3) return { ok: true, records: [], error: null }; // NXDOMAIN: real, reportable absence
+    if (body.Status === 3) return { ok: true, answers: [], error: null }; // NXDOMAIN: real, reportable absence
     if (body.Status !== 0) {
-      return { ok: false, records: null, error: `DNS resolver returned RCODE ${body.Status}` };
+      return { ok: false, answers: null, error: `DNS resolver returned RCODE ${body.Status}` };
     }
-    const records = (body.Answer || [])
-      .filter((a) => a && a.type === 16) // 16 = TXT
-      .map((a) => unquoteTxtData(a.data));
-    return { ok: true, records, error: null };
+    return { ok: true, answers: (body.Answer || []).filter((a) => a && a.type === typeCode), error: null };
   } catch (err) {
     const timedOut = err && err.name === 'AbortError';
     return {
       ok: false,
-      records: null,
+      answers: null,
       error: timedOut ? 'timed out' : String((err && err.message) || err || 'unknown error'),
     };
   } finally {
@@ -83,7 +98,7 @@ export async function dohQueryTxt(name, { fetchImpl = globalThis.fetch, timeoutM
  * pure) to count the total RFC 7208 lookup budget across the whole chain --
  * not just the root record's own mechanisms.
  */
-export async function resolveSpfChain(domain, { fetchTxt = dohQueryTxt, timeoutMs, maxFetches = DEFAULT_MAX_SPF_FETCHES } = {}) {
+export async function resolveSpfChain(domain, { fetchTxt = dohQueryTxt, queryCount = dohQueryCount, timeoutMs, maxFetches = DEFAULT_MAX_SPF_FETCHES } = {}) {
   const rootKey = normalizeDomainKey(domain);
   const recordsByDomain = new Map();
   const queued = new Set([rootKey]);
@@ -124,7 +139,57 @@ export async function resolveSpfChain(domain, { fetchTxt = dohQueryTxt, timeoutM
   }
 
   const walk = walkSpfChain(rootKey, recordsByDomain, { maxVisits: maxFetches });
+  Object.assign(walk, await findVoidLookups(walk, { queryCount, timeoutMs }));
   return { walk, error: rootError };
+}
+
+const MAX_VOID_QUERIES = 20;
+
+/**
+ * RFC 7208 s4.6.4 also caps "void lookups" -- a/mx/exists (and include/
+ * redirect) lookups that return nothing -- at 2; a third is a PermError. A
+ * stale `a:` or `mx:` left over from a retired vendor is the usual cause.
+ * This resolves the A/AAAA (or MX) target of each a/mx/exists term in the
+ * chain and counts every term occurrence whose target answers empty.
+ * Terms with macros (%{...}) can't be resolved without a sender, so they
+ * are skipped; lookups that fail in transport are reported unchecked, never
+ * counted as void.
+ */
+export async function findVoidLookups(walk, { queryCount = dohQueryCount, timeoutMs } = {}) {
+  const terms = [];
+  for (const entry of walk.chain) {
+    if (!entry.found || !entry.record) continue;
+    for (const t of parseSpfMechanisms(entry.record).lookupTerms) {
+      if (t.mechanism !== 'a' && t.mechanism !== 'mx' && t.mechanism !== 'exists') continue;
+      const target = normalizeDomainKey(t.domain || entry.domain);
+      if (!target || target.includes('%')) continue;
+      terms.push({ domain: entry.domain, mechanism: t.mechanism, target });
+    }
+  }
+  const cache = new Map();
+  let queries = 0;
+  let unchecked = 0;
+  async function isVoid(mechanism, target) {
+    const types = mechanism === 'mx' ? ['MX'] : ['A', 'AAAA'];
+    const key = `${types[0]}:${target}`;
+    if (!cache.has(key)) {
+      if (queries >= MAX_VOID_QUERIES) {
+        cache.set(key, null);
+      } else {
+        queries += types.length;
+        const results = await Promise.all(types.map((ty) => queryCount(target, ty, { timeoutMs })));
+        cache.set(key, results.some((r) => !r.ok) ? null : results.every((r) => r.count === 0));
+      }
+    }
+    return cache.get(key);
+  }
+  const voidLookups = [];
+  for (const t of terms) {
+    const v = await isVoid(t.mechanism, t.target);
+    if (v === null) unchecked += 1;
+    else if (v) voidLookups.push(t);
+  }
+  return { voidLookups, voidUnchecked: unchecked };
 }
 
 /** Looks up every common DKIM selector in parallel -- nine small requests,
