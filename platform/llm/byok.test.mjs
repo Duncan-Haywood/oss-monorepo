@@ -95,3 +95,42 @@ test('withFallback: deterministic path without a key, on failure, model path oth
   const ok = await withFallback({ provider: 'anthropic', apiKey: 'k' }, det, async c => `model:${c.model}`);
   assert.deepEqual(ok, { value: `model:${PROVIDERS.anthropic.defaultModel}`, source: 'model' });
 });
+
+test('guard: refused calls are never sent; allowed calls get the ceiling and are settled', async () => {
+  const { createGuard } = await import('../../ventures/llm-spend-guard/guard.mjs');
+  const guard = createGuard({
+    prices: { 'claude-opus-5-5': { in: 5, out: 25 } },
+    maxOutputTokens: 500,
+    budgets: [{ id: 'd', limitUsd: 0.05 }],
+  });
+  let sent = 0;
+  let lastBody = null;
+  const f = async (url, init) => {
+    sent++;
+    lastBody = JSON.parse(init.body);
+    return { ok: true, status: 200, json: async () => ({ content: [{ type: 'text', text: 'ok' }], usage: { input_tokens: 100, output_tokens: 400 } }) };
+  };
+  const r = await complete({ provider: 'anthropic', apiKey: 'k' }, { prompt: 'P', fetch: f, guard, scope: { feature: 'test' } });
+  assert.equal(r.text, 'ok');
+  assert.equal(lastBody.max_tokens, 500, 'the 2048 default is lowered to the policy ceiling');
+  assert.equal(guard.status().budgets[0].spentUsd, 0.0105);
+  // Three more calls spend $0.042 in all; the next worst-case hold ($0.0125) does not fit.
+  for (let i = 0; i < 3; i++) await complete({ provider: 'anthropic', apiKey: 'k' }, { prompt: 'P', fetch: f, guard });
+  const before = sent;
+  await assert.rejects(complete({ provider: 'anthropic', apiKey: 'k' }, { prompt: 'P', fetch: f, guard }), err => {
+    assert.ok(err instanceof ByokError);
+    assert.match(err.message, /spend guard refused/);
+    assert.equal(err.reasons[0].code, 'budget-exceeded');
+    return true;
+  });
+  assert.equal(sent, before, 'a refused call never reaches the provider');
+});
+
+test('guard: a failed request releases its hold', async () => {
+  const { createGuard } = await import('../../ventures/llm-spend-guard/guard.mjs');
+  const guard = createGuard({ prices: { m: { in: 1, out: 1 } }, budgets: [{ id: 'd', limitUsd: 1 }] });
+  const f = fakeFetch({}, 500);
+  await assert.rejects(complete({ provider: 'openai', apiKey: 'k', model: 'm' }, { prompt: 'P', fetch: f, guard }), ByokError);
+  const b = guard.status().budgets[0];
+  assert.equal(b.spentUsd + b.heldUsd, 0);
+});
