@@ -2,6 +2,13 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-16 · Batch 7: three early-stage sources on doing less
+
+- Added 3 sources and 3 practices (31 practices, 30 sources), all from small teams, the side batch 6 and the README's next steps called thin: McKinley's *Choose Boring Technology* (P29), Fried and Hansson's *Getting Real* from 37signals (P30) and the Instagram team's "do the simple thing first" (P31).
+- **All three say do less, and the loop already mostly does.** P30 (cut features, never quality) is `adopted`: `prompt.md` puts quality before volume and keeps a project small enough to merge in one run. P29 is `partly` adopted (research projects are standard-library Python). P31 is `partly` adopted; nothing tells a run to start with the simplest version, and a session has no memory, so a simple first version needs a README that says what it left out.
+- **Still no proposal.** The ledger has 499 rows (it had 495). The highest unadopted `yes` row is still P23 at 3.8%, below the 5% bar. P29 targets tooling (3.8%) at half weight, a 1.9% priority.
+- Verification was by web search only, from secondary summaries. McKinley's essay was not located, so the row uses no figure from it. *Getting Real* was not read and its 2006 year was not confirmed in the results. The Instagram row rests on one summary of their five-year retrospective; the original post was not found.
+
 ## 2026-10-16 · Batch 6: a testing post, Google's large-scale changes and Toyota's stop-the-line rule
 
 - Added 3 sources and 3 practices (28 practices, 27 sources): Wacker's *Just Say No to More End-to-End Tests* (Google, 2015; P26), Winters, Manshreck and Wright's *Software Engineering at Google* (2020; P27) and Ohno's *Toyota Production System* (1988 English edition; P28). The catalogue's first manufacturing source, which is the track's own field.
