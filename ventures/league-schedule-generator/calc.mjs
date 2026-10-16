@@ -762,6 +762,40 @@ export function bracketText(bracket) {
   return lines.join("\n");
 }
 
+// ---------------------------------------------------------------- share link
+
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "courts", "times", "seed", "minutes", "results", "playoff"];
+
+/** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
+export function encodeFields(f) {
+  const o = {};
+  for (const k of SHARE_KEYS) if (f[k] !== undefined && f[k] !== "" && f[k] !== false) o[k] = f[k];
+  const bytes = new TextEncoder().encode(JSON.stringify(o));
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+/** Inverse of encodeFields. Returns null for anything that is not a valid share fragment. */
+export function decodeFields(text) {
+  try {
+    const t = String(text || "").replace(/^#s=?/, "").replace(/^#/, "");
+    if (!t || t.length > 20000 || !/^[A-Za-z0-9_-]+$/.test(t)) return null;
+    const bin = atob(t.replace(/-/g, "+").replace(/_/g, "/"));
+    const o = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));
+    if (!o || typeof o !== "object" || Array.isArray(o)) return null;
+    const str = (v) => (typeof v === "string" ? v : "");
+    const wd = Array.isArray(o.weekdays) ? o.weekdays.filter((d) => WEEKDAYS.includes(d)) : [];
+    return {
+      teams: str(o.teams), double: o.double === true, start: str(o.start), weekdays: wd,
+      skip: str(o.skip), blackouts: str(o.blackouts), courts: str(o.courts), times: str(o.times),
+      seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
+      minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
+      results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
+    };
+  } catch { return null; }
+}
+
 // ---------------------------------------------------------------- example
 
 export function sampleFields() {
