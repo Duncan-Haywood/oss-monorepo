@@ -9,7 +9,9 @@ month. Then it asks the question a fee table cannot: **how often does it
 actually sell there**, and what is one listing worth per month of shelf once
 you count that.
 
-**Reverb, TikTok Shop, Whatnot, Poshmark and StockX** are five more channels,
+**Depop and Facebook Marketplace** (added 2026-10-16, both off by default, no
+handoff yet because neither dedicated calculator accepts a link) join
+**Reverb, TikTok Shop, Whatnot, Poshmark and StockX** as more channels,
 each switched off until you turn it on. Reverb only applies to musical
 instruments and audio gear; Poshmark only to clothing, shoes and accessories;
 StockX only to sneakers, streetwear and graded cards; TikTok Shop and Whatnot
