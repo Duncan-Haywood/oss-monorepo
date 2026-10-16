@@ -306,6 +306,33 @@ review track uses `runcost.py report` to judge models and prompt versions on
 quality, throughput and usefulness per dollar. It is an internal metric:
 never in a product, never a reason to skip work.
 
+### Measured, not typed
+
+Set by the owner on 2026-10-16: "I want to gather metadata about the
+development process and the applications both for research and also for
+improvement loops", then "add that as a goal and then work on it."
+
+So the process and its products are a dataset, kept in the repository and
+good enough to study as well as to steer by. Three rules:
+
+1. **Derive every fact that can be derived; type only judgment.** Whether a
+   PR merged, its size, its CI history, its cost and its time come from
+   GitHub, git and the transcript, never from the agent's memory at the end
+   of a run. A run types its outcome, errors, friction and deviations.
+   `prompts/derive.py` measures PR facts and rework into `prompts/derived/`,
+   and `promptctl.py measure` uses them where a record's field is null.
+2. **Measure rework, not only green CI.** Each merged PR is scored after 14
+   days: reverted or not, follow-up commits that name it, and the share of
+   its added lines still alive. Prompt versions and models are compared on
+   that, beside success.
+3. **The products are measured the same way:** counts only, never people
+   (`portfolio/usage/README.md`). That means search impressions and clicks
+   per page, repository stars, forks and outside issues, self-deploys, and
+   the compute each venture has cost against the use it gets.
+
+Every measured figure names its source and what it cannot see. A field that
+could not be measured stays null: it is never guessed.
+
 ### Track goals
 
 - **Ventures:** products on `main` with a public URL, disclaimers and usage

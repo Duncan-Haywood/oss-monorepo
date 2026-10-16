@@ -9,7 +9,7 @@
   <meta property="og:description" content="Send a priced, scoped proposal in 15 minutes instead of an afternoon in Word. Print to PDF, track sent, accepted and declined. No account, no watermark.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Proposal Maker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A free proposal generator that runs in your browser: client and project summary, goals, scope with included and excluded lists, phases with dates, fixed, good-better-best, hourly-with-cap or monthly retainer pricing, deposit and payment milestones, assumptions, change-order wording, validity date, acceptance block and a print-to-PDF layout. No account, no watermark; data stays on your device.", "featureList": "Scope with included and excluded lists, phases with dates, four pricing models, deposit and payment milestones, assumptions, change-order and other template clauses, validity date, signature block, print to PDF, saved proposals with draft sent accepted declined status, duplicate, JSON backup and restore, send to Estimate Maker, works offline"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this proposal maker really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There is no watermark, no proposal limit, no account and no trial. It runs in your browser, so it costs nothing to serve, and it stays free."}}, {"@type": "Question", "name": "How is this different from Bonsai, PandaDoc, Proposify or HoneyBook?", "acceptedAnswer": {"@type": "Answer", "text": "Those are paid platforms with online signing, payments and client portals. This is a free, private document builder: you fill in the scope, timeline and price, print a clean PDF and send it yourself. Nothing is uploaded and there is no signup, so it suits one-person shops that mainly need the document."}}, {"@type": "Question", "name": "What pricing models can a proposal use?", "acceptedAnswer": {"@type": "Answer", "text": "Four: a fixed price from line items, good-better-best options the client picks between, hourly with a not-to-exceed cap, and a monthly retainer with included hours. Each can carry a tax rate, a deposit and payment milestones."}}, {"@type": "Question", "name": "Are the contract clauses legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. The change-order, revision, payment, ownership and cancellation wording is generic template text filled in from the numbers you enter. It is not legal advice and it may not suit where you work or what you sell. Have a lawyer review any contract before you rely on it."}}, {"@type": "Question", "name": "Can the client sign it electronically?", "acceptedAnswer": {"@type": "Answer", "text": "Not in this page, which never uploads anything. The printed acceptance block has signature lines for a pen or for a signed PDF. If you want a private signing link with a typed-name acceptance, a timestamped certificate and an email when it is opened or signed, deploy the optional open-source signing server (server.mjs, one-click on Render, Fly.io or Docker) in your own account and upload the downloaded HTML file to it. Whether a typed-name acceptance is enough for your contract is a question for a lawyer."}}, {"@type": "Question", "name": "Where are my proposals stored?", "acceptedAnswer": {"@type": "Answer", "text": "In your browser on this device only. Clearing site data removes them, so use Download backup now and then; the file restores on any device. Nothing is uploaded."}}, {"@type": "Question", "name": "What happens when a client accepts?", "acceptedAnswer": {"@type": "Answer", "text": "Mark the proposal accepted and choose the option they picked. Send to Estimate Maker then adds the pricing as a draft estimate in Estimate Maker on this device, from where a won job can become an invoice in Invoice Maker."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this proposal maker really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There is no watermark, no proposal limit, no account and no trial. It runs in your browser, so it costs nothing to serve, and it stays free."}}, {"@type": "Question", "name": "How is this different from Bonsai, PandaDoc, Proposify or HoneyBook?", "acceptedAnswer": {"@type": "Answer", "text": "Those are paid platforms with online signing, payments and client portals. This is a free, private document builder: you fill in the scope, timeline and price, print a clean PDF and send it yourself. Nothing is uploaded and there is no signup, so it suits one-person shops that mainly need the document."}}, {"@type": "Question", "name": "What pricing models can a proposal use?", "acceptedAnswer": {"@type": "Answer", "text": "Four: a fixed price from line items, good-better-best options the client picks between, hourly with a not-to-exceed cap, and a monthly retainer with included hours. Each can carry a tax rate, a deposit and payment milestones."}}, {"@type": "Question", "name": "Are the contract clauses legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. The change-order, revision, payment, ownership and cancellation wording is generic template text filled in from the numbers you enter. It is not legal advice and it may not suit where you work or what you sell. Have a lawyer review any contract before you rely on it."}}, {"@type": "Question", "name": "Can the client sign it electronically?", "acceptedAnswer": {"@type": "Answer", "text": "Not in this page, which never uploads anything. The printed acceptance block has signature lines for a pen or for a signed PDF. If you want a private signing link with a typed-name acceptance, a timestamped certificate and an email when it is opened or signed, deploy the optional open-source signing server (server.mjs, one-click on Render, Fly.io or Docker) in your own account and upload the downloaded HTML file to it. Whether a typed-name acceptance is enough for your contract is a question for a lawyer."}}, {"@type": "Question", "name": "Where are my proposals stored?", "acceptedAnswer": {"@type": "Answer", "text": "In your browser on this device only. Clearing site data removes them, so use Download backup now and then; the file restores on any device. Nothing is uploaded."}}, {"@type": "Question", "name": "What happens when a client accepts?", "acceptedAnswer": {"@type": "Answer", "text": "Mark the proposal accepted and choose the option they picked. Send to Estimate Maker then adds the pricing as a draft estimate in Estimate Maker on this device, from where a won job can become an invoice in Invoice Maker."}}, {"@type": "Question", "name": "Does it use AI, and is my data sent anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "Only if you choose to. The wording draft works with no key, building a starter from the nearest trade template. If you add your own API key for Anthropic, OpenAI, Gemini or an OpenAI-compatible endpoint, your short brief is sent from your browser straight to that provider, never to us. The AI never writes prices, dates or contract clauses, and every draft needs your review."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f4f8; }
     body { max-width: 1040px; margin: auto; padding: 28px; }
@@ -210,6 +210,24 @@
       <select id="tpl"><option value="">Choose a trade…</option></select>
       <button type="button" class="secondary" id="use-tpl">Use template</button>
     </p>
+    <details class="noprint" id="ai-box">
+      <summary>Draft the wording from a short brief (optional AI on your own key)</summary>
+      <p class="note">Describe the job in a few lines and get a first draft of the summary, problem, goals, scope and assumptions in the form above. It never writes prices, dates or contract clauses. With no key it builds a starter from the nearest trade template. With your own key, your brief goes straight from this browser to the provider you pick, and nowhere else. Read and edit every line before you send: it is a draft, not advice.</p>
+      <div class="grid">
+        <div><label for="ai-work">Work you are offering</label><textarea id="ai-work" placeholder="Redesign and rebuild a 6-page site on WordPress"></textarea></div>
+        <div><label for="ai-situation">Client's situation (optional)</label><textarea id="ai-situation" placeholder="Site is slow, not mobile friendly, gets no enquiries"></textarea></div>
+        <div><label for="ai-leave">Leave out (optional)</label><textarea id="ai-leave" placeholder="Copywriting, hosting"></textarea></div>
+      </div>
+      <div class="grid">
+        <div><label for="ai-provider">Provider</label><select id="ai-provider"><option value="">None (starter only)</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="openai-compatible">Other (OpenAI-compatible, e.g. OpenRouter, Ollama)</option></select></div>
+        <div><label for="ai-model">Model (required except Anthropic)</label><input id="ai-model" autocomplete="off"></div>
+        <div><label for="ai-base">Base URL (other providers only)</label><input id="ai-base" autocomplete="off" placeholder="http://localhost:11434/v1"></div>
+        <div><label for="ai-key">API key</label><input id="ai-key" type="password" autocomplete="off"></div>
+      </div>
+      <p><label class="inline" for="ai-remember"><input id="ai-remember" type="checkbox"> Remember the key in this browser</label>
+        <button type="button" class="secondary" id="ai-go">Draft the wording</button></p>
+      <p class="note" id="ai-status" aria-live="polite"></p>
+    </details>
     <p class="note" id="status"></p>
   </section>
 
@@ -256,6 +274,8 @@
     <p>In your browser on this device only. Clearing site data removes them, so use Download backup now and then; the file restores on any device. Nothing is uploaded.</p>
     <h3>What happens when a client accepts?</h3>
     <p>Mark the proposal accepted and choose the option they picked. Send to Estimate Maker then adds the pricing as a draft estimate in Estimate Maker on this device, from where a won job can become an invoice in Invoice Maker.</p>
+    <h3>Does it use AI, and is my data sent anywhere?</h3>
+    <p>Only if you choose to. The wording draft works with no key, building a starter from the nearest trade template. If you add your own API key for Anthropic, OpenAI, Gemini or an OpenAI-compatible endpoint, your short brief is sent from your browser straight to that provider, never to us. The AI never writes prices, dates or contract clauses, and every draft needs your review.</p>
   </section>
 
   <footer class="noprint">
@@ -271,6 +291,7 @@
     import { esc, followUps, followUpText, normalizeProposal, pricingOptions, paymentSchedule, finishDate, status, proposalValue, nextNumber, duplicateNumbers, pipeline, duplicateProposal, validUntil, validate, renderProposal, standaloneHtml, toEstimateDraft, parseBackup, mergeProposals, proposalsToCsv, formatMoney, addDays, CLAUSE_KEYS, MAX_TIERS } from "./calc.mjs";
     import { TEMPLATES, applyTemplate } from "./templates.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { draftProposal } from "./ai.mjs";
     const $ = (s) => document.querySelector(s);
     const KEY = "proposal-maker-data";
     const today = () => new Date().toISOString().slice(0, 10);
@@ -547,6 +568,29 @@
       if (!id) { $("#status").textContent = "Choose a template first."; return; }
       fill(applyTemplate(blank(), id)); record("template_used");
       $("#status").textContent = "Template loaded with placeholder rates and wording. Replace every [bracket] and price with your own.";
+    };
+    // ----- optional AI draft (own key, browser to provider) -----
+    const AIKEY = "proposal-maker-ai";
+    try { const c = JSON.parse(localStorage.getItem(AIKEY) || "null"); if (c) { $("#ai-provider").value = c.provider || ""; $("#ai-model").value = c.model || ""; $("#ai-base").value = c.baseUrl || ""; $("#ai-key").value = c.apiKey || ""; $("#ai-remember").checked = !!c.apiKey; } } catch { /* optional */ }
+    $("#ai-go").onclick = async () => {
+      const cfg = { provider: $("#ai-provider").value, model: $("#ai-model").value.trim(), baseUrl: $("#ai-base").value.trim(), apiKey: $("#ai-key").value.trim(), browser: true };
+      try { if ($("#ai-remember").checked) localStorage.setItem(AIKEY, JSON.stringify(cfg)); else localStorage.removeItem(AIKEY); } catch { /* optional */ }
+      const st = $("#ai-status");
+      st.textContent = "Drafting…"; $("#ai-go").disabled = true;
+      try {
+        const r = await draftProposal(cfg.provider ? cfg : {}, { work: $("#ai-work").value, situation: $("#ai-situation").value, leaveOut: $("#ai-leave").value, client: $("#c-name").value });
+        const d = r.draft;
+        if (d.summary) $("#i-summary").value = d.summary;
+        if (d.problem) $("#i-problem").value = d.problem;
+        if (d.goals) $("#i-goals").value = d.goals;
+        if (d.assumptions) $("#i-assume").value = d.assumptions;
+        if (d.deliverables.length) { $("#deliverables").innerHTML = ""; d.deliverables.forEach(deliverableBlock); }
+        refresh();
+        record(r.source === "model" ? "ai_draft_model" : "ai_draft_starter");
+        st.textContent = r.source === "model" ? "Draft written by your model into the form above. Check every line, and add your own prices and dates."
+          : "Starter filled in without AI" + (r.error ? ` (the model call failed: ${r.error})` : cfg.provider ? " (key or model missing)" : " (no provider chosen)") + ". Replace every [bracket].";
+      } catch (e) { st.textContent = e.message; }
+      $("#ai-go").disabled = false;
     };
     $("#add-deliverable").onclick = () => { deliverableBlock({}); refresh(); };
     $("#add-phase").onclick = () => { phaseRow({ days: 7 }); refresh(); };
