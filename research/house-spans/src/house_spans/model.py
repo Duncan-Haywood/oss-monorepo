@@ -19,8 +19,8 @@ CF_B = {"2x4": 1.5, "2x6": 1.3, "2x8": 1.2, "2x10": 1.1, "2x12": 1.0}  # size fa
 CR = 1.15  # repetitive-member factor: three or more members at <= 24 in, load shared by sheathing
 
 # Base design values, psi, No. 2 grade, 2 to 4 in thick, 5 in and wider (NDS Supplement Table 4A).
-# SPF values as reprinted in the NELMA document cited in the README; Douglas Fir-Larch from the AWC
-# Supplement as I recall it. Check both against your copy of the Supplement before relying on them.
+# SPF values as reprinted in the NELMA document cited in the README. The Douglas Fir-Larch values were
+# not checked against a copy of the Supplement in this project: verify them before relying on them.
 SPECIES = {
     "SPF": dict(Fb=875.0, Fv=135.0, Fc_perp=425.0, E=1.4e6),
     "DF-L": dict(Fb=900.0, Fv=180.0, Fc_perp=625.0, E=1.6e6),

@@ -839,7 +839,7 @@ Census Survey of Construction for where a house's price goes.
 1. `house-framing` (done 2026-10-16): conventional versus advanced (OVE) framing of a house's
    exterior walls. Lumber, pieces, whole-wall R-value, and the NDS stud and header checks that
    say whether the lighter frame carries the roof.
-2. `house-spans`: an open span and sizing tool built from first principles: joists, rafters,
+2. `house-spans` (done 2026-10-16): an open span and sizing tool built from first principles: joists, rafters,
    headers and beams from NDS design values and ASCE 7 loads, with bending, shear, deflection
    and bearing checks. Compare it with published span tables only where their licence allows,
    and say where they differ and why. The output is a tool people can use.
