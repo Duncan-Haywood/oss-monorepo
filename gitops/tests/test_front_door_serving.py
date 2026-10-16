@@ -61,6 +61,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from front_door_mirror import all_kustomizations
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -98,7 +99,7 @@ def _front_door_configmaps() -> dict[str, dict[str, bytes]]:
     and it is the only place it could differ silently.
     """
     built: dict[str, dict[str, bytes]] = {}
-    for kustomization in sorted(ROOT.rglob("kustomization.yaml")):
+    for kustomization in all_kustomizations(ROOT):
         parsed = yaml.safe_load(kustomization.read_text()) or {}
         for entry in parsed.get("configMapGenerator", []):
             if not entry["name"].startswith("portfolio-front"):

@@ -72,6 +72,7 @@
  * ## Usage
  *
  *   node platform/marketing/front-door-tools.mjs --write   # writes gitops/prod/front-door-tools/
+ *   node platform/marketing/front-door-tools.mjs --write --out <dir>   # scratch build; touches nothing tracked
  *   node platform/marketing/front-door-tools.mjs           # prints a manifest summary
  *   node --test platform/marketing/front-door-tools.test.mjs
  *
@@ -2955,6 +2956,10 @@ export async function writeMountList(shards, file = FRONT_DOOR_DEPLOYMENT) {
 
 export async function writeMirror(outputDir = OUTPUT_DIR) {
   const built = await buildMirror();
+  // A scratch `--out` build (tests, P022) writes only the mirror itself: the
+  // alias map and the Deployment's mount list are tracked files elsewhere in
+  // the tree, and a throwaway build must not rewrite them.
+  const tracked = path.resolve(outputDir) === path.resolve(OUTPUT_DIR);
   await fs.rm(outputDir, { recursive: true, force: true });
   await fs.mkdir(outputDir, { recursive: true });
   // `built.stored`, not `built.files`: an aliased copy is deliberately never
@@ -2966,15 +2971,17 @@ export async function writeMirror(outputDir = OUTPUT_DIR) {
   // The alias map rides in the nginx ConfigMap beside `default.conf`, not in
   // this directory: it is configuration for the server, not content for it to
   // serve, and `gitops/prod/kustomization.yaml` generates the two together.
-  await fs.writeFile(
-    path.join(FRONT_DOOR_DIR, MIRROR_ALIAS_FILE),
-    renderMirrorAliases(built.aliases),
-  );
+  if (tracked) {
+    await fs.writeFile(
+      path.join(FRONT_DOOR_DIR, MIRROR_ALIAS_FILE),
+      renderMirrorAliases(built.aliases),
+    );
+  }
   await fs.writeFile(path.join(outputDir, 'kustomization.yaml'), renderKustomization(built.shards));
   // Same call, same commit: the shards and the Deployment that mounts them are
   // one artifact, and a tree where only half of it was regenerated is exactly
   // the state the pinning test exists to reject.
-  built.mountList = await writeMountList(built.shards);
+  if (tracked) built.mountList = await writeMountList(built.shards);
   return built;
 }
 
@@ -3053,13 +3060,15 @@ if (isMain) {
     console.log(headroomSummary(headroom));
     if (headroom.tight) process.exitCode = 1;
   } else if (process.argv.includes('--write')) {
-    const built = await writeMirror();
-    console.log(`wrote ${path.relative(REPO_ROOT, OUTPUT_DIR)}: ${totals(built)}`);
+    const outIndex = process.argv.indexOf('--out');
+    const outDir = outIndex > 0 ? path.resolve(process.argv[outIndex + 1]) : OUTPUT_DIR;
+    const built = await writeMirror(outDir);
+    console.log(`wrote ${path.relative(REPO_ROOT, outDir)}: ${totals(built)}`);
     console.log(headroomSummary(mirrorHeadroom(built)));
     // Say so out loud: a changed mount list means the shard count moved, which
     // is the one outcome of a regeneration that alters a file outside the
     // mirror directory and so is easy to leave out of a commit.
-    console.log(
+    if (built.mountList) console.log(
       built.mountList.changed
         ? `updated ${path.relative(REPO_ROOT, built.mountList.file)}: the shard count moved, ` +
             `so its projected volume now mounts ${built.shards.length} shard(s) — commit it with the mirror`
