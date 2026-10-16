@@ -18,9 +18,12 @@ Default to action on `ventures/*`, not portfolio administration.
 A good session ends with something a user could run, click, or install — not
 with a document about what should be built.
 
+Research is a peer portfolio, not part of this file's scope: work under
+`research/` follows [`research/CLAUDE.md`](research/CLAUDE.md).
+
 ## Before you start
 
-1. Read `README.md` for repo layout (`ventures/`, `platform/`, `portfolio/`).
+1. Read `README.md` for repo layout (`ventures/`, `research/`, `platform/`, `portfolio/`).
 2. On a generic brief, run `python3 portfolio/ledger/session_gate.py` and
    follow its verdict.
 3. Glance at open PRs — extend an existing one instead of duplicating work —
