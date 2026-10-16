@@ -164,6 +164,11 @@ holds the key — no rewrite.
 Never commit a key. Never embed one of ours in a client. Never make a paid API
 a hard dependency of the main flow.
 
+Use the shared client rather than writing another:
+[`platform/llm/byok.mjs`](platform/llm/README.md) talks to Anthropic, OpenAI,
+Gemini or any `/chat/completions` endpoint with the user's own key, and its
+`withFallback` is the shape above.
+
 ## 4. Build the thing
 
 One session should produce something usable. Concretely:
