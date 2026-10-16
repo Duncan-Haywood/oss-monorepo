@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Workflow Audit — One GitHub Action That Checks Ten Workflow Risks</title>
+  <title>Workflow Audit — One GitHub Action That Checks Eleven Workflow Risks</title>
   <meta name="description" content="Add one free GitHub Action to scan your workflows for script injection, pwn requests, cache and artifact poisoning, leaked secrets, over-broad permissions and more. Read-only, zero dependencies, SARIF and step-summary output, no network calls.">
-  <meta property="og:title" content="One GitHub Action, ten workflow risks checked">
+  <meta property="og:title" content="One GitHub Action, eleven workflow risks checked">
   <meta property="og:description" content="Free, read-only, MIT. Adds a findings table to your job summary and optional Code Scanning alerts.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Workflow Audit","applicationCategory":"DeveloperApplication","operatingSystem":"GitHub Actions runners; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A composite GitHub Action and zero-dependency CLI that runs ten read-only checks over .github/workflows and merges the findings into one severity-ranked report (text, JSON, Markdown or SARIF). It makes no network calls."}
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Workflow Audit","applicationCategory":"DeveloperApplication","operatingSystem":"GitHub Actions runners; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A composite GitHub Action and zero-dependency CLI that runs eleven read-only checks over .github/workflows and merges the findings into one severity-ranked report (text, JSON, Markdown or SARIF). It makes no network calls."}
   </script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does Workflow Audit check?","acceptedAnswer":{"@type":"Answer","text":"Ten documented patterns: pwn-request checkouts and script injection, secret leaks into logs, artifact and cache poisoning, self-hosted runners reachable from forks, secrets: inherit on untrusted triggers, write-all or missing permissions, checkout credentials persisted in .git/config, deprecated action runtimes, and jobs with no timeout-minutes."}},{"@type":"Question","name":"How is this different from zizmor?","acceptedAnswer":{"@type":"Answer","text":"zizmor is a broader, more mature static analyser and is the better choice for deep coverage. Workflow Audit is a smaller, dependency-free option that runs as a one-step Action with no install, ranks findings by severity, and writes the job summary and SARIF for you. Running both is reasonable."}},{"@type":"Question","name":"Does it send my workflows anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. It reads files in the checkout on the runner and makes no network calls of its own."}},{"@type":"Question","name":"Does a clean report mean my workflows are secure?","acceptedAnswer":{"@type":"Answer","text":"No. It matches ten specific patterns line by line. It is not a security audit and cannot see what a called action or reusable workflow does."}},{"@type":"Question","name":"What does it cost?","acceptedAnswer":{"@type":"Answer","text":"Nothing. It is MIT-licensed open source; sponsoring is optional."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does Workflow Audit check?","acceptedAnswer":{"@type":"Answer","text":"Eleven documented patterns: pwn-request checkouts and script injection, secret leaks into logs, artifact and cache poisoning, self-hosted runners reachable from forks, secrets: inherit on untrusted triggers, write-all or missing permissions, checkout credentials persisted in .git/config, deprecated action runtimes, jobs with no timeout-minutes, and action references not pinned to a commit SHA."}},{"@type":"Question","name":"How is this different from zizmor?","acceptedAnswer":{"@type":"Answer","text":"zizmor is a broader, more mature static analyser and is the better choice for deep coverage. Workflow Audit is a smaller, dependency-free option that runs as a one-step Action with no install, ranks findings by severity, and writes the job summary and SARIF for you. Running both is reasonable."}},{"@type":"Question","name":"Does it send my workflows anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. It reads files in the checkout on the runner and makes no network calls of its own."}},{"@type":"Question","name":"Does a clean report mean my workflows are secure?","acceptedAnswer":{"@type":"Answer","text":"No. It matches eleven specific patterns line by line. It is not a security audit and cannot see what a called action or reusable workflow does."}},{"@type":"Question","name":"What does it cost?","acceptedAnswer":{"@type":"Answer","text":"Nothing. It is MIT-licensed open source; sponsoring is optional."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 900px; margin: auto; padding: 28px; }
@@ -34,8 +34,8 @@
 <body>
   <header>
     <p class="note">WORKFLOW AUDIT · FREE GITHUB ACTION · READ-ONLY</p>
-    <h1>One step that checks your workflows for ten known risks</h1>
-    <p>Pwn requests, script injection, cache and artifact poisoning, secrets leaking into logs, <code>write-all</code> tokens, fork-reachable self-hosted runners and more. Workflow Audit runs ten focused checkers over <code>.github/workflows</code>, merges their findings into one severity-ranked report, and writes it to your job summary, with optional Code Scanning alerts.</p>
+    <h1>One step that checks your workflows for eleven known risks</h1>
+    <p>Pwn requests, script injection, cache and artifact poisoning, secrets leaking into logs, <code>write-all</code> tokens, fork-reachable self-hosted runners and more. Workflow Audit runs eleven focused checkers over <code>.github/workflows</code>, merges their findings into one severity-ranked report, and writes it to your job summary, with optional Code Scanning alerts.</p>
     <p class="note">It reads files in the checkout and makes no network calls of its own. Your workflows are never uploaded.</p>
   </header>
 
@@ -59,8 +59,8 @@
       <thead><tr><th>Severity</th><th>Risk</th></tr></thead>
       <tbody>
         <tr><td>High</td><td>Pwn-request checkout; script injection from untrusted <code>github.event.*</code>; secrets transformed past log masking; artifacts executed or caches written on untrusted triggers; self-hosted runners reachable from forks; <code>secrets: inherit</code> on untrusted triggers</td></tr>
-        <tr><td>Medium</td><td><code>permissions: write-all</code>; checkout credentials left in <code>.git/config</code>; unmasked env exports; unscoped artifact downloads and cache restore keys; <code>secrets: inherit</code> into external workflows</td></tr>
-        <tr><td>Low</td><td>Missing <code>permissions</code>; jobs with no <code>timeout-minutes</code>; actions on end-of-life runtimes</td></tr>
+        <tr><td>Medium</td><td><code>permissions: write-all</code>; checkout credentials left in <code>.git/config</code>; unmasked env exports; unscoped artifact downloads and cache restore keys; third-party actions pinned to a mutable tag or branch instead of a commit SHA; <code>secrets: inherit</code> into external workflows</td></tr>
+        <tr><td>Low</td><td>Missing <code>permissions</code>; jobs with no <code>timeout-minutes</code>; actions on end-of-life runtimes; first-party actions and Docker images not pinned</td></tr>
       </tbody>
     </table></div>
     <p class="note">Each check is also a standalone free tool in this portfolio, with a paste-in-browser page and a write-up.</p>
@@ -74,13 +74,13 @@
   <section class="card">
     <h2>FAQ</h2>
     <h3>What does Workflow Audit check?</h3>
-    <p>Ten documented patterns: pwn-request checkouts and script injection, secret leaks into logs, artifact and cache poisoning, self-hosted runners reachable from forks, secrets: inherit on untrusted triggers, write-all or missing permissions, checkout credentials persisted in .git/config, deprecated action runtimes, and jobs with no timeout-minutes.</p>
+    <p>Eleven documented patterns: pwn-request checkouts and script injection, secret leaks into logs, artifact and cache poisoning, self-hosted runners reachable from forks, secrets: inherit on untrusted triggers, write-all or missing permissions, checkout credentials persisted in .git/config, deprecated action runtimes, jobs with no timeout-minutes, and action references not pinned to a commit SHA.</p>
     <h3>How is this different from zizmor?</h3>
     <p>zizmor is a broader, more mature static analyser and is the better choice for deep coverage. Workflow Audit is a smaller, dependency-free option that runs as a one-step Action with no install, ranks findings by severity, and writes the job summary and SARIF for you. Running both is reasonable.</p>
     <h3>Does it send my workflows anywhere?</h3>
     <p>No. It reads files in the checkout on the runner and makes no network calls of its own.</p>
     <h3>Does a clean report mean my workflows are secure?</h3>
-    <p>No. It matches ten specific patterns line by line. It is not a security audit and cannot see what a called action or reusable workflow does.</p>
+    <p>No. It matches eleven specific patterns line by line. It is not a security audit and cannot see what a called action or reusable workflow does.</p>
     <h3>What does it cost?</h3>
     <p>Nothing. It is MIT-licensed open source; sponsoring is optional.</p>
   </section>
