@@ -19,6 +19,10 @@ python3 experiments/run.py          # under a second; writes experiments/results
 ```
 
 ## Results (from `experiments/results.txt`)
+
+![Colour shift against viewing angle (section 3)](experiments/angle.svg)
+
+*Figure: Colour shift against viewing angle (section 3). Drawn by `experiments/figure.py`, which parses the committed `experiments/results.txt`.*
 - A single TiO2-like film on nylon-like substrate reflects up to 34%, but the spectrum is broad and its colour weak and irregular (C* 5 to 45 over 40 to 200 nm), so one thin layer is a poor colour source; see the table for the sweep.
 - Quarter-wave stacks give saturated colour with only a few g/m2 of oxide: designed at 620 nm, 2, 4 and 6 pairs reach Rmax 0.70, 0.95, 0.99 with C* 55, 70, 75 at 1.0, 2.0 and 3.0 g/m2 of oxide. Designed at 450 nm, C* peaks at 4 pairs (53) and is lower at 6 (45), and the 530 nm (green) stack is the least saturated (C* 11 to 28), so more pairs do not always mean more colour in this model.
 - Angle: the 620 nm, 6-pair stack's peak moves to 614, 594, 568 and 540 nm at 15, 30, 45 and 60 degrees; dE76 against normal incidence is 4.5, 14, 26 and 48. This blue shift (iridescence) is the main practical limit for drape and body curvature, since a garment is seen at many angles.
