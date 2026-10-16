@@ -1,0 +1,31 @@
+{
+  "id": "P014",
+  "title": "Branches leak past branch cleanup: re-pushed spent branches, an unreachable sweep tail, and no-PR branches",
+  "status": "in_progress",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "The remote holds 1,465 branches although `delete_branch_on_merge` is on and the branch-cleanup workflow runs green, so `git branch -r` (what a session reads to see existing work) is mostly noise again. Three leaks: (1) sessions reset to origin/main after a merge and push again, recreating the deleted branch at main's own squash commit, which branch_cleanup.py then keeps forever as 'has moved'; (2) the sweep's 500 live-head window filled with those kept branches and its 5,000-row scan stopped short of ~6,800 closed PRs, so old closed-unmerged branches were never reached; (3) nothing deletes branches that never had a PR, even when their tip is already in main.",
+  "evidence": [
+    "GitHub API, 2026-10-16: 1,465 remote branches; delete_branch_on_merge true; branch-cleanup.yml runs green",
+    "872 of 875 surviving merged-PR branches have a tip past the PR head; 682 of those tips are already contained in main (compare ahead_by 0)",
+    "59 branches of PRs closed unmerged more than 24h ago still sit at their PR head; ~6,800 closed PRs vs DEFAULT_SWEEP_SCAN 5000 and DEFAULT_MAX_PRS 500",
+    "415 branches never had a PR; 285 of them have tips already in main"
+  ],
+  "change": "branch_cleanup.py: delete a moved branch whose tip is an ancestor of main (main's recent commit list, else compare main...tip ahead_by == 0); sweep every closed PR (scan cap 50,000) and also delete no-PR branches whose tip is in main and over 48h old; never a branch with commits not in main, an open PR, or a protected name; bound each run by --max-deletes 200 and --compare-budget 200 instead of the PR window. land-your-work.md: never push a branch that holds nothing beyond main. unlanded_work.py notes a pushed branch whose tip is already in main.",
+  "touches": [
+    "platform/ci/branch_cleanup.py",
+    "platform/ci/test_branch_cleanup.py",
+    "platform/ci/unlanded_work.py",
+    "platform/ci/test_unlanded_work.py",
+    ".github/workflows/branch-cleanup.yml",
+    ".github/prompts/land-your-work.md"
+  ],
+  "metric": "Remote branch count, and branches whose tip is already in main, a week after the change lands",
+  "baseline": "1,465 branches; ~1,038 deletable (682 merged-moved-contained + 71 closed-contained + 285 no-PR-contained); 322 with unique commits left for adopt-stranded",
+  "opened": "2026-10-16",
+  "source": "branch-hygiene investigation via the GitHub API, 2026-10-16",
+  "pr": null,
+  "result": null,
+  "history": []
+}
