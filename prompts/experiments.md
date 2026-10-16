@@ -404,3 +404,47 @@ field will.
   `derive.py build`. Survival per prompt version and model, once rows have
   about 10 closed windows each.
 - Result: (next review)
+
+## E19: thirteenth review (2026-10-16)
+
+- Change: `derive.py fetch` no longer crashes when the API returns 403 (a
+  session with no `GITHUB_TOKEN`): it keeps the cache, leaves failed PRs
+  uncached to retry, and says so. Test added. Fetching 15 PRs filled 13;
+  `merged` unknown fell on research/0 (133 -> 129), ventures/1 (26 -> 23),
+  process/1 (7 -> 6).
+- Why: review step 1 died on its first command in this session.
+- Measure: reviews that report a failed `derive.py fetch` in doc_friction.
+- Follow-up on E17/E18: ventures/2 (17 runs, 94%) vs ventures/1 (53, 92%):
+  intervals overlap, no verdict. research/1 (8 runs) under 10. review/1 75%
+  over 12 runs, 0 integrity issues. E18's `merged_unknown` is falling as
+  intended; survival is still empty (no closed 14-day windows yet). Audit
+  skipped: remaining unknowns are mirrored or doc-only.
+- Change: none to prompts or docs; `prompts/derived/runs.json` rebuilt.
+  `derive.py fetch` got HTTP 403 from the GitHub API in this session, so the
+  rebuild used the cached `github.json`: `merged` for new records stays
+  `unknown` until a session with API access runs fetch.
+- Candidates: ventures/2 (17 runs, 94%, 0.06 errors/run) vs ventures/1 (53, 92%,
+  0.17): intervals overlap, no verdict. research/1 has 8 runs, under 10.
+  review/1 is 75% over 12 runs, 0 integrity issues. No new candidate: both
+  tracks with candidates already carry one.
+- Audit skipped (new records are mirrored upstream or doc-only). Drift: a report
+  already exists for 2026-10-16 and no new owner words arrived. `CLAUDE.md`
+  grew 457 -> 475 lines (budget 500); cut it next review if it passes 490.
+- Follow-up on E17: reviews were due again after 26 merged runs, so the
+  mirrored-record exclusion is working as intended (no early firing).
+  E18: `merged_unknown` stays high (most rows 'unknown') because fetch needs
+  API access; not a failure of derive.py itself.
+- Result: (next review)
+
+## E20: stale doc lines from the same review (2026-10-16)
+
+- Change: `CLAUDE.md` checklist no longer states a stale count of expected
+  `gitops/tests` failures (said ~26; baseline today was 2); `review/prompt-1.md`
+  step 1 says what to do when `derive.py fetch` gets a 403 (+2 lines).
+- Why: friction reports on both; 26 runs since the last review.
+- Measure: friction reports naming the CLAUDE.md pytest line, and on
+  `review/prompt-1.md` step 1, per run after this window.
+- Candidates: ventures/2 (17) vs ventures/1 (53): intervals overlap, keep
+  collecting. research/1 (8) under 10. Audit skipped: records mirrored or
+  doc-only. `derive.py fetch` 403; `merged` left unknown.
+- Result: (next review)

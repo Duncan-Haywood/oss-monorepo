@@ -725,6 +725,9 @@ workflows:
 - workflow: distribute-npm.yml
   classification: none
   publishes: []
+- workflow: distribute-pypi-packages.yml
+  classification: none
+  publishes: []
 - workflow: distribute-pypi.yml
   classification: none
   publishes: []
