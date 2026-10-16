@@ -33,53 +33,53 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548406 bytes
-#   portfolio-front-tools-1: 92 files, 555592 bytes
-#   portfolio-front-tools-2: 144 files, 553641 bytes
-#   portfolio-front-tools-3: 128 files, 549973 bytes
-#   portfolio-front-tools-4: 136 files, 553531 bytes
-#   portfolio-front-tools-5: 131 files, 552173 bytes
-#   portfolio-front-tools-6: 126 files, 546951 bytes
-#   portfolio-front-tools-7: 118 files, 549092 bytes
-#   portfolio-front-tools-8: 129 files, 554283 bytes
-#   portfolio-front-tools-9: 136 files, 553730 bytes
-#   portfolio-front-tools-10: 144 files, 554644 bytes
-#   portfolio-front-tools-11: 136 files, 555411 bytes
-#   portfolio-front-tools-12: 130 files, 556141 bytes
-#   portfolio-front-tools-13: 129 files, 552943 bytes
-#   portfolio-front-tools-14: 135 files, 555426 bytes
-#   portfolio-front-tools-15: 122 files, 544862 bytes
-#   portfolio-front-tools-16: 128 files, 549562 bytes
-#   portfolio-front-tools-17: 129 files, 553268 bytes
-#   portfolio-front-tools-18: 127 files, 554543 bytes
-#   portfolio-front-tools-19: 124 files, 545086 bytes
-#   portfolio-front-tools-20: 123 files, 553606 bytes
-#   portfolio-front-tools-21: 126 files, 553283 bytes
-#   portfolio-front-tools-22: 129 files, 549702 bytes
-#   portfolio-front-tools-23: 115 files, 553605 bytes
-#   portfolio-front-tools-24: 119 files, 554708 bytes
-#   portfolio-front-tools-25: 132 files, 556662 bytes
-#   portfolio-front-tools-26: 129 files, 555325 bytes
-#   portfolio-front-tools-27: 136 files, 556557 bytes
-#   portfolio-front-tools-28: 136 files, 553809 bytes
-#   portfolio-front-tools-29: 120 files, 556253 bytes
-#   portfolio-front-tools-30: 129 files, 551276 bytes
-#   portfolio-front-tools-31: 137 files, 556238 bytes
-#   portfolio-front-tools-32: 135 files, 556394 bytes
-#   portfolio-front-tools-33: 121 files, 547477 bytes
-#   portfolio-front-tools-34: 139 files, 554643 bytes
-#   portfolio-front-tools-35: 113 files, 541653 bytes
-#   portfolio-front-tools-36: 97 files, 549953 bytes
-#   portfolio-front-tools-37: 127 files, 552759 bytes
-#   portfolio-front-tools-38: 117 files, 555532 bytes
-#   portfolio-front-tools-39: 129 files, 554755 bytes
-#   portfolio-front-tools-40: 132 files, 556400 bytes
-#   portfolio-front-tools-41: 132 files, 556998 bytes
-#   portfolio-front-tools-42: 140 files, 550941 bytes
-#   portfolio-front-tools-43: 137 files, 556074 bytes
-#   portfolio-front-tools-44: 127 files, 556018 bytes
-#   portfolio-front-tools-45: 97 files, 506150 bytes
-#   portfolio-front-tools-46: 54 files, 263080 bytes
+#   portfolio-front-tools-0: 145 files, 548384 bytes
+#   portfolio-front-tools-1: 92 files, 555577 bytes
+#   portfolio-front-tools-2: 144 files, 553626 bytes
+#   portfolio-front-tools-3: 128 files, 549951 bytes
+#   portfolio-front-tools-4: 137 files, 553428 bytes
+#   portfolio-front-tools-5: 131 files, 554993 bytes
+#   portfolio-front-tools-6: 129 files, 556543 bytes
+#   portfolio-front-tools-7: 118 files, 549065 bytes
+#   portfolio-front-tools-8: 129 files, 554171 bytes
+#   portfolio-front-tools-9: 136 files, 553888 bytes
+#   portfolio-front-tools-10: 144 files, 554564 bytes
+#   portfolio-front-tools-11: 136 files, 555359 bytes
+#   portfolio-front-tools-12: 130 files, 556037 bytes
+#   portfolio-front-tools-13: 129 files, 552751 bytes
+#   portfolio-front-tools-14: 135 files, 555646 bytes
+#   portfolio-front-tools-15: 122 files, 544849 bytes
+#   portfolio-front-tools-16: 128 files, 549572 bytes
+#   portfolio-front-tools-17: 129 files, 553301 bytes
+#   portfolio-front-tools-18: 127 files, 554548 bytes
+#   portfolio-front-tools-19: 124 files, 544918 bytes
+#   portfolio-front-tools-20: 123 files, 553560 bytes
+#   portfolio-front-tools-21: 126 files, 553208 bytes
+#   portfolio-front-tools-22: 130 files, 557052 bytes
+#   portfolio-front-tools-23: 116 files, 554485 bytes
+#   portfolio-front-tools-24: 118 files, 550679 bytes
+#   portfolio-front-tools-25: 132 files, 553273 bytes
+#   portfolio-front-tools-26: 128 files, 554464 bytes
+#   portfolio-front-tools-27: 136 files, 556552 bytes
+#   portfolio-front-tools-28: 136 files, 553997 bytes
+#   portfolio-front-tools-29: 120 files, 556338 bytes
+#   portfolio-front-tools-30: 129 files, 551354 bytes
+#   portfolio-front-tools-31: 137 files, 556165 bytes
+#   portfolio-front-tools-32: 135 files, 556422 bytes
+#   portfolio-front-tools-33: 121 files, 547468 bytes
+#   portfolio-front-tools-34: 139 files, 554574 bytes
+#   portfolio-front-tools-35: 113 files, 541701 bytes
+#   portfolio-front-tools-36: 97 files, 549938 bytes
+#   portfolio-front-tools-37: 127 files, 552737 bytes
+#   portfolio-front-tools-38: 117 files, 556661 bytes
+#   portfolio-front-tools-39: 129 files, 554683 bytes
+#   portfolio-front-tools-40: 132 files, 556219 bytes
+#   portfolio-front-tools-41: 132 files, 557038 bytes
+#   portfolio-front-tools-42: 140 files, 550947 bytes
+#   portfolio-front-tools-43: 137 files, 556066 bytes
+#   portfolio-front-tools-44: 127 files, 556023 bytes
+#   portfolio-front-tools-45: 97 files, 506142 bytes
+#   portfolio-front-tools-46: 54 files, 262984 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -713,6 +713,10 @@ configMapGenerator:
       - actions-runner-starvation-check__usage.mjs.gz=actions-runner-starvation-check__usage.mjs.gz
       - actions-runner-starvation-check__vs-rerunning-the-job.html.gz=actions-runner-starvation-check__vs-rerunning-the-job.html.gz
       - actions-runner-starvation-check__why-is-my-github-actions-check-red-in-seconds.html.gz=actions-runner-starvation-check__why-is-my-github-actions-check-red-in-seconds.html.gz
+      - actions-runtime-deprecation-check__check.py.gz=actions-runtime-deprecation-check__check.py.gz
+      - actions-runtime-deprecation-check__classify.mjs.gz=actions-runtime-deprecation-check__classify.mjs.gz
+      - actions-runtime-deprecation-check__index.html.gz=actions-runtime-deprecation-check__index.html.gz
+      - actions-runtime-deprecation-check__usage.mjs.gz=actions-runtime-deprecation-check__usage.mjs.gz
       - actions-secret-leak-check__check.py.gz=actions-secret-leak-check__check.py.gz
       - actions-secret-leak-check__classify.mjs.gz=actions-secret-leak-check__classify.mjs.gz
       - actions-secret-leak-check__index.html.gz=actions-secret-leak-check__index.html.gz
@@ -764,14 +768,14 @@ configMapGenerator:
       - ada-title-ii-evidence__usage.mjs.gz=ada-title-ii-evidence__usage.mjs.gz
       - ada-title-ii-evidence__vs-accessibe.html.gz=ada-title-ii-evidence__vs-accessibe.html.gz
       - adjunct-course-offer-calculator__calc.mjs.gz=adjunct-course-offer-calculator__calc.mjs.gz
-      - adjunct-course-offer-calculator__index.html.gz=adjunct-course-offer-calculator__index.html.gz
-      - adjunct-course-offer-calculator__usage.mjs.gz=adjunct-course-offer-calculator__usage.mjs.gz
-      - adu-payback-calculator__calc.mjs.gz=adu-payback-calculator__calc.mjs.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - adjunct-course-offer-calculator__index.html.gz=adjunct-course-offer-calculator__index.html.gz
+      - adjunct-course-offer-calculator__usage.mjs.gz=adjunct-course-offer-calculator__usage.mjs.gz
+      - adu-payback-calculator__calc.mjs.gz=adu-payback-calculator__calc.mjs.gz
       - adu-payback-calculator__index.html.gz=adu-payback-calculator__index.html.gz
       - adu-payback-calculator__usage.mjs.gz=adu-payback-calculator__usage.mjs.gz
       - affiliate-disclosure-checker__cli.mjs.gz=affiliate-disclosure-checker__cli.mjs.gz
@@ -900,14 +904,14 @@ configMapGenerator:
       - app-store-screenshot-check__spec.mjs.gz=app-store-screenshot-check__spec.mjs.gz
       - app-store-screenshot-check__usage.mjs.gz=app-store-screenshot-check__usage.mjs.gz
       - app-store-screenshot-check__vs-manual-checking.html.gz=app-store-screenshot-check__vs-manual-checking.html.gz
-      - app-store-screenshot-check__why-store-uploads-get-rejected.html.gz=app-store-screenshot-check__why-store-uploads-get-rejected.html.gz
-      - app-subscription-proceeds-calculator__app-store-30-vs-15-percent-subscription-value.html.gz=app-subscription-proceeds-calculator__app-store-30-vs-15-percent-subscription-value.html.gz
-      - app-subscription-proceeds-calculator__engine.mjs.gz=app-subscription-proceeds-calculator__engine.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - app-store-screenshot-check__why-store-uploads-get-rejected.html.gz=app-store-screenshot-check__why-store-uploads-get-rejected.html.gz
+      - app-subscription-proceeds-calculator__app-store-30-vs-15-percent-subscription-value.html.gz=app-subscription-proceeds-calculator__app-store-30-vs-15-percent-subscription-value.html.gz
+      - app-subscription-proceeds-calculator__engine.mjs.gz=app-subscription-proceeds-calculator__engine.mjs.gz
       - app-subscription-proceeds-calculator__index.html.gz=app-subscription-proceeds-calculator__index.html.gz
       - app-subscription-proceeds-calculator__usage.mjs.gz=app-subscription-proceeds-calculator__usage.mjs.gz
       - apparel-decoration-price-calculator__calculator.mjs.gz=apparel-decoration-price-calculator__calculator.mjs.gz
@@ -3179,12 +3183,12 @@ configMapGenerator:
       - inherited-ira-10-year-withdrawal-planner__index.html.gz=inherited-ira-10-year-withdrawal-planner__index.html.gz
       - inherited-ira-10-year-withdrawal-planner__usage.mjs.gz=inherited-ira-10-year-withdrawal-planner__usage.mjs.gz
       - injury-settlement-net-proceeds-calculator__calc.mjs.gz=injury-settlement-net-proceeds-calculator__calc.mjs.gz
+      - injury-settlement-net-proceeds-calculator__index.html.gz=injury-settlement-net-proceeds-calculator__index.html.gz
   - name: portfolio-front-tools-23
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - injury-settlement-net-proceeds-calculator__index.html.gz=injury-settlement-net-proceeds-calculator__index.html.gz
       - injury-settlement-net-proceeds-calculator__usage.mjs.gz=injury-settlement-net-proceeds-calculator__usage.mjs.gz
       - installment-sale-tax-calculator__calc.mjs.gz=installment-sale-tax-calculator__calc.mjs.gz
       - installment-sale-tax-calculator__index.html.gz=installment-sale-tax-calculator__index.html.gz
@@ -3299,13 +3303,13 @@ configMapGenerator:
       - junk-removal-bid-calculator__vs-workiz.html.gz=junk-removal-bid-calculator__vs-workiz.html.gz
       - jwt-verification-misuse-check__check.py.gz=jwt-verification-misuse-check__check.py.gz
       - jwt-verification-misuse-check__classify.mjs.gz=jwt-verification-misuse-check__classify.mjs.gz
+      - jwt-verification-misuse-check__index.html.gz=jwt-verification-misuse-check__index.html.gz
+      - jwt-verification-misuse-check__usage.mjs.gz=jwt-verification-misuse-check__usage.mjs.gz
   - name: portfolio-front-tools-24
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - jwt-verification-misuse-check__index.html.gz=jwt-verification-misuse-check__index.html.gz
-      - jwt-verification-misuse-check__usage.mjs.gz=jwt-verification-misuse-check__usage.mjs.gz
       - jwt-verification-misuse-check__what-is-jwt-verification-misuse.html.gz=jwt-verification-misuse-check__what-is-jwt-verification-misuse.html.gz
       - k8s-deprecated-api-check__cli.mjs.gz=k8s-deprecated-api-check__cli.mjs.gz
       - k8s-deprecated-api-check__engine.mjs.gz=k8s-deprecated-api-check__engine.mjs.gz
@@ -3423,12 +3427,12 @@ configMapGenerator:
       - laundromat-machine-payback-calculator__calc.mjs.gz=laundromat-machine-payback-calculator__calc.mjs.gz
       - laundromat-machine-payback-calculator__index.html.gz=laundromat-machine-payback-calculator__index.html.gz
       - laundromat-machine-payback-calculator__usage.mjs.gz=laundromat-machine-payback-calculator__usage.mjs.gz
+      - law-firm-realization-rate-calculator__calc.mjs.gz=law-firm-realization-rate-calculator__calc.mjs.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - law-firm-realization-rate-calculator__calc.mjs.gz=law-firm-realization-rate-calculator__calc.mjs.gz
       - law-firm-realization-rate-calculator__index.html.gz=law-firm-realization-rate-calculator__index.html.gz
       - law-firm-realization-rate-calculator__usage.mjs.gz=law-firm-realization-rate-calculator__usage.mjs.gz
       - lawn-aeration-overseeding-bid-calculator__calc.mjs.gz=lawn-aeration-overseeding-bid-calculator__calc.mjs.gz
@@ -3560,12 +3564,12 @@ configMapGenerator:
       - marketplace-fee-compare__which-marketplace-has-the-lowest-fees.html.gz=marketplace-fee-compare__which-marketplace-has-the-lowest-fees.html.gz
       - massage-therapist-profit-calculator__calc.mjs.gz=massage-therapist-profit-calculator__calc.mjs.gz
       - massage-therapist-profit-calculator__index.html.gz=massage-therapist-profit-calculator__index.html.gz
+      - massage-therapist-profit-calculator__usage.mjs.gz=massage-therapist-profit-calculator__usage.mjs.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - massage-therapist-profit-calculator__usage.mjs.gz=massage-therapist-profit-calculator__usage.mjs.gz
       - mcp-config-risk-check__calc.mjs.gz=mcp-config-risk-check__calc.mjs.gz
       - mcp-config-risk-check__index.html.gz=mcp-config-risk-check__index.html.gz
       - mcp-config-risk-check__usage.mjs.gz=mcp-config-risk-check__usage.mjs.gz

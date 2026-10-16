@@ -177,6 +177,7 @@ export const DOWNLOADABLE_CLI_FILES = {
   'actions-secret-leak-check': ['check.py'],
   'actions-secrets-inherit-check': ['check.py'],
   'actions-timeout-check': ['check.py'],
+  'actions-runtime-deprecation-check': ['check.py'],
   'jwt-verification-misuse-check': ['check.py'],
   'docker-compose-security-check': ['check.py'],
   'git-bus-factor-check': ['busfactor.py'],
