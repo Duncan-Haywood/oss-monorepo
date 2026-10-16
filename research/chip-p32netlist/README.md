@@ -4,6 +4,8 @@ Follow-up to `chip-macp32cells` (track 3, `PROJECTS.md`), whose next step was "i
 
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection is claimed. `model.py` and `baseline_gen.py` are copied unchanged (MIT, same author) from `research/chip-macp32cells`; `flow.py` and `experiments/run.py` are new.
 
+**Correction (`chip-p32passes`).** In Yosys 0.33 `synth -run :abc` runs the whole script including `abc -fast`, so the "fine" column below is *after* a first abc call, not before. Run pass by pass, the gap is already -114 to -125 cells before any abc; see `research/chip-p32passes`.
+
 ## Method
 Generate the F-16-4 MAC engine for P = 16 and 32, three seeds, and count cells after three points of one Yosys script: **coarse** (`synth -flatten -run :fine`, word-level cells), **fine** (`-run :abc`, after techmap to bit-level gates, before abc) and **abc** (flow A of `chip-macp32cells`: `synth -flatten; abc -g <nine gates>; opt_clean`).
 

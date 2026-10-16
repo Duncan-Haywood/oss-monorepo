@@ -1412,6 +1412,11 @@
      "slug": "chip-p32netlist",
      "title": "At which Yosys stage does the P = 32 versus P = 16 cell gap appear?",
      "summary": "Follow-up to <code>chip-macp32cells</code>. Counting cells of the 16- and 32-lane MAC engines (identical cycles, F = 16, three seeds) after the word-level, bit-level and abc stages of one Yosys script: the 32-lane engine is 640&ndash;770 cells <em>larger</em> at the word level but about 500 cells <em>smaller</em> after techmap, and abc only trims the gap to 270&ndash;410. The sign is therefore set before abc runs. Which pass removes the extra lanes was not identified. Preliminary; one Yosys version, generic-gate counts."
+    },
+    {
+     "slug": "chip-p32passes",
+     "title": "Which Yosys pass flips the P = 32 versus P = 16 cell gap?",
+     "summary": "Follow-up to <code>chip-p32netlist</code>. Running the <code>fine</code> passes of Yosys 0.33 one at a time on the 16- and 32-lane MAC engines (identical cycles, F = 16, three seeds): the 32-lane engine is still about 2,100 cells larger after <code>techmap</code> and 114&ndash;125 cells <em>smaller</em> after the next <code>opt -fast</code>, before any abc; <code>abc -fast</code> adds about 400 more. It also corrects the earlier project: Yosys 0.33&rsquo;s <code>-run :abc</code> runs <code>abc -fast</code>, so its &ldquo;pre-abc&rdquo; column was post-abc. Localised to a pass, not explained; one Yosys version, generic cell counts. Stylised."
     }
    ]
   },
