@@ -283,7 +283,13 @@
         ]
       }
     ],
-    "real_defects": []
+    "real_defects": [
+      {
+        "file": "ventures/sign-keeper/index.html",
+        "issue": "crawlable orphan (no inbound sibling link) made siblings budget test red on main",
+        "patched": true
+      }
+    ]
   },
   "usage": {
     "measured_by": "prompts/runcost.py v1",

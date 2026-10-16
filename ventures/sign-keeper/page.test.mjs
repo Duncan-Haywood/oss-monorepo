@@ -21,3 +21,8 @@ test("landing page: no-warranty and not-legal-advice, canonical, FAQ, sponsor li
   assert.ok(!/<script[^>]+src="https?:/.test(html));
   assert.equal(esc("<&>"), "&lt;&amp;&gt;");
 });
+
+test("landing page links its sibling Changelog Keeper", () => {
+  const html = fs.readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/changelog-keeper\/"/);
+});
