@@ -790,7 +790,7 @@ export function laborPercent(payroll, sales, targetPct = null) {
 // Predictive-scheduling style flags on a built roster, for rules the search does not enforce: hours in one day over
 // `dailyLimit` (daily-overtime states), split shifts (two shifts one day with a gap over `splitGap` hours), and how many
 // days of notice the week gets when the Monday and today's date are given. Flags only; not legal advice.
-export function scheduleFlags(r, { dailyLimit = 8, splitGap = 1, weekStart = null, today = null, noticeDays = 14 } = {}) {
+export function scheduleFlags(r, { dailyLimit = 8, splitGap = 1, mealAfter = 5, weekStart = null, today = null, noticeDays = 14 } = {}) {
   const byKey = new Map();
   for (const a of r.assignments || []) {
     if (!a.person) continue;
@@ -798,15 +798,20 @@ export function scheduleFlags(r, { dailyLimit = 8, splitGap = 1, weekStart = nul
     if (!byKey.has(k)) byKey.set(k, { person: a.person, day: a.slot.day, spans: [] });
     byKey.get(k).spans.push([a.slot.startMin, a.slot.endMin]);
   }
-  const overDaily = [], splits = [];
+  const overDaily = [], splits = [], longStretches = [];
   for (const g of byKey.values()) {
     g.spans.sort((x, y) => x[0] - y[0]);
     const hours = g.spans.reduce((t, [a, b]) => t + (b - a) / 60, 0);
     if (hours > dailyLimit + 1e-9) overDaily.push({ person: g.person, day: DAYS[g.day], hours, overBy: hours - dailyLimit });
+    let runStart = g.spans[0][0], runEnd = g.spans[0][1];
+    const closeRun = () => { const h = (runEnd - runStart) / 60; if (h > mealAfter + 1e-9) longStretches.push({ person: g.person, day: DAYS[g.day], hours: h, startMin: runStart, endMin: runEnd }); };
     for (let i = 1; i < g.spans.length; i++) {
+      if (g.spans[i][0] <= runEnd) runEnd = Math.max(runEnd, g.spans[i][1]);
+      else { closeRun(); runStart = g.spans[i][0]; runEnd = g.spans[i][1]; }
       const gap = (g.spans[i][0] - g.spans[i - 1][1]) / 60;
       if (gap > splitGap + 1e-9) splits.push({ person: g.person, day: DAYS[g.day], gapHours: gap });
     }
+    closeRun();
   }
   let notice = null;
   const w = weekStart ? new Date(weekStart + "T00:00:00Z") : null, t = today ? new Date(today + "T00:00:00Z") : null;
@@ -815,7 +820,7 @@ export function scheduleFlags(r, { dailyLimit = 8, splitGap = 1, weekStart = nul
     notice = { days, required: noticeDays, short: days < noticeDays };
   }
   const order = (a, b) => a.person.localeCompare(b.person) || DAYS.indexOf(a.day) - DAYS.indexOf(b.day);
-  return { overDaily: overDaily.sort(order), splits: splits.sort(order), notice };
+  return { overDaily: overDaily.sort(order), splits: splits.sort(order), longStretches: longStretches.sort(order), notice };
 }
 
 export function hoursCsv(r) {

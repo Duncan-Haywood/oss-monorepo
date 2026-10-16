@@ -46,6 +46,7 @@ test("pasted text is escaped before it reaches innerHTML", () => {
 test("links the sibling tender tools and is crawlable", () => {
   const html = page("index.html");
   assert.match(html, /href="\.\.\/tender-bid-readiness\/"/);
+  assert.match(html, /href="\.\.\/recompete-radar\/"/);
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
