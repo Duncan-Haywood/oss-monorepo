@@ -48,3 +48,5 @@ Open `index.html`, or `node --test` to run the tests. No build step, no dependen
 Provided free and as-is, without warranty of any kind. Not legal, tax, or financial advice. MIT licensed.
 
 **Sick-call finder.** After a roster is built, pick any shift (or an open one) to see who could take it without changing anyone else's week, cheapest first with overtime flagged, and which rule blocks everyone else (`coverOptions` in `calc.mjs`).
+
+**Schedule flags.** After a build, the page flags days over 8 hours, split shifts with a gap over an hour, and a week that starts inside 14 days of today when you give the Monday (`scheduleFlags` in `calc.mjs`). These are heads-ups for daily-overtime, split-shift and fair-workweek rules the search does not enforce.
