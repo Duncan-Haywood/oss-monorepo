@@ -98,6 +98,7 @@
     <h3>The roster</h3>
     <div class="scroll"><table class="sched" id="grid"><thead></thead><tbody></tbody></table></div>
     <div id="unfilled-box"></div>
+    <div id="hire-box"></div>
     <h3>Hours and pay by person</h3>
     <div class="scroll"><table id="people"><thead><tr><th>Person</th><th class="n">Shifts</th><th class="n">Hours</th><th class="n">Overtime</th><th class="n">Payroll</th><th>Against their limits</th></tr></thead><tbody></tbody></table></div>
     <h3>Who this week depends on</h3>
@@ -152,7 +153,7 @@
   </footer>
 
   <script type="module">
-    import { parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv, rosterIcs, sampleStaff, sampleShifts, fmtClock, money, num, DAYS } from "./calc.mjs";
+    import { parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv, rosterIcs, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -189,6 +190,9 @@
         const note = p.short > 0.01 ? `<span class="pill medium">${num(p.short)} h under minimum</span>` : (p.hours === 0 ? '<span class="pill info">no shifts</span>' : `<span class="pill good">within ${num(p.maxHours, 0)} h limit</span>`);
         return `<tr><td>${esc(p.name)}</td><td class="n">${p.shifts}</td><td class="n">${num(p.hours)}</td><td class="n">${num(p.otHours)}</td><td class="n">${money(p.cost)}</td><td>${note}</td></tr>`;
       }).join("");
+      $("#hire-box").innerHTML = r.hireTest
+        ? `<p class="note"><strong>Would one more person fix it?</strong> Adding someone free at any time (${num(r.hireTest.maxHours)} h a week, at the average wage of ${money2(r.hireTest.wage)}) would cover ${num(r.hireTest.coveredHours)} of the uncovered hours${r.hireTest.stillUnfilledHours > 0.01 ? ` and leave ${num(r.hireTest.stillUnfilledHours)} still open` : ""}, adding about ${money(r.hireTest.extraCost)} of payroll. A what-if only; it is not added to your list.</p>`
+        : "";
       $("#critical").innerHTML = r.critical.length
         ? `<div class="scroll"><table><thead><tr><th>Person</th><th class="n">Hours left uncovered without them</th></tr></thead><tbody>${r.critical.map((c) => `<tr><td>${esc(c.name)}</td><td class="n">${num(c.extraUnfilledHours)}</td></tr>`).join("")}</tbody></table></div>`
         : '<p class="ok">Nobody on this roster is a single point of failure: every shift can still be covered if any one person drops out.</p>';
