@@ -208,8 +208,20 @@ def check_branch(repo, remote="origin", base="main", probe=None):
     remote_tip = heads.get(branch)
 
     if remote_tip is None:
+        gone_with = sorted(pulls.get(local_tip, []))
         if local_tip == heads.get(base):
             report.notes.append(f"{branch} has no commits of its own yet; nothing to land.")
+        elif gone_with:
+            # GitHub deletes a PR's head branch when it merges (the repository's
+            # auto-delete setting), so the branch is missing from the remote
+            # exactly when the work has landed. The PR's head ref still holds
+            # this tip, which is all "not stranded" means here.
+            prs = ", ".join(f"#{n}" for n in gone_with)
+            report.notes.append(
+                f"{branch} is gone from {remote}, but PR {prs} carries this tip (the "
+                "branch is deleted when its PR merges or closes). Nothing is stranded "
+                "-- but git cannot see whether it is merged."
+            )
         else:
             report.problems.append(
                 f"{branch} is not on {remote}.\n"
