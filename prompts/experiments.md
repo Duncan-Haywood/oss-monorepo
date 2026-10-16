@@ -523,3 +523,12 @@ field will.
   runnable (no pytest, apt fails).
 - Drift: see `prompts/drift/2026-10-16g.md`.
 - Result: (next review)
+
+## E26: review 2026-10-16 (eighth of the day)
+
+- Change: none to prompts or docs; `prompts/derived/` refreshed, drift report
+  only. Stale friction (PRODUCT_PLAYBOOK, prompts/README) already fixed.
+- Candidates: ventures/2 vs ventures/1, research/1 vs research/0: overlap,
+  keep collecting. review/2: 3 runs, too few.
+- Audit: skipped (doc-only/research runs). `derive.py fetch` got 19 of 21.
+- Result: (next review)
