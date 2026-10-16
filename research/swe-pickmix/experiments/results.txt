@@ -1,0 +1,48 @@
+projects on main: 461; merged on/after 2026-10-12: 228; with a track prefix: 219; no-branch rows: 1; PR units with a branch: 218
+
+1. Pick mix (one count per PR unit, prefixed projects on/after the tracks were set)
+ selfrep     26   11.9%  [ 8.3, 16.9]  (uniform 9.1%)
+ ambient     29   13.3%  [ 9.4, 18.5]  (uniform 9.1%)
+ chip        21    9.6%  [ 6.4, 14.3]  (uniform 9.1%)
+ robofab     39   17.9%  [13.4, 23.5]  (uniform 9.1%)
+ simdesign   35   16.1%  [11.8, 21.5]  (uniform 9.1%)
+ garment     33   15.1%  [11.0, 20.5]  (uniform 9.1%)
+ eda          6    2.8%  [ 1.3,  5.9]  (uniform 9.1%)
+ accel        9    4.1%  [ 2.2,  7.7]  (uniform 9.1%)
+ osrobot      6    2.8%  [ 1.3,  5.9]  (uniform 9.1%)
+ swe          9    4.1%  [ 2.2,  7.7]  (uniform 9.1%)
+ mimic        5    2.3%  [ 1.0,  5.3]  (uniform 9.1%)
+ chi-square vs uniform = 87.4 on 10 df, Monte Carlo p = 0.0000
+
+1b. Same, restricted to merges after all eleven tracks existed (from 2026-10-15T10:52:23Z): n = 36
+ selfrep      1    2.8%  [ 0.5, 14.2]
+ ambient      7   19.4%  [ 9.8, 35.0]
+ chip         1    2.8%  [ 0.5, 14.2]
+ robofab      2    5.6%  [ 1.5, 18.1]
+ simdesign    6   16.7%  [ 7.9, 31.9]
+ garment      1    2.8%  [ 0.5, 14.2]
+ eda          3    8.3%  [ 2.9, 21.8]
+ accel        3    8.3%  [ 2.9, 21.8]
+ osrobot      3    8.3%  [ 2.9, 21.8]
+ swe          4   11.1%  [ 4.4, 25.3]
+ mimic        5   13.9%  [ 6.1, 28.7]
+ chi-square vs uniform = 12.9 on 10 df, Monte Carlo p = 0.2500
+
+2. Branch lifetime (first branch commit -> merge), minutes
+ p10=1  p25=1  p50=2  p75=7  p90=23  mean=14  n=218
+
+3. Same-track share among PR units whose branch lifetimes overlap
+ overlapping pairs: 190  (units with at least one overlap: 178 of 218)
+ observed same-track: 34/190 = 17.9%  [13.1, 24.0] (pairs are not independent: the interval is indicative)
+ expected if independent, empirical mix: 12.3%   uniform over 11: 9.1%
+ label-permutation p (observed >= shuffled) = 0.0196
+ same, shuffling only within merge day (the mix drifts as tracks 7-11 appear): p = 0.1149
+ window with all eleven tracks: 1/38 same-track = 2.6% (empirical-mix expectation 9.8%), permutation p = 0.9844
+
+4. Same-track pairs by overlap depth: share of branch lifetime that overlaps
+ overlap of shorter branch in [0.00, 0.50]:   19 pairs, same track 15.8%
+ overlap of shorter branch in [0.50, 0.99]:   19 pairs, same track 15.8%
+ overlap of shorter branch in [0.99, 1.00]:  152 pairs, same track 18.4%
+
+5. Concurrency: units in flight at each PR's first commit (including itself)
+ p50=2  p90=3  p99=4  max=4  mean=1.87
