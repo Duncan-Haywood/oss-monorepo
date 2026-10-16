@@ -1,6 +1,6 @@
 FROM node:22-alpine
 WORKDIR /app
-COPY monitor.mjs render.mjs subscribers.mjs server.mjs ./
+COPY certs.mjs monitor.mjs render.mjs subscribers.mjs server.mjs ./
 RUN mkdir -p /data && chown node /data
 USER node
 ENV PORT=8080 STATE=/tmp/state.json
