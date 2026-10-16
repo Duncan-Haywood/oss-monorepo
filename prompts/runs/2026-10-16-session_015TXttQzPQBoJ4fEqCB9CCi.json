@@ -27,8 +27,8 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": 0,
-  "integrity_issues": 0,
+  "errors": [],
+  "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/review/prompt-2.md",
