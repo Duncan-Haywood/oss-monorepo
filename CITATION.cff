@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software or its research results, please cite them as below."
+title: "oss-monorepo: open-source products and open research"
+type: software
+authors:
+  - name: "oss-monorepo contributors"
+repository-code: "https://github.com/Duncan-Haywood/oss-monorepo"
+url: "https://duncan-haywood.github.io/monorepo-projects/"
+license: MIT
+abstract: >-
+  A monorepo of MIT-licensed free tools (ventures/) and open research (research/),
+  produced with AI assistance. Research results are mostly stylised or simulated;
+  each project's README states its limits. Per-project BibTeX is in research/CITATIONS.bib.
+keywords:
+  - open source
+  - open research
+  - AI-assisted
