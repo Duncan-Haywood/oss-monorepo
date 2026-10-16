@@ -1,4 +1,4 @@
-// Compares what one item nets across seven selling channels at once.
+// Compares what one item nets across nine selling channels at once.
 //
 // Why this exists
 // ---------------
@@ -52,7 +52,7 @@ export const CATEGORY_IDS = Object.freeze(Object.keys(CATEGORY_PRESETS));
  * The channels, in the order they are offered.
  *
  * `percentRate` is charged on the whole order the buyer pays (item price plus
- * whatever shipping they were charged). That is how all seven of these actually
+ * whatever shipping they were charged). That is how all nine of these actually
  * bill — a seller who "gives free shipping" by folding postage into the price
  * still pays the percentage on it, which is the single most common way a
  * per-item margin quietly goes negative.
@@ -146,6 +146,33 @@ export const CHANNELS = [
       "The legacy pre-2025 schedule (10% plus 2.9% and $0.50 processing) that older listings keep until edited, and Mercari's buyer-side protection fee.",
   },
   {
+    id: "depop",
+    label: "Depop (US)",
+    percentRate: 3.3, // US: 0% selling fee, Depop Payments processing on item + buyer-paid shipping
+    fixedFee: 0.45,
+    monthlyFee: 0,
+    demandIncluded: true,
+    rateLabel: "Payment processing",
+    deepTool: "depop-fee-calculator",
+    deepToolLabel: "Depop fee calculator",
+    notCovered:
+      "Boosted Listings (+12% on sales made while boosted), the UK and rest-of-world schedules, and the buyer-side Marketplace fee.",
+  },
+  {
+    id: "facebook",
+    label: "Facebook Marketplace (shipped)",
+    percentRate: 10, // shipped checkout only; local pickup is $0 and is not modelled here
+    fixedFee: 0,
+    minFee: 0.8, // the selling fee is never below this per shipped order
+    monthlyFee: 0,
+    demandIncluded: true,
+    rateLabel: "Selling fee",
+    deepTool: "facebook-marketplace-fee-calculator",
+    deepToolLabel: "Facebook Marketplace fee calculator",
+    notCovered:
+      "Local pickup (no fee at all), the dispute penalty on a lost chargeback, and sales tax Facebook collects.",
+  },
+  {
     id: "shopify",
     label: "Your own Shopify store",
     percentRate: 2.9,
@@ -209,7 +236,7 @@ export const EXCLUDED_CHANNELS = [
     deepTool: "reverb-fee-calculator",
     deepToolLabel: "Reverb fee calculator",
     why:
-      "Reverb only accepts musical instruments and gear, where the seven channels above sell almost anything — so seating it in a general-purpose ranking would read as a recommendation to list any item there, which is true for none of the other rows' inventory. Its fee shape (marketplace percentage plus payment processing) is genuinely close to eBay's, which the deep tool compares directly on the same guitar or pedal.",
+      "Reverb only accepts musical instruments and gear, where the nine channels above sell almost anything — so seating it in a general-purpose ranking would read as a recommendation to list any item there, which is true for none of the other rows' inventory. Its fee shape (marketplace percentage plus payment processing) is genuinely close to eBay's, which the deep tool compares directly on the same guitar or pedal.",
   },
 ];
 
@@ -270,6 +297,21 @@ export function resolveChannels(item, overrides = {}) {
 }
 
 /**
+ * With a minimum fee the fee is max(rate*order + fixed, minFee), so the
+ * break-even order is the smaller consistent solution of the two branches: the
+ * percentage branch when its fee clears the floor, otherwise the floor branch.
+ */
+function breakEvenPrice(channel, item, subscriptionPerOrder, cashInvested, targetProfit = 0) {
+  const need = subscriptionPerOrder + cashInvested + targetProfit;
+  const rate = channel.percentRate / 100;
+  let order = (channel.fixedFee + need) / (1 - rate);
+  if (channel.minFee && order * rate + channel.fixedFee < channel.minFee) {
+    order = channel.minFee + need;
+  }
+  return Math.max(0, order - item.shippingCharged);
+}
+
+/**
  * One channel's result for this item.
  *
  * `cashInvested` excludes marketplace fees on purpose, matching the split the
@@ -282,7 +324,10 @@ export function calculateChannel(channel, item) {
   const revenue = item.price + item.shippingCharged;
   const percentFee = (revenue * channel.percentRate) / 100;
   const subscriptionPerOrder = channel.monthlyFee / item.monthlyOrders;
-  const channelFees = percentFee + channel.fixedFee + subscriptionPerOrder;
+  // `minFee` is a floor on the percentage-plus-fixed selling fee (Facebook's
+  // $0.80 minimum), applied before the subscription share is added.
+  const orderFee = Math.max(percentFee + channel.fixedFee, channel.minFee ?? 0);
+  const channelFees = orderFee + subscriptionPerOrder;
   const cashInvested = item.itemCost + item.shippingCost + item.otherCost;
   const profit = revenue - channelFees - cashInvested;
   return {
@@ -308,12 +353,26 @@ export function calculateChannel(channel, item) {
     // The item price at which this channel breaks even, holding the buyer's
     // shipping contribution and every cost fixed. Percentage fees apply to
     // shipping revenue too, so solve on the whole order and subtract it back.
-    breakEvenPrice: Math.max(
-      0,
-      (channel.fixedFee + subscriptionPerOrder + cashInvested) / (1 - channel.percentRate / 100) -
-        item.shippingCharged,
-    ),
+    breakEvenPrice: breakEvenPrice(channel, item, subscriptionPerOrder, cashInvested),
   };
+}
+
+/**
+ * The list price a channel needs for this item to net `targetProfit`,
+ * holding the buyer's shipping contribution and every cost fixed. This is the
+ * repricing question a multi-channel seller actually asks once the table shows
+ * a gap: "what do I have to charge on Walmart to keep what I keep on eBay?"
+ *
+ * Solves `(price + shipping) - fee - subscription - cost = target` for price,
+ * where fee is the rate on the order plus fixed (or the channel's minimum). Floors at 0 because a negative list price is not an
+ * answer; the page shows such a row as free-to-match rather than a number.
+ */
+export function priceForProfit(channel, item, targetProfit) {
+  const cashInvested = item.itemCost + item.shippingCost + item.otherCost;
+  const subscriptionPerOrder = channel.monthlyFee / item.monthlyOrders;
+  // Same two-branch solve as the break-even price (it honours a minimum-fee
+  // floor such as Facebook's), shifted by the profit the seller wants.
+  return breakEvenPrice(channel, item, subscriptionPerOrder, cashInvested, targetProfit);
 }
 
 /**
@@ -324,7 +383,20 @@ export function calculateChannel(channel, item) {
  * of two rows that swap places while they read.
  */
 export function compareChannels(item, overrides = {}) {
-  const rows = resolveChannels(item, overrides).map((channel) => calculateChannel(channel, item));
+  const channels = resolveChannels(item, overrides);
+  const rows = channels.map((channel) => calculateChannel(channel, item));
+  // Parity target: the best channel that actually sends buyers, so an own-store
+  // row that "wins" on fees alone does not set the bar nobody can clear.
+  const anchor = rows
+    .filter((row) => row.demandIncluded)
+    .reduce((best, row) => (best === null || row.profit > best.profit ? row : best), null);
+  if (anchor) {
+    rows.forEach((row, index) => {
+      row.parityTarget = anchor.profit;
+      row.parityAnchorLabel = anchor.label;
+      row.parityPrice = priceForProfit(channels[index], item, anchor.profit);
+    });
+  }
   const order = new Map(CHANNEL_IDS.map((id, index) => [id, index]));
   return [...rows].sort(
     (a, b) => b.profit - a.profit || order.get(a.id) - order.get(b.id),

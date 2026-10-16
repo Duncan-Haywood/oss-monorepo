@@ -126,3 +126,15 @@ test("admin shows the embed snippet with this server's address", async () => {
   assert.ok(html.includes(`&lt;script src=&quot;${s.base}/widget.js&quot; defer&gt;&lt;/script&gt;`), "snippet escaped and addressed to this server");
   s.close();
 });
+
+test("llms.txt indexes published articles only and /a/<slug>.md serves raw Markdown", async () => {
+  const s = await boot();
+  const r = await fetch(`${s.base}/llms.txt`); const txt = await r.text();
+  assert.match(r.headers.get("content-type"), /text\/plain/);
+  assert.match(txt, /^# Acme <i>Help<\/i>/); assert.match(txt, /\[Reset your password\]\(http:\/\/127\.0\.0\.1:\d+\/a\/reset-your-password\.md\)/);
+  assert.doesNotMatch(txt, /Draft thing|wombats/);
+  const md = await fetch(`${s.base}/a/invoices.md`); assert.equal(md.status, 200); assert.match(md.headers.get("content-type"), /text\/markdown/);
+  assert.match(await md.text(), /^# Invoices\n\nDownload invoices/);
+  assert.equal((await fetch(`${s.base}/a/draft-thing.md`)).status, 404);
+  s.close();
+});

@@ -20,6 +20,10 @@ python3 experiments/run.py          # seconds; writes experiments/results.txt
 ```
 
 ## Results (from `experiments/results.txt`; every cost rests on the assumed premiums)
+
+![Cost per degree against premium multiplier (section E)](experiments/costperdeg.svg)
+
+*Figure: Cost per degree against premium multiplier (section E). Drawn by `experiments/figure.py`, which parses the committed `experiments/results.txt`.*
 **Comfort benefit alone (C).** Warm room: infrared-transparent +2.37, thin +0.89; low-emissivity -1.57 and thick -1.24 are harms. Sun: white +3.57, thick +1.40; thin -1.38. Cool room: thick +4.04, low-emissivity +4.00; infrared-transparent -7.31. Levers combine sub-additively: infrared-transparent plus thin is +2.58 C jointly against +3.25 C summed; white plus thick is +3.77 against +4.97.
 
 **Cost per degree, added retail (designer trench / replica).** At the assumed premiums: infrared-transparent in the warm room $114 / $19 per C; white in the sun $3 / $0.5 per C; low-emissivity in the cool room $34 / $6 per C. In each scenario exactly one treatment helps, so the ranking among treatments is fixed by physics and the premium decides only the price (section E tabulates it linearly over x0.1 to x10). A treatment that works against the scenario's direction has no benefit at any price.

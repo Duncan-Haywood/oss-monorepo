@@ -1,0 +1,122 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { detectFormat, convertExchangeCsv, convertMany, krakenAsset, OUT_HEADER } from "./importers.mjs";
+import { analyze, parseTransactions } from "./calc.mjs";
+
+const COINBASE = `Transactions
+User,Invented Person,abc
+Timestamp,Transaction Type,Asset,Quantity Transacted,Spot Price Currency,Spot Price at Transaction,Subtotal,Total (inclusive of fees and/or spread),Fees and/or Spread,Notes
+2023-01-10T10:00:00Z,Buy,BTC,0.5,USD,20000,10000,10010,10,Bought 0.5 BTC for $10010 USD
+2023-06-15T10:00:00Z,Buy,BTC,0.5,USD,30000,15000,15015,15,Bought 0.5 BTC for $15015 USD
+2024-03-05T10:00:00Z,Staking Income,ETH,2,USD,2500,5000,5000,0,
+2024-04-01T10:00:00Z,Send,BTC,0.1,USD,60000,6000,6000,0,Sent 0.1 BTC to 0xabc
+2024-09-20T10:00:00Z,Sell,BTC,0.6,USD,60000,36000,35964,36,Sold 0.6 BTC for $35964 USD
+2024-10-01T10:00:00Z,Convert,ETH,1,USD,3300,3300,3300,0,Converted 1 ETH to 0.05 BTC
+`;
+
+const KRAKEN = `"txid","refid","time","type","subtype","aclass","asset","amount","fee","balance"
+"L1","T1","2023-02-01 09:00:00","trade","","currency","ZUSD","-5000.0000","10.0000","0"
+"L2","T1","2023-02-01 09:00:00","trade","","currency","XXBT","0.2500000000","0.0000000000","0.25"
+"L3","T2","2024-05-01 09:00:00","trade","","currency","XXBT","-0.1000000000","0.0001000000","0.15"
+"L4","T2","2024-05-01 09:00:00","trade","","currency","ZUSD","7000.0000","14.0000","7000"
+"L5","T3","2024-06-01 09:00:00","trade","","currency","XETH","-1.0000000000","0.0000000000","0"
+"L6","T3","2024-06-01 09:00:00","trade","","currency","XXBT","0.0500000000","0.0000000000","0.2"
+"L7","S1","2024-07-01 09:00:00","staking","","currency","DOT.S","0.5000000000","0.0000000000","0.5"
+"L8","D1","2024-07-02 09:00:00","deposit","","currency","ZUSD","1000.0000","0.0000","1000"
+`;
+
+test("detects formats", () => {
+  assert.equal(detectFormat(COINBASE), "coinbase");
+  assert.equal(detectFormat(KRAKEN), "kraken");
+  assert.equal(detectFormat("date,type,asset,quantity,total\n"), "generic");
+});
+
+test("generic input passes through untouched", () => {
+  const t = "date,type,asset,quantity,total\n2024-01-01,buy,BTC,1,100\n";
+  assert.deepEqual(convertExchangeCsv(t), { format: "generic", csv: t, notes: [] });
+});
+
+test("Coinbase: preamble skipped, buys/sell/income/convert mapped, send ignored", () => {
+  const r = convertExchangeCsv(COINBASE);
+  assert.equal(r.format, "coinbase");
+  const lines = r.csv.trim().split("\n");
+  assert.equal(lines[0], OUT_HEADER);
+  assert.equal(lines.length, 1 + 6); // 2 buys, income, sell, convert (sell+buy)
+  assert.ok(lines.includes("2023-01-10,buy,BTC,0.5,10000,10,Coinbase"));
+  assert.ok(lines.includes("2024-03-05,income,ETH,2,5000,0,Coinbase"));
+  assert.ok(lines.includes("2024-10-01,sell,ETH,1,3300,0,Coinbase"));
+  assert.ok(lines.includes("2024-10-01,buy,BTC,0.05,3300,0,Coinbase"));
+  assert.ok(r.notes.some((n) => /1 Send row/.test(n)));
+});
+
+test("Coinbase export feeds the lot matcher end to end", () => {
+  const r = convertExchangeCsv(COINBASE);
+  const parsed = parseTransactions(r.csv);
+  assert.deepEqual(parsed.errors, []);
+  const a = analyze(r.csv, { method: "FIFO", year: 2024 });
+  // FIFO: 0.5 BTC @ 10010 basis (10000+10) fully used, 0.1 BTC of the second lot (15015 * 0.2 = 3003)
+  const sale = a.rows.filter((x) => x.sold === "2024-09-20");
+  const proceeds = sale.reduce((s, x) => s + x.proceeds, 0);
+  const basis = sale.reduce((s, x) => s + x.basis, 0);
+  assert.ok(Math.abs(proceeds - 35964) < 0.02);
+  assert.ok(Math.abs(basis - (10010 + 3003)) < 0.02);
+});
+
+test("Coinbase non-USD rows are skipped with a note", () => {
+  const t = COINBASE.replace("2023-01-10T10:00:00Z,Buy,BTC,0.5,USD", "2023-01-10T10:00:00Z,Buy,BTC,0.5,EUR");
+  const r = convertExchangeCsv(t);
+  assert.ok(r.notes.some((n) => /EUR/.test(n)));
+  assert.ok(!r.csv.includes("2023-01-10"));
+});
+
+test("Kraken asset codes normalise", () => {
+  assert.equal(krakenAsset("XXBT"), "BTC");
+  assert.equal(krakenAsset("XBT"), "BTC");
+  assert.equal(krakenAsset("XETH"), "ETH");
+  assert.equal(krakenAsset("ZUSD"), "USD");
+  assert.equal(krakenAsset("ZEUR"), "EUR");
+  assert.equal(krakenAsset("DOT.S"), "DOT");
+  assert.equal(krakenAsset("SOL"), "SOL");
+  assert.equal(krakenAsset("XTZ"), "XTZ"); // not a Kraken X-prefixed legacy pair
+});
+
+test("Kraken: USD trades paired by refid; fees placed correctly", () => {
+  const r = convertExchangeCsv(KRAKEN);
+  const lines = r.csv.trim().split("\n");
+  assert.ok(lines.includes("2023-02-01,buy,BTC,0.25,5000,10,Kraken"));
+  // sell: crypto fee adds to the quantity given up, fiat fee is the fee
+  assert.ok(lines.includes("2024-05-01,sell,BTC,0.1001,7000,14,Kraken"));
+});
+
+test("Kraken: crypto-for-crypto swap is left for the user to price; staking income unpriced", () => {
+  const r = convertExchangeCsv(KRAKEN);
+  const lines = r.csv.trim().split("\n");
+  assert.ok(lines.includes("2024-06-01,sell,ETH,1,,0,Kraken"));
+  assert.ok(lines.includes("2024-06-01,buy,BTC,0.05,,0,Kraken"));
+  assert.ok(lines.includes("2024-07-01,income,DOT,0.5,,0,Kraken"));
+  assert.ok(r.notes.some((n) => /ETH to BTC swap has no USD value/.test(n)));
+  assert.ok(r.notes.some((n) => /staking reward/.test(n)));
+  assert.ok(r.notes.some((n) => /deposit, withdrawal/.test(n)));
+  // the unpriced rows surface as errors in the matcher, not as silent zero-basis lots
+  const parsed = parseTransactions(r.csv);
+  assert.equal(parsed.errors.length, 3);
+});
+
+test("Kraken: stablecoin leg prices a swap", () => {
+  const t = `"txid","refid","time","type","subtype","aclass","asset","amount","fee","balance"
+"a","T9","2024-08-01 00:00:00","trade","","currency","XETH","-1.0","0","0"
+"b","T9","2024-08-01 00:00:00","trade","","currency","USDC","3000.0","0","3000"
+`;
+  const r = convertExchangeCsv(t);
+  assert.ok(r.csv.includes("2024-08-01,sell,ETH,1,3000,0,Kraken"));
+  assert.ok(r.csv.includes("2024-08-01,buy,USDC,3000,3000,0,Kraken"));
+});
+
+test("convertMany merges files under one header", () => {
+  const r = convertMany([{ name: "cb.csv", text: COINBASE }, { name: "kr.csv", text: KRAKEN }]);
+  const lines = r.csv.trim().split("\n");
+  assert.equal(lines.filter((l) => l === OUT_HEADER).length, 1);
+  assert.ok(lines.some((l) => l.endsWith("Coinbase")) && lines.some((l) => l.endsWith("Kraken")));
+  assert.deepEqual(r.formats, ["coinbase", "kraken"]);
+  assert.ok(r.notes.every((n) => /^(cb|kr)\.csv: /.test(n)));
+});
