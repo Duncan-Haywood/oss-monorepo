@@ -4,7 +4,7 @@ import {
   applyRainouts, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs,
   scheduleText, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, buildPoolPlay, poolAdvancers,
+  splitPools, buildPoolPlay, poolAdvancers, playoffRace, remainingFixtures, raceText,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -487,4 +487,82 @@ test("pool advancers seed winners, then runners-up, best record first", () => {
   const A = standings(["a1", "a2", "a3"], [{ a: 0, b: 1, ga: 2, gb: 0 }, { a: 0, b: 2, ga: 1, gb: 0 }, { a: 1, b: 2, ga: 1, gb: 0 }]);
   const B = standings(["b1", "b2", "b3"], [{ a: 0, b: 1, ga: 5, gb: 0 }, { a: 0, b: 2, ga: 5, gb: 0 }, { a: 1, b: 2, ga: 0, gb: 0 }]);
   assert.deepEqual(poolAdvancers([A, B], 2), ["b1", "a1", "a2", "b2"]);
+});
+
+// ---- playoff race
+test("playoff race: a finished league has its top spots clinched and the rest out", () => {
+  const teams = ["A", "B", "C", "D"];
+  const res = [[0,1],[0,2],[1,2],[1,3],[2,3],[0,3]].map(([a,b]) => ({ a, b, ga: 1, gb: 0 }));
+  const done = playoffRace(teams, res, [], 2);
+  assert.equal(done[0].name, "A");
+  assert.deepEqual(done.map((r) => r.status), ["clinched", "clinched", "eliminated", "eliminated"]);
+});
+
+test("playoff race: clinched and eliminated agree with brute force over every outcome", () => {
+  const rnd = mulberry32(7);
+  for (let trial = 0; trial < 60; trial++) {
+    const n = 3 + Math.floor(rnd() * 3);
+    const teams = names(n);
+    const fixtures = [];
+    for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) fixtures.push([a, b]);
+    const played = fixtures.filter(() => rnd() < 0.5);
+    const results = played.map(([a, b]) => ({ a, b, ga: Math.floor(rnd() * 3), gb: Math.floor(rnd() * 3) }));
+    const remaining = fixtures.filter((f) => !played.includes(f));
+    const spots = 1 + Math.floor(rnd() * (n - 1));
+    const rows = playoffRace(teams, results, remaining, spots);
+    assert.equal(rows.exact, true);
+    // brute force: worst/best rank (ties against / for the team) over all 3^r outcomes
+    const base = Array(n).fill(0);
+    for (const r of results) { if (r.ga > r.gb) base[r.a] += 3; else if (r.ga < r.gb) base[r.b] += 3; else { base[r.a]++; base[r.b]++; } }
+    let combos = [base];
+    for (const [a, b] of remaining) combos = combos.flatMap((p) => [[3, 0], [1, 1], [0, 3]].map(([x, y]) => { const q = p.slice(); q[a] += x; q[b] += y; return q; }));
+    for (const row of rows) {
+      let always = true; let never = true;
+      for (const p of combos) {
+        const i = row.index;
+        const worst = 1 + p.filter((v, j) => j !== i && v >= p[i]).length;
+        const bestR = 1 + p.filter((v, j) => j !== i && v > p[i]).length;
+        if (worst > spots) always = false;
+        if (bestR <= spots) never = false;
+      }
+      assert.equal(row.status === "clinched", always, `trial ${trial} ${row.name}`);
+      assert.equal(row.status === "eliminated", never, `trial ${trial} ${row.name}`);
+    }
+  }
+});
+
+test("playoff race: the bounds used for long fixture lists never contradict the exact answer", () => {
+  const rnd = mulberry32(11);
+  for (let trial = 0; trial < 40; trial++) {
+    const n = 4 + Math.floor(rnd() * 2);
+    const fixtures = [];
+    for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) fixtures.push([a, b]);
+    const played = fixtures.filter(() => rnd() < 0.6);
+    const results = played.map(([a, b]) => ({ a, b, ga: Math.floor(rnd() * 3), gb: Math.floor(rnd() * 3) }));
+    const remaining = fixtures.filter((f) => !played.includes(f));
+    const spots = 1 + Math.floor(rnd() * (n - 1));
+    const exact = playoffRace(names(n), results, remaining, spots);
+    const bound = playoffRace(names(n), results, remaining, spots, { exactLimit: -1 });
+    assert.equal(bound.exact, false);
+    for (const r of bound) {
+      const e = exact.find((x) => x.index === r.index);
+      if (r.status !== "alive") assert.equal(r.status, e.status, `trial ${trial} ${r.name}`);
+    }
+  }
+  assert.ok(playoffRace(names(8), [], [[0, 1]], 4).every((r) => r.status === "alive"));
+});
+
+test("remainingFixtures clears one meeting per result and handles a double round robin", () => {
+  const s = buildSchedule(baseSpec(4, { double: true }));
+  assert.equal(remainingFixtures(s, []).length, 12);
+  const left = remainingFixtures(s, [{ a: 0, b: 1, ga: 1, gb: 0 }, { a: 1, b: 0, ga: 2, gb: 2 }]);
+  assert.equal(left.filter(([x, y]) => (x === 0 && y === 1) || (x === 1 && y === 0)).length, 0);
+  assert.equal(left.length, 10);
+});
+
+test("raceText names each team's position", () => {
+  const rows = playoffRace(["A", "B", "C"], [{ a: 0, b: 1, ga: 1, gb: 0 }], [[0, 2], [1, 2]], 1);
+  const text = raceText(rows, 1);
+  assert.match(text, /A: alive|A: clinched/);
+  assert.match(text.split("\n").join(" "), /B:/);
 });
