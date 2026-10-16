@@ -31,11 +31,7 @@ shuffling on Sunday night.
 ## Limits
 
 Not modelled: predictive-scheduling and fair-workweek notice rules, meal and rest breaks, minor-labor limits, split-shift
-<<<<<<< HEAD
-premiums, tips, union rules, seniority, time-off across weeks (beyond the last-week tail below). A
-=======
 premiums, tips, union rules, seniority, time-off across weeks. A
->>>>>>> origin/main
 heuristic search, not a proof of optimality on large problems. Verified only against exhaustive search and invented data.
 Not legal, tax, or financial advice.
 
@@ -48,5 +44,3 @@ Open `index.html`, or `node --test` to run the tests. No build step, no dependen
 Provided free and as-is, without warranty of any kind. Not legal, tax, or financial advice. MIT licensed.
 
 **Sick-call finder.** After a roster is built, pick any shift (or an open one) to see who could take it without changing anyone else's week, cheapest first with overtime flagged, and which rule blocks everyone else (`coverOptions` in `calc.mjs`).
-
-**Last week's tail.** Optionally list who closed late or was on a long run last week (`Ana, Sun 11pm, 5`); the rest and days-in-a-row rules then hold across the Sunday-to-Monday boundary, and open shifts explain it ("would break the rest rule") (`parseCarry` in `calc.mjs`).
