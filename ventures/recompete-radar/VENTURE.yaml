@@ -1,0 +1,31 @@
+name: recompete-radar
+description: A private browser tool for small US federal contractors. Enter a NAICS code and state and it pulls public USAspending award data (or reads a pasted USAspending CSV), lists the contracts whose current end date falls in the next 6 to 24 months with incumbent, office, value and likely solicitation window, ranks the incumbents and agencies, and reports how concentrated the market is. Replaces the recompete calendar that paid govcon intelligence suites sell, for the one question a new bidder starts with.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small contractors without a paid intelligence subscription will use a free recompete calendar for their own NAICS and state, because the end dates are public but nobody hands them over sorted by when to start capture.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing incumbent share and market concentration next to the calendar changes which expiring contracts a bidder chases, because a fragmented market with many mid-size holders is a better entry than one dominated by three primes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Govcon consultants and PTAC counsellors will send clients to a no-signup tool they can verify against SAM.gov, which makes them a distribution channel.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: false
+kill_criteria:
+  - Fewer than five contractors or counsellors report using a lead from it to decide on a bid within 90 days of a public URL.
+  - USAspending end dates prove too unreliable (option years, extensions) for users to act on without paid data.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/recompete-radar/
+  analytics: null

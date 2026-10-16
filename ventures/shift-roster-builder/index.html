@@ -86,6 +86,8 @@
       <div><label for="dotafter">Daily overtime after (hours, 0 = off)</label><input id="dotafter" inputmode="decimal" value="0"></div>
       <div><label for="ddtafter">Double time after (hours a day, 0 = off)</label><input id="ddtafter" inputmode="decimal" value="0"></div>
       <div><label for="burden">Payroll taxes and extras (%)</label><input id="burden" inputmode="decimal" value="0"></div>
+      <div><label for="sales">Projected sales this week ($, optional)</label><input id="sales" inputmode="decimal" placeholder="e.g. 12000"></div>
+      <div><label for="labortarget">Target labor cost (% of sales)</label><input id="labortarget" inputmode="decimal" placeholder="e.g. 30"></div>
       <div><label for="balance">Balance hours across people (0–100)</label><input id="balance" inputmode="decimal" value="25"></div>
     </div>
     <button type="button" id="analyze">Build the roster</button>
@@ -93,6 +95,7 @@
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <button type="button" class="secondary" id="save-setup">Save setup file</button>
     <label for="setup-file">Load setup file</label> <input id="setup-file" type="file" accept=".json,application/json">
+    <p><label for="lastweek-file">Carry over last week: choose last week's roster CSV</label> <input id="lastweek-file" type="file" accept=".csv,text/csv"> <span class="note">Sets each person's <code>prev:</code> (when their last shift ended) so rest rules hold across Monday.</span></p>
     <p class="note">Your people, shifts and settings are remembered on this device only (browser local storage), so next week you can open the page and click the button. <button type="button" class="secondary" id="forget">Forget saved data</button></p>
     <p id="form-status" role="status" class="note">Enter your people and shifts, then click the button.</p>
   </section>
@@ -165,7 +168,7 @@
   </footer>
 
   <script type="module">
-    import { parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -200,13 +203,21 @@
       last = r; lastIn = { staff: st.staff, slots: sh.slots };
       $("#cover-shift").innerHTML = sh.slots.map((x, i) => `<option value="${i}">${DAYS[x.day]} ${fmtClock(x.startMin)}–${fmtClock(x.endMin)}${x.label ? " " + esc(x.label) : ""}${r.owner[i] >= 0 ? " (" + esc(st.staff[r.owner[i]].name) + ")" : " (open)"}</option>`).join("");
       showCover();
-      $("#notices").innerHTML = r.warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const sf = scheduleFlags(r, { weekStart: $("#weekstart").value || null, today: new Date().toISOString().slice(0, 10) });
+      const flagMsgs = [
+        ...sf.overDaily.map((x) => `${x.person} works ${num(x.hours)} hours on ${x.day}, ${num(x.overBy)} over 8 in a day. Some states pay daily overtime; check yours.`),
+        ...sf.splits.map((x) => `${x.person} has a split shift on ${x.day} with a ${num(x.gapHours)}-hour gap. Some places owe split-shift pay.`),
+        ...(sf.notice && sf.notice.short ? [`The week starts in ${sf.notice.days} days. Fair-workweek rules in some cities require ${sf.notice.required} days of notice, so changes after posting may owe premium pay.`] : []),
+      ];
+      $("#notices").innerHTML = r.warnings.concat(flagMsgs).map((w) => `<div class="warn">${esc(w)}</div>`).join("");
       const big = [
         [r.filledAll ? "All filled" : `${r.unfilledSlots} open`, r.filledAll ? `Every one of the ${r.slots} shifts has a person` : `shift${r.unfilledSlots === 1 ? "" : "s"} could not be filled (${num(r.unfilledHours)} hours)`],
         [money(r.cost), `Estimated payroll for ${num(r.hours)} scheduled hours`],
         [num(r.otHours), "Overtime hours scheduled"],
         [r.critical.length ? String(r.critical.length) : "0", r.critical.length ? "People whose absence would leave a shift uncovered" : "People whose absence would leave a shift uncovered"],
       ];
+      const lp = laborPercent(r.cost, val("sales", 0), val("labortarget", 0));
+      if (lp) big.splice(2, 0, [num(lp.pct) + "%", lp.target === null ? "Payroll as a share of projected sales" : (lp.over ? `Payroll share of sales: over your ${num(lp.target)}% target by ${money(-lp.headroom)}` : `Payroll share of sales: ${money(lp.headroom)} under your ${num(lp.target)}% target`)]);
       $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
       $("#grid thead").innerHTML = `<tr><th>Person</th>${DAYS.map((d) => `<th>${d}</th>`).join("")}</tr>`;
       $("#grid tbody").innerHTML = r.grid.map((g) => `<tr><td><strong>${esc(g.name)}</strong></td>${g.days.map((d) => `<td>${d.length ? d.map(esc).join("<br>") : "—"}</td>`).join("")}</tr>`).join("");
@@ -282,7 +293,7 @@
     });
 
     // Remember the team on this device only; nothing is sent anywhere.
-    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "burden", "balance"];
+    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "burden", "balance", "sales", "labortarget"];
     const KEY = "shift-roster-builder:setup:v1";
     const snapshot = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]));
     const apply = (o) => { for (const f of FIELDS) if (o && typeof o[f] === "string") $("#" + f).value = o[f]; };
@@ -291,6 +302,12 @@
     for (const f of FIELDS) $("#" + f).addEventListener("input", persist);
     $("#forget").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} status.textContent = "Saved data removed from this device."; });
     $("#save-setup").addEventListener("click", () => download("roster-setup.json", JSON.stringify(snapshot(), null, 2), "application/json"));
+    $("#lastweek-file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { const r = carryOverStaff($("#staff").value, String(rd.result)); $("#staff").value = r.text; persist(); status.textContent = r.changed ? `Set "prev:" for ${r.changed} ${r.changed === 1 ? "person" : "people"} from ${f.name}. Click the button to rebuild.` : `No names in ${f.name} matched your people. Is it a roster CSV from this tool?`; };
+      rd.readAsText(f);
+    });
     $("#setup-file").addEventListener("change", (e) => {
       const f = e.target.files[0]; if (!f) return;
       const rd = new FileReader();

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import {
+import { laborPercent, scheduleFlags,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -422,4 +422,59 @@ test("daily overtime steers the search to split a long day across two people", (
   const r = buildRoster(staff, slots, { dailyOtAfter: 8, balance: 0 });
   assert.equal(r.cost, 20 * 16);
   assert.equal(r.otHours, 0);
+});
+
+test("carry over: last week's CSV sets prev: so the rest rule holds across the boundary", async () => {
+  const { carryOverStaff, lastShiftEnds, parseStaff, buildRoster, parseShifts, rosterCsv } = await import("./calc.mjs");
+  const csv = [
+    "day,start,end,hours,label,assigned_to,role",
+    "Fri,5pm,11pm,6.00,,Sam,",
+    "Sun (overnight),6pm,1am,7.00,close,Sam,",
+    "Sat,9am,5pm,8.00,,Alex,",
+    "Sat,9am,5pm,8.00,,UNFILLED,",
+  ].join("\n");
+  const e = lastShiftEnds(csv);
+  assert.equal(e.get("sam").abs, 6 * 1440 + 1500);
+  assert.equal(e.get("alex").abs, 5 * 1440 + 1020);
+  assert.equal(e.has("unfilled"), false);
+  const r = carryOverStaff("name,wage,max,min,avail\nSam, 15, 30, 0, any, prev: Mon 8am\nAlex, 14\nPat, 13", csv);
+  assert.equal(r.changed, 2);
+  const st = parseStaff(r.text);
+  assert.deepEqual(st.errors, []);
+  assert.equal(st.staff[0].prevEnd, (6 - 7) * 1440 + 1500); // Mon 1:00am this week
+  assert.equal(st.staff[1].prevEnd, (5 - 7) * 1440 + 1020);
+  assert.equal(st.staff[2].prevEnd, null);
+  // Sam's overnight Sunday close ended 1am Monday: a 6am Monday shift (5h rest) must not go to Sam.
+  const sh = parseShifts("Mon, 6am, 10am, 1");
+  const roster = buildRoster(st.staff.slice(0, 1), sh.slots);
+  assert.equal(roster.assignments[0].person, null);
+});
+
+test("laborPercent: share of sales, target headroom, bad input", () => {
+  const a = laborPercent(2800, 10000, 30);
+  assert.ok(Math.abs(a.pct - 28) < 1e-9);
+  assert.equal(a.maxPayroll, 3000);
+  assert.equal(a.headroom, 200);
+  assert.equal(a.over, false);
+  assert.equal(laborPercent(3500, 10000, 30).over, true);
+  assert.equal(laborPercent(2800, 10000).target, null);
+  assert.equal(laborPercent(2800, 0), null);
+  assert.equal(laborPercent(2800, "abc"), null);
+});
+
+test("scheduleFlags: daily hours, split shifts, notice", () => {
+  const r = { assignments: [
+    { slot: { day: 0, startMin: 480, endMin: 720 }, person: "Sam" },
+    { slot: { day: 0, startMin: 900, endMin: 1200 }, person: "Sam" },
+    { slot: { day: 1, startMin: 480, endMin: 960 }, person: "Ana" },
+    { slot: { day: 1, startMin: 960, endMin: 1020 }, person: "Ana" },
+    { slot: { day: 2, startMin: 480, endMin: 960 }, person: null },
+  ] };
+  const f = scheduleFlags(r, { weekStart: "2026-11-02", today: "2026-10-26" });
+  assert.deepEqual(f.overDaily.map((x) => [x.person, x.day, x.hours]), [["Ana", "Tue", 9], ["Sam", "Mon", 9]]);
+  assert.deepEqual(f.splits.map((x) => [x.person, x.day, x.gapHours]), [["Sam", "Mon", 3]]);
+  assert.deepEqual(f.notice, { days: 7, required: 14, short: true });
+  assert.equal(scheduleFlags(r, { dailyLimit: 10 }).overDaily.length, 0);
+  assert.equal(scheduleFlags(r).notice, null);
+  assert.equal(scheduleFlags({}).overDaily.length, 0);
 });
