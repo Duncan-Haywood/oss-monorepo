@@ -2,6 +2,15 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-16 · Batch 6: a testing post, Google's large-scale changes and Toyota's stop-the-line rule
+
+- Added 3 sources and 3 practices (28 practices, 27 sources): Wacker's *Just Say No to More End-to-End Tests* (Google, 2015; P26), Winters, Manshreck and Wright's *Software Engineering at Google* (2020; P27) and Ohno's *Toyota Production System* (1988 English edition; P28). The catalogue's first manufacturing source, which is the track's own field.
+- **P28 (anyone may stop the line) is already how this loop works**: a red CI check blocks the merge and a failing test is never skipped. Marked `adopted`. The difference that matters: a stopped line idles people, a stopped session only spends budget.
+- **P27 is partly adopted.** The venture side has `regen.mjs` and `sync_tree_counts.py`, which rewrite shared files after a merge. `research/` has only `_homepage/build.py`, which fails on a mismatch and does not fix it, so every research run still hand-edits `README.md` and `projects.json`. Coordination is 2.2% of 495 runs (Wilson 1.2 to 3.9%), so the ceiling is small.
+- **P26 transfers in part** and targets the tooling class (3.8%), alongside P19 (a runtime budget per suite). Neither clears the 5% bar.
+- **Still no proposal.** The ledger has 495 rows (it had 480); the highest unadopted `yes` row is still P23 at 3.8%.
+- Verification was by web search only; none of the three pages was fetched. Wacker's post is often quoted with a 70/20/10 split, which no search result attributed to him, so the catalogue does not use it. The Winters chapter on large-scale changes was not located, so P27 is stated in general terms. Ohno's andon and jidoka rest on a vendor's secondary page, with no page numbers used.
+
 ## 2026-10-16 · Batch 5: reversible migrations, a boundary checker's retrospective and a no-backlog rule
 
 - Added 2 sources and 3 practices (25 practices, 24 sources): Xu's *Online migrations at scale* (Stripe, 2017; P23), McGibbon and Salzberg's *A Packwerk Retrospective* (Shopify, 2024; P24), and a third practice from Basecamp's *Shape Up* that the catalogue had not yet taken, no backlog (P25, source S8).

@@ -8,7 +8,9 @@ export const AGGS = ["sum", "count", "max", "unique"];
 export const newState = () => ({ customers: {}, seen: {}, buckets: {}, uniqueMonths: {}, outbox: [], dead: [] });
 
 const fail = (message, status = 400) => Object.assign(new Error(message), { status });
-const ID = /^[A-Za-z0-9_.:@-]{1,100}$/;
+const ID_RE = /^[A-Za-z0-9_.:@-]{1,100}$/;
+// "__proto__" and "constructor" match the pattern but collide with Object.prototype when used as object keys.
+const ID = { test: (v) => ID_RE.test(v) && !(v in Object.prototype) };
 export const dayOf = (ts) => new Date(ts).toISOString().slice(0, 10);
 export const monthOf = (ts) => new Date(ts).toISOString().slice(0, 7);
 
@@ -59,7 +61,7 @@ export function setCustomer(state, id, { plan, stripeCustomerId } = {}) {
 export function ingest(state, cfg, ev, now) {
   if (!ev || typeof ev !== "object") throw fail("event must be an object");
   if (!ID.test(ev.id || "")) throw fail("id is required (1-100 characters); it makes retries safe");
-  const meter = cfg.meters?.[ev.meter];
+  const meter = Object.hasOwn(cfg.meters || {}, ev.meter) ? cfg.meters[ev.meter] : null;
   if (!meter) throw fail(`unknown meter "${ev.meter}"`);
   if (!ID.test(ev.customer || "")) throw fail("customer is required");
   const ts = ev.timestamp == null ? now : typeof ev.timestamp === "number" ? ev.timestamp : Date.parse(ev.timestamp);

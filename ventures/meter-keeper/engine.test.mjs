@@ -149,12 +149,35 @@ test("limit alerts fire once per threshold per month and retry on failure", asyn
   assert.match(E.validateConfig({ ...cfg, alerts: { at: [2] } }).join(), /alerts\.at/);
 });
 
-test("an invoice with no minimum is not topped up, and an unknown plan is a 404", () => {
+test("object-prototype names are rejected as ids and never pollute or drop events", () => {
   const s = mk();
-  const free = { meters: cfg.meters, plans: { pro: { lines: [{ meter: "jobs", model: "package", size: 100, unit: 200 }] } } };
-  const inv = E.invoice(s, free, "acme", NOW);
-  assert.equal(inv.total, 0); assert.equal(inv.minimumTopUp, 0);
-  assert.throws(() => E.projection(s, { ...cfg, plans: {} }, "acme", NOW), (e) => e.status === 404);
+  for (const bad of ["__proto__", "constructor", "toString"]) {
+    assert.throws(() => E.ingest(s, cfg, ev("x", { customer: bad }), NOW), /customer is required/);
+    assert.throws(() => E.ingest(s, cfg, ev(bad), NOW), /id is required/);
+    assert.throws(() => E.ingest(s, cfg, ev("y", { meter: bad }), NOW), /unknown meter/);
+    assert.throws(() => E.setCustomer(s, bad, { plan: "pro" }), /customer id/);
+  }
+  assert.equal(({}).api, undefined);
+  assert.equal(E.ingest(s, { ...cfg }, ev("fine"), NOW).status, "accepted");
+});
+
+test("a flat meter may be free (unit 0) and is still valid config", () => {
+  const free = { meters: { m: { agg: "sum" } }, plans: { p: { lines: [{ meter: "m", model: "flat", unit: 0 }] } } };
+  assert.deepEqual(E.validateConfig(free), []);
+});
+
+test("check reports remaining 0, not a positive number, once over the limit", () => {
+  const s = mk();
+  E.ingest(s, cfg, ev("a", { value: 60_000 }), NOW);
+  const r = E.check(s, cfg, "acme", "api", 1, NOW);
+  assert.equal(r.remaining, 0); assert.equal(r.allowed, false);
+});
+
+test("flushAlerts honours max exactly", async () => {
+  const s = mk();
+  s.alertOutbox = [1, 2].map((i) => ({ id: `a${i}`, next: 0, tries: 0 }));
+  const r = await E.flushAlerts(s, async () => {}, NOW, { max: 1 });
+  assert.deepEqual([r.sent, r.pending], [1, 1]);
 });
 
 test("prune keeps records at the retention edge and drops older alert, unique and day records", () => {

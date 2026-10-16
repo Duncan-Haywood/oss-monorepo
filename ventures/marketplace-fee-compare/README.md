@@ -2,7 +2,7 @@
 
 **Which channel nets the most on this item?** Type one item once — price,
 landed cost, category, monthly order volume — and see net profit side by side
-on eBay, Etsy, Amazon, Walmart, TikTok Shop, and your own Shopify store.
+on eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, and your own Shopify store.
 
 Free, no signup, and nothing you type leaves the browser.
 
@@ -34,6 +34,7 @@ a headline rate cannot carry.
 | Amazon (seller-fulfilled) | referral by category, 8–20% | — | $39.99/mo Professional |
 | Walmart Marketplace | referral by category, 8–20% | — | — |
 | TikTok Shop | 6% US referral | — | — |
+| Mercari | 10% selling fee on item + buyer-paid shipping (current schedule) | — | — |
 | Your own Shopify store | 2.9% payment processing | $0.30 | $39/mo Basic |
 
 Every rate is an **editable default**, taken from the matching calculator in
@@ -43,7 +44,7 @@ schedule; a seller's own statement wins, and the page says so.
 Three modelling decisions worth knowing about:
 
 - **Percentages are charged on the whole order**, item price plus any shipping
-  the buyer paid. That is how all six actually bill, and it is the most common
+  the buyer paid. That is how all seven actually bill, and it is the most common
   way a "free shipping" margin quietly goes negative.
 - **Subscriptions are spread over the seller's own monthly order count**, not
   ignored. Ignoring them is what makes a $39.99 Amazon plan look free at three
@@ -61,7 +62,7 @@ Shopify plan tiers, Walmart WFS.
 
 **Faire is excluded from the ranking on purpose.** It is wholesale: the buyer is
 a shop paying roughly half retail, and the economics turn on order size and
-reorder rate rather than one retail order. Ranking it beside six retail
+reorder rate rather than one retail order. Ranking it beside seven retail
 channels would produce a number that looks comparable and is not. It gets a
 pointer instead of a row.
 

@@ -36,6 +36,7 @@ import { FIELD_IDS as ETSY_FIELDS } from '../etsy-profit-calculator/share.mjs';
 import { INPUT_FIELDS as AMAZON_FIELDS } from '../amazon-fba-calculator/calc.mjs';
 import { INPUT_FIELDS as WALMART_FIELDS } from '../walmart-marketplace-calculator/calc.mjs';
 import { FIELD_IDS as TIKTOK_FIELDS } from '../tiktok-shop-fee-calculator/calc.mjs';
+import { INPUT_IDS as MERCARI_FIELDS } from '../mercari-fee-calculator/calc.mjs';
 import { FIELD_IDS as SHOPIFY_FIELDS } from '../shopify-fee-calculator/share.mjs';
 
 // The two excluded channels whose item still travels. Imported from the target
@@ -54,6 +55,7 @@ const TARGET_FIELDS = {
   'amazon-fba-calculator': AMAZON_FIELDS,
   'walmart-marketplace-calculator': WALMART_FIELDS,
   'tiktok-shop-fee-calculator': TIKTOK_FIELDS,
+  'mercari-fee-calculator': MERCARI_FIELDS,
   'shopify-fee-calculator': SHOPIFY_FIELDS,
 };
 
@@ -94,7 +96,7 @@ test('every channel we hand off to is a channel this page ranks', () => {
 });
 
 test('every channel this page ranks has a handoff', () => {
-  // The point of this page is that all six rows are comparable, so all six
+  // The point of this page is that all seven rows are comparable, so all seven
   // deserve the same way out. A channel added to `CHANNELS` without an entry
   // here would keep only the bare link it has always had, and the omission
   // would be invisible — nothing renders differently except a missing row in a
