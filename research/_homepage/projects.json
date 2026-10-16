@@ -2249,6 +2249,11 @@
      "summary": "A stylised, preliminary follow-up to <em>garment-twonodepen</em>. Both gates are retuned on a wider set of rooms (20&ndash;28&nbsp;C instead of 22&ndash;26&nbsp;C) and scored on rooms held out of both. At the highest penalty, proportional wins 7 of 8 cases at 21 and 27&nbsp;C when tuned wide, against 4 of 8 when tuned narrow, so the reversal is partly an artefact of the training range. At 18 and 30&nbsp;C the gates differ by at most 0.007&nbsp;C, which this model cannot resolve. Two penalties only; simulated comfort, not a claim about any real garment."
     },
     {
+     "slug": "garment-twonodeperson",
+     "title": "Does an infrared-gating band tuned for one person and clothing level still work for other clothing and body sizes?",
+     "summary": "A stylised, preliminary follow-up to <em>garment-twonodewide</em>. Both gates are tuned on one person (0.5&nbsp;clo, 70&nbsp;kg) and scored unchanged on other clothing levels and body sizes. Body size barely matters (retuning gains at most 0.002&nbsp;C), clothing does: retuning an on/off band for 1.2&nbsp;clo gains up to 0.375&nbsp;C, while the proportional gate's gap stays at most 0.075&nbsp;C. Proportional wins every cell except three at 0.3&nbsp;clo and penalty 0.1. Mass and height enter the model only through body area and heat capacity; simulated comfort, not a claim about any real garment."
+    },
+    {
      "slug": "garment-twonodeopt",
      "title": "How far is the thermostat-driven infrared-gating textile from the best possible switching schedule when the room temperature steps?",
      "summary": "A stylised, preliminary follow-up to <em>garment-twonodestep</em>. Exhaustive search over open/closed schedules (at most 3 toggles on a 10&nbsp;min grid, instant actuation) in the switchable two-node model, scored by mean |skin temperature &minus; 33.7&nbsp;C| (a proxy, not a comfort index). One toggle is enough (more improve the score by at most 0.001&nbsp;C). The best toggle is not always at the step: it is early or late after a step down. The gate is within 0.02&nbsp;C of the optimum after a step up but 0.06&ndash;0.11&nbsp;C away after a step down (0.18 with 10&nbsp;min lag in one case). One person, two assumed transmittances, a coarse grid; not a claim about any real garment."
