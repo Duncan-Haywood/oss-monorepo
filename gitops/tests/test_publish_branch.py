@@ -58,6 +58,12 @@ case "$1" in
       case "$arg" in --out=*) mkdir -p "${arg#--out=}" ;; esac
     done
     ;;
+  */devlog/build.mjs)
+    # The development analyses (platform/devlog/), built after check.mjs.
+    for arg in "$@"; do
+      case "$arg" in --out=*) mkdir -p "${arg#--out=}" ;; esac
+    done
+    ;;
   */indexnow.mjs)
     echo "stub: indexnow $*"
     exit "${STUB_INDEXNOW_EXIT:-0}"

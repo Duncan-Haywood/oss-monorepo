@@ -48,6 +48,10 @@
     {
       "date": "2026-10-16",
       "note": "Step 1 partial: moved DIRECTION.md's 92-line 'fleet-parity trap' section (2026-09-06 measurements, partly superseded) to docs/history/direction-fleet-parity-trap-2026-09-06.md, leaving a 12-line rule. DIRECTION.md 1,015 -> 922 lines. Steps 2-4 still open."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Step 4 partial: CLAUDE.md's two direction sections (~45 lines, duplicated in goals.md) condensed to one 20-line pointer section. CLAUDE.md 391 -> 383 lines; nothing else referenced the old headings. Steps 2-3 still open."
     }
   ]
 }
