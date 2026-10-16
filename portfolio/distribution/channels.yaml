@@ -139,3 +139,18 @@ channels:
       - agents did not read live terms on build day, and the generated formulas were not run through `brew audit` (no Homebrew in the build session)
     owner_ask: create an empty homebrew-<name> repository, store HOMEBREW_TAP_TOKEN, set HOMEBREW_TAP_REPO and DISTRIBUTE_HOMEBREW=true (after DISTRIBUTE_NPM has published packages)
     dry_run: node platform/distribution/homebrew.mjs
+  - id: ghcr-container-images
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/ghcr.mjs
+    workflow: .github/workflows/distribute-ghcr.yml
+    enabled_by: repository variable DISTRIBUTE_GHCR=true (no secret: the job logs in to ghcr.io with its own GITHUB_TOKEN, packages:write)
+    what_it_posts: one image `ghcr.io/<owner>/<slug>:0.1.0` per venture CLI that npm-cli-packages can package (FROM node:22-alpine, non-root, OCI source/licence labels linking to this repository). At most 5 new images per run.
+    dedupe: stateless; a tag that `docker manifest inspect` finds is never rebuilt
+    depends_on: nothing (does not need npm to be live)
+    terms_to_confirm_by_owner_when_enabling:
+      - GitHub Terms and the Container registry terms; agents did not read live terms on build day
+      - new GHCR packages are private by default: after the first push, set each package (or the org default) to public in package settings, which only the owner can do
+      - the Dockerfile and workflow were not built here (no Docker daemon in the build session); the build context was checked by running its bin.mjs with node
+    owner_ask: set DISTRIBUTE_GHCR=true, then make the first pushed packages public
+    dry_run: node platform/distribution/ghcr.mjs

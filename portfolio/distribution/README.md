@@ -171,3 +171,5 @@ the owner step is the account, two secrets and `DISTRIBUTE_BLUESKY=true`.
 `pypi-pyproject-packages` is at `artifact` (2026-10-16): the five dependency-free Python ventures that already have a pyproject become PyPI projects, three new per weekly run; same owner step as `pypi-python-clis`. Dry run: `node platform/distribution/pypi-packages.mjs`.
 
 `homebrew-tap` is at `artifact` (2026-10-16): formulas for the venture CLIs that npm-cli-packages has published, written into the owner's own tap repository (`brew install <tap>/<slug>`); needs `DISTRIBUTE_NPM` live first. Dry run: `node platform/distribution/homebrew.mjs`.
+
+`ghcr-container-images` is at `artifact` (2026-10-16): each venture CLI also becomes `ghcr.io/<owner>/<slug>`, runnable with `docker run --rm -v "$PWD:/work" ghcr.io/<owner>/<slug> <args>`, five new per weekly run. It needs no account or secret beyond this repository: only `DISTRIBUTE_GHCR=true`, then making the first packages public. Dry run: `node platform/distribution/ghcr.mjs` (`--pack <slug> <dir>` writes the build context).
