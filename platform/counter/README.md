@@ -49,7 +49,14 @@ needs a new account:
 - a home server or always-on machine behind your router, with Caddy for
   TLS.
 
-On that machine:
+With Docker, one command does the server and TLS (`deploy/`; DNS for the host must point at the machine first):
+
+```sh
+cd platform/counter/deploy
+COUNTER_HOST=count.example.org COUNTER_ORIGIN=https://duncan-haywood.github.io docker compose up -d
+```
+
+Without Docker, on that machine:
 
 ```sh
 git clone https://github.com/Duncan-Haywood/oss-monorepo && cd oss-monorepo/platform/counter
