@@ -9,7 +9,7 @@ resources:
   - portfolio-front.yaml
   - portfolio-apex.yaml
   - site-usage.yaml
-  - front-door-tools/
+  # front-door-tools/ (generated mirror) is no longer committed: P024. The k3s origin it fed was retired 2026-10-01.
 configMapGenerator:
   - name: portfolio-site-usage-script
     files:
