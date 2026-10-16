@@ -22,7 +22,7 @@ shuffling on Sunday night.
   several restarts. Deterministic. Tests check every roster against the hard rules and compare with an exhaustive search of
   all rosters on small problems.
 - Reports: who is on each shift, shifts nobody could take and the reason, hours and pay per person, who the week depends on
-  (rebuild without each person), and a comparison with filling shifts in listed order. CSV exports, and a `.ics` calendar file for the week (everyone, or one person to hand them their own shifts).
+  (rebuild without each person), and a comparison with filling shifts in listed order. CSV exports, and a `.ics` calendar file for the week (everyone, or one person to hand them their own shifts), and a ready-to-paste text message per person ("Hi Sam, your shifts this week: ..."), dated when you give the Monday.
 
 - What-if: when shifts stay open, rebuilds with one extra person free at any time (average wage, 40 h) and reports the hours it would cover and the payroll it adds.
 
