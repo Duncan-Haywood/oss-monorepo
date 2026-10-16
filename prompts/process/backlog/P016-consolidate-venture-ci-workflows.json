@@ -21,11 +21,15 @@
   "opened": "2026-10-16",
   "source": "Repo-organization review in a Claude Code session, 2026-10-16 (unmeasured; see CAVEAT in problem)",
   "pr": "see PR titled \"process P016\"",
-  "result": null,
+  "result": "helped: .github/workflows 893 -> 520 files on origin/main e731751327 (git ls-tree | wc -l); *-ci.yml 869 -> 490; validate_workflows.py passes on all 520; 0 new *-ci.yml added since 2026-10-16 (git log --diff-filter=A). Too early to measure whether variants regrow.",
   "history": [
     {
       "date": "2026-10-16",
       "note": "workflow files 893 -> 509 (ls .github/workflows | wc -l: 518 after sync incl. non-ci); validate_workflows, publish_surface --check, checklist_coverage, workflow-coverage test pass"
+    },
+    {
+      "date": "2026-10-16",
+      "note": "verified: helped: .github/workflows 893 -> 520 files on origin/main e731751327 (git ls-tree | wc -l); *-ci.yml 869 -> 490; validate_workflows.py passes on all 520; 0 new *-ci.yml added since 2026-10-16 (git log --diff-filter=A). Too early to measure whether variants regrow."
     }
   ]
 }
