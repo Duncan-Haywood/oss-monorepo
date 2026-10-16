@@ -66,6 +66,9 @@ ADAPTED = {
     "site/template.html": "research/_homepage/template.html",
     ".github/workflows/pages.yml": ".github/workflows/research-ci.yml",
 }
+# Upstream-only: files that run on the old repository and are not copied here.
+# adopt-stranded-branches opens draft PRs for upstream branches; it has nothing to do here.
+UPSTREAM_ONLY = {".github/workflows/adopt-stranded-branches.yml"}
 # Under research/ but belonging to this repository, not to the mirror.
 LOCAL_ONLY_PREFIXES = ("research/_mirror/",)
 
@@ -95,7 +98,7 @@ def local_path(upstream: str) -> str | None:
 
 def is_mapped(upstream: str) -> bool:
     return (local_path(upstream) is not None or upstream in ADAPTED
-            or upstream in DERIVED or upstream == RUNS)
+            or upstream in DERIVED or upstream == RUNS or upstream in UPSTREAM_ONLY)
 
 
 def mirrored_area(local: str) -> bool:
