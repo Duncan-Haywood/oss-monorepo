@@ -696,8 +696,9 @@ becomes a target. Cohen (1960), kappa, for agreement between raters.
    is worth more. Proposals go through `prompt.md`'s experiment process, as in milestone 6,
    and none is adopted from a source's reputation alone. Most practices were built for teams of
    people, so say which assumptions (headcount, meetings, hiring, salaries) do not carry over to
-   a fleet of agent sessions, and why. Each run adds sources, re-scores the open proposals and
-   updates the "Next steps".
+   a fleet of agent sessions, and why. Each run adds sources, re-scores the open proposals,
+   updates the "Next steps" and appends a dated entry to `research/swe-orgs/LOG.md`, which
+   the project page shows as its research log.
 8. Later: the model and effort level per kind of task (a cheaper model for landing and logging,
    a stronger one for new milestones), subagents against a single agent, and how often review
    sessions should run.
