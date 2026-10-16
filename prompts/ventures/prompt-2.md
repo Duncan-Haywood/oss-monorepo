@@ -28,9 +28,13 @@ add value, iOS and Android apps, and real business potential. Measured on
 `*-calculator` (121 `*-bid-calculator`), there is no native mobile app, and
 no venture has a single measured visitor. That is not the brief. So:
 
-- **No new single-page calculators.** A form plus arithmetic on a static page
-  is not a new venture, however niche the trade. If one is genuinely useful,
-  add it as a feature of an existing venture.
+- **Prefer higher-value work to another single-page calculator.** A
+  principle, not a ban (owner, 2026-10-16): a form plus arithmetic on a
+  static page is rarely the most valuable thing a run can build, and the
+  catalogue already holds over 600 of them. Before adding one, ask whether
+  deepening an existing venture, or a different shape of product, would help
+  more people; if a calculator is genuinely useful, it is often best as a
+  feature of an existing venture.
 - **Run the near-copy check before you pick a niche.** Count the name
   suffixes of the 15 newest ventures; if any suffix appears 3 or more times,
   or yours would be the fourth "<country/trade>-<same-shape>", build a

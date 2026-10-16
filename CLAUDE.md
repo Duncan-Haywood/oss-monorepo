@@ -160,7 +160,8 @@ tools that help them earn more. Low variable cost, traditional software, AI
 only where it clearly helps. Payment code is allowed only off by default and on
 the deployer's own keys, never the owner's accounts (`prompts/goals.md`,
 "Payments: never the owner's"); the owner's own instances take GitHub Sponsors
-donations only. No new single-page calculators (`prompts/ventures/prompt-1.md`).
+donations only. Prefer higher-value work to another single-page calculator: a
+principle, not a ban (owner, 2026-10-16; `prompts/ventures/prompt-1.md`).
 
 ## Session gate (generic briefs only)
 
