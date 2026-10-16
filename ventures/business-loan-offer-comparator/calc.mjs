@@ -73,7 +73,7 @@ export function parseOffers(text) {
     if (!(o.rate >= 0) || (kind === "factor" && !(o.rate >= 1))) return errors.push(`${at}: ${kind === "factor" ? "factor rate looks like 1.35 (must be 1 or more)" : "APR must be 0 or more, e.g. 9.5"}`);
     if (!(o.termMonths >= 1 && o.termMonths <= 600)) return errors.push(`${at}: term must be 1 to 600 months`);
     if (!(o.feePct >= 0 && o.feePct < 50) || !(o.feeFlat >= 0)) return errors.push(`${at}: fees must be 0 or more (percent under 50)`);
-    if (![1, 2, 4, 12, 24, 26, 52, 252].includes(o.ppy)) return errors.push(`${at}: payments per year must be one of 12, 26, 52, 252 (monthly, biweekly, weekly, business-daily)`);
+    if (![1, 2, 4, 12, 24, 26, 52, 252].includes(o.ppy)) return errors.push(`${at}: payments per year must be one of 1, 2, 4, 12, 24, 26, 52, 252 (annual, semiannual, quarterly, monthly, semimonthly, biweekly, weekly, business-daily)`);
     if (!(o.prepayPct >= 0 && o.prepayPct <= 20)) return errors.push(`${at}: prepayment percentage must be 0 to 20`);
     offers.push(o);
   });
@@ -98,8 +98,10 @@ export function compare(offers, opts = {}) {
     const res = { ...o, n, fees, net, pay, monthlyPay, total, cost, costPerDollar: cost / net, apr, ear, flags: [] };
     if (opts.monthlyRevenue > 0) res.payPctRevenue = (monthlyPay / opts.monthlyRevenue) * 100;
     if (opts.monthlyCashFlow > 0) res.coverage = opts.monthlyCashFlow / monthlyPay;
-    if (opts.payoffMonth > 0 && opts.payoffMonth < o.termMonths) {
-      const k = Math.round((opts.payoffMonth * o.ppy) / 12);
+    // k is the number of payments made before the payoff. Under one payment
+    // there is no stream to solve a rate on (the page showed "NaN%"), so skip.
+    const k = Math.round(((opts.payoffMonth || 0) * o.ppy) / 12);
+    if (opts.payoffMonth > 0 && opts.payoffMonth < o.termMonths && k >= 1) {
       let payoff, early;
       if (o.kind === "loan") {
         const bal = balanceAfter(o.amount, o.rate / 100 / o.ppy, n, k);

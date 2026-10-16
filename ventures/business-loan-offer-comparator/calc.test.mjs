@@ -108,3 +108,16 @@ test("break-even return", () => {
   close(b.monthlyCost * 60, r.cost, 1e-6);
   assert.ok(b.annualPctOfNet > 4 && b.annualPctOfNet < 9);
 });
+
+test("a payoff month shorter than one payment is skipped, not shown as NaN", () => {
+  const r = compare(parseOffers("L, loan, 100000, 10, 24\nF, factor, 50000, 1.4, 12").offers, { payoffMonth: 0.3 }).results;
+  assert.ok(r.every((x) => x.early === undefined));
+  const ok = compare(parseOffers("L, loan, 100000, 10, 24").offers, { payoffMonth: 6 }).results[0];
+  assert.ok(Number.isFinite(ok.early.apr));
+});
+
+test("quarterly and annual payments are accepted and the error lists every allowed frequency", () => {
+  const p = parseOffers("Q, loan, 100000, 10, 24, 0, 0, 4\nX, loan, 1000, 5, 12, 0, 0, 7");
+  assert.equal(p.offers.length, 1);
+  assert.match(p.errors[0], /1, 2, 4, 12, 24, 26, 52, 252/);
+});
