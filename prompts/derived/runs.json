@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-16T03:39:34Z",
+ "generated": "2026-10-16T03:41:58Z",
  "rows": [
   {
    "date": "2026-10-01",
@@ -7978,7 +7978,20 @@
   {
    "date": "2026-10-16",
    "measured": {
-    "why": "not fetched yet: run derive.py fetch"
+    "additions": 225,
+    "changed_files": 6,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 1,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-16T01:43:50Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T01:43:50Z"
+    },
+    "state": "closed"
    },
    "model": "claude-sonnet-5-5",
    "pr": "Duncan-Haywood/oss-monorepo#7250",
@@ -7989,7 +8002,20 @@
   {
    "date": "2026-10-16",
    "measured": {
-    "why": "not fetched yet: run derive.py fetch"
+    "additions": 1752,
+    "changed_files": 36,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 6,
+    "hours_open": 0.02,
+    "merged": true,
+    "merged_at": "2026-10-16T02:45:06Z",
+    "pr_commits": 14,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T02:45:06Z"
+    },
+    "state": "closed"
    },
    "model": "claude-sonnet-5-5",
    "pr": "Duncan-Haywood/oss-monorepo#7260",
@@ -8033,7 +8059,20 @@
   {
    "date": "2026-10-16",
    "measured": {
-    "why": "not fetched yet: run derive.py fetch"
+    "additions": 1498,
+    "changed_files": 2827,
+    "ci_head": "red",
+    "ci_red_commits": 5,
+    "deletions": 248,
+    "hours_open": 0.25,
+    "merged": true,
+    "merged_at": "2026-10-16T01:18:43Z",
+    "pr_commits": 7,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T01:18:43Z"
+    },
+    "state": "closed"
    },
    "model": null,
    "pr": "Duncan-Haywood/oss-monorepo#7242",
@@ -8044,7 +8083,20 @@
   {
    "date": "2026-10-16",
    "measured": {
-    "why": "not fetched yet: run derive.py fetch"
+    "additions": 373,
+    "changed_files": 14,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 9,
+    "hours_open": 0.19,
+    "merged": true,
+    "merged_at": "2026-10-16T03:13:07Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T03:13:07Z"
+    },
+    "state": "closed"
    },
    "model": "claude-sonnet-5-5",
    "pr": "Duncan-Haywood/oss-monorepo#7264",
@@ -8066,13 +8118,37 @@
   {
    "date": "2026-10-16",
    "measured": {
-    "why": "not fetched yet: run derive.py fetch"
+    "additions": 422,
+    "changed_files": 8,
+    "ci_head": "green",
+    "ci_red_commits": 0,
+    "deletions": 1,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-16T03:19:49Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T03:19:49Z"
+    },
+    "state": "closed"
    },
    "model": "claude-sonnet-5-5",
    "pr": "Duncan-Haywood/oss-monorepo#7273",
    "prompt_version": 0,
    "record": "2026-10-16-session_018Jyz5LYy29ATXtg5WrQExB.json",
    "track": "research"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7278",
+   "prompt_version": 1,
+   "record": "2026-10-16-session_018KnqrhdbE1i23zh4jfv5hi.json",
+   "track": "review"
   },
   {
    "date": "2026-10-16",
@@ -8090,8 +8166,8 @@
    "measured": {
     "additions": 978,
     "changed_files": 29,
-    "ci_head": "pending",
-    "ci_red_commits": 1,
+    "ci_head": "red",
+    "ci_red_commits": 2,
     "deletions": 62,
     "hours_open": 0.01,
     "merged": true,
@@ -8123,7 +8199,20 @@
   {
    "date": "2026-10-16",
    "measured": {
-    "why": "not fetched yet: run derive.py fetch"
+    "additions": 76,
+    "changed_files": 5,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 0,
+    "hours_open": 0.0,
+    "merged": true,
+    "merged_at": "2026-10-16T02:09:00Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T02:09:00Z"
+    },
+    "state": "closed"
    },
    "model": "claude-sonnet-5-5",
    "pr": "Duncan-Haywood/oss-monorepo#7252",
@@ -8178,13 +8267,37 @@
   {
    "date": "2026-10-16",
    "measured": {
-    "why": "not fetched yet: run derive.py fetch"
+    "additions": 484,
+    "changed_files": 7,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 0,
+    "hours_open": 0.0,
+    "merged": true,
+    "merged_at": "2026-10-16T03:16:05Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T03:16:05Z"
+    },
+    "state": "closed"
    },
    "model": "claude-sonnet-5-5",
    "pr": "Duncan-Haywood/oss-monorepo#7270",
    "prompt_version": 2,
    "record": "2026-10-16-session_01AkDZDCCLbP6yBRPGWnrr59.json",
    "track": "ventures"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 1,
+   "record": "2026-10-16-session_01BgDj4wumcmAnNSMMLR15BJ.json",
+   "track": "review"
   },
   {
    "date": "2026-10-16",
@@ -8224,7 +8337,20 @@
   {
    "date": "2026-10-16",
    "measured": {
-    "why": "not fetched yet: run derive.py fetch"
+    "additions": 81,
+    "changed_files": 8,
+    "ci_head": "red",
+    "ci_red_commits": 8,
+    "deletions": 1,
+    "hours_open": 1.57,
+    "merged": true,
+    "merged_at": "2026-10-16T01:42:40Z",
+    "pr_commits": 12,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T01:42:40Z"
+    },
+    "state": "closed"
    },
    "model": "claude-sonnet-5-5",
    "pr": "Duncan-Haywood/oss-monorepo#7224",
@@ -8314,7 +8440,20 @@
   {
    "date": "2026-10-16",
    "measured": {
-    "why": "not fetched yet: run derive.py fetch"
+    "additions": 109,
+    "changed_files": 18,
+    "ci_head": "red",
+    "ci_red_commits": 5,
+    "deletions": 918,
+    "hours_open": 1.78,
+    "merged": true,
+    "merged_at": "2026-10-16T02:50:51Z",
+    "pr_commits": 8,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T02:50:51Z"
+    },
+    "state": "closed"
    },
    "model": "claude-sonnet-5-5",
    "pr": "Duncan-Haywood/oss-monorepo#7243",
@@ -8373,7 +8512,20 @@
   {
    "date": "2026-10-16",
    "measured": {
-    "why": "not fetched yet: run derive.py fetch"
+    "additions": 429,
+    "changed_files": 14,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 13,
+    "hours_open": 0.04,
+    "merged": true,
+    "merged_at": "2026-10-16T03:23:29Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T03:23:29Z"
+    },
+    "state": "closed"
    },
    "model": "claude-sonnet-5-5",
    "pr": "Duncan-Haywood/oss-monorepo#7274",
@@ -8420,6 +8572,30 @@
     "why": "not fetched yet: run derive.py fetch"
    },
    "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7280",
+   "prompt_version": 1,
+   "record": "2026-10-16-session_01Un6HACboJ3w6ixY7DMyVzz.json",
+   "track": "review"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "additions": 902,
+    "changed_files": 19,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 1,
+    "hours_open": 0.0,
+    "merged": true,
+    "merged_at": "2026-10-16T01:22:44Z",
+    "pr_commits": 6,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T01:22:44Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
    "pr": "Duncan-Haywood/oss-monorepo#7248",
    "prompt_version": 0,
    "record": "2026-10-16-session_01Uwi7U8a5LTStcgrgqzcfEW.json",
@@ -8463,7 +8639,20 @@
   {
    "date": "2026-10-16",
    "measured": {
-    "why": "not fetched yet: run derive.py fetch"
+    "additions": 14705,
+    "changed_files": 10,
+    "ci_head": "green",
+    "ci_red_commits": 0,
+    "deletions": 13,
+    "hours_open": 0.02,
+    "merged": true,
+    "merged_at": "2026-10-16T01:08:44Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T01:08:44Z"
+    },
+    "state": "closed"
    },
    "model": "claude-opus-5-5",
    "pr": "Duncan-Haywood/oss-monorepo#7245",

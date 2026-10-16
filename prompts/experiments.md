@@ -407,6 +407,18 @@ field will.
 
 ## E19: thirteenth review (2026-10-16)
 
+- Change: `derive.py fetch` no longer crashes when the API returns 403 (a
+  session with no `GITHUB_TOKEN`): it keeps the cache, leaves failed PRs
+  uncached to retry, and says so. Test added. Fetching 15 PRs filled 13;
+  `merged` unknown fell on research/0 (133 -> 129), ventures/1 (26 -> 23),
+  process/1 (7 -> 6).
+- Why: review step 1 died on its first command in this session.
+- Measure: reviews that report a failed `derive.py fetch` in doc_friction.
+- Follow-up on E17/E18: ventures/2 (17 runs, 94%) vs ventures/1 (53, 92%):
+  intervals overlap, no verdict. research/1 (8 runs) under 10. review/1 75%
+  over 12 runs, 0 integrity issues. E18's `merged_unknown` is falling as
+  intended; survival is still empty (no closed 14-day windows yet). Audit
+  skipped: remaining unknowns are mirrored or doc-only.
 - Change: none to prompts or docs; `prompts/derived/runs.json` rebuilt.
   `derive.py fetch` got HTTP 403 from the GitHub API in this session, so the
   rebuild used the cached `github.json`: `merged` for new records stays
