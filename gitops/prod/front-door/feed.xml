@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1259 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1262 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,12 +24,36 @@
     <summary type="text">A free, open-source alternative to ChurnZero and Gainsight for small SaaS: learn from your own usage events which accounts are about to cancel, with an honest out-of-time accuracy check. Paste an export and try it in your browser first.</summary>
   </entry>
   <entry>
+    <title>Deal Keeper — Free Self-Hosted Sales Forecast and Pipeline Hygiene</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/deal-keeper/"/>
+    <id>tag:marisstella.dev,2026:tool/deal-keeper</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <category term="Self-hosted business apps"/>
+    <summary type="text">A free, open-source alternative to the forecasting add-ons of Pipedrive, HubSpot and Clari for small B2B teams: win chances learned from your own closed deals, a backtested forecast range and a ranked list of stale or slipping deals. Paste a deal export and try it in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Error Keeper — Free Self-Hosted Error Tracking (Sentry Alternative)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/error-keeper/"/>
+    <id>tag:marisstella.dev,2026:tool/error-keeper</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <category term="Self-hosted business apps"/>
+    <summary type="text">A free, open-source alternative to Sentry and Rollbar for small teams: groups the same bug together, alerts on new errors, regressions and spikes, one Node process and one JSON file. Paste stack traces and see the grouping in your browser first.</summary>
+  </entry>
+  <entry>
     <title>Help Keeper — Self-Hosted Help Center, a Help Scout Docs Alternative</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/help-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/help-keeper</id>
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">A help center you host yourself: Markdown articles, typo-tolerant ranked search, helpful votes and a report of what visitors searched for and could not find. Open source, MIT, no per-seat fee. Try the search in your browser.</summary>
+  </entry>
+  <entry>
+    <title>PQL Radar — Free Self-Hosted Lead Scoring for Product-Led SaaS</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pql-radar/"/>
+    <id>tag:marisstella.dev,2026:tool/pql-radar</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <category term="Self-hosted business apps"/>
+    <summary type="text">A free, open-source alternative to MadKudu and Pocus for small SaaS: learn from your own signups which first-week behaviour comes before paying, with an honest out-of-time accuracy check. Paste an export and try it in your browser first.</summary>
   </entry>
   <entry>
     <title>Slot Keeper — Self-Hosted Booking Pages, a Calendly Alternative</title>
@@ -142,29 +166,5 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">See MRR, ARR, net revenue retention, logo churn and quick ratio from your Stripe subscriptions without paying a metrics service a share of your revenue. Paste a subscription export to try it in the browser, then run the open-source read-only server in your own account. Free, MIT.</summary>
-  </entry>
-  <entry>
-    <title>ShootFlow</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/photo-editing/"/>
-    <id>tag:marisstella.dev,2026:tool/photo-editing</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">ShootFlow is an early-stage open-source toolkit for safely ingesting photo and video media and planning graded reels, carousels and photo sets.</summary>
-  </entry>
-  <entry>
-    <title>Photos Import Tools</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/photos-import-tools/"/>
-    <id>tag:marisstella.dev,2026:tool/photos-import-tools</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Resumable, manifest-backed command-line tools that import JPEG and RAW photos into Apple Photos and offload SD cards with hash verification.</summary>
-  </entry>
-  <entry>
-    <title>Referral Keeper — Free Self-Hosted Affiliate Program for Stripe</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/referral-keeper/"/>
-    <id>tag:marisstella.dev,2026:tool/referral-keeper</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="Self-hosted business apps"/>
-    <summary type="text">Run an affiliate or referral program on your own Stripe account: tracking link, recurring commissions, refund clawbacks, payout CSV. Plan what a program will cost you in your browser, then deploy the open-source server. Free, MIT, no revenue share.</summary>
   </entry>
 </feed>

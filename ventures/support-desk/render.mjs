@@ -46,7 +46,7 @@ export function adminPage(cfg, state, base, q, now) {
 <p><button>Create mailbox</button></p></form></div>`);
 }
 
-export function ticketPage(cfg, state, t, base, now, { macroId = "" } = {}) {
+export function ticketPage(cfg, state, t, base, now, { macroId = "", ai = null } = {}) {
   const mb = state.mailboxes[t.mailbox] || {};
   const s = slaState(t, mb, now);
   const thread = t.messages.map((m) => `<div class="msg ${esc(m.dir)}"><div class="muted">${m.dir === "note" ? "Internal note" : m.dir === "out" ? "Reply" : "Customer"} · ${esc(m.from)} · ${esc(when(m.at))}</div>${esc(m.text)}</div>`).join("");
@@ -54,7 +54,8 @@ export function ticketPage(cfg, state, t, base, now, { macroId = "" } = {}) {
   const sug = suggest(`${t.subject}\n${lastIn?.text || ""}`, state.macros);
   const chosen = state.macros.find((m) => m.id === macroId);
   const vars = { name: t.requester.name || t.requester.email.split("@")[0], ticket: refOf(t), company: cfg.company };
-  const draft = chosen ? renderMacro(chosen.body, vars) : "";
+  const draft = ai ? ai.text : chosen ? renderMacro(chosen.body, vars) : "";
+  const aiNote = ai ? (ai.source === "model" ? "Draft written by your AI provider from your saved replies. Read it before you send." : `AI is off${ai.error ? ` (${ai.error})` : " (no API key set)"}; this starter is ${ai.basedOn ? `the saved reply “${ai.basedOn}”` : "a plain acknowledgement"}.`) : "";
   const past = history(state, t);
   return shell(cfg, `#${t.n} ${t.subject}`, `
 <p><a href="/admin">&larr; all tickets</a></p>
@@ -64,6 +65,7 @@ ${t.rating ? `<p class="muted">Customer rating: <b>${t.rating.score === "good" ?
 ${past.length ? `<div class="card"><h2>Earlier tickets from ${esc(t.requester.email)}</h2><ul>${past.map((x) => `<li><a href="/admin/t/${x.n}">${esc(refOf(x))} ${esc(x.subject)}</a> <span class="pill">${esc(x.status)}</span> <span class="muted">${esc(when(x.updated))} UTC</span></li>`).join("")}</ul></div>` : ""}
 <div class="card"><h2>Reply</h2>
 ${sug.length ? `<p class="muted">Suggested saved replies: ${sug.map((x) => `<a href="/admin/t/${t.n}?macro=${esc(x.macro.id)}#reply">${esc(x.macro.title)}</a> (${Math.round(x.score * 100)}% match)`).join(" · ")}</p>` : state.macros.length ? "" : `<p class="muted">No saved replies yet; <a href="/admin/macros">add some</a> and the best match is suggested here.</p>`}
+${aiNote ? `<p class="muted" role="status">${esc(aiNote)}</p>` : ""}<form method="post" action="/admin/t/${t.n}/draft" class="inline"><button class="alt">Draft a reply</button></form>
 <form method="post" action="/admin/t/${t.n}/reply" id="reply"><label for="text">Message to ${esc(t.requester.email)}</label><textarea id="text" name="text" rows="7" required maxlength="20000">${esc(draft)}</textarea>
 <label for="after">After sending</label><select id="after" name="after">${opts(["pending", "closed", "open"], "pending")}</select>
 <p><button>Send reply</button> <span class="muted">${cfg.dryRun ? "Email is in dry-run: the reply is saved here but not emailed." : "Emailed through your own Resend account."}</span></p></form>

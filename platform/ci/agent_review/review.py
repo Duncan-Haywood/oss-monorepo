@@ -373,14 +373,6 @@ def path_touches_ventures(files: list[str]) -> bool:
     return any(f.startswith("ventures/") for f in files)
 
 
-MIRROR_STATE = "research/_mirror/state.json"
-
-
-def path_touches_mirror_sync(files: list[str]) -> bool:
-    """A research mirror sync must land as a merge commit (keeps upstream hashes)."""
-    return MIRROR_STATE in files
-
-
 def pr_from_same_repo(pr: dict[str, Any]) -> tuple[bool, str]:
     """Only PRs whose head branch lives in this repository are reviewable.
 
@@ -581,12 +573,6 @@ def merge_eligible(pr_number: int) -> tuple[bool, list[str]]:
         return False, reasons + [
             "touches ventures/* — not auto-merged; the session that opened it "
             "merges it once verified (.github/prompts/land-your-work.md)"
-        ]
-
-    if path_touches_mirror_sync(files):
-        return False, reasons + [
-            f"changes {MIRROR_STATE} — a mirror sync needs a merge commit, never "
-            "the squash auto-merge uses (research/_mirror/README.md)"
         ]
 
     ok, eval_reasons = evaluate_pr(pr_number)

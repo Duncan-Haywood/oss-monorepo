@@ -9,7 +9,6 @@ from review import (
     count_allowed_approvals,
     load_config,
     mergeable_state_ok,
-    path_touches_mirror_sync,
     path_touches_ventures,
     pr_from_same_repo,
     reviewer_already_approved,
@@ -186,14 +185,6 @@ class HumanGateTest(unittest.TestCase):
     def test_ventures_paths_are_human_gated(self):
         self.assertTrue(path_touches_ventures(["ventures/local-site-studio/app/page.tsx"]))
         self.assertFalse(path_touches_ventures(["platform/ci/agent_review/review.py"]))
-
-
-class MirrorSyncGateTest(unittest.TestCase):
-    def test_state_json_change_is_a_mirror_sync(self):
-        self.assertTrue(path_touches_mirror_sync(["research/_mirror/state.json", "research/x/a.py"]))
-
-    def test_other_research_files_are_not(self):
-        self.assertFalse(path_touches_mirror_sync(["research/_mirror/mirror.py", "research/x/a.py"]))
 
 
 class MergeableStateTest(unittest.TestCase):

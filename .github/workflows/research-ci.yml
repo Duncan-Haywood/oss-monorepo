@@ -35,7 +35,3 @@ jobs:
         with:
           python-version: "3.12"
       - run: python3 research/_homepage/build.py
-      - run: python3 -m unittest discover -s research/_mirror -v
-      # A PR that edits the mirrored copy directly (instead of upstream) fails here.
-      # --allow-behind: upstream moving on is not this PR's fault; sync is separate work.
-      - run: python3 research/_mirror/mirror.py check --allow-behind

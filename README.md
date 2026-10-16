@@ -1,7 +1,31 @@
 # monorepo-projects
 
-A single repository for the whole venture portfolio, plus the shared agent
-platform that works on it.
+One repository for two peer portfolios, products (`ventures/`) and open
+research (`research/`), plus the shared agent platform that works on both.
+The goals for each are in [`prompts/goals.md`](prompts/goals.md).
+
+## Finding your way
+
+The repository holds many kinds of work. Each kind has one guide; read that
+guide and use judgment ([`prompts/goals.md`](prompts/goals.md), "Judgment over
+rules"), not every rulebook in the tree.
+
+| Work | Lives in | Read first |
+|---|---|---|
+| A product: feature, fix, deploy, SEO | `ventures/<slug>/` | [`AGENTS.md`](AGENTS.md), [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) |
+| A research project or result | `research/<slug>/` | [`research/CLAUDE.md`](research/CLAUDE.md), [`research/PROJECTS.md`](research/PROJECTS.md) |
+| Shared tooling: pages, CI, marketing, deploy | `platform/` | the subdirectory's README |
+| Strategy, routing, usage, ledger | `portfolio/` | [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) |
+| How runs are steered and reviewed | `prompts/` | [`prompts/README.md`](prompts/README.md) |
+| A scheduled run | anywhere | [`prompt.md`](prompt.md), which routes it to one of the above |
+
+One process applies to every kind of work, because it is what keeps the tree
+from filling with dead branches and redone work: open a pull request for
+anything you push, and land it or close it with a reason in the same session
+([`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md)).
+Ideas that are worth doing but not now go in the process backlog
+([`prompts/process/backlog/`](prompts/process/backlog/README.md)), not in a
+stranded branch.
 
 **Strategy:** [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) — build
 products people use (free, full-feature, usage-tracked), ship fast, minimize
@@ -29,7 +53,7 @@ directory that inherits the platform automatically.
 
 ```
 ventures/     one directory per business; each has a VENTURE.yaml
-research/     the open research portfolio (MIT), formerly oss-research-monorepo;
+research/     one directory per research project (MIT); a peer of ventures/,
               its homepage is published at /research/ on the Pages site
 platform/     shared agent definitions, skills, and CI — versioned once
 prompts/      the prompt system: prompt.md (the master prompt) routes each run to
@@ -94,6 +118,17 @@ to allocation, so removing the row would delete the evidence the
 reclassification was decided on. `score_ventures.py --check` enforces both
 halves: every *allocated* venture must be scored, and a scored slug must name a
 directory that carries a `VENTURE.yaml` — marker or not.
+
+### research/
+
+The open research portfolio: one self-contained project per directory, each
+with a README, tests and a card on the research homepage
+(`research/_homepage/build.py`, published at `/research/`). It was its own
+repository, `oss-research-monorepo`, until 2026-10-16. Its history was merged
+in (`git log -- research/<slug>` shows each project's original commits), and
+that repository is now archived, read-only history. Research work lands here
+under [`research/CLAUDE.md`](research/CLAUDE.md); the product rules (session
+gate, usage tracking, disclaimers) do not apply inside it.
 
 ### platform/
 

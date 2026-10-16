@@ -28,9 +28,13 @@ add value, iOS and Android apps, and real business potential. Measured on
 `*-calculator` (121 `*-bid-calculator`), there is no native mobile app, and
 no venture has a single measured visitor. That is not the brief. So:
 
-- **No new single-page calculators.** A form plus arithmetic on a static page
-  is not a new venture, however niche the trade. If one is genuinely useful,
-  add it as a feature of an existing venture.
+- **Prefer higher-value work to another single-page calculator.** A
+  principle, not a ban (owner, 2026-10-16): a form plus arithmetic on a
+  static page is rarely the most valuable thing a run can build, and the
+  catalogue already holds over 600 of them. Before adding one, ask whether
+  deepening an existing venture, or a different shape of product, would help
+  more people; if a calculator is genuinely useful, it is often best as a
+  feature of an existing venture.
 - **Run the near-copy check before you pick a niche.** Count the name
   suffixes of the 15 newest ventures; if any suffix appears 3 or more times,
   or yours would be the fourth "<country/trade>-<same-shape>", build a
@@ -89,22 +93,14 @@ touch closer to that:
   above means ideas and public behaviour, never another product's code, copy
   or assets under an incompatible license.
 
-**One repository is the end state (added 2026-10-13; the move landed in
-#6832; changed 2026-10-14).** This repository is where everything ends up.
-The research portfolio, `Duncan-Haywood/oss-research-monorepo`, lives under
-`research/` with its full commit history, so `git log -- research/<slug>`
-shows each project's original commits. Until the owner's cutover, research
-work still lands in that repository, and `research/` here is its exact
-mirror. `python3 research/_mirror/mirror.py sync` brings in new upstream
-history, and `mirror.py check` proves the two match
-(`research/_mirror/README.md`). Keeping the mirror current is standing work.
-Its action list is "Repository merge" in the research repository's
-`PROJECTS.md`. Change nothing under `research/` here except through a sync.
-Merge a sync PR with a merge commit, never a squash, because a squash drops
-the upstream history. At cutover the research repository is archived, never
-deleted. Do not create a top-level `research/` for anything else. Inside it,
-the research rules (`research/CLAUDE.md`, the research track of `prompts/`)
-apply, not the product rules.
+**One repository, two peer portfolios (added 2026-10-13; cut over
+2026-10-16).** Everything lands here. `ventures/` holds the products and
+`research/` the open research portfolio, merged in from
+`Duncan-Haywood/oss-research-monorepo` with its full history (`git log --
+research/<slug>`); that repository is archived, read-only history. Neither
+portfolio is a side project of the other. Inside `research/`, the research
+rules (`research/CLAUDE.md`, the research track of `prompts/`) apply, not the
+product rules. Do not create a top-level `research/` for anything else.
 
 Making a repository public is the owner's call (publishing under the
 portfolio's name, `CLAUDE.md`). Preparing for it is every session's job.
