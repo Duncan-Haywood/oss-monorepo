@@ -107,6 +107,9 @@ test('every venture that ships a sitemap lists every page beside it', () => {
     const listed = new Set(paths.map((p) => p.split('/').pop()));
     const missing = readdirSync(join(dir, root))
       .filter((f) => f.endsWith('.html') && !NOT_PAGES.has(f))
+      // A page that asked to stay out of search (an app's admin dashboard)
+      // belongs in no sitemap; check.mjs exempts it the same way.
+      .filter((f) => !/<meta\s+name="robots"\s+content="[^"]*noindex/i.test(readFileSync(join(dir, root, f), 'utf8')))
       // `index.html` is listed as the directory it is served as, so a sitemap
       // that carries `./` or `./site/` already covers it.
       .filter((f) => !(f === 'index.html' && paths.some((p) => p === root || p === `${root}/`)))

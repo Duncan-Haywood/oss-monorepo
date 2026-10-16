@@ -182,7 +182,7 @@ test('entry ids are tag URIs keyed on the slug, so moving host does not re-notif
   const launched = { 'alpha-calculator': '2026-08-01' };
   const onPages = renderFeed([surface('alpha-calculator')], 'https://example.github.io/repo/', launched);
   const onHetzner = renderFeed([surface('alpha-calculator')], BASE, launched);
-  const idOf = (xml) => xml.match(/<id>(tag:[^<]*tool[^<]*)<\/id>/)[1];
+  const idOf = (xml) => xml.match(/<id>(tag:[^<]*:tool\/[^<]*)<\/id>/)[1];
   assert.equal(idOf(onPages), 'tag:marisstella.dev,2026:tool/alpha-calculator');
   assert.equal(idOf(onPages), idOf(onHetzner));
   // The link, unlike the id, does follow the base URL.

@@ -26,6 +26,7 @@ import {
   copyTree,
   injectFavicon,
   discoverSurfaces,
+  surfaceKind,
   faqEntries,
   injectChrome,
   isPublishable,
@@ -338,7 +339,7 @@ test('every hub link resolves to a file that exists', async () => {
   const hub_ = path.join(outDir, 'index.html');
   for (const href of hrefs) {
     // platform/deploy/build.mjs writes deploy/ after the site build (publish-branch.sh).
-    if (href === 'deploy/') continue;
+    if (href === 'deploy/' || href.startsWith('deploy/?app=') || href === 'dev/') continue;
     await fs.access(hrefTarget(href, hub_, outDir));
   }
 
@@ -460,8 +461,10 @@ test('the sponsor ask is optional and does not gate anything', async () => {
   // nothing ran this suite on the PR and `main` went red on it. Rewording the
   // venture's copy to satisfy a substring match would have made the product
   // worse to protect a guard from a word it never meant to catch.
+  // Same for "free trials" (plural): trial-converter's whole job is turning a
+  // SaaS's free trials into paying customers, which is its domain, not an ask.
   assert.ok(
-    !/\bsubscribe\b|upgrade to|paid plan|free trial/i.test(visibleCopy(hub)),
+    !/\bsubscribe\b|upgrade to|paid plan|\bfree trial\b/i.test(visibleCopy(hub)),
     'no paywall language',
   );
 });
@@ -1321,7 +1324,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 10, 'the nine named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 11, 'the ten named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -1496,7 +1499,9 @@ test('grouping by sub-group keeps every tool and drops empty groups', () => {
 
 test('every discovered tool lands in exactly one rendered group', async () => {
   const { surfaces } = await site();
-  const hub = renderHub(surfaces, BASE);
+  // The by-kind sections (apps, CLIs) list a product a second time on
+  // purpose; this test is about the category groups, so it counts outside them.
+  const hub = renderHub(surfaces, BASE).replace(/<section class="kind-section"[\s\S]*?<\/section>/g, '');
   for (const surface of surfaces) {
     const occurrences = hub.split(`href="${surface.slug}/"`).length - 1;
     assert.equal(occurrences, 1, `${surface.slug} appears ${occurrences} times`);
@@ -3999,8 +4004,8 @@ test("a tool page's card alt text names the tool, not just the site", async () =
   assert.ok(alt, `${surface.slug} has no og:image:alt`);
   // The card really does carry these words now, so the alt describing them is
   // a description rather than a claim about a picture that says nothing.
-  assert.match(alt[1], /Free small-business calculators$/);
-  assert.notEqual(alt[1], 'Free small-business calculators — free, private, in your browser');
+  assert.match(alt[1], /Open Tools and Research$/);
+  assert.notEqual(alt[1], 'Open Tools and Research — free, private, in your browser');
 });
 
 test('the hub and About page keep the generic site-wide card, not a category one', async () => {
@@ -4866,7 +4871,7 @@ test('guidePageMeta takes a guide’s label from the page’s own words, or drop
   assert.equal(withH1.description, 'Worked example, in pounds.');
   // The site-name suffix the build appends is not part of the answer.
   assert.equal(
-    guidePageMeta('<title>Deadhead miles | Free small-business calculators</title>').label,
+    guidePageMeta('<title>Deadhead miles | Open Tools and Research</title>').label,
     'Deadhead miles',
   );
   // Entities are decoded, so an index entry reads as the author wrote it.
@@ -5408,4 +5413,36 @@ test('copyTree drops dot-directory tool caches but keeps .well-known', async () 
     landed.includes('.well-known'),
     '.well-known is the one dot-directory a static site serves on purpose',
   );
+});
+
+// P019: the home page is a home for everything, not a calculator list. These
+// pin the sections, so the framing cannot drift back one venture at a time.
+test('the hub is a home for everything: apps, CLIs, research and self-deploy have their own place', () => {
+  const surfaces = [
+    { slug: 'ebay-fee-calculator', title: 'eBay fee calculator', description: 'Fees.', kind: 'browser' },
+    { slug: 'dunning-engine', title: 'Dunning engine', description: 'Failed-payment recovery.', kind: 'app' },
+    { slug: 'pinned-actions-check', title: 'Pinned actions check', description: 'CI check.', kind: 'cli' },
+  ];
+  const hub = renderHub(surfaces, 'https://example.test/', { researchCount: 461 });
+  assert.match(hub, /<nav class="overview"/);
+  assert.match(hub, /<strong>1<\/strong> browser tools/);
+  assert.match(hub, /<strong>461<\/strong> research projects/);
+  assert.match(hub, /href="research\/"/);
+  assert.match(hub, /id="apps"[\s\S]*Dunning engine[\s\S]*deploy\/\?app=dunning-engine/);
+  assert.match(hub, /id="clis"[\s\S]*Pinned actions check/);
+  assert.ok(!/<h1>[^<]*Calculators/.test(hub), 'the headline names more than calculators');
+});
+
+test('surfaceKind reads the files a venture ships', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'kind-'));
+  const make = async (slug, files) => {
+    await fs.mkdir(path.join(dir, slug));
+    for (const f of files) await fs.writeFile(path.join(dir, slug, f), '');
+    return path.join(dir, slug);
+  };
+  assert.equal(surfaceKind(await make('a', ['index.html', 'Dockerfile', 'render.yaml'])), 'app');
+  assert.equal(surfaceKind(await make('b', ['index.html', 'Dockerfile'])), 'browser');
+  assert.equal(surfaceKind(await make('c', ['index.html', 'cli.mjs'])), 'cli');
+  assert.equal(surfaceKind(await make('d', ['index.html'])), 'browser');
+  assert.equal(surfaceKind(path.join(dir, 'pinned-actions-check'), 'pinned-actions-check'), 'cli');
 });

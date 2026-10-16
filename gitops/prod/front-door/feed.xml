@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Free small-business calculators — tools on marisstella.dev</title>
+  <title>Open Tools and Research — tools on marisstella.dev</title>
   <subtitle>The 1267 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
@@ -12,7 +12,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/changelog-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/changelog-keeper</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Self-hosted business apps"/>
     <summary type="text">Publish product updates on a public changelog page with Atom and JSON feeds and an embeddable What&#39;s new bell with an unread badge. Scheduled posts, drafts, Slack webhook. Open source, MIT, one-click self-deploy, no monthly fee.</summary>
   </entry>
   <entry>
@@ -20,7 +20,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/churn-radar/"/>
     <id>tag:marisstella.dev,2026:tool/churn-radar</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Self-hosted business apps"/>
     <summary type="text">A free, open-source alternative to ChurnZero and Gainsight for small SaaS: learn from your own usage events which accounts are about to cancel, with an honest out-of-time accuracy check. Paste an export and try it in your browser first.</summary>
   </entry>
   <entry>
@@ -28,7 +28,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/deal-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/deal-keeper</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Self-hosted business apps"/>
     <summary type="text">A free, open-source alternative to the forecasting add-ons of Pipedrive, HubSpot and Clari for small B2B teams: win chances learned from your own closed deals, a backtested forecast range and a ranked list of stale or slipping deals. Paste a deal export and try it in your browser.</summary>
   </entry>
   <entry>
@@ -44,7 +44,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/error-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/error-keeper</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Self-hosted business apps"/>
     <summary type="text">A free, open-source alternative to Sentry and Rollbar for small teams: groups the same bug together, alerts on new errors, regressions and spikes, one Node process and one JSON file. Paste stack traces and see the grouping in your browser first.</summary>
   </entry>
   <entry>
@@ -52,7 +52,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/help-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/help-keeper</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Self-hosted business apps"/>
     <summary type="text">A help center you host yourself: Markdown articles, typo-tolerant ranked search, helpful votes and a report of what visitors searched for and could not find. Open source, MIT, no per-seat fee. Try the search in your browser.</summary>
   </entry>
   <entry>
@@ -60,7 +60,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/icp-lens/"/>
     <id>tag:marisstella.dev,2026:tool/icp-lens</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Back-office money &amp; contracts"/>
     <summary type="text">A free, open-source alternative to lead-scoring add-ons: learn your ideal customer profile from your own won and lost list, rank your prospects by lookalike fit with a leave-one-out accuracy check, and draft compliant first outreach on your own AI key. Runs in your browser.</summary>
   </entry>
   <entry>
@@ -76,7 +76,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pql-radar/"/>
     <id>tag:marisstella.dev,2026:tool/pql-radar</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Self-hosted business apps"/>
     <summary type="text">A free, open-source alternative to MadKudu and Pocus for small SaaS: learn from your own signups which first-week behaviour comes before paying, with an honest out-of-time accuracy check. Paste an export and try it in your browser first.</summary>
   </entry>
   <entry>
@@ -84,7 +84,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/slot-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/slot-keeper</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Self-hosted business apps"/>
     <summary type="text">A booking page you host yourself: weekly hours, buffers, notice, your calendar&#39;s busy time respected, time zones, calendar invites, reminders and cancel or reschedule links. Open source, MIT, no per-seat fee. Try the slot finder in your browser.</summary>
   </entry>
   <entry>
@@ -92,7 +92,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/trade-bid-studio/"/>
     <id>tag:marisstella.dev,2026:tool/trade-bid-studio</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free bid calculator for any trade: turn labor hours, materials, subs, overhead and a target margin into a price, your walk-away number, and what a competitor&#39;s lower quote actually leaves you. Plus 121 trade-specific bid calculators.</summary>
   </entry>
   <entry>
@@ -100,7 +100,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/workflow-audit/"/>
     <id>tag:marisstella.dev,2026:tool/workflow-audit</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Add one free GitHub Action to scan your workflows for script injection, pwn requests, cache and artifact poisoning, leaked secrets, over-broad permissions and more. Read-only, zero dependencies, SARIF and step-summary output, no network calls.</summary>
   </entry>
   <entry>
@@ -116,7 +116,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cancel-flow/"/>
     <id>tag:marisstella.dev,2026:tool/cancel-flow</id>
     <updated>2026-10-15T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
+    <category term="Self-hosted business apps"/>
     <summary type="text">Keep subscribers who only needed a nudge. A cancellation flow for Stripe that asks why, offers a pause or a discount matched to the reason, and reports your save rate. Preview it in the browser, then run the open-source server in your own account. Free, MIT.</summary>
   </entry>
   <entry>
@@ -124,7 +124,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/drip-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/drip-keeper</id>
     <updated>2026-10-15T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Self-hosted business apps"/>
     <summary type="text">A free, open-source alternative to Customer.io, Loops and Userlist: your app posts events, sequences send onboarding, trial and win-back email, and a goal event stops the rest. Preview exactly what a person would receive and when, in your browser, then run the server in your own account.</summary>
   </entry>
   <entry>
@@ -132,7 +132,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dunning-engine/"/>
     <id>tag:marisstella.dev,2026:tool/dunning-engine</id>
     <updated>2026-10-15T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
+    <category term="Self-hosted business apps"/>
     <summary type="text">Recover failed Stripe subscription payments with decline-code-aware retries and emails you control. Preview the recovery schedule for any decline code, then run the open-source server in your own account. Free, MIT, no per-recovery fee.</summary>
   </entry>
   <entry>
@@ -140,7 +140,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/feedback-board/"/>
     <id>tag:marisstella.dev,2026:tool/feedback-board</id>
     <updated>2026-10-15T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
+    <category term="Self-hosted business apps"/>
     <summary type="text">Collect feature requests, let customers vote, catch duplicates as they type, publish a roadmap and a changelog with RSS. One small open-source server you run yourself. Free, MIT, no per-user fee. Try the duplicate finder in your browser.</summary>
   </entry>
   <entry>
@@ -148,7 +148,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/flag-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/flag-keeper</id>
     <updated>2026-10-15T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Self-hosted business apps"/>
     <summary type="text">A free, open-source alternative to LaunchDarkly, Flagsmith and Unleash: percentage rollouts that stay sticky, targeting rules, segments, prerequisites and a kill switch in one small server. Simulate a rollout and see exactly who would flip before you ship it, in your browser.</summary>
   </entry>
   <entry>
@@ -156,7 +156,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/form-inbox/"/>
     <id>tag:marisstella.dev,2026:tool/form-inbox</id>
     <updated>2026-10-15T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
+    <category term="Self-hosted business apps"/>
     <summary type="text">Point any HTML form at your own server: spam scoring with visible reasons, an inbox, CSV export and email or Slack notifications. Open source, MIT, no per-submission fee. Test the spam filter in your browser.</summary>
   </entry>
   <entry>
