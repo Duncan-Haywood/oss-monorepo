@@ -187,6 +187,8 @@ test("validation and the CSV export", () => {
 test("Rhode Island is a more-than-183-days-plus-abode state", () => {
   assert.equal(RULES.RI.limit, 183);
   assert.equal(RULES.RI.requiresAbode, true);
+});
+
 test("icsToStays: all-day end is exclusive, locations and titles resolve, adjacent same-state merge", () => {
   const ics = [
     "BEGIN:VCALENDAR",
