@@ -294,6 +294,17 @@ test("results parse, and standings order by points then goal difference", () => 
   assert.equal(rows[0].rank, 1);
 });
 
+test("head-to-head tiebreak splits teams level on points by their own matches first", () => {
+  const teams = ["A", "B", "C", "D"];
+  const { results } = parseResults("A 5 - 0 C\nB 1 - 0 A\nD 1 - 0 B", teams);
+  const names = (rows) => rows.map((r) => r.name).slice(0, 3);
+  assert.deepEqual(names(standings(teams, results)), ["A", "D", "B"]);
+  assert.deepEqual(names(standings(teams, results, { headToHead: true })), ["D", "B", "A"]);
+  // a points leader is never overtaken by a head-to-head result
+  const more = parseResults("A 5 - 0 C\nB 1 - 0 A\nD 1 - 0 B\nA 1 - 0 D", teams).results;
+  assert.equal(standings(teams, more, { headToHead: true })[0].name, "A");
+});
+
 test("bracket seeding follows the standard order", () => {
   assert.deepEqual(seedOrder(8), [1, 8, 4, 5, 2, 7, 3, 6]);
   assert.deepEqual(seedOrder(4), [1, 4, 2, 3]);

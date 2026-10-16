@@ -2,6 +2,14 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-16 · Batch 9: Brooks on headcount, Fowler on continuous integration and Reinertsen on flow
+
+- Added 3 sources and 3 practices (37 practices, 36 sources): Brooks's *The Mythical Man-Month* (1975; P35), Fowler's *Continuous Integration* (2006; P36) and Reinertsen's *The Principles of Product Development Flow* (2009; P37). The first two are classics the catalogue lacked; the third is the closest to the `swe-schedule` milestone, since it treats queues, batch size and work in process as economic variables.
+- **P36 is already how this loop works** (merge when CI is green, fix forward), so it is `adopted`; 'daily' is slow for a session that lives one run. **P35 is `partly` adopted**: claim-before-build and one project per pull request limit collisions, but nothing caps how many runs start together, which is the question `swe-schedule` is to measure. **P37 is `partly` adopted**: small batches are enforced, a limit on runs in flight and a cost-of-delay ranking are not.
+- **Still no proposal.** The ledger has 546 rows (it had 541). The highest unadopted `yes` row is still P23 at 3.5%, below the 5% bar; the new rows rank at 1.0% (P35, coordination, partial) and 0.7% (P37, unlanded, partial).
+- **README counts corrected.** The transfer split in the README was stale; the CSV has 14 `yes`, 21 `partial` and 2 `no` (it said 11, 15 and 2).
+- Verification was by web search only, from secondary summaries; no page was fetched. The Brooks row does not use the communication-paths formula, which no result confirmed. The Fowler row uses only the definition and section headings. The Reinertsen row uses no figure: the cost-of-delay statistics quoted by summaries disagree. The Brooks and Reinertsen urls are a Wikipedia page and a book listing, not the works.
+
 ## 2026-10-16 · Batch 8: a chaos-testing tool, a shuttle-disaster appendix and a hygiene checklist
 
 - Added 3 sources and 3 practices (34 practices, 33 sources), the first from outside the web-software mainstream and the first aerospace source: Netflix's Chaos Monkey release (2012; P32), Feynman's Appendix F to the Rogers Commission report on Challenger (1986; P33) and Spolsky's *The Joel Test* (2000; P34).
