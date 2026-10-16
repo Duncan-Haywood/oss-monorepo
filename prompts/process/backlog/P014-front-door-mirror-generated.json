@@ -1,0 +1,27 @@
+{
+  "id": "P014",
+  "title": "Stop committing the generated front-door-tools mirror; build it at publish time",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 3,
+  "problem": "About 5,840 of gitops/'s 6,005 files are gitops/prod/front-door-tools, which platform/marketing/regen.mjs rewrites. Because it is committed, every venture change needs a manual 'regen.mjs --verify' step, and CLAUDE.md calls skipping it 'the most common way a venture fix ships to the venture page but not to the apex copy users see'. CAVEAT: filed from a one-pass repo-organization review (2026-10-16), not a measured study. The change is a first guess and may be oversimplified; check the evidence and the dependents before acting on it, and drop the item with a reason if it does not hold up.",
+  "evidence": [
+    "git ls-files gitops | cut -d/ -f1-3 on origin/main 2029d18f86: 5,839 files under gitops/prod/front-door-tools",
+    "CLAUDE.md pre-merge checklist: regen.mjs --verify / regen.mjs lines and their note"
+  ],
+  "change": "Find every reader of the committed mirror first (platform/marketing/*.mjs and tests, portfolio-validate.yml, publish-branch.sh, the gh-pages publish). If they can all build it on demand, generate it in publish-branch.sh / CI and gitignore it. If some reader needs it committed (e.g. a diffable record of what was served), keep it and drop this item.",
+  "touches": [
+    "gitops/prod/front-door-tools/",
+    "platform/marketing/",
+    "platform/pages/publish-branch.sh",
+    ".github/workflows/"
+  ],
+  "metric": "Files under gitops/prod/front-door-tools in git; merges that later needed a regen-only fix commit",
+  "baseline": "5,839 files",
+  "opened": "2026-10-16",
+  "source": "Repo-organization review in a Claude Code session, 2026-10-16 (unmeasured; see CAVEAT in problem)",
+  "pr": null,
+  "result": null,
+  "history": []
+}
