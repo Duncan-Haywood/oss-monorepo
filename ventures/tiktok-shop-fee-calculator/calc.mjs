@@ -49,7 +49,7 @@ export const FEE_SCHEDULE_PRESETS = Object.freeze({
     id: "oct_2026",
     label: "US from 1 Oct 2026 (announced: 8% + 1.5% facilitation on affiliate)",
     short: "From 1 Oct 2026 (8% + 1.5%)",
-    note: "Announced schedule, not a guarantee it ships unchanged. Facilitation applies to affiliate-sourced orders in this model.",
+    note: "Announced schedule, not a guarantee it ships unchanged. As of 16 Oct 2026 third-party guides date the 8% rate to 4 Aug 2026 and none mention the 1.5% facilitation fee, so confirm in Seller Center. Facilitation applies to affiliate-sourced orders in this model.",
     referralRate: 8,
     facilitationRate: 1.5,
     paymentRate: 0,

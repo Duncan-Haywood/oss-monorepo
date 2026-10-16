@@ -532,3 +532,14 @@ field will.
   keep collecting. review/2: 3 runs, too few.
 - Audit: skipped (doc-only/research runs). `derive.py fetch` got 19 of 21.
 - Result: (next review)
+
+## E27: review 2026-10-16 (ninth of the day)
+
+- Change: none to prompts or docs; `prompts/derived/` refreshed, drift report
+  only. No new friction that was fixable at low cost.
+- Candidates: ventures/2 (25, 88%) vs ventures/1 (78, 87%), research/1 (29,
+  100%) vs research/0 (358, 98%): overlap, keep collecting. review/2: 3 runs.
+- Audit: business-loan-offer-comparator re-run, 34 pass. `derive.py fetch`
+  got 18 of 20.
+- Drift: see `prompts/drift/2026-10-16i.md`.
+- Result: (next review)
