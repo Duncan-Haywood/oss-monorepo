@@ -4,7 +4,7 @@
   "opened": "2026-10-16",
   "source": "P021 split of P014",
   "pr": 7440,
-  "result": null,
+  "result": "Helped: 0 files under gitops/prod/front-door-tools on origin/main (baseline 5,839); no venture merge since b38563b4f re-created it (git log origin/main -- gitops/prod/front-door-tools shows the removal as latest).",
   "history": [
     {
       "date": "2026-10-16",
@@ -17,6 +17,10 @@
     {
       "date": "2026-10-16",
       "note": "Process run: the git rm (98c8b8ff7) landed but later venture PRs re-created the tree (5,922 files on origin/main) because regen still ran front-door-tools.mjs. regen.mjs now skips it (RETIRED_GENERATORS) and the tree is removed again; verify the file count after a few venture merges."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Verify run: git ls-tree origin/main count = 0."
     }
   ],
   "touches": [
