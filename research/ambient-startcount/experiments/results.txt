@@ -1,0 +1,73 @@
+Label accuracy 0.7, three auditors of overall accuracy 0.8. Blind 0.3824, true-parameter Bayes 0.3917.
+Per draw: 16 nested grid starts and 16 random starts (easy U(0.7,1), hard U(0.3,0.7), P(hard) U(0.05,0.5), classifier 0.7), each fitted once; a K-start strategy keeps the best log-likelihood among its first K.
+'hit' = best fit's log-likelihood within 1e-07 per message of the best of all 32 fits. Compute = K fits (same iteration cap 2000, tol 1e-10 for all).
+
+== h=0.0 hard accuracy 0.50
+   n | strategy K: hit share, mean loglik gap (x1e-6), mean P(hard) (sd), degenerate share (P(hard)>0.45 or <0.02), mean utility
+    200 | grid   K= 1: hit 0.57, gap   1053.02, P(hard) 0.370 (0.123), degenerate 0.20, utility 0.3897
+    200 | grid   K= 2: hit 0.65, gap    846.29, P(hard) 0.367 (0.134), degenerate 0.23, utility 0.3897
+    200 | grid   K= 4: hit 0.72, gap    726.55, P(hard) 0.359 (0.142), degenerate 0.23, utility 0.3897
+    200 | grid   K= 8: hit 0.78, gap    717.49, P(hard) 0.375 (0.155), degenerate 0.25, utility 0.3897
+    200 | grid   K=16: hit 0.90, gap    256.08, P(hard) 0.370 (0.161), degenerate 0.25, utility 0.3897
+    200 | random K= 1: hit 0.55, gap   1254.27, P(hard) 0.384 (0.149), degenerate 0.25, utility 0.3897
+    200 | random K= 2: hit 0.70, gap    465.63, P(hard) 0.379 (0.150), degenerate 0.25, utility 0.3896
+    200 | random K= 4: hit 0.75, gap    414.68, P(hard) 0.367 (0.157), degenerate 0.25, utility 0.3896
+    200 | random K= 8: hit 0.82, gap    294.29, P(hard) 0.351 (0.153), degenerate 0.23, utility 0.3896
+    200 | random K=16: hit 0.88, gap    242.45, P(hard) 0.345 (0.151), degenerate 0.20, utility 0.3895
+   1000 | grid   K= 1: hit 0.30, gap    514.09, P(hard) 0.278 (0.136), degenerate 0.10, utility 0.3911
+   1000 | grid   K= 2: hit 0.33, gap    502.96, P(hard) 0.324 (0.150), degenerate 0.20, utility 0.3911
+   1000 | grid   K= 4: hit 0.55, gap    281.79, P(hard) 0.267 (0.151), degenerate 0.10, utility 0.3910
+   1000 | grid   K= 8: hit 0.57, gap    278.30, P(hard) 0.264 (0.155), degenerate 0.10, utility 0.3909
+   1000 | grid   K=16: hit 0.97, gap      0.02, P(hard) 0.256 (0.155), degenerate 0.10, utility 0.3909
+   1000 | random K= 1: hit 0.33, gap    726.56, P(hard) 0.308 (0.160), degenerate 0.20, utility 0.3912
+   1000 | random K= 2: hit 0.38, gap    582.25, P(hard) 0.303 (0.163), degenerate 0.20, utility 0.3912
+   1000 | random K= 4: hit 0.60, gap    262.63, P(hard) 0.265 (0.156), degenerate 0.15, utility 0.3910
+   1000 | random K= 8: hit 0.70, gap    174.63, P(hard) 0.264 (0.152), degenerate 0.12, utility 0.3909
+   1000 | random K=16: hit 0.72, gap    136.63, P(hard) 0.260 (0.156), degenerate 0.12, utility 0.3909
+
+== h=0.3 hard accuracy 0.50
+   n | strategy K: hit share, mean loglik gap (x1e-6), mean P(hard) (sd), degenerate share (P(hard)>0.45 or <0.02), mean utility
+    200 | grid   K= 1: hit 0.72, gap   1266.14, P(hard) 0.364 (0.085), degenerate 0.23, utility 0.3898
+    200 | grid   K= 2: hit 0.78, gap   1038.82, P(hard) 0.373 (0.090), degenerate 0.30, utility 0.3898
+    200 | grid   K= 4: hit 0.85, gap   1019.05, P(hard) 0.372 (0.094), degenerate 0.30, utility 0.3898
+    200 | grid   K= 8: hit 0.85, gap   1019.05, P(hard) 0.372 (0.094), degenerate 0.30, utility 0.3898
+    200 | grid   K=16: hit 0.97, gap     13.59, P(hard) 0.371 (0.094), degenerate 0.28, utility 0.3897
+    200 | random K= 1: hit 0.62, gap   1752.52, P(hard) 0.364 (0.089), degenerate 0.28, utility 0.3899
+    200 | random K= 2: hit 0.75, gap   1089.37, P(hard) 0.372 (0.090), degenerate 0.30, utility 0.3898
+    200 | random K= 4: hit 0.82, gap    596.84, P(hard) 0.380 (0.097), degenerate 0.33, utility 0.3898
+    200 | random K= 8: hit 0.88, gap    485.61, P(hard) 0.381 (0.095), degenerate 0.35, utility 0.3897
+    200 | random K=16: hit 0.93, gap    413.13, P(hard) 0.375 (0.096), degenerate 0.33, utility 0.3897
+   1000 | grid   K= 1: hit 0.95, gap      0.01, P(hard) 0.333 (0.088), degenerate 0.12, utility 0.3913
+   1000 | grid   K= 2: hit 0.97, gap      0.01, P(hard) 0.333 (0.088), degenerate 0.12, utility 0.3913
+   1000 | grid   K= 4: hit 1.00, gap      0.00, P(hard) 0.333 (0.088), degenerate 0.12, utility 0.3913
+   1000 | grid   K= 8: hit 1.00, gap      0.00, P(hard) 0.333 (0.088), degenerate 0.12, utility 0.3913
+   1000 | grid   K=16: hit 1.00, gap      0.00, P(hard) 0.333 (0.088), degenerate 0.12, utility 0.3913
+   1000 | random K= 1: hit 0.88, gap     54.68, P(hard) 0.335 (0.091), degenerate 0.12, utility 0.3913
+   1000 | random K= 2: hit 0.95, gap     32.32, P(hard) 0.334 (0.090), degenerate 0.12, utility 0.3913
+   1000 | random K= 4: hit 1.00, gap      0.00, P(hard) 0.333 (0.088), degenerate 0.12, utility 0.3913
+   1000 | random K= 8: hit 1.00, gap      0.00, P(hard) 0.333 (0.088), degenerate 0.12, utility 0.3913
+   1000 | random K=16: hit 1.00, gap      0.00, P(hard) 0.333 (0.088), degenerate 0.12, utility 0.3913
+
+== h=0.3 hard accuracy 0.33
+   n | strategy K: hit share, mean loglik gap (x1e-6), mean P(hard) (sd), degenerate share (P(hard)>0.45 or <0.02), mean utility
+    200 | grid   K= 1: hit 0.95, gap     92.51, P(hard) 0.295 (0.042), degenerate 0.00, utility 0.3901
+    200 | grid   K= 2: hit 0.97, gap     77.43, P(hard) 0.296 (0.042), degenerate 0.00, utility 0.3901
+    200 | grid   K= 4: hit 0.97, gap     77.43, P(hard) 0.296 (0.042), degenerate 0.00, utility 0.3901
+    200 | grid   K= 8: hit 0.97, gap     77.43, P(hard) 0.296 (0.042), degenerate 0.00, utility 0.3901
+    200 | grid   K=16: hit 0.97, gap     77.43, P(hard) 0.296 (0.042), degenerate 0.00, utility 0.3901
+    200 | random K= 1: hit 0.78, gap   1151.48, P(hard) 0.297 (0.037), degenerate 0.00, utility 0.3901
+    200 | random K= 2: hit 0.88, gap    474.22, P(hard) 0.293 (0.041), degenerate 0.00, utility 0.3902
+    200 | random K= 4: hit 0.93, gap    289.72, P(hard) 0.295 (0.042), degenerate 0.00, utility 0.3902
+    200 | random K= 8: hit 0.95, gap     15.09, P(hard) 0.299 (0.047), degenerate 0.00, utility 0.3901
+    200 | random K=16: hit 1.00, gap      0.00, P(hard) 0.299 (0.047), degenerate 0.00, utility 0.3901
+   1000 | grid   K= 1: hit 1.00, gap      0.00, P(hard) 0.291 (0.020), degenerate 0.00, utility 0.3914
+   1000 | grid   K= 2: hit 1.00, gap      0.00, P(hard) 0.291 (0.020), degenerate 0.00, utility 0.3914
+   1000 | grid   K= 4: hit 1.00, gap      0.00, P(hard) 0.291 (0.020), degenerate 0.00, utility 0.3914
+   1000 | grid   K= 8: hit 1.00, gap      0.00, P(hard) 0.291 (0.020), degenerate 0.00, utility 0.3914
+   1000 | grid   K=16: hit 1.00, gap      0.00, P(hard) 0.291 (0.020), degenerate 0.00, utility 0.3914
+   1000 | random K= 1: hit 1.00, gap      0.00, P(hard) 0.291 (0.020), degenerate 0.00, utility 0.3914
+   1000 | random K= 2: hit 1.00, gap      0.00, P(hard) 0.291 (0.020), degenerate 0.00, utility 0.3914
+   1000 | random K= 4: hit 1.00, gap      0.00, P(hard) 0.291 (0.020), degenerate 0.00, utility 0.3914
+   1000 | random K= 8: hit 1.00, gap      0.00, P(hard) 0.291 (0.020), degenerate 0.00, utility 0.3914
+   1000 | random K=16: hit 1.00, gap      0.00, P(hard) 0.291 (0.020), degenerate 0.00, utility 0.3914
+
