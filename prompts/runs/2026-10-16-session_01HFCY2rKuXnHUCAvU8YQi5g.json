@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01HFCY2rKuXnHUCAvU8YQi5g",
+  "track": "process",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T15:16:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "checklist says pytest via python3, but /usr/local/bin/python3 lacks it; /usr/bin/python3 has it after apt install"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Shipped P024 only (removed 5,918 committed mirror files, dropped dangling kustomization resource). Skipped P023 (checklist regen lines) and revenue-product work. Pre-existing failure on main: test_mirrored_tool_count_matches_what_the_docs_claim (1268 vs 1269). Full marketing node suite exceeded the tool timeout; the mirror and --headroom checks passed.",
+  "corrections": [],
+  "redteam": null
+}
