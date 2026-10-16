@@ -196,6 +196,7 @@ incidents: [`docs/history/claude-md-2026-10-15.md`](docs/history/claude-md-2026-
 ```
 python3 platform/ci/checklist_coverage.py  # fails if a line below is missing
 python3 platform/ci/sync_tree_counts.py  # AFTER merging main: fixes the counts a concurrent merge just invalidated
+# New workflow in a PR? gitops/ci/README counts go stale: python3 gitops/ci/sync_readme_counts.py
 node platform/marketing/regen.mjs --verify  # 9s, read-only: is the committed apex stale?
 node platform/marketing/regen.mjs           # if that exited 1: commit whatever this rewrites
 node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs

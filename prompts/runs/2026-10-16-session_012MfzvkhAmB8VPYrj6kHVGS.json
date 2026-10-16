@@ -1,0 +1,244 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_012MfzvkhAmB8VPYrj6kHVGS",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-16T12:08:49Z",
+  "ended": "2026-10-16T12:11:14Z",
+  "wall_minutes": 3.25,
+  "tokens_in": 867367,
+  "tokens_out": 3594,
+  "cost_usd": 0.3764,
+  "tool_calls": 14,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "targets listing and campaign fine; record JSON keeps mutants under redteam.campaigns[].mutants, not documented"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Target crypto-cost-basis-calculator/calc.mjs: 8 seeded, 6 caught (75%); 1 gap guarded, 1 equivalent. No real defects found (single short campaign).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/crypto-cost-basis-calculator/calc.mjs",
+        "test": "node --test ventures/crypto-cost-basis-calculator/**/*.test.mjs  (in .)",
+        "seed": 1061450723,
+        "commit": "92a68c5028",
+        "sites": 277,
+        "baseline_seconds": 0.8,
+        "mutants": [
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 103,
+            "col": 52,
+            "operator": "neq-flip",
+            "before": "if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null;",
+            "after": "if (dt.getUTCFullYear() !== y || dt.getUTCMonth() === mo - 1 || dt.getUTCDate() !== d) return null;",
+            "line_text": "  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 122,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "if (grid.length === 0) return out;",
+            "after": "if (grid.length === 1) return out;",
+            "line_text": "  if (grid.length === 0) return out;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "empty-input guard; added test for \"\" and header-only"
+          },
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 144,
+            "col": 31,
+            "operator": "eq-flip",
+            "before": "const priceRaw = map.price === undefined ? null : parseNumber(get(\"price\"));",
+            "after": "const priceRaw = map.price !== undefined ? null : parseNumber(get(\"price\"));",
+            "line_text": "    const priceRaw = map.price === undefined ? null : parseNumber(get(\"price\"));",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 169,
+            "col": 14,
+            "operator": "gt-to-ge",
+            "before": "return sold > addOneYear(acquired) ? \"Long\" : \"Short\";",
+            "after": "return sold >= addOneYear(acquired) ? \"Long\" : \"Short\";",
+            "line_text": "  return sold > addOneYear(acquired) ? \"Long\" : \"Short\";",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 210,
+            "col": 35,
+            "operator": "eq-flip",
+            "before": "if (t.kind === \"buy\" || t.kind === \"income\") {",
+            "after": "if (t.kind === \"buy\" || t.kind !== \"income\") {",
+            "line_text": "    if (t.kind === \"buy\" || t.kind === \"income\") {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 309,
+            "col": 57,
+            "operator": "eq-flip",
+            "before": "if (parsed.errors.length && parsed.transactions.length === 0) return result;",
+            "after": "if (parsed.errors.length && parsed.transactions.length !== 0) return result;",
+            "line_text": "  if (parsed.errors.length && parsed.transactions.length === 0) return result;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 353,
+            "col": 49,
+            "operator": "eq-flip",
+            "before": "result.income = cents(txs.filter((t) => t.kind === \"income\" && (chosen === null || yearOf(t.date) === chosen)).reduce((a, t) => a + t.usd, 0));",
+            "after": "result.income = cents(txs.filter((t) => t.kind !== \"income\" && (chosen === null || yearOf(t.date) === chosen)).reduce((a, t) => a + t.usd, 0));",
+            "line_text": "  result.income = cents(txs.filter((t) => t.kind === \"income\" && (chosen === null || yearOf(t.date) === chosen)).reduce((a, t) => a + t.usd, 0));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 379,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "2024-03-05,income,ETH,2,5000,0,Exchange A",
+            "after": "2024-03-05,income,ETH,2,5000,1,Exchange A",
+            "line_text": "2024-03-05,income,ETH,2,5000,0,Exchange A",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "fee on an income row is ignored by design (basis = usd for income, calc.mjs:211); sample data only"
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "812296ea-4e94-56c8-9f78-7d94d00d3a23",
+    "transcripts": 1,
+    "first": "2026-10-16T12:08:49Z",
+    "last": "2026-10-16T12:12:04Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 13,
+        "input": 26,
+        "output": 3594,
+        "thinking": 424,
+        "cache_read": 823420,
+        "cache_write_5m": 0,
+        "cache_write_1h": 43921,
+        "api_equivalent_usd": 0.3764,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 13,
+      "input": 26,
+      "output": 3594,
+      "thinking": 424,
+      "cache_read": 823420,
+      "cache_write_5m": 0,
+      "cache_write_1h": 43921,
+      "api_equivalent_usd": 0.3764,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.949,
+    "tool_calls": 14,
+    "tools": {
+      "Bash": 11,
+      "Read": 3
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.25,
+      "active_minutes": 3.25,
+      "model_minutes": 0.84,
+      "tool_minutes": 2.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "one targeted campaign plus one test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 132.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

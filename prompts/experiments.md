@@ -484,3 +484,16 @@ field will.
   21 PRs.
 - Drift: no new owner words. See `prompts/drift/2026-10-16d.md`.
 - Result: (next review)
+
+## E23: review 2026-10-16 (fifth of the day)
+
+- Change: CLAUDE.md checklist gains one line naming
+  `gitops/ci/sync_readme_counts.py`. No prompt changes.
+- Why: friction on `gitops/ci/README.md`: runs-on count goes stale on every
+  new-workflow PR.
+- Measure: friction reports naming `gitops/ci/README.md` per run after this.
+- Candidates: ventures/2 (20, 90%) vs ventures/1 (63, 92%), research/1 (17,
+  100%) vs research/0 (340, 98%): overlap, keep collecting. review/2 has 1 run.
+- Audit: 3 areas re-run, all pass. `derive.py fetch` got 21 of 23 PRs.
+- Drift: see `prompts/drift/2026-10-16e.md`.
+- Result: (next review)

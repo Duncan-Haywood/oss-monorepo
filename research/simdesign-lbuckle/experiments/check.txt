@@ -1,0 +1,9 @@
+b = 1.5 mm, w = 18.4 mm. Whole L, 3D hex eigenbuckling; factor = critical load / 100 N.
+sign mesh(nw,nh,nl,nz) factor1 factor2 factor3 seconds
++1 (2, 18, 14, 1) 4.078 10.766 16.993 31
+-1 (2, 18, 14, 1) 2.267 8.411 15.841 23
++1 (4, 36, 28, 1) 4.014 10.619 16.760 169
+-1 (4, 36, 28, 1) 2.247 8.292 15.544 146
++1 (4, 36, 28, 2) 4.006 10.591 16.711 329
+-1 (4, 36, 28, 2) 2.245 8.274 15.488 353
+closed-form vertical-arm factor (moment only, simdesign-bucklebound): 3.47

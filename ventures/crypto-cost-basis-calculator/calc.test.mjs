@@ -249,3 +249,8 @@ test("the sample CSV parses cleanly", () => {
   assert.deepEqual(r.errors, []);
   assert.equal(r.count, 6);
 });
+
+test("empty or header-only input returns no transactions and no errors", () => {
+  assert.deepEqual(parseTransactions(""), { transactions: [], skipped: [], errors: [] });
+  assert.deepEqual(parseTransactions("date,type,asset,quantity,total\n"), { transactions: [], skipped: [], errors: [] });
+});

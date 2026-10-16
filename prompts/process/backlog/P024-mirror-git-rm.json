@@ -1,0 +1,24 @@
+{
+  "status": "open",
+  "owner": "agent",
+  "opened": "2026-10-16",
+  "source": "P021 split of P014",
+  "pr": null,
+  "result": null,
+  "history": [],
+  "touches": [
+    "platform/marketing/",
+    "gitops/tests/"
+  ],
+  "id": "P024",
+  "title": "P014 step 3: git rm the committed front-door-tools mirror (~5.8k files)",
+  "effect": 2,
+  "cost": 1,
+  "problem": "Third step of P014, after P022 and P023: delete the generated tree for the retired k3s origin.",
+  "evidence": [
+    "git ls-files gitops/prod/front-door-tools: 5,839 files on origin/main 2029d18f86"
+  ],
+  "change": "git rm -r gitops/prod/front-door-tools; keep the generators and --headroom guards.",
+  "metric": "Files under gitops/prod/front-door-tools in git",
+  "baseline": "5,839"
+}
