@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log line plot of absolute bias and level variance against level for a smooth quantity and a failure indicator; smooth variance falls faster">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Ladder twin: bias and level variance vs twin level (2^l)</text>
+<line x1="64" x2="624" y1="310.7" y2="310.7" stroke="#ddd"/><text x="58" y="314.7" text-anchor="end" font-family="sans-serif" font-size="11">1e-10</text>
+<line x1="64" x2="624" y1="283.7" y2="283.7" stroke="#ddd"/><text x="58" y="287.7" text-anchor="end" font-family="sans-serif" font-size="11">1e-09</text>
+<line x1="64" x2="624" y1="256.6" y2="256.6" stroke="#ddd"/><text x="58" y="260.6" text-anchor="end" font-family="sans-serif" font-size="11">1e-08</text>
+<line x1="64" x2="624" y1="229.5" y2="229.5" stroke="#ddd"/><text x="58" y="233.5" text-anchor="end" font-family="sans-serif" font-size="11">1e-07</text>
+<line x1="64" x2="624" y1="202.4" y2="202.4" stroke="#ddd"/><text x="58" y="206.4" text-anchor="end" font-family="sans-serif" font-size="11">1e-06</text>
+<line x1="64" x2="624" y1="175.4" y2="175.4" stroke="#ddd"/><text x="58" y="179.4" text-anchor="end" font-family="sans-serif" font-size="11">1e-05</text>
+<line x1="64" x2="624" y1="148.3" y2="148.3" stroke="#ddd"/><text x="58" y="152.3" text-anchor="end" font-family="sans-serif" font-size="11">0.0001</text>
+<line x1="64" x2="624" y1="121.2" y2="121.2" stroke="#ddd"/><text x="58" y="125.2" text-anchor="end" font-family="sans-serif" font-size="11">0.001</text>
+<line x1="64" x2="624" y1="94.2" y2="94.2" stroke="#ddd"/><text x="58" y="98.2" text-anchor="end" font-family="sans-serif" font-size="11">0.01</text>
+<line x1="64" x2="624" y1="67.1" y2="67.1" stroke="#ddd"/><text x="58" y="71.1" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="250.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="436.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="622.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1000</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">level l (shown as 2^l)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">value</text>
+<polyline points="64.0,70.4 120.0,72.2 176.0,80.5 232.0,88.8 288.0,97.1 344.0,105.2 400.0,113.4 456.0,121.6 512.0,129.7 568.0,137.9 624.0,146.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#c0392b"/>
+<circle cx="120.0" cy="72.2" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="80.5" r="3" fill="#c0392b"/>
+<circle cx="232.0" cy="88.8" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="97.1" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="105.2" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="113.4" r="3" fill="#c0392b"/>
+<circle cx="456.0" cy="121.6" r="3" fill="#c0392b"/>
+<circle cx="512.0" cy="129.7" r="3" fill="#c0392b"/>
+<circle cx="568.0" cy="137.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="146.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">|bias| smooth</text>
+<polyline points="64.0,101.1 120.0,95.4 176.0,162.5 232.0,190.8 288.0,210.3 344.0,227.6 400.0,244.2 456.0,260.6 512.0,277.0 568.0,293.3 624.0,309.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="101.1" r="3" fill="#1f6fb2"/>
+<circle cx="120.0" cy="95.4" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="162.5" r="3" fill="#1f6fb2"/>
+<circle cx="232.0" cy="190.8" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="210.3" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="227.6" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="244.2" r="3" fill="#1f6fb2"/>
+<circle cx="456.0" cy="260.6" r="3" fill="#1f6fb2"/>
+<circle cx="512.0" cy="277.0" r="3" fill="#1f6fb2"/>
+<circle cx="568.0" cy="293.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="309.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">V_l smooth</text>
+<polyline points="64.0,75.2 120.0,75.2 176.0,79.1 232.0,86.9 288.0,95.0 344.0,103.0 400.0,111.1 456.0,119.3 512.0,127.4 568.0,135.6 624.0,143.7" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="75.2" r="3" fill="#2e8b57"/>
+<circle cx="120.0" cy="75.2" r="3" fill="#2e8b57"/>
+<circle cx="176.0" cy="79.1" r="3" fill="#2e8b57"/>
+<circle cx="232.0" cy="86.9" r="3" fill="#2e8b57"/>
+<circle cx="288.0" cy="95.0" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="103.0" r="3" fill="#2e8b57"/>
+<circle cx="400.0" cy="111.1" r="3" fill="#2e8b57"/>
+<circle cx="456.0" cy="119.3" r="3" fill="#2e8b57"/>
+<circle cx="512.0" cy="127.4" r="3" fill="#2e8b57"/>
+<circle cx="568.0" cy="135.6" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="143.7" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">|bias| failure</text>
+<polyline points="176.0,90.5 232.0,87.7 288.0,95.3 344.0,103.2 400.0,111.2 456.0,119.3 512.0,127.4 568.0,135.6 624.0,143.7" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="176.0" cy="90.5" r="3" fill="#8e44ad"/>
+<circle cx="232.0" cy="87.7" r="3" fill="#8e44ad"/>
+<circle cx="288.0" cy="95.3" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="103.2" r="3" fill="#8e44ad"/>
+<circle cx="400.0" cy="111.2" r="3" fill="#8e44ad"/>
+<circle cx="456.0" cy="119.3" r="3" fill="#8e44ad"/>
+<circle cx="512.0" cy="127.4" r="3" fill="#8e44ad"/>
+<circle cx="568.0" cy="135.6" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="143.7" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">V_l failure</text>
+</svg>

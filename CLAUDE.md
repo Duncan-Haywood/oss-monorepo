@@ -42,6 +42,7 @@ Sources:
   `slug`, `title` (a question the project answers), `summary` (the abstract, HTML).
 - `README.md` — each project's bullet is reused as the card's one-line lede.
 - `research/<slug>/` — test counts are the `def test_` functions in its `test*.py` files.
+- `research/<slug>/LOG.md` (optional) — an ongoing project's research log: `## <date> · <title>` entries, newest first, with bullets. The project page shows it under "Research log" and the homepage lists every project that has one.
 - `site/template.html` — layout, styles and search script. `site/project.html` — the per-project home page (`_site/<slug>/index.html`); it shows the first image under the project's `experiments/` if there is one.
 
 Whenever you add, rename or remove a project under `research/`, or change its headline

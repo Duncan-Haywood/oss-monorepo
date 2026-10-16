@@ -92,6 +92,61 @@ def project_links(slug):
     return links
 
 
+def inline_md(text):
+    """Escape, then the four inline forms a log uses: `code`, **bold**, *em* and [text](url)."""
+    t = html.escape(text, quote=False)
+    t = re.sub(r"`([^`]+)`", r"<code>\1</code>", t)
+    t = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", t)
+    t = re.sub(r"\*([^*]+)\*", r"<em>\1</em>", t)
+    return re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", r'<a href="\2">\1</a>', t)
+
+
+def read_log(slug):
+    """Entries of research/<slug>/LOG.md, newest first as written: [(heading, [(kind, text)])].
+
+    An ongoing project keeps a log; each `## <date> · <title>` heading is one entry, and its
+    body is bullets (`- `) and paragraphs. Text before the first entry is the file's own intro."""
+    f = RESEARCH / slug / "LOG.md"
+    if not f.is_file():
+        return []
+    entries = []
+    for line in f.read_text().splitlines():
+        if line.startswith("## "):
+            entries.append((line[3:].strip(), []))
+        elif entries and line.strip():
+            body = entries[-1][1]
+            if line.startswith("- "):
+                body.append(("li", line[2:].strip()))
+            elif line.startswith("  ") and body:
+                body[-1] = (body[-1][0], body[-1][1] + " " + line.strip())
+            else:
+                body.append(("p", line.strip()))
+    return entries
+
+
+def log_html(slug):
+    entries = read_log(slug)
+    if not entries:
+        return ""
+    out = ['  <h2 id="log">Research log</h2>',
+           f'  <p class="log-intro">Ongoing: each run adds a batch and an entry, newest first. Source: <a href="{REPO_URL}/blob/main/research/{slug}/LOG.md">LOG.md</a>.</p>']
+    for head, body in entries:
+        out.append(f'  <article class="log-entry"><h3>{inline_md(head)}</h3>')
+        items, paras = [], []
+        for kind, text in body:
+            if kind == "li":
+                items.append(f"<li>{inline_md(text)}</li>")
+            else:
+                if items:
+                    paras.append("<ul>" + "".join(items) + "</ul>")
+                    items = []
+                paras.append(f"<p>{inline_md(text)}</p>")
+        if items:
+            paras.append("<ul>" + "".join(items) + "</ul>")
+        out.append("    " + "\n    ".join(paras) + "\n  </article>")
+    return "\n".join(out)
+
+
 def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out):
     slug = p["slug"]
     if not (RESEARCH / slug / "README.md").is_file():
@@ -110,7 +165,7 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out):
     for key, val in {
         "TOKENS": tokens, "THEME_VARS": theme_vars, "SLUG": slug, "TITLE": p["title"], "LEDE": lede, "SUMMARY": p["summary"],
         "DESC": html.escape(plain(p["summary"])[:240]), "THEME_ID": theme["id"], "THEME_NAME": theme["name"],
-        "STATS": stats, "FIGURE": figure, "LINKS": links, "REPO_URL": REPO_URL, "REPO": REPO,
+        "STATS": stats, "FIGURE": figure, "LOG": log_html(slug), "LINKS": links, "REPO_URL": REPO_URL, "REPO": REPO,
     }.items():
         page = page.replace("{{" + key + "}}", val)
     leftover = re.findall(r"\{\{\w+\}\}", page)
@@ -159,6 +214,18 @@ def build(out):
       <h3>{p['title']}</h3><p>{ledes[s]}</p><span class="go">Read more →</span></a>"""
         for s in data["featured"] for p, t in [by_slug[s]]
     )
+    logs = [(s, read_log(s)[0][0]) for s in by_slug if read_log(s)]
+    log_items = "\n".join(
+        f'    <a class="feat t-{by_slug[s][1]["id"]}" href="{s}/#log"><span class="theme-tag">Ongoing · {s}</span>'
+        f'<h3>{by_slug[s][0]["title"]}</h3><p>Latest: {inline_md(head)}</p><span class="go">Read the log →</span></a>'
+        for s, head in logs
+    )
+    log_section = (f'''<section class="featured" id="logs"><div class="wrap">
+  <p class="label">Research logs</p>
+  <div class="feat-grid">
+{log_items}
+  </div>
+</div></section>''' if logs else "")
     sections = "\n".join(
         f"""<section class="theme t-{t['id']}" id="{t['id']}">
   <div class="theme-head"><span class="theme-num">{i:02d}</span><h2>{t['name']}</h2><p>{t['blurb']}</p></div>
@@ -171,7 +238,7 @@ def build(out):
 
     page = (HERE / "template.html").read_text()
     for key, val in {
-        "THEME_VARS": theme_vars, "MAP": rmap, "CHIPS": chips, "FEATURED": featured, "SECTIONS": sections,
+        "THEME_VARS": theme_vars, "MAP": rmap, "CHIPS": chips, "FEATURED": featured, "LOGS": log_section, "SECTIONS": sections,
         "PROJECT_COUNT": str(len(by_slug)), "TEST_COUNT": f"{sum(tests.values()):,}",
         "THEME_COUNT": str(len(data["themes"])), "REPO_URL": REPO_URL, "REPO": REPO,
     }.items():
