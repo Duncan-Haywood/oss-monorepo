@@ -622,3 +622,88 @@ test("league page and share link carry officials", () => {
   assert.doesNotMatch(html, /<b>/);
   assert.equal(decodeFields(encodeFields({ ...sampleFields(), officials: "Pat" })).officials, "Pat");
 });
+
+// ---------------------------------------------------------------- swiss
+
+import { swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText } from "./calc.mjs";
+
+function playSwiss(n, rounds, winner = (a, b) => (a < b ? [1, 0] : [0, 1])) {
+  const players = Array.from({ length: n }, (_, i) => `P${i + 1}`);
+  const games = [];
+  const byes = [];
+  const sheets = [];
+  for (let r = 0; r < rounds; r++) {
+    const round = swissPairings(players, games, byes);
+    assert.deepEqual(validateSwiss(players, games, byes, round), []);
+    sheets.push(round);
+    if (round.bye !== null) byes.push(round.bye);
+    for (const p of round.pairs) { const [ga, gb] = winner(p.white, p.black); games.push({ a: p.white, b: p.black, ga, gb }); }
+  }
+  return { players, games, byes, sheets };
+}
+
+test("swiss round count is ceil(log2 n)", () => {
+  assert.equal(swissRounds(8), 3);
+  assert.equal(swissRounds(9), 4);
+  assert.equal(swissRounds(2), 1);
+});
+
+test("swiss round 1 pairs top half against bottom half", () => {
+  const players = ["A", "B", "C", "D", "E", "F", "G", "H"];
+  const r = swissPairings(players, []);
+  const pairs = r.pairs.map((p) => [p.white, p.black].sort((x, y) => x - y).join("-")).sort();
+  assert.deepEqual(pairs, ["0-4", "1-5", "2-6", "3-7"]);
+  assert.equal(r.bye, null);
+});
+
+test("swiss never repeats a pairing and fills every board, even and odd fields", () => {
+  for (const n of [4, 5, 8, 9, 12, 13, 16]) {
+    const { games, players } = playSwiss(n, swissRounds(n));
+    const seen = new Set();
+    for (const g of games) {
+      const key = [g.a, g.b].sort().join("|");
+      assert.ok(!seen.has(key), `rematch with ${n} players`);
+      seen.add(key);
+    }
+    assert.equal(players.length, n);
+  }
+});
+
+test("swiss gives each bye to a different player and the bye counts as a win", () => {
+  const { byes, players, games } = playSwiss(7, 5);
+  assert.equal(new Set(byes).size, byes.length);
+  const t = swissStandings(players, games, byes);
+  assert.ok(t.every((r) => r.byes <= 1));
+});
+
+test("swiss leader after log2 rounds with no upsets is the top seed and the table is ordered", () => {
+  const { players, games, byes } = playSwiss(8, 3);
+  const t = swissStandings(players, games, byes);
+  assert.equal(t[0].name, "P1");
+  assert.equal(t[0].score, 3);
+  for (let i = 1; i < t.length; i++) assert.ok(t[i - 1].score >= t[i].score);
+});
+
+test("swiss colours stay balanced within two", () => {
+  const { players, games } = playSwiss(8, 5, (a, b) => (a < b ? [1, 0] : [0, 1]));
+  const t = swissStandings(players, games);
+  for (const r of t) assert.ok(Math.abs(r.whites - r.blacks) <= 2, `${r.name} ${r.whites}/${r.blacks}`);
+});
+
+test("swiss results parse wins, draws and byes, and report unknown names", () => {
+  const players = ["Ana", "Ben", "Cy"];
+  const { games, byes, errors } = parseSwissResults("Ana 1 - 0 Ben\nCy bye\nZed 1 - 0 Ana\nDee bye", players);
+  assert.equal(games.length, 1);
+  assert.deepEqual(byes, [2]);
+  assert.equal(errors.length, 2);
+  const t = swissStandings(players, [{ a: 0, b: 1, ga: 1, gb: 1 }], []);
+  assert.equal(t[0].score, 0.5);
+});
+
+test("swiss refuses when no rematch-free pairing exists and prints a sheet", () => {
+  const players = ["A", "B", "C", "D"];
+  const games = [[0, 1], [2, 3], [0, 2], [1, 3], [0, 3], [1, 2]].map(([a, b]) => ({ a, b, ga: 1, gb: 0 }));
+  assert.throws(() => swissPairings(players, games), /rematch/);
+  const text = swissText(players, swissPairings(players, []), 1);
+  assert.match(text, /Board 1: A \(white\) vs C \(black\)/);
+});
