@@ -84,6 +84,17 @@ Admin calls take `$ADMIN_KEY`: `PUT /v1/admin/customers/:id` with
 (pending and dead-lettered Stripe events), `POST /v1/admin/flush`,
 `GET /v1/admin/export.csv`.
 
+### Limit alerts
+
+Set `ALERT_WEBHOOK_URL` (and `ALERT_WEBHOOK_SECRET`) and the server POSTs JSON
+to your URL the first time a customer reaches 80% and 100% of a plan line's
+`limit` in a month (`"alerts": {"at": [0.5, 0.9, 1]}` in the config changes the
+thresholds). One alert per customer, meter, month and threshold. Body:
+`{type: "usage.threshold", customer, plan, meter, threshold, used, limit, month, resetsAt}`.
+`x-meter-signature: sha256=<HMAC-SHA256 of the raw body>` is sent when a secret
+is set; verify it before trusting the call. Failed deliveries retry with
+backoff, then land in the dead-letter list. Without a URL, no alerts are kept.
+
 ### Stripe
 
 Create a Billing Meter whose event name matches `stripeEvent`, with `sum`
