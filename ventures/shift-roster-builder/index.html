@@ -74,7 +74,7 @@
     <h2>Shifts to cover</h2>
     <label for="shifts">One requirement per line: day(s), start, end, people needed, label (optional)</label>
     <textarea id="shifts" spellcheck="false" placeholder="Mon-Fri, 6, 14, 2, open&#10;Sat, 12, 22, 2, close&#10;Fri, 22, 6, 1, night"></textarea>
-    <p class="note">Days can be a range (<code>Mon-Fri</code>) or a list (<code>Mon/Wed/Fri</code>). Times can be <code>9</code>, <code>9:30</code> or <code>9am</code>. An end at or before the start runs overnight into the next day. People needed makes that many separate shifts.</p>
+    <p class="note">Days can be a range (<code>Mon-Fri</code>) or a list (<code>Mon/Wed/Fri</code>). Times can be <code>9</code>, <code>9:30</code> or <code>9am</code>. An end at or before the start runs overnight into the next day. People needed makes that many separate shifts. To pin a shift to someone, add <code>who: Ben</code> (or <code>who: Ben|Ana</code> for two people); a pin still obeys availability and limits, and the report says why if it cannot be filled.</p>
     <label for="file">…or upload a staff CSV</label>
     <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
     <div class="row3">

@@ -498,3 +498,19 @@ test("scheduleFlags: daily hours, split shifts, notice", () => {
   assert.equal(scheduleFlags(r).notice, null);
   assert.equal(scheduleFlags({}).overDaily.length, 0);
 });
+
+test("who: pins a shift to a named person, and says why when it cannot", () => {
+  const staff = staffOf("Ana, 10, 40, 0, any\nBen, 20, 40, 0, any\nCy, 12, 8, 0, any");
+  const r = buildRoster(staff, slotsOf("Mon, 9, 17, 1, open, who: Ben\nTue, 9, 17, 2, open, who: Ben|Ana"));
+  const nameAt = (day) => r.assignments.filter((a) => a.slot.day === day).map((a) => a.person).sort();
+  assert.deepEqual(nameAt(0), ["Ben"]);
+  assert.deepEqual(nameAt(1), ["Ana", "Ben"]);
+  assert.equal(r.unfilled.length, 0);
+  // a pinned person at their hour limit leaves the shift open instead of moving it to someone else
+  const r2 = buildRoster(staff, slotsOf("Mon-Wed, 8, 16, 1, open, who: Cy"));
+  assert.equal(r2.unfilled.length, 2);
+  assert.match(r2.unfilled[0].text, /pinned to Cy/);
+  const r3 = buildRoster(staff, slotsOf("Mon, 8, 16, 1, open, who: Zed"));
+  assert.equal(r3.unfilled.length, 1);
+  assert.match(r3.unfilled[0].text, /Zed is pinned/);
+});

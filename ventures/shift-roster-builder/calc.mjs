@@ -113,6 +113,8 @@ export function parseAvailability(text) {
 
 // Roles: "roles: cook|server" on a person, "role: cook" on a shift (lower-cased, matched exactly).
 const ROLE_CELL = /^roles?\s*:/i;
+const WHO_CELL = /^(who|pin)\s*:/i;
+const parseWho = (cell) => cell.replace(WHO_CELL, "").split(/[|/&+]/).map((r) => r.trim()).filter(Boolean);
 const parseRoles = (cell) => cell.replace(ROLE_CELL, "").split(/[|/&+]/).map((r) => r.trim().toLowerCase()).filter(Boolean);
 
 // "prev: Sun 10pm" = when this person's last shift LAST week ended, so the rest rule also holds across the week boundary.
@@ -226,12 +228,14 @@ export function parseShifts(text) {
     if (a === b) { errors.push(`${where}: start and end are the same`); return; }
     const count = (c[3] || "") === "" ? 1 : Number(c[3]);
     if (!Number.isInteger(count) || count < 1 || count > 50) { errors.push(`${where}: people needed must be a whole number from 1 to 50`); return; }
-    const label = ROLE_CELL.test(c[4] || "") ? "" : (c[4] || "");
+    const label = ROLE_CELL.test(c[4] || "") || WHO_CELL.test(c[4] || "") ? "" : (c[4] || "");
+    const whoCell = c.slice(4).find((x) => WHO_CELL.test(x));
+    const whoNames = whoCell ? parseWho(whoCell) : [];
     const roleCell = c.slice(4).find((x) => ROLE_CELL.test(x));
-    const role = roleCell ? parseRoles(roleCell)[0] || "" : (c[5] || "").trim().toLowerCase();
+    const role = roleCell ? parseRoles(roleCell)[0] || "" : (WHO_CELL.test(c[5] || "") ? "" : (c[5] || "").trim().toLowerCase());
     for (const d of days) for (let k = 0; k < count; k++) {
       const end = b <= a ? b + 1440 : b; // an end at or before the start runs overnight
-      slots.push({ day: d, startMin: a, endMin: end, start: d * 1440 + a, end: d * 1440 + end, label, role, copy: k + 1, of: count });
+      slots.push({ day: d, startMin: a, endMin: end, start: d * 1440 + a, end: d * 1440 + end, label, role, copy: k + 1, of: count, who: whoNames[k] || "" });
     }
   });
   if (!slots.length && !errors.length) errors.push("Add at least one shift to cover.");
@@ -258,6 +262,7 @@ const DEFAULTS = {
 };
 
 function qualified(person, slot) {
+  if (slot.who && slot.who.toLowerCase() !== person.name.toLowerCase()) return false;
   return !slot.role || (person.roles || []).includes(slot.role);
 }
 
@@ -530,7 +535,10 @@ function whyUnfilled(ctx, owner, i) {
   }
   let text;
   const skilled = slot.role ? ctx.staff.filter((p) => qualified(p, slot)).length : ctx.P;
-  if (slot.role && skilled === 0) text = `nobody listed has the role "${slot.role}"`;
+  if (slot.who && !ctx.staff.some((p) => p.name.toLowerCase() === slot.who.toLowerCase())) text = `${slot.who} is pinned to this shift but is not in the staff list`;
+  else if (slot.who && why.free === 0) text = `pinned to ${slot.who}, who is not available for this whole shift${slot.role ? ` or lacks the role "${slot.role}"` : ""}`;
+  else if (slot.who) text = `pinned to ${slot.who}, but ${[why.overlap && "already on another shift", why.rest && "would break the rest rule", why.hours && "at their weekly hour limit", why.daily && "at their daily hour limit", why.days && "at the consecutive-days limit"].filter(Boolean).join(", ") || "that would cost other coverage"}`;
+  else if (slot.role && skilled === 0) text = `nobody listed has the role "${slot.role}"`;
   else if (why.free === 0) text = slot.role ? `nobody with the role "${slot.role}" is available for this whole shift` : "nobody listed is available for this whole shift";
   else {
     const bits = [];
