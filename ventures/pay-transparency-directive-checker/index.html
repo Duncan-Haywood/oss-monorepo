@@ -140,7 +140,7 @@
     const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
     function run() {
       const r = compute(read());
-      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      if (r.errors?.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
       last = r;
       $("#due").textContent = r.reports ? "Reporting applies: " + r.reporting.cadence + ", first " + r.reporting.first : "No reporting duty under the Directive; other duties apply";
       $("#summary").textContent = summaryText(r);

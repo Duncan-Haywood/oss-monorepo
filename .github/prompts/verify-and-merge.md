@@ -71,6 +71,23 @@ fill the disk. Install both packages in one command, because a second
 run to write the reading. The first full run, on 2026-09-06, found 48
 critical accessibility violations that every other check had passed.
 
+**If your change touches a page or app a user clicks through, use it the way a
+user would** with [`platform/uitest`](../../platform/uitest/README.md). This
+runs a real browser and no model key, and takes about 10 s for a venture and
+five linked pages:
+
+```
+PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js \
+  node platform/uitest/uitest.mjs --serve ventures --path /<slug>/ --crawl 5
+```
+
+It fails on JavaScript errors, dead pages and broken scripted steps, and
+warns when a form takes input but nothing on the page changes. Serve
+`ventures`, not `ventures/<slug>`, so sibling links resolve. With a model key
+in the environment, add `--goal "<what a user comes to do>"` and an agent
+works through the page and judges the result. In the PR, say what it
+printed.
+
 **After you merge a change that touches a served surface, refresh the
 published snapshot:**
 
