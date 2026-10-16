@@ -43,7 +43,7 @@
 #   portfolio-front-tools-7: 119 files, 553793 bytes
 #   portfolio-front-tools-8: 131 files, 556421 bytes
 #   portfolio-front-tools-9: 136 files, 551412 bytes
-#   portfolio-front-tools-10: 140 files, 554461 bytes
+#   portfolio-front-tools-10: 141 files, 555817 bytes
 #   portfolio-front-tools-11: 136 files, 551264 bytes
 #   portfolio-front-tools-12: 127 files, 556338 bytes
 #   portfolio-front-tools-13: 130 files, 554443 bytes
@@ -1531,6 +1531,7 @@ configMapGenerator:
       - chrome-extension-permission-check__vs-checking-the-manifest-by-hand.html.gz=chrome-extension-permission-check__vs-checking-the-manifest-by-hand.html.gz
       - chrome-extension-permission-check__vs-crxcavator.html.gz=chrome-extension-permission-check__vs-crxcavator.html.gz
       - churn-radar__engine.mjs.gz=churn-radar__engine.mjs.gz
+      - churn-radar__import.mjs.gz=churn-radar__import.mjs.gz
       - churn-radar__index.html.gz=churn-radar__index.html.gz
       - churn-radar__sdk.mjs.gz=churn-radar__sdk.mjs.gz
       - churn-radar__server.mjs.gz=churn-radar__server.mjs.gz
