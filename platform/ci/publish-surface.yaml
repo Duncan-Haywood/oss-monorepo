@@ -875,6 +875,9 @@ workflows:
 - workflow: era-835-underpayment-finder-ci.yml
   classification: none
   publishes: []
+- workflow: error-keeper-ci.yml
+  classification: none
+  publishes: []
 - workflow: error-rate-disclosure-ci.yml
   classification: none
   publishes: []
