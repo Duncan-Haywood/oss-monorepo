@@ -205,3 +205,10 @@ test("icsToStays: all-day end is exclusive, locations and titles resolve, adjace
   assert.equal(r.skipped, 2);
   assert.equal(parseStays(r.lines.join("\n"), 2025).errors.length, 0);
 });
+
+test("Maryland (183 or more) and Maine (more than 183) thresholds follow the 'more than limit' convention", () => {
+  assert.equal(RULES.MD.limit, 182);
+  assert.equal(RULES.ME.limit, 183);
+  assert.equal(RULES.MD.requiresAbode, true);
+  assert.equal(RULES.ME.requiresAbode, true);
+});
