@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv, rosterIcs,
+  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs,
   sampleStaff, sampleShifts, fmtClock, _internals,
 } from "./calc.mjs";
 
@@ -292,4 +292,28 @@ test("hire what-if: an unfillable shift reports what one more person would cover
 test("hire what-if: absent when everything is covered", () => {
   const r = buildRoster(staffOf("Ann, 15, 40, 0, any"), slotsOf("Mon, 9, 13, 1, Open"));
   assert.equal(r.hireTest, null);
+});
+
+test("coverOptions: lists who can take a shift, cheapest first, with the rule that blocks the rest", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon 8-16\nBen, 20, 40, 0, Mon 8-16\nCy, 15, 4, 0, Mon 8-16\nDee, 12, 40, 0, Tue 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open");
+  const r = buildRoster(staff, slots);
+  assert.equal(r.assignments[0].person, "Ana");
+  const c = coverOptions(staff, slots, r, 0);
+  assert.equal(c.current, "Ana");
+  assert.deepEqual(c.fits.map((f) => f.name), ["Ben"]);
+  assert.ok(Math.abs(c.fits[0].extraCost - 80) < 1e-6); // Ben 8h at $20 minus Ana's 8h at $10
+  assert.deepEqual(c.blocked, [{ name: "Cy", reason: "would go over their weekly hour limit" }]);
+});
+
+test("coverOptions: an open shift has no current owner and reports an unreadable roster", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon 8-16");
+  const slots = slotsOf("Mon, 8, 16, 2, open");
+  const r = buildRoster(staff, slots);
+  const open = r.assignments.findIndex((a) => a.person === null);
+  const c = coverOptions(staff, slots, r, open);
+  assert.equal(c.current, null);
+  assert.equal(c.fits.length, 0);
+  assert.deepEqual(c.blocked, [{ name: "Ana", reason: "already on a shift at that time" }]);
+  assert.ok(coverOptions(staff, slots, null, 0).error);
 });

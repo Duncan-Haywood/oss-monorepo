@@ -32,6 +32,10 @@
     {
       "date": "2026-10-16",
       "note": "Step 1 partial: CLAUDE.md and AGENTS.md no longer say to read all of DIRECTION.md first (~15k tokens); read by section heading. Steps 2-4 remain open: CLAUDE.md is parsed by checklist_coverage.py, validate_workflows.py, sync_tree_counts.py and ~15 other tools, so moving the checklist needs those repointed first."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Merged CLAUDE.md 'Fork PRs and outside text' into 'Public repository' (duplicate rule). Measured blocker for step 2: ~40 files (platform/ci/*, gitops/tests) reference CLAUDE.md by path or heading; repoint them with checklist_coverage.py before moving the checklist."
     }
   ]
 }
