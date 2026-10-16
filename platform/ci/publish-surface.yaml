@@ -494,6 +494,9 @@ workflows:
 - workflow: dns-configuration-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: doc-refs-ci.yml
+  classification: none
+  publishes: []
 - workflow: docker-base-image-eol-check-ci.yml
   classification: none
   publishes: []
@@ -861,6 +864,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: llm-output-regression-diff-ci.yml
+  classification: none
+  publishes: []
+- workflow: llm-spend-guard-ci.yml
   classification: none
   publishes: []
 - workflow: llm-usage-log-analyzer-ci.yml

@@ -1,0 +1,52 @@
+name: llm-spend-guard
+description: 'Free, open-source, self-hosted proxy and zero-dependency library that refuses OpenAI and Anthropic API calls before they are sent when they would cross a hard dollar or call budget per user, feature, API key or agent run, holds each call''s worst-case cost so concurrent calls cannot overshoot, fails closed on unpriced models and uncapped outputs, and trips circuit breakers on runaway agent loops; plus a browser simulator that replays a usage log through a policy. Not a billing system.'
+stage: prototype
+
+owner: duncan
+
+# Runtime companion to llm-call-cost-scan (static, pre-merge) and
+# llm-usage-log-analyzer (after the fact). duplicate_check.py (2026-10-16)
+# scored llm-usage-log-analyzer 0.28 and llm-call-cost-scan 0.23; neither
+# enforces anything at request time, which is this venture's wedge.
+#
+# Where the first real visitor would come from: the search phrases "openai
+# hard spend limit", "anthropic api budget limit", "llm budget per user",
+# "agent infinite loop api bill", "stop runaway openai costs"; r/OpenAI,
+# r/ClaudeAI, r/LocalLLaMA and r/SaaS "my bill exploded overnight" threads;
+# Hacker News posts about agent cost blowups. The buyer-ish reader is a small
+# team that just shipped an AI feature to the public and is exposed to one
+# abusive user or one stuck agent. Self-hosted business model: the code is
+# free and one-click deployable on the deployer's own cloud (ROADMAP.md).
+hypotheses:
+  - claim: A team running an AI feature in production will run `simulate` on last month's log, find a refusal they wish had happened, and put the proxy in front of their traffic.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: With worst-case holds, calls in flight at the same time can never together spend past a dollar budget (guard.test.mjs, "holds count against the budget").
+    status: supported
+    checked: 2026-10-16
+    evidence: in-repo
+  - claim: Agent builders will adopt the per-run repeat breaker as the cheapest guard against stuck tool-call loops.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the simulator runs in the visitor's browser; the proxy
+  # runs on the deployer's machine with the deployer's keys.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a report) engage within 90 days of the page being reachable from the published site.
+  - No external project is found running the proxy or importing guard.mjs within 120 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/llm-spend-guard/
+  analytics: null

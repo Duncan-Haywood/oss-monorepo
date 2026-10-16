@@ -628,6 +628,7 @@
     "llm-api-pricing-calculator": "2026-09-24",
     "llm-call-cost-scan": "2026-10-01",
     "llm-output-regression-diff": "2026-10-03",
+    "llm-spend-guard": "2026-10-16",
     "llm-usage-log-analyzer": "2026-09-30",
     "llms-txt-generator": "2026-09-11",
     "lockfile-license-check": "2026-10-03",
