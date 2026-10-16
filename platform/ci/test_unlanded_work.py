@@ -115,6 +115,30 @@ class TestCheckBranch(Fixture):
         self.assertIn("#41", report.notes[0])
         self.assertIn("cannot see whether it is merged", report.notes[0])
 
+    def test_branch_deleted_after_its_pr_took_the_tip_is_not_stranded(self):
+        # GitHub's auto-delete removes the head branch when the PR merges; the
+        # session's local branch then has no remote, but nothing is stranded.
+        self.branch("claude/merged-and-deleted")
+        sha = self.commit("ventures/x/index.html", "x\n", "x: new venture")
+        self.push("claude/merged-and-deleted")
+        self.open_pr(43, sha)
+        run(self.origin, "update-ref", "-d", "refs/heads/claude/merged-and-deleted")
+        report = self.check()
+        self.assertEqual(report.exit_code, 0, report.problems)
+        self.assertIn("#43", report.notes[0])
+        self.assertIn("cannot see whether it is merged", report.notes[0])
+
+    def test_branch_deleted_with_a_tip_no_pr_carries_is_still_flagged(self):
+        self.branch("claude/deleted-after-more-work")
+        sha = self.commit("ventures/x/index.html", "x\n", "x: new venture")
+        self.push("claude/deleted-after-more-work")
+        self.open_pr(44, sha)
+        run(self.origin, "update-ref", "-d", "refs/heads/claude/deleted-after-more-work")
+        self.commit("ventures/x/more.html", "y\n", "x: more after the merge")
+        report = self.check()
+        self.assertEqual(report.exit_code, 1)
+        self.assertIn("is not on origin", report.problems[0])
+
     def test_unpushed_commit_on_top_of_a_pushed_branch_is_flagged(self):
         self.branch("claude/ahead")
         sha = self.commit("a.txt", "a\n", "a")
