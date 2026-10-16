@@ -59,7 +59,7 @@
 #   portfolio-front-tools-23: 118 files, 554407 bytes
 #   portfolio-front-tools-24: 114 files, 550494 bytes
 #   portfolio-front-tools-25: 138 files, 553883 bytes
-#   portfolio-front-tools-26: 125 files, 542066 bytes
+#   portfolio-front-tools-26: 126 files, 544985 bytes
 #   portfolio-front-tools-27: 139 files, 555021 bytes
 #   portfolio-front-tools-28: 131 files, 555817 bytes
 #   portfolio-front-tools-29: 123 files, 555013 bytes
@@ -3642,6 +3642,7 @@ configMapGenerator:
       - mileage-log__calc.mjs.gz=mileage-log__calc.mjs.gz
       - mileage-log__index.html.gz=mileage-log__index.html.gz
       - mileage-log__privacy.html.gz=mileage-log__privacy.html.gz
+      - mileage-log__reimburse.mjs.gz=mileage-log__reimburse.mjs.gz
       - mileage-log__usage.mjs.gz=mileage-log__usage.mjs.gz
       - mini-golf-course-profit-calculator__calc.mjs.gz=mini-golf-course-profit-calculator__calc.mjs.gz
       - mini-golf-course-profit-calculator__index.html.gz=mini-golf-course-profit-calculator__index.html.gz

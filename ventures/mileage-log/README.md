@@ -32,6 +32,7 @@ month tracker, or a notebook reconstructed in April.
 - Year-end report for a tax preparer: one standalone HTML file (totals, by
   vehicle, gaps in the log, every trip) to print or save as PDF. No script, no
   network.
+- Employer reimbursement claim (`reimburse.mjs`): employees cannot deduct mileage on a federal return since 2018, so one HTML page lists business trips for a date range at the employer's per-mile rate (or the IRS rate by date), whole-cent rows that sum to the total, a monthly rollup, flagged missing purposes, and a note when the rate exceeds the IRS rate.
 - CSV export for the year, JSON backup and restore for all years, print view.
 
 ## Limits (also stated on the page)
