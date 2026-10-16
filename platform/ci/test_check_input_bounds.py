@@ -13,7 +13,7 @@ import unittest
 from decimal import Decimal
 from pathlib import Path
 
-from check_input_bounds import check_input, check_venture, guards, percent_scaled
+from check_input_bounds import check_input, check_venture, guards
 
 
 class GuardParsing(unittest.TestCase):
@@ -144,28 +144,3 @@ class VentureScan(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
-class PercentScaling(unittest.TestCase):
-    """A percent field whose calculator divides by 100 before the guard."""
-
-    def test_finds_scaled_module_variables_and_page_fields(self):
-        src = 'const fee = num(o.feePct, "Fee") / 100;\nconst x = num("#margin") / 100;'
-        self.assertEqual(percent_scaled(src), {"fee", "x", "margin"})
-
-    def _venture(self, module: str, page: str) -> list[str]:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            (root / "engine.mjs").write_text(module)
-            (root / "index.html").write_text(page)
-            return check_venture(root)
-
-    def test_percent_max_satisfies_a_fraction_guard(self):
-        module = 'const fee = num(o.feePct) / 100;\nif (fee >= 1) throw new Error("x");'
-        self.assertEqual(self._venture(module, '<input type="number" id="fee" max="99">'), [])
-
-    def test_percent_max_at_the_limit_still_fails(self):
-        module = 'const fee = num(o.feePct) / 100;\nif (fee >= 1) throw new Error("x");'
-        self.assertEqual(
-            len(self._venture(module, '<input type="number" id="fee" max="100">')), 1
-        )

@@ -78,19 +78,6 @@ LOWER_RE = re.compile(
 )
 
 
-# A field the user types as a percent but the calculator checks as a fraction:
-# `const fee = num(o.feePct) / 100;` in a module, or `num("#margin") / 100` in
-# the page script. The guard's limit is in the scaled unit, so compare the
-# input's declared bound against limit * 100.
-SCALED_VAR_RE = re.compile(r"(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*[^;\n]*?/\s*100\b")
-SCALED_FIELD_RE = re.compile(r"[\"']#([\w-]+)[\"']\s*\)(?:\.value)?\s*\)?\s*/\s*100\b")
-
-
-def percent_scaled(source: str) -> set[str]:
-    """Names (module variables or input ids) whose guard sees value / 100."""
-    return set(SCALED_VAR_RE.findall(source)) | set(SCALED_FIELD_RE.findall(source))
-
-
 def _attrs(tag: str) -> dict[str, str]:
     return {name.lower(): value for name, value in ATTR_RE.findall(tag)}
 
@@ -168,22 +155,15 @@ def check_venture(directory: Path) -> list[str]:
     if not bounds:
         return []
 
-    pages = sorted(directory.rglob("*.html"))
-    scaled = percent_scaled(
-        source + "\n" + "\n".join(p.read_text(encoding="utf-8", errors="replace") for p in pages)
-    )
     problems: list[str] = []
-    for page in pages:
+    for page in sorted(directory.rglob("*.html")):
         markup = page.read_text(encoding="utf-8", errors="replace")
         for tag in INPUT_RE.findall(markup):
             attrs = _attrs(tag)
             field = attrs.get("id")
             if not field or field not in bounds:
                 continue
-            field_bounds = bounds[field]
-            if field in scaled:
-                field_bounds = [(op, limit * 100) for op, limit in field_bounds]
-            problem = check_input(attrs, field_bounds)
+            problem = check_input(attrs, bounds[field])
             if problem:
                 problems.append(f"{page}: {field}: {problem}")
     return problems

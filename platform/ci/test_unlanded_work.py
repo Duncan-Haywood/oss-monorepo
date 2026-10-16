@@ -217,6 +217,12 @@ class TestSweep(Fixture):
         self.push("gh-pages")
         self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
 
+    def test_archive_branches_are_never_reported(self):
+        self.branch("archive/research/claude/old-work")
+        self.commit("a.txt", "a\n", "kept from oss-research-monorepo")
+        self.push("archive/research/claude/old-work")
+        self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
+
 
 class TestMain(Fixture):
     def test_exit_codes_and_output(self):

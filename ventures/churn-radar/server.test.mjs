@@ -53,6 +53,21 @@ test("at-risk, per-account and model endpoints answer from the trained model", a
   srv.close();
 });
 
+test("digest gives a numbered, paste-ready list, as JSON, plain text and through the SDK", async () => {
+  const { srv, call, base } = await boot(seeded());
+  const d = await (await call("GET", "/v1/digest?limit=3")).json();
+  assert.ok(d.count > 0 && d.count <= 3 && d.accounts.length === d.count);
+  const lines = d.text.split("\n");
+  assert.match(lines[0], /to talk to this week/); assert.match(lines[1], /^1\. \S+ \(risk \d+%\)/);
+  const txt = await call("GET", "/v1/digest?limit=3&format=text");
+  assert.match(txt.headers.get("content-type"), /text\/plain/); assert.equal((await txt.text()).trim(), d.text);
+  assert.deepEqual((await createRadar({ url: base, key: KEY }).digest(3)).text, d.text);
+  assert.equal((await fetch(base + "/v1/digest")).status, 401);
+  srv.close();
+  const empty = await boot(); const e = await (await empty.call("GET", "/v1/digest")).json();
+  assert.equal(e.count, 0); assert.match(e.text, /no account is above/); empty.srv.close();
+});
+
 test("a Stripe subscription.deleted webhook marks the account churned; bad signatures are refused", async () => {
   const { srv, base, state } = await boot();
   E.ingest(state, { id: "e1", account: "cus_9", timestamp: NOW - 20 * E.DAY }, NOW);

@@ -50,14 +50,14 @@
   <section class="card">
     <h2>1. The event</h2>
     <div class="row">
-      <div><label for="guests">Guests</label><input type="number" id="guests" min="1" step="1" value="100"></div><div><label for="hours">Bar open (hours)</label><input type="number" id="hours" min="0.5" step="any" value="4"></div>
+      <div><label for="guests">Guests</label><input type="number" id="guests" min="0" step="1" value="100"></div><div><label for="hours">Bar open (hours)</label><input type="number" id="hours" min="0" step="any" value="4"></div>
       <div><label for="service">Service</label><select id="service"><option value="full-bar">Full bar (we supply alcohol)</option><option value="beer-wine">Beer and wine (we supply)</option><option value="service-only">Service only (client supplies alcohol)</option></select></div>
       <div><label for="gpb">Guests per bartender</label><input type="number" id="gpb" min="0" step="1" value="50"></div>
     </div>
     <h2 style="margin-top:18px">2. Your costs</h2>
     <div class="row">
       <div><label for="rate">Bartender pay ($/h)</label><input type="number" id="rate" min="0" step="any" value="30"></div><div><label for="min">Call minimum (h)</label><input type="number" id="min" min="0" step="any" value="4"></div><div><label for="setup">Setup + teardown (h)</label><input type="number" id="setup" min="0" step="any" value="1.5"></div>
-      <div><label for="miles">One-way miles</label><input type="number" id="miles" min="0" step="any" value="25"></div><div><label for="ins">Insurance / permit ($)</label><input type="number" id="ins" min="0" step="any" value="150"></div><div><label for="margin">Target margin (%)</label><input type="number" id="margin" min="0" step="any" value="40" max="94"></div><div><label for="ask">Client's ask ($ per guest, optional)</label><input type="number" id="ask" min="0" step="any" value=""></div>
+      <div><label for="miles">One-way miles</label><input type="number" id="miles" min="0" step="any" value="25"></div><div><label for="ins">Insurance / permit ($)</label><input type="number" id="ins" min="0" step="any" value="150"></div><div><label for="margin">Target margin (%)</label><input type="number" id="margin" min="0" step="any" value="40"></div><div><label for="ask">Client's ask ($ per guest, optional)</label><input type="number" id="ask" min="0" step="any" value=""></div>
     </div>
     <p>
       <button type="button" id="calc">Build quote</button>

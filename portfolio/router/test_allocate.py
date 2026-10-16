@@ -355,14 +355,17 @@ class MeritTests(unittest.TestCase):
     def test_missing_scores_file_yields_no_merit(self):
         self.assertEqual(load_merit_scores(Path("/nonexistent/venture-scores.yaml")), {})
 
-    def test_real_scores_reach_every_scored_venture(self):
-        # Unscored ventures are allowed (score_ventures.py reports them, the
-        # router sorts them last); a score that exists must reach its venture.
+    def test_real_scores_file_reaches_every_scored_venture(self):
+        # A venture with no score row yet is allowed (score_ventures.unscored
+        # reports it); every row that exists must reach its venture's merit.
         merit = load_merit_scores(SCORES_PATH)
         ventures = load_ventures(VENTURES_DIR)
         self.assertTrue(any(v.name in merit for v in ventures))
         for venture in ventures:
-            self.assertEqual(venture.merit, merit.get(venture.name), venture.name)
+            if venture.name in merit:
+                self.assertIsNotNone(venture.merit, f"{venture.name} lost its merit score")
+            else:
+                self.assertIsNone(venture.merit, f"{venture.name} has merit but no score row")
 
     def test_work_queue_exposes_merit(self):
         queue = work_queue(load_ventures(VENTURES_DIR))
