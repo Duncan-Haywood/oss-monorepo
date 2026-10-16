@@ -57,7 +57,9 @@ python3 prompts/promptctl.py record --track <track> --version <n> --session <ses
 
 Fill in the record it writes under `prompts/runs/`: at least `outcome`, `pr`,
 `errors`, `integrity_issues`, `doc_friction` and `deviations`, plus anything
-else you can observe. Take the model from the session's metadata, not from memory. Write
+else you can observe. Then measure what the run cost, from its own transcript:
+`python3 prompts/runcost.py attach <record> --human-hours <h> --human-basis "<how>"`
+(tokens, models, time and API-equivalent dollars; `prompts/README.md`). Take the model from the session's metadata, not from memory. Write
 `null` for anything you cannot see, and redact secrets and personal data from
 `input`. Commit the record as the last commit on your work branch, so it lands
 in the same pull request as the work. A run with nothing to merge commits no

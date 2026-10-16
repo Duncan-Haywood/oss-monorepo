@@ -16,6 +16,8 @@ prompts/process/reports/   one process study per file (the process track)
 prompts/experiments.md     every change the review track makes, and its result
 prompts/drift/             drift reports: does the work still match the owner's words?
 prompts/promptctl.py       route | record | measure | validate
+prompts/runcost.py         measure | attach | report: what a run cost
+prompts/pricing.json       list prices runcost.py uses, and the human hourly rate
 ```
 
 ## The loop
@@ -61,6 +63,29 @@ A documentation change reaches every run at once, so it cannot be A/B tested.
 It is judged by a before and after comparison instead, which is weaker
 evidence; the log should say so.
 
+## What a run cost
+
+`runcost.py attach` writes a `usage` block into the run record from the
+session's own Claude Code transcript (`~/.claude/projects/*/<session>.jsonl`,
+subagent transcripts included). It records, per model that answered:
+requests, input, output, thinking, cache-read and cache-write tokens, and the
+API-equivalent dollars at the list prices in `pricing.json`. It also records
+time (wall, active = model + tools, waiting on a person, subagents), tool
+calls, the cache hit share, and the agent's own estimate of a human's active
+hours, priced at `pricing.json`'s rate (an owner-editable assumption).
+`leverage` is human-equivalent dollars over API-equivalent dollars. Each
+block states the certainty of each figure and what it does not count, such
+as compaction calls outside the transcript or a transcript lost to a
+container move. A session that opened several PRs slices with
+`--since`/`--until`.
+
+`runcost.py report` groups the measured records by model, track and prompt
+version: runs, successes, API dollars (total, median, per success), active
+minutes, human-equivalent dollars and leverage. `measure` shows the median
+API dollars per row. The review track reads both when deciding which models
+and prompts are worth their cost; compare groups only once each has about
+ten runs.
+
 ## Red team / blue team
 
 The `redteam` track gets 5-10% of runs (`goals.md`; `validate` enforces the
@@ -91,6 +116,8 @@ python3 prompts/promptctl.py record --track T --version N --session URL [--model
 python3 prompts/promptctl.py measure [--json]
 python3 prompts/promptctl.py backlog
 python3 prompts/promptctl.py validate
+python3 prompts/runcost.py attach prompts/runs/<record>.json --human-hours H --human-basis "..."
+python3 prompts/runcost.py report
 python3 prompts/redteam.py campaign|rerun|tally|targets
 python3 -m unittest discover -s prompts
 ```
