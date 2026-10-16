@@ -2578,8 +2578,6 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Generic-method comparison (no company or product named): same reasoning as the pages above.
   'social-preview-check/vs-checking-tags-by-eye.html',
   // Generic-method comparison (no company or product named): same reasoning as the pages above.
-  'solo-401k-contribution-calculator/vs-a-spreadsheet.html',
-  // Generic-method comparison (no company or product named): same reasoning as the pages above.
   'vending-machine-route-margin/vs-judging-a-location-by-gross-sales-alone.html',
 ]);
 
