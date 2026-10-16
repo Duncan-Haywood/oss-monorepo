@@ -32,7 +32,7 @@ rather than requested by that specific product's own users or friction),
 check that venture's row in `usage.yaml` first. Zero usage after a fair run
 (`PRODUCT_PLAYBOOK.md` §8) means spend the session on one of these instead:
 
-> **Superseded 2026-10-16** ([`docs/reports/2026-10-16-calculator-glut.md`](../docs/reports/2026-10-16-calculator-glut.md)):
+> **Superseded 2026-10-16** ([`docs/reports/2026-10-16-calculator-glut.md`](../../docs/reports/2026-10-16-calculator-glut.md)):
 > "new ventures first" is how 121 near-identical `*-bid-calculator` ventures and
 > 521 other calculators were built while none was ever measured. A new venture
 > is welcome when it is a genuinely different product (web or not), never another

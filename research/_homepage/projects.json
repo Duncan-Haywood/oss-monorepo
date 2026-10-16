@@ -2032,6 +2032,11 @@
      "summary": "A small finite-element check (stylised, preliminary; ideal elastic sheet, sharp inner corner, one design). Meshing the whole L of the 1.5&nbsp;mm, w&nbsp;=&nbsp;18.4&nbsp;mm design from <em>simdesign-bucklebound</em> as one hexahedral body, the lowest buckling factor under the design load (vertical arm in tension) is 4.01, above the closed-form 3.47 and the floor of 3. With the load reversed (arm in compression) it falls to 2.25, below the floor, a case the moment-only formula cannot see. Refinement moved the factors by under 2%. No fillet, no imperfections."
     },
     {
+     "slug": "simdesign-minwall",
+     "title": "Does relaxing the 1.2&nbsp;mm minimum-wall rule open thinner sheet gauges for the laser-cut bracket, or is the buckling floor what binds?",
+     "summary": "A small optimiser study (stylised, preliminary; the buckling factor is an unvalidated ideal-bar closed form). Relaxing the minimum wall from 1.2 to 1.0 or 0.8&nbsp;mm changes nothing at 1.5&nbsp;mm (31.0&nbsp;g in every cell) and does not by itself open 1.0&nbsp;mm sheet: with a buckling-factor floor of 3 no design exists at 0.8 or 1.0&nbsp;mm (the widest allowed web reaches a factor of only 1.5 at 1.0&nbsp;mm). With a floor of 1 and a minimum wall of 1.0&nbsp;mm or less, a 1.0&nbsp;mm design appears at 24.8&nbsp;g (w&nbsp;=&nbsp;22.7&nbsp;mm, factor 1.33, 2 of 3 seeds), 20% under the 1.5&nbsp;mm optimum, but a factor of 1.33 from an ideal-bar formula is no margin. Simulated results only."
+    },
+    {
      "slug": "simdesign-buckle15",
      "title": "Does the lightest 1.5&nbsp;mm bracket design clear buckling in a converged 3D eigenbuckling model?",
      "summary": "A small finite-element check (stylised, preliminary; ideal elastic clamped arms, one design). Meshing the 1.5&nbsp;mm, w&nbsp;=&nbsp;18.4&nbsp;mm design from <em>simdesign-bucklebound</em> with hexahedra at three resolutions, including two layers through the thickness, the governing vertical-arm buckling factor is 3.49 against 3.47 from the closed form (ratio 1.020 &rarr; 1.007 on refinement), so the design clears the floor of 3. The horizontal-arm formula is about 18% conservative. Nothing was made or tested."
@@ -2381,6 +2386,11 @@
      "slug": "eda-checkorder",
      "title": "In what order should an automated design loop run random, directed and formal checks?",
      "summary": "Replay of the <em>eda-verify</em> mutation log (91 mutants, 20 seeds), costing each check cascade in CPU seconds. Formal alone takes 16,354&nbsp;s for 47 kills and 16 equivalence proofs; random simulation first and formal only on the survivors takes about 7,500&nbsp;s and finds 66 of 66 killable mutants, a 54% saving. The order among the cheap stages changes the total by under 2%; the remaining cost is formal working on equivalent or timed-out mutants, which no ordering removes. Stylised: a re-analysis of one design, one solver and its timeouts; nothing new was simulated."
+    },
+    {
+     "slug": "eda-earlystop",
+     "title": "When can a check cascade stop formal verification early without losing kills?",
+     "summary": "Replay of the <em>eda-verify</em> mutation log with a time cap on the formal stage. Every formal kill in the log finished within 164&nbsp;s, while equivalence proofs take about 222&nbsp;s, so a 170&nbsp;s cap loses no kill (66 of 66 killable mutants still found) and saves 41% of the cascade's CPU, but gives up all 16 equivalence proofs; a 230&nbsp;s cap keeps 15 of them and saves 23%. Caps of 30&nbsp;s or less start losing kills. A cap learned from half the mutants worked on the other half when the training half contained formal kills and failed (1.6 of 29 kills lost) when it contained none. Stylised: one design, one solver, 91 mutants; nothing new was simulated."
     }
    ]
   },
@@ -2507,6 +2517,11 @@
      "slug": "mimic-anycontext-detect",
      "title": "Does a prompt-free human-vs-machine detector hold up on context families it never saw?",
      "summary": "Detector side of <code>mimic-anycontext</code>, run without an LLM because the model download was blocked. A TF-IDF n-gram logistic-regression detector is fitted on seven of eight RAID-derived families and scored on the eighth: mean AUROC 0.934 against 0.985 when fitted inside the family, worst on recipes (0.843), abstracts and wiki. Forty labelled target items close most of the gap on recipes. Held-out generators cost little (AUROC 0.90&ndash;1.00) and length does not explain it. Stylised: plain-prompt machine text only, one detector type; the prompt-optimising imitator is not tested."
+    },
+    {
+     "slug": "mimic-genshift",
+     "title": "Does a prompt-free human-vs-machine detector carry over to a generator or decoding it never saw?",
+     "summary": "The <code>mimic-contexts</code> n-gram detector fit on all eight RAID families, scored on text from a chat model or decoding left out of the fit (items split in two halves by <code>source_id</code>, halves swapped). AUROC falls from 0.991 to 0.978 (llama-chat), 0.983 to 0.971 (mistral-chat) and 0.981 to 0.959 (mpt-chat); leaving out sampling decoding costs 0.984 &rarr; 0.936 and greedy 0.989 &rarr; 0.964, with held-out wiki the weak spot (0.83 on sampling). Averaging the score over <em>k</em> same-source texts lifts AUROC from 0.971 (k=1) to 0.999 (k=4). Human batches are more varied than model batches (recipes distinct-2 0.589 against 0.373 for llama and 0.399 for mistral), but mpt-chat matches or exceeds human variety on poetry and reddit. Preliminary: plain-prompt RAID text, three chat models each present in only some families (generator and family partly confounded), one detector type, no LLM run."
     },
     {
      "slug": "mimic-surface",
