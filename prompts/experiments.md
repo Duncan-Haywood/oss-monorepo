@@ -389,3 +389,18 @@ field will.
   runs, 0 integrity issues. Audit and `merged` backfill skipped: remaining
   unknown records are mirrored or doc-only.
 - Result: (next review)
+
+## E18: measure PR facts and rework instead of typing them (2026-10-16, owner request)
+
+- Change: `prompts/derive.py` (new) measures `merged`, PR size, red-CI
+  commits and 14-day rework (reverts, follow-ups, line survival) into
+  `prompts/derived/`. `promptctl.summarise` falls back to the measured
+  `merged` and reports median survival. Review prompt step 1 runs it instead
+  of hand-filling records. Goal: "Measured, not typed" in `goals.md`.
+- Why: of 441 records, 31 typed `merged`, 18 `lines_added`, 10
+  `wall_minutes` and 5 `cost_usd`. Rework is a scoring measure in
+  `goals.md`, and no record had ever carried it.
+- Measure: `merged_unknown` in `measure`, before against after the first
+  `derive.py build`. Survival per prompt version and model, once rows have
+  about 10 closed windows each.
+- Result: (next review)

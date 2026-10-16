@@ -66,3 +66,10 @@ test("summary names the source and carries the disclaimer", () => {
   assert.ok(t.includes("Not tax advice"));
   assert.ok(t.includes("Extra tax from Section 24: GBP 3,000"));
 });
+
+test("both tax years are accepted and labelled; others are rejected", () => {
+  assert.equal(run({ year: 2025 }).label, "2025/26");
+  assert.equal(run({ year: 2026 }).label, "2026/27");
+  assert.equal(run({ year: "2026" }).label, "2026/27");
+  assert.deepEqual(run({ year: 2027 }).errors, ["Pick the tax year."]);
+});
