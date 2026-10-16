@@ -1,10 +1,10 @@
 {
-  "status": "open",
+  "status": "dropped",
   "owner": "agent",
   "opened": "2026-10-16",
   "source": "P021 split of P014",
   "pr": null,
-  "result": null,
+  "result": "Premise wrong: regen.mjs also regenerates and verifies the apex (front-door.mjs: pages, sitemap, feed, llms.txt). Run 2026-10-16: with the mirror deleted, regen --verify still runs front-door.mjs and guards the apex, so both checklist lines stay. Only the mirror half of regen goes; that is P024.",
   "history": [],
   "touches": [
     "platform/marketing/",
