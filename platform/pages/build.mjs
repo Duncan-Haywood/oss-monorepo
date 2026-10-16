@@ -3620,6 +3620,10 @@ const CATEGORY_RULES = [
         'photos-import-tools',
         // `quick-pick-survey` joined 2026-10-15 when it got a landing page and the catch-all hit 6: a survey engine, one hop from the individual-decision tools above.
         'quick-pick-survey',
+        // Three more joined 2026-10-16 when the catch-all hit 6: each is one individual or one-person operator pricing their own deal or kit.
+        'sawmill-custom-sawing-calculator',
+        'wholesale-real-estate-offer-calculator',
+        'world-clock-widget',
       ].includes(slug),
   },
 ];
