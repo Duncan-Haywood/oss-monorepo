@@ -10,6 +10,7 @@ import {
   compareSummary,
   comparisonText,
   loadItem,
+  priceForProfit,
   resolveChannels,
 } from "./calc.mjs";
 
@@ -230,6 +231,33 @@ test("category presets carry a rate for every category-driven channel", () => {
   }
 });
 
+test("parity price: charging it on a channel nets exactly the best demand channel's profit", () => {
+  const item = loadItem(ITEM);
+  const rows = compareChannels(item);
+  const anchor = rows.filter((r) => r.demandIncluded)[0];
+  for (const row of rows) {
+    assert.equal(row.parityAnchorLabel, anchor.label);
+    const channel = resolveChannels(item).find((c) => c.id === row.id);
+    const repriced = calculateChannel(channel, { ...item, price: row.parityPrice });
+    assert.ok(Math.abs(repriced.profit - anchor.profit) < 1e-9, row.id);
+  }
+  assert.ok(Math.abs(rows.find((r) => r.id === anchor.id).parityPrice - item.price) < 1e-9);
+});
+
+test("parity price ignores an own-store row that wins on fees but brings no buyers", () => {
+  const item = loadItem({ ...ITEM, monthlyOrders: 5000 });
+  const rows = compareChannels(item);
+  assert.ok(rows.every((r) => r.parityAnchorLabel !== "Your own Shopify store"));
+});
+
+test("priceForProfit nets out shipping the buyer paid and floors at zero", () => {
+  const item = loadItem({ ...ITEM, shippingCharged: 6 });
+  const channel = resolveChannels(item).find((c) => c.id === "ebay");
+  const price = priceForProfit(channel, item, 10);
+  assert.ok(Math.abs(calculateChannel(channel, { ...item, price }).profit - 10) < 1e-9);
+  assert.equal(priceForProfit(channel, loadItem({ price: 1, itemCost: 0, shippingCcharged: 50 }), -100), 0);
+});
+
 test("Depop (US) charges 3.3% plus $0.45 on item and buyer-paid shipping, nothing else", () => {
   const item = loadItem({ price: 40, shippingCharged: 6, itemCost: 10 });
   const row = compareChannels(item).find((r) => r.id === "depop");
@@ -244,4 +272,11 @@ test("Facebook Marketplace shipped fee is 10% but never below $0.80", () => {
   assert.equal(find(5).channelFees, 0.8);
   // Break-even sits on the floor branch for a cheap item: price = 0.80 + cost.
   assert.ok(Math.abs(find(5).breakEvenPrice - 1.8) < 1e-9);
+});
+
+test("parity price honours a minimum-fee floor", () => {
+  const item = loadItem({ price: 5, itemCost: 1 });
+  const channel = resolveChannels(item).find((c) => c.id === "facebook");
+  const price = priceForProfit(channel, item, 0.5);
+  assert.ok(Math.abs(calculateChannel(channel, { ...item, price }).profit - 0.5) < 1e-9);
 });

@@ -226,6 +226,7 @@
               <th scope="col">Net profit</th>
               <th scope="col">Margin</th>
               <th scope="col">Break-even price</th>
+              <th scope="col"><span id="parityHead">Price to match the best channel</span></th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>
@@ -485,6 +486,9 @@
     lastRun = { item, rows };
 
     el("verdict").textContent = compareSummary(rows);
+    el("parityHead").textContent = rows[0].parityAnchorLabel
+      ? `Price to net what ${rows[0].parityAnchorLabel} does`
+      : "Price to match the best channel";
     el("rows").innerHTML = rows.map((row, index) => {
       const subscription = row.monthlyFee > 0
         ? `<span class="row-note"><br>includes ${money(row.subscriptionPerOrder)} of ${money(row.monthlyFee)}/mo${row.monthlyFeeNote ? ` (${escapeHtml(row.monthlyFeeNote)})` : ""}</span>`
@@ -496,6 +500,7 @@
         <td class="${row.profit >= 0 ? "profit-good" : "profit-bad"}">${money(row.profit)}</td>
         <td>${row.margin.toFixed(1)}%</td>
         <td>${money(row.breakEvenPrice)}</td>
+        <td>${row.parityPrice === undefined ? "—" : money(row.parityPrice)}${row.parityPrice !== undefined && Math.abs(row.parityPrice - item.price) >= 0.005 ? `<span class="row-note"><br>${row.parityPrice > item.price ? "+" : "-"}${money(Math.abs(row.parityPrice - item.price))} vs your price</span>` : ""}</td>
       </tr>`;
     }).join("");
 
