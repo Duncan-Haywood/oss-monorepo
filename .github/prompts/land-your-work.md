@@ -73,6 +73,11 @@ your PR merges, open a **new** PR for the follow-up. Reusing the same branch
 is fine, and `unlanded_work.py` names the old PR and tells you to. Never end a
 session on a push to a merged PR's branch.
 
+**Never push a branch that holds nothing beyond `main`.** Resetting to
+`origin/main` after the merge is fine locally, but pushing it recreates the
+branch cleanup just deleted (872 of 875 surviving merged-PR branches on
+2026-10-16). Push again only once it has a new commit, and open a new PR for it.
+
 ## Not shipping something? Leave nothing to push
 
 Cloud sessions push their branch before stopping, so "leave `main` alone"

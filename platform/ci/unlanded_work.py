@@ -181,6 +181,16 @@ def earlier_prs(probe, tip_ref, base_ref):
     return sorted(numbers)
 
 
+def is_ancestor(probe, tip_ref, base_ref):
+    """True when every commit on tip_ref is already on base_ref."""
+    proc = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", tip_ref, base_ref],
+        cwd=probe, capture_output=True, text=True,
+        env=dict(os.environ, GIT_TERMINAL_PROMPT="0"),
+    )
+    return proc.returncode == 0
+
+
 def uncommitted_paths(repo):
     out = git(["status", "--porcelain", "--untracked-files=normal"], repo)
     return [line[3:] for line in out.splitlines() if line.strip()]
@@ -270,6 +280,15 @@ def check_branch(repo, remote="origin", base="main", probe=None):
         else:
             lines.append(f"    Open a pull request from {branch}, verify it, and merge it.")
         report.problems.append("\n".join(lines))
+    elif is_ancestor(probe, tip_ref, base_ref):
+        # Nothing is lost, so not a problem -- but this push recreated a
+        # spent branch (872 of 875 surviving merged-PR branches, 2026-10-16).
+        report.notes.append(
+            f"{remote}/{branch} holds nothing beyond {base}: it was pushed with no "
+            "new commit (often a reset to main after a merge).\n"
+            "  Do not push a spent branch; push it again only with a new commit, "
+            "and open a new PR. branch_cleanup.py deletes it otherwise."
+        )
     elif carrying:
         prs = ", ".join(f"#{n}" for n in carrying)
         report.notes.append(
