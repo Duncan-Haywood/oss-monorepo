@@ -84,7 +84,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/trade-bid-studio/"/>
     <id>tag:marisstella.dev,2026:tool/trade-bid-studio</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free bid calculator for any trade: turn labor hours, materials, subs, overhead and a target margin into a price, your walk-away number, and what a competitor&#39;s lower quote actually leaves you. Plus 121 trade-specific bid calculators.</summary>
   </entry>
   <entry>
@@ -92,7 +92,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/workflow-audit/"/>
     <id>tag:marisstella.dev,2026:tool/workflow-audit</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Add one free GitHub Action to scan your workflows for script injection, pwn requests, cache and artifact poisoning, leaked secrets, over-broad permissions and more. Read-only, zero dependencies, SARIF and step-summary output, no network calls.</summary>
   </entry>
   <entry>
