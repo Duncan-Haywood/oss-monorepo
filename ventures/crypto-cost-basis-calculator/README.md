@@ -11,6 +11,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - CSV parsing with exchange-style header aliases, lot matching,
   holding periods, per-wallet books, tax netting and the Form 8949 style export.
+- `importers.mjs` - Coinbase and Kraken export readers that produce the plain CSV `calc.mjs` reads (unpriced rows left empty and flagged, never zero).
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `fifo-vs-hifo-crypto-cost-basis.html` - guide with a worked example that the
   test suite recomputes.
