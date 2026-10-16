@@ -637,7 +637,7 @@ test('every channel with a handoff has a parity assertion in this file', () => {
   // channel that can hand an item to a dedicated calculator is a new chance
   // for the two to disagree, so it must be named here -- and if it is not,
   // this fails naming it, instead of waiting for a seller to find the gap.
-  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx', 'mercari']);
+  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx', 'mercari', 'depop', 'facebook-marketplace']);
   const missing = HANDOFFS.map((entry) => entry.channel).filter((channel) => !asserted.has(channel));
   assert.deepEqual(
     missing,

@@ -498,3 +498,32 @@ test("scheduleFlags: daily hours, split shifts, notice", () => {
   assert.equal(scheduleFlags(r).notice, null);
   assert.equal(scheduleFlags({}).overDaily.length, 0);
 });
+
+test("fixed: pins a shift to one person and the rest is planned around it", async () => {
+  const { parseStaff, parseShifts, buildRoster } = await import("./calc.mjs");
+  const staff = parseStaff("Ana, 10, 40, 0, any\nBen, 30, 40, 0, any").staff;
+  // Ben is far dearer, so only the pin puts him on Monday's shift.
+  const free = buildRoster(staff, parseShifts("Mon, 9, 17, 1").slots);
+  assert.equal(free.assignments[0].person, "Ana");
+  const pinned = parseShifts("Mon, 9, 17, 1, fixed: ben\nTue, 9, 17, 1");
+  assert.deepEqual(pinned.errors, []);
+  assert.equal(pinned.slots[0].fixed, "ben");
+  assert.equal(pinned.slots[0].label, "");
+  assert.equal(pinned.slots[0].role, "");
+  const r = buildRoster(staff, pinned.slots);
+  assert.equal(r.assignments[0].person, "Ben");
+  assert.equal(r.assignments[1].person, "Ana");
+});
+
+test("fixed: copies, unavailable person, unknown name", async () => {
+  const { parseStaff, parseShifts, buildRoster } = await import("./calc.mjs");
+  const staff = parseStaff("Ana, 10, 40, 0, Mon 9-12\nBen, 30, 40, 0, any").staff;
+  const two = parseShifts("Wed, 9, 17, 2, fixed: Ben");
+  assert.deepEqual(two.slots.map((s) => s.fixed), ["Ben", ""]);
+  const un = buildRoster(staff, parseShifts("Mon, 9, 17, 1, fixed: Ana").slots);
+  assert.equal(un.unfilledSlots, 1);
+  assert.match(un.unfilled[0].reason || JSON.stringify(un.unfilled[0]), /pinned/);
+  const ghost = buildRoster(staff, parseShifts("Mon, 9, 17, 1, fixed: Zed").slots);
+  assert.ok(ghost.warnings.some((w) => /Zed/.test(w)));
+  assert.ok(parseShifts("Mon, 9, 17, 1, fixed:").errors.length);
+});

@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import {
   applyRainouts, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs,
-  scheduleText, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, bracketText, sampleFields, encodeFields, decodeFields,
+  scheduleText, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, bracketText, sampleFields, encodeFields, decodeFields,
+  splitPools, buildPoolPlay, poolAdvancers,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -445,4 +446,45 @@ test("rainout moves keep a time-limited team at its time", () => {
 test("time limits survive a share link", () => {
   const f = { ...sampleFields(), timeLimits: "Lob Squad: 18:00" };
   assert.equal(decodeFields(encodeFields(f)).timeLimits, "Lob Squad: 18:00");
+});
+
+test("league web page is self-contained, escapes names, and lists every match", () => {
+  const { spec } = readSpec({ ...sampleFields(), teams: "Fish <b>&Chips\nOwls\nHawks\nWolves\nBears" });
+  const s = buildSchedule(spec);
+  const html = leaguePageHtml(s, { title: "Spring <League>", table: standings(s.teams, []), bracket: playoffBracket(s.teams.slice(0, 4)) });
+  assert.ok(html.startsWith("<!doctype html>"));
+  assert.ok(!html.includes("<b>&Chips") && html.includes("Fish &lt;b&gt;&amp;Chips"));
+  assert.ok(html.includes("Spring &lt;League&gt;") && html.includes("<h2>Standings</h2>") && html.includes("<h2>Play-offs</h2>"));
+  assert.equal((html.match(/<tr data-t="\d+ \d+">/g) || []).length, s.rounds.reduce((n, r) => n + r.matches.length, 0));
+  assert.ok(!/(src|href)=["']https?:/.test(html), "no external requests");
+  assert.equal((html.match(/class="bye"/g) || []).length, s.rounds.filter((r) => r.bye !== null && r.bye !== undefined).length);
+});
+
+test("snake pools spread the seeds and differ in size by at most one", () => {
+  const pools = splitPools(names(10), 3);
+  assert.deepEqual(pools.map((p) => p.name), ["Pool A", "Pool B", "Pool C"]);
+  assert.deepEqual(pools[0].teams, ["Team 1", "Team 6", "Team 7"]);
+  assert.deepEqual(pools[2].teams, ["Team 3", "Team 4", "Team 9", "Team 10"]);
+  assert.equal(pools.flatMap((p) => p.teams).length, 10);
+  assert.throws(() => splitPools(names(5), 3), /at least 6/);
+});
+
+test("pool play builds a valid round robin per pool, honouring a team's blackout", () => {
+  const spec = baseSpec(8, { blackouts: { 1: [D("2026-10-06")] } });
+  const play = buildPoolPlay(spec, 2);
+  assert.equal(play.length, 2);
+  for (const p of play) {
+    assert.equal(validateSchedule(p.schedule).ok, true);
+    assert.equal(p.schedule.teams.length, 4);
+  }
+  const b = play[1].schedule; // Team 2 is in Pool B
+  assert.ok(b.teams.includes("Team 2"));
+  const idx = b.teams.indexOf("Team 2");
+  assert.ok(!b.rounds[0].matches.some((m) => m.home === idx || m.away === idx) || b.rounds[0].day !== D("2026-10-06"));
+});
+
+test("pool advancers seed winners, then runners-up, best record first", () => {
+  const A = standings(["a1", "a2", "a3"], [{ a: 0, b: 1, ga: 2, gb: 0 }, { a: 0, b: 2, ga: 1, gb: 0 }, { a: 1, b: 2, ga: 1, gb: 0 }]);
+  const B = standings(["b1", "b2", "b3"], [{ a: 0, b: 1, ga: 5, gb: 0 }, { a: 0, b: 2, ga: 5, gb: 0 }, { a: 1, b: 2, ga: 0, gb: 0 }]);
+  assert.deepEqual(poolAdvancers([A, B], 2), ["b1", "a1", "a2", "b2"]);
 });

@@ -1,0 +1,39 @@
+32 points: P = 8 lanes, 2 random problems each, int4 weights, int8 inputs, 24-bit accumulators; Yosys to SKY130 HD tt_025C_1v80.
+bit-exact against NumPy in all runs: True; counts identical across the 2 problems: True
+WS cycles and weight/activation fetches identical across the three WS modes: True
+accumulator bits written per problem identical across all four modes at each point: True
+per-cycle clock-pin energy from the liberty file: dfxtp_1 46.4 fJ, dlclkp_1 39.7 fJ (ratio 0.86); areas um2: dfxtp_1 20.0192, dlclkp_1 17.5168, mux2_1 11.2608, edfxtp_1 30.0288
+
+shape      B design         cycles  w_fetch  flops  gates   cells   area_um2  area/OS  area/ungated  clk_fJ/cyc  clk/OS  clk/ungated
+L1 64x70   2 OS              1122     8960    407     0    3182      26887     1.00         0.79        8901    1.00        0.50
+L1 64x70   2 WS ungated      1122     4480    599     0    4075      33959     1.26         1.00       17802    2.00        1.00
+L1 64x70   2 WS gate/acc     1122     4480    599    16    3515      31623     1.18         0.93        9519    1.07        0.53
+L1 64x70   2 WS gate/set     1122     4480    599     2    3474      31241     1.16         0.92        8964    1.01        0.50
+L1 64x70   4 OS              2242    17920    409     0    2946      26933     1.00         0.48        8901    1.00        0.25
+L1 64x70   4 WS ungated      2242     4480    985     0    6034      55841     2.07         1.00       35603    4.00        1.00
+L1 64x70   4 WS gate/acc     2242     4480    985    32    5104      50715     1.88         0.91       10162    1.14        0.29
+L1 64x70   4 WS gate/set     2242     4480    985     4    4992      48834     1.81         0.87        9052    1.02        0.25
+L1 64x70   8 OS              4482    35840    411     0    3214      26868     1.00         0.28        8901    1.00        0.12
+L1 64x70   8 WS ungated      4482     4480   1755     0   10042      96178     3.58         1.00       71207    8.00        1.00
+L1 64x70   8 WS gate/acc     4482     4480   1755    64    7656      82377     3.07         0.86       11435    1.28        0.16
+L1 64x70   8 WS gate/set     4482     4480   1755     8    7600      81464     3.03         0.85        9214    1.04        0.13
+L1 64x70  16 OS              8962    71680    413     0    3218      26945     1.00         0.16        8901    1.00        0.06
+L1 64x70  16 WS ungated      8962     4480   3293     0   17720     172553     6.40         1.00      142413   16.00        1.00
+L1 64x70  16 WS gate/acc     8962     4480   3293   128   13327     145148     5.39         0.84       13975    1.57        0.10
+L1 64x70  16 WS gate/set     8962     4480   3293    16   13239     142873     5.30         0.83        9533    1.07        0.07
+L2 11x64   2 OS               258     1408    402     0    3161      26365     1.00         0.79        8901    1.00        0.50
+L2 11x64   2 WS ungated       258      704    594     0    4070      33578     1.27         1.00       17802    2.00        1.00
+L2 11x64   2 WS gate/acc      258      704    594    16    3457      31261     1.19         0.93        9466    1.06        0.53
+L2 11x64   2 WS gate/set      258      704    594     2    3463      31126     1.18         0.93        8911    1.00        0.50
+L2 11x64   4 OS               514     2816    404     0    3187      26231     1.00         0.47        8901    1.00        0.25
+L2 11x64   4 WS ungated       514      704    980     0    6098      55652     2.12         1.00       35603    4.00        1.00
+L2 11x64   4 WS gate/acc      514      704    980    32    5028      50490     1.92         0.91       10135    1.14        0.28
+L2 11x64   4 WS gate/set      514      704    980     4    4876      48468     1.85         0.87        9025    1.01        0.25
+L2 11x64   8 OS              1026     5632    406     0    3193      26311     1.00         0.27        8901    1.00        0.12
+L2 11x64   8 WS ungated      1026      704   1750     0    9967      95986     3.65         1.00       71207    8.00        1.00
+L2 11x64   8 WS gate/acc     1026      704   1750    64    7753      82276     3.13         0.86       11422    1.28        0.16
+L2 11x64   8 WS gate/set     1026      704   1750     8    7671      81240     3.09         0.85        9201    1.03        0.13
+L2 11x64  16 OS              2050    11264    408     0    3204      26387     1.00         0.15        8901    1.00        0.06
+L2 11x64  16 WS ungated      2050      704   3288     0   17572     173275     6.57         1.00      142413   16.00        1.00
+L2 11x64  16 WS gate/acc     2050      704   3288   128   13187     144186     5.46         0.83       13968    1.57        0.10
+L2 11x64  16 WS gate/set     2050      704   3288    16   13047     142389     5.40         0.82        9527    1.07        0.07

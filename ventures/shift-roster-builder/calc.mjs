@@ -113,6 +113,8 @@ export function parseAvailability(text) {
 
 // Roles: "roles: cook|server" on a person, "role: cook" on a shift (lower-cased, matched exactly).
 const ROLE_CELL = /^roles?\s*:/i;
+const FIXED_CELL = /^(fixed|pin|pinned)\s*:/i;
+const parseFixed = (cell) => cell.replace(FIXED_CELL, "").split(/[|/&+]/).map((r) => r.trim()).filter(Boolean);
 const parseRoles = (cell) => cell.replace(ROLE_CELL, "").split(/[|/&+]/).map((r) => r.trim().toLowerCase()).filter(Boolean);
 
 // "prev: Sun 10pm" = when this person's last shift LAST week ended, so the rest rule also holds across the week boundary.
@@ -226,12 +228,16 @@ export function parseShifts(text) {
     if (a === b) { errors.push(`${where}: start and end are the same`); return; }
     const count = (c[3] || "") === "" ? 1 : Number(c[3]);
     if (!Number.isInteger(count) || count < 1 || count > 50) { errors.push(`${where}: people needed must be a whole number from 1 to 50`); return; }
-    const label = ROLE_CELL.test(c[4] || "") ? "" : (c[4] || "");
+    const label = ROLE_CELL.test(c[4] || "") || FIXED_CELL.test(c[4] || "") ? "" : (c[4] || "");
     const roleCell = c.slice(4).find((x) => ROLE_CELL.test(x));
-    const role = roleCell ? parseRoles(roleCell)[0] || "" : (c[5] || "").trim().toLowerCase();
+    const role = roleCell ? parseRoles(roleCell)[0] || "" : FIXED_CELL.test(c[5] || "") ? "" : (c[5] || "").trim().toLowerCase();
+    // "fixed: Sam" pins every copy to Sam; "fixed: Sam + Ana" pins copy 1 to Sam, copy 2 to Ana; extra copies stay open.
+    const fixedCell = c.slice(4).find((x) => FIXED_CELL.test(x));
+    const fixedNames = fixedCell ? parseFixed(fixedCell) : [];
+    if (fixedCell && !fixedNames.length) { errors.push(`${where}: "fixed:" needs a name`); return; }
     for (const d of days) for (let k = 0; k < count; k++) {
       const end = b <= a ? b + 1440 : b; // an end at or before the start runs overnight
-      slots.push({ day: d, startMin: a, endMin: end, start: d * 1440 + a, end: d * 1440 + end, label, role, copy: k + 1, of: count });
+      slots.push({ day: d, startMin: a, endMin: end, start: d * 1440 + a, end: d * 1440 + end, label, role, copy: k + 1, of: count, fixed: fixedNames[k] || "" });
     }
   });
   if (!slots.length && !errors.length) errors.push("Add at least one shift to cover.");
@@ -263,6 +269,7 @@ function qualified(person, slot) {
 
 function available(person, slot) {
   if (!qualified(person, slot)) return false;
+  if (slot.fixed && slot.fixed.toLowerCase() !== person.name.toLowerCase()) return false;
   const first = person.days[slot.day];
   const stop = Math.min(slot.endMin, 1440);
   if (!first.some(([a, b]) => a <= slot.startMin && b >= stop)) return false;
@@ -530,7 +537,9 @@ function whyUnfilled(ctx, owner, i) {
   }
   let text;
   const skilled = slot.role ? ctx.staff.filter((p) => qualified(p, slot)).length : ctx.P;
-  if (slot.role && skilled === 0) text = `nobody listed has the role "${slot.role}"`;
+  const pinned = slot.fixed && ctx.staff.some((p) => p.name.toLowerCase() === slot.fixed.toLowerCase());
+  if (pinned && why.free === 0) text = `${slot.fixed} is pinned to this shift but is not available for the whole of it`;
+  else if (slot.role && skilled === 0) text = `nobody listed has the role "${slot.role}"`;
   else if (why.free === 0) text = slot.role ? `nobody with the role "${slot.role}" is available for this whole shift` : "nobody listed is available for this whole shift";
   else {
     const bits = [];
@@ -594,6 +603,8 @@ export function buildRoster(staff, slots, options = {}) {
   staff.forEach((p, k) => {
     if (!ctx.elig[k].some(Boolean)) warnings.push(`${p.name} is not available for any of the shifts, so they get no hours.`);
   });
+  const known = new Set(staff.map((p) => p.name.toLowerCase()));
+  slots.forEach((s) => { if (s.fixed && !known.has(s.fixed.toLowerCase())) warnings.push(`A shift is pinned to "${s.fixed}", who is not in the staff list, so nobody can take it.`); });
   const capHours = staff.reduce((t, p) => t + p.maxHours, 0);
   if (capHours < ctx.totalHours) warnings.push(`The shifts add up to ${num(ctx.totalHours)} hours but everyone's weekly limits together are ${num(capHours)}, so some shifts cannot be filled.`);
   res.people.forEach((p) => {

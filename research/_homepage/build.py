@@ -47,6 +47,12 @@ def plain(s):
     return html.unescape(re.sub(r"<[^>]+>", " ", s))
 
 
+def duplicate_bullets():
+    text = (RESEARCH / "README.md").read_text()
+    slugs = re.findall(r"^- \[`research/([\w-]+)`\]", text, re.M)
+    return sorted({s for s in slugs if slugs.count(s) > 1})
+
+
 def validate(data, ledes):
     projects = {p.name for p in RESEARCH.iterdir() if p.is_dir() and p.name[0] not in "_."}
     listed = [p["slug"] for t in data["themes"] for p in t["projects"]]
@@ -54,6 +60,7 @@ def validate(data, ledes):
     errors += [f"projects.json: missing research/{s}" for s in sorted(projects - set(listed))]
     errors += [f"projects.json: nonexistent research/{s}" for s in sorted(set(listed) - projects)]
     errors += [f"projects.json: research/{s} listed twice" for s in sorted({s for s in listed if listed.count(s) > 1})]
+    errors += [f"research/README.md: research/{s} has more than one bullet" for s in duplicate_bullets()]
     errors += [f"research/README.md: missing bullet for research/{s}" for s in sorted(projects - set(ledes))]
     errors += [f"research/README.md: bullet for nonexistent research/{s}" for s in sorted(set(ledes) - projects)]
     errors += [f"projects.json: featured research/{s} not listed" for s in data["featured"] if s not in listed]
