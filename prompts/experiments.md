@@ -448,3 +448,22 @@ field will.
   collecting. research/1 (8) under 10. Audit skipped: records mirrored or
   doc-only. `derive.py fetch` 403; `merged` left unknown.
 - Result: (next review)
+
+## E21: review/2 candidate and BrokenPipe fix (2026-10-16)
+
+- Change: `review/prompt-2.md` (candidate, share 0.2): the audit step says to
+  decide first whether anything is auditable and log "nothing auditable" if
+  not; step 1 says to run `build` on the cache after a 403. `promptctl.py`
+  exits quietly on a closed pipe (`measure | head`).
+- Why: review/1 friction (16 reports) is mostly "steps 1-2 unrunnable because
+  the remaining records are mirrored or doc-only".
+- Measure: friction reports per review run on steps 1-2, review/2 vs review/1.
+  Only ~1 review per 20 runs, so expect a slow verdict.
+- Candidates this window: ventures/2 (18 runs, 94%) vs ventures/1 (58, 93%):
+  intervals overlap, keep collecting. research/1 (10, 100%) vs research/0
+  (322, 98%): overlap, keep collecting. review/1: 15 runs, 73%, 0 integrity.
+- Audit: nothing auditable (new records mirrored or doc-only). `derive.py fetch`
+  fetched 16 of 18 PRs; `merged` still unknown for mirrored records.
+- Drift: no new owner words since 2026-10-16b. `CLAUDE.md` 467/500 (down from
+  475). See `prompts/drift/2026-10-16c.md`.
+- Result: (next review)

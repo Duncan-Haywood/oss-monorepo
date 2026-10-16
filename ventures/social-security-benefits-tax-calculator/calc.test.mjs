@@ -75,3 +75,31 @@ test("summary and csv render", () => {
   assert.match(summaryText(r), /Taxable benefits: \$12,150/);
   assert.match(sweepCsv(r), /^other_income,/);
 });
+
+test("a blank other-income field is an error, not zero", () => {
+  assert.ok(compute(raw({ other: "" })).errors.length > 0);
+  assert.ok(compute(raw({ other: null })).errors.length > 0);
+  assert.equal(compute(raw({ other: "0" })).errors.length, 0);
+});
+
+test("the tier label switches only above the second base", () => {
+  const at = (other) => taxableBenefits({ benefits: 20000, other, b1: 25000, b2: 34000 }).tier;
+  assert.equal(at(24000), "fifty"); // PI 34,000, exactly the second base
+  assert.equal(at(24001), "eighty-five");
+});
+
+test("nextEdge is the nearest tier edge above current other income", () => {
+  // benefits 30000: first edge at b1 - 15000 = 10,000; second at 34,000 - 15,000 = 19,000
+  assert.equal(compute(raw({ other: 5000 })).nextEdge, 10000);
+  assert.equal(compute(raw({ other: 12000 })).nextEdge, 19000);
+  const r = compute(raw({ other: 20000 }));
+  assert.ok(Math.abs(r.nextEdge - r.capIncome) < 1e-9);
+  assert.equal(compute(raw({ other: 90000 })).nextEdge, null);
+});
+
+test("the sweep includes its top row when the step divides it", () => {
+  // benefits 1000, bases 0 / 4000: top = 24,000, step = 2,000
+  const r = compute(raw({ benefits: 1000, other: 0, b1: 0, b2: 4000 }));
+  assert.equal(r.sweep.length, 13);
+  assert.equal(r.sweep.at(-1).other, 24000);
+});
