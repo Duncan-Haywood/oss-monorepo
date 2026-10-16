@@ -200,7 +200,7 @@ channels:
     code: platform/distribution/android.mjs
     workflow: none (artifact only; the owner builds, signs and uploads once per tool)
     enabled_by: nothing in the tree is gated; building the inputs is always allowed. Signing and uploading are the owner's steps
-    what_it_posts: nothing automatically. `android.mjs --build <slug> <dir>` writes a Bubblewrap Trusted Web Activity project input for any published venture page (1196 of 1251 today) - twa-manifest.json, a 512 px icon, an assetlinks template, a Play store listing with the data-safety answers (collects nothing) and BUILD.md. iOS has no offline equivalent; the Home Screen install of the PWA covers it.
+    what_it_posts: nothing automatically. `android.mjs --build <slug> <dir>` writes a Bubblewrap Trusted Web Activity project input for any published venture page (1196 of 1251 today) - twa-manifest.json, a 512 px icon, an assetlinks template, a Play store listing with the data-safety answers (collects nothing) and BUILD.md. The iOS counterpart is the ios-app-store channel below.
     dedupe: not applicable (no automated posting)
     terms_to_confirm_by_owner_when_enabling:
       - Google Play Developer Program Policies and distribution agreement (one-time registration fee, identity verification, a closed test for new personal accounts); agents did not read them live on build day
@@ -209,3 +209,17 @@ channels:
       - the signing keystore is created on first build and cannot be recovered if lost
     owner_ask: create a Play Console account, then build and upload one tool at a time following the generated BUILD.md
     dry_run: node platform/distribution/android.mjs
+  - id: ios-app-store
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/ios.mjs
+    workflow: none (artifact only; the owner generates the Xcode project, signs and uploads once per tool)
+    enabled_by: nothing in the tree is gated; building the inputs is always allowed. Signing, TestFlight and App Review are the owner's steps
+    what_it_posts: 'nothing automatically. `ios.mjs --build <slug> <dir>` writes an XcodeGen project input (project.yml, SwiftUI + WKWebView sources, an opaque 1024 px RGB icon, a privacy manifest declaring no tracking and no collected data, an App Store listing with the App Privacy answers, BUILD.md) for any static venture page the browser-extension packager accepts (1184 of 1251 today). The page and the files it imports are bundled and served over an app:// scheme whose Content-Security-Policy has connect-src none, so "collects nothing" is enforced; links leave for Safari, CSV exports open the share sheet. Unlike android-play-store it works offline from the bundle and needs no origin-root file.'
+    dedupe: not applicable (no automated posting)
+    not_verified: the Swift and project.yml were NOT compiled (no Xcode or Swift toolchain in the build session). Tests check structure only (balanced braces, JSON-as-YAML parses, icon is RGB, no network APIs). The owner runs it in the Simulator first (BUILD.md says so)
+    terms_to_confirm_by_owner_when_enabling:
+      - Apple Developer Program License Agreement (annual fee, identity verification) and App Review Guidelines, in particular 4.2 minimum functionality (repackaged websites are rejected; these are standalone offline tools) and 4.3 spam (do not submit hundreds of near-identical apps; start with the few tools people return to weekly); agents did not read them live on build day
+      - bundle ids are io.github.<owner>.<slug>; change one if Apple says it is taken
+    owner_ask: join the Apple Developer Program, then follow the generated BUILD.md for one tool at a time (Simulator, TestFlight, then App Review)
+    dry_run: node platform/distribution/ios.mjs

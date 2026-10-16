@@ -314,6 +314,13 @@ echo "Checking the built artifact..."
 # worth its one byte.
 : > "$dist/.nojekyll"
 
+# The development analyses (platform/devlog/): experiments, the process
+# backlog, process and drift reports, studies, and run-record friction, read
+# from files on main. Written after `check.mjs` like the deploy page: it is a
+# separate set of rendered documents, under the dev/ dashboard.
+echo "Building the development analyses..."
+node "$repo_root/platform/devlog/build.mjs" --out="$dist/dev/analyses" >/dev/null
+
 # The self-deploy page (platform/deploy/). Written after `check.mjs` because it
 # is a separate static app with its own tests, not a catalogue page: the hub
 # footer links to it (check.mjs exempts that one link), and `check.mjs` would read its 1,200 data files as

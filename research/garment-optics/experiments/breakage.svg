@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-scale line plot of effective sheet resistance against yarn break fraction: it rises from 1 to about 27 times one segment by 50 percent breakage, tracking the effective-medium estimate below 30 percent">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Garment optics: sheet resistance of a broken yarn grid</text>
+<line x1="64" x2="624" y1="309.6" y2="309.6" stroke="#ddd"/><text x="58" y="313.6" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="134.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">break fraction</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">Rs (units of one segment)</text>
+<polyline points="64.0,309.6 134.0,295.6 204.0,279.8 344.0,237.8 484.0,182.4 624.0,70.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#c0392b"/>
+<circle cx="134.0" cy="295.6" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="279.8" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="237.8" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="182.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">Monte Carlo median</text>
+<polyline points="64.0,309.6 134.0,295.3 204.0,279.3 344.0,240.1 484.0,185.0 624.0,90.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#1f6fb2"/>
+<circle cx="134.0" cy="295.3" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="279.3" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="240.1" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="185.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="90.8" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">effective-medium</text>
+</svg>

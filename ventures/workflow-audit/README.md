@@ -1,6 +1,6 @@
 # Workflow Audit
 
-One free GitHub Action (and zero-dependency CLI) that runs ten read-only
+One free GitHub Action (and zero-dependency CLI) that runs eleven read-only
 checks over `.github/workflows` and merges the findings into one
 severity-ranked report: job summary, JSON, Markdown or SARIF for Code
 Scanning. Nothing is uploaded and it makes no network calls.
@@ -35,7 +35,8 @@ Vendored copies, in `checks/`, of the sibling ventures `actions-injection-check`
 `actions-cache-poisoning-check`, `actions-self-hosted-exposure-check`,
 `actions-secrets-inherit-check`, `actions-permissions-check`,
 `actions-checkout-credentials-check`, `actions-runtime-deprecation-check` and
-`actions-timeout-check`. Each runs as a subprocess so one failure never hides
+`actions-timeout-check`, plus `checks/unpinned-action.py` (new here, no
+standalone venture yet). Each runs as a subprocess so one failure never hides
 the others. `test_audit.py` fails if a vendored copy drifts from its source
 venture: re-copy `check.py` to `checks/<name>.py` when it does.
 
@@ -49,9 +50,10 @@ dropped.
 ## Limits
 
 Pattern matching on YAML, not a security audit or compliance attestation. It
-cannot see what a called action or reusable workflow does, and it does not
-check unpinned action refs (see `actions-transitive-pin-check`). A clean report
-means these ten patterns were absent.
+cannot see what a called action or reusable workflow does, and it flags only direct
+`uses:` refs that are not a full commit SHA, not the refs inside actions they
+call (see `actions-transitive-pin-check`). A clean report
+means these eleven patterns were absent.
 
 ## Licence and support
 

@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           persist-credentials: false
       - run: echo hi
@@ -42,7 +42,7 @@ def repo(text):
 
 
 class AuditTests(unittest.TestCase):
-    def test_all_ten_checkers_are_vendored(self):
+    def test_all_checkers_are_vendored(self):
         for name, _, _ in audit.CHECKS:
             self.assertTrue((audit.CHECKS_DIR / f"{name}.py").exists(), name)
 
@@ -61,6 +61,38 @@ class AuditTests(unittest.TestCase):
         with repo(GOOD) as d:
             findings, errors = audit.audit(d)
         self.assertEqual((findings, errors), ([], []))
+
+    def test_unpinned_refs_are_graded_by_owner(self):
+        wf = """on: push
+permissions:
+  contents: read
+jobs:
+  b:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: "tj-actions/changed-files@v45"
+      - uses: ./local-action
+      - uses: ok/pinned@0123456789abcdef0123456789abcdef01234567 # v1
+      - uses: docker://alpine:3.20
+      - uses: org/repo/.github/workflows/x.yml@main
+"""
+        with repo(wf) as d:
+            findings, errors = audit.audit(d)
+        self.assertEqual(errors, [])
+        got = sorted((f["rule"], f["line"]) for f in findings)
+        self.assertEqual(got, [
+            ("unpinned-docker-action", 15),
+            ("unpinned-first-party-action", 9),
+            ("unpinned-third-party-action", 12),
+            ("unpinned-third-party-action", 16),
+        ])
+        sev = {f["rule"]: f["severity"] for f in findings}
+        self.assertEqual(sev["unpinned-third-party-action"], "medium")
+        self.assertEqual(sev["unpinned-first-party-action"], "low")
 
     def test_no_workflows_dir_is_clean(self):
         with tempfile.TemporaryDirectory() as d:
