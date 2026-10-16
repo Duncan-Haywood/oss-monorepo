@@ -394,7 +394,9 @@ def test_every_published_tool_is_reachable_by_slug_for() -> None:
             # than folded onto the hub.
             # `research` is the research portfolio's homepage, published by
             # build.mjs at RESEARCH_PATH, a top-level page like `about`.
-            | {"_hub", "about", "compare", "guides", "research", "404", "offline"}
+            # `engineering` is the engineering status page (engineering.mjs),
+            # another top-level page about the site rather than a tool.
+            | {"_hub", "about", "compare", "guides", "research", "engineering", "404", "offline"}
         )
         for page in sorted(out.rglob("*.html")):
             uri = "/" + page.relative_to(out).as_posix()
