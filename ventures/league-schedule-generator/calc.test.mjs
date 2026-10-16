@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
+  applyRainouts, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs,
   scheduleText, parseResults, standings, seedOrder, playoffBracket, bracketText, sampleFields, encodeFields, decodeFields,
 } from "./calc.mjs";
@@ -343,7 +343,7 @@ test("the example league validates and uses a makeup round for the blackout", ()
 });
 
 test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
-  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B" };
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
   assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60 });
@@ -352,4 +352,37 @@ test("share links round-trip every field, including non-ASCII names, and reject 
   assert.deepEqual(readSpec(again).spec.teams, readSpec(f).spec.teams);
   for (const junk of ["", null, "!!!", "bm90anNvbg", encodeFields({}).slice(0, 1), "W10"]) assert.equal(decodeFields(junk), null, String(junk));
   assert.equal(decodeFields(encodeFields({ weekdays: ["Tue", "Xyz"] })).weekdays.join(), "Tue");
+});
+
+test("rainout moves one team's match to the next free night and keeps the schedule valid", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00" });
+  const s = buildSchedule(spec);
+  const day = s.rounds[0].day;
+  const before = s.rounds.map((r) => r.matches.length).reduce((a, b) => a + b, 0);
+  const r = applyRainouts(s, `${dayIso(day)} A`);
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.moves.length, 1);
+  assert.ok(r.moves[0].to > day);
+  assert.equal(r.schedule.rounds.reduce((a, x) => a + x.matches.length, 0), before);
+  assert.equal(validateSchedule(r.schedule).ok, true, validateSchedule(r.schedule).errors.join(" "));
+  assert.equal(s.rounds[0].matches.length, 2, "input is not mutated");
+});
+
+test("rainout of a whole night moves every match and reports bad lines", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00" });
+  const s = buildSchedule(spec);
+  const day = s.rounds[0].day;
+  const r = applyRainouts(s, `${dayIso(day)}\n2030-01-01\n${dayIso(day)} Nobody`);
+  assert.equal(r.moves.length, 2);
+  assert.equal(r.errors.length, 3);
+  assert.ok(r.schedule.rounds.every((x) => x.day !== day));
+  assert.equal(validateSchedule(r.schedule).ok, true, validateSchedule(r.schedule).errors.join(" "));
+});
+
+test("rainout respects blackouts", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", blackouts: "A: 2026-10-13", courts: "Court 1, Court 2", times: "18:00" });
+  const s = buildSchedule(spec);
+  const r = applyRainouts(s, `${dayIso(s.rounds[0].day)} A`);
+  assert.ok(r.moves.every((m) => dayIso(m.to) !== "2026-10-13"));
+  assert.equal(validateSchedule(r.schedule).ok, true);
 });

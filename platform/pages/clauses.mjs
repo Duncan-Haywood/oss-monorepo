@@ -2567,6 +2567,18 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // The page names no software, vendor or manufacturer, and its own test
   // (page.test.mjs) pins that, so this exemption cannot quietly stop being true.
   'hvac-repair-tier-price-calculator/vs-quoting-one-repair-price.html',
+  // Generic-method comparison (no company or product named): same reasoning as the pages above.
+  'exempt-salary-threshold-checker/vs-checking-the-threshold-yourself.html',
+  // Generic-method comparison (no company or product named): same reasoning as the pages above.
+  'final-paycheck-deadline-calculator/vs-checking-the-deadline-yourself.html',
+  // Generic-method comparison (no company or product named): same reasoning as the pages above.
+  'hsa-contribution-limit-calculator/vs-doing-the-proration-math-by-hand.html',
+  // Generic-method comparison (no company or product named): same reasoning as the pages above.
+  'payment-reconciliation-workbench/vs-reconciling-in-a-spreadsheet.html',
+  // Generic-method comparison (no company or product named): same reasoning as the pages above.
+  'social-preview-check/vs-checking-tags-by-eye.html',
+  // Generic-method comparison (no company or product named): same reasoning as the pages above.
+  'vending-machine-route-margin/vs-judging-a-location-by-gross-sales-alone.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
