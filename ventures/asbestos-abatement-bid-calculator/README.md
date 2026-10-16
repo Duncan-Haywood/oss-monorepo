@@ -9,6 +9,8 @@ monitoring samples, waste disposal volume, and permit fees — which used to
 take a flat rate per square foot or a gut-feel number copied from the last
 similar job.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/
+
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. See [`vs-a-flat-rate-per-square-foot.html`](vs-a-flat-rate-per-square-foot.html)
 for the worked-example comparison against a flat per-square-foot quote, or

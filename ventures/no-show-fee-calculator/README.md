@@ -6,6 +6,8 @@ that turns your own price, booking volume, and no-show rate into a specific
 cancellation fee, an estimate of what no-shows cost you a year, and a
 ready-to-copy cancellation policy.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/
+
 **After using this, you can now** state and defend a specific
 no-show/late-cancellation fee, see whether a 24-hour or 48-hour notice
 window actually recovers more empty-slot cash on your waitlist, and hand

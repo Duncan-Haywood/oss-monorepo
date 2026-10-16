@@ -6,6 +6,8 @@ same month costs as hay, and the rent range where the landowner beats the altern
 beats feeding hay.** A drought table shows head and rent at 75% and 50% of the forage entered. Nothing is
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/grazing-lease-rate-calculator/
+
 After using this, you can now **tell what a pasture can carry and what rent per AUM both sides should
 accept**, which used to be a handshake number or a spreadsheet rebuilt for each lease.
 

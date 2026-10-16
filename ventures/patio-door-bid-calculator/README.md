@@ -6,6 +6,8 @@ loses money — extra panels, impact glass, a full-frame
 new-construction wrap, a transom, a sill pan, and balcony access as
 their own hours — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/patio-door-bid-calculator/
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts. Not yet deployed to a public URL —

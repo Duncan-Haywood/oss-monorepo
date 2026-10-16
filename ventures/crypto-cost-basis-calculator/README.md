@@ -7,6 +7,8 @@ splits each sale into short-term and long-term rows, compares the methods side b
 side with an estimated tax, lists the coins and basis still held, and exports
 Form 8949 style rows. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/crypto-cost-basis-calculator/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - CSV parsing with exchange-style header aliases, lot matching,

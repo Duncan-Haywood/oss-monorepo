@@ -6,6 +6,8 @@ pay you on Steam, Epic Games Store, itch.io and GOG after tax, refunds, the
 store's cut, payment-processor fees and withholding — plus copies to break
 even and copies to reach a profit you name.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/indie-game-payout-calculator/
+
 After using this, you can now see which storefront's terms leave you the most
 per copy and how many copies pay for the game, which used to take a spreadsheet
 and a re-read of four partner agreements.

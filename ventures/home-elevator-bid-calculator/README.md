@@ -7,6 +7,8 @@ hydraulic versus traction MRL, through-floor versus a new wood or
 masonry shaft versus glass, then a pit, a 240 V feeder, and a permit —
 and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/home-elevator-bid-calculator/
+
 **After using this, you can now** send a walk-away home-elevator
 price that sees the stops, the shaft, whether they already
 bought the unit, and whether they need it this Saturday after a

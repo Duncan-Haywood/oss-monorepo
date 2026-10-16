@@ -6,6 +6,8 @@ year across planting blocks, finds the payback year, the deepest cash hole, NPV
 and the blended price per tree needed to break even, and re-runs the plan across
 survival rates, prices and wholesale vs choose-and-cut. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/christmas-tree-farm-profit-planner/
+
 After using this, you can **see whether the 8-year wait pays, and what price or
 survival rate decides it**, before buying a single seedling.
 

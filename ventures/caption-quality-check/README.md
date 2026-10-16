@@ -5,6 +5,8 @@ commonly-used caption style-guide thresholds — the readability rules that
 sit on top of "captions exist," which is all WCAG 1.2.2 and Section 508
 actually require:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/caption-quality-check/
+
 - **Reading too fast** — characters-per-second above a configurable cap
   (default 20, a commonly-cited ceiling for adult-content captions).
 - **Invalid timing** — a cue's end time at or before its start time.

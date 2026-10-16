@@ -4,6 +4,8 @@ After using this, you know what your business expenses add up to, how much of
 that is deductible on each Schedule C line, which expenses are missing a receipt,
 and what to expect to save in tax.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/expense-tracker/
+
 Free, no account, no watermark, works offline. Everything runs in your browser;
 entries are stored in `localStorage` on your device and never uploaded.
 

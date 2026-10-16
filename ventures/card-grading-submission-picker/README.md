@@ -6,6 +6,8 @@ sell raw, the exact chance of a 10 each card needs to be worth sending, the down
 cards-per-submission limit, the exact best subset to send. Pokemon, baseball, basketball, football, Magic and any other
 card; PSA, BGS, CGC, SGC or any grader whose fees you enter. Browser page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/card-grading-submission-picker/
+
 ```
 node cli.mjs pick cards.csv --budget 400 --max-cards 20 --ship 8
 cat cards.csv | node cli.mjs pick - --tiers my-tiers.csv --json

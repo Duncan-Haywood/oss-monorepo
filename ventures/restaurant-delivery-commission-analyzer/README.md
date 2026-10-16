@@ -5,6 +5,8 @@ Grubhub merchant payout or order-level financial report CSV and see what the pla
 really costs you.** The file is read in the browser; nothing is uploaded and no platform
 login is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/restaurant-delivery-commission-analyzer/
+
 After using this, you can now **see per-platform and per-order effective take rate
 (commission, delivery and service fees, promotions, ad spend and error charges over food
 sales), net cash per order, net after your food cost and packaging, the orders that lost

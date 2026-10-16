@@ -6,6 +6,8 @@ margin, the **walk-away price** below which the job loses money, the labor
 slip that erases your profit, and what a competitor's lower quote leaves you.
 It also converts markup to margin (25% markup is only a 20% margin).
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/trade-bid-studio/
+
 It is also the single front door to the portfolio's 121 trade-specific
 `*-bid-calculator` ventures: `trades.json` is generated from them
 (`node build-directory.mjs`) and a test fails if it goes stale. This is the

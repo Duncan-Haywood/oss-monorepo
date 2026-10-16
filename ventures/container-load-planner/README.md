@@ -9,6 +9,8 @@ the whole load needs, a to-scale top and side view and a loading list. A "what i
 I swap" table runs the same cargo through every standard size, loose and on
 pallets. Metric or imperial. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/container-load-planner/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing and units, the extreme-point 3D packer (orientation,

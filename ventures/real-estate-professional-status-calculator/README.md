@@ -7,6 +7,8 @@ on the rentals, applies the $25,000 allowance and its phase-out if you do not qu
 and prices the difference in today's dollars over your holding period. Entirely
 client-side; no taxpayer identifiers are asked for.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/real-estate-professional-status-calculator/
+
 After using this, you can **see which gate keeps a rental loss passive, how many hours
 short you are, and that status moves the deduction in time rather than creating it** —
 which used to take a cost-segregation sales call or a spreadsheet you would have to trust.

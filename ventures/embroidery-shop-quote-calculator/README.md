@@ -6,6 +6,8 @@ the true cost and clock time, a quantity-break table (12, 24, 48, 100, 250), how
 whether the flat per-1000-stitches rule loses money at low quantities, and a take / counter / pass verdict at
 your lowest acceptable hourly rate. Browser page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/embroidery-shop-quote-calculator/
+
 ```
 node cli.mjs quote fixtures/jobs.csv --heads 2 --spm 650 --margin 40 --min-charge 75 --min-hourly 35
 node cli.mjs quote --quantity 24 --garment-cost 4.5 --stitches 7500 --colors 4 --json

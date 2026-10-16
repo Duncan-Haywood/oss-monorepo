@@ -3,6 +3,8 @@
 A free browser calculator for the OBBBA gambling-loss deduction limitation.
 Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/gambling-loss-deduction-calculator/
+
 After using this, you can now **see your allowable gambling-loss deduction
 under the new 90%-of-winnings cap and the exact taxable "phantom income" it
 creates even if you broke even or lost overall** — which used to take

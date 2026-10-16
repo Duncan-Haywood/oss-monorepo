@@ -5,6 +5,8 @@ A browser calculator for restaurant and bar owners that checks a mandatory
 be in it, and works out the tip-credit back-wage exposure a non-compliant
 pool creates.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tip-pool-compliance-calculator/
+
 Everything runs in the visitor's browser. No account, no network requests, no
 build step, no dependencies.
 

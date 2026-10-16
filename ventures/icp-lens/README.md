@@ -6,6 +6,8 @@ and small B2B sales teams who today decide "who do I email first" by gut.
 MIT, no dependencies, runs in a browser tab, in Node 18+, or from a terminal.
 It never sends anything and holds no contact database.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/icp-lens/
+
 Try it: open `index.html` (nothing is uploaded) and press the demo button.
 
 ## Why use this instead of what you have today

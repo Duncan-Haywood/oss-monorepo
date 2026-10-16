@@ -7,6 +7,8 @@ ABC test, lists the facts pushing toward employee status, and estimates back
 payroll tax and unpaid overtime as a range. Entirely client-side; nothing is
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/worker-classification-checker/
+
 After using this, you can now **see whether a contractor relationship would
 survive the tests an auditor applies, which facts to fix first, and what being
 wrong could cost**, which used to take a lawyer's intake call.

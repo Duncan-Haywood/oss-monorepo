@@ -8,6 +8,8 @@ the fewest tiles, reuses leftover pieces, and shows a to-scale plan, a cut list,
 tiles and boxes to order, and a comparison of corner, centred and best-found
 starts. Metric or imperial. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tile-layout-planner/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - exact polygon clipping of every tile against the floor and the

@@ -5,6 +5,8 @@ holds your target hourly rate.** It shows the per-word and per-page rate that re
 schedule, the price of one extra revision round, your real hourly if the job runs over, and what a client's lower
 budget pays you and how many words of book it buys. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ghostwriter-book-quote-calculator/
+
 After using this, you can **quote the book from your hours instead of from a guess**, and answer "can you do it for
 less?" with a shorter scope instead of a discount.
 

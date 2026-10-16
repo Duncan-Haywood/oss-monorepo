@@ -5,6 +5,8 @@ licence, worst first: strong-copyleft (GPL, AGPL, SSPL), unlicensed, weak-copyle
 (LGPL, MPL, EPL), unknown, then permissive. SPDX `OR` expressions score the most
 permissive choice, `AND` the strictest.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/lockfile-license-check/
+
 [`index.html`](index.html) runs it in a browser: paste the lockfile, optionally a
 deny list, read the table. Nothing is uploaded and the page makes no network
 requests. [`npm-license-compliance-guide.html`](npm-license-compliance-guide.html)

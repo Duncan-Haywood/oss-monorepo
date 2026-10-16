@@ -6,6 +6,8 @@ returns — including the usual case where **affiliate commission is not
 clawed back on a refund** — then compares the same order under the mid-2026
 US defaults and the announced 1 October 2026 schedule.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/
+
 **After using this, you can now see whether a creator listing still makes
 money after returns, and what the announced October rates do to that
 number**, which used to mean a spreadsheet that treated “TikTok takes 6%”

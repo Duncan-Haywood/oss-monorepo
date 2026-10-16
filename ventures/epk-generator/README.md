@@ -4,6 +4,8 @@ A free, no-signup tool that builds an electronic press kit (EPK) — the
 one-page summary independent musicians and bands send to venues, festivals,
 blogs, and playlisters — from a short form. Runs entirely in your browser.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/epk-generator/
+
 After using this, you can now **have a send-ready press kit in a few
 minutes**, which used to take assembling one by hand in a word processor or
 slide tool, or paying for a subscription press-kit builder (Sonicbids-style

@@ -2,6 +2,8 @@
 
 **What will this GitHub Actions workflow cost you a month?**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/actions-minutes-estimator/
+
 A free browser tool and zero-dependency Node CLI that reads workflow YAML and
 projects monthly billable minutes and dollar cost — per workflow, per job —
 naming the patterns responsible.

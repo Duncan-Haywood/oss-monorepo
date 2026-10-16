@@ -7,6 +7,8 @@ rate that gets you there, the effective hourly price of a membership, and a
 profit grid across rates and utilization. Entirely client-side; nothing is
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shared-kitchen-rate-planner/
+
 After using this, you can **set an hourly rate and membership fee from your
 own costs** instead of copying the kitchen down the road.
 

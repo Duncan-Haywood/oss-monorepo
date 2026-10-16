@@ -5,6 +5,8 @@ collects for an hour of labor, where the rest of its posted rate went, and what
 the door rate would have to be to fix it. Nothing is uploaded; the arithmetic
 runs on the visitor's own device.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/auto-repair-effective-labor-rate/
+
 ```
 cd ventures/auto-repair-effective-labor-rate && node --test
 ```

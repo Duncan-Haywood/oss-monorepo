@@ -4,6 +4,8 @@ A free browser tool for people selling their main home: **enter the sale, purcha
 see how much of the gain the $250,000 / $500,000 section 121 exclusion covers, the federal tax on the rest, and
 what waiting a few months to reach two years would save.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/home-sale-exclusion-calculator/
+
 After using this, you can now **time a home sale around the two-year test and know the tax before listing**,
 which used to take a tax preparer working Publication 523 by hand.
 

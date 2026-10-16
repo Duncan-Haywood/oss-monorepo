@@ -5,6 +5,8 @@ the cash you actually put in, the cash the refinance pays back, the cash left in
 the highest purchase price that pulls every dollar out.** Stress tables show a low appraisal, a rehab overrun and a higher refinance
 rate. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/brrrr-calculator/
+
 After using this, you can now **see how much cash a buy-rehab-rent-refinance deal really leaves in it and how far a low appraisal or a
 rehab overrun moves that**, which used to take a spreadsheet you had to build and trust yourself.
 

@@ -9,6 +9,8 @@ research, crew and office rates, drafting time, and travel — which used to
 take a flat per-acre guess or a gut-feel number copied from the last similar
 job.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/land-survey-bid-calculator/
+
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. Run the tests with:
 

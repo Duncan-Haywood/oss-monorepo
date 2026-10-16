@@ -2,6 +2,8 @@
 
 Free, private browser tool for people planning or running an indoor play centre or soft-play cafe: weekday and weekend child visits, walk-in and membership prices, birthday parties, cafe spend, staff hours, rent, fit-out, equipment and a loan become monthly profit at planned attendance, break-even visits a week, the price change that reaches a target margin, how slower attendance, price changes and wage rises move profit, a sixty-month ramp-up with the cash reserve and payback, and loan coverage.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/indoor-play-center-profit-calculator/
+
 After using this, you know how many child visits a week the centre has to see to pay its rent, staff and loan, how much cash to hold while attendance ramps up, and how much of the plan rides on parties.
 
 Open `index.html`. Tests: `node --test 'ventures/indoor-play-center-profit-calculator/**/*.test.mjs'`.

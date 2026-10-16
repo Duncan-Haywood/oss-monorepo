@@ -9,6 +9,8 @@ for holidays, and an optional single-elimination play-off bracket seeded from th
 standings you type. Exports a CSV, calendar (.ics) files for the league or one
 team, a plain-text version to paste into a group chat, and a share link that carries the whole setup in the URL fragment (never sent to any server) so a co-organiser opens the same league in one click. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - circle-method rounds with byes for odd leagues and home/away built

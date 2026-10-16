@@ -3,6 +3,8 @@
 Find the regular expressions in your JavaScript, TypeScript and Python that can
 hang a server on one crafted string (ReDoS) — before an attacker does.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/regex-redos-check/
+
 ```
 node cli.mjs scan src
 node cli.mjs scan . --json

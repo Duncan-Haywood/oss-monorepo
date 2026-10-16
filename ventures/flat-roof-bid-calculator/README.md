@@ -5,6 +5,8 @@ prices a low-slope roof from the membrane squares a per-square special cannot
 see, the tear-off, the insulation, the parapet, and the drains — and shows the
 margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/flat-roof-bid-calculator/
+
 **After using this, you can now send a flat-roof price that includes the
 membrane, the tear-off, and the insulation**, which used to take a spreadsheet
 that still started from the coupon’s plan squares.

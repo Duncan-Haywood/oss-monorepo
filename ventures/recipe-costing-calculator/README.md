@@ -5,6 +5,8 @@ your pantry (pack size, pack price, usable yield) and your recipes. It shows cos
 and per batch, food cost percentage, and the menu price that hits your target. Entirely
 client-side; both inputs are plain text so they paste straight from a spreadsheet.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/recipe-costing-calculator/
+
 After using this, you can **price a dish from what its ingredients really cost, trim and
 labor included**, which used to take a spreadsheet and a unit-conversion chart.
 

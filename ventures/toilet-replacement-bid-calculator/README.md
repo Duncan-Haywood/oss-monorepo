@@ -9,6 +9,8 @@ owner-supplied bowl still leaves a margin on a $249 set, and whether
 Saturday / after-hours still covers — and shows the margin before the
 price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/toilet-replacement-bid-calculator/
+
 **After using this, you can now** send a walk-away toilet-replacement
 price that sees the closet and the bowl, **which used to take**
 matching a published $249 installed special that treats a two-piece

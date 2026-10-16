@@ -9,6 +9,8 @@ empty specifier, a rule duplicated across `allow`/`deny`/`ask`, and a rule
 that contradicts itself across the project file and your own local
 overrides.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/claude-code-settings-check/
+
 After using this, you can now **catch a hook that will never fire, or a
 permission rule that will never match, before you find out the hard way** —
 which used to mean noticing only when the hook you expected never ran, or a

@@ -5,6 +5,8 @@ listed and whether it booked), say what the platform fee and each turnover cost 
 curve, the nightly price with the highest expected profit per listed night inside the range you have actually
 listed, and a back-test that says whether price explains which nights booked at all.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/str-nightly-rate-optimizer/
+
 After using this, you can now **see how much each extra 5% on your nightly price costs you in bookings and which
 price earns the most**, which used to take a guess or a paid dynamic-pricing subscription.
 

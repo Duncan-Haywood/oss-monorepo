@@ -4,6 +4,8 @@ Price Datadog Logs, Grafana Cloud Logs, Axiom, Better Stack and Papertrail side 
 log volume (GB ingested), see the 12-month spend under your growth rate, and find the volumes where the
 cheapest provider changes — before you build on one.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/log-management-pricing-calculator/
+
 ```
 node cli.mjs compare --gb 300 --growth 6
 node cli.mjs compare --gb 800 --provider grafana --budget 300   # CI gate: exit 1 over budget

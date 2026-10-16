@@ -4,6 +4,8 @@ A free browser tool: **type a severance offer and your situation and see whether
 range, what you take home as a lump sum now, a lump sum in January or salary continuation, the COBRA gap, the
 unemployment benefits at risk, your runway, and a list of what to ask for.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/severance-package-calculator/
+
 After using this, you can **counter a severance offer with numbers and a short list of specific asks** before the
 signing deadline, instead of deciding in one meeting from a number on a page.
 

@@ -4,6 +4,8 @@ A free browser tool for Etsy sellers: **drop in the Etsy Ads report
 from Shop Manager and see which listings lose money after the ad fee.** The file
 is read in the browser; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/etsy-ads-roi-analyzer/
+
 After using this, you can now **see per listing what profit is left after ad
 fees, and what share of the sales Etsy credits to the ad the ad must really have
 caused for the fee to pay for itself**, which Etsy's report does not show

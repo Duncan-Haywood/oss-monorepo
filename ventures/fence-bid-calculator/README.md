@@ -5,6 +5,8 @@ the job actually costs — posts from spacing, heavier terminals at ends,
 corners, and gates, tear-out, and the extra hours clay or rock will eat — and
 shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fence-bid-calculator/
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts. Not yet deployed to a public URL —

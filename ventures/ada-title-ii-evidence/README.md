@@ -2,6 +2,8 @@
 
 Small-city and special-district webmasters and IT staff can look up their exact ADA Title II website compliance date and turn an `axe-core` JSON scan into a dated evidence record, split into what WCAG 2.1 AA actually requires versus best-practice extras. The tool reports what the supplied automated test found and what date applies to the entity described; it does not claim that a site is compliant.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ada-title-ii-evidence/
+
 ## Run it
 
 Open `deadline.html`, pick your entity type (general-purpose government, or any special district — school, water, fire, transit) and, if it's not a special district, enter total population. It shows the exact date — April 26, 2027 for entities at or above 50,000 population, April 26, 2028 for everyone else — sourced to the Department of Justice's 2026 rule extension, with a link to the Federal Register notice and ada.gov's own fact sheet. **Copy result** hands the reading to an email or a council memo.

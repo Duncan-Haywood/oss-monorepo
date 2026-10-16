@@ -5,6 +5,8 @@ potty / portable restroom event rental the way the yard actually loses money
 when it skips the math — every day the boxes sit, every extra pump-out, and
 two truck round trips — and shows the margin before the quote goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/portable-restroom-event-quote/
+
 Once the number is right, **Print proposal** turns it into the one-page sheet
 the event organiser signs: the units as line items, the days on site, the
 scheduled service visits, the price, a deposit split, a price-held date, and a

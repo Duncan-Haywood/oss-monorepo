@@ -5,6 +5,8 @@ contractors. Enter the estimate and actual hours and costs to see where the job
 drifted, what the variance means in the same currency, and which assumption is
 worth reviewing before the next quote.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/job-margin-variance/
+
 Two fields are optional and add depth without changing the required
 worksheet: a labor rate converts the hours row into dollars so "largest
 movement" compares like units instead of comparing a raw hours count against

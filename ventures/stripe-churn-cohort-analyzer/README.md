@@ -4,6 +4,8 @@ A free browser tool for subscription founders: **drop in a Stripe subscriptions
 CSV export and see MRR, churn and cohort retention.** The file is read in the
 browser; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/stripe-churn-cohort-analyzer/
+
 After using this, you can now **see which start-month cohorts keep their
 customers, how much MRR you gained and lost each month, and whether churn is
 concentrated in the first weeks**, which used to mean paying for a subscription

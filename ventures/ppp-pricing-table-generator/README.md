@@ -6,6 +6,8 @@ rounding (.99, whole, ends-in-9), optionally collapse the table into a few price
 **regional discount groups** to type into a payment processor. A what-if models revenue against
 your own traffic mix and shows the extra conversion each discount has to win to break even.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ppp-pricing-table-generator/
+
 [`index.html`](index.html) runs in a browser; nothing is uploaded and the page makes no network
 calls. [`how-to-set-regional-prices-for-software.html`](how-to-set-regional-prices-for-software.html)
 explains the method in plain words.

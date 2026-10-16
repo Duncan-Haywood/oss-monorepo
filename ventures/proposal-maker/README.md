@@ -3,6 +3,8 @@
 After using this, you can send a priced, scoped proposal in 15 minutes that
 used to take an afternoon in Word.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/proposal-maker/
+
 Free, no account, no watermark, works offline. Everything runs in your browser;
 proposals are stored in `localStorage` on your device and never uploaded.
 

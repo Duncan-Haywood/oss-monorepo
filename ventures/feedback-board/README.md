@@ -5,6 +5,8 @@ catch duplicates as they type, and publish a roadmap and changelog**, from one
 small server you run, instead of paying a feedback tool a fee that grows with
 your user count.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/feedback-board/
+
 Two parts, both free and MIT:
 
 - **`index.html`**: the duplicate finder in your browser. Paste your existing

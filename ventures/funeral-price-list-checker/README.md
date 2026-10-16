@@ -7,6 +7,8 @@ casket bought elsewhere, "embalming required", "casket required for cremation").
 home to compare the two line group by line group. It also builds the list of questions to put to
 the home.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/funeral-price-list-checker/
+
 [`index.html`](index.html) runs in a browser; nothing is uploaded and the page makes no network
 calls. [`what-is-the-ftc-funeral-rule.html`](what-is-the-ftc-funeral-rule.html) explains the Rule
 in plain words.

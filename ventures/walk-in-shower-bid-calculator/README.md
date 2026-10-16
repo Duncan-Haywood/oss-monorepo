@@ -6,6 +6,8 @@ loses money — wall and floor tile, then the drain, the slope, the niches,
 the bench, and the glass as their own hours — and shows whether Saturday
 still pays after overtime before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/walk-in-shower-bid-calculator/
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts. Not yet deployed to a public URL —

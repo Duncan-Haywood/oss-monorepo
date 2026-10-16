@@ -5,6 +5,8 @@ report and see what each app and product really netted after Google's fee and re
 The file is read in the browser; nothing is uploaded and no Play Console login or API
 access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/google-play-earnings-report-analyzer/
+
 After using this, you can now **see net earnings by product, product type, country and
 month, the effective Google fee overall and per product type (subscriptions near 15%,
 apps and in-app near 30%), refunds netted out with a refund rate per product, the

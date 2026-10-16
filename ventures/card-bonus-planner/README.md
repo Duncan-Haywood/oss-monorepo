@@ -5,6 +5,8 @@ real monthly spending** and know the date your 5/24 count drops and the
 earliest day each new application fits, which used to be a hand-kept
 spreadsheet.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/card-bonus-planner/
+
 `index.html` runs in the browser and uploads nothing; cards are kept in local
 storage only (no account numbers needed). You get:
 

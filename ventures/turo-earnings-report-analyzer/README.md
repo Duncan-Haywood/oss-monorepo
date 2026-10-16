@@ -4,6 +4,8 @@ A free browser tool for Turo hosts: **drop in your earnings or trip history CSV 
 which cars actually make money.** The file is read in the browser; nothing is uploaded
 and no Turo account access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/turo-earnings-report-analyzer/
+
 After using this, you can now **see profit per car and per trip after Turo's fee, your
 cleaning, fuel and delivery costs, and each car's monthly loan, insurance and
 depreciation, with utilization, revenue per rented day, net per day, break-even

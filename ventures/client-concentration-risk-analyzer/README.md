@@ -5,6 +5,8 @@ see every client's share, the top-1/3/5 shares, the Herfindahl index, whether th
 rising, and whether average monthly revenue without them still covers your costs. Browser page or
 zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/client-concentration-risk-analyzer/
+
 ```
 node cli.mjs analyze invoices.csv
 cat invoices.csv | node cli.mjs analyze -

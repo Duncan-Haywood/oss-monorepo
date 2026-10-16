@@ -6,6 +6,8 @@ versus dual swing versus slide, operators from leaf count, masonry
 columns, vehicle loops, and solar versus AC trench — and shows the
 margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/automatic-driveway-gate-bid-calculator/
+
 **After using this, you can now** send a gate bid that names the style,
 the operators, and the walk-away number, **which used to take** matching
 a published $4,500 automatic-gate special and hoping the posts were

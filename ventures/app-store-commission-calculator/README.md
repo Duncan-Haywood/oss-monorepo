@@ -5,6 +5,8 @@ Paddle side by side at your monthly app revenue, average in-app price and intern
 filing sales tax and VAT yourself is counted where you are the seller, so you can see **what you keep** and
 the monthly revenue where the cheapest option changes.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/app-store-commission-calculator/
+
 ```
 node cli.mjs compare --revenue 5000 --price 4.99 --intl 60 --growth 5
 node cli.mjs compare --revenue 5000 --provider apple30 --max-fee-pct 20   # CI gate: exit 1 over ceiling

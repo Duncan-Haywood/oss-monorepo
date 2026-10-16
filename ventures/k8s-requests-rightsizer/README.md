@@ -4,6 +4,8 @@ Find the containers whose CPU and memory **requests** are far above (or below) w
 get a recommended request, the monthly saving, out-of-memory warnings and YAML patches — from
 `kubectl` output you already have. Browser page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/k8s-requests-rightsizer/
+
 ```
 kubectl top pod -A --containers > top.txt
 kubectl get pods -A -o json > pods.json

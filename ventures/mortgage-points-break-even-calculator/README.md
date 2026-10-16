@@ -7,6 +7,8 @@ interest and the yearly chance you sell or refinance. It returns the simple and 
 the yearly return on the points cash, the dollars ahead or behind at your horizon, the chance you finish
 ahead given you may sell or refinance early, and a horizon by cash-return grid. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mortgage-points-break-even-calculator/
+
 After using this, you can **see whether the points pay for themselves before the loan is likely to
 end**, instead of trusting a single break-even number.
 

@@ -5,6 +5,8 @@ A free browser tool for anyone whose bank gives a **CSV** but whose accounting s
 and download the file. The CSV is read in the browser; nothing is uploaded and no login, bank
 connection or API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bank-csv-to-qbo-converter/
+
 After using this, you can now **get a bank or credit card CSV into QuickBooks or Quicken without a
 paid converter or uploading bank data to a stranger's server, and see which rows would not
 import before you try**.

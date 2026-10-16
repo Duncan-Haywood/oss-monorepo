@@ -6,6 +6,8 @@ baseline, checks a call between two (possibly different) states, cites the
 governing statute, and generates a ready-to-read call-opening disclosure
 script.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/call-recording-consent-check/
+
 **What it is not:** legal advice, a substitute for a licensed attorney, or a
 guarantee about how a specific court would rule on a specific call. It is a
 reference lookup against a fixed table of each state's *default* rule — see

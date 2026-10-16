@@ -4,6 +4,8 @@ A free browser tool for Poshmark sellers: **load your My Sales Report CSV and se
 items and brands actually make money.** The file is read in the browser; nothing is
 uploaded and no Poshmark account access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/poshmark-sales-report-analyzer/
+
 After using this, you can now **see profit per item, per brand and per month after
 Poshmark's fee (flat $2.95 under $15, 20% at $15 or more), the effective fee rate, cost per
 SKU, shipping discounts and losses, days to sell, your worst and best items and the brands

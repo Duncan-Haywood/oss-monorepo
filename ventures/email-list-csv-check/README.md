@@ -6,6 +6,8 @@ and see every problem with its line number before the import skips rows or the f
 bounces, then download a safe-fixes copy and a separate file of the rows it set aside.** The list
 is read in the browser; nothing is uploaded and no login or API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/email-list-csv-check/
+
 After using this, you can now **find the address with a space in it, the `gmial.com` and `.con`
 typos, the same person listed twice as `Joe@x.com` and `joe@x.com` or `j.o.e@gmail.com`, the
 `info@` and `noreply@` mailboxes, the disposable inboxes, the phone numbers Excel turned into

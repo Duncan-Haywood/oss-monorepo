@@ -6,6 +6,8 @@ pollination income year by year, re-runs your plan at 10-60% winter loss,
 compares honey-only against nucs and pollination, and finds the colony count
 where the yard covers its fixed costs. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/apiary-profit-planner/
+
 After using this, you can **see whether expanding, selling nucs or renting
 colonies actually pays**, instead of guessing from honey alone.
 

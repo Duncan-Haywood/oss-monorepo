@@ -5,6 +5,8 @@ A browser calculator for independent self-storage operators. It prices an
 against the move-outs it will cause — and reports the one number nobody has:
 how much induced churn the increase can absorb before it stops paying.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/self-storage-rate-increase-calculator/
+
 Everything runs in the visitor's browser. No account, no network requests, no
 build step, no dependencies.
 

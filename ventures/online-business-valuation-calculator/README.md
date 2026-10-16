@@ -4,6 +4,8 @@ A free browser tool for owners selling (and buyers pricing) a small SaaS, e-comm
 business: **enter trailing-12-month revenue and SDE and get a price range, the net after selling fees, the
 buyer's payback, and a ranked list of what is costing you multiple.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/online-business-valuation-calculator/
+
 After using this, you can now **set a defensible asking range and know which fix (owner hours, customer
 concentration, churn) adds the most sale price**, which used to mean a broker call or a guess.
 
