@@ -104,6 +104,18 @@
   </section>
 
   <section>
+    <h2>Questions</h2>
+    <h3>How do I find federal contracts that are about to be recompeted?</h3>
+    <p>Every federal contract award is public on USAspending.gov with its current end date. Filter by your NAICS code and place of performance, keep the awards whose end date falls in the next 6 to 24 months, and you have a recompete calendar. Recompete Radar does that filtering and adds the incumbent, the awarding office and the likely solicitation window.</p>
+    <h3>How far ahead of the end date is a recompete solicited?</h3>
+    <p>It varies by agency and contract type. A common pattern is a solicitation notice on SAM.gov roughly six to twelve months before the old contract ends, and many agencies extend the incumbent short-term when the follow-on is late. The tool lets you set the lead time and treats the result as a prompt to check SAM.gov, not a promise.</p>
+    <h3>Why might an end date be wrong?</h3>
+    <p>The current end date excludes option years the agency has not yet exercised, so a contract can run longer than shown. Agencies can also cancel, merge, set aside or extend a requirement. Treat every row as a lead to verify.</p>
+    <h3>Does my search leave my browser?</h3>
+    <p>The page asks api.usaspending.gov, the public government data service, for awards in your NAICS code and state. Nothing is sent to us, there is no account, and pasted CSV data never leaves the page.</p>
+  </section>
+
+  <section>
     <h2>Use it safely</h2>
     <p class="fine">The page queries the public USAspending.gov API from your browser; we run no server and see nothing. Pasted CSV stays on the page. We count anonymous feature events (searches run) in your browser's local storage only — never inputs, people, IPs or cookies — and honor Do Not Track and Global Privacy Control.</p>
     <label class="fine"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not count anonymous local usage events</label>

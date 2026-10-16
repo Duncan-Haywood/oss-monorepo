@@ -1,7 +1,7 @@
 {
   "id": "P025",
   "title": "eBay fee defaults are stale across four ventures (13.25% + $0.30 vs 13.6% + $0.30/$0.40)",
-  "status": "open",
+  "status": "dropped",
   "owner": "agent",
   "effect": 3,
   "cost": 3,
@@ -23,6 +23,11 @@
   "opened": "2026-10-16",
   "source": "ventures run 2026-10-16",
   "pr": null,
-  "result": null,
-  "history": []
+  "result": "Split into P026-P029, one venture each (single PR touched ~76 files and silently stale derived figures; see their evidence).",
+  "history": [
+    {
+      "date": "2026-10-16",
+      "note": "Split into P026-P029; probe showed pages' derived figures are not pinned by tests."
+    }
+  ]
 }

@@ -1850,6 +1850,16 @@
      "summary": "Follow-up to selfrep-wearout. The fleet is a birth-death chain with an absorbing state at zero, and its mean extinction time is solved exactly and checked against a closed form and Monte Carlo. From one seed machine it grows from 358 h (mean life 100 h) to 3967 h (200 h) to 41,602 h (300 h), but the wear-out simulation dies out 1.8&ndash;2.5&times; sooner. Scaling births by the chance a build outlives its machine brings the two within about 35% for a lone seed (16&ndash;18% at 200&ndash;300 h), a fit made after seeing the gap; it is 1.7&ndash;1.9&times; too short for four seeds at 300 h. Stylised, with assumed inputs; the 500 h rows are unusable."
     },
     {
+     "slug": "selfrep-repairpay",
+     "title": "Does paying for spares late rescue the long repair queue of a printer shop?",
+     "summary": "Follow-up to selfrep-repairlabour. That project found an unbounded repair queue is dead stock (414 working machines against 458 for never repairing, one bench, B = 40) when spares are bought at breakdown. Buying them when a bench frees up instead reverses it: 488 against 458, and 572 against 504 with four benches. The queue is as long (about 3400 machines) but ties up no vitamins, and capping it no longer helps (caps of 1&ndash;200 all give 484&ndash;492 at one bench; no standard errors computed, so no optimum cap is claimed). Stylised: assumed inputs, first-come service, a machine unaffordable at its turn is retired."
+    },
+    {
+     "slug": "selfrep-repairlabour",
+     "title": "What happens to a repairing printer shop when repairs need labour?",
+     "summary": "Follow-up to selfrep-repair. Repairs need one of K benches; broken machines queue after buying spares. The pre-run prediction that the working fleet is about min(import limit, K&middot;L/h) fails: with B = 40 and one bench the fleet is 414 against a cap of 40, because most breakdowns are never served and the queue (2915 machines) is dead stock. An unbounded queue with one bench is worse than never repairing (414 against 458); retiring a breakdown when 1&ndash;20 machines already wait gives 487&ndash;492. Stylised: assumed inputs, benches are a count with no wages, no corrected closed form."
+    },
+    {
      "slug": "selfrep-repair",
      "title": "When is repairing a printer worth more than building a new one?",
      "summary": "Follow-up to selfrep-wearout. Machines break down at a constant rate and the shop may spend spare-part vitamins to repair one instead of retiring it. A vitamin-balance formula predicts repair gives a bigger fleet exactly when the repair cost share is below the repair success probability; a discrete-event simulation with assumed inputs puts the crossing at that value, within about 9% of the formula in that sweep, but only when spares are held back from new builds (without a reserve the fleet was 70 against a formula value of 157). Repair also cuts die-out from one seed at short lifetimes (for example 55% against 100% at a mean life of 100 h) but does not remove it. Stylised: assumed inputs, memoryless breakdowns, repair returns the machine to new, no printed spares."
@@ -2349,6 +2359,11 @@
      "slug": "accel-pdkprice",
      "title": "At SKY130's own energy prices, does register-file weight-stationary scheduling beat output-stationary?",
      "summary": "Takes the breakeven price ratios of <em>accel-fetchprice</em> and prices them with the SKY130 HD liberty file (an idle <code>dfxtp_1</code> flop costs 46&nbsp;fJ per cycle, almost all clock-pin power) and the four OpenRAM SRAM macros shipped with OpenROAD-flow-scripts (10 to 90&nbsp;pJ per access). If one 4-bit weight is fetched per access, weight-stationary wins at most batches; if weights are packed into the SRAM word (0.8 to 2.9&nbsp;pJ per weight) output-stationary wins at nearly every batch, and weight-stationary with partial sums in SRAM loses in every case since a word holds fewer 24-bit sums than 4-bit weights. Library characterisation values, not measurements; the per-edge versus per-cycle reading of the OpenRAM figure is unresolved."
+    },
+    {
+     "slug": "accel-gatedprice",
+     "title": "Does clock-gating the extra accumulators make register-file weight-stationary scheduling beat output-stationary?",
+     "summary": "Follows up <em>accel-pdkprice</em>, where idle flops made weight-stationary (WS) lose to output-stationary (OS) once weights are packed into SRAM words. Reads the idle clock energy of a flop and of an integrated clock gate (ICG) from the SKY130 HD and GF180MCU liberty files: an idle SKY130 <code>dlclkp_1</code> costs 0.86 of an idle <code>dfxtp_1</code> (39.7 against 46.4&nbsp;fJ per cycle), and GF180 gates cost 0.99 to 1.02 of its flops at 3.3 and 5&nbsp;V in both track heights. One gate shared by <em>G</em> accumulator flops therefore cuts the idle cost about <em>G</em>-fold. With one gate per 24-bit accumulator, WS needs a weight fetch of only 0.08 to 0.9&nbsp;pJ (ungated: 2.2 to 26&nbsp;pJ) and beats OS against every packed SKY130 macro in all 64 macro, layer and batch cells but one (an 80-bit macro on the 11&times;64 layer at <em>B</em>&nbsp;=&nbsp;16 needs 27 flops per gate). Library characterisation values, a gate-per-group model with the enable logic, area and the register-file read mux unpriced; no RTL built or synthesised.<br>Stylised."
     },
     {
      "slug": "accel-policy",
