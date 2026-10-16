@@ -7,7 +7,7 @@
 // "The API-key switch"). Every caller keeps a deterministic path for when no
 // key is set: `withFallback` makes that the default shape.
 //
-//   import { complete, withFallback, configFromEnv } from '../../platform/llm/byok.mjs';
+//   import { complete, withFallback, configFromEnv } from './byok.mjs';
 //   const cfg = configFromEnv(process.env);            // or settings from the page
 //   const text = await withFallback(cfg, () => templateEmail(lead),
 //     c => complete(c, { system: SALES_SYSTEM, prompt: leadBrief(lead) }).then(r => r.text));

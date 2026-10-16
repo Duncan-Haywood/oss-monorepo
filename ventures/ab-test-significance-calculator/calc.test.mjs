@@ -201,3 +201,9 @@ test("price test validates input and reports monthly impact", () => {
   assert.equal(money(1.2346), "$1.235");
   assert.equal(money(-12.5), "-$12.50");
 });
+
+test("always-valid interval stays sane when the control rate is near zero", () => {
+  const r = analyze({ n1: 50, c1: 0, n2: 50, c2: 5 });
+  assert.ok(r.priorSd >= 0.04, "default prior is not tighter than the standard error");
+  assert.ok(r.sequential.high - r.sequential.low < 1, "interval is narrower than the whole 0-1 range");
+});

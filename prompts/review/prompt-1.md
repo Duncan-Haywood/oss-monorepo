@@ -20,12 +20,12 @@ python3 prompts/promptctl.py measure
 
 Read the tables. Then make the numbers true before you trust them:
 
-- **Fill in what runs could not know.** For each record with `merged: null`,
-  look up its pull request and set `merged` and `ci_failures_before_green`.
-  Skip records mirrored from upstream (their PR is not in this repo): leave
-  `merged` null. Add a `corrections` entry per change
-  (`{"date", "field", "from", "to", "why"}`); never edit any other field of a
-  past record.
+- **Measure what runs could not know.** Run first:
+  `python3 prompts/derive.py fetch && python3 prompts/derive.py build`. It
+  measures `merged`, PR size, red-CI commits and 14-day rework for every
+  record that names a PR, upstream ones included, into `prompts/derived/`.
+  `measure` reads that, so do not hand-edit records for these facts. Commit
+  the regenerated `prompts/derived/` with the review.
 - **Count leaked work.** Branches or pull requests a recorded run pushed that
   were not on `main` 24 hours later. Set `merged: false` on their records.
   Then land or close each one, per `land-your-work.md`.

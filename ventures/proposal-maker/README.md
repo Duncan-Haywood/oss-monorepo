@@ -17,6 +17,7 @@ proposals are stored in `localStorage` on your device and never uploaded.
 - Saved proposals with draft / sent / accepted / declined (and a derived "expired"), duplicate, win rate, CSV and JSON backup and restore
 - Starter templates (website, consulting, marketing retainer, photography) with placeholder rates to edit
 - "To estimate" on an accepted proposal adds the pricing as a draft in [Estimate Maker](../estimate-maker/) on the same device
+- **Draft the wording (optional AI, your own key):** describe the job in a few lines and fill the summary, problem, goals, scope and assumptions. It never drafts prices, dates or clauses. No key: a starter from the nearest trade template. With Anthropic, OpenAI, Gemini or any OpenAI-compatible endpoint (OpenRouter, a local Ollama), the call goes from the visitor's browser straight to that provider; nothing passes through us. `ai.mjs` is the engine (`draftProposal`), `byok.mjs` a byte-identical copy of [`platform/llm/byok.mjs`](../../platform/llm/README.md) (a test fails if they drift)
 - All money maths in integer cents (`calc.mjs`); deterministic, no network, all user text escaped
 
 ## Optional: online signing (self-hosted)
