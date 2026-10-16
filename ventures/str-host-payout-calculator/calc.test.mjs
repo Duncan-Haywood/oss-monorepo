@@ -187,3 +187,22 @@ test("compareChannels surfaces the first booking error instead of ranking zeros"
   assert.match(comparison.error, /night/);
   assert.equal(comparison.channels.length, 0);
 });
+
+import { listingForPayout, bookingFrom as _bf, calculateChannel as _cc, CHANNEL_PRESETS as _cp } from "./calc.mjs";
+
+test("listingForPayout inverts calculateChannel for every preset", () => {
+  const booking = _bf({ nightlyRate: 225, nights: 2, cleaningFee: 95, extraFees: 10, taxRate: 10, securityDeposit: 200, bookingsPerYear: 36 });
+  for (const channel of _cp) {
+    const target = 400;
+    const listing = listingForPayout(channel, booking, target);
+    const rebooked = _bf({ nightlyRate: listing.nightlyRate, nights: 2, cleaningFee: 95, extraFees: 10, taxRate: 10, securityDeposit: 200, bookingsPerYear: 36 });
+    assert.ok(Math.abs(_cc(channel, rebooked).payoutPerStay - target) < 1e-6, channel.id);
+  }
+});
+
+test("listingForPayout flags a target below fixed fees and rejects bad input", () => {
+  const booking = _bf({ nightlyRate: 100, nights: 1, cleaningFee: 500, taxRate: 0, bookingsPerYear: 1 });
+  assert.equal(listingForPayout(_cp[0], booking, 50).belowZero, true);
+  assert.ok(listingForPayout(_cp[0], booking, -1).error);
+  assert.equal(listingForPayout({ hostFeeRate: 100 }, booking, 10), null);
+});
