@@ -527,3 +527,25 @@ test("fixed: copies, unavailable person, unknown name", async () => {
   assert.ok(ghost.warnings.some((w) => /Zed/.test(w)));
   assert.ok(parseShifts("Mon, 9, 17, 1, fixed:").errors.length);
 });
+
+test("avoid: is a soft preference, honoured when someone else can cover", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any, avoid: Sat\nBen, 15, 40, 0, any");
+  const slots = slotsOf("Sat, 9, 17, 1");
+  const r = buildRoster(staff, slots, { balance: 0 });
+  assert.equal(r.assignments[0].person, "Ben");
+  assert.equal(r.people.find((p) => p.name === "Ana").avoidHours, 0);
+});
+
+test("avoid: is still worked when nobody else is available, and says so", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any, avoid: Sat 8am-12pm\nBen, 15, 40, 0, Mon-Fri 9-17");
+  const slots = slotsOf("Sat, 9, 13, 1");
+  const r = buildRoster(staff, slots);
+  assert.equal(r.assignments[0].person, "Ana");
+  assert.equal(r.people[0].avoidHours, 3);
+  assert.ok(r.warnings.some((w) => /Ana works 3 hours inside/.test(w)));
+});
+
+test("avoid: bad days are reported", () => {
+  const r = parseStaff("Ana, 15, 40, 0, any, avoid: Funday");
+  assert.ok(r.errors.some((e) => /avoid/.test(e)));
+});
