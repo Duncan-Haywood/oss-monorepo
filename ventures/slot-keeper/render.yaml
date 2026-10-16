@@ -1,0 +1,40 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# No third-party key is required to start. Email (RESEND_API_KEY, MAIL_FROM, DRY_RUN=false) and ALERT_WEBHOOK_URL (Slack/Discord) are optional.
+services:
+  - type: web
+    name: slot-keeper
+    runtime: docker
+    dockerContext: ventures/slot-keeper
+    dockerfilePath: ventures/slot-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: TRUST_PROXY
+        value: "true"
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: HOST_NAME
+        sync: false
+      - key: HOST_TZ
+        value: UTC
+      - key: PUBLIC_URL
+        sync: false
+      - key: EMBED_ORIGINS
+        sync: false
+      - key: ALERT_WEBHOOK_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: DRY_RUN
+        value: "true"
+      - key: RETENTION_DAYS
+        value: "0"

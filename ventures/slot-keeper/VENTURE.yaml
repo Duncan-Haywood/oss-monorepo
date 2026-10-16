@@ -1,0 +1,65 @@
+name: slot-keeper
+description: >-
+  Self-hosted booking pages: meeting types, weekly hours in the host's time
+  zone (daylight-saving safe), buffers, minimum notice and daily caps,
+  conflict blocking from a Google/Outlook/Apple calendar feed (including
+  repeating events), confirmation, reminder and cancel emails, private
+  reschedule and cancel links, .ics files, an embeddable widget and a JSON slots
+  endpoint. Browser availability demo plus a zero-dependency server with a
+  one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-16. Paid market is real and proven: Calendly, Acuity,
+# SavvyCal and Cal.com charge per seat per month (roughly $10-20 a seat for
+# the tiers with several event types, reminders and no branding), and a solo
+# consultant, tutor, coach or clinic uses a small part of that. Cal.com is open
+# source but is a large app with a database and background jobs; the gap is a
+# one-process scheduler a solo operator deploys in a click, in the same
+# family as support-desk, proposal-maker, form-inbox and status-keeper.
+# duplicate_check: grep of ventures/ on 2026-10-16 found booking-request-chooser,
+# appointment-overbooking-optimizer and tutor-weekly-schedule-optimizer
+# (calculators, no public booking page) and no scheduling server.
+#
+# First visitor: people on r/selfhosted, r/Entrepreneur, Hacker News and Indie
+# Hackers asking "calendly alternative", "self hosted scheduling", "cal.com too
+# heavy". Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup, a hosted copy under the deployer's own name, or GitHub
+# Sponsors are the paid steps; hosting under the public name is owner-gated.
+
+hypotheses:
+  - claim: >-
+      Solo operators will deploy their own booking page once it is one click
+      and one env var, because per-seat pricing for reminders and several
+      meeting types is the part of Calendly they resent for a one-person
+      business.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Blocking time from the operator's real calendar feed (not only existing
+      bookings) is the feature that decides whether they trust it with a
+      public link.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A report of a double booking, a time offered or confirmed in the wrong time zone, a booking changed through someone else's link, a script injection in the admin or booking pages, or an admin action accepted without the key; correctness, escaping and auth checks come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/slot-keeper/
+  analytics: null
