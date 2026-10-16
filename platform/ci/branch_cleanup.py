@@ -62,7 +62,7 @@ from datetime import datetime, timedelta, timezone
 API_ROOT = os.environ.get("GITHUB_API_URL", "https://api.github.com")
 
 # Never deleted, whatever a PR says. The default branch is added at runtime.
-DEFAULT_PROTECTED = ("main", "master", "develop", "gh-pages", "release/*", "hotfix/*")
+DEFAULT_PROTECTED = ("main", "master", "develop", "gh-pages", "release/*", "hotfix/*", "archive/*")
 
 DEFAULT_GRACE_HOURS = 24.0
 
