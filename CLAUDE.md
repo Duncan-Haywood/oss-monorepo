@@ -9,8 +9,11 @@ research in `research/`. Their job is to ship products people use and research
 people can build on, not to debate policy, re-verify old PRs, or maintain admin
 queues. `README.md` ("Finding your way") says which guide covers which work.
 
-**For product work, read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) and
-[`AGENTS.md`](AGENTS.md) first.**
+**For product work, read [`AGENTS.md`](AGENTS.md) first.**
+[`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) is a ~1,000-line reference
+(~15k tokens), and `goals.md` wins where they differ: run
+`grep -n '^## ' portfolio/DIRECTION.md` and read only the sections your task
+touches, not the whole file.
 
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) is how to build one: niche
 selection, product shapes with ~$0 marginal cost, the API-key switch, the
