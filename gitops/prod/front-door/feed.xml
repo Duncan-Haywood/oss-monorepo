@@ -80,6 +80,14 @@
     <summary type="text">A booking page you host yourself: weekly hours, buffers, notice, your calendar&#39;s busy time respected, time zones, calendar invites, reminders and cancel or reschedule links. Open source, MIT, no per-seat fee. Try the slot finder in your browser.</summary>
   </entry>
   <entry>
+    <title>Trade Bid Studio — Price Any Contracting Job and Find Your Walk-Away Number</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/trade-bid-studio/"/>
+    <id>tag:marisstella.dev,2026:tool/trade-bid-studio</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free bid calculator for any trade: turn labor hours, materials, subs, overhead and a target margin into a price, your walk-away number, and what a competitor&#39;s lower quote actually leaves you. Plus 121 trade-specific bid calculators.</summary>
+  </entry>
+  <entry>
     <title>persist-credentials Check for actions/checkout — Find the Artipacked Pattern</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-checkout-credentials-check/"/>
     <id>tag:marisstella.dev,2026:tool/actions-checkout-credentials-check</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Sell desktop apps, plugins and CLI tools with Stripe and issue signed license keys automatically. Generate a key pair, sign a test license and verify it right in your browser, then run the open-source server in your own account. Free, MIT, no per-license fee.</summary>
-  </entry>
-  <entry>
-    <title>Link Keeper — Free Self-Hosted Link Shortener with Click Stats</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/link-keeper/"/>
-    <id>tag:marisstella.dev,2026:tool/link-keeper</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">A free, open-source alternative to Bitly, Dub and Rebrandly: your own short domain, UTM-tagged campaign links, iOS/Android app routing, expiry, click limits and privacy-friendly stats with no cookies and no stored IPs. Plan a batch of links in your browser first.</summary>
   </entry>
 </feed>
