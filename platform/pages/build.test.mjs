@@ -340,7 +340,8 @@ test('every hub link resolves to a file that exists', async () => {
   for (const href of hrefs) {
     // platform/deploy/build.mjs writes deploy/ after the site build (publish-branch.sh).
     if (href === 'deploy/' || href.startsWith('deploy/?app=') || href === 'dev/') continue;
-    await fs.access(hrefTarget(href, hub_, outDir));
+    // A fragment names a section of the target page, not a file.
+    await fs.access(hrefTarget(href.split('#')[0], hub_, outDir));
   }
 
   // The contents index is in-page anchors, which resolve to an element rather
