@@ -1,5 +1,11 @@
 # Repo instructions
 
+> **Moved (2026-10-16).** This research portfolio now lives in
+> [`Duncan-Haywood/oss-monorepo`, under `research/`](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research), with this repository's full
+> history (`git log -- research/<slug>` there shows each project's original commits). Its
+> homepage is <https://duncan-haywood.github.io/monorepo-projects/research/>. This repository is kept as read-only history: do not open pull
+> requests or push branches here.
+
 **Active; mirroring into `oss-monorepo`.** All work is moving to `Duncan-Haywood/oss-monorepo`
 (formerly `fp-monorepo`), under `research/`, with no history lost. oss-monorepo#6832 merged this
 repository's history there. Until the owner's cutover, work lands here, on this repository's

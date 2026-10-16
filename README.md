@@ -1,4 +1,11 @@
 # oss-research-monorepo
+
+> **Moved (2026-10-16).** This research portfolio now lives in
+> [`Duncan-Haywood/oss-monorepo`, under `research/`](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research), with this repository's full
+> history (`git log -- research/<slug>` there shows each project's original commits). Its
+> homepage is <https://duncan-haywood.github.io/monorepo-projects/research/>. This repository is kept as read-only history: do not open pull
+> requests or push branches here.
+
 Duncan's open source software monorepo (MIT licensed). Portfolio homepage: <https://duncan-haywood.github.io/oss-research-monorepo/> (built from `site/` by `.github/workflows/pages.yml`).
 
 Priority projects for the agents that build this portfolio are in [`PROJECTS.md`](PROJECTS.md).
