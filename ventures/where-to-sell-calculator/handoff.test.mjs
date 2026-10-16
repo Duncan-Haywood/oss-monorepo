@@ -29,6 +29,8 @@ import { INPUT_IDS as WHATNOT_FIELDS } from '../whatnot-seller-payout/calc.mjs';
 import { INPUT_IDS as POSHMARK_FIELDS } from '../poshmark-fee-calculator/calc.mjs';
 import { FIELD_IDS as STOCKX_FIELDS } from '../stockx-seller-payout-calculator/share.mjs';
 import { INPUT_IDS as MERCARI_FIELDS } from '../mercari-fee-calculator/calc.mjs';
+import { INPUT_IDS as DEPOP_FIELDS } from '../depop-fee-calculator/calc.mjs';
+import { INPUT_IDS as FB_FIELDS } from '../facebook-marketplace-fee-calculator/calc.mjs';
 
 const TARGET_FIELDS = {
   'ebay-fee-calculator': EBAY_FIELDS,
@@ -41,6 +43,8 @@ const TARGET_FIELDS = {
   'poshmark-fee-calculator': POSHMARK_FIELDS,
   'stockx-seller-payout-calculator': STOCKX_FIELDS,
   'mercari-fee-calculator': MERCARI_FIELDS,
+  'depop-fee-calculator': DEPOP_FIELDS,
+  'facebook-marketplace-fee-calculator': FB_FIELDS,
 };
 
 const SHARED = {
@@ -300,4 +304,30 @@ test('each offered handoff carries a usable href and both labels', () => {
   assert.equal(offered[0].channelLabel, 'eBay');
   assert.match(offered[0].label, /calculator/i);
   assert.match(offered[0].href, /^\.\.\/ebay-fee-calculator\/#/);
+});
+
+test('Depop and Facebook Marketplace receive the item, packaging folded in', () => {
+  for (const channel of ['depop', 'facebook-marketplace']) {
+    const params = paramsOf(handoffUrl(channel, SHARED));
+    assert.equal(params.get('itemPrice'), '40', channel);
+    assert.equal(params.get('buyerShipping'), '6', channel);
+    assert.equal(params.get('labelCost'), '5.2', channel);
+    assert.equal(params.get('itemCost'), '12', channel);
+    assert.equal(params.get('otherCost'), String(SHARED.otherCost + SHARED.packagingCost), channel);
+    assert.equal(params.get('region'), null, 'defaults match this page\'s presets');
+    assert.equal(params.get('channel'), null, 'defaults match this page\'s presets');
+  }
+});
+
+test('a link handed to Depop and Facebook Marketplace is read back by their own decoders', async () => {
+  const { decodeInputs: depop } = await import('../depop-fee-calculator/share.mjs');
+  const { decodeInputs: fb } = await import('../facebook-marketplace-fee-calculator/share.mjs');
+  for (const [channel, decode] of [['depop', depop], ['facebook-marketplace', fb]]) {
+    const got = decode(handoffUrl(channel, SHARED).split('#')[1]);
+    assert.equal(got.itemPrice, 40, channel);
+    assert.equal(got.buyerShipping, 6, channel);
+    assert.equal(got.labelCost, 5.2, channel);
+    assert.equal(got.itemCost, 12, channel);
+    assert.equal(got.otherCost, SHARED.otherCost + SHARED.packagingCost, channel);
+  }
 });

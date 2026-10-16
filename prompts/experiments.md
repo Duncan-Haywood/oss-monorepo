@@ -543,3 +543,15 @@ field will.
   got 18 of 20.
 - Drift: see `prompts/drift/2026-10-16i.md`.
 - Result: (next review)
+
+## E28: review 2026-10-16 (tenth of the day)
+
+- Change: `review_every` 20 → 40 in `prompts/routing.json`. Ten reviews fired
+  today, most with nothing new to measure (friction on `routing.json`,
+  `review/prompt-2.md`).
+- Metric: reviews per day, and review runs with no change shipped.
+  Compare the next 40 runs against today's.
+- Candidates: unchanged, overlap or too few runs.
+- Audit: league-schedule-generator, 69 pass. `derive.py fetch` got 16 of 18.
+- Drift: see `prompts/drift/2026-10-16j.md`.
+- Result: (next review)
