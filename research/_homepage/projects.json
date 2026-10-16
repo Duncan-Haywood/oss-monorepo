@@ -1412,6 +1412,11 @@
      "slug": "chip-p32netlist",
      "title": "At which Yosys stage does the P = 32 versus P = 16 cell gap appear?",
      "summary": "Follow-up to <code>chip-macp32cells</code>. Counting cells of the 16- and 32-lane MAC engines (identical cycles, F = 16, three seeds) after the word-level, bit-level and abc stages of one Yosys script: the 32-lane engine is 640&ndash;770 cells <em>larger</em> at the word level but about 500 cells <em>smaller</em> after techmap, and abc only trims the gap to 270&ndash;410. The sign is therefore set before abc runs. Which pass removes the extra lanes was not identified. Preliminary; one Yosys version, generic-gate counts."
+    },
+    {
+     "slug": "chip-p32passes",
+     "title": "Which Yosys pass flips the P = 32 versus P = 16 cell gap?",
+     "summary": "Follow-up to <code>chip-p32netlist</code>. Running the <code>fine</code> passes of Yosys 0.33 one at a time on the 16- and 32-lane MAC engines (identical cycles, F = 16, three seeds): the 32-lane engine is still about 2,100 cells larger after <code>techmap</code> and 114&ndash;125 cells <em>smaller</em> after the next <code>opt -fast</code>, before any abc; <code>abc -fast</code> adds about 400 more. It also corrects the earlier project: Yosys 0.33&rsquo;s <code>-run :abc</code> runs <code>abc -fast</code>, so its &ldquo;pre-abc&rdquo; column was post-abc. Localised to a pass, not explained; one Yosys version, generic cell counts. Stylised."
     }
    ]
   },
@@ -2072,6 +2077,11 @@
      "summary": "A small finite-element sweep (stylised, preliminary; ideal elastic sheet, sharp inner corner, buckling only). Reusing the whole-L 3D eigenbuckling model of <em>simdesign-lbuckle</em>, the reversed-load factor of the 1.5&nbsp;mm bracket rises from 2.27 at w&nbsp;=&nbsp;18.4&nbsp;mm to 3.0 at w&nbsp;&asymp;&nbsp;22.5&ndash;22.6&nbsp;mm (coarse root 22.47, finer-mesh bracket 22.54&ndash;22.62), about 0.22 per extra millimetre. The plate mass rises from 30.7 to 36.6&nbsp;g (+19%). Stress, slenderness and minimum-wall limits were not rechecked at the wider web, the floor of 3 is an assumption, and the corner is sharp."
     },
     {
+     "slug": "simdesign-revgauge",
+     "title": "Is a thicker sheet lighter than a wider 1.5&nbsp;mm web for clearing the reversed-load buckling floor?",
+     "summary": "A small finite-element sweep (stylised, preliminary; ideal elastic sheet, sharp inner corner, buckling only, one element layer through the thickness). Reusing the whole-L 3D eigenbuckling model of <em>simdesign-lbuckle</em>, the smallest web width that lifts the reversed-load factor to 3 falls from 22.6&nbsp;mm at 1.5&nbsp;mm sheet to 11.8&nbsp;mm at 2&nbsp;mm and 6.8&nbsp;mm at 2.5&nbsp;mm, so the plate mass at the floor falls from 36.6&nbsp;g to 27.5&nbsp;g (&minus;25%) and 20.5&nbsp;g (&minus;44%). Thick, narrow webs are where the model is weakest, and forward load, stress and minimum-wall rules were not rechecked, so this is an indication, not a design."
+    },
+    {
      "slug": "simdesign-minwall",
      "title": "Does relaxing the 1.2&nbsp;mm minimum-wall rule open thinner sheet gauges for the laser-cut bracket, or is the buckling floor what binds?",
      "summary": "A small optimiser study (stylised, preliminary; the buckling factor is an unvalidated ideal-bar closed form). Relaxing the minimum wall from 1.2 to 1.0 or 0.8&nbsp;mm changes nothing at 1.5&nbsp;mm (31.0&nbsp;g in every cell) and does not by itself open 1.0&nbsp;mm sheet: with a buckling-factor floor of 3 no design exists at 0.8 or 1.0&nbsp;mm (the widest allowed web reaches a factor of only 1.5 at 1.0&nbsp;mm). With a floor of 1 and a minimum wall of 1.0&nbsp;mm or less, a 1.0&nbsp;mm design appears at 24.8&nbsp;g (w&nbsp;=&nbsp;22.7&nbsp;mm, factor 1.33, 2 of 3 seeds), 20% under the 1.5&nbsp;mm optimum, but a factor of 1.33 from an ideal-bar formula is no margin. Simulated results only."
@@ -2249,6 +2259,11 @@
      "summary": "A stylised, preliminary follow-up to <em>garment-twonodepen</em>. Both gates are retuned on a wider set of rooms (20&ndash;28&nbsp;C instead of 22&ndash;26&nbsp;C) and scored on rooms held out of both. At the highest penalty, proportional wins 7 of 8 cases at 21 and 27&nbsp;C when tuned wide, against 4 of 8 when tuned narrow, so the reversal is partly an artefact of the training range. At 18 and 30&nbsp;C the gates differ by at most 0.007&nbsp;C, which this model cannot resolve. Two penalties only; simulated comfort, not a claim about any real garment."
     },
     {
+     "slug": "garment-twonodeperson",
+     "title": "Does an infrared-gating band tuned for one person and clothing level still work for other clothing and body sizes?",
+     "summary": "A stylised, preliminary follow-up to <em>garment-twonodewide</em>. Both gates are tuned on one person (0.5&nbsp;clo, 70&nbsp;kg) and scored unchanged on other clothing levels and body sizes. Body size barely matters (retuning gains at most 0.002&nbsp;C), clothing does: retuning an on/off band for 1.2&nbsp;clo gains up to 0.375&nbsp;C, while the proportional gate's gap stays at most 0.075&nbsp;C. Proportional wins every cell except three at 0.3&nbsp;clo and penalty 0.1. Mass and height enter the model only through body area and heat capacity; simulated comfort, not a claim about any real garment."
+    },
+    {
      "slug": "garment-twonodeopt",
      "title": "How far is the thermostat-driven infrared-gating textile from the best possible switching schedule when the room temperature steps?",
      "summary": "A stylised, preliminary follow-up to <em>garment-twonodestep</em>. Exhaustive search over open/closed schedules (at most 3 toggles on a 10&nbsp;min grid, instant actuation) in the switchable two-node model, scored by mean |skin temperature &minus; 33.7&nbsp;C| (a proxy, not a comfort index). One toggle is enough (more improve the score by at most 0.001&nbsp;C). The best toggle is not always at the step: it is early or late after a step down. The gate is within 0.02&nbsp;C of the optimum after a step up but 0.06&ndash;0.11&nbsp;C away after a step down (0.18 with 10&nbsp;min lag in one case). One person, two assumed transmittances, a coarse grid; not a claim about any real garment."
@@ -2257,6 +2272,11 @@
      "slug": "garment-comfortcost",
      "title": "What does a degree of comfort cost in fabric?",
      "summary": "Joins the thermal comfort model to the garment cost chain for five fabric levers (infrared transmittance, low emissivity, white, thinner, thicker cloth). Levers combine sub-additively (infrared-transparent plus thin: +2.58&nbsp;&deg;C jointly, +3.25 summed), and in each scenario only one treatment helps, so a price premium sets cost, not ranking. At assumed premiums the treatments cost $0.5 to $19 per &deg;C on a $20&ndash;50 replica trench and $3 to $114 on a designer one, because the retail chain multiplies the premium about 6&times;. Stylised: every premium and the thickness pricing are assumed, not quoted, and the comfort model has no reference for its optical extension."
+    },
+    {
+     "slug": "garment-wearmix",
+     "title": "Does a fabric lever still pay once you weight it by where the garment is worn?",
+     "summary": "Weights the comfort benefit of fabric levers by wearing time across a warm room, sunny outdoors and a cool room, and adds an idealised gated infrared lever. A fixed infrared-transparent shell has positive expected benefit only if the warm room takes more than 75.5% of wearing time (against the cool room); white never harms and has the best benefit per dollar in all four mixes tried. Across 66 wearing mixes the best garment changes with the mix, and the gate is chosen in 65 of 66 mixes at the fixed shell's premium but in 18 of 66 at twice it and none at four times. Stylised: premiums, gate cost and wearing shares are assumed, and the gate is an upper bound."
     },
     {
      "slug": "garment-optics",
@@ -2456,6 +2476,11 @@
      "slug": "eda-equivpredict",
      "title": "Can cheap features say which simulation survivors formal can prove equivalent?",
      "summary": "Replay of the <em>eda-verify</em> log on the 27 mutants that 16 directed vectors do not kill (16 provably equivalent, 9 timeouts, 2 formal kills). Predicting from the mutated source line and running formal only on predicted-equivalent survivors costs 3,298&nbsp;CPU-s against 7,414&nbsp;s for always running formal (&minus;55%) and still finds 14 of 16 proofs, 93% accurate under leave-one-line-out; smoother rules (3-NN, a one-split rule) find 12 of 16 and operator kind is no better than guessing. The signal is the design region the solver finds hard, not a transferable rule. Stylised: 27 mutants, one design, one solver; nothing new was simulated."
+    },
+    {
+     "slug": "eda-equivinterval",
+     "title": "How sure is the 93% nearest-line equivalence predictor?",
+     "summary": "Uncertainty for <em>eda-equivpredict</em>, replayed from the same <em>eda-verify</em> log. The 27 survivors sit on only 11 distinct source lines, so a line-cluster bootstrap gives a 95% interval of 76.5&ndash;100% around the observed 25 of 27 (92.6%), against a 59.3% majority-class baseline, and a permutation test that shuffles line groups gives p&nbsp;=&nbsp;0.012. One design, one solver, predictors chosen with the log in view. Stylised."
     }
    ]
   },
