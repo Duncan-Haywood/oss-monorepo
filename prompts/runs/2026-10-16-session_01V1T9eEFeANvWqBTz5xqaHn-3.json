@@ -1,0 +1,128 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01V1T9eEFeANvWqBTz5xqaHn",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "Owner 2026-10-16: 'lets look into whatever error in process leads to 1400 open branches that doesn't seem ideal from an engineering process point of view.'",
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-16T06:24:22Z",
+  "ended": "2026-10-16T06:39:17Z",
+  "wall_minutes": 14.91,
+  "tokens_in": 18485749,
+  "tokens_out": 12164,
+  "cost_usd": 4.1113,
+  "tool_calls": 26,
+  "task": "Branch leak root cause and fix: branch_cleanup deletes branches whose tip is already in main (moved-after-merge and no-PR), sweep reaches every closed PR, land-your-work forbids pushing a spent branch, unlanded_work flags it",
+  "projects": [
+    "platform/ci/branch_cleanup.py",
+    "platform/ci/unlanded_work.py"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 20,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "After a merge it told sessions to reset the branch to origin/main but not that pushing it recreates the auto-deleted ref; 872 of 875 surviving merged branches were recreated this way."
+    },
+    {
+      "file": "prompts/process/backlog/README.md",
+      "issue": "Backlog ids are picked as 'next free' from a stale main; this item collided twice (P014, then P013/P017 for the hub item). A reserved-id or slug-keyed scheme would avoid it."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Investigation and implementation were done by subagents in this session; numbers from a full classification of all 1,465 remote branches against 6,820 PRs. Cleanup runs under the workflow's existing dry_run default and per-run delete/compare budgets (200 each).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7db6996d-b769-53a0-99cd-8c3996c84730",
+    "transcripts": 5,
+    "first": "2026-10-16T06:24:22Z",
+    "last": "2026-10-16T06:39:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 24,
+        "input": 50,
+        "output": 12164,
+        "thinking": 3064,
+        "cache_read": 18463820,
+        "cache_write_5m": 0,
+        "cache_write_1h": 21879,
+        "api_equivalent_usd": 4.1113,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 24,
+      "input": 50,
+      "output": 12164,
+      "thinking": 3064,
+      "cache_read": 18463820,
+      "cache_write_5m": 0,
+      "cache_write_1h": 21879,
+      "api_equivalent_usd": 4.1113,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.999,
+    "tool_calls": 26,
+    "tools": {
+      "Bash": 21,
+      "mcp__github__merge_pull_request": 2,
+      "ToolSearch": 1,
+      "mcp__github__add_issue_comment": 1,
+      "TaskUpdate": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.91,
+      "active_minutes": 14.91,
+      "model_minutes": 2.19,
+      "tool_minutes": 12.71,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "one engineer: classify 1,465 branches against PR history (2h), fix the cleanup decision and sweep with tests (3h), process doc and unlanded_work guard (1h); investigation time done earlier in the session is counted in the earlier records",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 145.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

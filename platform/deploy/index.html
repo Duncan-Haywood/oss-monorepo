@@ -80,6 +80,13 @@
       <input id="zl" type="text" value="eastus">
       <p class="muted">Create a dedicated service principal with the <em>Contributor</em> role on your subscription (<code>az ad sp create-for-rbac --role Contributor --scopes /subscriptions/&lt;id&gt;</code>). The values are encrypted in your browser with the new repository's public key and stored as that repository's Actions secrets; they go nowhere else. Delete the principal when you are done if you will not redeploy.</p>
     </div>
+    <div id="cloudflare" hidden>
+      <label for="cf">Cloudflare API token</label>
+      <input id="cf" type="password" autocomplete="off" spellcheck="false">
+      <label for="ca">Cloudflare account id</label>
+      <input id="ca" type="password" autocomplete="off" spellcheck="false">
+      <p class="muted">Create a token at <em>My Profile -> API Tokens</em> from the “Edit Cloudflare Workers” template, or a custom token with only <em>Account -> Cloudflare Pages -> Edit</em>. Your account id is on the right of the dashboard’s Workers &amp; Pages page. Both are encrypted in your browser with the new repository’s public key and stored as that repository’s Actions secrets; they go nowhere else. Delete the token when you are done if you will not redeploy.</p>
+    </div>
   </div>
 
   <h2>4. Deploy</h2>

@@ -119,12 +119,14 @@
     <div style="margin-top:12px"><label for="weekstart">Week starting (a Monday), for calendar files</label>
       <input id="weekstart" type="date"> <select id="icsperson" aria-label="Whose shifts"></select>
       <button type="button" class="secondary" id="download-ics">Download calendar (.ics)</button></div>
+    <div style="margin-top:12px"><button type="button" class="secondary" id="make-messages">Write a text for each person</button>
+      <div id="messages" aria-live="polite"></div></div>
   </section>
 
   <section class="card">
     <h2>How it is calculated</h2>
     <p><strong>Hard rules</strong> (never broken): a person is only given a shift that falls inside one of their availability windows for the whole shift; shifts for one person never overlap and leave at least your rest gap between them; weekly hours stay at or under their maximum; days in a row stay at or under your limit. <strong>Objective:</strong> first cover as many shift-hours as possible, then minimise real payroll (wage × (1 + extras), overtime hours above your threshold at the multiplier), plus a small penalty for each hour a person is under their minimum and a quadratic penalty for hours drifting from a fair share (the balance slider). <strong>Search:</strong> a greedy build that fills the most constrained shifts first, then seeded simulated annealing with reassign and swap moves over several restarts; a fixed seed makes it repeatable. On small problems the tests compare it with an exhaustive search of every roster and it finds the same optimum; on large ones it is a strong heuristic, not a proof.</p>
-    <p><strong>Not modelled:</strong> predictive-scheduling and fair-workweek notice rules, meal and rest breaks, minor-labor limits, split-shift premiums, skills or roles, tips, union rules, seniority, preferences beyond availability, time off requests across weeks, and the rest rule across the week boundary. <strong>Unverified:</strong> checked against exhaustive search and invented data in unit tests, not against a real operator's payroll or a scheduling law.</p>
+    <p><strong>Not modelled:</strong> predictive-scheduling and fair-workweek notice rules, meal and rest breaks, minor-labor limits, split-shift premiums, skills or roles, tips, union rules, seniority, preferences beyond availability, time off requests across weeks. The rest rule does carry over from last week if you add <code>prev: Sun 10pm</code> to a person (when their last shift ended). <strong>Unverified:</strong> checked against exhaustive search and invented data in unit tests, not against a real operator's payroll or a scheduling law.</p>
   </section>
 
   <section class="card">
@@ -160,7 +162,7 @@
   </footer>
 
   <script type="module">
-    import { parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -252,6 +254,22 @@
       if (!last) return;
       try { const who = $("#icsperson").value || null; download(who ? `roster-${who}.ics` : "roster.ics", rosterIcs(last, $("#weekstart").value, who), "text/calendar"); }
       catch (e) { status.textContent = e.message === "weekStart must be a Monday" ? "Pick a date that is a Monday." : "Pick the Monday the week starts on."; }
+    });
+
+    $("#make-messages").addEventListener("click", () => {
+      if (!last) return;
+      let msgs;
+      try { msgs = rosterMessages(last, $("#weekstart").value || null); } catch (e) { msgs = rosterMessages(last); }
+      const box = $("#messages"); box.textContent = "";
+      for (const m of msgs) {
+        const row = document.createElement("div"); row.style.marginTop = "8px";
+        const ta = document.createElement("textarea"); ta.readOnly = true; ta.rows = Math.min(8, m.text.split("\n").length + 1);
+        ta.value = m.text; ta.setAttribute("aria-label", "Message for " + m.person); ta.style.width = "100%";
+        const b = document.createElement("button"); b.type = "button"; b.className = "secondary"; b.textContent = "Copy for " + m.person;
+        b.addEventListener("click", () => { ta.select(); try { navigator.clipboard.writeText(m.text); } catch (e) { document.execCommand("copy"); } record("messages_copied"); });
+        row.append(ta, b); box.append(row);
+      }
+      record("messages_made");
     });
 
     // Remember the team on this device only; nothing is sent anywhere.

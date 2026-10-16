@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs,
-  sampleStaff, sampleShifts, fmtClock, _internals,
+  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
+  sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
 const staffOf = (t) => { const r = parseStaff(t); assert.deepEqual(r.errors, []); return r.staff; };
@@ -278,6 +278,21 @@ test("ics export: one event per assigned shift, overnight ends next day, per-per
   assert.throws(() => rosterIcs(r, "nope"), /YYYY/);
 });
 
+test("messages: one pasteable text per person, sorted by day, dated when a Monday is given, empty weeks said plainly", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any\nBen, 12, 40, 0, Mon 9-17");
+  const r = buildRoster(staff, slotsOf("Wed, 9, 17, 1, open\nMon, 9, 13, 1, early, role: any"));
+  const m = rosterMessages(r, "2026-10-12");
+  assert.deepEqual(m.map((x) => x.person), ["Ana", "Ben"]);
+  const ana = m.find((x) => x.person === "Ana");
+  assert.match(ana.text, /^Hi Ana, your shifts this week:/);
+  assert.match(ana.text, /Wed 14 Oct: 9am-5pm open/);
+  const undated = rosterMessages(r);
+  assert.match(undated.find((x) => x.person === "Ana").text, /Wed: /);
+  const none = rosterMessages(buildRoster(staffOf("Zed, 10, 40, 0, any\nAnn, 11, 40, 0, Mon 9-17"), slotsOf("Mon, 9, 13, 1, early")));
+  assert.ok(none.some((x) => /no shifts this week/.test(x.text)));
+  assert.throws(() => rosterMessages(r, "nope"), /YYYY/);
+});
+
 test("hire what-if: an unfillable shift reports what one more person would cover", () => {
   const staff = staffOf("Ann, 15, 40, 0, Mon-Fri 9-17");
   const slots = slotsOf("Sat, 9, 13, 1, Open");
@@ -316,4 +331,49 @@ test("coverOptions: an open shift has no current owner and reports an unreadable
   assert.equal(c.fits.length, 0);
   assert.deepEqual(c.blocked, [{ name: "Ana", reason: "already on a shift at that time" }]);
   assert.ok(coverOptions(staff, slots, null, 0).error);
+});
+
+test("prev: carries the rest rule across the week boundary", () => {
+  const staff = staffOf("Ana, 20, 40, 0, , prev: Sun 11pm\nBo, 20, 40, 0, ");
+  assert.equal(staff[0].prevEnd, -1440 + 23 * 60);
+  assert.equal(staff[1].prevEnd, null);
+  const slots = slotsOf("Mon, 6am, 10am, 1, Open");
+  const r = buildRoster(staff, slots);
+  const csv = rosterCsv(r);
+  assert.ok(csv.includes("Bo"), "Bo takes the open: Ana ended 11pm Sunday, only 7h of rest");
+  assert.ok(!csv.includes("Ana"));
+  const only = buildRoster(staffOf("Ana, 20, 40, 0, , prev: Sun 11pm"), slots);
+  assert.ok(/rest/i.test(JSON.stringify(only)), "the unfilled reason names the rest rule");
+});
+
+test("prev: errors on unreadable text", () => {
+  const r = parseStaff("Ana, 20, 40, 0, , prev: lately");
+  assert.ok(r.errors.some((e) => e.includes("prev")));
+});
+
+test("money formats whole dollars and cents, with a minus sign for negatives", () => {
+  assert.equal(money(1234.5), "$1,235");
+  assert.equal(money(0), "$0");
+  assert.equal(money(-42), "\u2212$42");
+  assert.equal(money2(1234.5), "$1,234.50");
+  assert.equal(money2(-0.5), "\u2212$0.50");
+});
+
+test("ics export: the per-person file holds only that person's shifts and unfilled shifts are left out", () => {
+  const staff = staffOf("Ana, 15, 40, 0, Mon 9-17\nBen, 12, 40, 0, Tue 9-17");
+  const r = buildRoster(staff, slotsOf("Mon, 9, 17, 1, am shift\nTue, 9, 17, 1, tue shift\nWed, 9, 17, 1, nobody shift"));
+  assert.equal(r.unfilledSlots, 1);
+  const all = rosterIcs(r, "2026-10-12");
+  assert.equal((all.match(/BEGIN:VEVENT/g) || []).length, 2);
+  assert.ok(!all.includes("nobody shift"));
+  const ana = rosterIcs(r, "2026-10-12", "Ana");
+  assert.equal((ana.match(/BEGIN:VEVENT/g) || []).length, 1);
+  assert.match(ana, /SUMMARY:am shift/);
+  assert.ok(!ana.includes("tue shift"));
+});
+
+test("hour targets split the week's hours in proportion to each person's cap", () => {
+  const ctx = _internals.buildContext(staffOf("Ana, 10, 30, 0, any\nBen, 10, 10, 0, any"), slotsOf("Mon, 9, 17, 1\nTue, 9, 17, 1"));
+  assert.ok(Math.abs(ctx.target[0] - 12) < 1e-9);
+  assert.ok(Math.abs(ctx.target[1] - 4) < 1e-9);
 });

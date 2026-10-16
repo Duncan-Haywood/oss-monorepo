@@ -359,6 +359,8 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'trade-bid-studio':
+    'it is the trade-agnostic front door over the same four quantities (wage, burden % of labour, overhead % of direct cost, target margin % of price) but is not yet wired to read the saved shop rates; nothing differs arithmetically, so wiring it in is the follow-up, not an exclusion.',
   'bowling-center-profit-calculator':
     'the hourly wage prices paid front-desk, bar, kitchen and mechanic hours across the open week of a bowling center, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net center revenue.',
   'padel-club-profit-calculator':

@@ -1397,6 +1397,11 @@
      "slug": "chip-systolic-p32",
      "title": "Does the MAC-engine lead survive MAC lanes up to P = 32 and arrays up to R = 4?",
      "summary": "The <em>chip-systolic-hidewide</em> comparison (F-16-4 quantised network, F = 16, 32) extended to MAC engines with P up to 32 lanes and arrays up to 4&times;8 and 2&times;16, every design simulated in Icarus Verilog against an integer NumPy reference and scored with Yosys. A negative result: the best MAC engine still wins, by 1.30&times; and 1.28&times; in cells&times;cycles per vector. P = 32 adds no cycles over P = 16 (only 16 hidden outputs) and a 0.7% cell-count difference at F = 32; 4&times;8 does not beat 2&times;8. One network family, one seed, gate counts only; no layout or power."
+    },
+    {
+     "slug": "chip-macp32cells",
+     "title": "Is P = 32 being smaller than P = 16 at equal cycles a real effect or a synthesis artefact?",
+     "summary": "<code>chip-systolic-p32</code> found the 32-lane MAC engine smaller than the 16-lane one although both take the same cycles. Re-synthesised with three model seeds and three Yosys/abc flows at F = 16 and 32, the sign depends on the flow: P = 32 is smaller in all 6 cases under two flows and larger in all 6 under a four-gate library, by 47 to 699 cells (1&ndash;10%). That swing is far above the 0.7% margin used to rank the best design earlier, so that ranking should be discarded. Three seeds, one tool version, generic-gate counts only; the mechanism is not traced."
     }
    ]
   },
@@ -2179,6 +2184,11 @@
      "summary": "A stylised, preliminary follow-up to <em>garment-twonodeprop</em>. Both gates are retuned on training rooms for each actuation lag and a per-swing penalty (one full close-to-open swing = 1 for either gate; the penalty scale is an assumption), then scored on held-out rooms. The proportional gate has the lower cost in 52 of 80 cells, by at most 0.096&nbsp;C on a proxy of order 0.3&ndash;1.5&nbsp;C; at the highest penalty the gain holds in the between rooms (8 of 8) but mostly reverses in the outside rooms (2 of 8). Simulated comfort, not a claim about any real garment."
     },
     {
+     "slug": "garment-twonodewide",
+     "title": "Is the outside-room reversal of the proportional infrared gate a training-range artefact?",
+     "summary": "A stylised, preliminary follow-up to <em>garment-twonodepen</em>. Both gates are retuned on a wider set of rooms (20&ndash;28&nbsp;C instead of 22&ndash;26&nbsp;C) and scored on rooms held out of both. At the highest penalty, proportional wins 7 of 8 cases at 21 and 27&nbsp;C when tuned wide, against 4 of 8 when tuned narrow, so the reversal is partly an artefact of the training range. At 18 and 30&nbsp;C the gates differ by at most 0.007&nbsp;C, which this model cannot resolve. Two penalties only; simulated comfort, not a claim about any real garment."
+    },
+    {
      "slug": "garment-twonodeopt",
      "title": "How far is the thermostat-driven infrared-gating textile from the best possible switching schedule when the room temperature steps?",
      "summary": "A stylised, preliminary follow-up to <em>garment-twonodestep</em>. Exhaustive search over open/closed schedules (at most 3 toggles on a 10&nbsp;min grid, instant actuation) in the switchable two-node model, scored by mean |skin temperature &minus; 33.7&nbsp;C| (a proxy, not a comfort index). One toggle is enough (more improve the score by at most 0.001&nbsp;C). The best toggle is not always at the step: it is early or late after a step down. The gate is within 0.02&nbsp;C of the optimum after a step up but 0.06&ndash;0.11&nbsp;C away after a step down (0.18 with 10&nbsp;min lag in one case). One person, two assumed transmittances, a coarse grid; not a claim about any real garment."
@@ -2274,6 +2284,16 @@
      "slug": "accel-dataflow",
      "title": "Which dataflow should a small keyword-spotting accelerator use, and does the answer survive allowing an input buffer?",
      "summary": "Four dataflows (output-, weight-, input-stationary and reduction-tree) of a <em>P</em>-lane MAC array, as schedules walked cycle by cycle on the 40 <em>accel-kws</em> models, with SRAM-access counts that match closed forms exactly and, at <em>P</em>&nbsp;=&nbsp;1, the measured RTL cycles of <em>accel-kws</em>. At batch 1 output-stationary is best (input-stationary is a median 1.2&times; to 4.1&times; worse, falling with lanes); at batch 4 it wins every model while weight-stationary is a median 4.5&ndash;9.0&times; worse through partial-sum traffic. Allowing an activation buffer flips the batch-4 winner to the input-mapped flows at 32 lanes (1.37&times; better), so the ranking rests on a modelling choice. Stylised: assumed energy constants, a one-cycle register model, no RTL beyond one lane, Timeloop not tried."
+    },
+    {
+     "slug": "accel-plane",
+     "title": "Does a loop-nest cycle model of a P-lane MAC array match RTL at more than one lane, tails included?",
+     "summary": "Output-stationary and reduction-tree matrix-vector engines written in Verilog for the two <em>accel-kws</em> layer shapes (64&times;70 and 11&times;64), simulated in Icarus Verilog at 1 to 32 lanes. All 36 sweep points are bit-exact against NumPy, and RTL cycles equal the <em>accel-dataflow</em> schedule model plus a constant 2 (3 with a registered adder tree), including ragged last tiles: output-stationary needs 66 cycles against 46 for the reduction tree on the 11-output layer at 16 lanes, and 142 against 194 on the 70-input layer at 32 lanes. Yosys generic-gate area grows faster for the output-stationary engine (11,799 against 8,216 cells at 32 lanes), partly because of its registered output vector. Stylised: batch 1, generic gates not a library, no memories, no timing."
+    },
+    {
+     "slug": "accel-planebatch",
+     "title": "Does the weight-stationary advantage in the dataflow model survive RTL at batch above 1, and what does it cost in gates?",
+     "summary": "One parameterised Verilog engine implements output- and weight-stationary batched matrix products (P&nbsp;=&nbsp;8 lanes) for the two <em>accel-kws</em> layer shapes, simulated in Icarus Verilog at batch 1 to 16. All 20 points are bit-exact against NumPy, RTL cycles equal the <em>accel-dataflow</em> schedule model plus a constant 2, and RTL weight and activation fetch counts match the model exactly. Weight-stationary fetches the 4,480 weights of the 64&times;70 layer once instead of <em>B</em> times at identical cycles, but keeping its partial sums in registers grows the design from 3,024 to 12,284 generic cells (about 192 flops per extra batch element) against a flat ~3,000 for output-stationary. The model's &lsquo;weight-stationary is worst&rsquo; ranking came from partial-sum SRAM traffic that this RTL trades for area. Stylised; generic gates, no memories, no energy figures."
     },
     {
      "slug": "accel-policy",
@@ -2467,6 +2487,11 @@
      "slug": "mimic-anycontext-detect",
      "title": "Does a prompt-free human-vs-machine detector hold up on context families it never saw?",
      "summary": "Detector side of <code>mimic-anycontext</code>, run without an LLM because the model download was blocked. A TF-IDF n-gram logistic-regression detector is fitted on seven of eight RAID-derived families and scored on the eighth: mean AUROC 0.934 against 0.985 when fitted inside the family, worst on recipes (0.843), abstracts and wiki. Forty labelled target items close most of the gap on recipes. Held-out generators cost little (AUROC 0.90&ndash;1.00) and length does not explain it. Stylised: plain-prompt machine text only, one detector type; the prompt-optimising imitator is not tested."
+    },
+    {
+     "slug": "mimic-surface",
+     "title": "How much text does a prompt-free human-vs-machine detector need, and what does it key on?",
+     "summary": "The <code>mimic-contexts</code> n-gram detector (TF-IDF character and word n-grams, fitted on five families) is scored on poetry, reviews and wiki after cutting each text to its first N characters: AUROC 0.65 at 50, 0.75 at 100, 0.84 at 400 (the length the imitation-game loop shows its detector) and 0.93 at 1,500; refitting on the short text recovers only 0.02&ndash;0.07. Stripping punctuation changes AUROC by +0.003 and shuffling words by &minus;0.014, so the detector reads vocabulary, not syntax or formatting (lowercasing and whitespace views are no-ops for this vectoriser). Preliminary: plain-prompt RAID text only, one detector, one split, no LLM involved."
     },
     {
      "slug": "mimic-twinc2st",

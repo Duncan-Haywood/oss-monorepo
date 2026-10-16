@@ -74,15 +74,15 @@
   <section class="card">
     <h2>FAQ</h2>
     <h3>What does Workflow Audit check?</h3>
-    <p>Ten documented patterns, listed above, each from a checker you can run on its own.</p>
+    <p>Ten documented patterns: pwn-request checkouts and script injection, secret leaks into logs, artifact and cache poisoning, self-hosted runners reachable from forks, secrets: inherit on untrusted triggers, write-all or missing permissions, checkout credentials persisted in .git/config, deprecated action runtimes, and jobs with no timeout-minutes.</p>
     <h3>How is this different from zizmor?</h3>
-    <p>zizmor goes deeper. This one is a zero-install single step that ranks findings and writes the summary and SARIF for you. Running both is reasonable.</p>
+    <p>zizmor is a broader, more mature static analyser and is the better choice for deep coverage. Workflow Audit is a smaller, dependency-free option that runs as a one-step Action with no install, ranks findings by severity, and writes the job summary and SARIF for you. Running both is reasonable.</p>
     <h3>Does it send my workflows anywhere?</h3>
-    <p>No. It makes no network calls of its own.</p>
+    <p>No. It reads files in the checkout on the runner and makes no network calls of its own.</p>
     <h3>Does a clean report mean my workflows are secure?</h3>
-    <p>No. It matches ten patterns line by line, it is not a security audit, and it cannot see what a called action does.</p>
+    <p>No. It matches ten specific patterns line by line. It is not a security audit and cannot see what a called action or reusable workflow does.</p>
     <h3>What does it cost?</h3>
-    <p>Nothing. MIT licence; sponsoring is optional.</p>
+    <p>Nothing. It is MIT-licensed open source; sponsoring is optional.</p>
   </section>
 
   <footer>

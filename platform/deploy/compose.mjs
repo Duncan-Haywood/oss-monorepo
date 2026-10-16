@@ -32,6 +32,12 @@ export const PROVIDERS = {
     needs: ['github', 'azure'],
     repoPrivate: true,
   },
+  cloudflare: {
+    label: 'Cloudflare Pages',
+    blurb: 'Free tier, no card needed. Your own Cloudflare account serves the site on its global network under a pages.dev address. Needs a Cloudflare API token (Pages edit) and your account id.',
+    needs: ['github', 'cloudflare'],
+    repoPrivate: true,
+  },
   android: {
     label: 'Android app (APK + Play bundle)',
     blurb: 'Wraps this app in a native Android shell (Capacitor) and builds it in your own GitHub Actions: a debug APK you can install on your phone, and a signed Play Store bundle if you add your own keystore secrets. Free for a public repository. Publishing to Google Play stays your step, with your own developer account.',
@@ -418,6 +424,13 @@ is the \`TOFU_STATE_PASSPHRASE\` secret. Without it the state cannot be read, so
 keep a copy.
 
 To run it from your own machine instead, see \`tofu/README.md\`.
+`
+    : provider === 'cloudflare'
+    ? `
+## Tear it down
+
+Delete the project under **Cloudflare dashboard -> Workers & Pages**, then delete this repository
+and the API token you created.
 `
     : `
 ## Tear it down
