@@ -253,7 +253,7 @@ function mulberry32(seed) {
 }
 
 const DEFAULTS = {
-  burdenPct: 0, otAfter: 40, otMult: 1.5, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
+  burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
   balance: 25, shortfallValue: 8, seed: 1, restarts: 4, iterations: 0,
 };
 
@@ -332,10 +332,27 @@ function hoursOf(ctx, list) {
 }
 
 // Real payroll for one person (what the roster costs), and the extra "soft" penalties the search also weighs.
-function payroll(ctx, p, h) {
+// Hours split into straight time, overtime and double time. Weekly overtime counts only hours not already
+// paid at a daily premium (the California method). A shift counts on the day it starts.
+// dailyOtAfter / dailyDtAfter of 0 turn the daily rules off, which gives the plain weekly rule.
+function payParts(ctx, list) {
+  const { o, slots } = ctx;
+  const byDay = new Map();
+  for (const i of list) byDay.set(slots[i].day, (byDay.get(slots[i].day) || 0) + (slots[i].end - slots[i].start) / 60);
+  let straight = 0, ot = 0, dt = 0;
+  for (const h of byDay.values()) {
+    let rest = h;
+    if (o.dailyDtAfter > 0 && rest > o.dailyDtAfter) { dt += rest - o.dailyDtAfter; rest = o.dailyDtAfter; }
+    if (o.dailyOtAfter > 0 && rest > o.dailyOtAfter) { ot += rest - o.dailyOtAfter; rest = o.dailyOtAfter; }
+    straight += rest;
+  }
+  const weekly = Math.max(0, straight - o.otAfter);
+  return { straight: straight - weekly, ot: ot + weekly, dt };
+}
+function payroll(ctx, p, list) {
   const { o, staff } = ctx;
-  const reg = Math.min(h, o.otAfter), ot = Math.max(0, h - o.otAfter);
-  return staff[p].wage * (1 + o.burdenPct / 100) * (reg + ot * o.otMult);
+  const q = payParts(ctx, list);
+  return staff[p].wage * (1 + o.burdenPct / 100) * (q.straight + q.ot * o.otMult + q.dt * o.dtMult);
 }
 function softPenalty(ctx, p, h) {
   const { o, staff, target, avgWage } = ctx;
@@ -345,7 +362,7 @@ function softPenalty(ctx, p, h) {
 }
 function personScore(ctx, p, list) {
   const h = hoursOf(ctx, list);
-  return payroll(ctx, p, h) + softPenalty(ctx, p, h);
+  return payroll(ctx, p, list) + softPenalty(ctx, p, h);
 }
 
 function insertSorted(ctx, list, i) {
@@ -478,8 +495,9 @@ function summarise(ctx, owner) {
   let cost = 0, otHours = 0, hours = 0;
   const people = staff.map((p, k) => {
     const h = hoursOf(ctx, lists[k]);
-    const ot = Math.max(0, h - ctx.o.otAfter);
-    const c = payroll(ctx, k, h);
+    const q = payParts(ctx, lists[k]);
+    const ot = q.ot + q.dt;
+    const c = payroll(ctx, k, lists[k]);
     cost += c; otHours += ot; hours += h;
     return {
       name: p.name, shifts: lists[k].length, hours: h, otHours: ot, cost: c, wage: p.wage,
@@ -611,7 +629,7 @@ export function coverOptions(staff, slots, roster, slotIndex, options = {}) {
   const current = owner[slotIndex];
   const listOf = (p) => owner.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0);
   const sortList = (l) => l.sort((a, b) => slots[a].start - slots[b].start || a - b);
-  const dollars = (p, list) => payroll(ctx, p, hoursOf(ctx, list));
+  const dollars = (p, list) => payroll(ctx, p, list);
   const fits = [], blocked = [];
   for (let p = 0; p < ctx.P; p++) {
     if (p === current) continue;
@@ -625,7 +643,7 @@ export function coverOptions(staff, slots, roster, slotIndex, options = {}) {
         delta += dollars(current, cb.filter((k) => k !== slotIndex)) - dollars(current, cb);
       }
       const h = hoursOf(ctx, nl);
-      fits.push({ name: staff[p].name, extraCost: delta, hoursAfter: h, overtimeAfter: Math.max(0, h - ctx.o.otAfter) });
+      fits.push({ name: staff[p].name, extraCost: delta, hoursAfter: h, overtimeAfter: (({ ot, dt }) => ot + dt)(payParts(ctx, nl)) });
       continue;
     }
     let reason;

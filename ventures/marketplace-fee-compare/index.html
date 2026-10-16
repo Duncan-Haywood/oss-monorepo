@@ -303,7 +303,7 @@
       <p class="fine seo-link"><a href="./should-i-move-off-marketplaces-to-my-own-store.html">Should I move off marketplaces to my own store?</a> works the same item at five and sixty orders a month, and shows why your own store's lowest fee rate does not net the most until volume covers its subscription.</p>
       <p class="fine seo-link">Already selling and wondering whether you want connected analytics instead? <a href="./vs-sellerboard.html">This tool vs. Sellerboard</a> sets a free pre-listing comparison against a paid, account-connected profit report, and says plainly what this page cannot tell you.</p>
       <p class="fine seo-link">Wondering why not just open each marketplace's own calculator? <a href="./vs-checking-each-marketplace-separately.html">This tool vs. checking each marketplace separately</a> walks through what goes wrong reconciling six tabs by hand, and what each channel's own calculator still does better.</p>
-      <p class="fine seo-link">Need returns and shelf time in the ranking too? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks one item across eBay, Etsy, Amazon, Reverb, your own store, and a local sale after expected returns and what one listing is worth per month of shelf.</p>
+      <p class="fine seo-link">Need returns and shelf time in the ranking too? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> (it opens with the item above) ranks one item across eBay, Etsy, Amazon, Reverb, your own store, and a local sale after expected returns and what one listing is worth per month of shelf.</p>
     </section>
 
     <section>
@@ -363,7 +363,7 @@
   } from "./calc.mjs";
   import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
   import { decodeShare, encodeShare } from "./share.mjs";
-  import { handoffsForRows, handoffUrl, excludedHandoffUrl } from "./handoff.mjs";
+  import { handoffsForRows, handoffUrl, excludedHandoffUrl, whereToSellUrl } from "./handoff.mjs";
 
   const FIELD_IDS = [
     "price", "shippingCharged", "itemCost", "shippingCost",
@@ -413,6 +413,7 @@
   // the first paint can only hold the page's defaults, so carrying the item
   // requires rebuilding when the item changes.
   function paintPointers(item) {
+    el("whereToSellLink").setAttribute("href", whereToSellUrl(item));
     el("notCovered").innerHTML = CHANNELS.map((channel) => {
       // The `??` is defensive only — `handoff.test.mjs` asserts all ten ranked
       // channels have an entry — but the fallback is still built from the

@@ -455,3 +455,37 @@ export function handoffsForRows(rows = [], item = {}) {
     })
     .filter(Boolean);
 }
+
+/**
+ * Inputs this page shares with `where-to-sell-calculator`, by that page's id.
+ *
+ * Its shared-input vocabulary matches this page's except that it keeps
+ * packaging apart; this page folds packaging into `otherCost`, which it reads
+ * as its own `otherCost`, so nothing is dropped. The category never travels:
+ * where-to-sell has its own channel switches instead.
+ */
+export const WHERE_TO_SELL_FIELDS = [
+  'price', 'shippingCharged', 'shippingCost', 'itemCost', 'otherCost', 'monthlyOrders',
+];
+
+/**
+ * A relative link into the where-to-sell calculator carrying the item.
+ *
+ * That page reads `#c=<encoded JSON>` (`share.mjs` there). The payload is built
+ * inline rather than imported so renaming that page's inputs cannot move this
+ * link's target at runtime; `handoff.test.mjs` imports its decoder and checks
+ * the round trip instead. A blank item gives the bare link.
+ */
+export function whereToSellUrl(item = {}) {
+  const shared = {};
+  for (const key of WHERE_TO_SELL_FIELDS) {
+    const value = item[key];
+    if (value === null || value === undefined) continue;
+    if (typeof value === 'string' && value.trim() === '') continue;
+    const parsed = Number(value);
+    if (Number.isFinite(parsed) && parsed >= 0) shared[key] = parsed;
+  }
+  const base = '../where-to-sell-calculator/';
+  if (Object.keys(shared).length === 0) return base;
+  return `${base}#c=${encodeURIComponent(JSON.stringify({ shared }))}`;
+}

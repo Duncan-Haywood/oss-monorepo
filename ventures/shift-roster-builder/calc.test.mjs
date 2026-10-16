@@ -400,6 +400,30 @@ test("off: reports unreadable text", () => {
   assert.equal(parseStaff("Ana, 20, 40, 0, any, off: Wed 9-").errors.length, 1);
 });
 
+test("daily overtime: California 8/12 pays 1.5x over 8 and 2x over 12, and weekly overtime skips hours already premium", () => {
+  const staff = staffOf("Ana, 20, 60, 0, any");
+  const one = (days, a, b) => slotsOf(`${days}, ${a}, ${b}, 1, x`);
+  const opts = { dailyOtAfter: 8, dailyDtAfter: 12, minRestHours: 0 };
+  // one 14 hour day: 8 straight + 4 at 1.5x + 2 at 2x
+  const r = buildRoster(staff, one("Mon", 6, 20), opts);
+  assert.equal(r.cost, 20 * (8 + 4 * 1.5 + 2 * 2));
+  assert.equal(r.otHours, 6);
+  // weekly rule only: the same 14 hours cost straight time
+  assert.equal(buildRoster(staff, one("Mon", 6, 20)).cost, 20 * 14);
+  // five 9-hour days = 45 h: daily OT 5 h; straight 40 h, so no extra weekly OT on top
+  const w = buildRoster(staff, one("Mon-Fri", 8, 17), { dailyOtAfter: 8, minRestHours: 0 });
+  assert.equal(w.cost, 20 * (40 + 5 * 1.5));
+  assert.equal(w.otHours, 5);
+});
+
+test("daily overtime steers the search to split a long day across two people", () => {
+  const staff = staffOf("Ana, 20, 40, 0, any\nBen, 20, 40, 0, any");
+  const slots = slotsOf("Mon, 6, 14, 1, a\nMon, 14, 22, 1, b");
+  const r = buildRoster(staff, slots, { dailyOtAfter: 8, balance: 0 });
+  assert.equal(r.cost, 20 * 16);
+  assert.equal(r.otHours, 0);
+});
+
 test("carry over: last week's CSV sets prev: so the rest rule holds across the boundary", async () => {
   const { carryOverStaff, lastShiftEnds, parseStaff, buildRoster, parseShifts, rosterCsv } = await import("./calc.mjs");
   const csv = [
