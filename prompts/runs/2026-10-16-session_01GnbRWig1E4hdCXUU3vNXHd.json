@@ -1,0 +1,49 @@
+{
+ "date": "2026-10-16",
+ "session": "https://claude.ai/code/session_01GnbRWig1E4hdCXUU3vNXHd",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "follow the instructions in ./prompt.md",
+ "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-16T10:41:12Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "accel-fetchprice (track 8 next step)",
+ "projects": [
+  "research/accel-fetchprice"
+ ],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7373",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 6,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "pytest/matplotlib not on PATH python3 (/usr/local/bin) and apt had no package; /usr/bin/python3 had both. Not documented."
+  },
+  {
+   "file": "research/CITATIONS.bib",
+   "issue": "No Horowitz 2014 entry, so no checked citation for energy ratios; used none."
+  }
+ ],
+ "deviations": [],
+ "goal": null,
+ "notes": "Track draw 0.708 -> track 8. Breakeven ratios only; no energy constants invented. Cost via runcost not attached (transcript unavailable offline).",
+ "corrections": [],
+ "redteam": null
+}
