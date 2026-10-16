@@ -510,3 +510,16 @@ field will.
   skipped, recent runs are research/doc-only. Stale friction noted:
   promptctl BrokenPipe is already fixed in main.
 - Result: (next review)
+
+## E25: review 2026-10-16 (seventh of the day)
+
+- Change: none to prompts or docs; measurement refresh (`prompts/derived/`)
+  and drift report only. Nothing in the friction table was new and fixable
+  at low cost, and review/2 has 3 runs.
+- Measure: n/a.
+- Candidates: ventures/2 (22, 91%) vs ventures/1 (68, 91%), research/1 (18,
+  100%) vs research/0 (348, 98%): overlap, keep collecting. review/2: 2 runs.
+- Audit: league-schedule-generator re-run, 59 pass. Research audit not
+  runnable (no pytest, apt fails).
+- Drift: see `prompts/drift/2026-10-16g.md`.
+- Result: (next review)
