@@ -118,3 +118,28 @@ test("setup is remembered on-device only, with save/load/forget controls", () =>
   assert.match(html, /id="forget"/);
   assert.match(html, /this device only/);
 });
+
+test("hire-test guide: every figure in the worked example is what the engine returns", async () => {
+  const { parseStaff, parseShifts, buildRoster } = await import("./calc.mjs");
+  const staffT = "name, wage, max hours, min hours, availability\nMaya, 24, 40, 32, Tue-Sat 9-19\nJo, 20, 36, 24, Mon-Fri 9-19\nPriya, 18, 24, 12, Thu-Sun 10-20\nSam, 15, 20, 8, Mon-Sat 9-19";
+  const shiftT = "day, start, end, people needed, label\nMon-Fri, 9, 14, 2, am\nMon-Fri, 14, 19, 2, pm\nSat, 10, 18, 3, saturday\nSun, 10, 16, 1, sunday";
+  const slots = parseShifts(shiftT).slots;
+  const r = buildRoster(parseStaff(staffT).staff, slots);
+  assert.equal(r.totalHours, 130);
+  assert.equal(r.unfilledSlots, 6);
+  assert.equal(r.unfilledHours, 33);
+  assert.equal(r.cost, 1904);
+  assert.equal(r.hireTest.coveredHours, 28);
+  assert.equal(r.hireTest.stillUnfilledHours, 5);
+  assert.equal(Math.round(r.hireTest.extraCost), 545);
+  const r2 = buildRoster(parseStaff(staffT + "\nNew hire, 17, 30, 0, any").staff, slots);
+  assert.equal(r2.unfilledSlots, 1);
+  assert.equal(r2.unfilledHours, 5);
+  assert.equal(r2.cost, 2380);
+  const html = page("do-i-need-to-hire-another-employee.html");
+  for (const t of ["130 hours", "120 hours", "33 hours", "$1,904", "$2,380", "No warranty", "not legal, tax or financial advice"]) assert.ok(html.includes(t), t);
+  assert.match(page("sitemap.xml"), /do-i-need-to-hire-another-employee\.html/);
+  assert.match(page("index.html"), /do-i-need-to-hire-another-employee\.html/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
