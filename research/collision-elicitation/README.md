@@ -8,3 +8,7 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, <1 s
 PYTHONPATH=src python3 experiments/run.py                  # ~10 s; output in experiments/results.txt
 ```
 i.i.d.-run theory plus simulated float32 summation orders; MIT.
+
+## Figure
+
+`experiments/variance.svg` is drawn by `experiments/figure.py`, which parses the committed `results.txt` (no retyped numbers) and is the figure on the project's home page.

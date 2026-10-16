@@ -118,3 +118,7 @@ PYTHONPATH=src python3 experiments/run.py       # about 45 s, writes experiments
 ## Outside dependencies
 
 None beyond numpy (and pytest to run the tests). No pretrained model, dataset or service is used.
+
+## Figure
+
+`experiments/budget.svg` is drawn by `experiments/figure.py`, which parses the committed `results.txt` (no retyped numbers) and is the figure on the project's home page.
