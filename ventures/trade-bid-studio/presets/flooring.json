@@ -1,0 +1,79 @@
+{
+  "slug": "flooring-bid-calculator",
+  "name": "Flooring installation",
+  "group": "Interior & finishes",
+  "summary": "Floor installs priced per square foot by material and tear-out, plus stairs, transitions, leveling and base.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 28,
+  "burdenRate": 30,
+  "overheadRate": 12,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Install LVP, tear out carpet and pad",
+      "unit": "sq ft",
+      "qty": 344,
+      "hoursPerUnit": 0.0165,
+      "materialPerUnit": 3.12,
+      "source": "LVP straight lay 80 sf/h + carpet tear-out 0.4 h/100 sf (MATERIAL_PRESETS, TEAROUT_PRESETS); flooring $2.40 + underlayment $0.35 per purchased sf x 1.08 waste (index.html) + $0.15/sf disposal; living room 280 + hallway 64 sf (index.html STARTING_ROOMS)"
+    },
+    {
+      "label": "Install LVP, tear out ceramic tile",
+      "unit": "sq ft",
+      "qty": 180,
+      "hoursPerUnit": 0.0325,
+      "materialPerUnit": 3.52,
+      "source": "80 sf/h + tile tear-out 2.0 h/100 sf; $2.75 x 1.08 + $0.55/sf disposal (TEAROUT_PRESETS ceramic tile); kitchen 180 sf (index.html STARTING_ROOMS)"
+    },
+    {
+      "label": "Stair treads",
+      "unit": "tread",
+      "qty": 13,
+      "hoursPerUnit": 0.4,
+      "materialPerUnit": 18,
+      "source": "hoursPerTread 0.4, $18 per tread, 13 treads (index.html)"
+    },
+    {
+      "label": "Transitions",
+      "unit": "each",
+      "qty": 6,
+      "hoursPerUnit": 0.15,
+      "materialPerUnit": 12,
+      "source": "hoursPerTransition 0.15, $12 each, 6 transitions (index.html)"
+    },
+    {
+      "label": "Move furniture",
+      "unit": "room",
+      "qty": 2,
+      "hoursPerUnit": 0.75,
+      "materialPerUnit": 0,
+      "source": "hoursPerFurnitureRoom 0.75, 2 rooms (index.html); no material in the specialist"
+    },
+    {
+      "label": "Leveling and patch",
+      "unit": "sq ft",
+      "qty": 80,
+      "hoursPerUnit": 0.008,
+      "materialPerUnit": 0.9,
+      "source": "0.8 h per 100 sf, $0.90/sf, 80 sf (index.html)"
+    },
+    {
+      "label": "Baseboard and shoe",
+      "unit": "linear ft",
+      "qty": 140,
+      "hoursPerUnit": 0.012,
+      "materialPerUnit": 1.1,
+      "source": "1.2 h per 100 lf, $1.10/lf, 140 lf (index.html)"
+    },
+    {
+      "label": "Dump ticket and travel",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 125,
+      "source": "dump/disposal ticket $85 + travel/trip $40 (index.html)"
+    }
+  ],
+  "specialistModels": "Room-by-room material choice with its own waste and install rate (tile, hardwood, carpet, sheet vinyl) and six tear-out types."
+}
