@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_019p9iaenaVmjEb28Jpwk75c",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T15:18:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "shipped",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    "CLAUDE.md: regen.mjs takes >120s and regen --verify is similarly slow; the checklist doesn't warn to background it."
+  ],
+  "deviations": [
+    "Did not run the full local checklist; ran venture tests + regen --verify only (starvation not classified)."
+  ],
+  "goal": null,
+  "notes": "Explore idea: 1099-k-threshold-checker only knew 4 states; secondary sources flag DC/IL/MO/NJ/AR but conflict on amounts and primary sources were unreachable (egress), so added unverified-state cautions instead of guessed thresholds. Next: verify statutes and add real thresholds.",
+  "corrections": [],
+  "redteam": null
+}
