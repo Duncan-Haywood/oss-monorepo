@@ -1,24 +1,27 @@
-sources 27, practices 28, validation problems 0
-ledger rows 495; rows with any reported error 139
+sources 30, practices 31, validation problems 0
+ledger rows 499; rows with any reported error 141
 
 failure class: rows matching / rows (Wilson 95%)
-  coordination   11/495 =  2.2%  ( 1.2% to  3.9%)
-  unlanded        8/495 =  1.6%  ( 0.8% to  3.2%)
-  unverified      8/495 =  1.6%  ( 0.8% to  3.2%)
-  tooling        19/495 =  3.8%  ( 2.5% to  5.9%)
-  rework         10/495 =  2.0%  ( 1.1% to  3.7%)
-  duplicate      17/495 =  3.4%  ( 2.2% to  5.4%)
+  coordination   11/499 =  2.2%  ( 1.2% to  3.9%)
+  unlanded        8/499 =  1.6%  ( 0.8% to  3.1%)
+  unverified      8/499 =  1.6%  ( 0.8% to  3.1%)
+  tooling        19/499 =  3.8%  ( 2.5% to  5.9%)
+  rework         10/499 =  2.0%  ( 1.1% to  3.6%)
+  duplicate      17/499 =  3.4%  ( 2.1% to  5.4%)
 
 practice  transfer  status                                   target        ceiling  priority
   P23  yes      not adopted (batch 4 found a ledger layo tooling        3.8%    3.8%
   P27  yes      partly adopted (regen.mjs and sync_tree_ coordination   2.2%    2.2%
   P28  yes      adopted (CLAUDE.md: merge when CI is gre rework         2.0%    2.0%
+  P30  yes      adopted (prompt.md: quality beats volume rework         2.0%    2.0%
   P6   partial  not adopted                              tooling        3.8%    1.9%
   P19  partial  not adopted (suites have no runtime budg tooling        3.8%    1.9%
   P26  partial  not adopted                              tooling        3.8%    1.9%
+  P29  partial  partly adopted (research projects are pu tooling        3.8%    1.9%
   P10  partial  adopted (track 10 metric has three terms duplicate      3.4%    1.7%
   P18  partial  partly adopted (runs claim one milestone duplicate      3.4%    1.7%
   P21  partial  partly adopted (a project README opens w duplicate      3.4%    1.7%
+  P31  partial  partly adopted (research/CLAUDE.md asks  duplicate      3.4%    1.7%
   P1   yes      adopted (prompt.md, Landing work)        unlanded       1.6%    1.6%
   P5   yes      not adopted                              unverified     1.6%    1.6%
   P7   yes      adopted (prompt.md steps 4 and 6)        unlanded       1.6%    1.6%
