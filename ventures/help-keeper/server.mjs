@@ -58,6 +58,14 @@ export function handler(cfg) {
       if (path === "/healthz") return text(200, "ok");
       if (path === "/robots.txt") return send(200, `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /search\nSitemap: ${base}/sitemap.xml\n`, "text/plain");
       if (path === "/sitemap.xml") return send(200, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n<url><loc>${base}/</loc></url>\n${published(state).map((a) => `<url><loc>${base}/a/${a.slug}</loc><lastmod>${new Date(a.updated).toISOString().slice(0, 10)}</lastmod></url>`).join("\n")}\n</urlset>\n`, "application/xml");
+      if (path === "/llms.txt") { // llmstxt.org: a Markdown index so AI assistants can find and cite the answers
+        const lines = collections(state).flatMap((c) => [`\n## ${c.name}\n`, ...c.articles.map((a) => `- [${a.title}](${base}/a/${a.slug}.md): ${plain(a.body).slice(0, 120).replace(/\s+/g, " ")}`)]);
+        return send(200, `# ${state.settings.name}\n\n> ${state.settings.tagline}\n${lines.join("\n")}\n`, "text/plain; charset=utf-8");
+      }
+      if ((m = path.match(/^\/a\/([a-z0-9-]+)\.md$/)) && req.method === "GET") { // raw Markdown of a published article
+        const a = bySlug(state, m[1]); if (!a || a.status !== "published") return send(404, notFound(rcfg, state));
+        return send(200, `# ${a.title}\n\n${a.body}\n`, "text/markdown; charset=utf-8");
+      }
       if (path === "/" && req.method === "GET") return send(200, homePage(rcfg, state));
 
       if (path === "/search" && req.method === "GET") {
