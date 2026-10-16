@@ -207,6 +207,7 @@ node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
 node --test platform/deploy/*.test.mjs
 node --test platform/distribution/*.test.mjs
 node --test platform/llm/*.test.mjs
+node --test platform/counter/*.test.mjs
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
 # No pytest? `apt-get update && apt-get install -y python3-pytest` (pip may not reach PyPI). gitops/tests/test_worker_run.py fails ~26 on clean main when `gh` is preinstalled: compare against origin/main before blaming your change.
