@@ -111,8 +111,9 @@ def test_proceed_also_surfaces_an_empty_pipeline():
     """PROCEED (low meta-work) is the common lane, and until now it never
     looked at the pipeline -- "screen a fresh niche" only reached a session
     through the BUILD branch, which fires on *high* meta-work share. An
-    empty build-now queue and DIRECTION.md's new-ventures-first framing
-    should reach the common case too, not only the rare one.
+    empty build-now queue should reach the common case too, not only the
+    rare one -- pointed at consolidation first, since 2026-10-16, rather
+    than at one more clone (docs/reports/2026-10-16-calculator-glut.md).
     """
     call, reasons = sg.verdict(
         revenue=False, meta=sg.META_SHARE_THRESHOLD - 0.01, cadence=2.0, targets=[]
@@ -120,7 +121,8 @@ def test_proceed_also_surfaces_an_empty_pipeline():
     assert call == "PROCEED"
     joined = " ".join(reasons)
     assert "screened-out.md" in joined
-    assert "new ventures rank first" in joined.lower()
+    assert "consolidate" in joined.lower()
+    assert "new ventures rank first" not in joined.lower()
 
 
 def test_proceed_stays_quiet_when_the_pipeline_still_has_a_target():
