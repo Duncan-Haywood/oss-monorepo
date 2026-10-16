@@ -63,8 +63,29 @@ Duplicates are a smaller cost. 50 PRs were closed unmerged from 2026-10-01
 to 10-15, against roughly 900 merged. Nearly all were the same niche built
 twice in parallel, under the same slug or a near one.
 
+## A gate that is always red is no gate
+
+`Portfolio validate` has failed on every push to `main` since at least
+2026-09-29: more than 1,000 consecutive runs, as far back as the API lists.
+It stops at `score_ventures.py --check`, which requires a score row for
+every venture. About 530 have none, because sessions stopped writing them.
+Every step after that one has not run on any PR in that time. With 16
+sessions merging, each one reasonably reads the red as "already broken",
+and real failures hide behind it. On 2026-10-16 one did: #7226 broke
+`gitops/tests` and merged under the same red `validate`, and #7239 fixed
+it. #7240 fixed the 12 score-file problems that were plain data errors.
+The last one, coverage, needs a policy call.
+
+**Rule for a many-agent repository: `main` must be green, or the failing
+check must be fixed or removed the same day.** A check that stays red
+stops telling anyone anything, and it trains every agent to merge on red.
+
 ## What to change, highest return first
 
+0. **Get `Portfolio validate` green and keep it green.** Decide the
+   score-coverage rule (make missing rows a reported count, or score the
+   backlog), then make it a required check. Every fix below assumes CI
+   can tell a session that it broke something.
 1. **Stop committing the dead origin's mirror.** Drop `regen.mjs` from the
    pre-merge checklist and make the `gitops/prod/front-door*` staleness
    tests and their counts not block. Keep the generator, so a future
