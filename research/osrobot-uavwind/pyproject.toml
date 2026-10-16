@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-uavwind"
+version = "0.1.0"
+description = "What a steady wind does to the mass of a purpose-built observation UAV: extends osrobot-uav (stylised)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
