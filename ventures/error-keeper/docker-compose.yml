@@ -1,0 +1,17 @@
+# Any box with Docker:
+#   INGEST_KEY=$(openssl rand -hex 16) ADMIN_KEY=$(openssl rand -hex 16) docker compose up -d
+services:
+  error-keeper:
+    build: .
+    restart: unless-stopped
+    ports: ["8080:8080"]
+    volumes: ["state:/data"]
+    environment:
+      STATE: /data/state.json
+      INGEST_KEY: ${INGEST_KEY:?set INGEST_KEY (16+ characters)}
+      ADMIN_KEY: ${ADMIN_KEY:?set ADMIN_KEY (16+ characters)}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+      ALERT_WEBHOOK_SECRET: ${ALERT_WEBHOOK_SECRET:-}
+volumes:
+  state:

@@ -46,14 +46,18 @@ class Branches(unittest.TestCase):
         sh(self.work, "push", "-qf", str(self.upstream), f"{src}:{ref}")
 
     def archive(self, do_push=True):
-        return archive.archive_branches(self.here, str(self.upstream), "origin", do_push)
+        """What is still not a branch here after the run."""
+        return archive.archive_branches(self.here, str(self.upstream), "origin", do_push)[1]
+
+    def wanted(self):
+        return archive.archive_branches(self.here, str(self.upstream), "origin", False)[0]
 
     def test_every_branch_is_archived_under_the_prefix(self):
         sh(self.work, "checkout", "-qb", "claude/x")
         tip = self.commit("x")
         self.push_up("claude/x", "refs/heads/claude/x")
-        todo = self.archive()
-        self.assertEqual(set(todo), {"archive/research/main", "archive/research/claude/x"})
+        self.assertEqual(set(self.archive(do_push=False)), {"archive/research/main", "archive/research/claude/x"})
+        self.assertEqual(self.archive(), {})
         have = archive.archived_refs(self.here, "origin")
         self.assertEqual(have["archive/research/claude/x"], tip)
         self.assertEqual(self.archive(), {}, "a second run has nothing to do")
@@ -66,9 +70,9 @@ class Branches(unittest.TestCase):
         sh(self.work, "checkout", "-qb", "squashed", "main")
         gone = self.commit("s")
         self.push_up(gone, "refs/pull/2/head")
-        todo = self.archive()
-        self.assertNotIn("archive/research-pull/1", todo)
-        self.assertEqual(todo["archive/research-pull/2"], gone)
+        want = self.wanted()
+        self.assertNotIn("archive/research-pull/1", want)
+        self.assertEqual(want["archive/research-pull/2"], gone)
 
     def test_a_branch_deleted_upstream_stays_archived(self):
         sh(self.work, "checkout", "-qb", "doomed")
@@ -78,6 +82,30 @@ class Branches(unittest.TestCase):
         sh(self.work, "push", "-q", str(self.upstream), ":refs/heads/doomed")
         self.assertEqual(self.archive(), {})
         self.assertIn("archive/research/doomed", archive.archived_refs(self.here, "origin"))
+
+    def test_a_refused_branch_does_not_stop_the_others_and_the_bundle_keeps_it(self):
+        # Per ref, as GitHub refuses a branch that would add a workflow file.
+        hook = self.origin / "hooks" / "update"
+        hook.write_text("#!/bin/sh\ncase $1 in *blocked*) echo refused >&2; exit 1;; esac\nexit 0\n")
+        hook.chmod(0o755)
+        for name in ("blocked", "fine"):
+            sh(self.work, "checkout", "-qb", name, "main")
+            self.commit(name)
+            self.push_up(name, f"refs/heads/{name}")
+        refused = self.archive()
+        self.assertEqual(set(refused), {"archive/research/blocked"})
+        self.assertIn("archive/research/fine", archive.archived_refs(self.here, "origin"))
+        up_main = sh(self.here, "rev-parse", f"{archive.FETCH_NS}heads/main")
+        meta = self.here.parent / "meta"
+        self.assertEqual(archive.write_bundle(self.here, meta, self.wanted(), up_main), 2)
+        self.assertEqual(sh(self.here, "for-each-ref", archive.BUNDLE_NS), "", "temporary refs are removed")
+        kept = archive.bundled(self.here, meta)
+        self.assertEqual(kept["archive/research/blocked"], refused["archive/research/blocked"])
+        self.assertIn("archive/research/main", kept, "a tip main contains needs no bundle")
+        fresh = self.here.parent / "fresh"
+        sh(self.here.parent, "clone", "-q", "-b", "main", str(self.origin), str(fresh))
+        sh(fresh, "fetch", "-q", str(meta / archive.BUNDLE), f"{archive.BUNDLE_NS}*:refs/heads/*")
+        self.assertEqual(sh(fresh, "rev-parse", "archive/research/blocked"), refused["archive/research/blocked"])
 
     def test_main_check_needs_upstream_main_in_our_history(self):
         tip = sh(self.here, "rev-parse", "HEAD")

@@ -2,6 +2,7 @@
 """Keep everything in oss-research-monorepo that git history alone does not carry.
 
     python3 platform/ci/research_archive.py branches [--push]   # copy every upstream branch here
+    python3 platform/ci/research_archive.py bundle <dir>        # every branch in one git bundle
     python3 platform/ci/research_archive.py export <dir>        # pull requests, reviews, issues as JSON
     python3 platform/ci/research_archive.py ready [--meta <dir>] [--record <dir>]
     python3 platform/ci/research_archive.py status              # the last recorded verdict, no API
@@ -15,7 +16,12 @@ repository would still lose three things, and this tool keeps each one here:
   request head that no upstream branch contains (its branch was deleted after
   a squash merge) becomes `archive/research-pull/<number>`. Archive branches
   are only ever created or moved, never deleted, so a branch upstream deletes
-  stays here.
+  stays here. GitHub refuses a workflow's token any branch whose tree would
+  add or change a file under `.github/workflows/`, and most upstream branches
+  carry upstream's `pages.yml`, so `bundle` also writes every one of them,
+  under the same names, to `branches.bundle` (1.4 MB on 2026-10-16: the
+  history they share with `main` is already here). Restore them all with
+  `git fetch branches.bundle 'refs/archive-bundle/*:refs/heads/*'`.
 - **Pull requests, reviews and issues.** `export` writes each one, with its
   body, comments, reviews and review threads, to `pulls/<n>.json` and
   `issues/<n>.json`, plus an `INDEX.md` to browse them. The scheduled workflow
@@ -39,6 +45,7 @@ import json
 import os
 import subprocess
 import sys
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -136,15 +143,20 @@ def missing(want: dict[str, str], have: dict[str, str]) -> dict[str, str]:
 
 
 def push(root: Path, origin: str, updates: dict[str, str]) -> None:
-    """Create or move archive branches. Never deletes one."""
+    """Create or move archive branches. Never deletes one.
+
+    A ref GitHub refuses (a tree that would add a workflow file) does not stop
+    the others: the push is not atomic, and the bundle keeps what is refused.
+    """
     items = sorted(updates.items())
     for i in range(0, len(items), PUSH_BATCH):
         specs = [f"+{sha}:refs/heads/{branch}" for branch, sha in items[i:i + PUSH_BATCH]]
-        git(root, "push", "-q", origin, *specs)
+        git(root, "push", "-q", origin, *specs, check=False)
 
 
-def archive_branches(root: Path, upstream: str, origin: str, do_push: bool) -> dict[str, str]:
-    """Fetch upstream, work out what is not archived yet, and push it if asked."""
+def archive_branches(root: Path, upstream: str, origin: str,
+                     do_push: bool) -> tuple[dict[str, str], dict[str, str]]:
+    """Fetch upstream; return (every archive ref wanted, those not pushed here as branches)."""
     heads, pulls = upstream_refs(root, upstream)
     fetch_upstream(root, upstream)
     contained = branch_commits(root, heads)
@@ -152,7 +164,52 @@ def archive_branches(root: Path, upstream: str, origin: str, do_push: bool) -> d
     todo = missing(want, archived_refs(root, origin))
     if do_push and todo:
         push(root, origin, todo)
-    return todo
+        todo = missing(want, archived_refs(root, origin))
+    return want, todo
+
+
+BUNDLE = "branches.bundle"
+BUNDLE_INDEX = "branches.json"
+BUNDLE_NS = "refs/archive-bundle/"
+
+
+def write_bundle(root: Path, out: Path, want: dict[str, str], up_main: str) -> int:
+    """Write every wanted ref to out/branches.bundle; return how many it holds.
+
+    Commits upstream main already has are left out (they are in this
+    repository's history), so a ref whose tip main contains is listed in
+    branches.json but not in the bundle.
+    """
+    out.mkdir(parents=True, exist_ok=True)
+    stdin = "".join(f"update {BUNDLE_NS}{b} {sha}\n" for b, sha in sorted(want.items()))
+    subprocess.run(["git", "update-ref", "--stdin"], cwd=root, input=stdin, text=True, check=True)
+    try:
+        outside = [b for b, sha in sorted(want.items()) if not is_ancestor(root, sha, up_main)]
+        (out / BUNDLE).unlink(missing_ok=True)
+        if outside:
+            git(root, "bundle", "create", "-q", str(out / BUNDLE),
+                *[BUNDLE_NS + b for b in outside], "--not", up_main)
+        dump(out / BUNDLE_INDEX, {"upstream_main": up_main, "refs": want,
+                                  "restore": f"git fetch {BUNDLE} '{BUNDLE_NS}*:refs/heads/*'"})
+        return len(outside)
+    finally:
+        stdin = "".join(f"delete {BUNDLE_NS}{b}\n" for b in want)
+        subprocess.run(["git", "update-ref", "--stdin"], cwd=root, input=stdin, text=True, check=True)
+
+
+def bundled(root: Path, meta: Path | None) -> dict[str, str]:
+    """archive ref -> sha the meta directory's bundle can restore, after `git bundle verify`."""
+    if meta is None or not (meta / BUNDLE_INDEX).is_file():
+        return {}
+    index = json.loads((meta / BUNDLE_INDEX).read_text())
+    out = {b: sha for b, sha in index["refs"].items() if is_ancestor(root, sha, "HEAD")}
+    if (meta / BUNDLE).is_file():
+        git(root, "bundle", "verify", "-q", str(meta / BUNDLE))
+        for line in git(root, "bundle", "list-heads", str(meta / BUNDLE)).splitlines():
+            sha, _, ref = line.partition(" ")
+            if ref.startswith(BUNDLE_NS):
+                out[ref[len(BUNDLE_NS):]] = sha
+    return out
 
 
 # ------------------------------------------------------------------ export
@@ -200,8 +257,11 @@ def github_query(token: str) -> Query:
         req = urllib.request.Request(GRAPHQL, data=body, headers={
             "Authorization": f"bearer {token}", "Content-Type": "application/json",
             "User-Agent": "oss-monorepo-research-archive"})
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            payload = json.load(resp)
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                payload = json.load(resp)
+        except urllib.error.URLError as exc:
+            raise ArchiveError(f"GitHub GraphQL: {exc}") from exc
         if payload.get("errors"):
             raise ArchiveError(f"GraphQL: {payload['errors']}")
         return payload["data"]
@@ -375,14 +435,17 @@ def ready(root: Path, upstream: str, origin: str, query: Query | None, meta: Pat
     """Each check as {name, ok, detail}. Ready means every one is ok."""
     checks = []
 
-    todo = archive_branches(root, upstream, origin, do_push=False)
+    want, todo = archive_branches(root, upstream, origin, do_push=False)
     heads, _ = upstream_refs(root, upstream)
     checks.append(main_check(root, heads["main"]))
-    checks.append({"name": "branches", "ok": not todo,
-                   "detail": (f"{len(todo)} not archived at their upstream tip, e.g. "
-                              f"{', '.join(sorted(todo)[:5])}: run `research_archive.py branches --push`") if todo
-                   else f"all {len(heads)} upstream branches and the pull request heads no branch "
-                        "contains are archived at their current tips"})
+    in_bundle = bundled(root, meta)
+    lost = {b: sha for b, sha in todo.items() if in_bundle.get(b) != sha}
+    checks.append({"name": "branches", "ok": not lost,
+                   "detail": (f"{len(lost)} neither a branch here nor in {BUNDLE} at their upstream tip, e.g. "
+                              f"{', '.join(sorted(lost)[:5])}: run the Research archive workflow") if lost
+                   else f"all {len(want)} upstream branches and orphaned pull request heads are kept at "
+                        f"their current tips: {len(want) - len(todo)} as archive/ branches here, "
+                        f"{len(todo)} only in {BUNDLE} on {META_BRANCH}"})
 
     if query is None or meta is None:
         checks.append({"name": "pull requests and issues", "ok": False,
@@ -435,6 +498,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("branches", help="archive every upstream branch here")
     p.add_argument("--push", action="store_true", help="push what is missing (otherwise list it)")
+    p = sub.add_parser("bundle", help="write every upstream branch to <dir>/branches.bundle")
+    p.add_argument("out", type=Path)
     p = sub.add_parser("export", help="write pull requests, reviews and issues as JSON")
     p.add_argument("out", type=Path)
     p = sub.add_parser("ready", help="exit 0 only if deleting upstream would lose nothing keepable")
@@ -445,11 +510,18 @@ def main(argv: list[str] | None = None) -> int:
     root = Path(git(Path.cwd(), "rev-parse", "--show-toplevel").strip())
     try:
         if args.cmd == "branches":
-            todo = archive_branches(root, args.upstream, args.origin, args.push)
-            verb = "pushed" if args.push else "to archive"
+            want, todo = archive_branches(root, args.upstream, args.origin, args.push)
             for branch, sha in sorted(todo.items()):
-                print(f"{verb}: {branch} {sha[:12]}")
-            print(f"{len(todo)} archive branch(es) {verb}" if todo else "every branch is archived")
+                print(f"not a branch here: {branch} {sha[:12]}")
+            print(f"{len(want) - len(todo)} of {len(want)} archive refs are branches here"
+                  + ("; `bundle` keeps the rest" if todo else ""))
+            return 0
+        if args.cmd == "bundle":
+            heads, _ = upstream_refs(root, args.upstream)
+            want, _ = archive_branches(root, args.upstream, args.origin, do_push=False)
+            n = write_bundle(root, args.out, want, heads["main"])
+            print(f"bundled {n} of {len(want)} archive refs to {args.out / BUNDLE} "
+                  f"(the other {len(want) - n} are already in main's history)")
             return 0
         if args.cmd == "export":
             query = token_query()

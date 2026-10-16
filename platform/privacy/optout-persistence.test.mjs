@@ -1692,8 +1692,10 @@ const RELATIVE_SELF = relative(
 // +1: `slot-keeper` graduated.
 // +1: `help-keeper` graduated.
 // +1: `churn-radar` graduated.
+// +1: `pql-radar` graduated.
 // +1: `changelog-keeper` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1232;
+// +1: `error-keeper` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1234;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.

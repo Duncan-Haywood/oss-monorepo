@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>error-keeper</title>
+<style>
+:root{font:15px system-ui,sans-serif;color:#1d2433;background:#f5f7fb}body{max-width:1000px;margin:auto;padding:20px}
+h1{font-size:1.3rem;color:#7a1430}table{border-collapse:collapse;width:100%;background:#fff}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #e6e8f4;vertical-align:top}
+td.n{text-align:right;font-variant-numeric:tabular-nums}button,input,select{font:inherit;padding:7px 10px;border-radius:6px;border:1px solid #aab3d0}button{background:#a3173f;color:#fff;border:0;cursor:pointer}
+button.alt{background:#fff;color:#a3173f;border:1px solid #a3173f}pre{background:#eef1fa;padding:10px;border-radius:8px;overflow-x:auto;font-size:.8rem;white-space:pre-wrap}
+.tag{display:inline-block;padding:1px 7px;border-radius:9px;font-size:.75rem;background:#fde3ea;color:#7a1430;margin-right:4px}.err{color:#9b1c1c}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+</style></head><body>
+<h1>error-keeper</h1>
+<div class="row"><label>Admin key <input id="key" type="password" autocomplete="off"></label><select id="status" aria-label="Status"><option>unresolved</option><option>resolved</option><option>ignored</option><option>all</option></select><button id="go" type="button">Load</button></div>
+<p class="err" id="err" role="alert"></p>
+<div id="list"></div><div id="detail"></div>
+<footer><p style="font-size:.8rem;color:#444"><strong>No warranty.</strong> Provided free and as-is, without warranty of any kind, with no uptime or delivery guarantee. It can miss errors or group unrelated ones. Not legal, tax, or financial advice. You operate this server and are responsible for what is sent to it, the keys and backups. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a></p></footer>
+<script>
+const $=id=>document.getElementById(id);let key="";try{key=sessionStorage.getItem("ek")||""}catch{}$("key").value=key;
+const el=(t,x,c)=>{const e=document.createElement(t);e.textContent=x;if(c)e.className=c;return e};
+async function api(path,opt={}){const r=await fetch(path,{...opt,headers:{authorization:"Bearer "+$("key").value,"content-type":"application/json"}});const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);return j}
+async function load(){$("err").textContent="";try{sessionStorage.setItem("ek",$("key").value)}catch{}
+ try{const{issues}=await api("/v1/issues?status="+$("status").value);const t=document.createElement("table");t.innerHTML="<thead><tr><th scope='col'>Issue</th><th scope='col'>24h</th><th scope='col'>Total</th><th scope='col'>Users</th><th scope='col'>Last seen</th></tr></thead>";const b=document.createElement("tbody");
+ for(const i of issues){const tr=document.createElement("tr"),td=document.createElement("td"),a=el("a",i.type+": "+i.title);a.href="#"+i.id;a.onclick=e=>{e.preventDefault();show(i.id)};td.append(a);
+  if(i.spiking)td.append(el("span","spiking","tag"));if(i.regressed)td.append(el("span","regressed","tag"));if(i.status!=="unresolved")td.append(el("span",i.status,"tag"));
+  tr.append(td,el("td",i.last24h,"n"),el("td",i.count,"n"),el("td",i.users,"n"),el("td",i.lastSeen.slice(0,16).replace("T"," ")));b.append(tr)}
+ t.append(b);$("list").replaceChildren(issues.length?t:el("p","No issues here."))}catch(e){$("err").textContent=e.message}}
+async function show(id){try{const i=await api("/v1/issues/"+id),d=$("detail");d.replaceChildren(el("h2",i.type+": "+i.title));
+ d.append(el("p","First seen "+new Date(i.firstSeen).toISOString().slice(0,16)+(i.firstRelease?" in "+i.firstRelease:"")+". Releases: "+Object.entries(i.releases).map(([r,n])=>r+" ("+n+")").join(", ")));
+ const s=i.samples[0];if(s){d.append(el("p",(s.url||"")+" "+(s.release||"")));d.append(el("pre",s.stack||s.message))}
+ for(const[a,l]of[["resolve","Resolve in current release"],["ignore","Ignore"],["reopen","Reopen"]]){const bt=el("button",l,a==="resolve"?"":"alt");bt.onclick=async()=>{const rel=a==="resolve"?prompt("Fixed in release (blank if you do not track releases)",i.lastRelease||""):undefined;await api("/v1/issues/"+id+"/"+a,{method:"POST",body:JSON.stringify({release:rel||undefined})});load();d.replaceChildren()};d.append(bt,document.createTextNode(" "))}
+ d.scrollIntoView()}catch(e){$("err").textContent=e.message}}
+$("go").onclick=load;if(key)load();
+</script></body></html>
