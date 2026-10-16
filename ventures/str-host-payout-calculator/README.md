@@ -56,7 +56,10 @@ It is “which annual payout survives the bookings I actually keep.”
 5. **Vrbo subscription.** No 5% commission; processing remains; the
    annual invoice is spread over the year’s bookings. Renewals only
    for many hosts in 2026 — turn the row off if you do not pay it.
-6. **Direct.** Card processing (default 2.9% + $0.30) plus website /
+6. **Reverse: what to list.** Enter a target payout per stay and each
+   channel's fee shape is inverted exactly (processing on the subtotal or
+   on the guest payment) into the nightly rate to publish.
+7. **Direct.** Card processing (default 2.9% + $0.30) plus website /
    channel-manager cost, then an occupancy-keep percentage.
 7. **Restore the old payout.** New list = old subtotal × (1 − old host
    rate) ÷ (1 − new host rate). For 3% → 15.5% that is about a 14.8%
