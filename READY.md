@@ -1,6 +1,6 @@
 # Can oss-research-monorepo be deleted?
 
-**Yes** (checked 2026-10-16T03:30Z by `platform/ci/research_archive.py ready`).
+**Yes** (checked 2026-10-16T10:04Z by `platform/ci/research_archive.py ready`).
 
 - ✅ **main history**: upstream main 895ecf82e610 is in this repository's history
 - ✅ **branches**: all 632 upstream branches and orphaned pull request heads are kept at their current tips: 98 as archive/ branches here, 534 only in branches.bundle on archive/research-meta
