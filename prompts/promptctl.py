@@ -160,7 +160,10 @@ def _landing_order(runs: list[tuple[Path, dict[str, Any]]]) -> dict[str, int]:
 
 
 def runs_since_review(runs: list[tuple[Path, dict[str, Any]]]) -> int:
-    """Non-review runs recorded after the most recent review run."""
+    """Non-review runs recorded after the most recent review run.
+
+    Records mirrored from the upstream research repo (they carry `source`) are
+    not runs of this repository and do not make a review due."""
     rank = _landing_order(runs)
     ordered = sorted(
         enumerate(runs),
@@ -170,7 +173,7 @@ def runs_since_review(runs: list[tuple[Path, dict[str, Any]]]) -> int:
     for _, (_, rec) in ordered:
         if rec.get("track") == REVIEW:
             count = 0
-        else:
+        elif not rec.get("source"):
             count += 1
     return count
 
