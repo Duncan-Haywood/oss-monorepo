@@ -7,7 +7,8 @@ from pathlib import Path
 
 DATA = Path(__file__).resolve().parents[2] / "data"
 EVIDENCE_OK = ("measured", "case study", "survey and interview", "practitioner account", "practitioner book",
-               "framework and opinion", "opinion", "description of a structure, no outcome data")
+               "framework and opinion", "opinion", "description of a structure, no outcome data",
+               "postmortem", "regulatory finding")
 TRANSFER_WEIGHT = {"yes": 1.0, "partial": 0.5, "no": 0.0}
 
 # Crude keyword classes over a run's self-reported "errors" strings. Each names the failure a practice targets.
