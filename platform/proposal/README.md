@@ -61,6 +61,19 @@ proposal for a well also needs terms the tool does not model (a dry-hole
 clause, a yield disclaimer). Adopting it is a follow-up, not part of the
 launch.
 
+**`hoarding-cleanout`** (`hoarding-cleanout-bid-calculator`) does not adopt yet.
+Its customer is often a family member or a social worker rather than the
+occupant, so who signs and who is billed is a question a generic proposal
+template answers wrongly, and the job needs terms the tool does not model
+(hazard and sanitising scope, valuables found, a volume-overrun change-order
+rate). It is a follow-up; the calculator already prints the overrun rate.
+
+**`hydroseeding-job` and `lawn-aeration-overseeding`** (their `-bid-calculator`
+slugs) landed after the last adoption batch and do not adopt yet. Both are
+homeowner-facing lawn jobs, so they are candidates: each needs a `trades.json`
+entry and a check that its pricing fits the `readInput()` anchor `inspect()`
+looks for. Adopting them is a follow-up, listed here so the README stays true.
+
 The last holdout was **`home-staging`** (`home-staging-bid-calculator`,
 graduated in #3580, unblocked in the same session that added this line). It
 priced the job inline from individual `el(...)` reads rather than through the
