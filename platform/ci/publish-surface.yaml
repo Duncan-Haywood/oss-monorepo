@@ -665,6 +665,9 @@ workflows:
 - workflow: datadog-bill-estimator-ci.yml
   classification: none
   publishes: []
+- workflow: deal-keeper-ci.yml
+  classification: none
+  publishes: []
 - workflow: deck-bid-calculator-ci.yml
   classification: none
   publishes: []
