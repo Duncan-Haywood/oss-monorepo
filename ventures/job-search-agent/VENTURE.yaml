@@ -1,0 +1,66 @@
+name: job-search-agent
+description: >-
+  Free, private job search agent that runs in the browser. One long intake
+  interview (about 60 questions: eligibility, targets, pay floor and target,
+  skills with years, stories, voluntary self-ID defaulting to decline) builds a
+  profile; then it bulk-triages pasted postings (apply / maybe / skip with
+  named blockers), fills common application questions from the profile,
+  drafts open-ended answers on the user's own AI key with a check that flags
+  any number or employer the profile lacks, matches interview questions to
+  the user's own stories, and drafts a salary counter-offer email. It never
+  submits applications and never speaks as the candidate.
+stage: prototype
+owner: duncan
+
+# Requested by the owner 2026-10-16 ("a system to bulk apply and go through
+# interviews on someone's behalf ... one extensive interview to gather info,
+# then an AI fills out applications, takes interviews, negotiates").
+# Candidate write-up and scope decision:
+# portfolio/pipeline/candidates/job-search-agent.md.
+#
+# duplicate_check.py: nearest 0.15 (job-application-tracker). Siblings, one
+# hop apart: job-application-tracker (log what was sent), ats-resume-checker,
+# job-offer-total-comp-calculator.
+#
+# Gate scoring (portfolio/pipeline/README.md, both need >= 5):
+#   liability_containment: 6 -- user reviews and sends every answer; drafts
+#     are checked against the profile; no submission, no account.
+#   ethical_robustness: 7 -- scoped to exclude live-interview impersonation
+#     and automated submission where boards forbid it; the floor salary never
+#     leaves the device; self-ID defaults to declining.
+#
+# Paid incumbents in the "auto apply" space (LazyApply, Sonara-style
+# services, AIApply and similar) charge monthly and submit for the user;
+# this is free, keeps data local, and keeps the human as sender.
+hypotheses:
+  - claim: >-
+      A job seeker who finishes the intake interview will fill at least three
+      applications from it in the first week, because pasting a form's
+      questions and getting most answers back is faster than typing them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Bulk triage changes where people apply: given ten postings, users skip
+      the ones the page flags with a blocker rather than applying anyway.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/job-search-agent/
+  analytics: null

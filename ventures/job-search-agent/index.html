@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Job Search Agent — One Interview, Then It Fills Your Applications</title>
+  <meta name="description" content="Free, private job search agent. Answer one long intake interview once; it then triages job postings in bulk, fills application questions from your answers, preps interview answers from your own stories, and drafts your salary counter-offer. Runs in your browser. Optional AI on your own key.">
+  <meta property="og:title" content="Job Search Agent — one interview, then it does the repetitive part">
+  <meta property="og:description" content="Bulk-triage postings, auto-fill application questions, interview prep and a negotiation email, from one intake interview. Private, free, bring your own AI key.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Job Search Agent","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private, browser-only job search assistant: one intake interview builds a profile, then it ranks pasted job postings, fills common application questions, matches interview questions to your stories, and drafts a salary counter-offer. Optional AI drafting on the user's own API key, with a check that flags any number or employer the profile does not contain."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does it submit applications for me?","acceptedAnswer":{"@type":"Answer","text":"No. It prepares every answer and you paste and submit them yourself. Many job boards forbid automated applying in their terms, and an application sent without your review can say something untrue in your name."}},{"@type":"Question","name":"Will it take interviews for me?","acceptedAnswer":{"@type":"Answer","text":"No. Having software pose as you in a live interview misleads the employer. It prepares you instead: likely questions, each paired with a story from your own interview answers, and gaps where you still need one."}},{"@type":"Question","name":"Where is my information stored?","acceptedAnswer":{"@type":"Answer","text":"Only in this browser's local storage. Nothing is uploaded. If you turn on AI drafting, the question, the job text and your profile facts (not your contact details, self-identification or walk-away salary) go directly from your browser to the AI provider you chose, on your key."}},{"@type":"Question","name":"Can the AI make things up?","acceptedAnswer":{"@type":"Answer","text":"It is told to use only your profile, and every draft is checked: any number or employer name that is not in your profile or the job description is flagged before you copy it. That is a guard, not a guarantee, so read every draft."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c1d2b; background: #f4f3f8; }
+    body { max-width: 1100px; margin: auto; padding: 24px 16px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.7rem); line-height: 1.08; margin: 0 0 12px; color: #2e2a6b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2e2a6b; }
+    h3 { font-size: 1rem; margin: 18px 0 6px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #555469; }
+    .card { background: #fff; border: 1px solid #dcd9ea; border-radius: 14px; padding: 20px; margin: 16px 0; box-shadow: 0 6px 18px #2e2a6b10; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+    label { display: grid; gap: 4px; font-size: .85rem; font-weight: 600; }
+    label.wide { grid-column: 1 / -1; }
+    input, select, textarea { font: inherit; padding: 8px; border: 1px solid #b4b0cc; border-radius: 7px; box-sizing: border-box; width: 100%; }
+    textarea { min-height: 70px; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #4b44b8; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e7e5f4; color: #2e2a6b; }
+    button.small { padding: 4px 9px; font-size: .8rem; margin: 0 4px 4px 0; }
+    nav.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 0; }
+    nav.tabs button { background: #e7e5f4; color: #2e2a6b; margin: 0; }
+    nav.tabs button[aria-selected="true"] { background: #4b44b8; color: #fff; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #ebe9f3; vertical-align: top; }
+    th { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: #555469; }
+    .tablewrap { overflow-x: auto; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .75rem; font-weight: 700; background: #e7e5f4; color: #2e2a6b; white-space: nowrap; }
+    .pill.apply, .pill.filled { background: #d6f2df; color: #14532d; }
+    .pill.skip, .pill.needs-you { background: #fde2d7; color: #8a2c0d; }
+    .pill.maybe, .pill.draft-with-ai { background: #fdf1c7; color: #6b4e00; }
+    .bar { height: 10px; background: #e7e5f4; border-radius: 99px; overflow: hidden; }
+    .bar > span { display: block; height: 100%; background: #4b44b8; }
+    .warn { color: #8a2c0d; font-weight: 600; }
+    pre { white-space: pre-wrap; background: #f4f3f8; padding: 12px; border-radius: 8px; font: inherit; }
+    fieldset { border: 1px solid #dcd9ea; border-radius: 10px; padding: 14px; margin: 0 0 14px; }
+    legend { font-weight: 700; color: #2e2a6b; padding: 0 6px; }
+    footer { margin-top: 26px; border-top: 1px solid #dcd9ea; padding-top: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">JOB SEARCH AGENT · RUNS IN YOUR BROWSER · NOTHING UPLOADED · AI OPTIONAL, ON YOUR OWN KEY</p>
+    <h1>Answer one long interview. Then stop typing the same answers into every application.</h1>
+    <p>Tell it once who you are, what you want, what you will not accept and the stories behind your work. It then ranks a stack of job postings, fills each application's questions from your answers, matches likely interview questions to your own stories, and drafts the email that counters an offer. You review and send everything yourself: it never submits for you and never pretends to be you.</p>
+    <div class="bar" aria-hidden="true"><span id="progress-bar" style="width:0"></span></div>
+    <p class="note" id="progress"></p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Steps">
+    <button role="tab" data-tab="interview" aria-selected="true">1. Intake interview</button>
+    <button role="tab" data-tab="triage" aria-selected="false">2. Triage postings</button>
+    <button role="tab" data-tab="apply" aria-selected="false">3. Fill an application</button>
+    <button role="tab" data-tab="prep" aria-selected="false">4. Interview prep</button>
+    <button role="tab" data-tab="negotiate" aria-selected="false">5. Negotiate an offer</button>
+    <button role="tab" data-tab="ai" aria-selected="false">AI settings</button>
+  </nav>
+
+  <section class="card" data-panel="interview">
+    <h2>The intake interview</h2>
+    <p class="note">Saved in this browser as you type. Everything later reads from here, so the more you answer, the less you type again. Drafts may only use facts you put here.</p>
+    <form id="interview"></form>
+    <p>
+      <button type="button" class="secondary" id="export-profile">Download profile (JSON)</button>
+      <label style="display:inline-grid">Load a profile <input id="import-profile" type="file" accept=".json,application/json"></label>
+      <button type="button" class="secondary" id="example">Load example answers</button>
+      <button type="button" class="secondary" id="clear-profile">Clear everything</button>
+    </p>
+    <p class="note" id="profile-status"></p>
+  </section>
+
+  <section class="card" data-panel="triage" hidden>
+    <h2>Triage a stack of postings</h2>
+    <p class="note">Paste as many job descriptions as you like, separated by a line containing only <code>---</code>. The first line of each is used as its name. Postings that hit a deal-breaker, pay below your walk-away, refuse sponsorship you need, or are not remote when you need remote, are skipped with the reason.</p>
+    <label class="wide">Postings <textarea id="postings" rows="10" placeholder="Analytics Engineer at Acme&#10;Remote. SQL, Python, dbt. $110,000 - $140,000&#10;---&#10;Data Analyst at Globex&#10;…"></textarea></label>
+    <p><button type="button" id="run-triage">Rank them</button></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Posting</th><th>Verdict</th><th>Score</th><th>Why</th><th></th></tr></thead>
+      <tbody id="triage-rows"></tbody>
+    </table></div>
+  </section>
+
+  <section class="card" data-panel="apply" hidden>
+    <h2>Fill an application</h2>
+    <p class="note">Paste the form's questions, one per line (copying the whole form page works; blank and non-question lines are fine). Paste the job description too, so open-ended answers can be specific.</p>
+    <div class="grid">
+      <label>Application questions <textarea id="questions" rows="10" placeholder="First name&#10;Are you legally authorized to work in the US?&#10;How many years of experience do you have with SQL?&#10;Why do you want to work here?"></textarea></label>
+      <label>Job description (optional) <textarea id="job" rows="10"></textarea></label>
+    </div>
+    <p><button type="button" id="run-answers">Fill answers</button> <button type="button" class="secondary" id="draft-all">Draft open-ended answers with AI</button> <button type="button" class="secondary" id="copy-all">Copy all answers</button></p>
+    <p class="note" id="answer-status"></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Question</th><th>Answer</th><th>Status</th><th></th></tr></thead>
+      <tbody id="answer-rows"></tbody>
+    </table></div>
+  </section>
+
+  <section class="card" data-panel="prep" hidden>
+    <h2>Interview prep</h2>
+    <p class="note">Common questions, each paired with your own answer or the story whose tags fit, plus the skills this job mentions that you can speak to. You take the interview; this is your crib sheet.</p>
+    <label class="wide">Job description (optional) <textarea id="prep-job" rows="5"></textarea></label>
+    <p><button type="button" id="run-prep">Build my prep sheet</button></p>
+    <p class="note" id="prep-status"></p>
+    <div id="prep-out"></div>
+  </section>
+
+  <section class="card" data-panel="negotiate" hidden>
+    <h2>Negotiate an offer</h2>
+    <div class="grid">
+      <label>Company <input id="o-company" autocomplete="off"></label>
+      <label>Role <input id="o-role" autocomplete="off"></label>
+      <label>Offered base (yearly) <input id="o-base" type="number" min="0" step="1000"></label>
+      <label>Response deadline (optional) <input id="o-deadline" autocomplete="off"></label>
+    </div>
+    <p><button type="button" id="run-negotiate">Plan my counter</button></p>
+    <div id="negotiate-out"></div>
+    <p class="note">The counter follows a common convention (one specific number, about 12% above the offer and at least your target). It is not a prediction of what any employer will do. Your walk-away number is never put in the email.</p>
+  </section>
+
+  <section class="card" data-panel="ai" hidden>
+    <h2>AI drafting (optional, your own key)</h2>
+    <p class="note">Without a key, everything above still works; open-ended questions are left for you to write. With a key, the browser sends the question, the job text and your profile facts straight to the provider you choose. Contact details, voluntary self-identification and your walk-away salary are never sent. The key is stored only in this browser.</p>
+    <div class="grid">
+      <label>Provider <select id="ai-provider"><option value="">Off</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="openai-compatible">OpenAI-compatible (OpenRouter, Ollama…)</option></select></label>
+      <label>Model (blank = provider default where there is one) <input id="ai-model" autocomplete="off"></label>
+      <label>Base URL (OpenAI-compatible only) <input id="ai-base" autocomplete="off" placeholder="http://localhost:11434/v1"></label>
+      <label>API key <input id="ai-key" type="password" autocomplete="off"></label>
+    </div>
+    <p><button type="button" id="ai-save">Save AI settings</button> <button type="button" class="secondary" id="ai-forget">Forget my key</button></p>
+    <p class="note" id="ai-status"></p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does it submit applications for me?</h3>
+    <p>No. It prepares every answer and you paste and submit them yourself. Many job boards forbid automated applying in their terms, and an application sent without your review can say something untrue in your name. Keep track of what you sent with the <a href="../job-application-tracker/">job application tracker</a>.</p>
+    <h3>Will it take interviews for me?</h3>
+    <p>No. Software posing as you in a live interview misleads the employer, and the job is yours to do afterwards. It prepares you instead: likely questions, each paired with a story from your own answers, and the gaps where you still need one.</p>
+    <h3>Where is my information stored?</h3>
+    <p>Only in this browser's local storage. Nothing is uploaded. Download your profile to keep a copy or move it to another device.</p>
+    <h3>Can the AI make things up?</h3>
+    <p>It is told to use only your profile, and every draft is checked: any number or employer that is not in your profile or the job description is flagged before you copy it. That is a guard, not a guarantee, so read every draft. Check your resume's format with the <a href="../ats-resume-checker/">ATS resume checker</a> and compare offers with the <a href="../job-offer-total-comp-calculator/">total compensation calculator</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not career, legal, immigration or financial advice, and it does not replace a qualified professional. Job-fit scores, salary counters and drafted answers are conventions and summaries of what you typed, not predictions about any employer. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for the truth of everything you submit. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Download your profile to keep it.</p>
+    <p>Everything runs in your browser. Your profile is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>interview_saved</code>, <code>triage_run</code>, <code>answers_filled</code>, <code>ai_draft</code>, <code>prep_built</code>, <code>negotiation_planned</code>, <code>example_loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary small" id="usage-off">Turn off and delete usage counts</button> <span id="usage-status"></span></p>
+    <p>MIT licensed. <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/job-search-agent">Source</a>.</p>
+  </footer>
+
+  <script type="module">
+    import { INTAKE, ALL_QUESTIONS, completeness, answerQuestions, triageJobs, interviewPrep, negotiate, DRAFT_SYSTEM, draftPrompt, checkDraft } from "./engine.mjs";
+    import { complete, isConfigured } from "./byok.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const PROFILE_KEY = "job-search-agent-profile";
+    const AI_KEY = "job-search-agent-ai";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || "null") ?? d; } catch { return d; } };
+    const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } };
+
+    let profile = load(PROFILE_KEY, {});
+    let lastAnswers = [];
+
+    // Tabs
+    for (const b of document.querySelectorAll("nav.tabs button")) {
+      b.addEventListener("click", () => {
+        for (const o of document.querySelectorAll("nav.tabs button")) o.setAttribute("aria-selected", String(o === b));
+        for (const p of document.querySelectorAll("[data-panel]")) p.hidden = p.dataset.panel !== b.dataset.tab;
+      });
+    }
+
+    // Intake interview, generated from the engine's question list.
+    function field(q) {
+      const id = `q-${q.id}`;
+      const help = q.help ? ` placeholder="${esc(q.help)}"` : "";
+      const req = q.required ? " *" : "";
+      let control;
+      if (q.type === "select") control = `<select id="${id}" data-q="${q.id}"><option value=""></option>${q.options.map((o) => `<option>${esc(o)}</option>`).join("")}</select>`;
+      else if (q.type === "textarea") control = `<textarea id="${id}" data-q="${q.id}" rows="${q.id === "stories" ? 8 : 3}"${help}></textarea>`;
+      else control = `<input id="${id}" data-q="${q.id}" type="${q.type === "number" ? "number" : q.type || "text"}"${help} autocomplete="off">`;
+      return `<label class="${q.type === "textarea" ? "wide" : ""}">${esc(q.label)}${req} ${control}</label>`;
+    }
+    $("interview").innerHTML = INTAKE.map((s) => `<fieldset><legend>${esc(s.title)}</legend>${s.blurb ? `<p class="note">${esc(s.blurb)}</p>` : ""}<div class="grid">${s.questions.map(field).join("")}</div></fieldset>`).join("");
+
+    function fillForm() {
+      for (const q of ALL_QUESTIONS) {
+        const el = $(`q-${q.id}`);
+        const v = profile[q.id];
+        el.value = v ?? (q.type === "select" && q.section === "voluntary" ? q.options[0] : "");
+      }
+      showProgress();
+    }
+    function showProgress() {
+      const c = completeness(profile);
+      $("progress-bar").style.width = `${c.percent}%`;
+      const missing = c.missingRequired.slice(0, 4).map((m) => m.label.replace(/\s*\(.*$/, "")).join("; ");
+      $("progress").innerHTML = `Interview ${c.answered} of ${c.total} answered (${c.percent}%).` +
+        (c.missingRequired.length ? ` <span class="warn">${c.missingRequired.length} required still blank${missing ? `: ${esc(missing)}${c.missingRequired.length > 4 ? "…" : ""}` : ""}.</span>` : " All required answers in.") +
+        (c.problems.length ? ` <span class="warn">${esc(c.problems.join(" "))}</span>` : "");
+    }
+    let savedOnce = false;
+    $("interview").addEventListener("input", (e) => {
+      const id = e.target.dataset.q;
+      if (!id) return;
+      profile[id] = e.target.value;
+      $("profile-status").textContent = save(PROFILE_KEY, profile) ? "Saved in this browser." : "Could not save: browser storage is blocked or full. Download your profile.";
+      if (!savedOnce) { savedOnce = true; record("interview_saved"); }
+      showProgress();
+    });
+
+    $("export-profile").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(profile, null, 2)], { type: "application/json" });
+      const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: "job-search-profile.json" });
+      a.click(); URL.revokeObjectURL(a.href);
+    });
+    $("import-profile").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      try {
+        const data = JSON.parse(await f.text());
+        if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("not a profile");
+        const known = new Set(ALL_QUESTIONS.map((q) => q.id));
+        profile = Object.fromEntries(Object.entries(data).filter(([k, v]) => known.has(k) && (typeof v === "string" || typeof v === "number")).map(([k, v]) => [k, String(v)]));
+        save(PROFILE_KEY, profile); fillForm();
+        $("profile-status").textContent = "Profile loaded.";
+      } catch { $("profile-status").textContent = "That file is not a profile downloaded from this page."; }
+    });
+    $("clear-profile").addEventListener("click", () => {
+      if (!confirm("Delete every interview answer stored in this browser?")) return;
+      profile = {}; try { localStorage.removeItem(PROFILE_KEY); } catch {} fillForm();
+      $("profile-status").textContent = "Cleared.";
+    });
+    $("example").addEventListener("click", () => {
+      profile = {
+        fullName: "Sam Example", email: "sam@example.com", phone: "555-0100", city: "Austin, TX", country: "United States",
+        linkedin: "https://www.linkedin.com/in/example", workAuthorized: "yes", needsSponsorship: "no", workMode: "remote or hybrid",
+        willingToRelocate: "no", noticePeriod: "2 weeks", over18: "yes", backgroundCheck: "yes",
+        targetTitles: "Data Analyst, Analytics Engineer", seniority: "senior", mustHaves: "SQL", dealBreakers: "commission only, on-call",
+        currency: "USD", floorBase: "95000", targetBase: "115000", salaryDisclosure: "my target number",
+        negotiationPriorities: "remote, signing bonus, PTO", yearsTotal: "7", currentTitle: "Senior Analyst", currentEmployer: "Northwind",
+        skills: "SQL: 8\nPython: 6\nTableau: 3\ndbt: 2", achievements: "Cut month-end reporting from 5 days to 1 by automating the close pack",
+        summary: "Analyst with 7 years turning messy operational data into decisions. I build the pipeline and the dashboard, then sit with the people who use it.",
+        highestDegree: "bachelor's", degreeField: "Economics", school: "State University", referralSource: "Company careers page",
+        stories: "Automated the close pack [process, automation, ownership, proud]\nMonth-end reporting took 5 days of copy-paste. I scripted it in Python and SQL; it now takes 1 day and nobody works the weekend.\n\nPushed back on a launch date [conflict, communication, disagreement]\nMy manager wanted to ship a dashboard with known bad numbers. I showed the error on three accounts; we moved the date 2 weeks and shipped it clean.\n\nWrong forecast to the board [failure, mistake, learning]\nI shipped a forecast with a join that double-counted refunds. I caught it, told my manager the same day, and added a reconciliation test that runs on every refresh.",
+        whyLeaving: "I want to work closer to product decisions.", strengths: "Finding the one number that settles an argument.",
+        weakness: "I used to over-polish dashboards; I now ship a rough version in week one and iterate.", careerGoal: "Leading a small analytics team.",
+      };
+      save(PROFILE_KEY, profile); fillForm(); record("example_loaded");
+      $("postings").value = "Analytics Engineer at Acme\nRemote (US). SQL, Python and dbt. $110,000 - $140,000.\n---\nSales Development Rep at Initech\nCommission only. Onsite in Dallas.\n---\nData Analyst at Globex\nHybrid in Austin. SQL and Tableau. $70,000 - $85,000.";
+      $("questions").value = "First name\nLast name\nEmail\nAre you legally authorized to work in the United States?\nWill you now or in the future require visa sponsorship?\nHow many years of experience do you have with SQL?\nWhat are your salary expectations?\nWhen can you start?\nGender\nWhy do you want to work at Acme?";
+      $("job").value = "Analytics Engineer at Acme. Remote (US). You will own our dbt models and the dashboards finance relies on. SQL, Python and dbt. $110,000 - $140,000.";
+      $("profile-status").textContent = "Example answers loaded. Replace them with yours.";
+    });
+
+    // Triage
+    $("run-triage").addEventListener("click", () => {
+      const rows = triageJobs($("postings").value, profile);
+      record("triage_run");
+      $("triage-rows").innerHTML = rows.length ? rows.map((r) => `<tr><td><strong>${esc(r.title)}</strong></td><td><span class="pill ${r.verdict}">${r.verdict}</span></td><td>${r.score}</td><td>${r.blockers.length ? `<span class="warn">${esc(r.blockers.join("; "))}</span><br>` : ""}${esc(r.reasons.join("; "))}</td><td>${r.verdict === "skip" ? "" : `<button type="button" class="small secondary" data-use="${r.index}">Fill its application</button>`}</td></tr>`).join("")
+        : `<tr><td colspan="5">Paste at least one posting.</td></tr>`;
+      $("triage-rows").onclick = (e) => {
+        const i = e.target.dataset.use;
+        if (!i) return;
+        const post = rows.find((r) => String(r.index) === i);
+        $("job").value = post.body; $("prep-job").value = post.body;
+        document.querySelector('nav.tabs button[data-tab="apply"]').click();
+      };
+    });
+
+    // Application answers
+    function aiConfig() { const c = load(AI_KEY, null); return c ? { ...c, browser: true } : null; }
+    function renderAnswers() {
+      $("answer-rows").innerHTML = lastAnswers.map((r, i) => `<tr><td>${esc(r.question)}</td><td><textarea data-ans="${i}" rows="${r.answer.length > 120 ? 5 : 2}">${esc(r.answer)}</textarea>${r.note ? `<div class="note">${esc(r.note)}</div>` : ""}${r.flags ? `<div class="warn">${esc(r.flags)}</div>` : ""}</td><td><span class="pill ${r.status}">${esc(r.status.replace(/-/g, " "))}</span></td><td><button type="button" class="small secondary" data-copy="${i}">Copy</button>${r.status === "draft-with-ai" || r.status === "needs-you" ? `<button type="button" class="small secondary" data-draft="${i}">Draft</button>` : ""}</td></tr>`).join("");
+      const filled = lastAnswers.filter((r) => r.status === "filled").length;
+      $("answer-status").textContent = lastAnswers.length ? `${filled} of ${lastAnswers.length} filled from your interview. Read every answer before you paste it.` : "";
+    }
+    $("run-answers").addEventListener("click", () => {
+      lastAnswers = answerQuestions($("questions").value, profile, { job: $("job").value });
+      record("answers_filled");
+      renderAnswers();
+    });
+    $("answer-rows").addEventListener("input", (e) => { const i = e.target.dataset.ans; if (i !== undefined) lastAnswers[i].answer = e.target.value; });
+    $("answer-rows").addEventListener("click", async (e) => {
+      const c = e.target.dataset.copy, d = e.target.dataset.draft;
+      if (c !== undefined) { try { await navigator.clipboard.writeText(lastAnswers[c].answer); e.target.textContent = "Copied"; } catch { e.target.textContent = "Select and copy"; } }
+      if (d !== undefined) await draft(Number(d));
+    });
+    async function draft(i) {
+      const cfg = aiConfig();
+      if (!isConfigured(cfg)) { $("answer-status").textContent = "AI is off. Add a provider and key under AI settings, or write this answer yourself."; return false; }
+      const r = lastAnswers[i];
+      r.note = "Drafting…"; renderAnswers();
+      try {
+        const out = await complete(cfg, { system: DRAFT_SYSTEM, prompt: draftPrompt(r.question, profile, $("job").value), maxTokens: 800 });
+        const issues = checkDraft(out.text, profile, $("job").value);
+        const needs = issues.find((x) => x.kind === "needs-input");
+        if (needs) { r.answer = ""; r.status = "needs-you"; r.note = `The model needs: ${needs.text}`; r.flags = ""; }
+        else { r.answer = out.text.trim(); r.status = "draft-with-ai"; r.note = "AI draft from your profile. Edit it into your own words."; r.flags = issues.length ? `Not in your profile or the job text, check before sending: ${issues.map((x) => x.text).join(", ")}` : ""; }
+        record("ai_draft");
+      } catch (err) { r.note = `Draft failed: ${err.message}`; }
+      renderAnswers();
+      return true;
+    }
+    $("draft-all").addEventListener("click", async () => {
+      for (let i = 0; i < lastAnswers.length; i++) if (lastAnswers[i].status === "draft-with-ai" && !lastAnswers[i].answer) { if (!(await draft(i))) break; }
+    });
+    $("copy-all").addEventListener("click", async () => {
+      const text = lastAnswers.map((r) => `${r.question}\n${r.answer || "(you answer this)"}`).join("\n\n");
+      try { await navigator.clipboard.writeText(text); $("answer-status").textContent = "All answers copied."; } catch { $("answer-status").textContent = "Your browser blocked the clipboard; copy from the table."; }
+    });
+
+    // Interview prep
+    $("run-prep").addEventListener("click", () => {
+      const prep = interviewPrep(profile, $("prep-job").value);
+      record("prep_built");
+      $("prep-status").textContent = `${prep.items.length} questions, ${prep.storyCount} of your stories used, ${prep.gaps} still need an answer.`;
+      $("prep-out").innerHTML = prep.items.map((it) => `<h3>${esc(it.question)}</h3><p class="note">${esc(it.source)}</p>${it.answer ? `<pre>${esc(it.answer)}</pre>` : ""}`).join("");
+    });
+
+    // Negotiation
+    $("run-negotiate").addEventListener("click", () => {
+      const plan = negotiate({ company: $("o-company").value, role: $("o-role").value, base: $("o-base").value, deadline: $("o-deadline").value }, profile);
+      record("negotiation_planned");
+      $("negotiate-out").innerHTML = `<ul>${plan.reasons.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>${plan.email ? `<h3>Email to send (edit it)</h3><pre>${esc(plan.email)}</pre>` : ""}`;
+    });
+
+    // AI settings
+    function fillAi() { const c = load(AI_KEY, {}) || {}; $("ai-provider").value = c.provider || ""; $("ai-model").value = c.model || ""; $("ai-base").value = c.baseUrl || ""; $("ai-key").value = c.apiKey || ""; $("ai-status").textContent = isConfigured(aiConfig()) ? `AI drafting is on (${c.provider}).` : "AI drafting is off."; }
+    $("ai-save").addEventListener("click", () => {
+      const c = { provider: $("ai-provider").value, model: $("ai-model").value.trim() || undefined, baseUrl: $("ai-base").value.trim() || undefined, apiKey: $("ai-key").value.trim() || undefined };
+      if (!c.provider) { try { localStorage.removeItem(AI_KEY); } catch {} } else save(AI_KEY, c);
+      fillAi();
+    });
+    $("ai-forget").addEventListener("click", () => { try { localStorage.removeItem(AI_KEY); } catch {} fillAi(); });
+
+    // Usage
+    $("usage-off").addEventListener("click", () => { setUsageOptOut(true); $("usage-status").textContent = "Usage counting is off and the counts are deleted."; });
+    if (usageOptedOut()) $("usage-status").textContent = "Usage counting is off.";
+
+    fillForm(); fillAi();
+  </script>
+</body>
+</html>
