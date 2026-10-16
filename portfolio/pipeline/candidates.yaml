@@ -1979,3 +1979,31 @@ candidates:
       than inheriting this one's.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: job-search-agent
+    name: Job search agent (intake interview, bulk triage, application filler, negotiation)
+    doc: candidates/job-search-agent.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-10-16
+    initiated_path: ventures/job-search-agent
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+      liability_containment: 6
+      ethical_robustness: 7
+    composite: 7.0
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: >-
+      Crowded paid auto-apply market. Compete on being free, local and
+      honest about scope (the person reviews and submits; no live-interview
+      impersonation), with a deterministic core that works with no key and a
+      fabrication check on every AI draft. Link one hop to the three sibling
+      job tools so they share search traffic.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
