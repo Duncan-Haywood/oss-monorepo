@@ -1,0 +1,5 @@
+Null data only (h = 0), label accuracy 0.7, auditors 0.8. Bootstrap B = 39, 2 starts, 200 draws per n.
+n | rejections at p<=0.05 | rate | exact 95% CI | rejections at p<=0.10 | rate | exact 95% CI | mean p
+100 | 11/200 | 0.055 | [0.028, 0.096] | 20/200 | 0.100 | [0.062, 0.150] | 0.495
+200 | 9/200 | 0.045 | [0.021, 0.084] | 16/200 | 0.080 | [0.046, 0.127] | 0.524
+500 | 8/200 | 0.040 | [0.017, 0.077] | 19/200 | 0.095 | [0.058, 0.144] | 0.523
