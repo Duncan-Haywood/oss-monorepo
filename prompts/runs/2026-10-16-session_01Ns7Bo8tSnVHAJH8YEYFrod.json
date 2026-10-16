@@ -39,7 +39,7 @@
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Built a complete slot-keeper (Calendly alternative) in parallel with another session whose #7223 landed first; dropped my duplicate and landed only the two hardening fixes it lacked (stale-feed fail-closed, PUBLIC_URL required to send email). platform/privacy share-location fails on referral-keeper/pages.mjs:74 on main, not touched here.",
+  "notes": "Built a complete slot-keeper (Calendly alternative) in parallel with another session whose #7223 landed first; dropped my duplicate and landed only the two hardening fixes it lacked (stale-feed fail-closed, PUBLIC_URL required to send email). Follow-up PR exempts Stripe's client_reference_id query parameter from the share-location guard, which was red on main for referral-keeper/pages.mjs:74.",
   "corrections": [],
   "redteam": null
 }
