@@ -94,6 +94,13 @@ export function handler(cfg) {
           const rows = E.score(cfg.state.accounts, t, now());
           return json(200, { mode: t.mode, threshold: th, note: t.note, accounts: rows.filter((r) => r.risk >= th).slice(0, limit).map(round) });
         }
+        if (req.method === "GET" && path === "/v1/digest") {
+          const t = ensureModel(cfg.state, now()), th = E.threshold(t), limit = Math.max(1, Math.min(50, Number(q.get("limit")) || 10));
+          const risky = E.score(cfg.state.accounts, t, now()).filter((r) => r.risk >= th).slice(0, limit).map(round);
+          const d = digest(risky, t);
+          if (q.get("format") === "text") { res.writeHead(200, { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" }); return res.end(d.text + "\n"); }
+          return json(200, d);
+        }
         let m;
         if (req.method === "GET" && (m = path.match(/^\/v1\/accounts\/([^/]+)$/))) {
           const id = decodeURIComponent(m[1]), t = ensureModel(cfg.state, now()), a = cfg.state.accounts[id];
@@ -110,6 +117,12 @@ export function handler(cfg) {
       return json(code, { error: code === 500 ? "server error" : e instanceof SyntaxError ? "body is not valid JSON" : e.message });
     }
   };
+}
+/** A paste-ready "talk to these people" list. `text` is also a valid Slack incoming-webhook body when sent as {text}. */
+export function digest(rows, t) {
+  const head = rows.length ? `Churn Radar: ${rows.length} account${rows.length === 1 ? "" : "s"} to talk to this week${t.mode !== "model" ? " (rule-based ranking, not a forecast)" : ""}` : "Churn Radar: no account is above the risk threshold this week.";
+  const lines = rows.map((r, i) => `${i + 1}. ${r.id} (risk ${Math.round(r.risk * 100)}%)${r.reasons?.length ? ": " + r.reasons.join("; ") : ""}`);
+  return { mode: t.mode, count: rows.length, text: [head, ...lines].join("\n"), accounts: rows };
 }
 const round = (r) => ({ ...r, risk: Number(r.risk.toFixed(3)) });
 function summary(t) {
