@@ -727,6 +727,7 @@ export function carryOverStaff(staffText, lastWeekCsv) {
     return kept.join(line.includes("\t") ? "\t" : ", ");
   });
   return { text: out.join("\n"), changed };
+}
 
 // Labor cost as a share of projected sales, against an optional target.
 // Returns null when sales is not a positive number. maxPayroll is the payroll

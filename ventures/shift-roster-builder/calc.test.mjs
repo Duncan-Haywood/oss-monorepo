@@ -424,6 +424,7 @@ test("carry over: last week's CSV sets prev: so the rest rule holds across the b
   const sh = parseShifts("Mon, 6am, 10am, 1");
   const roster = buildRoster(st.staff.slice(0, 1), sh.slots);
   assert.equal(roster.assignments[0].person, null);
+});
 
 test("laborPercent: share of sales, target headroom, bad input", () => {
   const a = laborPercent(2800, 10000, 30);
