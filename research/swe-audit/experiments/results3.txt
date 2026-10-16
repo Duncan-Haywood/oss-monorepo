@@ -1,0 +1,9 @@
+serial re-run, timeout 2400 s each, one project at a time
+
+project                      status       difflines    secs
+simdesign-fidelity           timing-only         13   303.8
+simdesign-llm                tool-missing         0   551.2
+                               last stderr line: ModuleNotFoundError: No module named 'cma'
+simdesign-dfm                identical            0   517.6
+simdesign-patchsearch        timing-only          1  1504.4
+ambient-drvalid              identical            0   324.2
