@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs,
-  sampleStaff, sampleShifts, fmtClock, _internals,
+  sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
 const staffOf = (t) => { const r = parseStaff(t); assert.deepEqual(r.errors, []); return r.staff; };
@@ -334,4 +334,31 @@ test("prev: carries the rest rule across the week boundary", () => {
 test("prev: errors on unreadable text", () => {
   const r = parseStaff("Ana, 20, 40, 0, , prev: lately");
   assert.ok(r.errors.some((e) => e.includes("prev")));
+});
+
+test("money formats whole dollars and cents, with a minus sign for negatives", () => {
+  assert.equal(money(1234.5), "$1,235");
+  assert.equal(money(0), "$0");
+  assert.equal(money(-42), "\u2212$42");
+  assert.equal(money2(1234.5), "$1,234.50");
+  assert.equal(money2(-0.5), "\u2212$0.50");
+});
+
+test("ics export: the per-person file holds only that person's shifts and unfilled shifts are left out", () => {
+  const staff = staffOf("Ana, 15, 40, 0, Mon 9-17\nBen, 12, 40, 0, Tue 9-17");
+  const r = buildRoster(staff, slotsOf("Mon, 9, 17, 1, am shift\nTue, 9, 17, 1, tue shift\nWed, 9, 17, 1, nobody shift"));
+  assert.equal(r.unfilledSlots, 1);
+  const all = rosterIcs(r, "2026-10-12");
+  assert.equal((all.match(/BEGIN:VEVENT/g) || []).length, 2);
+  assert.ok(!all.includes("nobody shift"));
+  const ana = rosterIcs(r, "2026-10-12", "Ana");
+  assert.equal((ana.match(/BEGIN:VEVENT/g) || []).length, 1);
+  assert.match(ana, /SUMMARY:am shift/);
+  assert.ok(!ana.includes("tue shift"));
+});
+
+test("hour targets split the week's hours in proportion to each person's cap", () => {
+  const ctx = _internals.buildContext(staffOf("Ana, 10, 30, 0, any\nBen, 10, 10, 0, any"), slotsOf("Mon, 9, 17, 1\nTue, 9, 17, 1"));
+  assert.ok(Math.abs(ctx.target[0] - 12) < 1e-9);
+  assert.ok(Math.abs(ctx.target[1] - 4) < 1e-9);
 });
