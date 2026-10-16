@@ -1,0 +1,24 @@
+{
+  "status": "open",
+  "owner": "agent",
+  "opened": "2026-10-16",
+  "source": "P021 split of P014",
+  "pr": null,
+  "result": null,
+  "history": [],
+  "touches": [
+    "platform/marketing/",
+    "gitops/tests/"
+  ],
+  "id": "P022",
+  "title": "P014 step 1: build the front-door mirror into a temp dir for gitops tests and regen --verify",
+  "effect": 1,
+  "cost": 2,
+  "problem": "First of three single-PR steps of P014. test_manifests.py, test_front_door_serving.py and platform/marketing tests read the committed gitops/prod/front-door-tools tree, which blocks removing it.",
+  "evidence": [
+    "P014 history: 3 platform/marketing test files and 2 gitops/tests files read the committed tree"
+  ],
+  "change": "Let front-door-tools.mjs take --out <dir>; make the Python and node tests generate into a temp dir and read from there. Commit nothing is removed yet.",
+  "metric": "gitops/tests and platform/marketing tests pass with the mirror directory absent",
+  "baseline": "tests fail without the committed tree"
+}

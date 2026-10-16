@@ -1,0 +1,30 @@
+{
+  "id": "P021",
+  "title": "Size backlog items to one run: 8 of 9 partial process runs chipped at items too large for a run",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "Process/1 has 9 'partial' outcomes in 41 runs (prompts/runs/*.json, track=process, outcome=partial). Their notes show the same pattern: P004 3 of 5 guards, P014 'too large for one run' (twice), P017 steps 3 and 4 shipped as ~100-token trims, P016 measured only, P013 checked and dropped. Each run re-reads the same large item, judges it too big, and ships a note. Backlog items P014 and P017 name multi-PR efforts as one row, so no run can finish one.",
+  "evidence": [
+    "python3 prompts/promptctl.py measure: process/1 76% success, 40 friction entries; 9 partial of 41 process runs by prompts/runs/*.json",
+    "notes of the partial runs quote 'too large for one run' for P014 and P017 in 3 separate runs on 2026-10-16"
+  ],
+  "change": "Split P014 into P014a (tests build the mirror into a temp dir), P014b (drop regen lines from CLAUDE.md and checklist_coverage.py), P014c (git rm the mirror), each one PR, and P017 into one row per instruction file. A run takes one sub-row and finishes it. Add a line to process/prompt-1.md: if an item needs more than one PR, split it first and ship the first sub-row.",
+  "touches": [
+    "prompts/process/backlog/",
+    "prompts/process/prompt-1.md"
+  ],
+  "metric": "Share of process runs with outcome partial, next 20 process runs",
+  "baseline": "9 of 41 (22%)",
+  "opened": "2026-10-16",
+  "source": "process run, outcome tally over prompts/runs",
+  "pr": 7402,
+  "result": null,
+  "history": [
+    {
+      "date": "2026-10-16",
+      "note": "Split P014 into P022-P024 and added a split-first line to process/prompt-1.md. Result pending: partial share over the next 20 process runs."
+    }
+  ]
+}

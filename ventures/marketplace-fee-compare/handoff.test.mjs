@@ -37,6 +37,8 @@ import { INPUT_FIELDS as AMAZON_FIELDS } from '../amazon-fba-calculator/calc.mjs
 import { INPUT_FIELDS as WALMART_FIELDS } from '../walmart-marketplace-calculator/calc.mjs';
 import { FIELD_IDS as TIKTOK_FIELDS } from '../tiktok-shop-fee-calculator/calc.mjs';
 import { INPUT_IDS as MERCARI_FIELDS } from '../mercari-fee-calculator/calc.mjs';
+import { INPUT_IDS as DEPOP_FIELDS } from '../depop-fee-calculator/calc.mjs';
+import { INPUT_IDS as FACEBOOK_FIELDS } from '../facebook-marketplace-fee-calculator/calc.mjs';
 import { FIELD_IDS as SHOPIFY_FIELDS } from '../shopify-fee-calculator/share.mjs';
 
 // The two excluded channels whose item still travels. Imported from the target
@@ -56,6 +58,8 @@ const TARGET_FIELDS = {
   'walmart-marketplace-calculator': WALMART_FIELDS,
   'tiktok-shop-fee-calculator': TIKTOK_FIELDS,
   'mercari-fee-calculator': MERCARI_FIELDS,
+  'depop-fee-calculator': DEPOP_FIELDS,
+  'facebook-marketplace-fee-calculator': FACEBOOK_FIELDS,
   'shopify-fee-calculator': SHOPIFY_FIELDS,
 };
 

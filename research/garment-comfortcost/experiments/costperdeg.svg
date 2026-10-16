@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Added retail cost per degree of comfort against the premium multiplier for each treatment and scenario">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Cost per degree C vs premium multiplier</text>
+<rect x="64" y="40" width="560" height="284" fill="none" stroke="#999"/>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#eee"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">1e-1.3</text>
+<line x1="64" x2="624" y1="267.2" y2="267.2" stroke="#eee"/><text x="58" y="271.2" text-anchor="end" font-family="sans-serif" font-size="11">1e-0.4</text>
+<line x1="64" x2="624" y1="210.4" y2="210.4" stroke="#eee"/><text x="58" y="214.4" text-anchor="end" font-family="sans-serif" font-size="11">1e0.6</text>
+<line x1="64" x2="624" y1="153.6" y2="153.6" stroke="#eee"/><text x="58" y="157.6" text-anchor="end" font-family="sans-serif" font-size="11">1e1.5</text>
+<line x1="64" x2="624" y1="96.8" y2="96.8" stroke="#eee"/><text x="58" y="100.8" text-anchor="end" font-family="sans-serif" font-size="11">1e2.4</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#eee"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">1e3.4</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="197.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="477.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="344.0" y="372" text-anchor="middle" font-family="sans-serif" font-size="12">premium multiplier (x assumed)</text>
+<text x="14" y="182.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 182.0)">USD per C (log10)</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="64.0,180.3 197.6,151.5 344.0,119.9 477.6,91.1 624.0,59.6"/>
+<circle cx="64.0" cy="180.3" r="3" fill="#1f6fb2"/>
+<circle cx="197.6" cy="151.5" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="119.9" r="3" fill="#1f6fb2"/>
+<circle cx="477.6" cy="91.1" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="59.6" r="3" fill="#1f6fb2"/>
+<rect x="74" y="48" width="12" height="10" fill="#1f6fb2"/><text x="92" y="57" font-family="sans-serif" font-size="11">designer, warm room 28 C IR-transp.</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="64.0,275.6 197.6,246.9 344.0,213.6 477.6,185.1 624.0,153.6"/>
+<circle cx="64.0" cy="275.6" r="3" fill="#c0392b"/>
+<circle cx="197.6" cy="246.9" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="213.6" r="3" fill="#c0392b"/>
+<circle cx="477.6" cy="185.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="153.6" r="3" fill="#c0392b"/>
+<rect x="74" y="63" width="12" height="10" fill="#c0392b"/><text x="92" y="72" font-family="sans-serif" font-size="11">designer, sunny outdoors 32 C white</text>
+<polyline fill="none" stroke="#2e8b57" stroke-width="2" points="64.0,212.0 197.6,183.3 344.0,151.8 477.6,123.0 624.0,91.5"/>
+<circle cx="64.0" cy="212.0" r="3" fill="#2e8b57"/>
+<circle cx="197.6" cy="183.3" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="151.8" r="3" fill="#2e8b57"/>
+<circle cx="477.6" cy="123.0" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="91.5" r="3" fill="#2e8b57"/>
+<rect x="74" y="78" width="12" height="10" fill="#2e8b57"/><text x="92" y="87" font-family="sans-serif" font-size="11">designer, cool room 16 C low-e</text>
+<polyline fill="none" stroke="#8e44ad" stroke-width="2" points="64.0,227.3 197.6,198.5 344.0,167.1 477.6,138.3 624.0,106.7"/>
+<circle cx="64.0" cy="227.3" r="3" fill="#8e44ad"/>
+<circle cx="197.6" cy="198.5" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="167.1" r="3" fill="#8e44ad"/>
+<circle cx="477.6" cy="138.3" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="106.7" r="3" fill="#8e44ad"/>
+<rect x="74" y="93" width="12" height="10" fill="#8e44ad"/><text x="92" y="102" font-family="sans-serif" font-size="11">replica, warm room 28 C IR-transp.</text>
+<polyline fill="none" stroke="#e08e0b" stroke-width="2" points="64.0,304.4 197.6,286.3 344.0,262.3 477.6,231.8 624.0,200.9"/>
+<circle cx="64.0" cy="304.4" r="3" fill="#e08e0b"/>
+<circle cx="197.6" cy="286.3" r="3" fill="#e08e0b"/>
+<circle cx="344.0" cy="262.3" r="3" fill="#e08e0b"/>
+<circle cx="477.6" cy="231.8" r="3" fill="#e08e0b"/>
+<circle cx="624.0" cy="200.9" r="3" fill="#e08e0b"/>
+<rect x="74" y="108" width="12" height="10" fill="#e08e0b"/><text x="92" y="117" font-family="sans-serif" font-size="11">replica, sunny outdoors 32 C white</text>
+<polyline fill="none" stroke="#555555" stroke-width="2" points="64.0,257.5 197.6,230.2 344.0,199.0 477.6,170.2 624.0,138.6"/>
+<circle cx="64.0" cy="257.5" r="3" fill="#555555"/>
+<circle cx="197.6" cy="230.2" r="3" fill="#555555"/>
+<circle cx="344.0" cy="199.0" r="3" fill="#555555"/>
+<circle cx="477.6" cy="170.2" r="3" fill="#555555"/>
+<circle cx="624.0" cy="138.6" r="3" fill="#555555"/>
+<rect x="74" y="123" width="12" height="10" fill="#555555"/><text x="92" y="132" font-family="sans-serif" font-size="11">replica, cool room 16 C low-e</text>
+</svg>

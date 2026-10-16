@@ -25,6 +25,13 @@ So this is a triage tool, not a seventh fee engine. It models each channel's
 **headline** fee structure and then points at the deep calculator for the parts
 a headline rate cannot carry.
 
+## Price to match
+
+Each row also shows the list price that channel needs for this item to net what
+the best buyer-bringing channel nets. That turns the ranking into a repricing
+answer ("charge $X on Walmart to keep what eBay leaves me") and leaves the
+own-store row out as the yardstick, since it brings no buyers.
+
 ## What it models
 
 | Channel | Rate | Fixed | Subscription |
