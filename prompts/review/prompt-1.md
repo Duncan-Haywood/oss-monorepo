@@ -25,7 +25,8 @@ Read the tables. Then make the numbers true before you trust them:
   measures `merged`, PR size, red-CI commits and 14-day rework for every
   record that names a PR, upstream ones included, into `prompts/derived/`.
   `measure` reads that, so do not hand-edit records for these facts. Commit
-  the regenerated `prompts/derived/` with the review.
+  the regenerated `prompts/derived/` with the review. If `fetch` gets a 403
+  (no GitHub API in this session), skip both and say so in the log.
 - **Count leaked work.** Branches or pull requests a recorded run pushed that
   were not on `main` 24 hours later. Set `merged: false` on their records.
   Then land or close each one, per `land-your-work.md`.

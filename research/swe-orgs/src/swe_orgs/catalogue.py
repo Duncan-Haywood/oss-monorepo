@@ -59,12 +59,20 @@ def wilson(k, n, z=1.96):
     return ((c - h) / d, (c + h) / d)
 
 
+def error_texts(row):
+    """A run's reported errors as strings; the ledger holds plain strings and, rarely, a {what, fixed} dict."""
+    out = []
+    for e in row.get("errors") or []:
+        out.append(" ".join(str(v) for v in e.values()) if isinstance(e, dict) else str(e))
+    return out
+
+
 def failure_shares(rows):
     """Count ledger rows whose errors text matches each failure class."""
     out = {}
     for mode, pat in FAILURE_PATTERNS.items():
         rx = re.compile(pat, re.I)
-        k = sum(1 for r in rows if any(rx.search(e) for e in (r.get("errors") or [])))
+        k = sum(1 for r in rows if any(rx.search(e) for e in error_texts(r)))
         out[mode] = (k, len(rows))
     return out
 
@@ -81,4 +89,8 @@ def score(practices, shares):
 
 
 def load_ledger(path):
+    """Read the run ledger: a directory of one-run JSON files (prompts/runs/) or a legacy JSON-lines file."""
+    path = Path(path)
+    if path.is_dir():
+        return [json.loads(f.read_text()) for f in sorted(path.glob("*.json"))]
     return [json.loads(l) for l in open(path) if l.strip()]

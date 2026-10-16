@@ -33,53 +33,53 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 548375 bytes
+#   portfolio-front-tools-0: 145 files, 548388 bytes
 #   portfolio-front-tools-1: 92 files, 555579 bytes
-#   portfolio-front-tools-2: 144 files, 553622 bytes
-#   portfolio-front-tools-3: 128 files, 549950 bytes
-#   portfolio-front-tools-4: 136 files, 553270 bytes
-#   portfolio-front-tools-5: 131 files, 551863 bytes
-#   portfolio-front-tools-6: 126 files, 556386 bytes
-#   portfolio-front-tools-7: 119 files, 553867 bytes
-#   portfolio-front-tools-8: 131 files, 556456 bytes
-#   portfolio-front-tools-9: 136 files, 551421 bytes
-#   portfolio-front-tools-10: 145 files, 554883 bytes
-#   portfolio-front-tools-11: 136 files, 554895 bytes
-#   portfolio-front-tools-12: 126 files, 551330 bytes
-#   portfolio-front-tools-13: 132 files, 554946 bytes
-#   portfolio-front-tools-14: 134 files, 550718 bytes
-#   portfolio-front-tools-15: 124 files, 555681 bytes
-#   portfolio-front-tools-16: 129 files, 554089 bytes
-#   portfolio-front-tools-17: 129 files, 556342 bytes
-#   portfolio-front-tools-18: 127 files, 550334 bytes
-#   portfolio-front-tools-19: 123 files, 553500 bytes
-#   portfolio-front-tools-20: 123 files, 552098 bytes
-#   portfolio-front-tools-21: 129 files, 553433 bytes
-#   portfolio-front-tools-22: 126 files, 556499 bytes
-#   portfolio-front-tools-23: 118 files, 554723 bytes
-#   portfolio-front-tools-24: 114 files, 550577 bytes
-#   portfolio-front-tools-25: 138 files, 553560 bytes
-#   portfolio-front-tools-26: 125 files, 542072 bytes
-#   portfolio-front-tools-27: 139 files, 555179 bytes
-#   portfolio-front-tools-28: 131 files, 555627 bytes
-#   portfolio-front-tools-29: 123 files, 555183 bytes
-#   portfolio-front-tools-30: 130 files, 549215 bytes
-#   portfolio-front-tools-31: 135 files, 557032 bytes
-#   portfolio-front-tools-32: 128 files, 549234 bytes
-#   portfolio-front-tools-33: 129 files, 553225 bytes
-#   portfolio-front-tools-34: 134 files, 553618 bytes
-#   portfolio-front-tools-35: 114 files, 550375 bytes
-#   portfolio-front-tools-36: 97 files, 553171 bytes
-#   portfolio-front-tools-37: 129 files, 555558 bytes
-#   portfolio-front-tools-38: 123 files, 552662 bytes
-#   portfolio-front-tools-39: 127 files, 552385 bytes
-#   portfolio-front-tools-40: 126 files, 554712 bytes
-#   portfolio-front-tools-41: 136 files, 551279 bytes
-#   portfolio-front-tools-42: 140 files, 556782 bytes
-#   portfolio-front-tools-43: 130 files, 546649 bytes
-#   portfolio-front-tools-44: 123 files, 553366 bytes
-#   portfolio-front-tools-45: 61 files, 328202 bytes
-#   portfolio-front-tools-46: 54 files, 266549 bytes
+#   portfolio-front-tools-2: 144 files, 553635 bytes
+#   portfolio-front-tools-3: 128 files, 549963 bytes
+#   portfolio-front-tools-4: 136 files, 553278 bytes
+#   portfolio-front-tools-5: 131 files, 551899 bytes
+#   portfolio-front-tools-6: 126 files, 556410 bytes
+#   portfolio-front-tools-7: 119 files, 553841 bytes
+#   portfolio-front-tools-8: 131 files, 556506 bytes
+#   portfolio-front-tools-9: 136 files, 551371 bytes
+#   portfolio-front-tools-10: 145 files, 554859 bytes
+#   portfolio-front-tools-11: 136 files, 554896 bytes
+#   portfolio-front-tools-12: 126 files, 551360 bytes
+#   portfolio-front-tools-13: 132 files, 554558 bytes
+#   portfolio-front-tools-14: 135 files, 553687 bytes
+#   portfolio-front-tools-15: 124 files, 555596 bytes
+#   portfolio-front-tools-16: 129 files, 554274 bytes
+#   portfolio-front-tools-17: 129 files, 556326 bytes
+#   portfolio-front-tools-18: 127 files, 550348 bytes
+#   portfolio-front-tools-19: 123 files, 553426 bytes
+#   portfolio-front-tools-20: 123 files, 552206 bytes
+#   portfolio-front-tools-21: 129 files, 553439 bytes
+#   portfolio-front-tools-22: 126 files, 556505 bytes
+#   portfolio-front-tools-23: 120 files, 556894 bytes
+#   portfolio-front-tools-24: 116 files, 556493 bytes
+#   portfolio-front-tools-25: 137 files, 556649 bytes
+#   portfolio-front-tools-26: 127 files, 547590 bytes
+#   portfolio-front-tools-27: 139 files, 555140 bytes
+#   portfolio-front-tools-28: 131 files, 555590 bytes
+#   portfolio-front-tools-29: 123 files, 555012 bytes
+#   portfolio-front-tools-30: 130 files, 549297 bytes
+#   portfolio-front-tools-31: 135 files, 557005 bytes
+#   portfolio-front-tools-32: 128 files, 549399 bytes
+#   portfolio-front-tools-33: 129 files, 553133 bytes
+#   portfolio-front-tools-34: 134 files, 553675 bytes
+#   portfolio-front-tools-35: 114 files, 550372 bytes
+#   portfolio-front-tools-36: 97 files, 553576 bytes
+#   portfolio-front-tools-37: 129 files, 555546 bytes
+#   portfolio-front-tools-38: 123 files, 552790 bytes
+#   portfolio-front-tools-39: 127 files, 552303 bytes
+#   portfolio-front-tools-40: 126 files, 554705 bytes
+#   portfolio-front-tools-41: 136 files, 551376 bytes
+#   portfolio-front-tools-42: 140 files, 556797 bytes
+#   portfolio-front-tools-43: 130 files, 546789 bytes
+#   portfolio-front-tools-44: 123 files, 553367 bytes
+#   portfolio-front-tools-45: 61 files, 328192 bytes
+#   portfolio-front-tools-46: 54 files, 266627 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1887,6 +1887,7 @@ configMapGenerator:
       - de-freiberufler-tax-set-aside-calculator__usage.mjs.gz=de-freiberufler-tax-set-aside-calculator__usage.mjs.gz
       - deal-keeper__ai.mjs.gz=deal-keeper__ai.mjs.gz
       - deal-keeper__byok.mjs.gz=deal-keeper__byok.mjs.gz
+      - deal-keeper__connectors.mjs.gz=deal-keeper__connectors.mjs.gz
       - deal-keeper__engine.mjs.gz=deal-keeper__engine.mjs.gz
       - deal-keeper__import.mjs.gz=deal-keeper__import.mjs.gz
       - deal-keeper__index.html.gz=deal-keeper__index.html.gz
@@ -1993,12 +1994,12 @@ configMapGenerator:
       - docker-base-image-eol-check__what-to-do-when-a-base-image-is-eol.html.gz=docker-base-image-eol-check__what-to-do-when-a-base-image-is-eol.html.gz
       - docker-base-image-pin-check__check.py.gz=docker-base-image-pin-check__check.py.gz
       - docker-base-image-pin-check__classify.mjs.gz=docker-base-image-pin-check__classify.mjs.gz
-      - docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz=docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz=docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz
       - docker-base-image-pin-check__index.html.gz=docker-base-image-pin-check__index.html.gz
       - docker-base-image-pin-check__usage.mjs.gz=docker-base-image-pin-check__usage.mjs.gz
       - docker-base-image-pin-check__vs-hadolint.html.gz=docker-base-image-pin-check__vs-hadolint.html.gz
@@ -3195,6 +3196,11 @@ configMapGenerator:
       - interior-door-bid-calculator__usage.mjs.gz=interior-door-bid-calculator__usage.mjs.gz
       - interior-door-bid-calculator__vs-a-flat-per-door-price.html.gz=interior-door-bid-calculator__vs-a-flat-per-door-price.html.gz
       - interior-door-bid-calculator__vs-jobber.html.gz=interior-door-bid-calculator__vs-jobber.html.gz
+      - internal-link-planner__cli.mjs.gz=internal-link-planner__cli.mjs.gz
+      - internal-link-planner__engine.mjs.gz=internal-link-planner__engine.mjs.gz
+      - internal-link-planner__fixture.mjs.gz=internal-link-planner__fixture.mjs.gz
+      - internal-link-planner__index.html.gz=internal-link-planner__index.html.gz
+      - internal-link-planner__usage.mjs.gz=internal-link-planner__usage.mjs.gz
       - investor-update-builder__calc.mjs.gz=investor-update-builder__calc.mjs.gz
       - investor-update-builder__index.html.gz=investor-update-builder__index.html.gz
       - investor-update-builder__usage.mjs.gz=investor-update-builder__usage.mjs.gz
@@ -3303,14 +3309,14 @@ configMapGenerator:
       - k8s-resource-limits-check__index.html.gz=k8s-resource-limits-check__index.html.gz
       - k8s-resource-limits-check__usage.mjs.gz=k8s-resource-limits-check__usage.mjs.gz
       - k8s-resource-limits-check__vs-polaris.html.gz=k8s-resource-limits-check__vs-polaris.html.gz
-      - k8s-resource-limits-check__vs-reading-the-manifest-by-eye.html.gz=k8s-resource-limits-check__vs-reading-the-manifest-by-eye.html.gz
-      - k8s-resource-limits-check__why-a-missing-resource-limit-takes-down-a-node.html.gz=k8s-resource-limits-check__why-a-missing-resource-limit-takes-down-a-node.html.gz
-      - k8s-resource-limits-check__yaml.mjs.gz=k8s-resource-limits-check__yaml.mjs.gz
   - name: portfolio-front-tools-24
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - k8s-resource-limits-check__vs-reading-the-manifest-by-eye.html.gz=k8s-resource-limits-check__vs-reading-the-manifest-by-eye.html.gz
+      - k8s-resource-limits-check__why-a-missing-resource-limit-takes-down-a-node.html.gz=k8s-resource-limits-check__why-a-missing-resource-limit-takes-down-a-node.html.gz
+      - k8s-resource-limits-check__yaml.mjs.gz=k8s-resource-limits-check__yaml.mjs.gz
       - k8s-rollout-safety-check__check.mjs.gz=k8s-rollout-safety-check__check.mjs.gz
       - k8s-rollout-safety-check__engine.mjs.gz=k8s-rollout-safety-check__engine.mjs.gz
       - k8s-rollout-safety-check__index.html.gz=k8s-rollout-safety-check__index.html.gz
@@ -3424,12 +3430,12 @@ configMapGenerator:
       - lemonsqueezy-payout-to-journal__usage.mjs.gz=lemonsqueezy-payout-to-journal__usage.mjs.gz
       - license-compat-check__can-i-use-a-gpl-dependency-in-a-closed-source-app.html.gz=license-compat-check__can-i-use-a-gpl-dependency-in-a-closed-source-app.html.gz
       - license-compat-check__cli.mjs.gz=license-compat-check__cli.mjs.gz
-      - license-compat-check__engine.mjs.gz=license-compat-check__engine.mjs.gz
   - name: portfolio-front-tools-25
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - license-compat-check__engine.mjs.gz=license-compat-check__engine.mjs.gz
       - license-compat-check__index.html.gz=license-compat-check__index.html.gz
       - license-compat-check__usage.mjs.gz=license-compat-check__usage.mjs.gz
       - license-drift-check__cli.mjs.gz=license-drift-check__cli.mjs.gz
@@ -3566,13 +3572,13 @@ configMapGenerator:
       - medical-bill-error-checker__usage.mjs.gz=medical-bill-error-checker__usage.mjs.gz
       - medical-billing-pricing-calculator__calc.mjs.gz=medical-billing-pricing-calculator__calc.mjs.gz
       - medical-billing-pricing-calculator__index.html.gz=medical-billing-pricing-calculator__index.html.gz
-      - medical-billing-pricing-calculator__usage.mjs.gz=medical-billing-pricing-calculator__usage.mjs.gz
-      - medicare-irmaa-cliff-calculator__calc.mjs.gz=medicare-irmaa-cliff-calculator__calc.mjs.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - medical-billing-pricing-calculator__usage.mjs.gz=medical-billing-pricing-calculator__usage.mjs.gz
+      - medicare-irmaa-cliff-calculator__calc.mjs.gz=medicare-irmaa-cliff-calculator__calc.mjs.gz
       - medicare-irmaa-cliff-calculator__index.html.gz=medicare-irmaa-cliff-calculator__index.html.gz
       - medicare-irmaa-cliff-calculator__usage.mjs.gz=medicare-irmaa-cliff-calculator__usage.mjs.gz
       - mega-backdoor-roth-calculator__calc.mjs.gz=mega-backdoor-roth-calculator__calc.mjs.gz

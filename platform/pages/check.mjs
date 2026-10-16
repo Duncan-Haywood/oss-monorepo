@@ -112,6 +112,9 @@ export const GUIDES_DIR = 'guides';
 // The research portfolio's homepage (`research/_homepage/build.py`). Same
 // shape again: a page about the repository, not a venture.
 export const RESEARCH_DIR = 'research';
+// The engineering status page (`engineering.mjs`): about how the repository is
+// worked on, not a tool. `noindex`, so it is exempt from the sitemap checks.
+export const ENGINEERING_DIR = 'engineering';
 
 // Directories the site builds for itself. They are not products, so the
 // reachability check below must not demand a `data-tool` card on the hub for
@@ -125,7 +128,7 @@ export const DEPLOY_DIR = 'deploy';
 // check on the same terms as the deploy page.
 export const DEV_DIR = 'dev';
 
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR]);
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -673,6 +676,23 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       }
       if (hubHtml !== null && !/href="research\/"/.test(hubHtml)) {
         problems.push(`${RESEARCH_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+    }
+  }
+
+  {
+    const relative = path.join(ENGINEERING_DIR, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    // Optional, like research: a fixture build has none.
+    if (html !== null) {
+      if (!DISCLAIMER_MARKER.test(html)) {
+        problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+      }
+      if (!NOINDEX_RE.test(html)) {
+        problems.push(`${relative}: must be noindex -- it is a status page, not a search landing`);
+      }
+      if (hubHtml !== null && !/href="engineering\/"/.test(hubHtml)) {
+        problems.push(`${ENGINEERING_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
       }
     }
   }

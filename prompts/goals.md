@@ -129,6 +129,19 @@ site, with aggregate counts committed to the repository, rank ahead of adding
 more products. Only the owner's own site is measured, never the copies other
 people deploy. Spec: `portfolio/usage/README.md`.
 
+**Own the tooling; open-source apps and tools as a second track** (the owner,
+2026-10-16): "I don't want to use a bunch of user managed accounts by the way.
+why is it not possible to track analytics on a webpage with opensource or a
+honme brew tool that seems silly to not be able to own oneself it can't be
+that hard. we can also move in the direction of open source apps tools etc as
+well doesn't necessarily need to be web apps which cuts costs for a lot. i
+odn't think they need to be exclusive directions work can e done on both." So:
+prefer self-hosted, open-source tooling we can run ourselves (the visitor
+counter is `platform/counter/`) over a new third-party account for each
+need. And alongside web tools, build open-source apps and tools that are not
+web apps (CLIs, libraries, desktop apps, editor and browser extensions),
+which cost nothing to serve. Both tracks run at once.
+
 **No terms of service are ever broken for it.** Every channel follows its
 platform's terms, API and bot rules, rate limits and self-promotion rules as
 written, and the law (CAN-SPAM, GDPR, CASL, PECR, FTC disclosure). Never:

@@ -51,9 +51,6 @@ test("privacy policy page exists, is in the sitemap and makes no tracking claims
   const html = page("privacy.html");
   assert.match(html, /no analytics/);
   assert.match(html, /Nothing\./);
-  // A JSON-LD block is inert data (no code runs), and the site-wide
-  // secondary-schema test requires one; anything executable is still banned.
-  const executable = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, '');
-  assert.doesNotMatch(executable, /<script|fetch\(/);
+  assert.doesNotMatch(html, /<script(?![^>]*application\/ld\+json)|fetch\(/);
   assert.match(page("sitemap.xml"), /privacy\.html/);
 });

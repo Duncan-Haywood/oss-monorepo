@@ -32,3 +32,20 @@ def test_failure_shares_and_score_order():
 def test_wilson_bounds():
     lo, hi = wilson(5, 100)
     assert 0.02 < lo < 0.05 < hi < 0.12 and wilson(0, 0) == (0.0, 1.0)
+
+
+def test_error_texts_accepts_strings_and_dicts():
+    from swe_orgs.catalogue import error_texts
+    row = {"errors": ["timed out", {"what": "stray line", "fixed": True}]}
+    assert error_texts(row) == ["timed out", "stray line True"]
+    assert error_texts({}) == [] and error_texts({"errors": None}) == []
+
+
+def test_load_ledger_reads_a_directory_and_a_jsonl_file(tmp_path):
+    from swe_orgs.catalogue import load_ledger
+    (tmp_path / "a.json").write_text('{"errors": ["x"]}')
+    (tmp_path / "b.json").write_text('{"errors": []}')
+    assert len(load_ledger(tmp_path)) == 2
+    f = tmp_path / "l.jsonl"
+    f.write_text('{"errors": []}\n\n{"errors": ["y"]}\n')
+    assert len(load_ledger(f)) == 2
