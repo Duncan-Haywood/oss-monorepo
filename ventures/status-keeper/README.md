@@ -57,6 +57,35 @@ certificate expiry check, no multi-region probes, no custom domain handling
    counts. Subscriber addresses live only in your state file. Without the two
    keys none of these routes exist.
 
+## Certificate and domain expiry watchers
+
+Two more monitor types catch the outage that is entirely avoidable: the
+certificate or the domain registration lapsing.
+
+```
+{"id":"site-cert","name":"example.com certificate","type":"tls","host":"example.com","port":443}
+{"id":"site-domain","name":"example.com registration","type":"domain","domain":"example.com","warnDays":[60,30,14,7,1]}
+```
+
+- `tls` connects to `host:port`, reads the certificate the server presents and
+  fails (opening an incident and counting against uptime) only when it is
+  expired, does not match the name or is not trusted. `"strict": false` accepts
+  an untrusted chain, for internal CAs.
+- `domain` asks RDAP (`rdap.org`, which forwards to the registry) for the
+  registration's expiration date. Not every registry runs RDAP: a TLD without
+  it reports "not found" rather than guessing.
+- Both check every 6 hours (`intervalSec`), fail on the first miss
+  (`failAfter` 1) and, on every pass, compare days left with `warnDays`
+  (default 30, 14, 7, 3, 1). Each threshold alerts **once** on
+  `ALERT_WEBHOOK_URL`; a renewal sends one "renewed" message and re-arms the
+  warnings. A certificate with 5 days left is still serving, so a warning is not
+  an incident and does not dent the uptime bars.
+- The public page and `/api/status.json` show the expiry date and days left
+  (`expiresAt`, `daysLeft`).
+
+Not verified: RDAP answers were exercised against recorded-shape fixtures, not
+a live registry; the TLS probe is tested against a local self-signed server.
+
 ## Run it
 
 ```

@@ -9,8 +9,9 @@
 import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
-import { DEFAULTS, newState, recordCheck, recordPing, pushResult, createIncident, addUpdate, scheduleMaintenance, overall, LABELS, COLORS, humanDuration } from "./monitor.mjs";
+import { DEFAULTS, EXPIRY_DEFAULTS, EXPIRY_TYPES, recordExpiry, newState, recordCheck, recordPing, pushResult, createIncident, addUpdate, scheduleMaintenance, overall, LABELS, COLORS, humanDuration } from "./monitor.mjs";
 import { statusPage, statusJson, atomFeed, badgeSvg, messagePage } from "./render.mjs";
+import { checkTls, checkDomain } from "./certs.mjs";
 import { subscribe, confirm, unsubscribe, activeCount, confirmationMail, notifyAll } from "./subscribers.mjs";
 
 const env = process.env;
@@ -24,9 +25,16 @@ export function parseMonitors(json) {
     if (seen.has(m.id)) throw new Error(`duplicate monitor: ${m.id}`);
     seen.add(m.id);
     const type = m.type || "http";
+    if (EXPIRY_TYPES.includes(type)) {
+      const target = type === "tls" ? m.host : m.domain;
+      if (!/^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?$/i.test(target || "") || !String(target).includes(".")) throw new Error(`monitor ${m.id}: ${type === "tls" ? "host" : "domain"} must be a DNS name`);
+      if (m.warnDays !== undefined && !(Array.isArray(m.warnDays) && m.warnDays.length && m.warnDays.every((d) => Number.isInteger(d) && d > 0 && d <= 365))) throw new Error(`monitor ${m.id}: warnDays must be a list of whole days, 1 to 365`);
+      if (type === "tls" && m.port !== undefined && !(Number.isInteger(m.port) && m.port > 0 && m.port < 65536)) throw new Error(`monitor ${m.id}: bad port`);
+      return { ...DEFAULTS, ...EXPIRY_DEFAULTS, ...m, type };
+    }
     if (type === "http" && !/^https?:\/\//.test(m.url || "")) throw new Error(`monitor ${m.id}: url must be http(s)`);
     if (type === "push" && !(m.token && String(m.token).length >= 12)) throw new Error(`monitor ${m.id}: push monitors need a token of at least 12 characters`);
-    if (!["http", "push"].includes(type)) throw new Error(`monitor ${m.id}: type must be http or push`);
+    if (!["http", "push"].includes(type)) throw new Error(`monitor ${m.id}: type must be http, push, tls or domain`);
     return { ...DEFAULTS, ...m, type };
   });
 }
@@ -139,8 +147,19 @@ export async function tick(state, defs, now, deps = {}) {
     if (m?.lastCheckAt && now - m.lastCheckAt < def.intervalSec * 1000) return;
     let result;
     if (def.type === "push") { if (!m || m.lastPingAt === null) return; result = pushResult(state, def, now); }
+    else if (def.type === "tls") result = await checkTls(def, deps.connect, now);
+    else if (def.type === "domain") result = await checkDomain(def, deps.fetch, now);
     else result = await checkHttp(def, deps.fetch);
     changed = true;
+    if (result.expiresAt) {
+      for (const ev of recordExpiry(state, def, result.expiresAt, now)) {
+        const what = def.type === "tls" ? "certificate" : "domain registration";
+        const day = new Date(ev.expiresAt).toISOString().slice(0, 10);
+        if (deps.alert) await deps.alert(ev.type === "expiring"
+          ? `status-keeper: ${def.name || def.id} ${what} expires in ${Math.max(ev.daysLeft, 0)} day(s) (${day})`
+          : `status-keeper: ${def.name || def.id} ${what} renewed, now valid until ${day}`).catch(() => {});
+      }
+    }
     for (const ev of recordCheck(state, def, result, now)) {
       if (deps.notify) await deps.notify({ kind: ev.type === "down" ? "incident" : "resolved", incident: ev.incident }).catch(() => {});
       if (!deps.alert) continue;
