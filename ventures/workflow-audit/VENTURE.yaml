@@ -1,5 +1,5 @@
 name: workflow-audit
-description: 'One free GitHub Action and zero-dependency CLI that runs ten read-only workflow security and cost checks (injection, poisoning, secret leaks, permissions, self-hosted exposure, timeouts, deprecated runtimes) and merges them into one severity-ranked report with job summary and SARIF output. Nothing is uploaded; no network calls.'
+description: 'One free GitHub Action and zero-dependency CLI that runs eleven read-only workflow security and cost checks (injection, poisoning, secret leaks, permissions, self-hosted exposure, timeouts, deprecated runtimes, unpinned action refs) and merges them into one severity-ranked report with job summary and SARIF output. Nothing is uploaded; no network calls.'
 stage: prototype
 owner: duncan
 

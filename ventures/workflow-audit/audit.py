@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Workflow Audit: run ten GitHub Actions workflow checks and merge the results.
+"""Workflow Audit: run eleven GitHub Actions workflow checks and merge the results.
 
     python3 audit.py                       # scan ./.github/workflows, print a report
     python3 audit.py path/to/repo          # scan another checkout
@@ -40,6 +40,7 @@ CHECKS = [
     ("checkout-credentials", "type", {"checkout-persists-credentials": "medium"}),
     ("runtime-deprecation", "type", {"deprecated-runtime": "low"}),
     ("timeout", "type", {"job-missing-timeout": "low", "job-timeout-at-default": "low"}),
+    ("unpinned-action", "type", {"unpinned-third-party-action": "medium", "unpinned-first-party-action": "low", "unpinned-docker-action": "low"}),
 ]
 
 REMEDIATION_FALLBACK = {
@@ -142,7 +143,7 @@ def render_text(findings, errors):
 def summary_line(findings, c=None):
     c = c or counts(findings)
     if not findings:
-        return "No findings: none of the ten patterns checked were present. This is not a security audit."
+        return "No findings: none of the eleven patterns checked were present. This is not a security audit."
     return f"{len(findings)} finding(s): {c['high']} high, {c['medium']} medium, {c['low']} low."
 
 
