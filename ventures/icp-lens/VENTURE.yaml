@@ -1,0 +1,72 @@
+name: icp-lens
+description: >-
+  Open-source ideal-customer-profile learner and lead scorer for small B2B
+  sales teams. Reads a CSV where past deals are marked won or lost and
+  prospects are blank, learns what the wins share (naive Bayes over bucketed
+  columns), ranks prospects by lookalike fit with the reasons in words, and
+  reports a leave-one-out AUC and top-fifth lift so a profile that does not
+  separate wins from losses is called noise. Manual-rules scoring when there
+  is no history. Drafts a first outreach email on the user's own AI key
+  (Anthropic, OpenAI, Gemini or any OpenAI-compatible endpoint) or from a
+  template, with the sender's identity, postal address and opt-out appended
+  and a CAN-SPAM/PECR/CASL-style message checker. Browser page, importable
+  engine, CLI. Never sends anything.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-16 under the sales-tools direction (portfolio/sales-tools/).
+# Gap in the portfolio: deal-keeper forecasts and cleans an existing pipeline,
+# proposal-maker writes the quote, drip-keeper runs follow-ups, but nothing
+# answered the first question of outbound: of the companies I could contact,
+# which look like the ones that already bought? The ICP / lead-scoring work.
+#
+# Alternatives a user has today: HubSpot predictive lead scoring and Salesforce
+# Einstein (Enterprise tiers, per-seat, thousands of records needed); Apollo,
+# ZoomInfo, Clay and Lusha (contact databases and enrichment credits, scoring
+# is a filter you write by hand); MadKudu and Breadcrumbs (priced for PLG
+# companies); a spreadsheet with gut-feel columns. The wedge is the same as
+# deal-keeper's: learn from the user's own wins and losses, show the accuracy
+# check, run on a few dozen deals instead of thousands, no per-seat fee, no
+# data leaves the tab. It deliberately holds no contact database and does no
+# scraping or sending (portfolio/sales-tools/README.md guardrails).
+#
+# Honest limits: naive Bayes assumes columns are independent, so correlated
+# columns double count; the score is a ranking, not a close probability; it
+# needs at least 8 won and 8 lost rows and a few dozen of each to be stable;
+# survivorship (only deals that reached a decision are labelled) biases it
+# toward who you already sell to rather than who you could.
+
+hypotheses:
+  - claim: >-
+      A founder or small-team sales lead with 30 or more labelled past deals
+      will paste a real CRM or spreadsheet export into the page, read the
+      accuracy line, and act on the ranking (contact the A-tier first), because
+      "who do I email first" is a decision they make every week with no data.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing a leave-one-out AUC beside the ranking, and refusing to present a
+      near-0.5 profile as signal, builds more trust than a bare score; users who
+      see a low AUC add columns rather than leave. Shown on synthetic data only.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a ranking or accuracy figure that is wrong given their data (a held-out row leaking into its own score, a mislabelled outcome); the validation path comes before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/icp-lens/
+  analytics: null
