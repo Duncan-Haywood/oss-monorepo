@@ -182,3 +182,18 @@ channels:
       - store descriptions and privacy answers: the package collects nothing (say so)
     owner_ask: create a Chrome Web Store developer account, then upload the zip for one tool at a time
     dry_run: node platform/distribution/webext.mjs
+  - id: android-play-store
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/android.mjs
+    workflow: none (artifact only; the owner builds, signs and uploads once per tool)
+    enabled_by: nothing in the tree is gated; building the inputs is always allowed. Signing and uploading are the owner's steps
+    what_it_posts: nothing automatically. `android.mjs --build <slug> <dir>` writes a Bubblewrap Trusted Web Activity project input for any published venture page (1196 of 1251 today) - twa-manifest.json, a 512 px icon, an assetlinks template, a Play store listing with the data-safety answers (collects nothing) and BUILD.md. iOS has no offline equivalent; the Home Screen install of the PWA covers it.
+    dedupe: not applicable (no automated posting)
+    terms_to_confirm_by_owner_when_enabling:
+      - Google Play Developer Program Policies and distribution agreement (one-time registration fee, identity verification, a closed test for new personal accounts); agents did not read them live on build day
+      - Play's minimum-functionality and spam rules: list a few tools people return to weekly, not hundreds of near-identical apps
+      - assetlinks.json must be served at the origin root, so full-screen mode needs a user site (<owner>.github.io) or the custom domain; on the current project-page subpath the app shows a browser address bar
+      - the signing keystore is created on first build and cannot be recovered if lost
+    owner_ask: create a Play Console account, then build and upload one tool at a time following the generated BUILD.md
+    dry_run: node platform/distribution/android.mjs
