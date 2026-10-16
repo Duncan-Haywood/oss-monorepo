@@ -54,3 +54,7 @@ None required. A model-API proposer needs an API key and is the owner's call.
 
 ## Outside dependencies (vitamins)
 Yosys 0.33 and its ABC (apt), Icarus Verilog (apt, installed but unused here), the SKY130 HD liberty file (ORFS, fetched), and the sibling `chip-ppa-sky130mac` source tree. Everything else is the Python standard library.
+
+## Figure
+
+`experiments/search.svg` is drawn by `experiments/figure.py`, which parses the committed `results.txt` (no retyped numbers) and is the figure on the project's home page.
