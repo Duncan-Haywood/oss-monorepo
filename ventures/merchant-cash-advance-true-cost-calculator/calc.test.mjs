@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { irr, annualise, analyzeMca, analyzeFactoring, termSensitivity, sampleMca, sampleFactoring, reportCsv, money, pct } from "./calc.mjs";
+import { irr, annualise, analyzeMca, analyzeFactoring, termSensitivity, sampleMca, sampleFactoring, reportCsv, money, money2, pct } from "./calc.mjs";
 
 const close = (a, b, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${a} vs ${b}`);
 
@@ -121,4 +121,22 @@ test("formatters", () => {
   assert.equal(money(null), "n/a");
   assert.equal(pct(0.5), "50.0%");
   assert.equal(pct(11.2), "1,120%");
+});
+
+test("money2 only signs negatives, not small positives or zero", () => {
+  assert.equal(money2(0.5), "$0.50");
+  assert.equal(money2(0), "$0.00");
+  assert.equal(money2(-0.5), "-$0.50");
+});
+
+test("factoring fee period defaults to 30 days", () => {
+  const r = analyzeFactoring({ face: "1000", advancePct: "90", feePct: "1", days: "31", otherFees: "0" });
+  assert.equal(r.input.feeDays, 30);
+  assert.equal(r.periods, 2);
+});
+
+test("fees exactly equal to the reserve is not flagged as exceeding it", () => {
+  const r = analyzeFactoring({ face: "1000", advancePct: "90", feePct: "10", feeDays: "30", days: "30", otherFees: "0" });
+  assert.equal(r.rebate, 0);
+  assert.ok(!r.findings.some((f) => f.title === "Fees exceed the reserve"));
 });
