@@ -46,8 +46,8 @@
 #   portfolio-front-tools-10: 145 files, 555017 bytes
 #   portfolio-front-tools-11: 136 files, 554871 bytes
 #   portfolio-front-tools-12: 126 files, 551443 bytes
-#   portfolio-front-tools-13: 132 files, 554967 bytes
-#   portfolio-front-tools-14: 134 files, 550920 bytes
+#   portfolio-front-tools-13: 132 files, 554558 bytes
+#   portfolio-front-tools-14: 135 files, 553901 bytes
 #   portfolio-front-tools-15: 124 files, 555496 bytes
 #   portfolio-front-tools-16: 129 files, 554198 bytes
 #   portfolio-front-tools-17: 129 files, 556391 bytes
@@ -1887,6 +1887,7 @@ configMapGenerator:
       - de-freiberufler-tax-set-aside-calculator__usage.mjs.gz=de-freiberufler-tax-set-aside-calculator__usage.mjs.gz
       - deal-keeper__ai.mjs.gz=deal-keeper__ai.mjs.gz
       - deal-keeper__byok.mjs.gz=deal-keeper__byok.mjs.gz
+      - deal-keeper__connectors.mjs.gz=deal-keeper__connectors.mjs.gz
       - deal-keeper__engine.mjs.gz=deal-keeper__engine.mjs.gz
       - deal-keeper__import.mjs.gz=deal-keeper__import.mjs.gz
       - deal-keeper__index.html.gz=deal-keeper__index.html.gz
@@ -1993,12 +1994,12 @@ configMapGenerator:
       - docker-base-image-eol-check__what-to-do-when-a-base-image-is-eol.html.gz=docker-base-image-eol-check__what-to-do-when-a-base-image-is-eol.html.gz
       - docker-base-image-pin-check__check.py.gz=docker-base-image-pin-check__check.py.gz
       - docker-base-image-pin-check__classify.mjs.gz=docker-base-image-pin-check__classify.mjs.gz
-      - docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz=docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz=docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz
       - docker-base-image-pin-check__index.html.gz=docker-base-image-pin-check__index.html.gz
       - docker-base-image-pin-check__usage.mjs.gz=docker-base-image-pin-check__usage.mjs.gz
       - docker-base-image-pin-check__vs-hadolint.html.gz=docker-base-image-pin-check__vs-hadolint.html.gz

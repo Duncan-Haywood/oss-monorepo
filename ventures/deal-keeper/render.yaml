@@ -25,3 +25,7 @@ services:
         sync: false
       - key: ALERT_WEBHOOK_SECRET
         sync: false
+      - key: PIPEDRIVE_STAGES
+        sync: false
+      - key: HUBSPOT_STAGES
+        sync: false
