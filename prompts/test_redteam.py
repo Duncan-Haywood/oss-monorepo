@@ -6,6 +6,7 @@ import json
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 import redteam
@@ -102,6 +103,11 @@ class CampaignTest(unittest.TestCase):
         (self.venture / "calc.test.mjs").write_text(CALC_TEST.replace("7);", "8);"))
         with self.assertRaisesRegex(SystemExit, "baseline is red"):
             redteam.campaign(self.target, 2, seed=1, repo=self.repo)
+
+    def test_slow_baseline_is_a_timeout_not_a_defect(self):
+        with self.assertRaisesRegex(SystemExit, "baseline timed out"):
+            with mock.patch.object(redteam, "run_suite", return_value=(False, 5.0)):
+                redteam.campaign(self.target, 2, seed=1, repo=self.repo, timeout=5)
 
 
 class TallyTest(unittest.TestCase):
