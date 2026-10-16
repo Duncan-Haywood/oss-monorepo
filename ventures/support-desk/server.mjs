@@ -151,6 +151,7 @@ export function handler(cfg) {
         if (b._gotcha) return isJson ? send(200, { ok: true }, "application/json", cors) : send(200, "ok\n", "text/plain", cors); // honeypot: bots learn nothing
         if (!isEmail(p.fromEmail) || !p.text) return send(400, "an email address and a message are required\n", "text/plain", cors);
         const r = ingest(state, mb.id, p, now(), "form");
+        if (!r.ticket) return send(400, "that message cannot be accepted\n", "text/plain", cors);
         cfg.save(); afterIngest(r, base);
         return isJson ? send(200, { ok: true, ticket: r.ticket.n }, "application/json", cors) : send(200, thanksPage(cfg, r.ticket), "text/html; charset=utf-8", cors);
       }
