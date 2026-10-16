@@ -1,0 +1,85 @@
+name: Research archive
+
+# Keep oss-research-monorepo deletable at any moment, and say whether it is.
+#
+# mirror.py carries upstream `main` and its history into research/. Deleting
+# the upstream repository would still lose its branches (623 on 2026-10-16, 64
+# with commits not on main) and its 618 pull requests with their reviews. This
+# job copies each upstream branch here as `archive/research/<name>`, exports
+# every pull request and issue as JSON to the branch `archive/research-meta`,
+# and records the verdict there as READY.md / READY.json. `archive.py status`
+# reads it back; the run summary shows it too. Details and tests:
+# research/_mirror/archive.py.
+#
+# On CLAUDE.md's "Automation" rule: the owner asked on 2026-10-16 for a way to
+# keep the upstream repository ready to delete whenever they choose, and chose
+# visible archive/research/* branches. It pushes only archive/* branches,
+# never main, and calls no paid API (GITHUB_TOKEN GraphQL, a few dozen
+# queries). Pushes made with GITHUB_TOKEN start no workflows, so the 600-odd
+# branches cost no CI. Turn it off with the repository variable
+# RESEARCH_ARCHIVE=false.
+
+on:
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: research-archive
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    if: vars.RESEARCH_ARCHIVE != 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write # the archive/* branches
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # mirror.py check proves upstream main is an ancestor of HEAD
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Archive upstream branches
+        run: python3 research/_mirror/archive.py branches --push
+      - name: Export pull requests and issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898+github-actions[bot]@users.noreply.github.com"
+          meta="$RUNNER_TEMP/meta"
+          if git fetch -q origin "refs/heads/archive/research-meta:refs/remotes/origin/archive/research-meta"; then
+            git worktree add -q "$meta" origin/archive/research-meta
+            git -C "$meta" checkout -q -B archive/research-meta
+          else
+            git worktree add -q --detach "$meta"
+            git -C "$meta" checkout -q --orphan archive/research-meta
+            git -C "$meta" rm -rqf .
+          fi
+          python3 research/_mirror/archive.py export "$meta"
+      - name: Check whether upstream can be deleted
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          meta="$RUNNER_TEMP/meta"
+          rc=0
+          python3 research/_mirror/archive.py ready --meta "$meta" --record "$meta" || rc=$?
+          cat "$meta/READY.md" >> "$GITHUB_STEP_SUMMARY"
+          # 1 is the answer "not yet", recorded above; 2 means it could not check.
+          [ "$rc" -le 1 ]
+      - name: Commit the export
+        run: |
+          meta="$RUNNER_TEMP/meta"
+          git -C "$meta" add -A
+          if git -C "$meta" diff --cached --quiet; then
+            echo "export unchanged"
+            exit 0
+          fi
+          git -C "$meta" commit -qm "research archive: $(date -u +%Y-%m-%dT%H:%MZ)"
+          git -C "$meta" push -q origin archive/research-meta
