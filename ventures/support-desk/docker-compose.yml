@@ -9,6 +9,7 @@ services:
     volumes: ["state:/data"]
     environment:
       ADMIN_KEY: ${ADMIN_KEY:?set ADMIN_KEY}
+      AGENT_KEYS: ${AGENT_KEYS:-}
       STATE: /data/state.json
       TRUST_PROXY: ${TRUST_PROXY:-false}
       COMPANY_NAME: ${COMPANY_NAME:-}

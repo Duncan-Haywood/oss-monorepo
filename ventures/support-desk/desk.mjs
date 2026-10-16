@@ -140,6 +140,15 @@ export function addNote(state, t, text, author = "agent", now = Date.now()) {
   t.messages.push({ id: `m${++state.seq}`, dir: "note", at: now, from: author, text: clean(text, LIMITS.text).trim() });
   t.updated = now;
 }
+// Customer satisfaction: one good/bad vote (and optional comment) per ticket, only after staff have replied.
+// A new vote replaces the old one. Returns false when the ticket cannot be rated.
+export function rateTicket(t, score, comment = "", now = Date.now()) {
+  if (score !== "good" && score !== "bad") return false;
+  if (!t.messages.some((m) => m.dir === "out")) return false;
+  t.rating = { score, comment: clean(comment, 500).trim(), at: now };
+  t.updated = now;
+  return true;
+}
 export function updateTicket(t, f, now = Date.now()) {
   if (STATUSES.includes(f.status)) { t.status = f.status; if (f.status === "closed" && !t.closedAt) t.closedAt = now; if (f.status !== "closed") t.closedAt = undefined; }
   if (PRIORITIES.includes(f.priority)) t.priority = f.priority;
@@ -199,6 +208,11 @@ export function list(state, { status = "open", q = "", mailbox = "", assignee = 
     .sort((a, b) => (status === "open" ? rank(a) - rank(b) : 0) || b.updated - a.updated);
 }
 
+// Other tickets from the same requester, newest first: context before replying.
+export function history(state, t, k = 5) {
+  return Object.values(state.tickets).filter((x) => x.id !== t.id && x.requester.email === t.requester.email && x.status !== "spam").sort((a, b) => b.updated - a.updated).slice(0, k);
+}
+
 export function summary(state, now = Date.now()) {
   const ts = Object.values(state.tickets).filter((t) => t.status !== "spam");
   const by = Object.fromEntries(STATUSES.map((s) => [s, 0])); for (const t of Object.values(state.tickets)) by[t.status]++;
@@ -206,14 +220,15 @@ export function summary(state, now = Date.now()) {
   const median = firsts.length ? firsts[Math.floor(firsts.length / 2)] : null;
   const sla = ts.map((t) => slaState(t, state.mailboxes[t.mailbox] || {}, now).state);
   const met = sla.filter((s) => s === "met").length, missed = sla.filter((s) => s === "missed").length;
+  const rated = ts.filter((t) => t.rating), good = rated.filter((t) => t.rating.score === "good").length;
   const tags = {}; for (const t of ts) for (const g of t.tags) tags[g] = (tags[g] || 0) + 1;
-  return { by, overdue: sla.filter((s) => s === "overdue").length, medianFirstResponseMin: median === null ? null : Math.round(median / 60_000), slaMetPct: met + missed ? Math.round((100 * met) / (met + missed)) : null, topTags: Object.entries(tags).sort((a, b) => b[1] - a[1]).slice(0, 8) };
+  return { by, overdue: sla.filter((s) => s === "overdue").length, medianFirstResponseMin: median === null ? null : Math.round(median / 60_000), csatPct: rated.length ? Math.round((100 * good) / rated.length) : null, csatCount: rated.length, slaMetPct: met + missed ? Math.round((100 * met) / (met + missed)) : null, topTags: Object.entries(tags).sort((a, b) => b[1] - a[1]).slice(0, 8) };
 }
 
 const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function toCsv(state) {
-  const head = ["ticket", "subject", "requester", "status", "priority", "assignee", "tags", "mailbox", "created", "first_response_minutes", "messages"];
-  const rows = Object.values(state.tickets).sort((a, b) => a.n - b.n).map((t) => [t.n, t.subject, t.requester.email, t.status, t.priority, t.assignee, t.tags.join(" "), t.mailbox, new Date(t.created).toISOString(), t.firstResponseAt ? Math.round((t.firstResponseAt - t.created) / 60_000) : "", t.messages.length]);
+  const head = ["ticket", "subject", "requester", "status", "priority", "assignee", "tags", "mailbox", "created", "first_response_minutes", "messages", "rating"];
+  const rows = Object.values(state.tickets).sort((a, b) => a.n - b.n).map((t) => [t.n, t.subject, t.requester.email, t.status, t.priority, t.assignee, t.tags.join(" "), t.mailbox, new Date(t.created).toISOString(), t.firstResponseAt ? Math.round((t.firstResponseAt - t.created) / 60_000) : "", t.messages.length, t.rating?.score || ""]);
   return [head, ...rows].map((r) => r.map(cell).join(",")).join("\n") + "\n";
 }
 

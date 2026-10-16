@@ -6,7 +6,7 @@
 import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
-import { newState, createMailbox, normalizeInbound, ingest, addReply, addNote, updateTicket, addMacro, removeMacro, autoClose, purgeOlderThan, toCsv, refOf, isEmail } from "./desk.mjs";
+import { newState, createMailbox, normalizeInbound, ingest, addReply, addNote, updateTicket, addMacro, removeMacro, rateTicket, autoClose, purgeOlderThan, toCsv, refOf, isEmail } from "./desk.mjs";
 import { adminPage, ticketPage, macrosPage, customerPage, thanksPage } from "./render.mjs";
 
 const env = process.env;
@@ -26,6 +26,27 @@ export function adminOk(req, key) {
   if (h.startsWith("Bearer ")) return same(h.slice(7), key);
   if (h.startsWith("Basic ")) { const p = Buffer.from(h.slice(6), "base64").toString(); return same(p.slice(p.indexOf(":") + 1), key); }
   return false;
+}
+
+// Who is calling the admin? "agent" for the shared ADMIN_KEY, an agent's own name for a personal key
+// from AGENT_KEYS ("alice:key,bob:key"), or null. Personal keys are checked against every agent so
+// the Bearer form needs no user name; Basic also requires the user name to match.
+export function parseAgentKeys(raw = "") {
+  const out = {};
+  for (const part of String(raw).split(",")) {
+    const i = part.indexOf(":"), name = part.slice(0, i).trim().replace(/[^\w .-]/g, "").slice(0, 40), key = part.slice(i + 1).trim();
+    if (i > 0 && name && key.length >= 12 && name !== "agent") out[name] = key;
+  }
+  return out;
+}
+export function agentOf(req, adminKey, agents = {}) {
+  const h = req.headers.authorization || "";
+  let user = null, secret = null;
+  if (h.startsWith("Bearer ")) secret = h.slice(7);
+  else if (h.startsWith("Basic ")) { const p = Buffer.from(h.slice(6), "base64").toString(), i = p.indexOf(":"); user = p.slice(0, i); secret = p.slice(i + 1); }
+  if (secret === null) return null;
+  for (const [name, key] of Object.entries(agents)) if (same(secret, key) && (user === null || user === name)) return name;
+  return adminKey && same(secret, adminKey) ? "agent" : null;
 }
 
 export function limiter(max, windowMs) {
@@ -137,18 +158,21 @@ export function handler(cfg) {
         if (!t) return send(404, "not found\n", "text/plain");
         if (req.method === "POST") {
           if (!lim.submit(`${ip}:${t.id}`, now())) return send(429, "too many messages; try again in a minute\n", "text/plain");
-          const text = String(Object.fromEntries(new URLSearchParams(await readBody(req, 100_000))).text || "").trim();
+          const f = Object.fromEntries(new URLSearchParams(await readBody(req, 100_000)));
+          if (f.rating) { if (rateTicket(t, f.rating, f.comment, now())) cfg.save(); return redirect(`/t/${t.token}?rated=1`); }
+          const text = String(f.text || "").trim();
           if (text) {
             const r = ingest(state, t.mailbox, { fromEmail: t.requester.email, fromName: t.requester.name, subject: `${t.subject} ${refOf(t)}`, text, messageId: "", inReplyTo: "", automated: false }, now(), "portal");
             if (r.ticket) cfg.save();
           }
           return redirect(`/t/${t.token}`);
         }
-        return send(200, customerPage(cfg, state, t));
+        return send(200, customerPage(cfg, state, t, url.searchParams.get("rated") ? "Thanks for the feedback." : ""));
       }
 
       if (path.startsWith("/admin")) {
-        if (!adminOk(req, cfg.adminKey)) return needAdmin();
+        const who = agentOf(req, cfg.adminKey, cfg.agents);
+        if (!who) return needAdmin();
         const ticket = (n) => Object.values(state.tickets).find((x) => x.n === Number(n));
         if (req.method === "GET") {
           if (path === "/admin") return send(200, adminPage(cfg, state, base, Object.fromEntries(url.searchParams), now()));
@@ -171,9 +195,10 @@ export function handler(cfg) {
           if (m[2] === "update") updateTicket(t, f, now());
           else {
             const text = String(f.text || "").trim(); if (!text) return send(400, "message is empty\n", "text/plain");
-            if (m[2] === "note") addNote(state, t, text, "agent", now());
+            if (m[2] === "note") addNote(state, t, text, who, now());
             else {
-              addReply(state, t, text, { status: f.after }, now());
+              addReply(state, t, text, { status: f.after, author: who }, now());
+              if (!t.assignee && who !== "agent") t.assignee = who;
               const mb = state.mailboxes[t.mailbox];
               mail({ to: t.requester.email, subject: `Re: ${t.subject.replace(/\s*\[#\d+\]/g, "")} ${refOf(t)}`.slice(0, 200), text: `${text}\n\n--\nTicket ${refOf(t)} · ${base}/t/${t.token}`, replyTo: mb?.replyTo });
             }
@@ -215,8 +240,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const sweep = () => { if (autoClose(state, closeDays) + purgeOlderThan(state, keepDays)) save(); };
   save();
   if (closeDays > 0 || keepDays > 0) { sweep(); setInterval(sweep, 3_600_000).unref(); }
+  const agents = parseAgentKeys(env.AGENT_KEYS);
   const cfg = {
-    state, save, adminKey: env.ADMIN_KEY, company: env.COMPANY_NAME || "Support", sponsor: env.HIDE_SPONSOR_LINK !== "true",
+    state, save, adminKey: env.ADMIN_KEY, agents, company: env.COMPANY_NAME || "Support", sponsor: env.HIDE_SPONSOR_LINK !== "true",
     baseUrl: env.PUBLIC_URL, trustProxy: env.TRUST_PROXY === "true",
     notify: env.ALERT_WEBHOOK_URL ? webhook(env.ALERT_WEBHOOK_URL) : null, sendEmail: sendResend, dryRun,
   };

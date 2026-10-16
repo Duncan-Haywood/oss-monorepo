@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // Self-hosted usage metering that feeds Stripe Billing Meters. Zero dependencies.
+//   Optional ALERT_WEBHOOK_URL (+ ALERT_WEBHOOK_SECRET): POST a signed alert at 80% and 100% of a plan limit.
 //   API_KEY=... ADMIN_KEY=... CONFIG=./meter-config.json STRIPE_SECRET_KEY=rk_live_... DRY_RUN=false node server.mjs
 // DRY_RUN defaults to true: events are metered and priced locally, nothing is sent to Stripe.
 import http from "node:http";
 import fs from "node:fs";
-import { timingSafeEqual } from "node:crypto";
+import { timingSafeEqual, createHmac } from "node:crypto";
 import * as E from "./engine.mjs";
 
 const env = process.env;
@@ -28,6 +29,16 @@ export function stripeSender({ apiKey, fetchImpl = fetch }) {
   };
 }
 
+/** POSTs a usage alert to your own URL, signed: x-meter-signature = sha256=HMAC(secret, body). 2xx is delivered. */
+export function webhookSender({ url, secret, fetchImpl = fetch }) {
+  return async (alert) => {
+    const body = JSON.stringify(alert), headers = { "content-type": "application/json", "user-agent": "meter-keeper" };
+    if (secret) headers["x-meter-signature"] = `sha256=${createHmac("sha256", secret).update(body).digest("hex")}`;
+    const r = await fetchImpl(url, { method: "POST", headers, body, signal: AbortSignal.timeout(10_000) });
+    if (!r.ok) throw new Error(`webhook ${r.status}`);
+  };
+}
+
 // cfg: {state, save, config, apiKey, adminKey, send, dryRun, now}
 export function handler(cfg) {
   const now = cfg.now || Date.now;
@@ -42,7 +53,7 @@ export function handler(cfg) {
       if (path.startsWith("/v1/admin")) {
         if (!bearerOk(req, cfg.adminKey)) return json(401, { error: "bad admin key" });
         const a = path.slice(9); let m;
-        if (req.method === "GET" && a === "/outbox") return json(200, { pending: cfg.state.outbox.length, dead: cfg.state.dead.slice(-50), dryRun: cfg.dryRun });
+        if (req.method === "GET" && a === "/outbox") return json(200, { pending: cfg.state.outbox.length, alertsPending: (cfg.state.alertOutbox || []).length, dead: cfg.state.dead.slice(-50), dryRun: cfg.dryRun });
         if (req.method === "POST" && a === "/flush") { const r = cfg.dryRun || !cfg.send ? { skipped: "dry run or no STRIPE_SECRET_KEY", pending: cfg.state.outbox.length } : await E.flush(cfg.state, cfg.send, now()); cfg.save(); return json(200, r); }
         if (req.method === "GET" && a === "/export.csv") { res.writeHead(200, { "content-type": "text/csv; charset=utf-8", "content-disposition": 'attachment; filename="usage.csv"' }); return res.end(E.toCsv(cfg.state, cfg.config, now())); }
         if (req.method === "GET" && a === "/customers") return json(200, cfg.state.customers);
@@ -93,6 +104,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const save = () => { fs.writeFileSync(`${file}.tmp`, JSON.stringify(state)); fs.renameSync(`${file}.tmp`, file); };
   const dryRun = env.DRY_RUN !== "false";
   const send = env.STRIPE_SECRET_KEY ? stripeSender({ apiKey: env.STRIPE_SECRET_KEY }) : null;
+  const postAlert = env.ALERT_WEBHOOK_URL ? webhookSender({ url: env.ALERT_WEBHOOK_URL, secret: env.ALERT_WEBHOOK_SECRET }) : null;
   http.createServer(handler({ state, save, config, apiKey: env.API_KEY, adminKey: env.ADMIN_KEY, send, dryRun, sdk: fs.readFileSync(new URL("./sdk.mjs", import.meta.url), "utf8") })).listen(Number(env.PORT) || 8080, () => console.log(`meter-keeper on :${env.PORT || 8080} (dry run: ${dryRun})`));
-  setInterval(async () => { try { if (!dryRun && send) await E.flush(state, send, Date.now()); E.prune(state, Date.now()); save(); } catch (e) { console.error("flush failed:", e.message); } }, 30_000).unref();
+  setInterval(async () => { try { if (!dryRun && send) await E.flush(state, send, Date.now()); if (postAlert) await E.flushAlerts(state, postAlert, Date.now()); else state.alertOutbox = []; E.prune(state, Date.now()); save(); } catch (e) { console.error("flush failed:", e.message); } }, 30_000).unref();
 }
