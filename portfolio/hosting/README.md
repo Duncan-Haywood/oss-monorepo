@@ -320,3 +320,15 @@ Actions, and `.github/workflows/portfolio-pages.yml`'s `deploy` job would
 have stayed permanently skipped. The variable is `PAGES_ENABLED` now; the
 workflow, `platform/ci/publish_surface.py`, and the decision queue all read
 that name.
+
+## Rules moved from CLAUDE.md
+
+- **Prefer a reading from something present** (a run id, a conclusion, a
+  date) over reasoning from manifests or from an absence. This file once
+  told sessions for days that the catalogue was live while nothing listened
+  on port 443, and later that it was dark while Pages served it. The story
+  is in the history file.
+- **The front-door mirror imports, never restates, the build rules.**
+  `venturePageRoot` imports its entry-point candidates and
+  `ENTRY_OVERRIDES` from `platform/pages/build.mjs`. A copied list has cost
+  live product twice.

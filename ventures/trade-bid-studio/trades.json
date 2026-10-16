@@ -1,0 +1,607 @@
+[
+ {
+  "slug": "artificial-turf-bid-calculator",
+  "title": "Artificial Turf",
+  "blurb": "A private browser calculator for turf and landscape contractors that prices an artificial turf install from landscape, pet, or putting-green turf — lawn square footage, roll waste, crushed-rock base, sod demo, infill,…"
+ },
+ {
+  "slug": "asbestos-abatement-bid-calculator",
+  "title": "Asbestos Abatement",
+  "blurb": "Free browser calculator for licensed asbestos abatement contractors to price a removal job from OSHA/EPA containment class (Class I/II/III), square footage, containment areas, crew and supervisor rates, air monitoring…"
+ },
+ {
+  "slug": "asphalt-driveway-pave-bid-calculator",
+  "title": "Asphalt Driveway Pave",
+  "blurb": "A private browser calculator for paving contractors that prices an asphalt driveway from overlay, mill-and-overlay, or full-depth replacement — square footage, thickness, street apron, failed base, and sawcut — and sh…"
+ },
+ {
+  "slug": "asphalt-sealcoat-bid-calculator",
+  "title": "Asphalt Sealcoat",
+  "blurb": "A private browser calculator for sealcoating contractors that prices a driveway or parking-lot job from square feet, coats, pavement condition, oil-spot primer, crack fill, and travel — labor hours, loaded wage, mater…"
+ },
+ {
+  "slug": "attic-insulation-bid-calculator",
+  "title": "Attic Insulation",
+  "blurb": "A private browser calculator for insulation contractors that prices a blown-in attic job from floor areas, existing versus target R-value, bag yield, air-sealing penetrations, and baffles — labor hours, loaded wage, b…"
+ },
+ {
+  "slug": "auto-glass-bid-calculator",
+  "title": "Auto Glass",
+  "blurb": "A private browser calculator for mobile and in-shop auto-glass technicians that prices a windshield or door/back-glass replacement from glass source, ADAS camera/sensor calibration (dynamic, static, or both), mobile t…"
+ },
+ {
+  "slug": "automatic-driveway-gate-bid-calculator",
+  "title": "Automatic Driveway Gate",
+  "blurb": "A private browser calculator for gate contractors that prices an automatic driveway gate from single swing, dual swing, or slide — opening width, leaf material, columns, power, loops, and access — and shows the operat…"
+ },
+ {
+  "slug": "basement-finishing-bid-calculator",
+  "title": "Basement Finishing",
+  "blurb": "A private browser calculator for basement remodelers that prices a basement finish from finished square feet, rec-room versus framed-finish versus legal-living, drop ceiling versus drywall, carpet versus LVP, bath, eg…"
+ },
+ {
+  "slug": "basement-waterproofing-bid-calculator",
+  "title": "Basement Waterproofing",
+  "blurb": "A private browser calculator for waterproofing contractors that prices an interior French drain, exterior excavation, or crawl-space encapsulation from perimeter, wall height, window wells, crack repair, sump pit, bac…"
+ },
+ {
+  "slug": "biohazard-cleanup-bid-calculator",
+  "title": "Biohazard Cleanup",
+  "blurb": "Free browser calculator for biohazard and trauma-scene remediation technicians to price a job from crew labor, PPE that scales with decon re-entry cycles rather than headcount, and regulated-waste disposal billed per…"
+ },
+ {
+  "slug": "boiler-replacement-bid-calculator",
+  "title": "Boiler Replacement",
+  "blurb": "A private browser calculator for hydronic and steam techs that prices a residential boiler replacement from input MBH, hot-water versus steam, like-for-like versus condensing upgrade versus steam-to-hot-water, fuel, z…"
+ },
+ {
+  "slug": "cabinet-refinishing-bid-calculator",
+  "title": "Cabinet Refinishing",
+  "blurb": "A private browser calculator for cabinet painters that prices a kitchen refinish from doors, drawer fronts, face-frame openings, hardware remove-and-rehang, degrease, and a dark-to-light extra coat — and shows the pri…"
+ },
+ {
+  "slug": "carpet-cleaning-bid-calculator",
+  "title": "Carpet Cleaning",
+  "blurb": "A private browser calculator for carpet-cleaning technicians that prices a stop from soil-specific extraction rates — rooms, stairs, pet-urine extra passes, upholstery, furniture moving, and drive time — and shows the…"
+ },
+ {
+  "slug": "carpet-install-bid-calculator",
+  "title": "Carpet Install",
+  "blurb": "A private browser calculator for carpet installers that prices a carpet installation from floor yards, stairs priced per step, stretch-in versus glue-down versus double-stick versus carpet tile, solid versus patterned…"
+ },
+ {
+  "slug": "chimney-sweep-bid-calculator",
+  "title": "Chimney Sweep",
+  "blurb": "A private browser calculator for chimney sweeps and fireplace shops that prices a stop from flue type, stories, roof access, and creosote — labor hours, loaded wage, travel, add-ons, overhead, and margin — and shows t…"
+ },
+ {
+  "slug": "concrete-bid-calculator",
+  "title": "Concrete",
+  "blurb": "A private browser calculator for independent concrete contractors that prices a driveway, patio, or slab from cubic yards, form footage, finish labor, and access — not a flat price per square foot — and shows the walk…"
+ },
+ {
+  "slug": "concrete-lifting-bid-calculator",
+  "title": "Concrete Lifting",
+  "blurb": "A private browser calculator for concrete-lifting contractors that prices a mudjacking or polyjacking job from slab area, void depth, method, access path, extra holes, and joint seal — and shows the cubic feet a per-s…"
+ },
+ {
+  "slug": "countertop-bid-calculator",
+  "title": "Countertop",
+  "blurb": "A private browser calculator for stone fabricators that prices a quartz or granite countertop job from finished square footage, layout waste into whole slabs, sink and cooktop cutouts, edge profile, backsplash, and wa…"
+ },
+ {
+  "slug": "crawl-space-encapsulation-bid-calculator",
+  "title": "Crawl Space Encapsulation",
+  "blurb": "A private browser calculator for waterproofing contractors that prices crawl space encapsulation from floor area, liner-only versus sealed encapsulate, hatch versus belly-crawl versus wet access, and extras — and show…"
+ },
+ {
+  "slug": "crown-molding-bid-calculator",
+  "title": "Crown Molding",
+  "blurb": "A private browser calculator for finish carpenters that prices a residential crown-molding install from linear feet, inside versus outside corners, paint-grade versus stain-grade, simple cove versus colonial versus bu…"
+ },
+ {
+  "slug": "deck-bid-calculator",
+  "title": "Deck",
+  "blurb": "A private browser calculator for deck builders that prices a residential job from per-surface height, material, railing lineal feet, and stairs — labor hours, loaded wage, footings, demo, overhead, and margin — and sh…"
+ },
+ {
+  "slug": "deck-staining-bid-calculator",
+  "title": "Deck Staining",
+  "blurb": "A private browser calculator for deck-staining contractors that prices a stain or seal from walking surface, picket-rail lineal feet, stairs, prep, coats, access, and furniture — and shows the stainable square feet a…"
+ },
+ {
+  "slug": "dryer-vent-bid-calculator",
+  "title": "Dryer Vent",
+  "blurb": "A private browser calculator for dryer-vent techs that prices a wall-cap, roof-cap, or multi-dryer clean from extra stories, extra feet of duct, extra dryers, camera inspection, crushed-flex replacement, nest or block…"
+ },
+ {
+  "slug": "drywall-bid-calculator",
+  "title": "Drywall",
+  "blurb": "A private browser calculator for drywall contractors that prices a hang-and-finish job from rooms, waste, openings, ceiling height, and Gypsum Association finish levels 0–5 — labor hours, loaded wage, tape and mud, te…"
+ },
+ {
+  "slug": "duct-cleaning-bid-calculator",
+  "title": "Duct Cleaning",
+  "blurb": "A private browser calculator for HVAC and air-duct-cleaning contractors that prices a residential, two-system, heavy-debris, or light-commercial duct cleaning from extra air handlers, extra supply vents, extra returns…"
+ },
+ {
+  "slug": "egress-window-bid-calculator",
+  "title": "Egress Window",
+  "blurb": "A private browser calculator for foundation and basement contractors that prices an egress-window install from window count, hopper versus slider versus casement versus fiberglass, retrofit-existing versus wood-cut ve…"
+ },
+ {
+  "slug": "electrical-panel-upgrade-bid-calculator",
+  "title": "Electrical Panel Upgrade",
+  "blurb": "A private browser calculator for licensed electricians that prices a panel replacement or 100A-to-200A service upgrade from feeder feet, circuit landing, AFCI/GFCI, overhead versus underground, grounding, meter socket…"
+ },
+ {
+  "slug": "entry-door-bid-calculator",
+  "title": "Entry Door",
+  "blurb": "A private browser calculator for door and carpentry shops that prices an entry-door replacement from sidelights, transom, out-of-square openings, jamb and sill rot, brickmold, storm door, and paint — and shows the hou…"
+ },
+ {
+  "slug": "epoxy-garage-floor-bid-calculator",
+  "title": "Epoxy Garage Floor",
+  "blurb": "A private browser calculator for garage-floor coating contractors that prices epoxy, flake, metallic, and 1-day polyaspartic jobs from grind hours, flake load, waste, cracks, moisture barrier, and travel — and shows t…"
+ },
+ {
+  "slug": "ev-charger-bid-calculator",
+  "title": "EV Charger",
+  "blurb": "A private browser calculator for electrical contractors that prices a residential Level 2 EV charger install from the 125% continuous-load circuit, the copper run and voltage drop, the trench, and the panel work — and…"
+ },
+ {
+  "slug": "exterior-painting-bid-calculator",
+  "title": "Exterior Painting",
+  "blurb": "A private browser calculator for exterior painting contractors that prices a two-coat repaint, scrape-and-prime, bare-wood, or elastomeric masonry job from extra stories, extra elevation square footage, extra trim, sh…"
+ },
+ {
+  "slug": "fence-bid-calculator",
+  "title": "Fence",
+  "blurb": "A private browser calculator for fence contractors that prices an install from posts, terminals, gates, tear-out, and digging conditions — not a flat price per linear foot — and shows the installed price per foot, the…"
+ },
+ {
+  "slug": "fireplace-insert-bid-calculator",
+  "title": "Fireplace Insert",
+  "blurb": "A private browser calculator for hearth and chimney shops that prices a fireplace-insert install from fuel, liner footage, hearth, gas run, dedicated circuit, surround, and stack height — and shows the hours the first…"
+ },
+ {
+  "slug": "flat-roof-bid-calculator",
+  "title": "Flat Roof",
+  "blurb": "A private browser calculator for low-slope roofing crews that prices a TPO, EPDM, PVC, or modified-bitumen roof from membrane squares, tear-off, insulation, parapet, and drains — the extras a per-square special cannot…"
+ },
+ {
+  "slug": "flooring-bid-calculator",
+  "title": "Flooring",
+  "blurb": "A private browser calculator for flooring installers that prices a residential install from waste-adjusted purchased material, per-room tear-out hours, and stair treads — then shows the price per installed square foot…"
+ },
+ {
+  "slug": "forestry-mulching-bid-calculator",
+  "title": "Forestry Mulching",
+  "blurb": ">-"
+ },
+ {
+  "slug": "foundation-repair-bid-calculator",
+  "title": "Foundation Repair",
+  "blurb": "A private browser calculator for foundation-repair contractors that prices helical piers, hydraulic push piers, or bowed-wall stabilization from pier count, installed depth past the included footage, interior versus e…"
+ },
+ {
+  "slug": "french-drain-bid-calculator",
+  "title": "French Drain",
+  "blurb": "A private browser calculator for drainage and excavation contractors that prices an exterior French-drain install from trench depth, pipe size, soil, daylight versus drywell versus storm tie-in, catch basins, downspou…"
+ },
+ {
+  "slug": "furnace-bid-calculator",
+  "title": "Furnace",
+  "blurb": "A private browser calculator for HVAC shops that prices a furnace or heat-pump replacement from extra duct past the included run, attic versus basement, a matching coil, a gas upsize, haul-away of the old unit, and a…"
+ },
+ {
+  "slug": "garage-door-bid-calculator",
+  "title": "Garage Door",
+  "blurb": "A private browser calculator for garage-door technicians that prices a replacement or broken-spring service from parts, loaded shop labor, and travel — and shows when a cheap spring special loses money on the drive, a…"
+ },
+ {
+  "slug": "gravel-driveway-bid-calculator",
+  "title": "Gravel Driveway",
+  "blurb": "A private browser calculator for excavation and landscape shops that prices a gravel driveway from crusher-run, clean stone, recycled concrete, or pea gravel — drive size, compacted depth, truckloads, soil prep, fabri…"
+ },
+ {
+  "slug": "gutter-cleaning-bid-calculator",
+  "title": "Gutter Cleaning",
+  "blurb": "A free browser calculator for independent gutter-cleaning contractors that prices a visit from linear feet, stories, pitch, gutter guards, debris, and downspouts — then loaded wage, travel, disposal, overhead, a minim…"
+ },
+ {
+  "slug": "gutter-guard-bid-calculator",
+  "title": "Gutter Guard",
+  "blurb": "A private browser calculator for gutter shops that prices a screen, foam, reverse-curve, or micromesh install from extra stories, extra lineal feet, extra miters, extra downspouts, a clean-first pass, fascia repair, s…"
+ },
+ {
+  "slug": "gutter-install-bid-calculator",
+  "title": "Gutter Install",
+  "blurb": "A private browser calculator for gutter shops that prices a new gutter hang from inside and outside miters, extra downspouts past the included first two, extra downspout footage past ten feet per drop, second-story ho…"
+ },
+ {
+  "slug": "hardwood-refinishing-bid-calculator",
+  "title": "Hardwood Refinishing",
+  "blurb": "A private browser calculator for hardwood floor refinishers that prices a sand-and-finish or screen-and-recoat job from field square footage, stair treads, closets, stain, and extra coats — and shows the price per squ…"
+ },
+ {
+  "slug": "hoarding-cleanout-bid-calculator",
+  "title": "Hoarding Cleanout",
+  "blurb": ">-"
+ },
+ {
+  "slug": "holiday-light-bid-calculator",
+  "title": "Holiday Light",
+  "blurb": "A private browser calculator for holiday lighting contractors that prices Christmas and holiday light hanging from eave lineal feet, hang-only versus hang-and-takedown versus full-service storage, 1-story versus 2-sto…"
+ },
+ {
+  "slug": "home-elevator-bid-calculator",
+  "title": "Home Elevator",
+  "blurb": "A private browser calculator for accessibility and elevator contractors that prices a residential home elevator from stops, travel feet, pneumatic versus winding-drum versus hydraulic versus traction-MRL, through-floo…"
+ },
+ {
+  "slug": "home-staging-bid-calculator",
+  "title": "Home Staging",
+  "blurb": "Free browser calculator for independent home stagers to price a vacant-listing furniture package from the included term, furniture carrying cost, crew labor, mileage, and equipment cost, flag an extension fee priced b…"
+ },
+ {
+  "slug": "hood-cleaning-bid-calculator",
+  "title": "Hood Cleaning",
+  "blurb": "A private browser calculator for commercial kitchen exhaust cleaning contractors that prices a hood-cleaning stop from the system — canopy, filters, duct, and fan — plus grease load, rooftop access, after-hours labor,…"
+ },
+ {
+  "slug": "hot-tub-bid-calculator",
+  "title": "Hot Tub",
+  "blurb": "A private browser calculator for pool and spa dealers that prices a hot-tub install from size, access path, circuit footage, pad, haul-away, and crane — and shows the hours the first backyard crane actually consumes a…"
+ },
+ {
+  "slug": "hydroseeding-job-bid-calculator",
+  "title": "Hydroseeding Job",
+  "blurb": ">-"
+ },
+ {
+  "slug": "ice-dam-removal-bid-calculator",
+  "title": "Ice Dam Removal",
+  "blurb": "Free browser calculator for independent ice dam removal contractors (steam-based winter roof service) to price a job from linear feet of roof edge, crew size, an emergency/storm-call premium, and a minimum service cha…"
+ },
+ {
+  "slug": "interior-door-bid-calculator",
+  "title": "Interior Door",
+  "blurb": "A private browser calculator for carpenters that prices an interior door replacement from door count, hollow-slab versus hollow-prehung versus solid-core versus French-or-barn, hang-only versus prehung-swap versus new…"
+ },
+ {
+  "slug": "irrigation-install-bid-calculator",
+  "title": "Irrigation Install",
+  "blurb": "A private browser calculator for irrigation and landscape contractors that prices a new sprinkler-system install from zones, extra heads, trench footage, soil, controller, 3/4-inch PVB versus 1-inch versus 1.5-inch RP…"
+ },
+ {
+  "slug": "irrigation-winterization-bid-calculator",
+  "title": "Irrigation Winterization",
+  "blurb": "A private browser calculator for irrigation contractors that prices a sprinkler blowout / winterization stop from spray, rotor, and drip zone counts, backflow drain-and-insulate time, travel, and a freeze-warning prem…"
+ },
+ {
+  "slug": "janitorial-bid-calculator",
+  "title": "Janitorial",
+  "blurb": "A private browser calculator for commercial cleaning contractors that prices a janitorial contract from per-space production rates and optional day-porter shifts — labor hours, loaded wage, supplies, overhead, and mar…"
+ },
+ {
+  "slug": "junk-removal-bid-calculator",
+  "title": "Junk Removal",
+  "blurb": "A private browser calculator for independent junk haulers that prices a cleanout from material weight — dump ticket, special item fees, labor, travel, and margin — and shows the job price, the price per cubic yard, an…"
+ },
+ {
+  "slug": "kitchen-tile-backsplash-bid-calculator",
+  "title": "Kitchen Tile Backsplash",
+  "blurb": "A private browser calculator for tile setters and kitchen remodelers that prices a kitchen tile backsplash from wall square feet, subway versus herringbone versus mosaic versus large-format, tile-only versus new-prep…"
+ },
+ {
+  "slug": "land-survey-bid-calculator",
+  "title": "Land Survey",
+  "blurb": "Free browser calculator for independent licensed land surveyors to price a boundary, topographic, or ALTA/NSPS survey job from corners located vs."
+ },
+ {
+  "slug": "landscape-lighting-bid-calculator",
+  "title": "Landscape Lighting",
+  "blurb": "A private browser calculator for landscape lighting contractors that prices low-voltage outdoor lighting from fixture mix, fixtures-only versus new-system versus existing-add-on, trench and soil, transformer size, and…"
+ },
+ {
+  "slug": "lawn-aeration-overseeding-bid-calculator",
+  "title": "Lawn Aeration Overseeding",
+  "blurb": ">-"
+ },
+ {
+  "slug": "lawn-care-bid-calculator",
+  "title": "Lawn Care",
+  "blurb": "A private browser calculator for independent lawn-care operators that prices a recurring property stop from per-service production rates — turf, beds, edging, travel, fuel, dump, and margin — and shows the price per v…"
+ },
+ {
+  "slug": "liquidation-pallet-bid-calculator",
+  "title": "Liquidation Pallet",
+  "blurb": ">-"
+ },
+ {
+  "slug": "locksmith-bid-calculator",
+  "title": "Locksmith",
+  "blurb": "Free browser calculator for mobile and small-shop locksmiths to price a single service call — lockout, rekey, lock install, or fob programming — with an after-hours premium and a minimum service charge floor built in,…"
+ },
+ {
+  "slug": "metal-roof-bid-calculator",
+  "title": "Metal Roof",
+  "blurb": "A private browser calculator for metal-roofing crews that prices a residential standing-seam or exposed-fastener roof from panel squares, tear-off, stories, and trim — the extras a per-square special cannot see — and…"
+ },
+ {
+  "slug": "mini-split-bid-calculator",
+  "title": "Mini Split",
+  "blurb": "A private browser calculator for HVAC installers that prices a ductless mini-split job from indoor heads, line-set extras, head type, story height, electrical extras a per-head quote hides, and margin — then shows pri…"
+ },
+ {
+  "slug": "mobile-detailing-bid-calculator",
+  "title": "Mobile Detailing",
+  "blurb": "Free browser calculator for mobile detailers to price a profitable job after labor, travel, supplies, overhead, payment fees, and target margin."
+ },
+ {
+  "slug": "mold-remediation-bid-calculator",
+  "title": "Mold Remediation",
+  "blurb": "A private browser calculator for mold remediators that prices a containment, demolition, dry-out, and clearance job from extra zones, equipment days, demo square feet, HVAC cleaning, dumpster, and occupied-home access…"
+ },
+ {
+  "slug": "moving-bid-calculator",
+  "title": "Moving",
+  "blurb": "A private browser calculator for local moving companies that prices a job from inventory hours plus stairs, long carry, packing, and drive time — labor, truck, materials, overhead, and margin — and shows the price per…"
+ },
+ {
+  "slug": "painting-bid-calculator",
+  "title": "Painting",
+  "blurb": "A private browser calculator for independent interior painters that prices a repaint from per-surface production rates — walls, ceilings, trim, doors, coats, paint, loaded wage, overhead, and margin — and shows the pr…"
+ },
+ {
+  "slug": "parking-lot-striping-bid-calculator",
+  "title": "Parking Lot Striping",
+  "blurb": "A private browser calculator for parking-lot striping and pavement-marking contractors that prices a lot from stall lines, ADA hash aisles, arrows, coats, and new-layout hours — and shows the price per stall, the extr…"
+ },
+ {
+  "slug": "patio-door-bid-calculator",
+  "title": "Patio Door",
+  "blurb": "A private browser calculator for window and door shops that prices a sliding glass or patio-door replacement from extra panels, impact glass, new-construction wrap, transom, sill pan, and balcony access — and shows th…"
+ },
+ {
+  "slug": "paver-patio-bid-calculator",
+  "title": "Paver Patio",
+  "blurb": "A private browser calculator for hardscape contractors that prices an interlocking paver patio from pattern waste, compacted-base cubic yards, edge restraint, and spoil haul-away — and shows the price per finished squ…"
+ },
+ {
+  "slug": "pergola-bid-calculator",
+  "title": "Pergola",
+  "blurb": "A private browser calculator for deck and outdoor-living crews that prices a residential pergola or patio cover from post count, shade, height, and attachment — the extras a square-foot special cannot see — and shows…"
+ },
+ {
+  "slug": "pest-control-bid-calculator",
+  "title": "Pest Control",
+  "blurb": "A private browser calculator for independent pest control operators that prices a route stop from on-site minutes, bait stations, and drive time — not house size — and shows the initial vs recurring invoices, the hour…"
+ },
+ {
+  "slug": "pet-grooming-bid-calculator",
+  "title": "Pet Grooming",
+  "blurb": "Free browser calculator for independent and mobile dog/cat groomers to price a groom from size, coat, matting, add-ons, loaded labor, optional mobile travel, payment fees, and target margin."
+ },
+ {
+  "slug": "plantation-shutter-bid-calculator",
+  "title": "Plantation Shutter",
+  "blurb": "A private browser calculator for window-treatment shops that prices a residential plantation-shutter install from openings, inside versus outside mount, paint-grade versus stain-grade, product-on-site hang versus meas…"
+ },
+ {
+  "slug": "pole-barn-bid-calculator",
+  "title": "Pole Barn",
+  "blurb": "A private browser calculator for post-frame and pole-barn builders that prices a building from bay spacing, eave height, overhead doors, lean-to, and gravel versus slab — and shows the extra-work share and the walk-aw…"
+ },
+ {
+  "slug": "pool-plaster-bid-calculator",
+  "title": "Pool Plaster",
+  "blurb": "A private browser calculator for pool plaster and resurfacing contractors that prices a drain-and-replaster from floor-plus-wall surface (not the homeowner's length × width), finish (white plaster, quartz, pebble, gla…"
+ },
+ {
+  "slug": "popcorn-ceiling-bid-calculator",
+  "title": "Popcorn Ceiling",
+  "blurb": "A private browser calculator for painting and drywall contractors that prices popcorn ceiling removal from ceiling area, scrape-and-prime versus Level 4 skim versus Level 5 plus paint, 8-foot versus vaulted versus two…"
+ },
+ {
+  "slug": "pressure-washing-bid-calculator",
+  "title": "Pressure Washing",
+  "blurb": "A private browser calculator for pressure-washing and soft-wash contractors that prices a job from per-surface production rates — wash hours, travel, setup, loaded wage, chemicals, overhead, and a minimum job — and sh…"
+ },
+ {
+  "slug": "radon-mitigation-bid-calculator",
+  "title": "Radon Mitigation",
+  "blurb": "A private browser calculator for licensed radon mitigators that prices a sub-slab or crawl depressurization install from extra suction points, crawl membrane, roof discharge, high-suction fan, new circuit, firestops,…"
+ },
+ {
+  "slug": "retaining-wall-bid-calculator",
+  "title": "Retaining Wall",
+  "blurb": "A private browser calculator for hardscape contractors that prices a retaining wall from face area, drain-stone volume, geogrid layers, corners, and the engineer/permit step a per-linear-foot quote hides — then shows…"
+ },
+ {
+  "slug": "roofing-bid-calculator",
+  "title": "Roofing",
+  "blurb": "A private browser calculator for residential roofing contractors that prices a reroof from roof squares — footprint converted by pitch, waste, tear-off layers, loaded labor, dump, overhead, and margin — and shows the…"
+ },
+ {
+  "slug": "sauna-cold-plunge-install-bid-calculator",
+  "title": "Sauna Cold Plunge Install",
+  "blurb": ">-"
+ },
+ {
+  "slug": "screened-porch-bid-calculator",
+  "title": "Screened Porch",
+  "blurb": "A private browser calculator for porch, lanai, and screen-enclosure crews that prices a residential screened porch from wall-screen square feet, knee wall, roof, ceiling, and mesh — the extras a floor-square-foot spec…"
+ },
+ {
+  "slug": "security-camera-bid-calculator",
+  "title": "Security Camera",
+  "blurb": ">-"
+ },
+ {
+  "slug": "septic-pumping-bid-calculator",
+  "title": "Septic Pumping",
+  "blurb": "A private browser calculator for licensed septic pumpers that prices a tank pump from buried-lid locate-and-dig, hose beyond the included run, extra tanks, baffles, risers, inspection, dump tickets, and after-hours di…"
+ },
+ {
+  "slug": "sewer-hydrojet-bid-calculator",
+  "title": "Sewer Hydrojet",
+  "blurb": "A private browser calculator for drain-cleaning and plumbing shops that prices a sewer camera inspection or hydro-jet from extra footage past the included run, access (cleanout versus toilet pull versus new cleanout),…"
+ },
+ {
+  "slug": "sewer-line-replace-bid-calculator",
+  "title": "Sewer Line Replace",
+  "blurb": "A private browser calculator for plumbing and sewer-repair shops that prices replacing a sewer line from open-cut, pipe bursting, or CIPP lining — footage, bury depth, laterals, and the surface that has to go back — a…"
+ },
+ {
+  "slug": "shed-install-bid-calculator",
+  "title": "Shed Install",
+  "blurb": "A private browser calculator for shed dealers and backyard-building crews that prices an install from pad, delivery miles, crane versus forklift, and extras — and shows the extra-work share and the walk-away price bel…"
+ },
+ {
+  "slug": "siding-bid-calculator",
+  "title": "Siding",
+  "blurb": "A private browser calculator for siding contractors that prices a vinyl, fiber-cement, engineered-wood, or aluminum job from wall area, waste, openings, stories, and tear-off — labor hours, loaded wage, linear trim, d…"
+ },
+ {
+  "slug": "skylight-install-bid-calculator",
+  "title": "Skylight Install",
+  "blurb": "A private browser calculator for roofers and window crews that prices a skylight install from unit count, tubular versus fixed versus solar-venting, replace-existing versus new cut-in, asphalt versus tile/metal versus…"
+ },
+ {
+  "slug": "snow-removal-bid-calculator",
+  "title": "Snow Removal",
+  "blurb": "A private browser calculator for snow-removal contractors that prices a winter from route minutes, a loaded operator-and-truck hourly, salt, and expected snow and ice events — and shows the per-push price, the seasona…"
+ },
+ {
+  "slug": "sod-install-bid-calculator",
+  "title": "Sod Install",
+  "blurb": "A private browser calculator for landscapers that prices a sod installation from fescue, bermuda, or zoysia — lawn size, pallet coverage, soil prep, delivery, slope, and watering — and shows the pallet count, the dirt…"
+ },
+ {
+  "slug": "soffit-fascia-bid-calculator",
+  "title": "Soffit Fascia",
+  "blurb": "A private browser calculator for roofing and siding contractors that prices soffit and fascia from eave lineal feet, aluminum wrap versus vinyl replace versus wood replace, 1-story versus 2-story versus 3-story access…"
+ },
+ {
+  "slug": "solar-pv-bid-calculator",
+  "title": "Solar PV",
+  "blurb": "A private browser calculator for solar installers that prices a rooftop or ground-mount PV job from module count, roof-difficulty labor, electrical extras that a dollars-per-watt quote hides, and margin — then shows p…"
+ },
+ {
+  "slug": "spray-foam-bid-calculator",
+  "title": "Spray Foam",
+  "blurb": "A private browser calculator for spray-foam insulation crews that prices a residential job from board feet, open vs closed vs hybrid cell, rim-joist footage, and ignition coating — the extras an attic-square-foot spec…"
+ },
+ {
+  "slug": "stair-lift-bid-calculator",
+  "title": "Stair Lift",
+  "blurb": "A private browser calculator for accessibility contractors and aging-in-place remodelers that prices a stair-lift / chair-lift install from lift count, straight versus landing versus outdoor versus curved rail, perch…"
+ },
+ {
+  "slug": "standby-generator-bid-calculator",
+  "title": "Standby Generator",
+  "blurb": "A private browser calculator for electrical contractors and generator dealers that prices a residential standby-generator install from the 240 V nameplate feeder, the transfer switch, the pad, the gas or propane line,…"
+ },
+ {
+  "slug": "storage-auction-max-bid-calculator",
+  "title": "Storage Auction Max",
+  "blurb": "Free browser calculator for storage-unit lien-auction bidders (the \"storage wars\" resale hobbyists and small-business flippers who buy an abandoned unit's contents sight-mostly-unseen) that prices the real cost stack…"
+ },
+ {
+  "slug": "stucco-repair-bid-calculator",
+  "title": "Stucco Repair",
+  "blurb": "A private browser calculator for stucco and EIFS contractors that prices a repair from crack linear feet, hollow area, tear-off to the substrate, stories and scaffolding, window flashing, color match, and moisture inv…"
+ },
+ {
+  "slug": "sump-pump-bid-calculator",
+  "title": "Sump Pump",
+  "blurb": "A private browser calculator for plumbers and basement shops that prices a sump-pump install from pit type, extra discharge past the included first fifteen feet, battery or water-powered backup, alarm, and freeze prot…"
+ },
+ {
+  "slug": "sunroom-bid-calculator",
+  "title": "Sunroom",
+  "blurb": "A private browser calculator for sunroom, three-season, and four-season crews that prices a residential sunroom from glazed-wall square feet, thermal floor, insulated roof, and HVAC — the extras a floor-square-foot sp…"
+ },
+ {
+  "slug": "toilet-replacement-bid-calculator",
+  "title": "Toilet Replacement",
+  "blurb": "A private browser calculator for plumbers that prices a toilet replacement from toilet count, two-piece versus comfort-height versus one-piece versus bidet-combo, swap-only versus new-supply versus flange-repair versu…"
+ },
+ {
+  "slug": "tree-service-bid-calculator",
+  "title": "Tree Service",
+  "blurb": "A private browser calculator for independent tree-service owners that prices a removal stop from DBH-squared wood volume, access, targets, stump grinding, haul, travel, loaded crew cost, and margin — and shows the wal…"
+ },
+ {
+  "slug": "tuckpointing-bid-calculator",
+  "title": "Tuckpointing",
+  "blurb": "A private browser calculator for masonry contractors that prices tuckpointing from wall area, grind-versus-smear, scaffold versus swing stage, and extras — and shows the extra-work share and the walk-away price below…"
+ },
+ {
+  "slug": "vehicle-wrap-bid-calculator",
+  "title": "Vehicle Wrap",
+  "blurb": "A private browser calculator for independent vehicle wrap and graphics shops that prices a full or partial vehicle wrap from waste-inclusive material square footage, install complexity, and labor — and shows exactly w…"
+ },
+ {
+  "slug": "vinyl-liner-bid-calculator",
+  "title": "Vinyl Liner",
+  "blurb": "A private browser calculator for vinyl-liner pool crews that prices a residential liner replacement from liner square feet, hopper extra, stairs, bead, and track — the extras a water-surface special cannot see — and s…"
+ },
+ {
+  "slug": "walk-in-shower-bid-calculator",
+  "title": "Walk In Shower",
+  "blurb": "A private browser calculator for tile and bathroom contractors that prices a tiled walk-in shower or tub-to-shower conversion from wall and floor tile, waterproofing, linear drain, curbless slope, valve relocate, nich…"
+ },
+ {
+  "slug": "walk-in-tub-bid-calculator",
+  "title": "Walk In Tub",
+  "blurb": "A private browser calculator for bath remodelers and accessibility contractors that prices a walk-in tub install from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide, alcove-swa…"
+ },
+ {
+  "slug": "water-heater-bid-calculator",
+  "title": "Water Heater",
+  "blurb": "A private browser calculator for plumbers and water-heater installers that prices a residential replacement from the tank or tankless type, the location, the vent, and the gas or electrical path — and shows the walk-a…"
+ },
+ {
+  "slug": "water-softener-bid-calculator",
+  "title": "Water Softener",
+  "blurb": "A private browser calculator for plumbing and water-treatment shops that prices a water-softener install from extra pipe past the included run, copper versus PEX, an iron filter or under-sink RO, the brine drain, haul…"
+ },
+ {
+  "slug": "water-well-drilling-bid-calculator",
+  "title": "Water Well Drilling",
+  "blurb": ">-"
+ },
+ {
+  "slug": "well-pump-bid-calculator",
+  "title": "Well Pump",
+  "blurb": "A private browser calculator for well-service and plumbing shops that prices a well-pump replacement from extra drop-pipe footage past the included run, seized versus free pitless, stuck-pump pull, extra well cable, a…"
+ },
+ {
+  "slug": "wheelchair-ramp-bid-calculator",
+  "title": "Wheelchair Ramp",
+  "blurb": "A private browser calculator for accessibility and deck crews that prices a residential wheelchair ramp from rise-to-run geometry, the landings a lineal-foot special cannot see, both-side handrails, surface, demo, and…"
+ },
+ {
+  "slug": "wildlife-exclusion-bid-calculator",
+  "title": "Wildlife Exclusion",
+  "blurb": ">-"
+ },
+ {
+  "slug": "window-cleaning-bid-calculator",
+  "title": "Window Cleaning",
+  "blurb": "A private browser calculator for window-cleaning operators that prices a visit from panes × minutes-per-pane × sides, plus the travel-and-setup block that does not shrink on a small stop — then shows the visit price,…"
+ },
+ {
+  "slug": "window-replacement-bid-calculator",
+  "title": "Window Replacement",
+  "blurb": "A private browser calculator for window replacement contractors that prices a residential job from per-opening United Inches, story, tear-out, and frame — labor hours, loaded wage, unit material, scaffolding, disposal…"
+ },
+ {
+  "slug": "window-tinting-bid-calculator",
+  "title": "Window Tinting",
+  "blurb": "Free browser calculator for independent auto window tinting installers to price a vehicle film job from which windows are actually being tinted, film tier, cutting waste, installer rate, booth overhead, and old-tint r…"
+ }
+]
