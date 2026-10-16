@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays } from "./calc.mjs";
+import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, EMPLOYER_RULES } from "./calc.mjs";
 
 const Y = 2025;
 const spec = (lines, extra = {}) => ({ year: Y, stays: parseStays(lines.join("\n"), Y).stays, abode: {}, overrides: {}, ...extra });
@@ -204,4 +204,30 @@ test("icsToStays: all-day end is exclusive, locations and titles resolve, adjace
   assert.equal(r.imported, 3);
   assert.equal(r.skipped, 2);
   assert.equal(parseStays(r.lines.join("\n"), 2025).errors.length, 0);
+});
+
+test("convenience-of-the-employer view pulls remote workdays back to the employer's state", () => {
+  // 5 workdays in NY, 5 in NJ, 5 in FL (no wage tax); employer in NY.
+  const lines = ["2025-06-02 to 2025-06-06 NY", "2025-06-09 to 2025-06-13 NJ", "2025-06-16 to 2025-06-20 FL"];
+  const r = analyze(spec(lines, { wages: 1500, employerState: "NY" }));
+  assert.equal(r.employer.code, "NY");
+  assert.equal(r.employer.kind, "strict");
+  assert.equal(r.employer.physicalDays, 5);
+  assert.equal(r.employer.remoteDays, 10);
+  assert.equal(r.employer.claimableDays, 15);
+  assert.equal(r.employer.claimableWages, 1500);
+  assert.equal(r.employer.doubleTaxDays, 5); // NJ taxes wages, FL does not
+  assert.equal(r.employer.doubleTaxWages, 500);
+  assert.ok(r.notices.some((n) => n.includes("New York may claim")));
+  assert.deepEqual(r.employer.byState.map((b) => [b.code, b.noWageTax]).sort(), [["FL", true], ["NJ", false]]);
+});
+
+test("no employer view without an employer state or for a state with no such rule", () => {
+  const lines = ["2025-06-02 to 2025-06-06 NY"];
+  assert.equal(analyze(spec(lines, { wages: 1000 })).employer, null);
+  assert.equal(analyze(spec(lines, { wages: 1000, employerState: "TX" })).employer, null);
+  assert.ok(EMPLOYER_RULES.PA.kind === "retaliatory");
+  const pa = analyze(spec(["2025-06-02 to 2025-06-06 PA", "2025-06-09 to 2025-06-13 OH"], { employerState: "PA" }));
+  assert.ok(pa.notices.some((n) => n.includes("same rule")));
+  assert.equal(pa.employer.claimableWages, null); // no wages typed
 });
