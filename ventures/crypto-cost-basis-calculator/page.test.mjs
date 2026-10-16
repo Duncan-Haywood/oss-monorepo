@@ -52,7 +52,7 @@ test("every input has a label and nothing is sent anywhere", () => {
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./importers.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   assert.doesNotMatch(page("calc.mjs"), /^\s*import\s/m);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
@@ -126,4 +126,8 @@ test("the guide page carries the clauses, links both ways, and its worked exampl
   const fifo = r.comparison.find((c) => c.method === "FIFO");
   const hifo = r.comparison.find((c) => c.method === "HIFO");
   assert.ok(guide.includes(dollars(fifo.tax - hifo.tax)), "difference quoted in the og description");
+});
+
+test("the importers make no network calls", () => {
+  assert.doesNotMatch(page("importers.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
 });
