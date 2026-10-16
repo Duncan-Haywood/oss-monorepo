@@ -2027,6 +2027,11 @@
      "summary": "A negative result (stylised, preliminary). Scanning web width from 15.0 to 16.0&nbsp;mm (the slenderness rule forbids wider) at four fillet radii on 1.5, 1.0, 0.75 and 0.5&nbsp;mm meshes, the feasible widths found at 1.5&nbsp;mm are all infeasible at 1.0 and 0.5&nbsp;mm under the 100&nbsp;MPa peak-stress limit, with a single feasible point at 0.75&nbsp;mm. The lowest peak stress rises 11&ndash;14% from 1.5 to 0.5&nbsp;mm and is still creeping up, so convergence is not shown. One gauge, one load, a peak measure at a near-sharp fillet floor; no search was run on the fine meshes."
     },
     {
+     "slug": "simdesign-lbuckle",
+     "title": "Does the 1.5&nbsp;mm bracket clear buckling when the whole L is one 3D body with a flexible corner?",
+     "summary": "A small finite-element check (stylised, preliminary; ideal elastic sheet, sharp inner corner, one design). Meshing the whole L of the 1.5&nbsp;mm, w&nbsp;=&nbsp;18.4&nbsp;mm design from <em>simdesign-bucklebound</em> as one hexahedral body, the lowest buckling factor under the design load (vertical arm in tension) is 4.01, above the closed-form 3.47 and the floor of 3. With the load reversed (arm in compression) it falls to 2.25, below the floor, a case the moment-only formula cannot see. Refinement moved the factors by under 2%. No fillet, no imperfections."
+    },
+    {
      "slug": "simdesign-minwall",
      "title": "Does relaxing the 1.2&nbsp;mm minimum-wall rule open thinner sheet gauges for the laser-cut bracket, or is the buckling floor what binds?",
      "summary": "A small optimiser study (stylised, preliminary; the buckling factor is an unvalidated ideal-bar closed form). Relaxing the minimum wall from 1.2 to 1.0 or 0.8&nbsp;mm changes nothing at 1.5&nbsp;mm (31.0&nbsp;g in every cell) and does not by itself open 1.0&nbsp;mm sheet: with a buckling-factor floor of 3 no design exists at 0.8 or 1.0&nbsp;mm (the widest allowed web reaches a factor of only 1.5 at 1.0&nbsp;mm). With a floor of 1 and a minimum wall of 1.0&nbsp;mm or less, a 1.0&nbsp;mm design appears at 24.8&nbsp;g (w&nbsp;=&nbsp;22.7&nbsp;mm, factor 1.33, 2 of 3 seeds), 20% under the 1.5&nbsp;mm optimum, but a factor of 1.33 from an ideal-bar formula is no margin. Simulated results only."
