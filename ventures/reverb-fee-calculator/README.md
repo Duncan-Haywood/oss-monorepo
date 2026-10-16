@@ -56,8 +56,8 @@ the browser refuses clipboard access, for the seller to review and send.
 
 The SEO page
 [`should-i-take-this-reverb-offer.html`](should-i-take-this-reverb-offer.html)
-walks the default worked example ($800 list, $720 offer, $284.33 vs $210.65
-on Reverb, $233.76 on eBay at list, $745.10 crossover).
+walks the default worked example ($800 list, $720 offer, $281.60 vs $208.15
+on Reverb, $230.60 on eBay at list, $744.45 crossover).
 
 ## Take the offer now, or wait for a better one?
 

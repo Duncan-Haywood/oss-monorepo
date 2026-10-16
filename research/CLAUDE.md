@@ -64,3 +64,6 @@ results, in the same commit:
    `research/` project is missing from `projects.json` or `README.md`, or if either lists one
    that no longer exists. `.github/workflows/research-ci.yml` runs the same build on every
    pull request that touches `research/`. Open `research/_homepage/_site/index.html` to preview.
+
+Tests and figures need packages the image may lack: from the repo root,
+`PY=$(python3 platform/ci/pyenv.py pytest numpy matplotlib)`, then use `"$PY"` instead of `python3`.
