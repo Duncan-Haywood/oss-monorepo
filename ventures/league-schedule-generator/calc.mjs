@@ -961,6 +961,117 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
   return rows;
 }
 
+// ---------------------------------------------------------------- playoff race
+
+/** Most remaining fixtures worked through exhaustively (3^12 = 531,441 outcomes); beyond it, safe bounds. */
+export const RACE_EXACT_LIMIT = 12;
+
+/**
+ * Who has clinched a play-off place and who is out, from the results so far and the fixtures still
+ * to play. `remaining` is a list of [teamIndexA, teamIndexB] (`remainingFixtures` builds it from a
+ * schedule and its results). Ranking here is by points only, and a tie on points is counted
+ * against the team being tested, so "clinched" and "eliminated" are never wrong; goal difference
+ * can only help a team the table calls "alive" or "tied".
+ * Returns one row per team: { index, name, points, left, maxPoints, bestRank, worstRank,
+ * status: "clinched" | "eliminated" | "alive", magic }. `magic` is how many more points guarantee a
+ * place whatever the others do (null when out of reach or already clinched). `exact` says whether
+ * every outcome was worked through or the safe bounds were used.
+ */
+export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 1, loss = 0, exactLimit = RACE_EXACT_LIMIT } = {}) {
+  const n = teams.length;
+  const k = Math.max(1, Math.min(spots, n));
+  const pts = Array(n).fill(0);
+  for (const r of results) {
+    if (r.ga > r.gb) { pts[r.a] += win; pts[r.b] += loss; }
+    else if (r.ga < r.gb) { pts[r.b] += win; pts[r.a] += loss; }
+    else { pts[r.a] += draw; pts[r.b] += draw; }
+  }
+  const left = Array(n).fill(0);
+  for (const [a, b] of remaining) { left[a]++; left[b]++; }
+  const top = Math.max(win, draw, loss);
+  const low = Math.min(win, draw, loss);
+  const maxPts = pts.map((p, i) => p + left[i] * top);
+  const minPts = pts.map((p, i) => p + left[i] * low);
+  const best = Array(n).fill(n);
+  const worst = Array(n).fill(1);
+  const exact = remaining.length <= exactLimit;
+  const rankAll = (p) => {
+    for (let i = 0; i < n; i++) {
+      let above = 0;
+      let level = 0;
+      for (let j = 0; j < n; j++) { if (j === i) continue; if (p[j] > p[i]) above++; else if (p[j] === p[i]) level++; }
+      if (above + 1 < best[i]) best[i] = above + 1;
+      if (above + level + 1 > worst[i]) worst[i] = above + level + 1;
+    }
+  };
+  if (exact) {
+    const outcomes = [[win, loss], [draw, draw], [loss, win]];
+    const cur = pts.slice();
+    const walk = (f) => {
+      if (f === remaining.length) { rankAll(cur); return; }
+      const [a, b] = remaining[f];
+      for (const [x, y] of outcomes) { cur[a] += x; cur[b] += y; walk(f + 1); cur[a] -= x; cur[b] -= y; }
+    };
+    walk(0);
+  } else {
+    for (let i = 0; i < n; i++) {
+      let level = 0;
+      let surelyAbove = 0;
+      for (let j = 0; j < n; j++) {
+        if (j === i) continue;
+        if (maxPts[j] >= minPts[i]) level++;
+        if (minPts[j] > maxPts[i]) surelyAbove++;
+      }
+      best[i] = surelyAbove + 1;
+      worst[i] = level + 1;
+    }
+  }
+  const rows = teams.map((name, i) => {
+    const status = worst[i] <= k ? "clinched" : best[i] > k ? "eliminated" : "alive";
+    let magic = null;
+    if (status === "alive") {
+      // the smallest total of extra points that still clinches if every rival wins out
+      for (let extra = 1; extra <= left[i] * top; extra++) {
+        const mine = pts[i] + extra;
+        let rivals = 0;
+        for (let j = 0; j < n; j++) if (j !== i && maxPts[j] >= mine) rivals++;
+        if (rivals + 1 <= k) { magic = extra; break; }
+      }
+    }
+    return { index: i, name, points: pts[i], left: left[i], maxPoints: maxPts[i], bestRank: best[i], worstRank: worst[i], status, magic };
+  });
+  rows.sort((x, y) => y.points - x.points || x.index - y.index);
+  rows.exact = exact;
+  return rows;
+}
+
+/** The fixtures in `schedule` that no entry in `results` has used up (each result clears one meeting of that pair). */
+export function remainingFixtures(schedule, results) {
+  const played = new Map();
+  const key = (a, b) => (a < b ? `${a}-${b}` : `${b}-${a}`);
+  for (const r of results) played.set(key(r.a, r.b), (played.get(key(r.a, r.b)) ?? 0) + 1);
+  const left = [];
+  for (const round of schedule.rounds) {
+    for (const m of round.matches) {
+      const kk = key(m.home, m.away);
+      if (played.get(kk) > 0) played.set(kk, played.get(kk) - 1);
+      else left.push([m.home, m.away]);
+    }
+  }
+  return left;
+}
+
+/** One plain sentence per team that has a decided or live position. */
+export function raceText(rows, spots) {
+  const lines = [];
+  for (const r of rows) {
+    if (r.status === "clinched") lines.push(`${r.name}: clinched a top-${spots} place.`);
+    else if (r.status === "eliminated") lines.push(`${r.name}: out of the top ${spots} (best case ${r.maxPoints} pts).`);
+    else lines.push(`${r.name}: alive${r.magic != null ? `, ${r.magic} more point${r.magic === 1 ? "" : "s"} clinch it` : ""}${r.left ? ` (${r.left} to play)` : ""}.`);
+  }
+  return lines.join("\n");
+}
+
 // ---------------------------------------------------------------- pool play
 
 /**
