@@ -1,0 +1,13 @@
+[project]
+name = "garment-wearmix"
+version = "0.1.0"
+description = "Wearing-time-weighted expected comfort benefit per dollar of fabric levers, with a gated infrared lever"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../garment-thermal/src", "../garment-teardown/src", "../garment-comfortcost/src"]

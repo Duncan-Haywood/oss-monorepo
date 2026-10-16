@@ -2264,6 +2264,11 @@
      "summary": "Joins the thermal comfort model to the garment cost chain for five fabric levers (infrared transmittance, low emissivity, white, thinner, thicker cloth). Levers combine sub-additively (infrared-transparent plus thin: +2.58&nbsp;&deg;C jointly, +3.25 summed), and in each scenario only one treatment helps, so a price premium sets cost, not ranking. At assumed premiums the treatments cost $0.5 to $19 per &deg;C on a $20&ndash;50 replica trench and $3 to $114 on a designer one, because the retail chain multiplies the premium about 6&times;. Stylised: every premium and the thickness pricing are assumed, not quoted, and the comfort model has no reference for its optical extension."
     },
     {
+     "slug": "garment-wearmix",
+     "title": "Does a fabric lever still pay once you weight it by where the garment is worn?",
+     "summary": "Weights the comfort benefit of fabric levers by wearing time across a warm room, sunny outdoors and a cool room, and adds an idealised gated infrared lever. A fixed infrared-transparent shell has positive expected benefit only if the warm room takes more than 75.5% of wearing time (against the cool room); white never harms and has the best benefit per dollar in all four mixes tried. Across 66 wearing mixes the best garment changes with the mix, and the gate is chosen in 65 of 66 mixes at the fixed shell's premium but in 18 of 66 at twice it and none at four times. Stylised: premiums, gate cost and wearing shares are assumed, and the gate is an upper bound."
+    },
+    {
      "slug": "garment-optics",
      "title": "How much conductive yarn does an RF-shielding fabric need, and how fast does breakage ruin it?",
      "summary": "A thin-sheet shielding model of a conductive square weave (sheet resistance, aperture bound, metal mass) plus a Monte Carlo of random yarn breakage. Every design tried has a sheet shielding of 54&ndash;87&nbsp;dB, but the aperture bound limits it: 36&nbsp;dB at 2.4&nbsp;GHz for a 1&nbsp;mm pitch, about 15&nbsp;dB at 28&nbsp;GHz. Breakage raises resistance as the effective-medium estimate 1/(1&minus;2<em>f</em>) up to 30% broken segments and the weave stops conducting near 50% (bond percolation). Stylised: plane wave, ideal crossings, recalled constants, no measurement; covers only the RF part of the optics milestone."
