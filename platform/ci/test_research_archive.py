@@ -95,9 +95,8 @@ class Branches(unittest.TestCase):
         refused = self.archive()
         self.assertEqual(set(refused), {"archive/research/blocked"})
         self.assertIn("archive/research/fine", archive.archived_refs(self.here, "origin"))
-        up_main = sh(self.here, "rev-parse", f"{archive.FETCH_NS}heads/main")
         meta = self.here.parent / "meta"
-        self.assertEqual(archive.write_bundle(self.here, meta, self.wanted(), up_main), 2)
+        self.assertEqual(archive.write_bundle(self.here, meta, self.wanted()), 2)
         self.assertEqual(sh(self.here, "for-each-ref", archive.BUNDLE_NS), "", "temporary refs are removed")
         kept = archive.bundled(self.here, meta)
         self.assertEqual(kept["archive/research/blocked"], refused["archive/research/blocked"])
@@ -106,6 +105,14 @@ class Branches(unittest.TestCase):
         sh(self.here.parent, "clone", "-q", "-b", "main", str(self.origin), str(fresh))
         sh(fresh, "fetch", "-q", str(meta / archive.BUNDLE), f"{archive.BUNDLE_NS}*:refs/heads/*")
         self.assertEqual(sh(fresh, "rev-parse", "archive/research/blocked"), refused["archive/research/blocked"])
+
+    def test_upstream_work_not_yet_synced_here_goes_in_the_bundle(self):
+        sh(self.work, "checkout", "-q", "main")
+        merged = self.commit("merged upstream, not synced")
+        self.push_up("main", "refs/heads/main")
+        meta = self.here.parent / "meta"
+        self.assertEqual(archive.write_bundle(self.here, meta, self.wanted()), 1)
+        self.assertEqual(archive.bundled(self.here, meta)["archive/research/main"], merged)
 
     def test_main_check_needs_upstream_main_in_our_history(self):
         tip = sh(self.here, "rev-parse", "HEAD")

@@ -338,7 +338,8 @@ could not be measured stays null: it is never guessed.
 - **Ventures:** products on `main` with a public URL, disclaimers and usage
   tracking in place, then measured use (`portfolio/usage/`). Deploying what
   exists beats building another product (`portfolio/DIRECTION.md`).
-  Depth over count: no more single-page calculators; new ventures follow the
+  Depth over count: prefer higher-value work to more single-page calculators
+  (a principle, not a ban; owner, 2026-10-16); new ventures follow the
   owner's brief in the ventures sub-prompt (ambitious, AI/ML where it helps,
   mobile apps, real business potential). The finish line for a venture is a
   working one-click self-deploy page (the business model under Mission).
