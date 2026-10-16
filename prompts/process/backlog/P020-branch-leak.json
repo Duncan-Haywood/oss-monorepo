@@ -31,6 +31,10 @@
     {
       "date": "2026-10-16",
       "note": "Landed in PR #7325 (branch_cleanup.py deletes moved branches whose tip is in main, sweeps all closed PRs, deletes no-PR branches contained in main). Result pending: re-count remote branches (baseline 1,465) a week after the first post-merge branch-cleanup run."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Verify run: too early (metric is a week after the first post-merge cleanup run); left pending."
     }
   ]
 }
