@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trade Bid Studio — Price Any Contracting Job and Find Your Walk-Away Number</title>
+  <meta name="description" content="Free bid calculator for any trade: turn labor hours, materials, subs, overhead and a target margin into a price, your walk-away number, and what a competitor's lower quote actually leaves you. Plus 121 trade-specific bid calculators.">
+  <meta property="og:title" content="Trade Bid Studio">
+  <meta property="og:description" content="Markup is not margin. Find the price that keeps your margin, the number below which the job loses money, and what a cheaper quote leaves you.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Trade Bid Studio","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Universal bid build-up from labor hours, burden, materials, subcontractors and overhead, price at a target margin, walk-away price, markup versus margin converter, competitor-quote check, labor-overrun cushion, directory of 121 trade-specific bid calculators"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the difference between markup and margin?","acceptedAnswer":{"@type":"Answer","text":"Markup is profit as a percentage of your cost; margin is profit as a percentage of the price. A 25% markup is only a 20% margin, so a contractor who adds 25% to cost and believes they earn a 25% margin is under-pricing every job."}},{"@type":"Question","name":"What is a walk-away price?","acceptedAnswer":{"@type":"Answer","text":"It is your full cost: labor, payroll burden, materials, subcontractors, other costs and a share of overhead. Any price below it loses money before you earn a dollar of profit."}},{"@type":"Question","name":"How do I price a job at a target margin?","acceptedAnswer":{"@type":"Answer","text":"Divide the full cost by one minus the margin. A job costing $2,750 at a 20% margin is $2,750 / 0.8 = $3,437.50, not $2,750 x 1.20."}},{"@type":"Question","name":"Is my pricing uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The page runs in your browser with no account and no network requests."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2230; background: #eaeef5; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1; margin: 0 0 12px; letter-spacing: -.04em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2b4f9e; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .7fr); gap: 18px; align-items: start; }
+    section { background: #f7f9fd; border: 1px solid #c6d0e3; border-radius: 14px; padding: 20px; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a3b0ca; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .result { position: sticky; top: 15px; background: #1c2742; color: #f1f5fc; border-color: #1c2742; }
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.04em; margin: 8px 0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    .note { font-size: .82rem; opacity: .86; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #8a2517; }
+    .conv { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+    .conv label { flex: 1 1 140px; }
+    .conv output { font-size: 1.3rem; font-weight: 700; padding-bottom: 8px; }
+    #directory { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; padding: 0; list-style: none; }
+    #directory li { background: #fff; border: 1px solid #c6d0e3; border-radius: 10px; padding: 12px; }
+    #directory a { font-weight: 700; color: #2b4f9e; }
+    #directory p { margin: 6px 0 0; font-size: .8rem; color: #4a5470; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5470; }
+    footer a { color: #2b4f9e; }
+    @media (max-width: 780px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR CONTRACTORS AND SERVICE CREWS</p>
+    <h1>Trade Bid Studio</h1>
+    <p>Add up your labor, materials and overhead, pick the margin you want to keep, and see the price, the <strong>walk-away number</strong> below which the job loses money, and what a competitor's lower quote really leaves you. Works for any trade; 121 trade-specific calculators are listed below when you need hours and quantities worked out for you.</p>
+  </header>
+
+  <div class="layout">
+    <div>
+      <section aria-labelledby="costs">
+        <h2 id="costs">1. What the job costs you</h2>
+        <div class="fields">
+          <label>Labor hours (all crew, total)<input id="laborHours" type="number" min="0" step="any" value="40"></label>
+          <label>Wage per hour ($)<input id="wage" type="number" min="0" step="any" value="30"></label>
+          <label>Payroll burden (%)<input id="burdenPct" type="number" min="0" step="any" value="25"></label>
+          <label>Materials, at cost ($)<input id="materials" type="number" min="0" step="any" value="1000"></label>
+          <label>Subcontractors, at cost ($)<input id="subs" type="number" min="0" step="any" value="0"></label>
+          <label>Other costs: dump, permit, travel ($)<input id="other" type="number" min="0" step="any" value="0"></label>
+        </div>
+      </section>
+      <section aria-labelledby="profit">
+        <h2 id="profit">2. What you want to keep</h2>
+        <div class="fields">
+          <label>Overhead share (% of direct cost)<input id="overheadPct" type="number" min="0" step="any" value="10"></label>
+          <label>Target margin (% of price)<input id="marginPct" type="number" min="0" max="95" step="any" value="20"></label>
+          <label>Extra markup on materials (%)<input id="materialMarkupPct" type="number" min="0" step="any" value="0"></label>
+          <label>Extra markup on subs (%)<input id="subMarkupPct" type="number" min="0" step="any" value="0"></label>
+          <label>A competitor's / customer's price ($, optional)<input id="offeredPrice" type="number" min="0" step="any" placeholder="e.g. 3000"></label>
+        </div>
+      </section>
+      <section aria-labelledby="conv">
+        <h2 id="conv">Markup vs margin converter</h2>
+        <div class="conv">
+          <label>Markup %<input id="convMarkup" type="number" min="0" step="any" value="25"></label>
+          <div>is a margin of <output id="convMargin">20%</output></div>
+          <label>Margin %<input id="convMarginIn" type="number" min="0" max="95" step="any" value="30"></label>
+          <div>needs a markup of <output id="convMarkupOut">42.86%</output></div>
+        </div>
+      </section>
+    </div>
+    <aside class="result" aria-live="polite" aria-label="Result">
+      <h2>Your bid</h2>
+      <div class="hero-number" id="price">—</div>
+      <p class="note">Price that keeps your target margin.</p>
+      <dl>
+        <dt>Walk-away price</dt><dd id="walkAway"></dd>
+        <dt>Labor + burden</dt><dd id="laborBurden"></dd>
+        <dt>Materials + subs + other</dt><dd id="nonLabor"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Profit at this price</dt><dd id="profitOut"></dd>
+        <dt>Margin / markup</dt><dd id="mm"></dd>
+        <dt>Labor slip that erases profit</dt><dd id="overrun"></dd>
+      </dl>
+      <div class="verdict" id="verdict" hidden></div>
+      <p class="note">Transparent arithmetic from your own inputs, not a price recommendation.</p>
+    </aside>
+  </div>
+
+  <section aria-labelledby="dir">
+    <h2 id="dir">Need hours and quantities worked out? Pick your trade (<span id="count">121</span>)</h2>
+    <label>Search trades<input id="search" type="search" placeholder="roofing, tile, HVAC, paving…"></label>
+    <ul id="directory"></ul>
+    <p id="none" class="note" hidden>No match. Use the studio above: it works for any trade.</p>
+  </section>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or accounting advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, licensing and supply costs, and a qualified professional, before submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use. Trade calculators listed here are independent tools, not endorsed by any trade body or software vendor.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous local tallies of which feature was used and never include wages, costs or prices.</p>
+    <p class="support">Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional and never changes what the tool does. <a href="markup-vs-margin.html">Markup vs margin explained</a>.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, markupToMargin, marginToMarkup, overrunToBreakEven, money } from './engine.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    const el = id => document.getElementById(id);
+    const ids = ['laborHours', 'wage', 'burdenPct', 'materials', 'subs', 'other', 'overheadPct', 'marginPct', 'materialMarkupPct', 'subMarkupPct', 'offeredPrice'];
+    let counted = false;
+    function update() {
+      const input = Object.fromEntries(ids.map(i => [i, el(i).value]));
+      const r = calculateBid(input);
+      el('price').textContent = money(r.price);
+      el('walkAway').textContent = money(r.walkAway);
+      el('laborBurden').textContent = money(r.labor + r.burden);
+      el('nonLabor').textContent = money(r.materials + r.subs + r.other);
+      el('overhead').textContent = money(r.overhead);
+      el('profitOut').textContent = money(r.profit);
+      el('mm').textContent = `${r.effectiveMarginPct}% / ${r.effectiveMarkupPct}%`;
+      const slip = overrunToBreakEven(input);
+      el('overrun').textContent = slip === null ? '—' : `${slip}%`;
+      const v = el('verdict');
+      if (r.offer) {
+        v.hidden = false;
+        v.className = r.offer.loses ? 'verdict bad' : 'verdict';
+        v.textContent = r.offer.loses
+          ? `At ${money(r.offer.price)} you lose ${money(-r.offer.profit)} on this job. Walk away or change the scope.`
+          : `At ${money(r.offer.price)} you keep ${money(r.offer.profit)} (${r.offer.marginPct}% margin)${r.offer.belowTarget ? ', below your target margin' : ', at or above your target margin'}.`;
+      } else { v.hidden = true; }
+      if (!counted) { counted = true; try { recordUsage(localStorage, el('usageOptOut').checked, 'bid_calculated'); } catch {} }
+    }
+    function convert() {
+      el('convMargin').textContent = `${markupToMargin(el('convMarkup').value)}%`;
+      el('convMarkupOut').textContent = `${marginToMarkup(el('convMarginIn').value)}%`;
+    }
+    ids.forEach(i => el(i).addEventListener('input', update));
+    ['convMarkup', 'convMarginIn'].forEach(i => el(i).addEventListener('input', convert));
+    update(); convert();
+
+    try {
+      el('usageOptOut').checked = readOptOut(localStorage);
+      el('usageOptOut').addEventListener('change', () => writeOptOut(localStorage, el('usageOptOut').checked));
+    } catch {}
+
+    fetch('./trades.json').then(r => r.json()).then(trades => {
+      const list = el('directory');
+      const render = q => {
+        const needle = q.trim().toLowerCase();
+        const shown = trades.filter(t => !needle || `${t.title} ${t.blurb}`.toLowerCase().includes(needle));
+        list.replaceChildren(...shown.map(t => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = `../${t.slug}/`;
+          a.textContent = `${t.title} bid calculator`;
+          const p = document.createElement('p');
+          p.textContent = t.blurb;
+          li.append(a, p);
+          return li;
+        }));
+        el('count').textContent = trades.length;
+        el('none').hidden = shown.length > 0;
+      };
+      el('search').addEventListener('input', e => { render(e.target.value); try { recordUsage(localStorage, el('usageOptOut').checked, 'directory_searched'); } catch {} });
+      render('');
+    }).catch(() => { el('none').hidden = false; el('none').textContent = 'The trade list could not load; the studio above still works.'; });
+  </script>
+</body>
+</html>

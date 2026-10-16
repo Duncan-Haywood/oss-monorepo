@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01Pvsx7WW9U32r5m5uJn9Dty",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T05:40:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "~40 tools pin CLAUDE.md's checklist, blocking P017 step 2"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "P017 step 3 partial: moved two Hosting bullets out of CLAUDE.md. Small gain (~100 tokens); P014/P017 main steps are too large for an unattended run.",
+  "corrections": [],
+  "redteam": null
+}

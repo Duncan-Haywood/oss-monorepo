@@ -48,10 +48,10 @@ test("the article's sixty-orders-a-month table matches what the calculator compu
   }
 });
 
-test("the claim that Shopify moves from fifth to first still holds", () => {
+test("the claim that Shopify moves from sixth to first still holds", () => {
   const rankLow = low.findIndex((row) => row.id === "shopify");
   const rankModerate = moderate.findIndex((row) => row.id === "shopify");
-  assert.equal(rankLow, 4, "Shopify is no longer fifth at five orders a month");
+  assert.equal(rankLow, 5, "Shopify is no longer sixth at five orders a month");
   assert.equal(rankModerate, 0, "Shopify is no longer first at sixty orders a month");
 });
 

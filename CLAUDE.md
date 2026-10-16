@@ -357,15 +357,9 @@ do not re-verify unchanged PRs.
   `marisstella.dev` still points at the released IP; repointing it is the
   `pages-custom-domain` owner ask. Manifests under `gitops/prod` describe
   that dead origin, not what a visitor receives.
-- **Prefer a reading from something present** (a run id, a conclusion, a
-  date) over reasoning from manifests or from an absence. This file once
-  told sessions for days that the catalogue was live while nothing listened
-  on port 443, and later that it was dark while Pages served it. The story
-  is in the history file.
-- **The front-door mirror imports, never restates, the build rules.**
-  `venturePageRoot` imports its entry-point candidates and
-  `ENTRY_OVERRIDES` from `platform/pages/build.mjs`. A copied list has cost
-  live product twice.
+- Two more hosting rules (prefer a reading over prose; the front-door mirror
+  imports the build rules) are in
+  [`portfolio/hosting/README.md`](portfolio/hosting/README.md), "Rules moved from CLAUDE.md".
 
 A candidate becomes routable when it has `ventures/<slug>/VENTURE.yaml` or a
 `product_lines` entry on its host venture. Screening is done (see
