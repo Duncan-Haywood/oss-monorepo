@@ -72,6 +72,17 @@ API (bearer `API_KEY`):
   `metadata.account_id`, else its Stripe customer id.
 - `POST /v1/admin/retrain` — bearer `ADMIN_KEY`.
 
+**Day-one history.** Export `account,date[,type]` rows from your analytics
+tool (and `account,date` cancellations from billing) and load them, so the
+first model trains on your past instead of waiting weeks:
+
+```
+RADAR_URL=https://radar.example.com RADAR_API_KEY=... node import.mjs events.csv cancellations.csv
+```
+
+It is safe to re-run (repeat rows are reported as duplicates). The browser page
+takes the same two formats, so you can see the accuracy before you deploy.
+
 `sdk.mjs` is a tiny fetch-based client: `radar.track("acct_42", "export_report")`.
 
 Alert signature: `x-radar-signature: sha256=HMAC(ALERT_WEBHOOK_SECRET, body)`.
