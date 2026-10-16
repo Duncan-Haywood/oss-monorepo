@@ -399,3 +399,29 @@ test("off: reports unreadable text", () => {
   assert.equal(parseStaff("Ana, 20, 40, 0, any, off: Blursday").errors.length, 1);
   assert.equal(parseStaff("Ana, 20, 40, 0, any, off: Wed 9-").errors.length, 1);
 });
+
+test("carry over: last week's CSV sets prev: so the rest rule holds across the boundary", async () => {
+  const { carryOverStaff, lastShiftEnds, parseStaff, buildRoster, parseShifts, rosterCsv } = await import("./calc.mjs");
+  const csv = [
+    "day,start,end,hours,label,assigned_to,role",
+    "Fri,5pm,11pm,6.00,,Sam,",
+    "Sun (overnight),6pm,1am,7.00,close,Sam,",
+    "Sat,9am,5pm,8.00,,Alex,",
+    "Sat,9am,5pm,8.00,,UNFILLED,",
+  ].join("\n");
+  const e = lastShiftEnds(csv);
+  assert.equal(e.get("sam").abs, 6 * 1440 + 1500);
+  assert.equal(e.get("alex").abs, 5 * 1440 + 1020);
+  assert.equal(e.has("unfilled"), false);
+  const r = carryOverStaff("name,wage,max,min,avail\nSam, 15, 30, 0, any, prev: Mon 8am\nAlex, 14\nPat, 13", csv);
+  assert.equal(r.changed, 2);
+  const st = parseStaff(r.text);
+  assert.deepEqual(st.errors, []);
+  assert.equal(st.staff[0].prevEnd, (6 - 7) * 1440 + 1500); // Mon 1:00am this week
+  assert.equal(st.staff[1].prevEnd, (5 - 7) * 1440 + 1020);
+  assert.equal(st.staff[2].prevEnd, null);
+  // Sam's overnight Sunday close ended 1am Monday: a 6am Monday shift (5h rest) must not go to Sam.
+  const sh = parseShifts("Mon, 6am, 10am, 1");
+  const roster = buildRoster(st.staff.slice(0, 1), sh.slots);
+  assert.equal(roster.assignments[0].person, null);
+});
