@@ -11,7 +11,7 @@ permissions:
 jobs:
   formulas:
     if: ${{ vars.DISTRIBUTE_HOMEBREW == 'true' && vars.HOMEBREW_TAP_REPO != '' }}
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
