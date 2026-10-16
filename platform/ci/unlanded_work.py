@@ -181,6 +181,16 @@ def earlier_prs(probe, tip_ref, base_ref):
     return sorted(numbers)
 
 
+def is_ancestor(probe, tip_ref, base_ref):
+    """True when every commit on tip_ref is already on base_ref."""
+    proc = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", tip_ref, base_ref],
+        cwd=probe, capture_output=True, text=True,
+        env=dict(os.environ, GIT_TERMINAL_PROMPT="0"),
+    )
+    return proc.returncode == 0
+
+
 def uncommitted_paths(repo):
     out = git(["status", "--porcelain", "--untracked-files=normal"], repo)
     return [line[3:] for line in out.splitlines() if line.strip()]
@@ -208,8 +218,20 @@ def check_branch(repo, remote="origin", base="main", probe=None):
     remote_tip = heads.get(branch)
 
     if remote_tip is None:
+        gone_with = sorted(pulls.get(local_tip, []))
         if local_tip == heads.get(base):
             report.notes.append(f"{branch} has no commits of its own yet; nothing to land.")
+        elif gone_with:
+            # GitHub deletes a PR's head branch when it merges (the repository's
+            # auto-delete setting), so the branch is missing from the remote
+            # exactly when the work has landed. The PR's head ref still holds
+            # this tip, which is all "not stranded" means here.
+            prs = ", ".join(f"#{n}" for n in gone_with)
+            report.notes.append(
+                f"{branch} is gone from {remote}, but PR {prs} carries this tip (the "
+                "branch is deleted when its PR merges or closes). Nothing is stranded "
+                "-- but git cannot see whether it is merged."
+            )
         else:
             report.problems.append(
                 f"{branch} is not on {remote}.\n"
@@ -258,6 +280,15 @@ def check_branch(repo, remote="origin", base="main", probe=None):
         else:
             lines.append(f"    Open a pull request from {branch}, verify it, and merge it.")
         report.problems.append("\n".join(lines))
+    elif is_ancestor(probe, tip_ref, base_ref):
+        # Nothing is lost, so not a problem -- but this push recreated a
+        # spent branch (872 of 875 surviving merged-PR branches, 2026-10-16).
+        report.notes.append(
+            f"{remote}/{branch} holds nothing beyond {base}: it was pushed with no "
+            "new commit (often a reset to main after a merge).\n"
+            "  Do not push a spent branch; push it again only with a new commit, "
+            "and open a new PR. branch_cleanup.py deletes it otherwise."
+        )
     elif carrying:
         prs = ", ".join(f"#{n}" for n in carrying)
         report.notes.append(

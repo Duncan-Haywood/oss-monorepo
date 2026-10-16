@@ -11,7 +11,7 @@ shuffling on Sunday night.
 
 ## Model
 
-- People: `name, wage, max hours, min hours, availability, roles: cook|server` (`Mon-Fri 9-17; Sat 10am-2pm; Sun off`; blank = any time; roles optional).
+- People: `name, wage, max hours, min hours, availability, roles: cook|server, prev: Sun 10pm` (`prev:` is when their last shift last week ended, so the rest rule holds across the week boundary; `Mon-Fri 9-17; Sat 10am-2pm; Sun off`; blank = any time; roles optional).
 - Shifts: `day(s), start, end, people needed, label, role: cook` (the role is optional; a shift with a role goes only to people who list it). An end at or before the start runs overnight.
 - Hard rules, never broken: availability covers the whole shift, no double-booking, minimum rest between shifts, max
   hours per week, max days in a row.
@@ -31,7 +31,11 @@ shuffling on Sunday night.
 ## Limits
 
 Not modelled: predictive-scheduling and fair-workweek notice rules, meal and rest breaks, minor-labor limits, split-shift
+<<<<<<< HEAD
 premiums, tips, union rules, seniority, time-off across weeks (beyond the last-week tail below). A
+=======
+premiums, tips, union rules, seniority, time-off across weeks. A
+>>>>>>> origin/main
 heuristic search, not a proof of optimality on large problems. Verified only against exhaustive search and invented data.
 Not legal, tax, or financial advice.
 

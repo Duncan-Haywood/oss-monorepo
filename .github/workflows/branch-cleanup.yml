@@ -14,6 +14,10 @@ name: Branch cleanup
 #   closed, unmerged -> delete after 24h; the commits are NOT on `main`, so the
 #                       delay is the window to reopen or fetch a PR closed by
 #                       mistake.
+# Plus one keyed to `main` (sweep only for no-PR branches): a branch whose tip
+# is already in `main` -- re-pushed after its PR merged, or never in a PR and
+# its tip over 48h old -- is deleted, since it holds nothing `main` lacks. A
+# branch with any commit not on `main` is never deleted by that rule.
 #
 # All the deletion rules, and the guards that make them safe (fork heads,
 # protected refs, a branch that moved after the close, a ref another open PR
@@ -89,7 +93,8 @@ jobs:
 
   sweep:
     # Retires branches whose PR was closed unmerged more than the grace period
-    # ago, and catches any merged PR whose on-close run was missed.
+    # ago, catches any merged PR whose on-close run was missed, and deletes
+    # branches whose tip is already in `main` (at most 200 deletions a run).
     if: github.event_name != 'pull_request_target'
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20

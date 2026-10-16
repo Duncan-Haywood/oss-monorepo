@@ -318,6 +318,7 @@ test("coverOptions: an open shift has no current owner and reports an unreadable
   assert.ok(coverOptions(staff, slots, null, 0).error);
 });
 
+<<<<<<< HEAD
 test("last week's tail: a Sunday-night close blocks a Monday-morning open", () => {
   const staff = staffOf("Ana, 18, 40, 0, any\nBen, 18, 40, 0, any");
   const slots = slotsOf("Mon, 6, 14, 1, open");
@@ -350,4 +351,22 @@ test("last week's tail: bad lines are named, not ignored", () => {
   assert.match(parseCarry("Ana, someday", staff).errors[0], /Sun 11pm/);
   assert.match(parseCarry("Ana, Sun 9pm, x", staff).errors[0], /whole number/);
   assert.deepEqual(parseCarry("", staff), { carry: {}, errors: [] });
+=======
+test("prev: carries the rest rule across the week boundary", () => {
+  const staff = staffOf("Ana, 20, 40, 0, , prev: Sun 11pm\nBo, 20, 40, 0, ");
+  assert.equal(staff[0].prevEnd, -1440 + 23 * 60);
+  assert.equal(staff[1].prevEnd, null);
+  const slots = slotsOf("Mon, 6am, 10am, 1, Open");
+  const r = buildRoster(staff, slots);
+  const csv = rosterCsv(r);
+  assert.ok(csv.includes("Bo"), "Bo takes the open: Ana ended 11pm Sunday, only 7h of rest");
+  assert.ok(!csv.includes("Ana"));
+  const only = buildRoster(staffOf("Ana, 20, 40, 0, , prev: Sun 11pm"), slots);
+  assert.ok(/rest/i.test(JSON.stringify(only)), "the unfilled reason names the rest rule");
+});
+
+test("prev: errors on unreadable text", () => {
+  const r = parseStaff("Ana, 20, 40, 0, , prev: lately");
+  assert.ok(r.errors.some((e) => e.includes("prev")));
+>>>>>>> origin/main
 });
