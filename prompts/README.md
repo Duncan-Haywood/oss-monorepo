@@ -18,6 +18,8 @@ prompts/drift/             drift reports: does the work still match the owner's 
 prompts/promptctl.py       route | record | measure | validate
 prompts/runcost.py         measure | attach | report: what a run cost
 prompts/pricing.json       list prices runcost.py uses, and the human hourly rate
+prompts/derive.py          fetch | build | report: PR facts and rework, measured not typed
+prompts/derived/           what derive.py measured (regenerated, never hand-edited)
 ```
 
 ## The loop
@@ -86,6 +88,25 @@ API dollars per row. The review track reads both when deciding which models
 and prompts are worth their cost; compare groups only once each has about
 ten runs.
 
+## Measured, not typed
+
+`goals.md` ("Measured, not typed") asks for every derivable fact to be
+measured. `derive.py fetch` reads each recorded PR from the GitHub API into
+`derived/github.json`: state, merge time, size, and how many of its last 30
+commits had a failing check run. Closed PRs are cached, so a rerun fetches
+only new or still-open ones. `derive.py build` joins those facts with the
+records and with git into `derived/runs.json`. Once a PR has been merged for
+14 days, it also scores rework: a revert, follow-up commits on the branch
+that name the PR, and **survival**, the share of the PR's added lines that
+`git blame -M` still attributes to it. Generated paths (`EXCLUDED`) are left
+out. `measure` uses the measured `merged` where a record's own is null, and
+shows median survival per row. `derive.py report` prints coverage (typed
+against measured) and rework by version and model.
+
+It never edits a record. Run `fetch` and `build` before `measure` in a
+review. It needs the full history (`git fetch --unshallow origin main`) and
+the research upstream commit that `research/_mirror/state.json` pins.
+
 ## Red team / blue team
 
 The `redteam` track gets 5-10% of runs (`goals.md`; `validate` enforces the
@@ -118,6 +139,7 @@ python3 prompts/promptctl.py backlog
 python3 prompts/promptctl.py validate
 python3 prompts/runcost.py attach prompts/runs/<record>.json --human-hours H --human-basis "..."
 python3 prompts/runcost.py report
+python3 prompts/derive.py fetch [--refresh] && python3 prompts/derive.py build && python3 prompts/derive.py report
 python3 prompts/redteam.py campaign|rerun|tally|targets
 python3 -m unittest discover -s prompts
 ```
