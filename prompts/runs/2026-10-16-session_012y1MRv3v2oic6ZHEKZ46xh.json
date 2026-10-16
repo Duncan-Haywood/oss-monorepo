@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_012y1MRv3v2oic6ZHEKZ46xh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T09:57:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ambient-startcount",
+  "projects": [
+    "ambient-startcount"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7362",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "python3 vs pip mismatch in the image; Reproduce lines say pip install, which installed into the wrong Python"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Track 2 follow-up from ambient-multistart next steps. pip and python3 pointed at different interpreters; used python3 -m pip.",
+  "corrections": [],
+  "redteam": null
+}
