@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "ce8c669ac2b64da0f17814d8aa6564a30e4ca7aa",
+ "body": "Owner request, 2026-10-14: add three new priority tracks to `PROJECTS.md`.\n\n- **Track 7, automated algorithmic chip-design loops (`eda`).** An unattended loop on an all-open flow, with no LLM. Algorithmic proposers (random, a grid, simulated annealing, a GA, NSGA-II, Bayesian optimisation, bandits) are scored by open simulators. The simulators themselves form a fidelity ladder to study: a cost model, Verilator, synthesis, and place and route. Milestones: `eda-harness`, `eda-proposers`, `eda-flowtune`, `eda-fidelity`, `eda-surrogate`, `eda-verify`. Track 7 reuses track 3's flow and supplies its no-LLM baselines.\n- **Track 8, task-specific AI accelerators (`accel`).** The model and the accelerator are designed together for one task from another track, for example keyword spotting for the ambient assistant or a control network for the arm. Milestones: `accel-kws`, `accel-codesign`, `accel-dataflow`, `accel-policy`, `accel-sparse`, `accel-fpga`.\n- **Track 9, open-source purpose-built robots (`osrobot`).** Robots specialised for a single job, compared against general-purpose arms. The candidate jobs map onto the lab groups: HIRO for lab automation, RECUV for the UAV, ARPG for field robots, CAIRO for assistive work. Milestones: `osrobot-specialise`, `osrobot-morph`, `osrobot-lab`, `osrobot-uav`, `osrobot-field`, `osrobot-assist`.\n\n`prompt.md` and the random track pick now say nine tracks. No new site themes are added: the first project in each track adds its own, as `PROJECTS.md` already says.\n\n**Citations.** I checked all 36 new references through their DOI on Crossref, or through the publisher, JMLR, NeurIPS or arXiv page. Licences come from each repository's licence file. None needed a substantive correction. The checks did change four things in the text:\n- FINN's hardware flow needs AMD Vivado or Vitis, and every released hls4ml back end synthesises with a vendor HLS tool. The guardrail says to use only the parts that run without one.\n- The Opentrons OT-2's hardware is only partly published, with no licence stated, so the text does not call it open hardware.\n- ISO 10218 is now the 2025 edition, and ISO 13482:2014 is under revision.\n- Ajayi et al. is described in its own words (\"self-driving\").\n\n**Checks.** `python site/build.py` prints `ok: 390 projects, 3324 tests`. No code changed, so there are no tests to run. The run line is appended to `prompts/runs.jsonl`.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_0138YkCmiLbRgK1FYyMQTyh7",
+ "closedAt": "2026-10-14T22:58:05Z",
+ "comments": [],
+ "createdAt": "2026-10-14T22:50:45Z",
+ "headRefName": "claude/nifty-ramanujan-1ducvs",
+ "headRefOid": "ea5d26ee14be58c4e66aa754c4980ee58d0e6245",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "41f7a6c409e712f306092634c7aae4354503acc6"
+ },
+ "mergedAt": "2026-10-14T22:58:05Z",
+ "number": 476,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "ea5d26ee14be58c4e66aa754c4980ee58d0e6245"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T22:57:51Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/476#pullrequestreview-5525829820"
+  }
+ ],
+ "state": "MERGED",
+ "title": "PROJECTS.md: add priority tracks 7-9 (eda, accel, osrobot)",
+ "updatedAt": "2026-10-14T22:58:05Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/476"
+}

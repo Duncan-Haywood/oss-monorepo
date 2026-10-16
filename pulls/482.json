@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "cfa73e9a58dc262001c1bfacf5c558979d27f9b9",
+ "body": "Track 8 (`accel`), milestone 1 `accel-kws`: a quantised MLP for keyword spotting on Speech Commands v0.02 (10 keywords + unknown), mapped to a serial-MAC RTL engine checked bit for bit against an integer NumPy reference (40 of 40 swept configs, 200 test clips each), with Yosys generic-gate area, modelled energy and an always-on power comparison with `ambient-wearable`.\n\nChecked: 13 unit tests pass, `python site/build.py` prints ok, citations for Warden 2018, Hello Edge 2017 and Jacob et al. 2018 verified on arXiv. Flagged in the README: Horowitz energy constants typed from memory and not re-checked; dataset taken from a third-party Hugging Face mirror (original host unreachable); everything is stylised.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_0178LQj4APYPSun8mDwaCA9B",
+ "closedAt": "2026-10-14T23:46:09Z",
+ "comments": [],
+ "createdAt": "2026-10-14T23:17:45Z",
+ "headRefName": "claude/ecstatic-lamport-sx82fa",
+ "headRefOid": "5dd013e17e253951693af7489d9948e3cbe34799",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "e286c89ffbf68d4405e7fe40ece5a509a387fb9a"
+ },
+ "mergedAt": "2026-10-14T23:46:09Z",
+ "number": 482,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "5dd013e17e253951693af7489d9948e3cbe34799"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T23:46:00Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/482#pullrequestreview-5526176459"
+  }
+ ],
+ "state": "MERGED",
+ "title": "accel-kws: keyword-spotting accelerator on Speech Commands (track 8, milestone 1)",
+ "updatedAt": "2026-10-14T23:46:09Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/482"
+}

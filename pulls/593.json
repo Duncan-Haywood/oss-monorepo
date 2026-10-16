@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "3d45a1c41806c085ea6358d76728911e8bc4a961",
+ "body": "Track 4 follow-up to `robofab-motorcurve`: repeats its nine motor-line rows with the time-optimal solver at 400, 1600 and 6400 nodes. The edge moves by at most 0.28 points from 1600 to 6400 (the 0.08 m, k=2, w0=4 row rises 4.98 to 5.26%), and the missing `cover` profile was a node-count limit. Stylised. 28 tests pass; `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01FWzv3wge67QF3kTibt8Qb3",
+ "closedAt": "2026-10-15T19:25:26Z",
+ "comments": [],
+ "createdAt": "2026-10-15T19:10:42Z",
+ "headRefName": "claude/gallant-mendel-whoyf7",
+ "headRefOid": "fbbed674fb1ec9f5e602c6d1c1afc4ec87c346dd",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "3639238d525dfd01191175e49864e51d099b90a5"
+ },
+ "mergedAt": "2026-10-15T19:25:26Z",
+ "number": 593,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "fbbed674fb1ec9f5e602c6d1c1afc4ec87c346dd"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-15T19:23:48Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/593#pullrequestreview-5538719956"
+  }
+ ],
+ "state": "MERGED",
+ "title": "research/robofab-motorconv: node-count convergence of the time-optimal carry under a motor torque-speed line (track 4)",
+ "updatedAt": "2026-10-15T19:25:26Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/593"
+}

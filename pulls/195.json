@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "3f902ab2ca6931354227668d1e19cf23cd8ea6d1",
+ "body": "Follow-up to `research/deadband-twin` (merged in #194, which covers the noise-free stall d/K and compensation residuals). This adds measurement noise and dither: the real deadband loop's rms is 27x the linear twin's at s=0.01 but 0.37x at s=0.05, dither only helps without noise, and mild under-compensation beats the exact width under noise. Tests (5), experiment script/results, white paper, README bullet and site entry; `python site/build.py` prints ok. Stylised: scalar integrator, single-seed simulations without confidence intervals.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_017Gpm8CCvaAMJt2Q5LTp188",
+ "closedAt": "2026-09-30T16:12:51Z",
+ "comments": [],
+ "createdAt": "2026-09-30T16:10:31Z",
+ "headRefName": "claude/funny-pascal-ntmt7b",
+ "headRefOid": "7929dda1288dc59e2637959533f02ec6c2cabd5f",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "a3120b66a4ebc11101de552d0cf48ecaafdea43e"
+ },
+ "mergedAt": "2026-09-30T16:12:51Z",
+ "number": 195,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "2754a21da0abea6375b5ae70b8da0815f1b6d2a9"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-09-30T16:10:37Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/195#pullrequestreview-5368896036"
+  }
+ ],
+ "state": "MERGED",
+ "title": "Add deadband-noise-twin: noise and dither on an actuator deadband the twin lacks",
+ "updatedAt": "2026-09-30T16:12:51Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/195"
+}

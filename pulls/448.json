@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "8ebf279edada443678c61297ed6ac05a6dec086b",
+ "body": "Track 2 follow-up to `ambient-drvalid`: all 8 combinations of validation score, fold count and fold type for DR cap selection (stylised, simulated). Result: random folds help more than the DR score in the uninformed eps=0.02 cell; nothing wins everywhere; all selectors far below the label-matched control. Tests (7) pass, `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_012uQ6smCwEerdS5utZCTsSj",
+ "closedAt": "2026-10-14T15:14:49Z",
+ "comments": [],
+ "createdAt": "2026-10-14T15:09:39Z",
+ "headRefName": "claude/sleepy-shannon-ag7exd",
+ "headRefOid": "4a39c7f870e0c1adede836f59c79964861f298cd",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "2f742edc36b7deb88243a1b99da5476638252919"
+ },
+ "mergedAt": "2026-10-14T15:14:49Z",
+ "number": 448,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "4a39c7f870e0c1adede836f59c79964861f298cd"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T15:13:10Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/448#pullrequestreview-5520193089"
+  }
+ ],
+ "state": "MERGED",
+ "title": "ambient-drablate: ablate score, folds and fold type in DR cap selection (stylised)",
+ "updatedAt": "2026-10-14T15:14:49Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/448"
+}

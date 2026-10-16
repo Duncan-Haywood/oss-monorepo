@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "baaaab9f64e4f551a5f911a22d45ee7d9e0d4b16",
+ "body": "Track 4 milestone 4 (`robofab-cell`): discrete-event twin of an arm, 3D printers and an inspection station, with a utilisation bound. Stylised, simulation only. 8 tests pass, `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_0152L2AMqfsjfHDhAiFkJxfF",
+ "closedAt": "2026-10-13T03:18:32Z",
+ "comments": [],
+ "createdAt": "2026-10-13T03:08:40Z",
+ "headRefName": "claude/sleepy-shannon-qc5rhc",
+ "headRefOid": "59761f23709950a2f2f5830d306e7c3cdd43c454",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "4980e4107faa3643ca381983972a3b4f26d40cb9"
+ },
+ "mergedAt": "2026-10-13T03:18:32Z",
+ "number": 288,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "40eea85cc49d48536e9dc802acca9b96775917de"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T03:10:22Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/288#pullrequestreview-5498321889"
+  }
+ ],
+ "state": "MERGED",
+ "title": "robofab-cell-bound: closed-loop throughput bound for an arm, printer and inspection cell",
+ "updatedAt": "2026-10-13T03:18:32Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/288"
+}

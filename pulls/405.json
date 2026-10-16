@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "21dfc35546f57b049b30239fb638fe3ba01b17a4",
+ "body": "Track 5 follow-up to `simdesign-gaugebasins`: w scan of the gauge-2 laser-cut bracket on 2.5/2.0/1.5 mm meshes. The isolated low-w feasible pockets vanish at 1.5 mm and the smallest feasible w rises by about 1 mm; convergence not shown (stylised, preliminary). 5 tests, `site/build.py` ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01KX5jmg3W1eazAH7ZDzZbc7",
+ "closedAt": "2026-10-14T05:10:29Z",
+ "comments": [],
+ "createdAt": "2026-10-14T05:08:54Z",
+ "headRefName": "claude/loving-gates-793u2g",
+ "headRefOid": "9a41498b14e83e039fc3326b72ec5cf0e8b62aba",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "6cab74ef240cb85e221379cc7ac0935769677817"
+ },
+ "mergedAt": "2026-10-14T05:10:29Z",
+ "number": 405,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "9a41498b14e83e039fc3326b72ec5cf0e8b62aba"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T05:10:10Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/405#pullrequestreview-5513335996"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-pocketmesh: do the feasible pockets survive mesh refinement?",
+ "updatedAt": "2026-10-14T05:10:29Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/405"
+}

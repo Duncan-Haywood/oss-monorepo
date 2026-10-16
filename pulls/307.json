@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "3f02e4fd6aa41d2e1ef1af0822c258e0612eecc4",
+ "body": "Track 5, milestone 4. Bracket sizing with 40 FE evaluations per method: session-agent proposals (n=1, not a reproducible LLM benchmark; prior-knowledge advantage disclosed) vs CMA-ES, GP-EI Bayesian optimisation and random search over 20 seeds. Stylised. Includes README bullet, site entry, run log.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01CesWZpQYTAHjFSeRmvVB2g",
+ "closedAt": "2026-10-13T07:55:42Z",
+ "comments": [],
+ "createdAt": "2026-10-13T07:11:01Z",
+ "headRefName": "claude/simdesign-llm",
+ "headRefOid": "39c0be5a075896545b801319caa916826b77042d",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "c26fb86d7571915250385d3c60a3ff0e075711b5"
+ },
+ "mergedAt": "2026-10-13T07:55:41Z",
+ "number": 307,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "87a33d17e99483ef4dd67978854c05c113ec5856"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T07:39:59Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/307#pullrequestreview-5500267498"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-llm: session-agent design proposals vs CMA-ES, Bayesian optimisation and random search",
+ "updatedAt": "2026-10-13T07:55:42Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/307"
+}

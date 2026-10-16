@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "1a0aca53a0f4c3bc9642f4112abe3c674efa72ca",
+ "body": "Follow-up to `garment-optics` (its \"contact resistance at crossings\" next step). Two-layer resistor-network model of a conductive weave: contacts have no effect on an intact fabric, but with 20% of yarn segments broken a contact equal to one segment raises sheet resistance 22% and ten segments 2.3x. Stylised; contact values are a sweep, not measured. 7 tests pass; `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_019j1Yw1hwF3k1yJuL5PTfJc",
+ "closedAt": "2026-10-13T22:11:20Z",
+ "comments": [],
+ "createdAt": "2026-10-13T22:09:00Z",
+ "headRefName": "claude/ecstatic-lamport-x486jm",
+ "headRefOid": "b77662b21d6c713a30f237f9a648bf0953b23e30",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "6fc357028b4fdf52549288282a413d4dbc745ad7"
+ },
+ "mergedAt": "2026-10-13T22:11:20Z",
+ "number": 375,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "007f0fc385c604254cfdf479ad66c7854b4954be"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T22:09:05Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/375#pullrequestreview-5510604886"
+  }
+ ],
+ "state": "MERGED",
+ "title": "garment-contactres: contact resistance at yarn crossings in RF-shielding fabric",
+ "updatedAt": "2026-10-13T22:11:20Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/375"
+}

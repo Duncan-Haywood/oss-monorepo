@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "d415950c720ec2c66acd9de51351b6187208ea8f",
+ "body": "Track 5 milestone 1. Parametric L-bracket, scikit-fem plane-stress model, three optimisers at equal budget, printability check, STL export. 8 tests, `python site/build.py` ok. Stylised; material inputs assumed.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_017fMVxiSwAbYYWHdfa9DnG5",
+ "closedAt": "2026-10-13T04:23:13Z",
+ "comments": [],
+ "createdAt": "2026-10-13T04:17:32Z",
+ "headRefName": "claude/ecstatic-lamport-yultng",
+ "headRefOid": "a54273455e805800095715dac1a63fc4de789993",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "e7522201761507cd8eb472f872caa17fddcfda3c"
+ },
+ "mergedAt": "2026-10-13T04:23:13Z",
+ "number": 293,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "60d9e2aac2d7f07639eb745aaba784d1930dc5a9"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T04:17:38Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/293#pullrequestreview-5498767240"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-bracket: FE-analysed, optimised, printable L-bracket",
+ "updatedAt": "2026-10-13T04:23:13Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/293"
+}

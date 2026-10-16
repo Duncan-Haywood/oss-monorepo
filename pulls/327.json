@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "e15f9beb15f070b36808e596d3fde64d7b05a964",
+ "body": "Track 3 follow-up to chip-abc-sweep. Re-scores chip-ppa-loop proposer files and sweep under five ABC scripts and proves every mapped netlist equivalent. 5 tests, `python site/build.py` ok. Preliminary, stylised.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_015h8MDQybk5rYHJtsLzhMxJ",
+ "closedAt": "2026-10-13T12:26:56Z",
+ "comments": [],
+ "createdAt": "2026-10-13T12:20:40Z",
+ "headRefName": "claude/compassionate-bohr-0rfsv4",
+ "headRefOid": "25867fe15dcf309a21fea18d7a8d171ca0b22698",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "28b17bccdd12d2d88907581e73d9e73a71d88d51"
+ },
+ "mergedAt": "2026-10-13T12:26:56Z",
+ "number": 327,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "d976462fd14a1f7aa69a42b581b8230af89c8c53"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T12:20:46Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/327#pullrequestreview-5503402359"
+  }
+ ],
+ "state": "MERGED",
+ "title": "chip-ppa-script: proposer and sweep under every ABC script, netlist equivalence",
+ "updatedAt": "2026-10-13T12:26:56Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/327"
+}

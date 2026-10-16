@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "e74c2d460c8c3bfaa2e2c83392b9bec61f1007c2",
+ "body": "Track 5, milestone 3. Cantilever sized by Euler–Bernoulli, Timoshenko, 2D and 3D FE; stress agrees, deflection differs; cheap models land within ~5% of the 3D depth. 6 tests pass, `python site/build.py` prints ok. Stylised, assumed material.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_016pnU3DFag4Z1GYVJkSnQJ8",
+ "closedAt": "2026-10-13T06:37:26Z",
+ "comments": [],
+ "createdAt": "2026-10-13T06:19:46Z",
+ "headRefName": "claude/simdesign-fidelity",
+ "headRefOid": "54b95acf45ff46bd51f824a20a36d05a00ee5846",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "08426734bc3b6b1a534d4eb546910810bffdb6a9"
+ },
+ "mergedAt": "2026-10-13T06:37:26Z",
+ "number": 304,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "7fbb309312a6e86e56bf0de5e2aca5e067fd7cf7"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T06:19:53Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/304#pullrequestreview-5499543855"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-fidelity: beam theory vs 2D vs 3D finite elements for cantilever sizing",
+ "updatedAt": "2026-10-13T06:37:26Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/304"
+}

@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "4e6fab8d6a10e0a18268699d2664096c2d939a5c",
+ "body": "Track 1 follow-up to `selfrep-reinvest`: concave goods revenue and a backward dynamic programme to check the local-search policies. Stylised, all inputs assumed. 8 tests, `python site/build.py` prints ok, README bullet and `site/projects.json` entry added, run logged in `prompts/runs.jsonl`.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01CwhznjEaAtdr2qjhuHZxCn",
+ "closedAt": "2026-10-13T11:22:23Z",
+ "comments": [],
+ "createdAt": "2026-10-13T11:19:49Z",
+ "headRefName": "claude/amazing-ramanujan-8svyiv",
+ "headRefOid": "391b6a0947ab389b1c41c7e06aab746bbf4288ff",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "d823cbb66ba2d2bdaeb90f5e549ae6d13ff05708"
+ },
+ "mergedAt": "2026-10-13T11:22:23Z",
+ "number": 322,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "3d70834de93aee4a1c469a0edbb431a6ab08e417"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T11:19:54Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/322#pullrequestreview-5502707199"
+  }
+ ],
+ "state": "MERGED",
+ "title": "selfrep-satmarket: saturating goods market and DP check of the reinvestment optimum",
+ "updatedAt": "2026-10-13T11:22:23Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/322"
+}

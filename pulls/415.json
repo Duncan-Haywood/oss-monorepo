@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "e03d57eecbcd266af807578e266fd8891313026e",
+ "body": "Follow-up to `simdesign-pocketmesh` (track 5): scans web width on 1.5, 1.0, 0.75 and 0.5 mm meshes. No feasible width at 1.0 and 0.5 mm; one point at 0.75 mm; lowest peak stress rises 11–14%. Usable window capped at w = 16.0 mm by the slenderness rule (documented). 6 tests pass, `python site/build.py` ok, README and site entry added.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01GC3ywuGwVVX6wS8kysshX4",
+ "closedAt": "2026-10-14T07:26:52Z",
+ "comments": [],
+ "createdAt": "2026-10-14T07:21:35Z",
+ "headRefName": "claude/practical-bardeen-a0hudw",
+ "headRefOid": "6d92b751053b77b54a20a593ea173e014f501fdf",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "0e57e018de26bf0c8633ff6e80c193382a69f576"
+ },
+ "mergedAt": "2026-10-14T07:26:52Z",
+ "number": 415,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "a795764c88ff9a2a765902f901f1cb9a43b0706c"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T07:21:41Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/415#pullrequestreview-5514379745"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-meshconverge: does the gauge-2 feasible boundary converge to h = 0.5 mm? (negative, stylised)",
+ "updatedAt": "2026-10-14T07:26:52Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/415"
+}

@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "33b411263f870accd9d0fd73d3dee07d2a6670a0",
+ "body": "Track 6 milestone 7. Synthetic IMU and strain signals, softmax classifier, sensor-subset, noise and garment-slip sweeps. Stylised; no real dataset. 8 tests; `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01XuomSz2XCZ2X2dD53iqR1c",
+ "closedAt": "2026-10-13T12:25:02Z",
+ "comments": [],
+ "createdAt": "2026-10-13T12:20:00Z",
+ "headRefName": "claude/garment-smart-sensing",
+ "headRefOid": "6be0c5e302f16e647d0ae9c7066cb0c086e43909",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "e15f9beb15f070b36808e596d3fde64d7b05a964"
+ },
+ "mergedAt": "2026-10-13T12:25:02Z",
+ "number": 326,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "68b4755691f5c0578413616a34444fd3d7c9cd09"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T12:20:09Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/326#pullrequestreview-5503394867"
+  }
+ ],
+ "state": "MERGED",
+ "title": "garment-smart: activity recognition from simulated sensing-garment signals (stylised)",
+ "updatedAt": "2026-10-13T12:25:02Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/326"
+}

@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "1b6ecfba436ba994651386d5c28fcb68c1763301",
+ "body": "`robofab-insert` (robofab track, milestone 2): CEM-tuned planar peg-in-hole search policies in MuJoCo, trained on three fidelity levels or with domain randomisation, tested on all three plus a held-out parameter set. Stylised, sim-to-sim only; 6 tests; `python site/build.py` prints `ok`. Two citations (Tobin 2017, Rubinstein 1999) were added from memory and are flagged unverified in the README.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_012fFf313C1Zu2yz3EEA6qpg",
+ "closedAt": "2026-10-13T01:26:38Z",
+ "comments": [],
+ "createdAt": "2026-10-13T01:10:16Z",
+ "headRefName": "claude/loving-gates-e5q45q",
+ "headRefOid": "1766caef3947f2d9cc0770dac63996e03502ec26",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "96bc5906fc62fa0973d9d0f12837ef3c733d09d5"
+ },
+ "mergedAt": "2026-10-13T01:26:38Z",
+ "number": 280,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "1766caef3947f2d9cc0770dac63996e03502ec26"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T01:24:49Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/280#pullrequestreview-5497773275"
+  }
+ ],
+ "state": "MERGED",
+ "title": "robofab-insert: learned peg-in-hole insertion across MuJoCo fidelity levels (WIP)",
+ "updatedAt": "2026-10-13T01:26:39Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/280"
+}

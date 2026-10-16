@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "29ebd3739a6ddb2ad1290e87fcbbc49ab273fe6d",
+ "body": "`research/mimic-mujocotwin`: the C2ST of `mimic-twinc2st` applied to MuJoCo pendulum twins that differ in integrator, timestep or friction. Euler at 0.02 s: AUROC 0.98; paired RMSE 0.003 rad: 0.53 (null 0.51); Gaussian-vs-Student-t noise at zero paired error: 0.92. Stylised, preliminary, no LLM. README bullet, site entry and run line included; `python site/build.py` prints ok; 6 tests pass.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01HpM4hFBT9idBgtrSZnkWeJ",
+ "closedAt": "2026-10-15T15:34:51Z",
+ "comments": [],
+ "createdAt": "2026-10-15T15:18:08Z",
+ "headRefName": "claude/gallant-mendel-kh1nqv",
+ "headRefOid": "ef6b5f074f326dd9c877ee452caadbf904a66ba6",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "081134ee9856908b6fef21e68f6fbdc316c6739a"
+ },
+ "mergedAt": "2026-10-15T15:34:51Z",
+ "number": 571,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "ef6b5f074f326dd9c877ee452caadbf904a66ba6"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-15T15:33:44Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/571#pullrequestreview-5535717658"
+  }
+ ],
+ "state": "MERGED",
+ "title": "research/mimic-mujocotwin: C2ST vs paired error for MuJoCo twins (track 11 side project)",
+ "updatedAt": "2026-10-15T15:34:52Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/571"
+}

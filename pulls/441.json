@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "10e506b89f723e5f80dd31ce88fa31d3561a1b59",
+ "body": "Adds `research/simdesign-webshell`: scikit-fem 3D linear buckling of the bracket arms vs the closed forms of `simdesign-webbuckle` (validated on the Euler column). Vertical (governing) arm agrees within ~1%; horizontal-arm closed form is conservative by 6–29%. Stylised, mesh not fully converged. README bullet, site entry, tests (3), run log included; `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01Xi3CC4uopfWYa4gXuzRqVv",
+ "closedAt": "2026-10-14T14:28:32Z",
+ "comments": [],
+ "createdAt": "2026-10-14T14:23:03Z",
+ "headRefName": "claude/trusting-knuth-x4755j",
+ "headRefOid": "fe6ed6f2ae72f2b2528ed07fa0f68f9b49218edc",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "8ebf279edada443678c61297ed6ac05a6dec086b"
+ },
+ "mergedAt": "2026-10-14T14:28:32Z",
+ "number": 441,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "4544a175dbb3149d4b06f9939e2e96639f8109ec"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T14:23:10Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/441#pullrequestreview-5519465708"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-webshell: 3D eigenbuckling check of the bracket-arm closed forms (stylised)",
+ "updatedAt": "2026-10-14T14:28:32Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/441"
+}

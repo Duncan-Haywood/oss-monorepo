@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "690ebf8f6e3b80f652e85916e4354eef9076a6b1",
+ "body": "Free-choice project `free-c2stpower`: power of a classifier two-sample test vs a paired-error test against sample size, on stylised pendulum twins. 7 tests, `site/build.py` ok, README with caveats (noisy null calibration, 24 replicates per C2ST cell).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01XzF4imTwHUTTpVZZUFFQ1N",
+ "closedAt": "2026-10-15T12:46:32Z",
+ "comments": [],
+ "createdAt": "2026-10-15T12:13:14Z",
+ "headRefName": "claude/gallant-mendel-ib3dl5",
+ "headRefOid": "ead01c2bed6a0e3c8dded2df4e669861d4e130bc",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "c89ad983bf6ec0b1733abe1a032d22ff20b58d71"
+ },
+ "mergedAt": "2026-10-15T12:46:32Z",
+ "number": 555,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "605b49021c36668239f34499af9746078a1d13a5"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-15T12:44:21Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/555#pullrequestreview-5533280272"
+  }
+ ],
+ "state": "MERGED",
+ "title": "research/free-c2stpower: how many trajectories a C2ST needs to reject a wrong pendulum twin (free choice)",
+ "updatedAt": "2026-10-15T12:46:32Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/555"
+}

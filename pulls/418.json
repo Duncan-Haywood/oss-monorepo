@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "8d0c2f8329e1fdc34c248f219440b6c977f3f85c",
+ "body": "Track 5 follow-up to simdesign-meshconverge. With the assumed slenderness limit raised from 8 to 12.5, gauge-2 bracket webs of 16-17 mm and wider are feasible at h = 1.5, 1.0, 0.75 mm; refinement raises the lightest feasible width by one 0.5 mm step (about 1 g). Relaxed rule stands in for buckling, which is unvalidated. Stylised, preliminary.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_017365cu8gvCWNiMGxorJLw2",
+ "closedAt": "2026-10-14T09:12:11Z",
+ "comments": [],
+ "createdAt": "2026-10-14T09:09:11Z",
+ "headRefName": "claude/trusting-knuth-i96oy9",
+ "headRefOid": "cf3b0fe58a304e8badfe78f19ada6d8d50ba3ba6",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "17fd3b27471616ce1eb6425d151417c02976ba7e"
+ },
+ "mergedAt": "2026-10-14T09:12:11Z",
+ "number": 418,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "d866fd3bc5c2bd7564e041319cb6b74a9d2e1143"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T09:09:17Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/418#pullrequestreview-5515582676"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-widerweb: wider webs feasible on fine meshes with relaxed slenderness rule (stylised)",
+ "updatedAt": "2026-10-14T09:12:11Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/418"
+}

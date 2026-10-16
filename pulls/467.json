@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "8b48022601937675a6bfbea1109bcc4bd8025eda",
+ "body": "Track 3 follow-up to `chip-ppa-mac`: the same 17 MAC candidates mapped to SKY130 HD cells under four ABC scripts, all mapped netlists proved equivalent. The plain `a*b+c` under a `resyn2`-style script is the best design overall; generic cells×depth ranks candidates only weakly like cell area×delay (Spearman 0.20). Preliminary, stylised.\n\nChecks: 8 unit tests pass, `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_014pHA2Jr96EwtxsrcQn5Pzv",
+ "closedAt": "2026-10-14T20:26:48Z",
+ "comments": [],
+ "createdAt": "2026-10-14T20:20:03Z",
+ "headRefName": "claude/chip-ppa-sky130mac-claim",
+ "headRefOid": "ac1dcad019a4b9547f759d4fe9204fd4d73a45e9",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "64e75e3fb2b7acc4be75e8eb00231cc5ae435b82"
+ },
+ "mergedAt": "2026-10-14T20:26:48Z",
+ "number": 467,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "82fcd28a1d7d9d84215b69c010cea76b23951227"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T20:20:09Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/467#pullrequestreview-5524135115"
+  }
+ ],
+ "state": "MERGED",
+ "title": "chip-ppa-sky130mac: do the carry-save MAC rewrites survive SKY130 cell mapping? (stylised)",
+ "updatedAt": "2026-10-14T20:26:48Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/467"
+}

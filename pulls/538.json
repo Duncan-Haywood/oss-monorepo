@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "505b88bbe2aa12359888f748db2ee8d6221c06be",
+ "body": "Follow-up to `ambient-drablate` (first next step: repeated random splits). Averaging 5 random fold assignments helps the IPS-score selector at eps=0.02 (3.5 -> 5.3) and nothing else beyond noise; also fixes the shared-fold-assignment confound. Stylised, simulated; tests 8 pass, `site/build.py` ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01VqcQame57gUpe6xRFoFtxT",
+ "closedAt": "2026-10-15T09:25:38Z",
+ "comments": [],
+ "createdAt": "2026-10-15T09:20:06Z",
+ "headRefName": "claude/ambient-drrepeat",
+ "headRefOid": "3a210a2524ae8ce88fb5185309b520865340c772",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "d16a91e5ee309f6a387b121e753befaee1e54872"
+ },
+ "mergedAt": "2026-10-15T09:25:38Z",
+ "number": 538,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "964e097779385f62bdafe71f12c89a97ac46b7ad"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-15T09:24:19Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/538#pullrequestreview-5530887328"
+  }
+ ],
+ "state": "MERGED",
+ "title": "research/ambient-drrepeat: do repeated random fold assignments stabilise cap selection? (track 2)",
+ "updatedAt": "2026-10-15T09:25:39Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/538"
+}

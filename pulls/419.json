@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "17fd3b27471616ce1eb6425d151417c02976ba7e",
+ "body": "Track 3 follow-up to `chip-systolic-hidden`: F-16-4 network, F = 16 and 32, MAC lanes up to P = 16. Negative, stylised: best MAC engine beats best array by 1.30x and 1.27x (cells x cycles/vector). Fixes the generator's assumption H <= F. 6 tests pass; `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_016wWj6m9oH7sVBxhTPQKGv3",
+ "closedAt": "2026-10-14T09:24:38Z",
+ "comments": [],
+ "createdAt": "2026-10-14T09:14:17Z",
+ "headRefName": "claude/gallant-mendel-k5ynjs",
+ "headRefOid": "f45cf1f953b10de885d2725889d4d12a8289e59b",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "ef3fe5c690f6c5b3e9fcd7ac8d43c69df949c4db"
+ },
+ "mergedAt": "2026-10-14T09:24:37Z",
+ "number": 419,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "6b965a9dd00e3fcd6fe331a71661fbced082fa8d"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T09:14:23Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/419#pullrequestreview-5515642423"
+  }
+ ],
+ "state": "MERGED",
+ "title": "chip-systolic-hidewide: does the MAC-engine lead survive a wider hidden layer (H=16)?",
+ "updatedAt": "2026-10-14T09:24:38Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/419"
+}

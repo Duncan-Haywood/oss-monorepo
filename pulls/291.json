@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "18990fc474bb4e6aed1cca067474d5433f6c3780",
+ "body": "Track 2, milestone 2 (`ambient-interject`): simulated 10 s listening windows; wake, keyword, threshold and learned interruption policies compared at equal annoyance; twin-gap and recalibration experiments. Stylised, simulated only. 9 tests, `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_015DU9Vsj7xRWUMECnvF4aL8",
+ "closedAt": "2026-10-13T04:13:00Z",
+ "comments": [],
+ "createdAt": "2026-10-13T04:08:37Z",
+ "headRefName": "claude/loving-gates-g13cz6",
+ "headRefOid": "76a86026903032fda0b935e4b51b19dec00717b7",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "d415950c720ec2c66acd9de51351b6187208ea8f"
+ },
+ "mergedAt": "2026-10-13T04:13:00Z",
+ "number": 291,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "03ae37ead264a7f5bc003cf1008510919571363a"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T04:08:44Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/291#pullrequestreview-5498719439"
+  }
+ ],
+ "state": "MERGED",
+ "title": "ambient-interject: when should an always-on assistant speak? (simulated policies at equal annoyance)",
+ "updatedAt": "2026-10-13T04:13:00Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/291"
+}

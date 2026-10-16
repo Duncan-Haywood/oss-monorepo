@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "d353b34ec81aed5a7311aef485472a57f1145d78",
+ "body": "Owner request, 2026-10-14: run a loop on the agents' own engineering process. Optimise the throughput of useful, valuable, correct projects within a budget of several Claude Code Max 20x subscriptions.\n\n**`PROJECTS.md`, track 10 (`swe`).**\n- **The metric.** A project counts when it is *correct* (it merged green, its numbers re-run, its citations check, it needed no fix-up within 14 days and it has no integrity issue), *useful* and *valuable*. Value is scored against a rubric: a milestone beats a parameter variation, and a duplicate scores zero. Throughput is the value-weighted count per subscription-week.\n- **Milestones.** `swe-ledger` (backfill the run log and compute the metric), `swe-audit` (defect rate from re-runs), `swe-value` (the rubric and its rater agreement), `swe-allocate` (budget allocation by bandit or knapsack, against the current uniform track pick), `swe-schedule` (collisions and usage limits across subscriptions), and `swe-prompt` (prompt experiments scored on this metric).\n- **Guardrails.** Integrity is a hard constraint. A separate review pass scores correctness and value, never a run's own report. Runs stay within each plan's limits and terms.\n- **Owner step.** Anthropic's terms do not directly address one person holding several subscriptions. The Usage Policy that takes effect on 2026-11-12 bars creating multiple accounts to circumvent product guardrails, so confirming the setup complies is listed as the owner's step.\n\n**`prompt.md`.**\n- The prompt-experiment section now names this objective, and the measures list gains valuable correct throughput.\n- Runs now take tokens, cost and the `usage` block from session metadata (`get_session`). As of 2026-10-14, none of the 159 logged runs recorded tokens or cost. This PR's own run line is the first that does.\n\n**Checks.**\n- **Citations.** I checked all 13 track 10 citations through Crossref, the ICLR and NeurIPS proceedings, OpenReview and TMLR. Two were corrected: DSPy now uses its ICLR title, and Kapoor et al. is cited as its 2025 TMLR version.\n- **Plan facts.** These come from Anthropic's help centre, read on 2026-10-14.\n- **Build.** `python site/build.py` prints `ok`. No code changed.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_0138YkCmiLbRgK1FYyMQTyh7",
+ "closedAt": "2026-10-14T23:11:29Z",
+ "comments": [],
+ "createdAt": "2026-10-14T23:01:38Z",
+ "headRefName": "claude/nifty-ramanujan-1ducvs-swe",
+ "headRefOid": "5f8711cf553c465429dc440bc56a3ccb9592cc4d",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "30c9c64aa8c5551d13282af00d42832595643149"
+ },
+ "mergedAt": "2026-10-14T23:11:29Z",
+ "number": 477,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "c4c58b3c620cf3881a66a12fb5330bd8ec76cd52"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T23:10:41Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/477#pullrequestreview-5525924455"
+  }
+ ],
+ "state": "MERGED",
+ "title": "PROJECTS.md: add track 10, the software-engineering loop (swe)",
+ "updatedAt": "2026-10-14T23:11:29Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/477"
+}

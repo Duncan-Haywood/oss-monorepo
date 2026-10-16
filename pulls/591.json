@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "7f77847b48a45333f5d9c2e0c2a90a205b82b164",
+ "body": "Adds `research/robofab-motorcurve`, the speed-dependent torque limit next step of `robofab-torquebound`. The nine torque- and jaw-bound rows are re-solved with a linear motor torque-speed line (no-load speed 4 to 20 rad/s). The time-optimal carry stays faster than the tuned trapezoid in all 45 cells, but its edge ranges 3.5% to 28.6% (9.0% to 22.9% under a constant limit). Stylised and preliminary. Includes the README bullet, site entry, 8 new tests and the run line.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_017VqBEmM7qCsddSU4mErqcp",
+ "closedAt": "2026-10-15T18:34:08Z",
+ "comments": [],
+ "createdAt": "2026-10-15T18:27:10Z",
+ "headRefName": "claude/compassionate-bohr-dgs6t4",
+ "headRefOid": "9e68b4f4c7ef440f2f828feac1f864ad49650581",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "e63066862fb9993118001c93bce22c55320386dd"
+ },
+ "mergedAt": "2026-10-15T18:34:08Z",
+ "number": 591,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "a80f274e075653d4b4ccf2fe70716451b794de7f"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-15T18:33:37Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/591#pullrequestreview-5538086714"
+  }
+ ],
+ "state": "MERGED",
+ "title": "research/robofab-motorcurve: does the time-optimal carry's edge survive a motor torque-speed line? (track 4)",
+ "updatedAt": "2026-10-15T18:34:08Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/591"
+}

@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "a69b5c2b645ac936b14c1b56385af07988a3bf38",
+ "body": "Re-runs the `simdesign-meshmargin` minimum-mass search (FDM, CNC, laser, casting) with the 3 mm patch stress of `simdesign-patchstress`. Price ordering survives; laser-price seed scatter shrinks; limit is uncalibrated, so masses are not design recommendations. 4 tests, `python site/build.py` ok, CI green.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01FSjncUeBTAFUUorPPyRAvY",
+ "closedAt": "2026-10-13T19:34:55Z",
+ "comments": [],
+ "createdAt": "2026-10-13T19:09:16Z",
+ "headRefName": "claude/loving-gates-celapr",
+ "headRefOid": "6a619d37252cc82a28e859b5efb75966f4405ba5",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "c959644c8177b1ab9e904480351256ccfa18c6ab"
+ },
+ "mergedAt": "2026-10-13T19:34:55Z",
+ "number": 359,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "769cbe6b246c82762b9c6e84eceb41c45aae936f"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T19:09:22Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/359#pullrequestreview-5508648789"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-patchsearch: process-rule bracket search under a patch stress measure",
+ "updatedAt": "2026-10-13T19:34:55Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/359"
+}

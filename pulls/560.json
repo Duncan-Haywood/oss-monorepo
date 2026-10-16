@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "10ebe9327c8bd4a3255c51e18e9fb94ee1d35c7d",
+ "body": "Track 9, milestone 3 (`osrobot-lab`): a stdlib protocol-checking twin of a liquid-handling bench (tip/volume/collision checks, timing, pipetting-error Monte Carlo), with fault-injection and serial-dilution experiments, README, figure and homepage entry. Stylised; all constants assumed; fault set is circular by construction (stated in the README).\n\nChecks: 10 unit tests pass; `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01CEztxhmse6TGdtfLgaLYoK",
+ "closedAt": "2026-10-15T13:19:01Z",
+ "comments": [],
+ "createdAt": "2026-10-15T13:11:45Z",
+ "headRefName": "claude/osrobot-lab",
+ "headRefOid": "83f64ffb4c55e81008fb7591845c46d4d628f6ff",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "1229678555b12d5f4f52c0b384cb505d22717c10"
+ },
+ "mergedAt": "2026-10-15T13:19:00Z",
+ "number": 560,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "83f64ffb4c55e81008fb7591845c46d4d628f6ff"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-15T13:17:44Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/560#pullrequestreview-5533714251"
+  }
+ ],
+ "state": "MERGED",
+ "title": "research/osrobot-lab: protocol-checking twin of a liquid-handling bench (track 9, milestone 3)",
+ "updatedAt": "2026-10-15T13:19:01Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/560"
+}

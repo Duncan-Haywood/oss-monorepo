@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "3dafd716a375c79e5ae4e5ffc1c5c64a3392aa66",
+ "body": "Track 1 milestone 5. Stylised steady-state balance: vitamins ~75% of imported mass; recycling own scrap cuts imports a median 3%; retired-machine plastic is what matters. 10 tests, `python site/build.py` ok. All process parameters are assumptions, stated in the README.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_014eD1LpPFxdBDdVtH2D5wJG",
+ "closedAt": "2026-10-13T10:09:29Z",
+ "comments": [],
+ "createdAt": "2026-10-13T10:07:16Z",
+ "headRefName": "claude/loving-gates-of2tds",
+ "headRefOid": "91b2674e4cfc52aecc9452fc70b2d6280bbf948c",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "d68bdddf09baaeaaea9a82b0f3a8a8ba94fc2e9d"
+ },
+ "mergedAt": "2026-10-13T10:09:29Z",
+ "number": 316,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "46fed8995f7b971aa73f28e836b0386791342045"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T10:07:22Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/316#pullrequestreview-5501930489"
+  }
+ ],
+ "state": "MERGED",
+ "title": "selfrep-materials: mass and energy balance of recycling in a printer shop",
+ "updatedAt": "2026-10-13T10:09:29Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/316"
+}

@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "f2537e0fb97fa44e87c4a1cc92e770b02512360e",
+ "body": "Track 6 follow-up to `garment-stackopt`. Nominal optima are fragile under layer-thickness error; a sampled robust objective recovers part of the loss (stylised, 10 seeds). README, tests (5), site entry and run log included; `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_0174mgbXSzkEzCo3krikzMLU",
+ "closedAt": "2026-10-13T20:48:28Z",
+ "comments": [],
+ "createdAt": "2026-10-13T20:18:51Z",
+ "headRefName": "claude/compassionate-bohr-2pwafc",
+ "headRefOid": "65c138239aa54efdb30015971b7487c2c119b2d9",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "aeafe5a06689ac69e45cb18addb7dc1d62b40699"
+ },
+ "mergedAt": "2026-10-13T20:48:28Z",
+ "number": 367,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "4fc565b9f4fbe58c97c68ce3bd0ead604416d66c"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T20:18:57Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/367#pullrequestreview-5509446960"
+  }
+ ],
+ "state": "MERGED",
+ "title": "garment-stackrobust: thickness-error robustness of angle-stable stacks",
+ "updatedAt": "2026-10-13T20:48:28Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/367"
+}

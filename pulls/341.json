@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "f30cb38bd0aecfbca643b4b9beefb94462a707b6",
+ "body": "Track 4 follow-up to robofab-grasp. Scaled friction bound matches MuJoCo within 6% over 66 cases under lift/sideways acceleration; the torque bracket for an off-centre bar is inconclusive (depends on the rotation tolerance), reported as such. Tests pass (6), `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01QUvLaGUyxqfQYGmJdgdzAP",
+ "closedAt": "2026-10-13T16:14:17Z",
+ "comments": [],
+ "createdAt": "2026-10-13T16:09:24Z",
+ "headRefName": "claude/robofab-liftload",
+ "headRefOid": "3b9a91eac80aead381cc96d3ad48a658921984c9",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "c3f0fc404507b799366b1cd7fa45d94082c57b3e"
+ },
+ "mergedAt": "2026-10-13T16:14:17Z",
+ "number": 341,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "99aa9720499a9c9a1109a68b7494859ecfd1239b"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T16:09:31Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/341#pullrequestreview-5506545120"
+  }
+ ],
+ "state": "MERGED",
+ "title": "robofab-liftload: friction grasp under lift acceleration and off-centre mass (stylised)",
+ "updatedAt": "2026-10-13T16:14:18Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/341"
+}

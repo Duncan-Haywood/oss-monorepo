@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "31256781415a08feb971c03291ba5da360b188eb",
+ "body": "simdesign-gaugebudget: companion to simdesign-gaugescatter (landed by a parallel run under the slug I had claimed, so renamed). Runs the laser-cutting rules search under the peak stress at two search budgets and keeps per-gauge results. The scatter sits in the 2 mm gauge; a ~4x budget cuts the price sd from 0.063 to 0.025, non-monotonically. Stylised, five seeds. 8 tests pass; `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.ai/code/session_01G6ceGnwU7yAEGfzsNX9Lzf)\n\nhttps://claude.ai/code/session_01G6ceGnwU7yAEGfzsNX9Lzf",
+ "closedAt": "2026-10-13T21:28:50Z",
+ "comments": [],
+ "createdAt": "2026-10-13T21:08:57Z",
+ "headRefName": "claude/simdesign-gaugescatter",
+ "headRefOid": "b6531c1388ba7c220bf22142378078c81172be16",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "1a0aca53a0f4c3bc9642f4112abe3c674efa72ca"
+ },
+ "mergedAt": "2026-10-13T21:28:50Z",
+ "number": 368,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "2b6f6d1a1fda29ae5b4f5dab9be39daa442a0bd7"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T21:26:06Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/368#pullrequestreview-5510176147"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-gaugebudget: search-budget test of the peak-stress price scatter",
+ "updatedAt": "2026-10-13T21:28:51Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/368"
+}

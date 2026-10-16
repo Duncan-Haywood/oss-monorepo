@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "d68bdddf09baaeaaea9a82b0f3a8a8ba94fc2e9d",
+ "body": "Adds `research/garment-protective` (track 6, milestone 5): Cunniff-style scaling for nylon, aramid and UHMWPE with panel mass, cost, thickness and stiffness. Stylised; the U* formula is recalled and flagged unverified, properties and prices are assumed, and there is no protection claim. 8 tests, `python site/build.py` ok, CI green.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01Se76MxfJwEqYAJhF4gTdnS",
+ "closedAt": "2026-10-13T10:10:14Z",
+ "comments": [],
+ "createdAt": "2026-10-13T10:08:30Z",
+ "headRefName": "claude/trusting-knuth-a8i0ys",
+ "headRefOid": "502f23c587a26477ace180e2e805c600bc23c66a",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "69848e4361a75c7d27efb0b806a4e6a4f0b8e1f8"
+ },
+ "mergedAt": "2026-10-13T10:10:14Z",
+ "number": 317,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "34b6dc745e08438103cc3d96b1c489308cb242c9"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T10:08:35Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/317#pullrequestreview-5501944450"
+  }
+ ],
+ "state": "MERGED",
+ "title": "garment-protective: weight, cost and stiffness of suit-like protective textiles (stylised)",
+ "updatedAt": "2026-10-13T10:10:14Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/317"
+}

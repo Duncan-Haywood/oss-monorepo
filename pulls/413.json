@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "c8df8f97552f77b0b3be92a90d1d39ddfc8dec29",
+ "body": "Follow-up to `robofab-armbang`: adds a jaw-force cap (quadratic constraint on path acceleration) to the time-optimal carry and compares with capped min-jerk. 23 tests pass; `python site/build.py` prints ok. Results stylised, assumed parameters; builds on no lab paper (HIRO/CAIRO named as directions only).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01DyeS6imrgFeXqBRauDLiVb",
+ "closedAt": "2026-10-14T07:11:41Z",
+ "comments": [],
+ "createdAt": "2026-10-14T07:08:34Z",
+ "headRefName": "claude/robofab-jawcap",
+ "headRefOid": "a80e7da60bffb298d3aa591ab2728812450971d4",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "d6c396f2776e2f6076c6dd19902561bc1629a275"
+ },
+ "mergedAt": "2026-10-14T07:11:41Z",
+ "number": 413,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "a80e7da60bffb298d3aa591ab2728812450971d4"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T07:11:27Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/413#pullrequestreview-5514274971"
+  }
+ ],
+ "state": "MERGED",
+ "title": "robofab-jawcap: fastest carry under joint-torque and jaw-force limits (stylised)",
+ "updatedAt": "2026-10-14T07:11:41Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/413"
+}

@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "31256781415a08feb971c03291ba5da360b188eb",
+ "body": "Track 2 follow-up to `ambient-ips`: compares biased, IPS and full-information fits on the same logged history. Result: the bias is large in this stylised world (full-information fit reaches the oracle; biased fit loses 1.3–2.1 utility/h or fails); IPS recovers part only at ε=0.02 with an informed prior. Caveat noted in README: no label-matched control. 4 tests, `python site/build.py` ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_019YXsofB32dM1f3BuZmdZdp",
+ "closedAt": "2026-10-13T21:26:50Z",
+ "comments": [],
+ "createdAt": "2026-10-13T21:21:38Z",
+ "headRefName": "claude/practical-bardeen-tzypun",
+ "headRefOid": "e42dd7d6141fce471ba7ea499a1f91872420c097",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "072b09ca50652dd4d8b255f4d35f0c7c845c48cf"
+ },
+ "mergedAt": "2026-10-13T21:26:50Z",
+ "number": 372,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "ae8ec5203ecfc5d12762c052d3a1c1d5328f43f5"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T21:26:19Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/372#pullrequestreview-5510178565"
+  }
+ ],
+ "state": "MERGED",
+ "title": "ambient-fullinfo: does selection bias hurt an assistant learning from its own feedback?",
+ "updatedAt": "2026-10-13T21:26:50Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/372"
+}

@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "4f168d49d5ecbb2cff4d28d3ab346022f8645e92",
+ "body": "Renamed from `chip-rtl-loop`, whose slug landed in parallel (#284). This project is a companion with a different task suite (12 tasks) and a mutation probe of the three checker stages.\n\n- Session-written attempts (one per task, not an LLM benchmark) all passed at round 0.\n- 414 single-point mutants: 30 of 389 rejected ones are caught only by the formal stage.\n- Post-hoc lint relaxation (WIDTH, UNOPTFLAT) is disclosed in the README.\n- 9 tests pass; `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01TS6hg6fPyMQtzWzKCK5sfD",
+ "closedAt": "2026-10-13T02:25:48Z",
+ "comments": [],
+ "createdAt": "2026-10-13T02:18:44Z",
+ "headRefName": "claude/loving-gates-ro9k53",
+ "headRefOid": "9879a202d5b7559acc72b51c3f64d821e55e2770",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "62e2d319b8f8d62d048ce15064d2cda695048a84"
+ },
+ "mergedAt": "2026-10-13T02:25:48Z",
+ "number": 285,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "6a588c89f78e752c624d89a0d0f0a6508aa1fee7"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T02:18:51Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/285#pullrequestreview-5498051307"
+  }
+ ],
+ "state": "MERGED",
+ "title": "chip-rtl-probe: what lint, simulation and formal checks each catch in small RTL",
+ "updatedAt": "2026-10-13T02:25:48Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/285"
+}

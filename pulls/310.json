@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "4739fa642d98615a5cb01927f87ea39329318fb0",
+ "body": "Adds `research/garment-nesting` (track 6, milestone 3): strip packing for garment markers. Shelf heuristics, bottom-left, simulated annealing and an exact MILP on random boxes, then polygon nesting of two stylised garments. 10 tests, `python site/build.py` ok, README bullet and site entry included. Stylised; citations checked against Crossref metadata.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01JKEf3kCmsrKiibxeEsAmhL",
+ "closedAt": "2026-10-13T08:17:07Z",
+ "comments": [],
+ "createdAt": "2026-10-13T08:09:48Z",
+ "headRefName": "claude/sleepy-shannon-hw4vjz",
+ "headRefOid": "77b77fab92a3c584cfe986fb149f1a6239c34f1f",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "39d59aef78b41afd37c89ca4189361bb2d6220c4"
+ },
+ "mergedAt": "2026-10-13T08:17:07Z",
+ "number": 310,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "77b77fab92a3c584cfe986fb149f1a6239c34f1f"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T08:16:54Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/310#pullrequestreview-5500670848"
+  }
+ ],
+ "state": "MERGED",
+ "title": "garment-nesting: marker making, greedy vs annealing vs exact",
+ "updatedAt": "2026-10-13T08:17:07Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/310"
+}

@@ -1,0 +1,82 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "534a2682c9b90b42df941255021f389933d58e37",
+ "body": "Track 5 follow-up to `simdesign-dfm`. Re-runs the process-rule bracket search with a coarse mesh, a coarse mesh with a 1.3 stress margin, and a finer mesh; every design is re-checked at h = 0.7 mm. Result: price ordering (casting ~1.4, CNC ~1.23, FDM 1.0) survives; the laser price does not (1.01–1.22, two seeds). Stylised, assumed rule values.\n\nChecked: 4 tests pass, `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01V44YDYEvAb2a6aGmvQNm2k",
+ "closedAt": "2026-10-13T14:30:14Z",
+ "comments": [],
+ "createdAt": "2026-10-13T14:10:36Z",
+ "headRefName": "claude/ecstatic-lamport-ej9vt9",
+ "headRefOid": "ef3882708c6f3122b43b1d49ac035181013532b4",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "6c06ac5eeeaec6c60be5ac81c1f4af4bd8d2d11b"
+ },
+ "mergedAt": "2026-10-13T14:30:13Z",
+ "number": 334,
+ "reviewThreads": [
+  {
+   "comments": [
+    {
+     "author": {
+      "login": "copilot-pull-request-reviewer"
+     },
+     "body": "When a finer mesh makes `len(grid) * len(bnd) >= 4e7`, this branch assigns `None` to `d`, and the comparison on line 73 then raises `TypeError`. That defeats the fallback precisely when refinement becomes expensive; compute nearest-boundary distances without materializing the full pairwise array instead.",
+     "createdAt": "2026-10-13T14:32:03Z",
+     "diffHunk": "@@ -0,0 +1,134 @@\n+\"\"\"L-bracket geometry and 2D plane-stress finite-element analysis.\n+\n+Units: mm, N, MPa, g. The part is a profile (x, y) extruded by depth ``b`` along z.\n+Vertical arm of width ``w`` is clamped at its top (y = H); a downward force F acts on the\n+free end of the horizontal arm (x = L). The inner corner has fillet radius ``r``.\n+\"\"\"\n+from dataclasses import dataclass\n+import numpy as np\n+import scipy.sparse.linalg as spla\n+from scipy.spatial import Delaunay\n+from matplotlib.path import Path\n+from skfem import MeshTri, Basis, ElementTriP2, ElementVector, asm, LinearForm\n+from skfem.models.elasticity import linear_elasticity, lame_parameters\n+\n+\n+@dataclass(frozen=True)\n+class Material:\n+    \"\"\"ASSUMED typical values for an unfilled FDM thermoplastic; not measured, not sourced.\"\"\"\n+    E: float = 3000.0          # MPa\n+    nu: float = 0.36\n+    density: float = 1.24e-3   # g/mm^3\n+    sigma_allow: float = 20.0  # MPa, working stress incl. safety factor (assumed)\n+\n+\n+@dataclass(frozen=True)\n+class Params:\n+    w: float = 12.0   # arm width (mm)\n+    r: float = 6.0    # inner fillet radius (mm)\n+    b: float = 15.0   # extrusion depth (mm)\n+    H: float = 80.0   # vertical arm length (fixed)\n+    L: float = 80.0   # horizontal arm length (fixed)\n+    F: float = 100.0  # tip load (N), downward\n+\n+\n+def build_polygon(p: Params, n_arc: int = 24) -> np.ndarray:\n+    \"\"\"Counter-clockwise outline of the L profile with the inner corner filleted.\"\"\"\n+    w, r = p.w, min(p.r, p.H - p.w - 1e-9, p.L - p.w - 1e-9)\n+    pts = [(0, 0), (p.L, 0), (p.L, w), (w + r, w)]\n+    if r > 1e-9:\n+        c = np.array([w + r, w + r])\n+        for t in np.linspace(-np.pi / 2, -np.pi, n_arc + 1)[0:]:\n+            pts.append(tuple(c + r * np.array([np.cos(t), np.sin(t)])))\n+    else:\n+        pts.append((w, w))\n+    pts += [(w, p.H), (0, p.H)]\n+    out = [pts[0]]\n+    for q in pts[1:]:\n+        if np.hypot(q[0] - out[-1][0], q[1] - out[-1][1]) > 1e-9:\n+            out.append(q)\n+    return np.array(out)\n+\n+\n+def _densify(poly: np.ndarray, h: float) -> np.ndarray:\n+    pts = []\n+    for a, b_ in zip(poly, np.roll(poly, -1, axis=0)):\n+        n = max(1, int(np.ceil(np.hypot(*(b_ - a)) / h)))\n+        for k in range(n):\n+            pts.append(a + (b_ - a) * k / n)\n+    return np.array(pts)\n+\n+\n+def make_mesh(p: Params, h: float = 1.5) -> MeshTri:\n+    poly = build_polygon(p)\n+    bnd = _densify(poly, h)\n+    xs = np.arange(h / 2, p.L, h)\n+    ys = np.arange(h / 2, p.H, h)\n+    gx, gy = np.meshgrid(xs, ys)\n+    grid = np.c_[gx.ravel(), gy.ravel()]\n+    path = Path(poly)\n+    # keep interior grid points at least 0.6 h from the boundary\n+    d = np.min(np.linalg.norm(grid[:, None, :] - bnd[None, ::1, :], axis=2), axis=1) if len(grid) * len(bnd) < 4e7 else None",
+     "line": 71,
+     "originalLine": 71,
+     "path": "research/simdesign-meshmargin/src/simdesign_meshmargin/model.py",
+     "updatedAt": "2026-10-13T14:32:04Z",
+     "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/334#discussion_r4259971014"
+    }
+   ],
+   "isOutdated": false,
+   "isResolved": false,
+   "line": 71,
+   "path": "research/simdesign-meshmargin/src/simdesign_meshmargin/model.py"
+  },
+  {
+   "comments": [
+    {
+     "author": {
+      "login": "copilot-pull-request-reviewer"
+     },
+     "body": "The homepage card will publish a corrupted, duplicated mass-cost phrase. Replace it with the 17–35% range reported in the project README.",
+     "createdAt": "2026-10-13T14:32:04Z",
+     "diffHunk": "@@ -1510,6 +1510,11 @@\n      \"slug\": \"simdesign-processcover\",\n      \"title\": \"Which share of a bracket family can each shop process make, and which machine should a shop add next?\",\n      \"summary\": \"Using the assumed rules of <em>simdesign-dfm</em> (FDM, CNC routing, laser cutting, casting) as feasibility checks on 20&nbsp;000 sampled bracket feature sets, geometry alone gives a degenerate answer: FDM covers 89% and no other process covers anything FDM cannot, so no machine adds coverage (a negative result). With a tip-load requirement of 1&ndash;1000&nbsp;N and closed-form beam checks the processes separate: FDM alone covers 30%, adding casting and a laser cutter 41%, and the best next machine depends on the budget and on the part sizes. Greedy selection from <em>selfrep-nextmachine</em> is sometimes 1&ndash;2 coverage points below exhaustive search. Stylised: all rule values, working stresses and prices are assumed, the beam check ignores fillet stress concentration, and nothing was made.\"\n+    },\n+    {\n+     \"slug\": \"simdesign-meshmargin\",\n+     \"title\": \"Does a mesh-aware stress margin change what manufacturing rules cost a sized bracket?\",\n+     \"summary\": \"The process-rule search of <em>simdesign-dfm</em> is repeated with a coarse mesh, a coarse mesh with the stress limit divided by 1.3, and a finer mesh, and every design is re-solved on a finer check mesh. The ordering of the mass prices survives: casting about 1.4, CNC routing about 1.23, FDM 1.0 by construction. The laser-cutting price does not (1.01 to 1.22 across settings, with only two seeds). A margin of 1.3 leaves the designs at 0.88 to 1.02 of the limit on the check mesh, at a 17at a 20&ndash;35% mass costndash;35% mass cost. Stylised: the peak stress is not converged even on the check mesh, rule values are assumed, and nothing was made.\"",
+     "line": 1517,
+     "originalLine": 1517,
+     "path": "site/projects.json",
+     "updatedAt": "2026-10-13T14:32:04Z",
+     "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/334#discussion_r4259971120"
+    }
+   ],
+   "isOutdated": false,
+   "isResolved": false,
+   "line": 1517,
+   "path": "site/projects.json"
+  }
+ ],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "<!-- ccr-overview-v2 -->\n\n### 🟡 Changes recommended\n\nFine meshes can crash during boundary-distance calculation, and the published summary contains corrupted text.\n\n<details open>\n<summary><strong>2 open findings</strong></summary>\n\n- <picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.svg\"><img src=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.png\" alt=\"Medium severity\" width=\"62\" height=\"18\" align=\"texttop\"></picture> [Avoid TypeError when skipping oversized pairwise distance arrays](https://github.com/Duncan-Haywood/oss-research-monorepo/pull/334#discussion_r4259971014) · New\n- <picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/low-v2-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/low-v2-light.svg\"><img src=\"https://github.githubassets.com/static/images/icons/copilot-code-review/low-v2-light.png\" alt=\"Low severity\" width=\"62\" height=\"18\" align=\"texttop\"></picture> [Correct duplicated homepage mass-cost percentage](https://github.com/Duncan-Haywood/oss-research-monorepo/pull/334#discussion_r4259971120) · New\n</details>\n\n<details>\n<summary><strong>What changed in this PR</strong></summary>\n\nAdds a self-contained mesh-sensitivity study for manufacturability pricing.\n\n**Changes:**\n- Compares coarse, margin-adjusted, and refined mesh searches.\n- Adds reproducible results and four tests.\n- Registers the project in the portfolio catalogs.\n\n| File | Description |\r\n| ---- | ----------- |\r\n| `README.md` | Adds the project catalog entry. |\r\n| `site/​projects.json` | Adds the homepage project card. |\r\n| `prompts/​runs.jsonl` | Records the generation run. |\r\n| `research/​simdesign-meshmargin/​README.md` | Documents methodology, results, and limitations. |\r\n| `research/​simdesign-meshmargin/​pyproject.toml` | Defines package metadata and dependencies. |\r\n| `research/​simdesign-meshmargin/​experiments/​run.py` | Runs the mesh and margin experiment. |\r\n| `research/​simdesign-meshmargin/​experiments/​results.json` | Stores detailed experiment output. |\r\n| `research/​simdesign-meshmargin/​experiments/​results.txt` | Summarizes experiment results. |\r\n| `research/​simdesign-meshmargin/​src/​simdesign_meshmargin/​__init__.py` | Exposes the package API. |\r\n| `research/​simdesign-meshmargin/​src/​simdesign_meshmargin/​dfm.py` | Defines process constraints and feasibility checks. |\r\n| `research/​simdesign-meshmargin/​src/​simdesign_meshmargin/​export.py` | Provides DXF export and reading. |\r\n| `research/​simdesign-meshmargin/​src/​simdesign_meshmargin/​model.py` | Implements geometry, meshing, and finite-element analysis. |\r\n| `research/​simdesign-meshmargin/​src/​simdesign_meshmargin/​optimise.py` | Implements minimum-mass optimization. |\r\n| `research/​simdesign-meshmargin/​src/​simdesign_meshmargin/​stl.py` | Provides extruded STL generation. |\r\n| `research/​simdesign-meshmargin/​tests/​test_meshmargin.py` | Tests stress-margin and refinement behavior. |\n</details>\n\n🧠 **Review effort:** Balanced\n\n---\n\n💡 <a href=\"/Duncan-Haywood/oss-research-monorepo/new/main?filename=.github/skills/code-review/SKILL.md\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Add a `code-review` agent skill</a> or configure MCP servers for context-aware, tailored reviews. <a href=\"https://docs.github.com/copilot/how-tos/use-copilot-agents/request-a-code-review/use-code-review?tool=webui#mcp-servers-and-agent-skills\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Learn more in the docs.</a>",
+   "commit": {
+    "oid": "ef3882708c6f3122b43b1d49ac035181013532b4"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T14:32:04Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/334#pullrequestreview-5505166932"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-meshmargin: does a mesh-aware stress margin change the mass price of manufacturability?",
+ "updatedAt": "2026-10-13T14:32:05Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/334"
+}

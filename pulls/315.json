@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "5df7cc19356c0061d4197b98cbb6dc35d5234244",
+ "body": "Output-stationary R×C systolic-array generator for the `chip-accel` 8-8-4 quantised MLP; RTL bit- and cycle-exact against NumPy; scored against the MAC-lane engine with the same Yosys script. Negative result: lower latency but 1.6–1.8× more cells×cycles at fan-in 8. README, tests (4), site entry, run log included.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_0139nFu7N3faMYVwLm9r8WdT",
+ "closedAt": "2026-10-13T09:43:40Z",
+ "comments": [],
+ "createdAt": "2026-10-13T09:20:55Z",
+ "headRefName": "claude/chip-systolic",
+ "headRefOid": "d3851036466b52e5668b73cc0cedcea5cff9637d",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "231138c4aea19dad4d325ebbb7722baff6d718ee"
+ },
+ "mergedAt": "2026-10-13T09:43:39Z",
+ "number": 315,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "d3851036466b52e5668b73cc0cedcea5cff9637d"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T09:43:35Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/315#pullrequestreview-5501657974"
+  }
+ ],
+ "state": "MERGED",
+ "title": "chip-systolic: systolic-array MLP engine vs MAC-lane baseline (negative result)",
+ "updatedAt": "2026-10-13T09:43:40Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/315"
+}

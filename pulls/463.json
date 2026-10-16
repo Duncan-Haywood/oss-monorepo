@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "e9bcb7a324cae7c72d194148467c0d8a61631dbb",
+ "body": "Follow-up to selfrep-terminalmarket: concave resale value S(n) = s m (1 - exp(-n/m)) for the finished fleet (stylised). 6 tests, experiment re-run, README, site entry, run log. `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_017nU37kyxMRcnsec94eQZB3",
+ "closedAt": "2026-10-14T19:20:59Z",
+ "comments": [],
+ "createdAt": "2026-10-14T19:19:32Z",
+ "headRefName": "claude/compassionate-bohr-2s59kh",
+ "headRefOid": "58801c8b06265c6f40757906955d699accc2d03b",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "588a8fcc062236a5bb8ea9fa5473e7f84e221386"
+ },
+ "mergedAt": "2026-10-14T19:20:59Z",
+ "number": 463,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "b5b3127a25c4b37cf13b86af0a87cb9b66113a1d"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T19:19:39Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/463#pullrequestreview-5523409770"
+  }
+ ],
+ "state": "MERGED",
+ "title": "selfrep-resalecurve: concave resale value for the finished fleet (stylised)",
+ "updatedAt": "2026-10-14T19:20:59Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/463"
+}

@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "2399c13245ed85f1eccc59ff7c289459de0b2373",
+ "body": "Track 5, milestone 5. Adds `research/simdesign-dfm`: the parametric L-bracket sized for minimum mass with and without FDM, CNC-routing, laser-cutting and sand-casting rules, same material in each pair. Results (stylised, assumed rule values): casting +43% (even-section rule), CNC +24% (plate stock), laser and FDM about nothing; chosen designs exceed the stress limit by 17-26% on a fine mesh. 12 tests, README, `site/projects.json` and `python site/build.py` ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01AB9JLknu4ynS4r1K7z9EVk",
+ "closedAt": "2026-10-13T07:47:38Z",
+ "comments": [],
+ "createdAt": "2026-10-13T07:22:39Z",
+ "headRefName": "claude/simdesign-dfm",
+ "headRefOid": "17761ec683d40843c228b1f40a82a6edbba4da92",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "3f02e4fd6aa41d2e1ef1af0822c258e0612eecc4"
+ },
+ "mergedAt": "2026-10-13T07:47:38Z",
+ "number": 309,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "1506ff90cc0041140f18ce916eba3f12974c299d"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T07:45:24Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/309#pullrequestreview-5500322609"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-dfm: what do manufacturing rules cost a sized bracket on four processes?",
+ "updatedAt": "2026-10-13T07:47:39Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/309"
+}

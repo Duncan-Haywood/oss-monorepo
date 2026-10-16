@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "2f742edc36b7deb88243a1b99da5476638252919",
+ "body": "Adds `research/simdesign-shellconverge`: refines the length, width and thickness mesh of the `simdesign-webshell` eigenbuckling model and reports FE/closed-form ratios (stylised; two levels per direction, no convergence rate claimed). README bullet, site entry and run log included; `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nhttps://claude.ai/code/session_01CZgxNy74K6gpWJAH8Pt4qk",
+ "closedAt": "2026-10-14T16:17:08Z",
+ "comments": [],
+ "createdAt": "2026-10-14T15:20:05Z",
+ "headRefName": "claude/amazing-ramanujan-cspo2m",
+ "headRefOid": "c6ffd1c5d44c3dba7a98e4fbe57d49dc41caa82a",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "7a1d342840f6232a91432808fd45dac7e1661c64"
+ },
+ "mergedAt": "2026-10-14T16:17:08Z",
+ "number": 449,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "3d9ed648bb57c1ad48427fb4671f4778bba18c27"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T15:20:12Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/449#pullrequestreview-5520285252"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-shellconverge: mesh refinement of 3D eigenbuckling check",
+ "updatedAt": "2026-10-14T16:17:08Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/449"
+}

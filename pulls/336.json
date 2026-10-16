@@ -1,0 +1,61 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "45e9d9d8648555aee6de7a31731551ea3527c301",
+ "body": "Validates the L1 support rule of `robofab-sequence` against MuJoCo settle tests on all 2,048 partial gearbox assemblies. 95.6% agreement; 81 false accepts (mutual support), 10 false rejects (bore capture); valid-order count unchanged at 30,760. 7 tests, `python site/build.py` ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01DSUfJQi9mdGgcNHG8SiGcV",
+ "closedAt": "2026-10-13T14:27:59Z",
+ "comments": [],
+ "createdAt": "2026-10-13T14:20:37Z",
+ "headRefName": "claude/practical-bardeen-q203n4",
+ "headRefOid": "8a003a9573989dd0c6f7d1df0816ef1f5bf25a73",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "534a2682c9b90b42df941255021f389933d58e37"
+ },
+ "mergedAt": "2026-10-13T14:27:59Z",
+ "number": 336,
+ "reviewThreads": [
+  {
+   "comments": [
+    {
+     "author": {
+      "login": "copilot-pull-request-reviewer"
+     },
+     "body": "The default checker applies a 2 mm displacement cutoff, while the documented study criterion and the order calculation in `experiments/run.py` use 3 mm. Consequently, calling `settle()` or an unseeded `MuJoCoChecker.stable()` does not implement the reported validation criterion. Make the default match the 3 mm criterion.",
+     "createdAt": "2026-10-13T14:30:57Z",
+     "diffHunk": "@@ -0,0 +1,106 @@\n+\"\"\"MuJoCo settle test for partial assemblies of the robofab-sequence gearbox.\n+\n+Every placed part (except the fixtured base) is a free rigid body made of its box geoms, placed in its\n+final pose, and left to settle under gravity. A state \"holds\" if no part moves or tilts more than the\n+thresholds. Units: the sequence study uses millimetres; MuJoCo gets metres. PLA-like density and a\n+sliding friction coefficient `mu` are stylised choices, not measured values.\n+\"\"\"\n+import os\n+import sys\n+\n+import mujoco\n+import numpy as np\n+\n+_SEQ = os.path.join(os.path.dirname(__file__), \"..\", \"..\", \"..\", \"robofab-sequence\", \"src\")\n+if os.path.isdir(_SEQ) and _SEQ not in sys.path:\n+    sys.path.insert(0, os.path.abspath(_SEQ))\n+\n+from robofab_sequence.checker import Checker  # noqa: E402\n+\n+DENSITY = 1240.0  # kg/m^3, PLA-like (stylised)\n+\n+\n+def mjcf(ck, state, mu):\n+    s = 1e-3\n+    out = ['<mujoco><option timestep=\"0.0005\" gravity=\"0 0 -9.81\"/><worldbody>']\n+    for p, name in enumerate(ck.names):\n+        if not state >> p & 1:\n+            continue\n+        body = name == \"base\"\n+        out.append(\"<body name='%s'>\" % name if not body else \"<body name='base'>\")\n+        if not body:\n+            out.append(\"<freejoint/>\")\n+        for b in ck.boxes[p]:\n+            c = [(b[k] + b[k + 3]) / 2 * s for k in range(3)]\n+            h = [(b[k + 3] - b[k]) / 2 * s for k in range(3)]\n+            out.append(\"<geom type='box' pos='%.6f %.6f %.6f' size='%.6f %.6f %.6f' density='%g' \"\n+                       \"friction='%g 0.005 0.0001'/>\" % (*c, *h, DENSITY, mu))\n+        out.append(\"</body>\")\n+    out.append(\"</worldbody></mujoco>\")\n+    return \"\".join(out)\n+\n+\n+def settle(ck, state, mu=0.5, t_end=1.0, disp_mm=2.0, tilt_deg=3.0):",
+     "line": 43,
+     "originalLine": 43,
+     "path": "research/robofab-settle/src/robofab_settle/settle.py",
+     "updatedAt": "2026-10-13T14:30:58Z",
+     "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/336#discussion_r4259958150"
+    }
+   ],
+   "isOutdated": false,
+   "isResolved": false,
+   "line": 43,
+   "path": "research/robofab-settle/src/robofab_settle/settle.py"
+  }
+ ],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "<!-- ccr-overview-v2 -->\n\n### 🟡 Changes recommended\n\nThe default settling threshold is 2 mm, while the documented and reported analysis uses 3 mm.\n\n<details open>\n<summary><strong>1 open finding</strong></summary>\n\n- <picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.svg\"><img src=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.png\" alt=\"Medium severity\" width=\"62\" height=\"18\" align=\"texttop\"></picture> [Default stability displacement cutoff mismatches documented 3 mm criterion](https://github.com/Duncan-Haywood/oss-research-monorepo/pull/336#discussion_r4259958150) · New\n</details>\n\n<details>\n<summary><strong>What changed in this PR</strong></summary>\n\nAdds a MuJoCo validation study comparing `robofab-sequence` stability rules against all 2,048 partial assemblies.\n\n**Changes:**\n- Implements MuJoCo settling and acyclic-support checkers.\n- Adds experiments, results, and seven tests.\n- Registers and documents the research project.\n\n| File | Description |\r\n| ---- | ----------- |\r\n| `README.md` | Adds the project catalog entry. |\r\n| `site/​projects.json` | Adds homepage metadata. |\r\n| `research/​robofab-settle/​README.md` | Documents methodology and findings. |\r\n| `research/​robofab-settle/​pyproject.toml` | Defines package metadata and dependencies. |\r\n| `research/​robofab-settle/​src/​robofab_settle/​__init__.py` | Initializes the package. |\r\n| `research/​robofab-settle/​src/​robofab_settle/​settle.py` | Implements settling and stability checkers. |\r\n| `research/​robofab-settle/​tests/​test_settle.py` | Tests representative stability cases. |\r\n| `research/​robofab-settle/​experiments/​run.py` | Runs comparisons and order analysis. |\r\n| `research/​robofab-settle/​experiments/​results.txt` | Records experimental outputs. |\r\n| `prompts/​runs.jsonl` | Records the generation run. |\n</details>\n\n🧠 **Review effort:** Balanced\n\n---\n\n💡 <a href=\"/Duncan-Haywood/oss-research-monorepo/new/main?filename=.github/skills/code-review/SKILL.md\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Add a `code-review` agent skill</a> or configure MCP servers for context-aware, tailored reviews. <a href=\"https://docs.github.com/copilot/how-tos/use-copilot-agents/request-a-code-review/use-code-review?tool=webui#mcp-servers-and-agent-skills\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Learn more in the docs.</a>",
+   "commit": {
+    "oid": "8a003a9573989dd0c6f7d1df0816ef1f5bf25a73"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T14:30:58Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/336#pullrequestreview-5505151932"
+  }
+ ],
+ "state": "MERGED",
+ "title": "robofab-settle: does the quasi-static support rule agree with MuJoCo settle tests? (stylised)",
+ "updatedAt": "2026-10-13T14:30:58Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/336"
+}

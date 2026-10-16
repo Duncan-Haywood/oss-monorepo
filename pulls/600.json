@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "cc1fc3dd2a736e82c23a53cd3f718b03eb95a8cd",
+ "body": "Track 7 milestone 6: mutation study of random, coverage-directed and bounded-formal checks on the MAC accelerator (91 mutants; results and limitations in the README). Stylised, one design.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_017r4bRwEnqsUeDJ9QkTcZ3y",
+ "closedAt": "2026-10-15T22:21:54Z",
+ "comments": [],
+ "createdAt": "2026-10-15T20:42:39Z",
+ "headRefName": "claude/amazing-ramanujan-9vkmzu",
+ "headRefOid": "ee00ac9cf6992921cd28391633f17fe7bcfd968a",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "af6a7705594c3e3350de8b032f0cbe9786e45261"
+ },
+ "mergedAt": "2026-10-15T22:21:54Z",
+ "number": 600,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "ee00ac9cf6992921cd28391633f17fe7bcfd968a"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-15T22:20:05Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/600#pullrequestreview-5540620921"
+  }
+ ],
+ "state": "MERGED",
+ "title": "research/eda-verify: mutation study of random, coverage-directed and formal checks (milestone 6, track 7)",
+ "updatedAt": "2026-10-15T22:21:54Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/600"
+}

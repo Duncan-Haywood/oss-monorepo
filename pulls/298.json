@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "e7522201761507cd8eb472f872caa17fddcfda3c",
+ "body": "Track 6, milestone 1. Bottom-up cost model for a lined coat (all inputs assumed) compared with two reported designer prices (from search snippets; retailer pages not fetchable). Adds the garment theme, README bullet, site entry, 7 tests. `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_019c4Vu4FzvjhF7um93g3p7R",
+ "closedAt": "2026-10-13T05:14:20Z",
+ "comments": [],
+ "createdAt": "2026-10-13T05:10:05Z",
+ "headRefName": "claude/gallant-mendel-bjmfuq",
+ "headRefOid": "8ac38ba02f4a6335dae7f94882ed776fe35e4c6c",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "da70241703760e7cf70b00b40fbc988cc0270a67"
+ },
+ "mergedAt": "2026-10-13T05:14:20Z",
+ "number": 298,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "0ed5d80459464e557e4a354c5e85b2c8cb21e8e6"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T05:10:10Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/298#pullrequestreview-5499065957"
+  }
+ ],
+ "state": "MERGED",
+ "title": "garment-teardown: garment cost model vs two reported designer prices",
+ "updatedAt": "2026-10-13T05:14:20Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/298"
+}

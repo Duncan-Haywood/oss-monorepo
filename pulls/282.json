@@ -1,0 +1,24 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "1b6ecfba436ba994651386d5c28fcb68c1763301",
+ "body": "Superseded: another run landed `ambient-pipeline` on `main` (#279) at 01:22 UTC, while this one was still building, so this is a duplicate. Closing it.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01F6NSNhM65NBJqNDiKDxqjK",
+ "closedAt": "2026-10-13T01:32:08Z",
+ "comments": [],
+ "createdAt": "2026-10-13T01:23:19Z",
+ "headRefName": "claude/sleepy-shannon-rx4szp",
+ "headRefOid": "71d46ad7b04ff5df7df2cb2b42c92cf2fc2995b1",
+ "isDraft": true,
+ "labels": [],
+ "mergeCommit": null,
+ "mergedAt": null,
+ "number": 282,
+ "reviewThreads": [],
+ "reviews": [],
+ "state": "CLOSED",
+ "title": "ambient-pipeline: streaming VAD→ASR→LLM→TTS latency on a CPU (WIP)",
+ "updatedAt": "2026-10-13T01:32:09Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/282"
+}

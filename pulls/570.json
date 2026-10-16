@@ -1,0 +1,24 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "95fc883d81b48579321e39c065fff2cc5c850dbe",
+ "body": "Claim for `mimic-mujocotwin`: the C2ST of `mimic-twinc2st` applied to MuJoCo pendulum twins that differ in integrator, timestep or friction. (An earlier sample-size idea was dropped because `free-c2stpower` already covers it.) Work in progress; will be merged this run.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01HpM4hFBT9idBgtrSZnkWeJ",
+ "closedAt": "2026-10-15T15:16:35Z",
+ "comments": [],
+ "createdAt": "2026-10-15T15:10:41Z",
+ "headRefName": "claude/gallant-mendel-kh1nqv",
+ "headRefOid": "1206ff0ce432c16ec211f4e19745e14fccd96725",
+ "isDraft": true,
+ "labels": [],
+ "mergeCommit": null,
+ "mergedAt": null,
+ "number": 570,
+ "reviewThreads": [],
+ "reviews": [],
+ "state": "CLOSED",
+ "title": "research/mimic-c2stpower: sample size needed for a C2ST to catch twin errors (track 11 side project)",
+ "updatedAt": "2026-10-15T15:18:03Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/570"
+}

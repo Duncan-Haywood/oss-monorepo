@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "7a1d342840f6232a91432808fd45dac7e1661c64",
+ "body": "Track 5 follow-up to simdesign-shellconverge: three uniformly refined meshes on a short bar give observed order ≈ 2.6 and a Richardson limit 13.7% above the slender-beam closed form (stylised, preliminary). README, site entry and run log included.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_017qxm7fK6jsBPHGwrrGhrma",
+ "closedAt": "2026-10-14T17:25:26Z",
+ "comments": [],
+ "createdAt": "2026-10-14T17:10:28Z",
+ "headRefName": "claude/simdesign-shellorder",
+ "headRefOid": "e3158cbea2ec92f22248085166091d3d76246c2d",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "1bc5a27651903ede8488483bb30a39d7b9e9ef2c"
+ },
+ "mergedAt": "2026-10-14T17:25:26Z",
+ "number": 451,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "e3158cbea2ec92f22248085166091d3d76246c2d"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T17:23:41Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/451#pullrequestreview-5521897075"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-shellorder: observed convergence order of 3D eigenbuckling",
+ "updatedAt": "2026-10-14T17:25:26Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/451"
+}

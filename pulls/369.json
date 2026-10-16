@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "d68c4912c2d48206da46c7d2c645ebdd1fe2b572",
+ "body": "Diagnostic follow-up to `simdesign-filletfloor`: per-gauge DE sub-searches vs a 30x30 grid. The seed-0 price of 1.15 is a missed sub-search at the narrow 2 mm gauge (1 of 20 seeds), not a rule cost. Stylised; mesh effects untested. 8 tests, `site/build.py` ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01GUEwyNu87Dt1JiRCpS9d4C",
+ "closedAt": "2026-10-13T21:22:12Z",
+ "comments": [],
+ "createdAt": "2026-10-13T21:09:39Z",
+ "headRefName": "claude/loving-gates-y28xuw",
+ "headRefOid": "966d3640c692c1b431fecf555efd5e24408b79b3",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "31256781415a08feb971c03291ba5da360b188eb"
+ },
+ "mergedAt": "2026-10-13T21:22:12Z",
+ "number": 369,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "9d9493a8a6144552b343e3bd18ba4053410c5562"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T21:09:45Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/369#pullrequestreview-5509990769"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-gaugescatter: laser peak-price scatter is a missed gauge-2 search",
+ "updatedAt": "2026-10-13T21:22:12Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/369"
+}

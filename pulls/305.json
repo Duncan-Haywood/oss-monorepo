@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "43b575cc8e2b90df71c322f5d36c0b130562c315",
+ "body": "Track 6, milestone 2. Draped skirt-tube pattern scored by strain and waist ease; optimised per body and swapped. Stylised; limitations (mesh dependence, hem optimum at range edge) in the README. 8 tests, `python site/build.py` ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_017b9h13L1Z2fQLdtpZmLKYC",
+ "closedAt": "2026-10-13T07:21:03Z",
+ "comments": [],
+ "createdAt": "2026-10-13T07:08:36Z",
+ "headRefName": "claude/garment-pattern-fit",
+ "headRefOid": "6aeb9218ff8d5b1486b6db52cbf97a6e07d77b7c",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "2399c13245ed85f1eccc59ff7c289459de0b2373"
+ },
+ "mergedAt": "2026-10-13T07:21:03Z",
+ "number": 305,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "a4c923aec1b6f845c38d375140877babd057a4d9"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T07:08:42Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/305#pullrequestreview-5499963424"
+  }
+ ],
+ "state": "MERGED",
+ "title": "garment-pattern-fit: PBD cloth drape scores pattern fit on two synthetic bodies (stylised)",
+ "updatedAt": "2026-10-13T07:21:03Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/305"
+}

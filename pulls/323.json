@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "e4c1e01599587eb8718c651c995d45e38a29a2cc",
+ "body": "Adds `research/chip-abc-sweep`: five ABC scripts × five adder and eight multiplier structures (all proved equivalent), stylised generic-gate results. 4 tests pass; `python site/build.py` prints ok; README bullet and site entry added; citation (Brayton & Mishchenko, CAV 2010) checked via Crossref.\n\n🤖 Generated with [Claude Code](https://claude.ai/code/session_01H1aqsNWgaCqdPyD65JCs4q)\n\nhttps://claude.ai/code/session_01H1aqsNWgaCqdPyD65JCs4q",
+ "closedAt": "2026-10-13T12:16:10Z",
+ "comments": [],
+ "createdAt": "2026-10-13T12:08:46Z",
+ "headRefName": "claude/ecstatic-lamport-xo3x9i",
+ "headRefOid": "759cbfb50d2d76031f187ec7738583457837a1c4",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "33b411263f870accd9d0fd73d3dee07d2a6670a0"
+ },
+ "mergedAt": "2026-10-13T12:16:10Z",
+ "number": 323,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "4f9d84a5e160d1872e51c954be99ae9059cfb8c4"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T12:08:52Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/323#pullrequestreview-5503261447"
+  }
+ ],
+ "state": "MERGED",
+ "title": "chip-abc-sweep: ABC script sweep over adder and multiplier structures",
+ "updatedAt": "2026-10-13T12:16:10Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/323"
+}

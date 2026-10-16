@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "d16a91e5ee309f6a387b121e753befaee1e54872",
+ "body": "`eda-flowtune` (track 7, milestone 3, first half): all 400 ABC pass sequences (length 0 to 3) on eight small SKY130-mapped designs, so every optimum is known. Result is mostly negative: one design's best recipe scores a mean 1.31x another's optimum, a leave-one-out consensus recipe is only slightly better than a median sequence, and a transferred warm start helps one design only. Stylised; no place and route. OpenROAD-settings half not done (OpenROAD not installed). 11 tests, `site/build.py` ok, results from `experiments/results.txt`.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01U6dciREFCeP89jMwHxPriv",
+ "closedAt": "2026-10-15T09:34:18Z",
+ "comments": [],
+ "createdAt": "2026-10-15T09:11:36Z",
+ "headRefName": "claude/lucid-edison-vj08tu",
+ "headRefOid": "9e938ddcefc7e54e4280ac2fa670173d51bd4dbf",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "821aff83437538a9095749263420fcc7178ff646"
+ },
+ "mergedAt": "2026-10-15T09:34:18Z",
+ "number": 534,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "9e938ddcefc7e54e4280ac2fa670173d51bd4dbf"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-15T09:34:15Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/534#pullrequestreview-5531009707"
+  }
+ ],
+ "state": "MERGED",
+ "title": "research/eda-flowtune: does the best ABC recipe for one design transfer to another? (track 7, milestone 3)",
+ "updatedAt": "2026-10-15T09:34:19Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/534"
+}

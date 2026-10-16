@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "9243c5b154a7185612632968a3a709425670ae2b",
+ "body": "`accel-policy` (PROJECTS.md track 8, milestone 4): behaviour-cloned (DAgger) quantised MLP policies for a two-link arm, with modelled latency on microcontroller loops and P-lane accelerators at control-rate deadlines. Stylised and preliminary; the policies track poorly (negative result, reported in the README). Tests 6/6, `python site/build.py` ok, README bullet, `site/projects.json` entry and run line included.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01MiSxWGBzuNNFMzpF7yxuYU",
+ "closedAt": "2026-10-15T06:02:33Z",
+ "comments": [],
+ "createdAt": "2026-10-15T05:23:03Z",
+ "headRefName": "claude/amazing-ramanujan-v3xbdq",
+ "headRefOid": "3d4f97ff14c2a164c96ded7eec2e8eabaef434c1",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "8109c6b8c30ed9837aa06cf4a3ff003a2b43b0d4"
+ },
+ "mergedAt": "2026-10-15T06:02:33Z",
+ "number": 516,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "3d4f97ff14c2a164c96ded7eec2e8eabaef434c1"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-15T06:00:58Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/516#pullrequestreview-5528837363"
+  }
+ ],
+ "state": "MERGED",
+ "title": "accel-policy: accelerator vs microcontroller for a control network at the control-rate deadline (track 8, milestone 4)",
+ "updatedAt": "2026-10-15T06:02:33Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/516"
+}

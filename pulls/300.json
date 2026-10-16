@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "85d9c4db5f5c6a55170e5db9d8975dbb0219a7fb",
+ "body": "Track 5, milestone 2: `research/simdesign-topopt`. SIMP topology optimisation after Sigmund's 99-line code (Q4 grid, sensitivity filter, OC), 7 tests, cantilever and half-MBB, filter/penalty/mesh ablations, density field exported as a mirrored extruded STL. README, `site/projects.json` entry and run log included; `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01Bw2qMsJnrTxTFM16bC8tcB",
+ "closedAt": "2026-10-13T06:15:15Z",
+ "comments": [],
+ "createdAt": "2026-10-13T06:08:37Z",
+ "headRefName": "claude/sleepy-shannon-yw9bfm",
+ "headRefOid": "6e9d63e66d980cffa0da554725c3e4c34665b016",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "e74c2d460c8c3bfaa2e2c83392b9bec61f1007c2"
+ },
+ "mergedAt": "2026-10-13T06:15:15Z",
+ "number": 300,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "6c4c50b3cec22735b9882aa82a6d9db5ce4146ed"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T06:08:43Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/300#pullrequestreview-5499458478"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-topopt: SIMP topology optimisation (after Sigmund 99 lines) to printable STL",
+ "updatedAt": "2026-10-13T06:15:15Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/300"
+}

@@ -1,0 +1,37 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "ee731210326fffeb13480545eed9421fd740ea6b",
+ "body": "Closing: a `research/drag-twin` covering the same question (linear-drag twin of a quadratic-drag vehicle) landed on main while this was open, so this would duplicate it. Nothing merged.",
+ "closedAt": "2026-09-30T19:09:48Z",
+ "comments": [],
+ "createdAt": "2026-09-30T19:09:22Z",
+ "headRefName": "claude/funny-pascal-ffb8l4",
+ "headRefOid": "edfbbce9b97dc9d0268aa0c8605db6bd9dfbfa58",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": null,
+ "mergedAt": null,
+ "number": 218,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "edfbbce9b97dc9d0268aa0c8605db6bd9dfbfa58"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-09-30T19:09:28Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/218#pullrequestreview-5370791533"
+  }
+ ],
+ "state": "CLOSED",
+ "title": "Add drag-twin: linear-drag twin fitted by coast-down vs quadratic drag",
+ "updatedAt": "2026-09-30T19:09:48Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/218"
+}

@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "4f168d49d5ecbb2cff4d28d3ab346022f8645e92",
+ "body": "Milestone 3 of the robofab track. Kinematic SCARA pick-and-place twin at three checking fidelities vs a held-out reference twin; 8 session-written programs plus 162 injected-bug mutants. Stylised, no LLM API called. 10 tests, `python site/build.py` ok.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_0183cr4CoJYLNxnJmJxVFmYM",
+ "closedAt": "2026-10-13T02:25:08Z",
+ "comments": [],
+ "createdAt": "2026-10-13T02:19:44Z",
+ "headRefName": "claude/practical-bardeen-fl6u07",
+ "headRefOid": "c3121a009441a317be36acee898f77f00d17bf3c",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "e7577b4eaafa1adc8be7df8aa3bb07e871e5f4d2"
+ },
+ "mergedAt": "2026-10-13T02:25:08Z",
+ "number": 286,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "141a3eb21ab9479824251465b38a6fdd4251ffb2"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T02:19:50Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/286#pullrequestreview-5498056257"
+  }
+ ],
+ "state": "MERGED",
+ "title": "robofab-program: check session-written robot programs in a kinematic digital twin",
+ "updatedAt": "2026-10-13T02:25:08Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/286"
+}

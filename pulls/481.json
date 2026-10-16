@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "3696fc6a8588d8695a9a64e5fd039c08ec59fb2a",
+ "body": "Owner request (2026-10-14): add human imitation for LLMs as a priority track. A pair of adversarial LLMs runs in a loop. The imitator tries to be indistinguishable from a person in any context, and the detector tries to tell the two apart. Each side's prompt is the only parameter that changes. Video, images and audio come in later, as far as compute allows.\n\n## What changes\n- `PROJECTS.md` gains track 11, **Adversarial human imitation** (`mimic`):\n  - **Goal.** Two frozen LLMs. A context is data, so adding a setting means adding rows, not code.\n  - **What is free and what is fixed.**\n    - Only the two prompts change.\n    - Weights, decoding, contexts, the optimiser and the per-round call budget are fixed.\n    - The detector is scored by AUROC and by paired accuracy, where chance is 50%.\n    - Both models are open-weight and run on the CPU.\n  - **Prior work.** Turing tests of LLMs, detectors, evasion and adversarial training (SICO, RADAR), prompt optimisation, game dynamics (PSRO), and simulated humans.\n  - **Milestones:**\n    - `mimic-contexts`\n    - `mimic-loop`\n    - `mimic-crossplay`\n    - `mimic-anycontext`\n    - `mimic-transfer`\n    - `mimic-dialogue`\n    - `mimic-media`, which covers speech, images and video once their compute cost is measured\n    - Later: does a twin that fools the detector make a more useful twin?\n  - **Guardrails:** research on detection, not an evasion service.\n    - Both sides ship.\n    - Generated output is labelled and never passed off as a person's.\n    - No real people are imitated, and there is no voice cloning.\n    - No third-party detectors are tested.\n    - Human judges are an owner step under human-subjects rules.\n    - Detector false-positive rates are reported by group.\n    - Article 50 of the EU AI Act is noted for synthetic media.\n- A checked reference list for track 11, with 38 entries. Each was checked against its DOI, Crossref, the proceedings page, the publisher or the EU Official Journal, and each licence against its repository or dataset card. The checks found:\n  - Jones and Bergen's three-party test is now in PNAS (2026): GPT-4.5 was judged human 73% of the time with a persona prompt and 36% without.\n  - Sadasivan et al. appeared in TMLR in 2025.\n  - HC3 and M4 keep each source's licence.\n  - MAUVE's package is GPL-3.0.\n- The track count goes from ten to eleven in `PROJECTS.md` and `prompt.md`.\n- A run-log line in `prompts/runs.jsonl`.\n\n## Checks\n- `python site/build.py`: `ok` (392 projects) after merging the latest `main`. No project or theme changes; the first `mimic-*` project adds the theme.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01EtuBgroiRQ3eewmHkJaprz",
+ "closedAt": "2026-10-14T23:29:40Z",
+ "comments": [],
+ "createdAt": "2026-10-14T23:16:56Z",
+ "headRefName": "claude/wizardly-clarke-nqs38m",
+ "headRefOid": "cc50d6bbada4f6da5dbe716a8ef7637e3f65382e",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "a820eac9809505d3f045035434e0ee9f8b879684"
+ },
+ "mergedAt": "2026-10-14T23:29:40Z",
+ "number": 481,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "cc50d6bbada4f6da5dbe716a8ef7637e3f65382e"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T23:29:36Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/481#pullrequestreview-5526060019"
+  }
+ ],
+ "state": "MERGED",
+ "title": "PROJECTS.md: add track 11, adversarial human imitation (mimic)",
+ "updatedAt": "2026-10-14T23:29:40Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/481"
+}

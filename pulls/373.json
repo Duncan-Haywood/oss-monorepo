@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "b26176f6ec6c02324163e7c3704ad2a2e03f7750",
+ "body": "One project: `garment-stackpareto`, the \"mass in the objective\" next step of `garment-stackopt`. Grid of chroma floors x mass caps, 5 seeds per cell. Result: mass binds before chroma (red, floor C* 40: shift 0.68 at a 4.0 g/m² cap, 2.71 at 3.0, no feasible run at 2.0). Stylised; noisy; no front smoothness claimed.\n\nChecked: 4 tests pass, `python site/build.py` prints ok, README complete, no new citations.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01FqkTtdmWoWPfSuGvFCThVN",
+ "closedAt": "2026-10-13T22:16:30Z",
+ "comments": [],
+ "createdAt": "2026-10-13T22:07:31Z",
+ "headRefName": "claude/garment-stackpareto",
+ "headRefOid": "829a3d589bf8f777e5380dc9e9138d69c7efc3ac",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "fa105058b44a8b1ceb38170fcaee790e9e736c30"
+ },
+ "mergedAt": "2026-10-13T22:16:30Z",
+ "number": 373,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "2b393d32190e41d7940ac991269c57d0054df9a0"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T22:07:37Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/373#pullrequestreview-5510588959"
+  }
+ ],
+ "state": "MERGED",
+ "title": "garment-stackpareto: shift vs chroma vs oxide mass for an angle-stable coating (stylised)",
+ "updatedAt": "2026-10-13T22:16:30Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/373"
+}

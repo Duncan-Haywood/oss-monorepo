@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "83a7930cfc06e7fd84419e017fc8644e3b3aa896",
+ "body": "Track 5 follow-up to `simdesign-topopt`: density filter, tanh Heaviside projection, beta continuation, model-versus-discrete-design check. Result is partly negative (the minimum-length-scale check did not separate the formulations); the README says so. 7 tests, `python site/build.py` ok, CI green.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01EAJfZL8f7sCgSYGsmSgDmM",
+ "closedAt": "2026-10-13T18:18:42Z",
+ "comments": [],
+ "createdAt": "2026-10-13T18:11:15Z",
+ "headRefName": "claude/gallant-mendel-mggy8a",
+ "headRefOid": "674cac1e9c9afef0f0cbf208986946bf90a08a05",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "42ce2bb148f828f52447599094fe0c254d43d4f2"
+ },
+ "mergedAt": "2026-10-13T18:18:42Z",
+ "number": 353,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "9243f6b0722f538def4470893d1483e0a286c11a"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T18:11:23Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/353#pullrequestreview-5507966296"
+  }
+ ],
+ "state": "MERGED",
+ "title": "simdesign-heaviside: density filter and Heaviside projection for SIMP",
+ "updatedAt": "2026-10-13T18:18:42Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/353"
+}

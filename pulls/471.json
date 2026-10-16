@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "ec2d491bb557c167507b7133ed38a70215822b52",
+ "body": "Track 3 follow-up to `chip-ppa-sky130mac`: exhaustive 800-point table of SKY130 area x delay over ABC pass sequences, random search vs hill climbing vs 40 session-written proposals at equal budget. Stylised and preliminary; no model API used. Tests pass (7), `python site/build.py` prints ok, optimum netlists proved equivalent to the reference.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_012T2J73ehrBByttGqguFDWw",
+ "closedAt": "2026-10-14T21:37:57Z",
+ "comments": [],
+ "createdAt": "2026-10-14T21:20:35Z",
+ "headRefName": "claude/compassionate-bohr-uls53v",
+ "headRefOid": "8ac235b8251368e17139f859ba5458916fd1d84f",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "9ef43070331a571981bf396d49f1710daca2340d"
+ },
+ "mergedAt": "2026-10-14T21:37:57Z",
+ "number": 471,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "afd359fd8251b6cdc9e7a974e98901a8a39fa291"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T21:35:58Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/471#pullrequestreview-5524980638"
+  }
+ ],
+ "state": "MERGED",
+ "title": "chip-scriptsearch: ABC pass-sequence search on a SKY130-mapped MAC",
+ "updatedAt": "2026-10-14T21:37:57Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/471"
+}

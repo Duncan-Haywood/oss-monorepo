@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "353dc4200ce2ae6aeb98d81175336ab792c60faf",
+ "body": "`chip-systolic-edge` extends C to 16 and P to 32 at F = 16 and 32 (next step of `chip-systolic-fanin`). All 12 array configurations match the NumPy reference. Best array still costs 1.25x (F=16) and 1.20x (F=32) the best MAC engine; the earlier optima were at the sweep edge. README, site entry and run log included; `python site/build.py` prints ok.\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nhttps://claude.ai/code/session_01KAbV8R3LtRJ6bQ3iu8B8JK",
+ "closedAt": "2026-10-14T04:31:11Z",
+ "comments": [],
+ "createdAt": "2026-10-14T04:20:45Z",
+ "headRefName": "claude/compassionate-bohr-329ulm",
+ "headRefOid": "b1578d81e558e89df1a8182725285209cb5312c5",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "9fc82a239d209236e8501be67b5e10f0beb84f24"
+ },
+ "mergedAt": "2026-10-14T04:31:11Z",
+ "number": 403,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "1a5c473471eeacc342404c364f26b6fe6eba28fc"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-14T04:20:50Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/403#pullrequestreview-5513021235"
+  }
+ ],
+ "state": "MERGED",
+ "title": "chip-systolic-edge: sweep past the grid edges of chip-systolic-fanin (negative, stylised)",
+ "updatedAt": "2026-10-14T04:31:11Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/403"
+}

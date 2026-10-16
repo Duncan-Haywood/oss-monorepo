@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "d62a5d00a6d201e8ea71cc786b8e8630a91f06ec",
+ "body": "Track 1, milestone 4. Fluid optimal-control model of a replicating printer shop: closed-form switch time checked numerically, bang-bang vs constant vs smooth vs local-search piecewise policies, cash-limited cases. 8 tests, `python site/build.py` ok. All inputs assumed; stylised.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01CsWyYZgEPXowxXGfymkj62",
+ "closedAt": "2026-10-13T09:24:05Z",
+ "comments": [],
+ "createdAt": "2026-10-13T09:19:27Z",
+ "headRefName": "claude/selfrep-reinvest",
+ "headRefOid": "65ea49196c2c3d4d75f2075c4409e18caa77f7f4",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "5df7cc19356c0061d4197b98cbb6dc35d5234244"
+ },
+ "mergedAt": "2026-10-13T09:24:05Z",
+ "number": 314,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "65ea49196c2c3d4d75f2075c4409e18caa77f7f4"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T09:22:32Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/314#pullrequestreview-5501418809"
+  }
+ ],
+ "state": "MERGED",
+ "title": "selfrep-reinvest: split machine time between copies and goods (bang-bang vs smooth)",
+ "updatedAt": "2026-10-13T09:24:05Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/314"
+}

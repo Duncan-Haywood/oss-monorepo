@@ -1,0 +1,82 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "3a3c24d2dcfa8d9370a8015fe4da692b6bdf302a",
+ "body": "garment-markercost: adds seam allowance and mixed-size markers to the stylised garment nesting, and feeds the measured efficiencies into the garment-teardown cost formula as a sensitivity. 6 tests, `python site/build.py` prints ok, README bullet and site entry added. Stylised results, labelled as such.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01V32dGYaWJMqQfrv2VwX2LS",
+ "closedAt": "2026-10-13T15:12:07Z",
+ "comments": [],
+ "createdAt": "2026-10-13T15:09:21Z",
+ "headRefName": "claude/ecstatic-lamport-s7b2ky",
+ "headRefOid": "beb8fcfc9040f16a80d2e54fb41f6bf566aeae19",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "89625a7dc8e3ae4c8272f58c31f102eec2fbbb3b"
+ },
+ "mergedAt": "2026-10-13T15:12:07Z",
+ "number": 338,
+ "reviewThreads": [
+  {
+   "comments": [
+    {
+     "author": {
+      "login": "copilot-pull-request-reviewer"
+     },
+     "body": "Adding this research directory without cataloging it makes `python site/build.py` fail: `validate()` reports every project missing from either `site/projects.json` or the root `README.md` (site/build.py:45-59). Add `garment-markercost` to both catalogs in this PR.",
+     "createdAt": "2026-10-13T15:10:58Z",
+     "diffHunk": "@@ -0,0 +1,2 @@\n+# garment-markercost (claim, work in progress)",
+     "line": null,
+     "originalLine": 1,
+     "path": "research/garment-markercost/README.md",
+     "updatedAt": "2026-10-13T15:10:59Z",
+     "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/338#discussion_r4260423989"
+    }
+   ],
+   "isOutdated": true,
+   "isResolved": false,
+   "line": null,
+   "path": "research/garment-markercost/README.md"
+  },
+  {
+   "comments": [
+    {
+     "author": {
+      "login": "copilot-pull-request-reviewer"
+     },
+     "body": "The stated feature is not implemented in this PR: the only addition is this two-line placeholder, with no marker logic, mixed-size/seam-allowance calculations, experiments, tests, or integration into `garment-teardown`. Please include the implementation and evidence before claiming that these inputs are fed into the cost model.",
+     "createdAt": "2026-10-13T15:10:58Z",
+     "diffHunk": "@@ -0,0 +1,2 @@\n+# garment-markercost (claim, work in progress)\n+Seam allowance and mixed sizes in the marker, fed into the `garment-teardown` cost model.",
+     "line": null,
+     "originalLine": 2,
+     "path": "research/garment-markercost/README.md",
+     "updatedAt": "2026-10-13T15:10:59Z",
+     "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/338#discussion_r4260424077"
+    }
+   ],
+   "isOutdated": true,
+   "isResolved": false,
+   "line": null,
+   "path": "research/garment-markercost/README.md"
+  }
+ ],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "<!-- ccr-overview-v2 -->\n\n### 🟡 Changes recommended\n\nThe promised implementation is absent, and required project catalog entries are missing.\n\n<details open>\n<summary><strong>2 open findings</strong></summary>\n\n- <picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/high-v2-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/high-v2-light.svg\"><img src=\"https://github.githubassets.com/static/images/icons/copilot-code-review/high-v2-light.png\" alt=\"High severity\" width=\"62\" height=\"18\" align=\"texttop\"></picture> [Catalog garment-markercost in projects.json and README.md](https://github.com/Duncan-Haywood/oss-research-monorepo/pull/338#discussion_r4260423989) · New\n- <picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.svg\"><img src=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.png\" alt=\"Medium severity\" width=\"62\" height=\"18\" align=\"texttop\"></picture> [Implement marker cost inputs and integrate them into garment-teardown](https://github.com/Duncan-Haywood/oss-research-monorepo/pull/338#discussion_r4260424077) · New\n</details>\n\n<details>\n<summary><strong>What changed in this PR</strong></summary>\n\nIntroduces a placeholder for extending garment nesting with seam allowances, mixed sizes, and cost-model integration.\n\n**Changes:**\n- Adds a two-line work-in-progress project README.\n\n| File | Description |\r\n| ---- | ----------- |\r\n| `research/​garment-markercost/​README.md` | Declares the planned research project. |\n</details>\n\n🧠 **Review effort:** Balanced\n\n---\n\n💡 <a href=\"/Duncan-Haywood/oss-research-monorepo/new/main?filename=.github/skills/code-review/SKILL.md\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Add a `code-review` agent skill</a> or configure MCP servers for context-aware, tailored reviews. <a href=\"https://docs.github.com/copilot/how-tos/use-copilot-agents/request-a-code-review/use-code-review?tool=webui#mcp-servers-and-agent-skills\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Learn more in the docs.</a>",
+   "commit": {
+    "oid": "02bfe7d6f7b68ba5ecd94ec9703939d2ab001a06"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T15:10:59Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/338#pullrequestreview-5505775618"
+  }
+ ],
+ "state": "MERGED",
+ "title": "garment-markercost: seam allowance and mixed sizes in the marker, fed into the cost model",
+ "updatedAt": "2026-10-13T15:12:08Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/338"
+}

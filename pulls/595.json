@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "a8f634233d8b30a19fbafb32484fd6b8dbefc1ec",
+ "body": "simdesign-loadbind (track 5): sweeps tip load (50–400 N) and arm length (60–120 mm) of the laser-cut bracket to find when the buckling-factor ≥ 3 guard binds. It binds only at 120 mm arms; the old w/b ≤ 8 rule costs 14–25% mass in five of six cases. Stylised, two seeds, preliminary.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01M5SyZE3B9jvvqw8SxLTNp8",
+ "closedAt": "2026-10-15T19:50:33Z",
+ "comments": [],
+ "createdAt": "2026-10-15T19:20:46Z",
+ "headRefName": "claude/simdesign-loadbind",
+ "headRefOid": "d12457890ce1e93ec8bdb2f4a41d70f17c7e43ce",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "b502daabf53e4fb0ef4636b29ce093612b9aeb35"
+ },
+ "mergedAt": "2026-10-15T19:50:33Z",
+ "number": 595,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "d12457890ce1e93ec8bdb2f4a41d70f17c7e43ce"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-15T19:48:24Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/595#pullrequestreview-5539005726"
+  }
+ ],
+ "state": "MERGED",
+ "title": "research/simdesign-loadbind: when does the buckling guard bind as load and arm length change (track 5)",
+ "updatedAt": "2026-10-15T19:50:33Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/595"
+}

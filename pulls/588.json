@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "8c76b322d7158442fe82b9287afe9e80e4a56cb1",
+ "body": "Track 8, milestone 5 follow-up: `research/accel-lut` tests weight-sharing product-table inference against int8 MAC engines on the `accel-sparse` digits MLP. Negative result at this size (near tie within 2 points), with an analytic break-even for wide layers. 6 unit tests pass and `python site/build.py` prints ok. The only CI workflow is that build check.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01LVmCknrQmWF9HtvJ9SCxqk",
+ "closedAt": "2026-10-15T18:23:51Z",
+ "comments": [],
+ "createdAt": "2026-10-15T18:18:24Z",
+ "headRefName": "claude/accel-lut",
+ "headRefOid": "4918f1bee2ddf1c0c75ba821eeeecb60e25bce02",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "7f77847b48a45333f5d9c2e0c2a90a205b82b164"
+ },
+ "mergedAt": "2026-10-15T18:23:51Z",
+ "number": 588,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "24d39a7be766b70b1fa72ec5a431e6cba5508e21"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-15T18:23:15Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/588#pullrequestreview-5537962614"
+  }
+ ],
+ "state": "MERGED",
+ "title": "research/accel-lut: weight-sharing lookup-table inference vs multiplier and sparse engines (track 8, milestone 5 follow-up)",
+ "updatedAt": "2026-10-15T18:23:51Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/588"
+}

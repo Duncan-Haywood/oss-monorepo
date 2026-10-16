@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "6a3cf4b4689fc74c45b6761735f881c387e30259",
+ "body": "Track 6 milestone 4. Fanger/ISO PMV (matches pythermalcomfort to 0.006 over 144 cases) and a Gagge-style two-node model extended with fabric IR transmittance/emissivity, solar absorptance and vapour permeability. 11 tests, site build ok. Stylised; citations taken from PROJECTS.md since Crossref is blocked in this environment.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01TwC2uVeQAYj67uan1RiM8E",
+ "closedAt": "2026-10-13T08:26:25Z",
+ "comments": [],
+ "createdAt": "2026-10-13T08:19:04Z",
+ "headRefName": "claude/amazing-ramanujan-gmli3i",
+ "headRefOid": "31c56f620da035347bf5c9c85769fa1b5ff07037",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "d62a5d00a6d201e8ea71cc786b8e8630a91f06ec"
+ },
+ "mergedAt": "2026-10-13T08:26:25Z",
+ "number": 312,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "31c56f620da035347bf5c9c85769fa1b5ff07037"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T08:24:38Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/312#pullrequestreview-5500756316"
+  }
+ ],
+ "state": "MERGED",
+ "title": "garment-thermal: two-node heat balance with fabric optics",
+ "updatedAt": "2026-10-13T08:26:25Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/312"
+}

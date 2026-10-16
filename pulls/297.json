@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "da70241703760e7cf70b00b40fbc988cc0270a67",
+ "body": "Track 2 (ambient), milestone 3. Simulated week of transcripts: BM25 retrieval, extractive summaries, byte-limited retention policies. Stylised, synthetic; README lists limitations. 12 tests, `python site/build.py` ok, BM25 citation checked (Robertson & Zaragoza 2009).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01FRHMgdZQcWkwJtckTDwbE3",
+ "closedAt": "2026-10-13T05:16:08Z",
+ "comments": [],
+ "createdAt": "2026-10-13T05:09:22Z",
+ "headRefName": "claude/ecstatic-lamport-l9y9qj",
+ "headRefOid": "6958b3c95f8ff2d1fe3a4dfc87d84db2e3889dca",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "a35cf754e5bd3222dbcd74abc40d96248a0e7bb0"
+ },
+ "mergedAt": "2026-10-13T05:16:08Z",
+ "number": 297,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "2293ed144ca316866def458082b75573a4e102ce"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T05:09:28Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/297#pullrequestreview-5499061735"
+  }
+ ],
+ "state": "MERGED",
+ "title": "ambient-memory: retrieval, summaries and retention limits on simulated days",
+ "updatedAt": "2026-10-13T05:16:08Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/297"
+}

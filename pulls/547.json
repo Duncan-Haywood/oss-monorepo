@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "b85465484e45bbb940f2ef4103fd88314900ea07",
+ "body": "Track 11 milestone 1 (`mimic-contexts`): RAID suite (8 families, 300 human + 300 plain-prompt chat-LLM texts each, split by family) and prompt-free reference detectors. Held-out-family AUROC: n-gram LR 0.93, Binoculars-style 0.80, perplexity 0.76, length-only 0.52 (chance). Verified locally: 10 unit tests pass, `site/build.py` prints ok (422 projects), after merging main. No CI workflow covers this path. Preliminary; the imitator is RAID's own generations, not a prompted one (stated in README).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01SawL4fEhhgX2r6RhAPCKqq",
+ "closedAt": "2026-10-15T10:52:23Z",
+ "comments": [],
+ "createdAt": "2026-10-15T10:26:37Z",
+ "headRefName": "claude/mimic-contexts",
+ "headRefOid": "6d9a6d8811d8a84ee646f92390b5a4a8c0547c9e",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "9f8d47a9e842e7df6236193a5465d235028eb51b"
+ },
+ "mergedAt": "2026-10-15T10:52:23Z",
+ "number": 547,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "6d9a6d8811d8a84ee646f92390b5a4a8c0547c9e"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-15T10:52:25Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/547#pullrequestreview-5531957675"
+  }
+ ],
+ "state": "MERGED",
+ "title": "research/mimic-contexts: RAID context suite and prompt-free reference detectors (milestone 1, track 11)",
+ "updatedAt": "2026-10-15T10:52:25Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/547"
+}

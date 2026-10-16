@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "8958c79d72b2db29b65185697c42d70bfcfa6851",
+ "body": "Track 2, milestone 1 (`ambient-pipeline`). Streaming Silero VAD, Whisper tiny.en, Qwen2.5-0.5B and Piper on four CPU cores over synthetic speech; per-stage latency, RTF and memory and a reply-latency budget (0.94–1.55 s at 200–800 ms hangover). Stylised: synthetic audio, server CPU, no real-device claims. 7 unit tests; `python site/build.py` prints ok. Piper's pip wheel is GPL-3.0 and is used only as an unbundled dependency; the README says so.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01EXzGdWHMzFU8ykQqqFWuSX",
+ "closedAt": "2026-10-13T01:22:48Z",
+ "comments": [],
+ "createdAt": "2026-10-13T01:09:09Z",
+ "headRefName": "claude/trusting-knuth-yk6hbn",
+ "headRefOid": "7585e98df1ae6c33e26461bdd7a981ae4e601005",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "1b6ecfba436ba994651386d5c28fcb68c1763301"
+ },
+ "mergedAt": "2026-10-13T01:22:48Z",
+ "number": 279,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "46fd3985e90efb1f73483bf7fd2393050f2a40a3"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-13T01:09:15Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/279#pullrequestreview-5497692899"
+  }
+ ],
+ "state": "MERGED",
+ "title": "ambient-pipeline: CPU VAD/ASR/LLM/TTS latency, RTF and memory budget",
+ "updatedAt": "2026-10-13T01:22:48Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/279"
+}

@@ -1,0 +1,39 @@
+{
+ "author": {
+  "login": "Duncan-Haywood"
+ },
+ "baseRefName": "main",
+ "baseRefOid": "acbf6af78d65668dccb29f291092fa88ee5a8bf2",
+ "body": "Track 11 side project (no LLM): a C2ST detects twin errors a paired trajectory RMSE misses (Gaussian vs Student-t noise at zero paired error: AUROC 0.92) and friction error at a quarter of the noise sd (AUROC 0.72); logistic regression on raw angles stays at chance. Stylised, simulated only. `mimic-loop` could not run: Hugging Face is unreachable (403) from the container.\n\nChecks: 8 tests pass, `python site/build.py` prints ok, README, site entry and run record included. No CI checks reported on the head.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01ERBY65vbBjU4gjt8p3gF8f",
+ "closedAt": "2026-10-15T11:32:37Z",
+ "comments": [],
+ "createdAt": "2026-10-15T11:26:40Z",
+ "headRefName": "claude/amazing-ramanujan-pfmmjr",
+ "headRefOid": "c4a41a8f151b6b1e5b008dc3bc4ce80bd7bf909e",
+ "isDraft": false,
+ "labels": [],
+ "mergeCommit": {
+  "oid": "8cf1b20007bb209e4cf9a00a1cc359ddd779dff6"
+ },
+ "mergedAt": "2026-10-15T11:32:37Z",
+ "number": 552,
+ "reviewThreads": [],
+ "reviews": [
+  {
+   "author": {
+    "login": "copilot-pull-request-reviewer"
+   },
+   "body": "Copilot was unable to review this pull request because the user who requested the review has reached their quota limit.",
+   "commit": {
+    "oid": "c62007396b3d14fd58a511487a7180f794fe658f"
+   },
+   "state": "COMMENTED",
+   "submittedAt": "2026-10-15T11:26:46Z",
+   "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/552#pullrequestreview-5532347558"
+  }
+ ],
+ "state": "MERGED",
+ "title": "mimic-twinc2st: classifier two-sample test as a fidelity score for pendulum digital twins",
+ "updatedAt": "2026-10-15T11:32:37Z",
+ "url": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/552"
+}
