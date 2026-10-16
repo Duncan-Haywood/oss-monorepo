@@ -29,6 +29,7 @@ import zlib from 'node:zlib';
 
 import { decodeEntities } from './entities.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { buildWriting, WRITING_PATH } from './writing.mjs';
 import {
   FEED_MAX_ENTRIES,
   feedUpdatedAt,
@@ -7327,6 +7328,7 @@ ${disclaimerHtml('', surfaces)}
         <a href="${GUIDES_PATH}">Guides</a> ·
         <a href="${COMPARE_PATH}">Comparisons</a> ·
         <a href="${RESEARCH_PATH}">Research</a> ·
+        <a href="${WRITING_PATH}">Writing</a> ·
         <a href="${ENGINEERING_PATH}">Engineering status</a> ·
         <a href="deploy/">Deploy your own copy</a> ·
         <a href="catalog.json">Machine-readable catalog</a> ·
@@ -9263,7 +9265,7 @@ ${entries.join('\n')}
  * own — they are the same kind of page (this build's, not a venture's) and a
  * crawler following `robots.txt` reaches them through the same index.
  */
-export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys = [], researchSlugs = []) {
+export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys = [], researchSlugs = [], writingSlugs = []) {
   const urls = [`  <url><loc>${baseUrl}</loc></url>`]
     .concat(categoryIds.map((id) => `  <url><loc>${baseUrl}${categoryPagePath(id)}</loc></url>`))
     // The About page is a hub-level surface, not a venture's, so it is listed
@@ -9276,6 +9278,9 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat([`  <url><loc>${baseUrl}${RESEARCH_PATH}</loc></url>`])
     // Each research project's own home page, written by the research builder.
     .concat(researchSlugs.map((slug) => `  <url><loc>${baseUrl}${RESEARCH_PATH}${slug}/</loc></url>`))
+    // The writing index and each post, only when the build wrote them.
+    .concat(writingSlugs.length ? [`  <url><loc>${baseUrl}${WRITING_PATH}</loc></url>`] : [])
+    .concat(writingSlugs.map((slug) => `  <url><loc>${baseUrl}${WRITING_PATH}${slug}/</loc></url>`))
     // And the guides index, for the same reason. See `GUIDES_PATH`: it is the
     // only page on the site that is *about* the 342 informational pages the
     // ventures wrote, which is the half of the catalogue organic search
@@ -9938,6 +9943,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // `noindex` and in no sitemap; see `engineering.mjs`.
   await buildEngineeringPage(outDir, base);
 
+  // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
+  // each post is listed in the hub sitemap below.
+  const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
+
   // The comparison index. After the categories because it links every one of
   // them, and before the sitemaps for the same reason they are.
   const comparisons = groupComparisons(await discoverComparisons(surfaces));
@@ -9987,6 +9996,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       categoryGroups.map(({ category }) => category.id),
       compareProducts.map((group) => group.key),
       researchSlugs,
+      posts.map((post) => post.slug),
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
