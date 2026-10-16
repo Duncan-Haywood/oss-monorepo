@@ -164,7 +164,7 @@
   </footer>
 
   <script type="module">
-    import { parseStaff, parseShifts, buildRoster, laborPercent, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -198,7 +198,13 @@
       last = r; lastIn = { staff: st.staff, slots: sh.slots };
       $("#cover-shift").innerHTML = sh.slots.map((x, i) => `<option value="${i}">${DAYS[x.day]} ${fmtClock(x.startMin)}–${fmtClock(x.endMin)}${x.label ? " " + esc(x.label) : ""}${r.owner[i] >= 0 ? " (" + esc(st.staff[r.owner[i]].name) + ")" : " (open)"}</option>`).join("");
       showCover();
-      $("#notices").innerHTML = r.warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const sf = scheduleFlags(r, { weekStart: $("#weekstart").value || null, today: new Date().toISOString().slice(0, 10) });
+      const flagMsgs = [
+        ...sf.overDaily.map((x) => `${x.person} works ${num(x.hours)} hours on ${x.day}, ${num(x.overBy)} over 8 in a day. Some states pay daily overtime; check yours.`),
+        ...sf.splits.map((x) => `${x.person} has a split shift on ${x.day} with a ${num(x.gapHours)}-hour gap. Some places owe split-shift pay.`),
+        ...(sf.notice && sf.notice.short ? [`The week starts in ${sf.notice.days} days. Fair-workweek rules in some cities require ${sf.notice.required} days of notice, so changes after posting may owe premium pay.`] : []),
+      ];
+      $("#notices").innerHTML = r.warnings.concat(flagMsgs).map((w) => `<div class="warn">${esc(w)}</div>`).join("");
       const big = [
         [r.filledAll ? "All filled" : `${r.unfilledSlots} open`, r.filledAll ? `Every one of the ${r.slots} shifts has a person` : `shift${r.unfilledSlots === 1 ? "" : "s"} could not be filled (${num(r.unfilledHours)} hours)`],
         [money(r.cost), `Estimated payroll for ${num(r.hours)} scheduled hours`],
