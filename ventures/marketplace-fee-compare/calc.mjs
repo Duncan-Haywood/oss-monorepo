@@ -317,6 +317,23 @@ export function calculateChannel(channel, item) {
 }
 
 /**
+ * The list price a channel needs for this item to net `targetProfit`,
+ * holding the buyer's shipping contribution and every cost fixed. This is the
+ * repricing question a multi-channel seller actually asks once the table shows
+ * a gap: "what do I have to charge on Walmart to keep what I keep on eBay?"
+ *
+ * Solves `(price + shipping) * (1 - rate) - fixed - subscription - cost =
+ * target` for price. Floors at 0 because a negative list price is not an
+ * answer; the page shows such a row as free-to-match rather than a number.
+ */
+export function priceForProfit(channel, item, targetProfit) {
+  const cashInvested = item.itemCost + item.shippingCost + item.otherCost;
+  const subscriptionPerOrder = channel.monthlyFee / item.monthlyOrders;
+  const needed = targetProfit + channel.fixedFee + subscriptionPerOrder + cashInvested;
+  return Math.max(0, needed / (1 - channel.percentRate / 100) - item.shippingCharged);
+}
+
+/**
  * Every channel for this item, best net profit first.
  *
  * Ties break on channel order rather than arbitrarily, so a seller comparing
@@ -324,7 +341,20 @@ export function calculateChannel(channel, item) {
  * of two rows that swap places while they read.
  */
 export function compareChannels(item, overrides = {}) {
-  const rows = resolveChannels(item, overrides).map((channel) => calculateChannel(channel, item));
+  const channels = resolveChannels(item, overrides);
+  const rows = channels.map((channel) => calculateChannel(channel, item));
+  // Parity target: the best channel that actually sends buyers, so an own-store
+  // row that "wins" on fees alone does not set the bar nobody can clear.
+  const anchor = rows
+    .filter((row) => row.demandIncluded)
+    .reduce((best, row) => (best === null || row.profit > best.profit ? row : best), null);
+  if (anchor) {
+    rows.forEach((row, index) => {
+      row.parityTarget = anchor.profit;
+      row.parityAnchorLabel = anchor.label;
+      row.parityPrice = priceForProfit(channels[index], item, anchor.profit);
+    });
+  }
   const order = new Map(CHANNEL_IDS.map((id, index) => [id, index]));
   return [...rows].sort(
     (a, b) => b.profit - a.profit || order.get(a.id) - order.get(b.id),
