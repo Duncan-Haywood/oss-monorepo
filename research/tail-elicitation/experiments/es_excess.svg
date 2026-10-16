@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of excess score against the ES scale factor; measured and closed-form values coincide, minimum at x=1, steeper below than above">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Excess score of misreporting ES by factor x (tau=0.9)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="282.8" y2="282.8" stroke="#ddd"/><text x="58" y="286.8" text-anchor="end" font-family="sans-serif" font-size="11">0.05</text>
+<line x1="64" x2="624" y1="241.6" y2="241.6" stroke="#ddd"/><text x="58" y="245.6" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="200.4" y2="200.4" stroke="#ddd"/><text x="58" y="204.4" text-anchor="end" font-family="sans-serif" font-size="11">0.15</text>
+<line x1="64" x2="624" y1="159.2" y2="159.2" stroke="#ddd"/><text x="58" y="163.2" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="118.0" y2="118.0" stroke="#ddd"/><text x="58" y="122.0" text-anchor="end" font-family="sans-serif" font-size="11">0.25</text>
+<line x1="64" x2="624" y1="76.8" y2="76.8" stroke="#ddd"/><text x="58" y="80.8" text-anchor="end" font-family="sans-serif" font-size="11">0.3</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.7</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.9</text>
+<text x="400.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.1</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.5</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">reported ES / true ES (x)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">excess score</text>
+<polyline points="64.0,71.2 176.0,264.8 288.0,319.3 400.0,320.4 624.0,264.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="264.8" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="319.3" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="320.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="264.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">measured</text>
+<polyline points="64.0,71.2 176.0,264.8 288.0,319.3 400.0,320.4 624.0,264.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="264.8" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="319.3" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="320.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="264.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">closed form</text>
+</svg>
