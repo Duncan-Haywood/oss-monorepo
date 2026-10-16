@@ -8,9 +8,10 @@
   "problem": ".github/workflows holds 893 files, 869 of them <slug>-ci.yml. Two sampled ones differ only in the slug and a comment, so each new venture copies a workflow and fixes have to be applied hundreds of times. CAVEAT: filed from a one-pass repo-organization review (2026-10-16), not a measured study. The change is a first guess and may be oversimplified; check the evidence and the dependents before acting on it, and drop the item with a reason if it does not hold up.",
   "evidence": [
     "ls .github/workflows | wc -l on origin/main 2029d18f86: 893; ls *-ci.yml: 869",
-    "diff of 1099-vendor-tracker-ci.yml vs 3d-print-price-calculator-ci.yml with slugs normalised: only header comment differs"
+    "diff of 1099-vendor-tracker-ci.yml vs 3d-print-price-calculator-ci.yml with slugs normalised: only header comment differs",
+    "2026-10-16 measurement (slug-normalised, comments stripped, md5 of each *-ci.yml; 874 files): 367 share one body, then 77, 69, 44, 40, 20, 13, 13... i.e. ~42% identical, a long tail of variants. Dependents exist: platform/ci/validate_workflows.py (line ~487 REQUIRES a per-venture <slug>-ci.yml for every venture with node tests) and platform/marketing/workflow-coverage.test.mjs."
   ],
-  "change": "Diff all 869 against a normalised template to find the ones that really differ (setup steps, paths filters, Python vs node). If most are identical, one workflow with a changed-ventures matrix (paths filter -> list of slugs) can replace them; keep the outliers. Check what depends on the per-venture check names first (branch protection, agent_review auto-merge, Claude Approvals) before deleting any.",
+  "change": "Narrowed after measurement: a one-shot replacement is not safe. Step 1: change validate_workflows.py to accept a matrix workflow as satisfying the per-venture requirement. Step 2: migrate only the 367-file identical cluster (generate matrix from the slug list), keep variants. Step 3: confirm agent_review/branch protection do not require per-venture check names. Do not delete files before step 1 lands.",
   "touches": [
     ".github/workflows/*-ci.yml",
     "platform/ci/"
