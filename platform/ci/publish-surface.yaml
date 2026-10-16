@@ -710,6 +710,9 @@ workflows:
 - workflow: distribute-mastodon.yml
   classification: none
   publishes: []
+- workflow: distribute-mcp.yml
+  classification: none
+  publishes: []
 - workflow: distribute-npm.yml
   classification: none
   publishes: []
