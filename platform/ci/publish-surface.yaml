@@ -1783,6 +1783,9 @@ workflows:
 - workflow: pour-cost-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: pql-radar-ci.yml
+  classification: none
+  publishes: []
 - workflow: pressure-washing-bid-calculator-ci.yml
   classification: none
   publishes: []
