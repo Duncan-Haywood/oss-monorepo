@@ -83,6 +83,20 @@
     </details>
   </section>
 
+  <section class="card noprint" id="reimburse-card">
+    <h2>Employee? Claim reimbursement from your employer</h2>
+    <p class="note">Since 2018 employees cannot deduct unreimbursed mileage on a federal return, so the useful document is a claim to your employer. It lists your business trips for a date range at your employer's per-mile rate (leave blank for the IRS rate on each trip's date) and downloads as a printable HTML page.</p>
+    <div class="grid">
+      <div><label for="rb-name">Your name (optional)</label><input id="rb-name" autocomplete="name"></div>
+      <div><label for="rb-employer">Employer (optional)</label><input id="rb-employer" autocomplete="organization"></div>
+      <div><label for="rb-from">From date</label><input id="rb-from" type="date"></div>
+      <div><label for="rb-to">To date</label><input id="rb-to" type="date"></div>
+      <div><label for="rb-rate">Employer rate, $ per mile</label><input id="rb-rate" inputmode="decimal" placeholder="blank = IRS rate by date"></div>
+    </div>
+    <p><button type="button" class="secondary" id="reimburse">Download reimbursement claim (HTML)</button></p>
+    <p class="note" id="rb-status" aria-live="polite"></p>
+  </section>
+
   <section class="card noprint" id="routes-card" hidden>
     <h2>Repeat a trip</h2>
     <p class="note">Your most frequent deductible routes. One tap fills the form for today; add the odometer or confirm the miles, then save.</p>
@@ -187,6 +201,7 @@
 
   <script type="module">
     import { CATEGORIES, summarizeByVehicle, vehicleNames, frequentRoutes, tripFromRoute, preparerReportHtml, NO_VEHICLE, rateFor, tripMiles, validateTrip, normalizeTrip, summarize, addFix, toCsv, exportJson, importJson, sampleTrips, money, money0, pct } from "./calc.mjs";
+    import { reimbursementClaim, reimbursementHtml } from "./reimburse.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const KEY = "mileage-log-data-v1";
@@ -375,6 +390,14 @@
       const o = odos();
       download(`mileage-report-${year()}.html`, preparerReportHtml(state.trips, { year: year(), override: override(), yearStartOdo: o.start, yearEndOdo: o.end, vehicleOdo: vOdo() }), "text/html");
       record("preparer_report"); $("#io-status").textContent = "Report downloaded. Open it in a browser to print or save as PDF for your preparer.";
+    });
+    $("#reimburse").addEventListener("click", () => {
+      const opts = { from: $("#rb-from").value, to: $("#rb-to").value, rate: $("#rb-rate").value.trim(), override: override() };
+      const c = reimbursementClaim(state.trips, opts);
+      if (!c.rows.length) { $("#rb-status").textContent = "No business trips with miles in that date range."; return; }
+      download("mileage-reimbursement-claim.html", reimbursementHtml(state.trips, { ...opts, name: $("#rb-name").value, employer: $("#rb-employer").value }), "text/html");
+      record("reimbursement_claim");
+      $("#rb-status").textContent = `Claim downloaded: ${c.rows.length} trips, ${c.miles} miles.` + (c.incomplete ? ` ${c.incomplete} lack a destination or purpose.` : "") + (c.overIrsCents ? " Your rate is above the IRS rate; the excess is generally taxable wages." : "");
     });
     $("#print").addEventListener("click", () => window.print());
     $("#load-example").addEventListener("click", () => {
