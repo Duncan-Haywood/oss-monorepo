@@ -2361,6 +2361,11 @@
      "slug": "eda-verify",
      "title": "How many injected RTL bugs do random, coverage-directed and formal checks catch, and at what cost?",
      "summary": "Mutation study on the MAC accelerator: 91 compilable mutants (operator, literal, deletion and ROM edits), of which 66 are killable and 16 are proved equivalent by induction. 64 random vectors kill 99% of the killable ones, 16 coverage-directed vectors 97% (16 random: 95%), and bounded Yosys formal checking 71% because 19 SAT runs timed out. Cost per kill: about 1&nbsp;s for simulation against 52&nbsp;s for a formal kill. Stylised: one design, one bound, one solver."
+    },
+    {
+     "slug": "eda-checkorder",
+     "title": "In what order should an automated design loop run random, directed and formal checks?",
+     "summary": "Replay of the <em>eda-verify</em> mutation log (91 mutants, 20 seeds), costing each check cascade in CPU seconds. Formal alone takes 16,354&nbsp;s for 47 kills and 16 equivalence proofs; random simulation first and formal only on the survivors takes about 7,500&nbsp;s and finds 66 of 66 killable mutants, a 54% saving. The order among the cheap stages changes the total by under 2%; the remaining cost is formal working on equivalent or timed-out mutants, which no ordering removes. Stylised: a re-analysis of one design, one solver and its timeouts; nothing new was simulated."
     }
    ]
   },
