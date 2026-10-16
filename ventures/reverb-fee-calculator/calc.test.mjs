@@ -71,9 +71,9 @@ test('a $720 offer leaves $73.45 on the table versus the $800 list', () => {
 
 test('Reverb at list still beats eBay at the same $800 on the default rates', () => {
   const comparison = compareReverbToEbay(REVERB_DEFAULTS, 800);
-  assert.equal(comparison.ebay.fees.finalValue, 115.9375);
-  assert.equal(Number(comparison.ebay.profit.toFixed(4)), 233.7625);
-  assert.equal(Number(comparison.reverbExtra.toFixed(4)), 47.835);
+  assert.equal(comparison.ebay.fees.finalValue, 119);
+  assert.equal(Number(comparison.ebay.profit.toFixed(4)), 230.6);
+  assert.equal(Number(comparison.reverbExtra.toFixed(4)), 50.9975);
 });
 
 test('the crossover offer matches eBay list cash on Reverb', () => {

@@ -1,7 +1,7 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14. Runs
-started from `prompt.md` take their new work from here. There are eleven tracks. Each one is
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14 and track 12 on 2026-10-16. Runs
+started from `prompt.md` take their new work from here. There are twelve tracks. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
 README bullet, a `_homepage/projects.json` entry, a home page on the Pages site (milestone 9 below)
@@ -74,7 +74,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 ## Picking work
 
 1. **Pick a track at random.** Draw a uniform random number. If it is below 0.05, this is a
-   free-choice run (below). Otherwise map it to the eleven tracks. Four runs start in the same
+   free-choice run (below). Otherwise map it to the twelve tracks. Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
@@ -107,6 +107,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 9. Open-source purpose-built robots | `osrobot` |
 | 10. The software-engineering loop | `swe` |
 | 11. Adversarial human imitation | `mimic` |
+| 12. Open-source residential construction | `house` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -814,9 +815,80 @@ agents. Pillutla et al. (2021), MAUVE, compares model and human text as distribu
   HIRO's directions in `prompt.md`, simulated human models and social intelligence. The others
   build on none of the groups, so say so.
 
+## 12. Open-source residential construction (`house`)
+
+Added on 2026-10-16 at the owner's request, as a long-term track.
+
+**Goal.** Cut what it costs to design and build a new home, and publish the designs. Framing is
+about a sixth of a new US house's construction cost, and construction is about two thirds of
+its price (NAHB, 2024). Most of the engineering behind a house, from span tables and energy
+models to framing layouts and cost estimates, sits in copyrighted tables, paid software and
+contractors' heads. This track does it as open, testable code. Which design and process choices
+cut cost most per square foot without losing strength, comfort or energy performance? How much
+of a house can be designed as parametric code that anyone can change, check and build from?
+
+**Prior work.** The NAHB Research Foundation's optimum value engineering (OVE) for HUD (1978/79)
+and Home Innovation Research Labs on how little of it builders use. The American Wood Council's
+NDS for wood design and ASCE 7 for loads. Carpenter and Schumacher (2003) on measured framing
+factors. NREL's BEopt and DOE's EnergyPlus and OpenStudio for cost-optimal energy design.
+OpenSees for structural simulation. WikiHouse and Open Source Ecology for open building systems.
+IfcOpenShell and FreeCAD for open BIM. NAHB's *Cost of Constructing a Home* survey and the US
+Census Survey of Construction for where a house's price goes.
+
+**Milestones.**
+1. `house-framing` (done 2026-10-16): conventional versus advanced (OVE) framing of a house's
+   exterior walls. Lumber, pieces, whole-wall R-value, and the NDS stud and header checks that
+   say whether the lighter frame carries the roof.
+2. `house-spans`: an open span and sizing tool built from first principles: joists, rafters,
+   headers and beams from NDS design values and ASCE 7 loads, with bending, shear, deflection
+   and bearing checks. Compare it with published span tables only where their licence allows,
+   and say where they differ and why. The output is a tool people can use.
+3. `house-plan`: a house plan as data. A parametric plan (rooms, walls, openings, roof) that
+   produces a framing takeoff, a bill of materials and an IFC model through IfcOpenShell. Then
+   the loop: optimise a plan for cost per square foot of living space, under room-size and
+   layout rules written as checks, against a random-search or CMA-ES baseline.
+4. `house-cost`: where a new home's price goes. An open quantity-based cost model (materials
+   from the takeoff, labour hours, land, fees, financing and margin), reconciled with NAHB's
+   survey and the Census Survey of Construction, with every price sourced and dated. Which
+   levers move the price most: size, shape, storeys, foundation type, finish level, fees?
+5. `house-energy`: cost-optimal envelopes by climate zone. EnergyPlus or OpenStudio, run from
+   scripts, sweeping insulation, windows, air tightness and HVAC. Report the net present cost of
+   building plus 30 years of energy, BEopt-style, with the assumptions shown.
+6. `house-structure`: lateral design and alternative systems. Shear walls and bracing under
+   wind and seismic load in OpenSees or a frame model, then wood frame against steel stud,
+   insulated concrete forms, structural insulated panels, cross-laminated timber and 3D-printed
+   concrete, on cost, carbon, speed and strength.
+7. `house-offsite`: factory against site. Panelised and modular construction as a simulated
+   process: wall-panel layout, sheet-goods nesting (reuse `garment-nesting`'s nester for
+   sheathing), transport limits, crew time and weather. When does offsite win, and by how much?
+8. `house-schedule`: the build as a process. A discrete-event model of the trades, inspections,
+   weather and material lead times. How much do sequencing, prefabrication and fewer handoffs
+   cut the build time and the interest paid while it runs?
+9. `house-open-design`: an open-source plan set. A small house (for example an accessory
+   dwelling unit) generated from milestones 2 to 8, with drawings, a takeoff, a cost estimate,
+   energy and structural reports, all reproducible from code. A licensed review and a permit
+   are owner steps.
+
+Each project that prices a build cites every price and its date. Building anything is an owner
+step.
+
+**Guardrails.**
+- *No design is buildable on this track's say-so.* Simulation and code checks are research.
+  Every README says the design needs a licensed architect's or engineer's review, or the local
+  code's prescriptive path, and a permit, before anyone builds it. Never claim code compliance.
+- *Codes and tables are copyrighted.* The ICC's model codes (IRC, IBC, IECC) and many span and
+  design tables are copyrighted even where a jurisdiction adopts them. Cite sections; do not
+  copy tables or text. Derive values from first principles or from openly licensed sources.
+- *Life safety.* Structure, fire, egress and gas are life-safety systems. Results about them
+  say what was not checked, and never present a simulated capacity as a tested one.
+- *Licences for designs.* Open designs carry a licence that allows building from them, and the
+  README says what the licence does and does not cover (it is not a warranty).
+- *Lab tags.* No group in `prompt.md` covers construction. Say so rather than stretching a
+  connection; `house-offsite` and `house-schedule` may build on track 4's manufacturing loops.
+
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12 and tracks 7 to 11 on 2026-10-14. Check them again before
+Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 and track 12 on 2026-10-16. Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**
@@ -983,3 +1055,11 @@ citing one, as `prompt.md` requires.
 - Open models that fit a CPU, all Apache-2.0: Qwen2.5-0.5B-Instruct <https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct>; Qwen2.5-1.5B-Instruct <https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct>; SmolLM2-1.7B-Instruct <https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct>; SmolVLM-256M-Instruct <https://huggingface.co/HuggingFaceTB/SmolVLM-256M-Instruct>. llama.cpp <https://github.com/ggml-org/llama.cpp> (MIT).
 - Regulation (EU) 2024/1689 (the AI Act), Article 50, transparency obligations for synthetic audio, image, video and text; applies from 2 August 2026 under Article 113. Amended by Regulation (EU) 2026/1744 (the Digital Omnibus on AI), which leaves Article 50's text unchanged. <https://eur-lex.europa.eu/eli/reg/2024/1689/oj>; <https://eur-lex.europa.eu/eli/reg/2026/1744/oj>
 - 45 CFR part 46, Protection of Human Subjects; Subpart A is the Common Rule (IRB review in § 46.109, informed consent in § 46.116). <https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-A/part-46>
+
+**Track 12.**
+- NAHB Research Foundation for HUD (1978/79). *Reducing Home Building Costs with OVE Design and Construction*. HUD Guideline 5. <https://www.huduser.gov/PORTAL/sites/default/files/pdf/Reducing-Home-Building-Costs.pdf>
+- Home Innovation Research Labs. *Advanced Framing: An Examination of its Practical Use in Residential Construction*. <https://HomeInnovation.com/trends_and_reports/featured_reports/advanced_framing_-_an_examination_of_its_practical_use_in_residential_construction>
+- NAHB (2025). Cost of Constructing a Home in 2024. <https://eyeonhousing.org/2025/01/cost-of-constructing-a-home-in-2024/>
+- Carpenter and Schumacher (2003). Characterization of framing factors for wood-framed low-rise residential buildings. *ASHRAE Transactions* 109 (RP-904). <https://basc.pnnl.gov/library/characterization-framing-factors-wood-framed-low-rise-residential-buildings>
+- American Wood Council, *National Design Specification for Wood Construction* and Supplement; SPF values as reprinted by NELMA <https://www.nelma.org/wp-content/uploads/2022/06/Base-Design-Values-for-SPFs-and-SPF.pdf>
+- Not yet checked; check before citing: ASCE 7 (loads); EnergyPlus <https://energyplus.net>; OpenStudio <https://openstudio.net>; BEopt (NREL); OpenSees <https://opensees.berkeley.edu>; IfcOpenShell <https://ifcopenshell.org>; FreeCAD; WikiHouse <https://www.wikihouse.cc>; US Census Survey of Construction <https://www.census.gov/construction/soc/>

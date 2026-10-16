@@ -129,6 +129,32 @@ site, with aggregate counts committed to the repository, rank ahead of adding
 more products. Only the owner's own site is measured, never the copies other
 people deploy. Spec: `portfolio/usage/README.md`.
 
+**SEO moves up a lot, on the site and in the repository** (the owner,
+2026-10-16): "I want seo optimization to be moved up a lot in both the ghp and
+the actual repo." And: "this is a general goal more than something you
+personally do." So search optimization is now a top-tier priority for every
+track, not a checklist item at the end, on two surfaces:
+
+- **The GitHub Pages site** (the catalogue, venture pages, research pages):
+  unique titles and meta descriptions that match what a searcher types,
+  canonical URLs, structured data that is true to the page, a complete
+  sitemap, internal links from the home page and between related pages, fast
+  pages, real answers to real questions above the fold.
+- **The repository itself**, which GitHub and search engines index too: the
+  root `README.md`, each venture's and research project's `README.md`, and
+  per-directory docs should open with a plain sentence saying what the thing
+  is and who it is for, use the words a searcher would use, and link to the
+  live page. Repository description and topics are owner settings; propose
+  them in a PR rather than queueing a separate ask.
+
+This is a direction, not a single run's task: weigh it heavily when choosing
+what to do, and have work that touches a page or a README leave it better for
+search. A change to a shared template or generator, which lifts every page at
+once, beats hand-editing one page. Optimize for searchers, not for crawlers:
+no keyword stuffing, doorway or near-duplicate pages, hidden text, invented
+reviews or ratings in structured data, or link schemes. Search engines punish
+those, and the never-fabricate and platform-terms limits below apply.
+
 **Own the tooling; open-source apps and tools as a second track** (the owner,
 2026-10-16): "I don't want to use a bunch of user managed accounts by the way.
 why is it not possible to track analytics on a webpage with opensource or a

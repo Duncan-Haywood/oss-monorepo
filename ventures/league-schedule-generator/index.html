@@ -127,6 +127,11 @@
       <h2 style="margin-top:22px">Standings</h2>
       <div class="scroll"><table id="standings"><thead><tr><th class="n">#</th><th>Team</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th class="n">GD</th><th class="n">Pts</th></tr></thead><tbody></tbody></table></div>
     </div>
+    <div id="race-wrap" hidden>
+      <h2 style="margin-top:22px">Play-off race</h2>
+      <p class="note" id="race-note"></p>
+      <div class="scroll"><table id="race"><thead><tr><th>Team</th><th class="n">Pts</th><th class="n">To play</th><th class="n">Max</th><th>Status</th><th class="n">Points to clinch</th></tr></thead><tbody></tbody></table></div>
+    </div>
     <div id="bracket-wrap" hidden>
       <h2 style="margin-top:22px">Play-off bracket</h2>
       <pre id="bracket"></pre>
@@ -193,7 +198,7 @@
   </footer>
 
   <script type="module">
-    import { readSpec, buildSchedule, applyRainouts, parseOfficials, assignOfficials, validateOfficials, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, buildPoolPlay, poolAdvancers, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { readSpec, buildSchedule, applyRainouts, parseOfficials, assignOfficials, validateOfficials, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, playoffRace, remainingFixtures, buildPoolPlay, poolAdvancers, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -264,6 +269,11 @@
       showTeam();
       const sp = (o) => `${s.stats.courtSpread} court and ${s.stats.timeSpread} time-slot game(s)`;
       $("#fairness").textContent = `Biggest gap between one team's most and least used court or time: ${sp()}. Home/away breaks per team: ${s.stats.breaks.join(", ")} (in team order).`;
+      $("#race-wrap").hidden = !extra.race;
+      if (extra.race) {
+        $("#race-note").textContent = `Top ${extra.race.spots} qualify. ${extra.race.rows.exact ? "Every way the remaining games could finish was checked." : "Many games remain, so only the safe bounds are used: a team marked alive may already be settled."} Ranked on points only; a tie on points counts against the team, so "clinched" and "out" are never wrong, and goal difference can help a team marked alive.`;
+        $("#race tbody").innerHTML = extra.race.rows.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${r.points}</td><td class="n">${r.left}</td><td class="n">${r.maxPoints}</td><td>${r.status === "clinched" ? "Clinched" : r.status === "eliminated" ? "Out" : "Alive"}</td><td class="n">${r.magic ?? "–"}</td></tr>`).join("");
+      }
       $("#standings-wrap").hidden = !extra.table;
       if (extra.table) $("#standings tbody").innerHTML = extra.table.map((r) => `<tr><td class="n">${r.rank}</td><td>${esc(r.name)}</td><td class="n">${r.played}</td><td class="n">${r.won}</td><td class="n">${r.drawn}</td><td class="n">${r.lost}</td><td class="n">${r.gd}</td><td class="n">${r.points}</td></tr>`).join("");
       $("#bracket-wrap").hidden = !extra.bracketText;
@@ -311,6 +321,11 @@
         table = standings(s.teams, pr.results, { headToHead: $("#h2h").checked });
         seeds = table.map((r) => r.name);
       }
+      let race = null;
+      if (resText.trim() && want >= 1 && want < s.teams.length) {
+        const pr2 = parseResults(resText, s.teams);
+        race = { spots: want, rows: playoffRace(s.teams, pr2.results, remainingFixtures(s, pr2.results), want) };
+      }
       let bracketTxt = "";
       if (want >= 2) {
         if (want > s.teams.length) warnings.push(`The play-off needs ${want} teams but there are only ${s.teams.length}.`);
@@ -319,7 +334,7 @@
           bracketTxt = bracketText(bracket);
         }
       }
-      render(s, { warnings, table, bracket, bracketText: bracketTxt });
+      render(s, { warnings, table, bracket, bracketText: bracketTxt, race });
       status.textContent = "Done. Scroll down for the schedule.";
       return true;
     }

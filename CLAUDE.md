@@ -71,6 +71,11 @@ report it alongside other useful work, not in place of it.
 Quoted and specified in [`prompts/goals.md`](prompts/goals.md); read the
 section your work touches:
 
+- **SEO is a top priority, on the GitHub Pages site and in the repository
+  itself** (owner, 2026-10-16): titles, descriptions, structured data,
+  sitemap and internal links on the site; READMEs that say plainly what each
+  thing is, in a searcher's words, and link to its live page. Prefer fixes to
+  shared templates and generators. No keyword stuffing or doorway pages.
 - **Automated, unpaid, compliant distribution** (registries, stores,
   directories, labelled bots; off by default with a dry run; the owner enables
   a channel once). **Never break a platform's terms or the law**: no unsolicited
