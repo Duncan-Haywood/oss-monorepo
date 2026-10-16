@@ -145,3 +145,11 @@ test("buildFile makes a valid file for any group", () => {
   const f = buildFile({ groups: [{ date: "261001", accounts: [{ number: "55", statuses: [[10, 0], [15, 100]], summaries: [], txns: [[108, 100, "R1"]] }] }] });
   assert.deepEqual(codes(validate(f)), ["CLEAN"]);
 });
+
+test("a file with no transaction records counts zero transactions, not an empty list", () => {
+  // The summary once declared `transactions` twice (0, then []), so the later
+  // [] won and a file without 16 records rendered as ",  transactions" on the
+  // page. Found by `tsc --checkJs` (TS1117, duplicate object key).
+  const noDetail = sampleFile().split(/\r?\n/).filter((l) => !l.startsWith("16,") && !l.startsWith("88,")).join("\n");
+  assert.equal(validate(noDetail).summary.transactions, 0);
+});

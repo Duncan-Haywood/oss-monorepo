@@ -1,3 +1,4 @@
+// @ts-check
 const KEY = "freelancer-schedule-c-categorizer-usage";
 // Separate from the counters on purpose: opting out *removes* the
 // counters, so a flag stored inside them would be deleted by the very

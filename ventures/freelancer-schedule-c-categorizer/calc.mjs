@@ -57,7 +57,7 @@ const ALIAS_LABELS = {
   phone: "utilities", internet: "utilities", meal: "meals", "meals and entertainment": "meals", "bank fees": "other", education: "other", dues: "other",
   capex: "equipment", asset: "equipment", "estimated tax": "est_tax", "estimated taxes": "est_tax", "sales tax": "sales_tax", health: "health_insurance", "health insurance": "health_insurance", "sep ira": "retirement", "solo 401k": "retirement",
   loan: "loan_principal", "bank interest": "investment_income", dividends: "investment_income",
-  loan:"loan_principal", personal: "owner", draw: "owner",
+  personal: "owner", draw: "owner",
 };
 for (const [alias, key] of Object.entries(ALIAS_LABELS)) LABEL_TO_KEY[alias] = key;
 export const categoryKey = (s) => LABEL_TO_KEY[String(s ?? "").trim().toLowerCase().replace(/\s+/g, " ")] ?? null;

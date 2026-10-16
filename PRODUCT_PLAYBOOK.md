@@ -189,6 +189,33 @@ One session should produce something usable. Concretely:
   execute the action. If you can't run it, you can't say it ships.
 - **Leave `main` working.**
 
+### Rule of thumb: plain JavaScript, checked by TypeScript (2026-10-16)
+
+Venture code stays build-free `.mjs`, served as committed. TypeScript is used
+only as a checker, never as a build step:
+
+- **Start every new `.mjs` file with `// @ts-check`.** Add JSDoc types only
+  where tsc asks for them (`/** @type {HTMLFormElement} */` on a
+  `querySelector`, a `@typedef` for an object that is built up after its
+  literal). Keep the JSDoc true: a `@param {number}` the form actually passes
+  as `''` misleads the next session.
+- **A file you edit gets the pragma too, if it already passes.**
+  `node platform/pages/typecheck.mjs --candidates <slug>` lists which of the
+  venture's files pass today. Do not retrofit files that fail, and do not add
+  `--checkJs` across the tree.
+- **CI keeps opted-in files clean.** `node platform/pages/typecheck.mjs <slug>`
+  runs in `ventures-tests` on every venture a PR touches. It exits 1 on any
+  diagnostic in an opted-in file.
+
+Why opt-in and not everywhere: across all 3,410 venture product files,
+`--checkJs` reported 3,911 diagnostics and one user-visible bug. That bug was
+a duplicate object key that blanked a transaction count. With the two
+privacy-signal globals declared, 80% of files (two thirds of `calc.mjs`)
+already pass with no other edit. Opting a file in costs nothing, and it
+catches the renamed field, duplicate key or misspelled method in the edit
+that introduces it. Measurement:
+[`portfolio/research/js-typecheck/`](portfolio/research/js-typecheck/README.md).
+
 ## 5. Every product ships these five things
 
 A product is not done without them. They are cheap and they are what makes a

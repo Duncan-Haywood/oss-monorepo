@@ -62,3 +62,19 @@ jobs:
             echo "::endgroup::"
           done
           exit $rc
+      - name: tsc over each touched venture's // @ts-check files
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -u
+          # PRODUCT_PLAYBOOK.md 4: a file that opts in with // @ts-check stays
+          # type-clean. Installs a pinned typescript outside the tree only when
+          # a touched venture has an opted-in file.
+          if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            slugs=$(ls ventures)
+          else
+            slugs=$(git diff --name-only "$BASE" HEAD -- ventures | cut -d/ -f2 | sort -u)
+          fi
+          [ -n "$slugs" ] || exit 0
+          # shellcheck disable=SC2086
+          node platform/pages/typecheck.mjs $slugs
