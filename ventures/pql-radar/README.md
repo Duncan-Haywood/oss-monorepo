@@ -63,6 +63,7 @@ API_KEY=$(openssl rand -hex 16) ADMIN_KEY=$(openssl rand -hex 16) node server.mj
 | `STATE` | state file, default `/tmp/state.json`; put it on a disk |
 | `STRIPE_WEBHOOK_SECRET` | optional; verifies the Stripe webhook that records paid conversions |
 | `ALERT_WEBHOOK_URL`, `ALERT_WEBHOOK_SECRET` | optional; a signed `lead.hot` POST, once per signup |
+| `ALERT_FORMAT` | `json` (default), `slack` or `discord`: with the last two, point `ALERT_WEBHOOK_URL` at a Slack or Discord incoming webhook and hot leads arrive as a chat message, no glue code |
 
 API (bearer `API_KEY`):
 
