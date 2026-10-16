@@ -26,7 +26,7 @@
 /**
  * Referral rates differ per marketplace *for the same item*, which is half the
  * reason this comparison is worth running at all: "jewelry" is 20% on both
- * Amazon and Walmart but 6.5% on Etsy and 13.25% on eBay.
+ * Amazon and Walmart but 6.5% on Etsy and 13.6% on eBay.
  *
  * Amazon and Walmart rates are the category presets from their own calculators
  * (`ventures/amazon-fba-calculator/calc.mjs`,
@@ -71,8 +71,8 @@ export const CHANNELS = [
   {
     id: "ebay",
     label: "eBay",
-    percentRate: 13.25,
-    fixedFee: 0.3,
+    percentRate: 13.6,
+    fixedFee: 0.4, // $0.40 on orders over $10 ($0.30 at $10 or less; the 2.35% band above $7,500 is not modelled)
     monthlyFee: 0,
     demandIncluded: true,
     rateLabel: "Final value fee",
