@@ -1718,6 +1718,11 @@
      "summary": "Testing h&nbsp;=&nbsp;0 in the three-auditor hardness-aware Dawid&ndash;Skene model. Under the null the likelihood-ratio statistic has median about 5 and 95th percentile about 13, so the chi-square cutoffs 3.84 and 5.99 reject 62&ndash;72% and 35&ndash;49% of null data sets. A parametric bootstrap (39 refits) rejects 7/60 and 0/60 under the null and detects h&nbsp;=&nbsp;0.3 reliably at <em>n</em>&nbsp;=&nbsp;1000 (100%) but only 37% at <em>n</em>&nbsp;=&nbsp;200 with hard accuracy 0.5; h&nbsp;=&nbsp;0.1 is undetectable. Stylised, 60 draws per cell."
     },
     {
+     "slug": "ambient-hlrtlevel",
+     "title": "Does the bootstrap likelihood-ratio test of &ldquo;no hard messages&rdquo; hold its level?",
+     "summary": "A larger null-only check of the parametric-bootstrap test from <code>ambient-hlrt</code> (B&nbsp;=&nbsp;39): 200 data sets with no hard messages at each of <em>n</em>&nbsp;=&nbsp;100, 200 and 500. Rejection at nominal 5% is 11/200, 9/200 and 8/200 (exact 95% intervals all contain 0.05) and at 10% is 20, 16 and 19 of 200; mean p is about 0.5. The earlier 7/60 at <em>n</em>&nbsp;=&nbsp;200 looks like noise. Stylised: one dependence model, level only, intervals about &plusmn;0.03."
+    },
+    {
      "slug": "ambient-bandit",
      "title": "Can an always-on assistant learn when to speak from accept/dismiss feedback alone, and what does it cost in dismissals?",
      "summary": "A simulated assistant learns an interruption policy online (greedy, &epsilon;-greedy or Thompson-sampled logistic model) from the user&rsquo;s reaction only when it speaks. With an uninformed prior none of the three learns a useful policy in 100&nbsp;h; with a prior that the intent score is informative, greedy reaches 90% of an offline oracle&rsquo;s rate after a median 22.5&nbsp;h and about 185 dismissals, and Thompson sampling takes 32.5&nbsp;h. It still earns 10.4 against the oracle&rsquo;s 12.7 per hour, and after a drop in classifier quality it does far worse than frozen offline weights (0.3 vs 4.4 per hour). Stylised: independent windows, instant noise-free feedback, picked costs."
