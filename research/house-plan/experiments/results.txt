@@ -1,0 +1,50 @@
+A. The default plan (28 x 28 ft, 2 bedrooms, 16 in studs and joists, 24 in rafters, 6:12 roof)
+rooms: living 28x16, bed1 11x12, bed2 11x12, bath 6x12
+walls 7, openings 14; layout failures none; takeoff failures none
+members: {'stud': '2x4', 'joist': '2x10', 'girder': '2x12', 'rafter': '2x12', 'ceiling': '2x8', 'ridge': '2x12'}; central bearing wall: True
+  2x10      1120 bf
+  2x12      1230 bf
+  2x4       1443 bf
+  2x6         32 bf
+  2x8        560 bf
+framing total 4385 bf = 5.59 bf/sq ft of floor
+sheets: wall 30, roof 32, subfloor 25
+
+B. Exhaustive search over 182520 plans, lowest framing lumber per sq ft of floor, with at least 2 bedrooms, by target floor area (target to 1.15 x target)
+floor area 600-690 sq ft: best 4.924 bf/sq ft; 32 x 20 ft (640 sq ft), 2 bed, bed zone 10 ft, window 4 ft, pitch 4:12, oc studs 24 joists 24 rafters 24
+   members {'stud': '2x4', 'joist': '2x8', 'girder': '2x10', 'rafter': '2x12', 'ceiling': '2x8', 'ridge': '2x12'}, central wall True, 3151 bf
+floor area 800-920 sq ft: best 4.833 bf/sq ft; 32 x 28 ft (896 sq ft), 2 bed, bed zone 13 ft, window 4 ft, pitch 4:12, oc studs 24 joists 24 rafters 24
+   members {'stud': '2x4', 'joist': '2x12', 'girder': '2x12', 'rafter': '2x12', 'ceiling': '2x8', 'ridge': '2x12'}, central wall True, 4330 bf
+floor area 1000-1150 sq ft: best 5.171 bf/sq ft; 32 x 32 ft (1024 sq ft), 2 bed, bed zone 10 ft, window 4 ft, pitch 4:12, oc studs 24 joists 16 rafters 24
+   members {'stud': '2x4', 'joist': '2x12', 'girder': '2x12', 'rafter': '2x12', 'ceiling': '2x8', 'ridge': '2x12'}, central wall True, 5296 bf
+floor area 1200-1380 sq ft: best 5.899 bf/sq ft; 38 x 32 ft (1216 sq ft), 2 bed, bed zone 10 ft, window 4 ft, pitch 4:12, oc studs 24 joists 16 rafters 16
+   members {'stud': '2x4', 'joist': '2x12', 'girder': '2x12', 'rafter': '2x12', 'ceiling': '2x8', 'ridge': '2x12'}, central wall True, 7173 bf
+floor area 1400-1610 sq ft: no feasible plan in the grid (best infeasible: ['no 2x joist spans even half the depth'])
+
+C. How much of the grid is feasible, and what stops the rest (floor area 1000-1150 sq ft)
+feasible 2286 of 182520 (1.3%)
+  area outside 1000-1150: 164160 plans
+  R304.3: 102960 plans
+  no 2x: 100620 plans
+  R304.1: 79056 plans
+  geometry: openings: 23400 plans
+  geometry: window: 19344 plans
+  R303.1: 14664 plans
+  no 3-ply: 7020 plans
+
+D. Search methods at equal evaluation budgets (floor area 1000-1150 sq ft, at least 2 bedrooms; 40 seeds; gap = score minus the exhaustive optimum, bf/sq ft)
+optimum 5.171
+ budget  method  found feasible  median gap  mean gap  hit optimum
+    100  random          24/40       0.863     0.797         0/40
+    100   local          30/40       0.442     0.404         3/40
+    500  random          40/40       0.588     0.576         0/40
+    500   local          40/40       0.022     0.098        17/40
+   2000  random          40/40       0.207     0.263         0/40
+   2000   local          40/40       0.000     0.010        36/40
+
+E. Lumber per sq ft against floor area, best plan at each minimum area (exhaustive, at least 2 bedrooms)
+floor area   500-575: 20 x 28 ft =   560 sq ft, 4.965 bf/sq ft
+floor area   700-805: 32 x 24 ft =   768 sq ft, 4.848 bf/sq ft
+floor area   900-1035: 32 x 30 ft =   960 sq ft, 4.975 bf/sq ft
+floor area  1100-1265: 38 x 30 ft =  1140 sq ft, 5.653 bf/sq ft
+floor area  1300-1495: no feasible plan
