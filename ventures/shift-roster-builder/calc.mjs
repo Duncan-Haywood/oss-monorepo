@@ -126,6 +126,37 @@ function parsePrevEnd(cell) {
   return (d - 7) * 1440 + t;
 }
 
+// "off: Wed; Fri 5pm-close" = time off this week only. Whole days or a clock range are removed from the person's
+// availability, so a standing pattern ("any", "Mon-Fri 9-17") does not have to be rewritten each week.
+const OFF_CELL = /^(off|time[ -]?off|pto)\s*:/i;
+function subtractRange(ranges, [a, b]) {
+  const out = [];
+  for (const [x, y] of ranges) {
+    if (b <= x || a >= y) { out.push([x, y]); continue; }
+    if (a > x) out.push([x, a]);
+    if (b < y) out.push([b, y]);
+  }
+  return out;
+}
+export function applyTimeOff(days, text) {
+  const errors = [];
+  for (const tok of String(text).split(/;|\|/)) {
+    const part = tok.trim();
+    if (!part) continue;
+    const sp = part.search(/\s/);
+    const ds = parseDaySpec(sp < 0 ? part : part.slice(0, sp));
+    if (!ds.length) { errors.push(`could not read the days in "off: ${part}"`); continue; }
+    const rest = sp < 0 ? "" : part.slice(sp).trim();
+    let r = [0, 1440];
+    if (rest !== "" && !/^(all day|off|any)$/i.test(rest)) {
+      r = parseRange(rest.replace(/\bclose\b/i, "24").replace(/\bopen\b/i, "0"));
+      if (!r || r[1] <= r[0]) { errors.push(`could not read the hours in "off: ${part}"`); continue; }
+    }
+    for (const d of ds) days[d] = subtractRange(days[d], r);
+  }
+  return errors;
+}
+
 // One person per line: name, hourly wage, max hours per week, min hours per week, availability, [roles: a|b]
 export function parseStaff(text) {
   const staff = [], errors = [];
@@ -153,9 +184,13 @@ export function parseStaff(text) {
       prevEnd = parsePrevEnd(prevCell);
       if (prevEnd === null) errors.push(`${where} (${c[0]}): could not read "${prevCell}"; write it like "prev: Sun 10pm" (when their last shift last week ended)`);
     }
-    const av = parseAvailability(tail.filter((x) => !ROLE_CELL.test(x) && !PREV_CELL.test(x)).join(","));
+    const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x);
+    const av = parseAvailability(tail.filter((x) => !isExtra(x)).join(","));
     av.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
-    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any, prevEnd });
+    for (const cell of tail.filter((x) => OFF_CELL.test(x))) {
+      applyTimeOff(av.days, cell.replace(OFF_CELL, "")).forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
+    }
+    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any && !tail.some((x) => OFF_CELL.test(x)), prevEnd });
   });
   if (!staff.length && !errors.length) errors.push("Add at least one person.");
   if (staff.length > MAX_STAFF) errors.push(`That is ${staff.length} people; this tool handles up to ${MAX_STAFF}.`);
