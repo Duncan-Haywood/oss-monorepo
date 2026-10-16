@@ -1,0 +1,64 @@
+name: Adopt stranded branches
+
+# Open a draft pull request for every branch a run pushed and then left
+# (prompt.md, Landing work: "Never leave a branch without a pull request").
+# On 2026-10-15, 32 branches here with tips since 2026-09-01 carried commits in
+# no pull request. 30 are skipped: run logs or prompts/ scaffolding (as
+# prompt.md says), or projects that later landed through another PR (sag-twin,
+# sample-twin, windup-twin). 2 held work main still lacks.
+#
+# The script lives in Duncan-Haywood/oss-monorepo (platform/ci/adopt_stranded.py,
+# with tests), which is where this portfolio is moving; this job checks it out
+# rather than keeping a copy here. `--derived 'prompts/*'` makes branches whose
+# only changes are under prompts/ count as run logs, per prompt.md step 2.
+#
+# It pushes no commits and calls no paid API: one GITHUB_TOKEN REST call per PR
+# it opens, at most 10 per run. Turn it off with the repository variable
+# ADOPT_STRANDED_BRANCHES=false. PRs opened with GITHUB_TOKEN do not start
+# workflows, so an adopted PR's checks run on the first push to it.
+
+on:
+  schedule:
+    - cron: "47 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "List what would be adopted, open nothing"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: adopt-stranded-branches
+  cancel-in-progress: false
+
+jobs:
+  adopt:
+    if: vars.ADOPT_STRANDED_BRANCHES != 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write # opening the draft PRs
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: repo
+      - uses: actions/checkout@v4
+        with:
+          repository: Duncan-Haywood/oss-monorepo
+          ref: main
+          persist-credentials: false
+          sparse-checkout: platform/ci
+          path: tools
+      - name: Open draft PRs for stranded branches
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLY: ${{ inputs.dry_run && ' ' || '--apply' }}
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE/repo"
+          python3 tools/platform/ci/adopt_stranded.py --repo repo \
+            --derived 'prompts/*' --since 2026-09-01 $APPLY
