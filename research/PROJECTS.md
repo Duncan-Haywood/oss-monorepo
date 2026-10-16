@@ -843,7 +843,7 @@ Census Survey of Construction for where a house's price goes.
    headers and beams from NDS design values and ASCE 7 loads, with bending, shear, deflection
    and bearing checks. Compare it with published span tables only where their licence allows,
    and say where they differ and why. The output is a tool people can use.
-3. `house-plan`: a house plan as data. A parametric plan (rooms, walls, openings, roof) that
+3. `house-plan` (done 2026-10-16; the layout search and CMA-ES baseline are next steps): a house plan as data. A parametric plan (rooms, walls, openings, roof) that
    produces a framing takeoff, a bill of materials and an IFC model through IfcOpenShell. Then
    the loop: optimise a plan for cost per square foot of living space, under room-size and
    layout rules written as checks, against a random-search or CMA-ES baseline.
