@@ -1,5 +1,5 @@
 name: ai-crawler-access-check
-description: Free tool that checks a robots.txt against 16 named AI-crawler user-agents (GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and more) and reports allowed/blocked/partially-blocked per crawler, plus a structural check of llms.txt, with a matching zero-dependency Node CLI that can fetch a live domain or run as a CI gate.
+description: Free tool that checks a robots.txt against 20 named AI-crawler user-agents (GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and more) and reports allowed/blocked/partially-blocked per crawler, plus a structural check of llms.txt, with a matching zero-dependency Node CLI that can fetch a live domain or run as a CI gate.
 stage: prototype
 
 owner: duncan
