@@ -6,5 +6,6 @@ Stdlib-only Python. Eliciting a drift tolerance interval `[l,u]`: the Winkler in
 cd research/interval-elicitation
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, <2 s
 PYTHONPATH=src python3 experiments/run.py                  # output in experiments/results.txt
+python3 experiments/figure.py                           # redraws experiments/detection.svg from results.txt
 ```
 Risk-neutral verifiers, unimodal drift, one report per task; MIT.
