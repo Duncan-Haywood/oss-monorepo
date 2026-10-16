@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   applyRainouts, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs,
-  scheduleText, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, bracketText, sampleFields, encodeFields, decodeFields,
+  scheduleText, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, bracketText, sampleFields, encodeFields, decodeFields,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -445,4 +445,16 @@ test("rainout moves keep a time-limited team at its time", () => {
 test("time limits survive a share link", () => {
   const f = { ...sampleFields(), timeLimits: "Lob Squad: 18:00" };
   assert.equal(decodeFields(encodeFields(f)).timeLimits, "Lob Squad: 18:00");
+});
+
+test("league web page is self-contained, escapes names, and lists every match", () => {
+  const { spec } = readSpec({ ...sampleFields(), teams: "Fish <b>&Chips\nOwls\nHawks\nWolves\nBears" });
+  const s = buildSchedule(spec);
+  const html = leaguePageHtml(s, { title: "Spring <League>", table: standings(s.teams, []), bracket: playoffBracket(s.teams.slice(0, 4)) });
+  assert.ok(html.startsWith("<!doctype html>"));
+  assert.ok(!html.includes("<b>&Chips") && html.includes("Fish &lt;b&gt;&amp;Chips"));
+  assert.ok(html.includes("Spring &lt;League&gt;") && html.includes("<h2>Standings</h2>") && html.includes("<h2>Play-offs</h2>"));
+  assert.equal((html.match(/<tr data-t="\d+ \d+">/g) || []).length, s.rounds.reduce((n, r) => n + r.matches.length, 0));
+  assert.ok(!/(src|href)=["']https?:/.test(html), "no external requests");
+  assert.equal((html.match(/class="bye"/g) || []).length, s.rounds.filter((r) => r.bye !== null && r.bye !== undefined).length);
 });
