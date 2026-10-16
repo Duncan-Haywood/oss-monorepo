@@ -44,6 +44,10 @@
     {
       "date": "2026-10-16",
       "note": "Step 2 partial: moved the checklist's explanatory traps, browser checks and post-merge gh-pages refresh (~85 lines) from CLAUDE.md to .github/prompts/verify-and-merge.md. The checklist code block and the 'Ship without review ceremony' heading stay in CLAUDE.md because checklist_coverage.py, test_manifests.py and the queue prompts pin them. Remaining: move the block itself after repointing those, and steps 3-4."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Step 1 partial: moved DIRECTION.md's 92-line 'fleet-parity trap' section (2026-09-06 measurements, partly superseded) to docs/history/direction-fleet-parity-trap-2026-09-06.md, leaving a 12-line rule. DIRECTION.md 1,015 -> 922 lines. Steps 2-4 still open."
     }
   ]
 }
