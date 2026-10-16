@@ -211,6 +211,7 @@ test("Maryland (183 or more) and Maine (more than 183) thresholds follow the 'mo
   assert.equal(RULES.ME.limit, 183);
   assert.equal(RULES.MD.requiresAbode, true);
   assert.equal(RULES.ME.requiresAbode, true);
+});
 
 test("convenience-of-the-employer view pulls remote workdays back to the employer's state", () => {
   // 5 workdays in NY, 5 in NJ, 5 in FL (no wage tax); employer in NY.
