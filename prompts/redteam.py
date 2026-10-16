@@ -259,6 +259,9 @@ def campaign(target: Path, mutants: int, seed: int, repo: Path = REPO,
     text = original.decode()
 
     ok, base_seconds = run_suite(cmd, cwd, timeout)
+    if not ok and base_seconds >= timeout:
+        raise SystemExit(f"baseline timed out after {timeout}s: `{' '.join(cmd)}` may be slow, "
+                         "not red. Re-run with a larger --timeout before calling it a defect.")
     if not ok:
         raise SystemExit(f"baseline is red: `{' '.join(cmd)}` fails on the unmutated tree. "
                          "That is a real defect: fix it (blue team) before measuring.")
