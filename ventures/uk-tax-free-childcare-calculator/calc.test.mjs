@@ -95,3 +95,25 @@ test("summary names the figures and tells the reader to verify", () => {
   assert.match(t, /Tax-Free Childcare top-up £900\.00/);
   assert.match(t, /Verify/);
 });
+
+test("free hours total sums every funded child", () => {
+  const r = compute({ ...SAMPLE, c2Age: "3-4", c2Hours: "15", c2Weeks: "38" });
+  assert.equal(r.rows[0].fundedHours, 1140);
+  assert.equal(r.rows[1].fundedHours, 570);
+  assert.equal(r.totals.fundedHours, 1710);
+});
+
+test("a top-up under £1 is still reported", () => {
+  const r = compute({ ...SAMPLE, c1Age: "school", c1Hours: "1", c1Rate: "1", c1Weeks: "1", c2Age: "none" });
+  assert.equal(r.totals.topUp, 0.2);
+  assert.ok(r.findings.some((f) => f.title.startsWith("Tax-Free Childcare adds")));
+});
+
+test("the cap warning appears only when the top-up is actually limited", () => {
+  const at = { ...SAMPLE, c1Age: "school", c1Hours: "40", c1Rate: "5", c1Weeks: "50", c2Age: "none" };
+  const exact = compute(at); // 10,000 to pay -> 2,000 top-up, exactly the cap
+  assert.equal(exact.totals.topUp, 2000);
+  assert.ok(!exact.findings.some((f) => f.title.includes("hit the Tax-Free Childcare cap")));
+  const over = compute({ ...at, c1Rate: "6" });
+  assert.ok(over.findings.some((f) => f.title.includes("hit the Tax-Free Childcare cap")));
+});
