@@ -307,6 +307,10 @@ test("followUps breaks ties on expiry by quietest first, and keeps input order w
   const c = base({ id: "c", sentOn: "", validUntil: "2026-10-11" });
   const d = base({ id: "d", sentOn: "", validUntil: "2026-10-11" });
   assert.deepEqual(followUps([c, d], today).map((x) => x.id), ["c", "d"]);
+  // A known quiet count outranks an unknown one at the same expiry, whatever the input order.
+  const e = base({ id: "e", sentOn: "2026-10-09", validUntil: "2026-10-11" });
+  assert.deepEqual(followUps([c, e], today).map((x) => x.id), ["e", "c"]);
+  assert.deepEqual(followUps([e, c], today).map((x) => x.id), ["e", "c"]);
 });
 
 test("followUpText names the proposal and the remaining days", () => {

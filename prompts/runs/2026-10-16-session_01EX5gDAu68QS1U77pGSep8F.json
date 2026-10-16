@@ -125,7 +125,7 @@
             "caught": false,
             "seconds": 0.5,
             "triage": "gap",
-            "caught_after_fix": false,
+            "caught_after_fix": true,
             "note": "tie-break on equal expiry untested; added followUps tie-break test"
           },
           {
