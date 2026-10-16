@@ -2396,6 +2396,11 @@
      "summary": "Writes the register-file weight-stationary (WS) engine of <em>accel-planebatch</em> with clock gates (one per 24-bit accumulator, or one per set of eight) and synthesises it to SKY130 HD with Yosys. All 32 points are bit-exact against NumPy and write exactly as many accumulator bits as the output-stationary engine, confirming the assumption of <em>accel-gatedprice</em>. A gate per set brings the accumulator clock-pin energy to 1.00&ndash;1.07&times; output-stationary (ungated WS: <em>B</em>&times;), but area falls only 7&ndash;18&nbsp;% against ungated WS, and gated WS is still 1.2&times; to 5.3&times; the output-stationary area at batch 2 to 16 because the extra accumulator sets are flops either way. <strong>Stylised:</strong> synthesis only, no place and route, clock tree or timing; energy is a liberty-based clock-pin model."
     },
     {
+     "slug": "accel-gatedlanes",
+     "title": "Does the gated weight-stationary engine's verdict depend on how many lanes it has?",
+     "summary": "Sweeps the lane count <em>P</em> (2 to 16, with a failed attempt at 32) of the four engine modes from <em>accel-gatedrtl</em> on the 64&times;70 keyword-spotting layer, in RTL simulation and Yosys synthesis to SKY130 HD. All 29 points are bit-exact and write the same accumulator bits in every mode. Accumulator clock-pin energy stays at <em>B</em>&times; OS for ungated WS and at 1.01 to 1.07&times; with a gate per set, independent of <em>P</em>; gated WS stays 1.6 to 1.9&times; OS area at <em>B</em>&nbsp;=&nbsp;4 (2.9 to 3.0&times; at <em>B</em>&nbsp;=&nbsp;8), flat from <em>P</em>&nbsp;=&nbsp;4. So the earlier conclusion (cheap to clock, not small) is a property of the batch, not the lane count. <strong>Stylised:</strong> synthesis only, clock-pin energy only; Yosys exceeded 7&nbsp;GB at <em>P</em>&nbsp;=&nbsp;32, so wider engines are not covered."
+    },
+    {
      "slug": "accel-policy",
      "title": "Does a small control network need an accelerator to meet the control-rate deadline?",
      "summary": "Small MLP policies, cloned from a computed-torque controller for a two-link arm with DAgger and quantised to 8 and 4 bits, with inference latency modelled for microcontroller loops and <em>P</em>-lane accelerators (assumed constants) and the closed loop simulated with that latency. <strong>Preliminary and mostly negative:</strong> the int8 policies track at least 300&times; worse than the teacher, which itself barely notices a sample of delay, so policy accuracy rather than hardware speed limits control; the deadline model says hardware only matters above about 10&nbsp;kHz or for larger networks. Stylised; hardware figures are not measured."
@@ -2485,7 +2490,12 @@
     {
      "slug": "eda-conefeat",
      "title": "Do synthesized-netlist features predict which simulation survivors Yosys can prove equivalent?",
-     "summary": "Follow-up to <em>eda-equivpredict</em> on the same 27 survivors, now with Yosys installed. Position-free features (cell-count change after synthesis, miter size, identical cell histogram) are scored under leave-one-line-out. None beats guessing the majority class (16 of 27, 59.3%); the source-line rule gets 25 of 27. The nine solver timeouts barely change the netlist (|&Delta;cells| 0 for six), but equivalent mutants span 0 to 178, and miter size is nearly constant (1,188&ndash;1,199). A negative result on one design; cone depth and fan-in were not tried."
+     "summary": "Follow-up to <em>eda-equivpredict</em> on the same 27 survivors, now with Yosys installed. Position-free features (cell-count change after synthesis, miter size, identical cell histogram) are scored under leave-one-line-out. None beats guessing the majority class (16 of 27, 59.3%); the source-line rule gets 25 of 27. The nine solver timeouts barely change the netlist (|&Delta;cells| 0 for six), but equivalent mutants span 0 to 178, and miter size is nearly constant (1,188&ndash;1,199). A negative result on one design; cone depth and fan-in were not tried (see <em>eda-conehash</em>)."
+    },
+    {
+     "slug": "eda-conehash",
+     "title": "Do fan-in cone features of a mutant predict which simulation survivors Yosys can prove equivalent?",
+     "summary": "The next step <em>eda-conefeat</em> named. Golden and mutant are lowered to gate level without ABC, and each flip-flop and output is compared by a Merkle hash of its fan-in cone. Features of the changed cones (count, gates, depth, leaves, registers reached downstream) are scored under leave-one-line-out on the same 27 survivors. None beats the 59.3% majority class (best 13 of 27). One observation, found after looking at the table: all seven survivors that change exactly one sink are literal edits on two lines, and none is provably equivalent (six of the nine solver timeouts are among them). One design, one solver, stylised."
     }
    ]
   },

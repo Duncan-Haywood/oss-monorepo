@@ -61,7 +61,7 @@ test("referral rates follow the category, and differ per marketplace for the sam
   assert.equal(rate("walmart"), 20);
   // eBay and Etsy do not vary by category — that difference is the whole point
   // of running the comparison on a high-referral category.
-  assert.equal(rate("ebay"), 13.25);
+  assert.equal(rate("ebay"), 13.6);
   assert.equal(rate("etsy"), 9.5);
 });
 
@@ -77,7 +77,7 @@ test("an empty override falls back to the default instead of reading as zero", (
   for (const blank of ["", null, undefined]) {
     assert.equal(
       resolveChannels(item, { ebay: blank }).find((c) => c.id === "ebay").percentRate,
-      13.25,
+      13.6,
       `${JSON.stringify(blank)} must not be read as a 0% fee`,
     );
   }
@@ -86,12 +86,12 @@ test("an empty override falls back to the default instead of reading as zero", (
 test("eBay arithmetic matches the fee model by hand", () => {
   const item = loadItem(ITEM);
   const row = calculateChannel(resolveChannels(item).find((c) => c.id === "ebay"), item);
-  // 40 * 13.25% = 5.30, plus $0.30 fixed, no subscription.
-  assert.equal(row.percentFee.toFixed(2), "5.30");
-  assert.equal(row.channelFees.toFixed(2), "5.60");
+  // 40 * 13.6% = 5.44, plus $0.40 fixed, no subscription.
+  assert.equal(row.percentFee.toFixed(2), "5.44");
+  assert.equal(row.channelFees.toFixed(2), "5.84");
   assert.equal(row.cashInvested.toFixed(2), "18.00");
-  assert.equal(row.profit.toFixed(2), "16.40");
-  assert.equal(row.margin.toFixed(2), "41.00");
+  assert.equal(row.profit.toFixed(2), "16.16");
+  assert.equal(row.margin.toFixed(2), "40.40");
 });
 
 test("a subscription is spread over the seller's own volume, not ignored", () => {
@@ -173,7 +173,7 @@ test("identical channels tie in a stable order rather than swapping between runs
   // Force eBay and TikTok onto the same effective cost, then confirm repeated
   // comparisons agree — a table that reshuffles while a seller reads it is
   // worse than one that is merely approximate.
-  const overrides = { tiktok: 13.25 };
+  const overrides = { tiktok: 13.6 };
   const first = compareChannels(item, overrides).map((r) => r.id);
   const second = compareChannels(item, overrides).map((r) => r.id);
   assert.deepEqual(first, second);
