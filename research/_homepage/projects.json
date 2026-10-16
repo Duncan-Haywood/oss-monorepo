@@ -1723,6 +1723,11 @@
      "summary": "A larger null-only check of the parametric-bootstrap test from <code>ambient-hlrt</code> (B&nbsp;=&nbsp;39): 200 data sets with no hard messages at each of <em>n</em>&nbsp;=&nbsp;100, 200 and 500. Rejection at nominal 5% is 11/200, 9/200 and 8/200 (exact 95% intervals all contain 0.05) and at 10% is 20, 16 and 19 of 200; mean p is about 0.5. The earlier 7/60 at <em>n</em>&nbsp;=&nbsp;200 looks like noise. Stylised: one dependence model, level only, intervals about &plusmn;0.03."
     },
     {
+     "slug": "ambient-hlrtmis",
+     "title": "Does the bootstrap test of &ldquo;no hard messages&rdquo; stay valid when the auditors differ in accuracy?",
+     "summary": "Data with no hard messages but three auditors of unequal accuracy (equal, 0.9/0.8/0.7, 0.95/0.8/0.65; mean 0.8), tested against a null that forces one shared auditor matrix. With 100 draws per cell at <em>n</em>&nbsp;=&nbsp;200 and 500, rejection at nominal 5% is 6&ndash;10/100 at 200 and 0&ndash;6/100 at 500; five of six exact intervals contain 0.05 and the sixth (0/100) is conservative. No inflation is seen, but intervals are about &plusmn;0.05 wide. Stylised: accuracy heterogeneity only, level only."
+    },
+    {
      "slug": "ambient-bandit",
      "title": "Can an always-on assistant learn when to speak from accept/dismiss feedback alone, and what does it cost in dismissals?",
      "summary": "A simulated assistant learns an interruption policy online (greedy, &epsilon;-greedy or Thompson-sampled logistic model) from the user&rsquo;s reaction only when it speaks. With an uninformed prior none of the three learns a useful policy in 100&nbsp;h; with a prior that the intent score is informative, greedy reaches 90% of an offline oracle&rsquo;s rate after a median 22.5&nbsp;h and about 185 dismissals, and Thompson sampling takes 32.5&nbsp;h. It still earns 10.4 against the oracle&rsquo;s 12.7 per hour, and after a drop in classifier quality it does far worse than frozen offline weights (0.3 vs 4.4 per hour). Stylised: independent windows, instant noise-free feedback, picked costs."
