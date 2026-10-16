@@ -76,6 +76,9 @@ PROBE_DIRNAME = "unlanded-probe.git"
 DEFAULT_SINCE_DAYS = 14
 # Branches that are never anyone's unlanded work.
 NOT_WORK_BRANCHES = ("gh-pages",)
+# Prefixes of branches that only preserve history, such as the copies of
+# oss-research-monorepo's branches (research/_mirror/archive.py).
+NOT_WORK_PREFIXES = ("archive/",)
 LIST_LIMIT = 10
 
 
@@ -283,7 +286,8 @@ def sweep(repo, remote="origin", base="main", since=None, probe=None):
     tips = {}
     for line in dated.splitlines():
         sha, day, branch = line.split("\t", 2)
-        if branch in (base, "HEAD") or branch in NOT_WORK_BRANCHES:
+        if (branch in (base, "HEAD") or branch in NOT_WORK_BRANCHES
+                or branch.startswith(NOT_WORK_PREFIXES)):
             continue
         if since and day < since:
             continue

@@ -116,6 +116,9 @@ workflows:
 - workflow: ada-title-ii-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: adopt-stranded-branches.yml
+  classification: none
+  publishes: []
 - workflow: adu-payback-calculator-ci.yml
   classification: none
   publishes: []
@@ -449,6 +452,9 @@ workflows:
 - workflow: change-order-margin-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: changelog-keeper-ci.yml
+  classification: none
+  publishes: []
 - workflow: chargeback-evidence-packet-ci.yml
   classification: none
   publishes: []
@@ -708,6 +714,12 @@ workflows:
   classification: none
   publishes: []
 - workflow: distribute-mastodon.yml
+  classification: none
+  publishes: []
+- workflow: distribute-mcp.yml
+  classification: none
+  publishes: []
+- workflow: distribute-npm.yml
   classification: none
   publishes: []
 - workflow: distribute-releases.yml
@@ -1161,6 +1173,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: helm-values-schema-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: help-keeper-ci.yml
   classification: none
   publishes: []
 - workflow: hetzner-gitops-ci.yml
@@ -1956,6 +1971,9 @@ workflows:
 - workflow: requirements-pin-check-ci.yml
   classification: none
   publishes: []
+- workflow: research-archive.yml
+  classification: none
+  publishes: []
 - workflow: research-ci.yml
   classification: none
   publishes: []
@@ -2228,6 +2246,9 @@ workflows:
 - workflow: slopsquatting-check-ci.yml
   classification: none
   publishes: []
+- workflow: slot-keeper-ci.yml
+  classification: none
+  publishes: []
 - workflow: sms-segment-cost-calculator-ci.yml
   classification: none
   publishes: []
@@ -2376,6 +2397,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: supabase-rls-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: support-desk-ci.yml
   classification: none
   publishes: []
 - workflow: support-staffing-planner-ci.yml
