@@ -82,3 +82,19 @@ channels:
       - decide scope vs unscoped names before the first publish, because a published name cannot be reclaimed
     owner_ask: create or choose the npm account, store NPM_TOKEN as a repository secret, set NPM_SCOPE if wanted, then set DISTRIBUTE_NPM=true
     dry_run: node platform/distribution/npm.mjs
+  - id: mcp-server
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/mcp.mjs
+    server: platform/distribution/mcp-server.mjs
+    workflow: .github/workflows/distribute-mcp.yml
+    enabled_by: repository variable DISTRIBUTE_MCP=true plus secret NPM_TOKEN; optional variable MCP_PACKAGE_NAME (default monorepo-projects-mcp)
+    what_it_posts: one npm package, monorepo-projects-mcp, bundling every zero-dependency venture CLI whose closure imports no network or process module (133 of 142 today) behind a stdio MCP server with three tools (list_tools, tool_help, run_tool); also writes a server.json for the official MCP registry
+    dedupe: stateless; skipped when the registry already shows the current VERSION. Bump VERSION in mcp.mjs to ship a changed tool set
+    safety: arguments go to node as an array, never a shell; 20 s timeout; 200 KB output cap; the child gets a minimal environment; CLIs importing http/https/net/child_process/vm or calling fetch/eval are excluded at build time
+    terms_to_confirm_by_owner_when_enabling:
+      - npm Terms of Use (same account as npm-cli-packages)
+      - MCP registry (registry.modelcontextprotocol.io) publishing: `mcp-publisher` needs a GitHub login proving the io.github.<owner> namespace; agents did not run it. server.json is generated into the package
+      - decide the package name before the first publish; a published name cannot be reclaimed
+    owner_ask: same npm token as npm-cli-packages; set DISTRIBUTE_MCP=true; optionally run mcp-publisher once against the generated server.json
+    dry_run: node platform/distribution/mcp.mjs

@@ -1,0 +1,239 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01H4dpLk88ShUG6zWWiBG7kx",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-16T01:07:00Z",
+  "ended": "2026-10-16T01:07:17Z",
+  "wall_minutes": 0.74,
+  "tokens_in": 723918,
+  "tokens_out": 2891,
+  "cost_usd": 0.3676,
+  "tool_calls": 11,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "Target uk-landlord-section-24-calculator/calc.mjs: 8 mutants, 7 caught, 1 gap (year 2026 untested) now guarded. No real defects found in input hunt.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/uk-landlord-section-24-calculator/calc.mjs",
+        "test": "node --test ventures/uk-landlord-section-24-calculator/**/*.test.mjs  (in .)",
+        "seed": 820773748,
+        "commit": "04f99bacb4",
+        "sites": 122,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "ventures/uk-landlord-section-24-calculator/calc.mjs",
+            "line": 16,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "export const YEARS = { 2025: { label: \"2025/26\" }, 2026: { label: \"2026/27\" } };",
+            "after": "export const YEARS = { 2025: { label: \"2025/26\" }, 2027: { label: \"2026/27\" } };",
+            "line_text": "export const YEARS = { 2025: { label: \"2025/26\" }, 2026: { label: \"2026/27\" } };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "year 2026 was never exercised; added test covering both years and rejection"
+          },
+          {
+            "file": "ventures/uk-landlord-section-24-calculator/calc.mjs",
+            "line": 19,
+            "col": 88,
+            "operator": "div-to-times",
+            "before": "const money = (n) => (n < 0 ? \"-\" : \"\") + \"GBP \" + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 });",
+            "after": "const money = (n) => (n < 0 ? \"-\" : \"\") + \"GBP \" + Number(Math.round(Math.abs(n) * 100) * 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 });",
+            "line_text": "const money = (n) => (n < 0 ? \"-\" : \"\") + \"GBP \" + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-landlord-section-24-calculator/calc.mjs",
+            "line": 27,
+            "col": 10,
+            "operator": "eq-flip",
+            "before": "if (v === undefined || v === null || v === \"\") { if (!optional) errors.push(`Enter ${label}.`); return 0; }",
+            "after": "if (v !== undefined || v === null || v === \"\") { if (!optional) errors.push(`Enter ${label}.`); return 0; }",
+            "line_text": "    if (v === undefined || v === null || v === \"\") { if (!optional) errors.push(`Enter ${label}.`); return 0; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-landlord-section-24-calculator/calc.mjs",
+            "line": 41,
+            "col": 63,
+            "operator": "max-to-min",
+            "before": "export const allowanceFor = (ani) => (ani <= TAPER_FROM ? PA : Math.max(0, PA - Math.floor((ani - TAPER_FROM) / 2)));",
+            "after": "export const allowanceFor = (ani) => (ani <= TAPER_FROM ? PA : Math.min(0, PA - Math.floor((ani - TAPER_FROM) / 2)));",
+            "line_text": "export const allowanceFor = (ani) => (ani <= TAPER_FROM ? PA : Math.max(0, PA - Math.floor((ani - TAPER_FROM) / 2)));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-landlord-section-24-calculator/calc.mjs",
+            "line": 41,
+            "col": 78,
+            "operator": "minus-to-plus",
+            "before": "export const allowanceFor = (ani) => (ani <= TAPER_FROM ? PA : Math.max(0, PA - Math.floor((ani - TAPER_FROM) / 2)));",
+            "after": "export const allowanceFor = (ani) => (ani <= TAPER_FROM ? PA : Math.max(0, PA + Math.floor((ani - TAPER_FROM) / 2)));",
+            "line_text": "export const allowanceFor = (ani) => (ani <= TAPER_FROM ? PA : Math.max(0, PA - Math.floor((ani - TAPER_FROM) / 2)));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-landlord-section-24-calculator/calc.mjs",
+            "line": 48,
+            "col": 84,
+            "operator": "plus-to-minus",
+            "before": "for (let b = 0; b < 3; b++) { const lo = edges[b], hi = Math.min(taxable, edges[b + 1]); if (hi > lo) t += (hi - lo) * RATES[b]; }",
+            "after": "for (let b = 0; b < 3; b++) { const lo = edges[b], hi = Math.min(taxable, edges[b - 1]); if (hi > lo) t += (hi - lo) * RATES[b]; }",
+            "line_text": "  for (let b = 0; b < 3; b++) { const lo = edges[b], hi = Math.min(taxable, edges[b + 1]); if (hi > lo) t += (hi - lo) * RATES[b]; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-landlord-section-24-calculator/calc.mjs",
+            "line": 82,
+            "col": 14,
+            "operator": "eq-flip",
+            "before": "if (finance === 0) {",
+            "after": "if (finance !== 0) {",
+            "line_text": "  if (finance === 0) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-landlord-section-24-calculator/calc.mjs",
+            "line": 102,
+            "col": 88,
+            "operator": "const-plus-one",
+            "before": "export const SAMPLE = { year: 2025, other: 60000, rent: 20000, expenses: 2000, finance: 15000 };",
+            "after": "export const SAMPLE = { year: 2025, other: 60000, rent: 20000, expenses: 2000, finance: 15001 };",
+            "line_text": "export const SAMPLE = { year: 2025, other: 60000, rent: 20000, expenses: 2000, finance: 15000 };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e28a63a8-5379-567a-b3fa-07163939dc96",
+    "transcripts": 1,
+    "first": "2026-10-16T01:07:00Z",
+    "last": "2026-10-16T01:07:44Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 10,
+        "input": 20,
+        "output": 2891,
+        "thinking": 447,
+        "cache_read": 672872,
+        "cache_write_5m": 0,
+        "cache_write_1h": 51026,
+        "api_equivalent_usd": 0.3676,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 10,
+      "input": 20,
+      "output": 2891,
+      "thinking": 447,
+      "cache_read": 672872,
+      "cache_write_5m": 0,
+      "cache_write_1h": 51026,
+      "api_equivalent_usd": 0.3676,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.929,
+    "tool_calls": 11,
+    "tools": {
+      "Bash": 8,
+      "Read": 3
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 0.74,
+      "active_minutes": 0.74,
+      "model_minutes": 0.42,
+      "tool_minutes": 0.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "small test addition after a mutation campaign",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 136.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

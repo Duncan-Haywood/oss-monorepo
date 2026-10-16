@@ -27126,7 +27126,7 @@ ventures:
       gross_margin: 10
       defensibility: 2
       distribution: 5
-    composite: 5.2
+    composite: 5.167
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
@@ -27159,7 +27159,7 @@ ventures:
       gross_margin: 10
       defensibility: 2
       distribution: 5
-    composite: 5.2
+    composite: 5.167
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
@@ -27791,7 +27791,7 @@ ventures:
       gross_margin: 10
       defensibility: 3
       distribution: 6
-    composite: 5.5
+    composite: 5.667
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
@@ -27825,7 +27825,7 @@ ventures:
       gross_margin: 10
       defensibility: 3
       distribution: 6
-    composite: 5.5
+    composite: 5.667
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
@@ -27889,7 +27889,7 @@ ventures:
       gross_margin: 10
       defensibility: 3
       distribution: 6
-    composite: 5.5
+    composite: 5.667
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
@@ -27922,7 +27922,7 @@ ventures:
       gross_margin: 10
       defensibility: 3
       distribution: 5
-    composite: 5.3
+    composite: 5.5
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
@@ -28062,7 +28062,7 @@ ventures:
       gross_margin: 10
       defensibility: 3
       distribution: 8
-    composite: 6.1
+    composite: 6.167
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
@@ -28486,7 +28486,6 @@ ventures:
       requirement presets labelled as such, not veterinary or nutritionist advice, unmodelled
       items (trace minerals, ionophores, urea limits, mycotoxins) stated. Ethics: nothing leaves
       the browser, no dark patterns, nothing is sold.
-  - slug: ball-python-morph-pairing-planner
   - slug: fertilizer-blend-optimizer
     scores:
       ai_leverage: 1
@@ -28832,7 +28831,7 @@ ventures:
       gross_margin: 10
       defensibility: 5
       distribution: 5
-    composite: 6.2
+    composite: 6.167
     rater_b: null
     floor: 2
     floor_dimension: ai_leverage
@@ -28949,7 +28948,7 @@ ventures:
       gross_margin: 10
       defensibility: 5
       distribution: 6
-    composite: 6.3
+    composite: 6.333
     rater_b: null
     floor: 2
     floor_dimension: ai_leverage
@@ -29001,7 +29000,6 @@ ventures:
       advice on eligibility, deadlines or whether to elect, defaults labelled as placeholders, no
       taxpayer identifiers requested. Ethics: nothing leaves the browser, no dark patterns,
       nothing is sold.
-  - slug: container-demurrage-detention-calculator
   - slug: roofing-insurance-supplement-finder
     scores:
       ai_leverage: 2
@@ -29181,7 +29179,6 @@ ventures:
       Liability: arithmetic on user-typed numbers, editable rates, defaults labelled as placeholders,
       no determination of eligibility, no taxpayer identifiers requested. Ethics: nothing leaves the
       browser, no dark patterns, nothing is sold.
-  - slug: contract-vs-fte-rate-calculator
   - slug: crop-insurance-coverage-calculator
     scores:
       ai_leverage: 2
