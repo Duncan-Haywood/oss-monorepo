@@ -1499,7 +1499,9 @@ test('grouping by sub-group keeps every tool and drops empty groups', () => {
 
 test('every discovered tool lands in exactly one rendered group', async () => {
   const { surfaces } = await site();
-  const hub = renderHub(surfaces, BASE);
+  // The by-kind sections (apps, CLIs) list a product a second time on
+  // purpose; this test is about the category groups, so it counts outside them.
+  const hub = renderHub(surfaces, BASE).replace(/<section class="kind-section"[\s\S]*?<\/section>/g, '');
   for (const surface of surfaces) {
     const occurrences = hub.split(`href="${surface.slug}/"`).length - 1;
     assert.equal(occurrences, 1, `${surface.slug} appears ${occurrences} times`);

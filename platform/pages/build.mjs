@@ -386,6 +386,20 @@ const REWRITABLE = new Set(['.html', '.xml', '.txt', '.json', '.mjs', '.js', '.w
 // Ordered: the first rule whose test matches wins.
 const CATEGORY_RULES = [
   {
+    // Added 2026-10-16 (P013): the self-hosted SaaS-operations apps had been
+    // filed by slug into `ci` and the catch-all, which tripped the catch-all
+    // bound (14) and told a visitor a dunning engine was a CI check. First so
+    // it wins over the `ci` list, which still names several of them.
+    id: 'self-hosted',
+    title: 'Self-hosted business apps',
+    accent: '#2b4c7e',
+    blurb: 'Open-source business software you run on your own server: failed-payment recovery, cancellation flows, MRR and revenue recognition, lifecycle email, referrals, feature flags, status pages, help centres, booking pages, cookie-free analytics and more. Deploy your own copy with your own keys; you own the data.',
+    test: (slug) =>
+      /-keeper$/.test(slug)
+      || ['cancel-flow', 'cron-heartbeat', 'dunning-engine', 'feedback-board', 'form-inbox', 'mrr-pulse',
+        'rev-rec', 'support-desk', 'trial-converter', 'webhook-relay'].includes(slug),
+  },
+  {
     // `1099k-reconciliation-worksheet` moved here from `backoffice` 2026-10-10: it reconciles a marketplace's 1099-K against a seller's own sales, a
     // marketplace-seller job; `backoffice` had crept past its 3 MB gzipped offline bound (build.test.mjs).
     // `wholesale-vs-retail-pricing-calculator` filed here 2026-10-10: a maker comparing direct, wholesale and consignment profit per unit is a seller's
@@ -6559,9 +6573,10 @@ ${cards}
 }
 
 export function renderHub(surfaces, baseUrl, { researchCount = 0 } = {}) {
-  // Apps and CLIs get sections of their own below; the trade categories are
-  // for browser tools, so each product appears on the hub exactly once.
-  const groups = groupByCategory(surfaces.filter((s) => !s.kind || s.kind === 'browser'));
+  // Every product stays in the searchable category groups; apps and CLIs are
+  // also listed in sections of their own (renderKindSection), so a visitor
+  // browsing by kind finds them without the search box.
+  const groups = groupByCategory(surfaces);
   const apps = surfaces.filter((s) => s.kind === 'app');
   const clis = surfaces.filter((s) => s.kind === 'cli');
   const browserCount = surfaces.length - apps.length - clis.length;
