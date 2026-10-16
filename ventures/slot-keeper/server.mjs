@@ -6,7 +6,7 @@
 import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
-import { newState, saveEvent, book, cancel, byToken, slotsFor, dueReminders, purgeOlderThan, toCsv, isEmail } from "./book.mjs";
+import { newState, saveEvent, book, cancel, byToken, slotsFor, feedBusy, dueReminders, purgeOlderThan, toCsv, isEmail } from "./book.mjs";
 import { buildIcs, parseIcsBusy, validTz } from "./slot.mjs";
 import { eventPage, confirmPage, bookingPage, thanksCancel, adminPage, eventFormPage, esc } from "./render.mjs";
 
@@ -192,6 +192,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   for (const k of ["ALERT_WEBHOOK_URL", "BUSY_ICS_URL"]) if (env[k] && !/^https:\/\//.test(env[k])) { console.error(`${k} must be https`); process.exit(1); }
   const dryRun = env.DRY_RUN !== "false";
   if (!dryRun && (!env.RESEND_API_KEY || !env.MAIL_FROM)) { console.error("DRY_RUN=false needs RESEND_API_KEY and MAIL_FROM"); process.exit(1); }
+  if (!dryRun && !/^https:\/\//.test(env.PUBLIC_URL || "")) { console.error("DRY_RUN=false needs PUBLIC_URL (https): without it, links in email are built from the request's Host header, which a stranger can forge"); process.exit(1); }
   const statePath = env.STATE || "state.json";
   const state = { ...newState(), ...readJson(statePath, {}) };
   const save = () => { fs.writeFileSync(`${statePath}.tmp`, JSON.stringify(state), { mode: 0o600 }); fs.renameSync(`${statePath}.tmp`, statePath); };
@@ -200,10 +201,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     state, save, adminKey: env.ADMIN_KEY, company: env.COMPANY_NAME || "Bookings", sponsor: env.HIDE_SPONSOR_LINK !== "true", hostEmail: env.HOST_EMAIL || "",
     baseUrl: env.PUBLIC_URL, trustProxy: env.TRUST_PROXY === "true", defaultTz: env.DEFAULT_TZ || "UTC",
     embedOrigins: (env.EMBED_ORIGINS || "").split(/[\s,]+/).filter((o) => /^https:\/\/[\w.-]+(:\d+)?$/.test(o)),
-    notify: env.ALERT_WEBHOOK_URL ? webhook(env.ALERT_WEBHOOK_URL) : null, sendEmail: sendResend, dryRun, external: () => feed.busy,
+    notify: env.ALERT_WEBHOOK_URL ? webhook(env.ALERT_WEBHOOK_URL) : null, sendEmail: sendResend, dryRun, external: () => feedBusy(feed, Date.now(), { configured: Boolean(env.BUSY_ICS_URL) }),
   };
   // Calendar feed: refreshed every 5 minutes; a failed fetch keeps the last good copy and shows a warning in /admin.
-  const feed = { busy: [] };
+  const feed = { busy: [], at: 0 };
   const refresh = async () => {
     if (!env.BUSY_ICS_URL) return;
     try {
@@ -211,6 +212,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const text = (await r.text()).slice(0, 5_000_000), t = Date.now();
       feed.busy = parseIcsBusy(text, t - 86_400_000, t + 400 * 86_400_000, Object.values(state.events)[0]?.tz || cfg.defaultTz);
+      feed.at = t;
       cfg.feedError = null;
     } catch (e) { cfg.feedError = e.message; console.error("busy feed failed:", e.message); }
   };

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { newState, saveEvent, book, cancel, slotsFor, dueReminders, purgeOlderThan, summary, toCsv, byToken, formFor } from "./book.mjs";
+import { newState, saveEvent, book, cancel, slotsFor, feedBusy, dueReminders, purgeOlderThan, summary, toCsv, byToken, formFor } from "./book.mjs";
 import { zonedToUtc } from "./slot.mjs";
 
 const NY = "America/New_York", NOW = zonedToUtc(2026, 10, 14, 8, 0, NY);
@@ -101,4 +101,16 @@ test("retention, summary and CSV (formula-safe)", () => {
   assert.match(csv, /'=HYPERLINK/); assert.match(csv, /"a, b\nc"/);
   assert.equal(purgeOlderThan(s, NOW + 40 * 86_400_000, 30), 2);
   assert.equal(purgeOlderThan(s, NOW, 0), 0);
+});
+
+test("a calendar feed that is stale or never loaded blocks every slot instead of risking a double booking", () => {
+  const s = setup(); const ev = s.events["intro-call"];
+  const open = slotsFor(s, ev, NOW, []).length; assert.ok(open > 0);
+  const fresh = { busy: [], at: NOW - 30 * 60_000 };
+  assert.equal(slotsFor(s, ev, NOW, feedBusy(fresh, NOW)).length, open);
+  assert.equal(slotsFor(s, ev, NOW, feedBusy({ busy: [], at: NOW - 61 * 60_000 }, NOW)).length, 0);
+  assert.equal(slotsFor(s, ev, NOW, feedBusy({ busy: [], at: 0 }, NOW)).length, 0);
+  assert.equal(slotsFor(s, ev, NOW, feedBusy({ busy: [], at: 0 }, NOW, { configured: false })).length, open); // no feed configured: nothing to distrust
+  const refused = book(s, "intro-call", { name: "Ann", email: "a@b.co", start: slotsFor(s, ev, NOW, [])[0], tz: NY }, NOW, feedBusy({ busy: [], at: 0 }, NOW));
+  assert.equal(refused.status, 409); assert.equal(Object.keys(s.bookings).length, 0);
 });
