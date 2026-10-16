@@ -407,6 +407,25 @@ field will.
 
 ## E19: thirteenth review (2026-10-16)
 
+- Change: none to prompts or docs; `prompts/derived/runs.json` rebuilt.
+  `derive.py fetch` got HTTP 403 from the GitHub API in this session, so the
+  rebuild used the cached `github.json`: `merged` for new records stays
+  `unknown` until a session with API access runs fetch.
+- Candidates: ventures/2 (17 runs, 94%, 0.06 errors/run) vs ventures/1 (53, 92%,
+  0.17): intervals overlap, no verdict. research/1 has 8 runs, under 10.
+  review/1 is 75% over 12 runs, 0 integrity issues. No new candidate: both
+  tracks with candidates already carry one.
+- Audit skipped (new records are mirrored upstream or doc-only). Drift: a report
+  already exists for 2026-10-16 and no new owner words arrived. `CLAUDE.md`
+  grew 457 -> 475 lines (budget 500); cut it next review if it passes 490.
+- Follow-up on E17: reviews were due again after 26 merged runs, so the
+  mirrored-record exclusion is working as intended (no early firing).
+  E18: `merged_unknown` stays high (most rows 'unknown') because fetch needs
+  API access; not a failure of derive.py itself.
+- Result: (next review)
+
+## E20: stale doc lines from the same review (2026-10-16)
+
 - Change: `CLAUDE.md` checklist no longer states a stale count of expected
   `gitops/tests` failures (said ~26; baseline today was 2); `review/prompt-1.md`
   step 1 says what to do when `derive.py fetch` gets a 403 (+2 lines).
