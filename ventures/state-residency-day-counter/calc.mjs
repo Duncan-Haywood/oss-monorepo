@@ -29,6 +29,8 @@ export const RULES = {
   MN: { limit: 183, requiresAbode: true, kind: "statutory", note: "Statutory resident: a permanent place of abode plus more than 183 days." },
   VA: { limit: 183, requiresAbode: true, kind: "statutory", note: "Resident for tax if you keep a place of abode and spend more than 183 days." },
   RI: { limit: 183, requiresAbode: true, kind: "statutory", note: "Resident for tax if you are not domiciled there but keep a permanent place of abode and spend more than 183 days (R.I. Gen. Laws 44-30-5)." },
+  MD: { limit: 182, requiresAbode: true, kind: "statutory", note: "Statutory resident: a place of abode kept for more than six months plus physical presence for 183 days or more (Tax-General 10-101), so the limit here is 182 and 183 days crosses it. A vacation home alone does not count unless you are present 183 days or more." },
+  ME: { limit: 183, requiresAbode: true, kind: "statutory", note: "Statutory resident: a permanent place of abode kept for the whole tax year plus more than 183 days in the state (36 M.R.S. 5102). Any part of a day counts as a day." },
   OR: { limit: 200, requiresAbode: true, kind: "statutory", note: "Resident for tax if you keep a permanent place of abode and spend more than 200 days." },
   CA: { limit: 270, requiresAbode: false, kind: "presumption", note: "Residency turns on domicile and where your ties are strongest. Time in the state beyond about nine months is commonly treated as a presumption of residency that you would have to rebut." },
 };
