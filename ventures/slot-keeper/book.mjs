@@ -36,6 +36,13 @@ export function busyList(state, external = []) {
   return out;
 }
 
+// Busy time from the calendar feed. A copy older than `maxAgeMs` (or none at all) is not trusted: block everything, so a dead feed
+// cannot let a guest book over a meeting the host made elsewhere. The admin page shows why.
+export function feedBusy(feed, now, { configured = true, maxAgeMs = 3_600_000 } = {}) {
+  if (!configured) return [];
+  return feed.at && now - feed.at <= maxAgeMs ? feed.busy : [{ start: 0, end: 8.64e15 }];
+}
+
 export function slotsFor(state, ev, now, external = [], ignore = null) { return freeSlots(ev, busyList(state, external), now, { ignore }); }
 
 // Only a time freeSlots offers right now can be booked, so a forged or stale start is refused here, not in the page.

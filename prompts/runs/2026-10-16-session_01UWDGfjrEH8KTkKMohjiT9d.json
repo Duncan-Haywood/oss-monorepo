@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01UWDGfjrEH8KTkKMohjiT9d",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "task": "extend",
+  "projects": [
+    "nlos-twin",
+    "occupancy-twin",
+    "radar-clutter-twin",
+    "radar-detection-twin"
+  ],
+  "pr": null,
+  "commits": [
+    "b5803b1ce208473df5eea901924eef0ec2e726d5"
+  ],
+  "merged": null,
+  "build_ok": true,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "project-pages figures (milestone 9); queue had only superseded swe-orgs/ambient-dscorr branches (already on main), no PR needed; usage not read (no get_session tool)",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}
