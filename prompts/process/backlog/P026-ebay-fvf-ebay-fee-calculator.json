@@ -4,13 +4,14 @@
   "status": "open",
   "owner": "agent",
   "effect": 2,
-  "cost": 2,
+  "cost": 3,
   "problem": "ebay-fee-calculator, marketplace-fee-compare, where-to-sell-calculator and reverb-fee-calculator default to a 13.25% final value fee and a flat $0.30 per-order fee. eBay's selling-fees help page (https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822, fetched 2026-10-16) lists 13.6% of the total sale up to $7,500 plus 2.35% above it, and a per-order fee of $0.30 for orders of $10.00 or less and $0.40 above. This row covers only ebay-fee-calculator: engine in calc.mjs (4 default sites at lines ~192, 352, 3504, 4178 plus fixedFee 0.3 at ~193, 353, 1693, 2655), the 23 index/explainer pages with value=\"13.25\", and README.",
   "evidence": [
     "eBay selling-fees page, fetched 2026-10-16 by a ventures run (no effective date shown on the page)",
-    "Probe 2026-10-16 (P025 split run): in ebay-fee-calculator, sed 13.25->13.6 over calc.mjs, *.html and README leaves 498 of 499 tests passing (only the 'documented defaults' test fails), because the explainer page tests do not pin the derived dollar figures. The pages' 'On the defaults ... leftover $X' prose therefore goes stale silently: recompute each from the engine, do not hand-edit."
+    "Probe 2026-10-16 (P025 split run): in ebay-fee-calculator, sed 13.25->13.6 over calc.mjs, *.html and README leaves 498 of 499 tests passing (only the 'documented defaults' test fails), because the explainer page tests do not pin the derived dollar figures. The pages' 'On the defaults ... leftover $X' prose therefore goes stale silently: recompute each from the engine, do not hand-edit.",
+    "Process run 2026-10-16 re-fetched eBay's page (still 13.6%, 2.35% above $7,500, $0.30/$0.40 per order) and tried the engine change in calc.mjs (13.6 default, tiered per-order fee via a defaultOrderFee helper, solver retry at the higher tier): 97 of 499 tests fail, not 1, because every explainer-page test pins dollar figures derived from the default rate (e.g. 'keeps $5.60 more', '$2.43 behind', '58-sale floor'). Reverted; nothing landed."
   ],
-  "change": "Change the default to 13.6 and add the tiered per-order fee (0.30 at or under $10, 0.40 above) and the 2.35% band above $7,500 in the engine; update tests that pin defaults. Then recompute every derived dollar figure in the pages and README from the engine (a small script that prints them) before editing prose. Stamp the README 'checked against eBay's page on <date>'. Re-fetch eBay's fee page first; if it no longer says 13.6%, drop the row. Do P026 first and have the others import its constants where the venture already imports from it.",
+  "change": "Change the default to 13.6 and add the tiered per-order fee (0.30 at or under $10, 0.40 above) and the 2.35% band above $7,500 in the engine; update tests that pin defaults. Then recompute every derived dollar figure in the pages and README from the engine (a small script that prints them) before editing prose. Stamp the README 'checked against eBay's page on <date>'. Re-fetch eBay's fee page first; if it no longer says 13.6%, drop the row. Do P026 first and have the others import its constants where the venture already imports from it. Budget for it: the engine change fails ~97 tests across ~25 page test files and their prose. Do it as one run that does nothing else, recomputing each pinned figure from the engine with a print script, or fan the page groups out to subagents after the engine commit.",
   "touches": [
     "ventures/ebay-fee-calculator"
   ],
