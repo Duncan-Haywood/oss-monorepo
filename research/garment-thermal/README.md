@@ -21,6 +21,10 @@ python3 experiments/run.py                      # a few seconds; writes experime
 ```
 
 ## Results (from `experiments/results.txt`)
+
+![Comfort-equivalent shift per treatment and scenario (section C)](experiments/shift.svg)
+
+*Figure: Comfort-equivalent shift per treatment and scenario (section C). Drawn by `experiments/figure.py`, which parses the committed `experiments/results.txt`.*
 **Validation.** With no optics the PMV agrees with `pythermalcomfort`'s ISO implementation to within 0.0062 over 144 combinations (16 to 34 C, 30 to 80% rh, 0.1 and 0.3 m/s, 1.0 and 1.6 met, 0.3 to 1.0 clo), including points outside the standard's validity range. At 22 C, 1.2 met, 0.5 clo, 0.1 m/s, 60% rh it gives PMV -0.75, PPD 16.9%. This checks my PMV code, not the physics of the optical extension, which has no reference here.
 
 **Which property matters (comfort-equivalent shift, C, over each property's span with the others at baseline; the span is my choice):**
