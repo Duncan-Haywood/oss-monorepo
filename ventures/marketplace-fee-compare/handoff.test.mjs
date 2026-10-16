@@ -464,3 +464,31 @@ test('a blank item produces a bare link rather than one full of zeroes', () => {
   const url = excludedHandoffUrl('reverb-fee-calculator', {});
   assert.equal(url, '../reverb-fee-calculator/');
 });
+
+// ---------------------------------------------------------------------------
+// where-to-sell bridge
+// ---------------------------------------------------------------------------
+
+import { whereToSellUrl, WHERE_TO_SELL_FIELDS } from './handoff.mjs';
+import { decodeComparison } from '../where-to-sell-calculator/share.mjs';
+
+test('the item arrives on where-to-sell and decodes with its own decoder', () => {
+  const url = whereToSellUrl(ITEM);
+  assert.ok(url.startsWith('../where-to-sell-calculator/#c='));
+  const c = new URLSearchParams(url.slice(url.indexOf('#') + 1)).get('c');
+  const decoded = decodeComparison(c);
+  assert.deepEqual(decoded.shared, {
+    price: 40, shippingCharged: 6, itemCost: 12, shippingCost: 5.2, otherCost: 1.1, monthlyOrders: 50,
+  });
+});
+
+test('every field carried to where-to-sell is one its decoder keeps', () => {
+  const full = Object.fromEntries(WHERE_TO_SELL_FIELDS.map((k) => [k, 3]));
+  const c = new URLSearchParams(whereToSellUrl(full).split('#')[1]).get('c');
+  assert.deepEqual(Object.keys(decodeComparison(c).shared).sort(), [...WHERE_TO_SELL_FIELDS].sort());
+});
+
+test('a blank or nonsense item gives the bare where-to-sell link', () => {
+  assert.equal(whereToSellUrl({}), '../where-to-sell-calculator/');
+  assert.equal(whereToSellUrl({ price: '', itemCost: -4, otherCost: 'x' }), '../where-to-sell-calculator/');
+});
