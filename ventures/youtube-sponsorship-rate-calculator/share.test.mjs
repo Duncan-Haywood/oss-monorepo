@@ -39,3 +39,20 @@ test("a cleared box arrives cleared and enums fall back to page defaults", () =>
   assert.equal(values.niche, "general");
   assert.equal(formValues({}).format, FORMATS[0]);
 });
+
+test("encodeInputs keeps zero and drops negative, infinite and non-numeric views", () => {
+  assert.equal(encodeInputs({ views: 0 }), "views=0");
+  for (const views of [-5, Infinity, NaN, "abc"]) assert.equal(encodeInputs({ views }), "");
+});
+
+test("decodeInputs keeps a zero and rejects an infinite or negative number", () => {
+  assert.deepEqual(decodeInputs("views=0"), { views: 0 });
+  assert.deepEqual(decodeInputs("views=Infinity"), {});
+  assert.deepEqual(decodeInputs("views=-1"), {});
+});
+
+test("formValues stringifies a carried number, including zero", () => {
+  assert.equal(formValues({ views: 42000 }).views, "42000");
+  assert.equal(formValues({ views: 0 }).views, "0");
+  assert.equal(formValues({}).views, "");
+});

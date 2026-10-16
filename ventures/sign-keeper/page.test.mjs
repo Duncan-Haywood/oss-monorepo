@@ -22,6 +22,13 @@ test("landing page: no-warranty and not-legal-advice, canonical, FAQ, sponsor li
   assert.equal(esc("<&>"), "&lt;&amp;&gt;");
 });
 
-test("links to its sibling changelog-keeper", () => {
-  assert.match(fs.readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/changelog-keeper\/"/);
+test("landing page links its sibling Changelog Keeper", () => {
+  const html = fs.readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/changelog-keeper\/"/);
+});
+
+test("landing page prose escapes the <token> placeholder so it is visible", () => {
+  const html = fs.readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.ok(!/<p>[^<]*\/c\/<token>/.test(html));
+  assert.match(html, /\/c\/&lt;token&gt;\.json/);
 });
