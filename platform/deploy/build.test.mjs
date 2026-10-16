@@ -58,7 +58,7 @@ test('every built app composes into a repo for every provider', async () => {
   const catalog = JSON.parse(await fs.readFile(path.join(out, 'catalog.json'), 'utf8'));
   for (const { slug, title } of catalog.slice(0, 40)) {
     const appFiles = JSON.parse(await fs.readFile(path.join(out, 'apps', `${slug}.json`), 'utf8'));
-    for (const provider of ['github-pages', 'aws', 'gcp', 'azure']) {
+    for (const provider of ['github-pages', 'aws', 'gcp', 'azure', 'cloudflare']) {
       const repo = composeRepo({ slug, title, provider, appFiles, templates });
       assert.match(repo['app/index.html'], /buymeacoffee\.com\/duncanhaywood/, slug);
     }
@@ -96,9 +96,18 @@ test('the azure module pins versions, encrypts state and holds no secret', async
   assert.doesNotMatch(JSON.stringify(t.azure), /GOOGLE_|GCP_/);
 });
 
+test('the cloudflare workflow pins wrangler and reads only its two secrets', async () => {
+  const t = await loadTemplates();
+  const y = t.cloudflare['deploy.yml'];
+  assert.match(y, /wrangler@\d+\.\d+\.\d+ pages deploy app/);
+  assert.match(y, /secrets\.CLOUDFLARE_API_TOKEN/);
+  assert.match(y, /secrets\.CLOUDFLARE_ACCOUNT_ID/);
+  assert.doesNotMatch(y, /secrets\.(?!CLOUDFLARE_)\w+/);
+});
+
 test('the workflows never echo a secret and hold no credentials of our own', async () => {
   const t = await loadTemplates();
-  for (const p of ['aws', 'gcp', 'azure', 'github-pages']) {
+  for (const p of ['aws', 'gcp', 'azure', 'cloudflare', 'github-pages']) {
     for (const [name, body] of Object.entries(t[p])) {
       if (!name.endsWith('.yml')) continue;
       assert.doesNotMatch(body, /echo[^\n]*secrets\./, `${p}/${name}`);
