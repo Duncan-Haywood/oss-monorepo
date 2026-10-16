@@ -400,6 +400,30 @@ test("off: reports unreadable text", () => {
   assert.equal(parseStaff("Ana, 20, 40, 0, any, off: Wed 9-").errors.length, 1);
 });
 
+test("daily overtime: California 8/12 pays 1.5x over 8 and 2x over 12, and weekly overtime skips hours already premium", () => {
+  const staff = staffOf("Ana, 20, 60, 0, any");
+  const one = (days, a, b) => slotsOf(`${days}, ${a}, ${b}, 1, x`);
+  const opts = { dailyOtAfter: 8, dailyDtAfter: 12, minRestHours: 0 };
+  // one 14 hour day: 8 straight + 4 at 1.5x + 2 at 2x
+  const r = buildRoster(staff, one("Mon", 6, 20), opts);
+  assert.equal(r.cost, 20 * (8 + 4 * 1.5 + 2 * 2));
+  assert.equal(r.otHours, 6);
+  // weekly rule only: the same 14 hours cost straight time
+  assert.equal(buildRoster(staff, one("Mon", 6, 20)).cost, 20 * 14);
+  // five 9-hour days = 45 h: daily OT 5 h; straight 40 h, so no extra weekly OT on top
+  const w = buildRoster(staff, one("Mon-Fri", 8, 17), { dailyOtAfter: 8, minRestHours: 0 });
+  assert.equal(w.cost, 20 * (40 + 5 * 1.5));
+  assert.equal(w.otHours, 5);
+});
+
+test("daily overtime steers the search to split a long day across two people", () => {
+  const staff = staffOf("Ana, 20, 40, 0, any\nBen, 20, 40, 0, any");
+  const slots = slotsOf("Mon, 6, 14, 1, a\nMon, 14, 22, 1, b");
+  const r = buildRoster(staff, slots, { dailyOtAfter: 8, balance: 0 });
+  assert.equal(r.cost, 20 * 16);
+  assert.equal(r.otHours, 0);
+});
+
 test("carry over: last week's CSV sets prev: so the rest rule holds across the boundary", async () => {
   const { carryOverStaff, lastShiftEnds, parseStaff, buildRoster, parseShifts, rosterCsv } = await import("./calc.mjs");
   const csv = [
@@ -436,6 +460,24 @@ test("laborPercent: share of sales, target headroom, bad input", () => {
   assert.equal(laborPercent(2800, 10000).target, null);
   assert.equal(laborPercent(2800, 0), null);
   assert.equal(laborPercent(2800, "abc"), null);
+});
+
+test("daily hour limit: per-person cell and roster-wide setting are hard rules and explain themselves", () => {
+  const slots = slotsOf("Mon,8,14,1\nMon,14,20,1");
+  const free = staffOf("Ann,10,40,0,any");
+  assert.equal(buildRoster(free, slots, { minRestHours: 0 }).unfilledSlots, 0);
+  const capped = staffOf("Ann,10,40,0,any,daily: 8");
+  assert.equal(capped[0].maxDaily, 8);
+  const r = buildRoster(capped, slots, { minRestHours: 0 });
+  assert.equal(r.unfilledSlots, 1);
+  assert.match(r.unfilled[0].text, /daily hour limit/);
+  assert.equal(buildRoster(free, slots, { minRestHours: 0, maxDailyHours: 8 }).unfilledSlots, 1);
+  assert.equal(buildRoster(free, slots, { minRestHours: 0, maxDailyHours: 12 }).unfilledSlots, 0);
+  const two = staffOf("Ann,10,40,0,any,daily: 8\nBo,12,40,0,any");
+  const r2 = buildRoster(two, slots, { minRestHours: 0 });
+  assert.equal(r2.unfilledSlots, 0);
+  assert.notEqual(r2.owner[0], r2.owner[1]);
+  assert.ok(parseStaff("Ann,10,40,0,any,daily: lots").errors.length === 1);
 });
 
 test("scheduleFlags: daily hours, split shifts, notice", () => {

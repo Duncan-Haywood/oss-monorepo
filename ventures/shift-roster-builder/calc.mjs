@@ -132,6 +132,7 @@ function parsePrevEnd(cell) {
 
 // "off: Wed; Fri 5pm-close" = time off this week only. Whole days or a clock range are removed from the person's
 // availability, so a standing pattern ("any", "Mon-Fri 9-17") does not have to be rewritten each week.
+const DAILY_CELL = /^(daily|max[ -]?daily)\s*:/i;
 const OFF_CELL = /^(off|time[ -]?off|pto)\s*:/i;
 function subtractRange(ranges, [a, b]) {
   const out = [];
@@ -188,13 +189,19 @@ export function parseStaff(text) {
       prevEnd = parsePrevEnd(prevCell);
       if (prevEnd === null) errors.push(`${where} (${c[0]}): could not read "${prevCell}"; write it like "prev: Sun 10pm" (when their last shift last week ended)`);
     }
-    const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x);
+    let maxDaily = 0;
+    const dailyCell = tail.find((x) => DAILY_CELL.test(x));
+    if (dailyCell) {
+      maxDaily = Number(dailyCell.replace(DAILY_CELL, "").replace(/h(ours?)?$/i, "").trim());
+      if (!Number.isFinite(maxDaily) || maxDaily <= 0) { errors.push(`${where} (${c[0]}): could not read "${dailyCell}"; write it like "daily: 8" (most hours in one day)`); maxDaily = 0; }
+    }
+    const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x);
     const av = parseAvailability(tail.filter((x) => !isExtra(x)).join(","));
     av.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
     for (const cell of tail.filter((x) => OFF_CELL.test(x))) {
       applyTimeOff(av.days, cell.replace(OFF_CELL, "")).forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
     }
-    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any && !tail.some((x) => OFF_CELL.test(x)), prevEnd });
+    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any && !tail.some((x) => OFF_CELL.test(x)), prevEnd, maxDaily });
   });
   if (!staff.length && !errors.length) errors.push("Add at least one person.");
   if (staff.length > MAX_STAFF) errors.push(`That is ${staff.length} people; this tool handles up to ${MAX_STAFF}.`);
@@ -246,7 +253,7 @@ function mulberry32(seed) {
 }
 
 const DEFAULTS = {
-  burdenPct: 0, otAfter: 40, otMult: 1.5, minRestHours: 10, maxConsecDays: 6,
+  burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
   balance: 25, shortfallValue: 8, seed: 1, restarts: 4, iterations: 0,
 };
 
@@ -279,6 +286,22 @@ export function buildContext(staff, slots, options = {}) {
   return { o, staff, slots, P, S, elig, target, avgWage, totalHours, restMin: Math.max(0, o.minRestHours) * 60 };
 }
 
+// Most minutes this person may work on one day: the tighter of their own `daily:` cell and the roster-wide limit (0 = none).
+function dailyCapMin(ctx, p) {
+  const caps = [ctx.staff[p].maxDaily, ctx.o.maxDailyHours].filter((x) => x > 0);
+  return caps.length ? Math.min(...caps) * 60 : Infinity;
+}
+function overDaily(ctx, p, list) {
+  const cap = dailyCapMin(ctx, p);
+  if (cap === Infinity) return false;
+  const byDay = new Map();
+  for (const i of list) {
+    const s = ctx.slots[i];
+    byDay.set(s.day, (byDay.get(s.day) || 0) + s.end - s.start);
+  }
+  return [...byDay.values()].some((m) => m > cap + 1e-9);
+}
+
 function validList(ctx, p, list) {
   const { slots, staff, restMin, o } = ctx;
   let minutes = 0, maxEnd = staff[p].prevEnd ?? -Infinity;
@@ -291,6 +314,7 @@ function validList(ctx, p, list) {
     days.add(s.day);
   }
   if (minutes > staff[p].maxHours * 60 + 1e-9) return false;
+  if (overDaily(ctx, p, list)) return false;
   const sorted = [...days].sort((a, b) => a - b);
   let run = 0, prev = -9;
   for (const d of sorted) {
@@ -308,10 +332,27 @@ function hoursOf(ctx, list) {
 }
 
 // Real payroll for one person (what the roster costs), and the extra "soft" penalties the search also weighs.
-function payroll(ctx, p, h) {
+// Hours split into straight time, overtime and double time. Weekly overtime counts only hours not already
+// paid at a daily premium (the California method). A shift counts on the day it starts.
+// dailyOtAfter / dailyDtAfter of 0 turn the daily rules off, which gives the plain weekly rule.
+function payParts(ctx, list) {
+  const { o, slots } = ctx;
+  const byDay = new Map();
+  for (const i of list) byDay.set(slots[i].day, (byDay.get(slots[i].day) || 0) + (slots[i].end - slots[i].start) / 60);
+  let straight = 0, ot = 0, dt = 0;
+  for (const h of byDay.values()) {
+    let rest = h;
+    if (o.dailyDtAfter > 0 && rest > o.dailyDtAfter) { dt += rest - o.dailyDtAfter; rest = o.dailyDtAfter; }
+    if (o.dailyOtAfter > 0 && rest > o.dailyOtAfter) { ot += rest - o.dailyOtAfter; rest = o.dailyOtAfter; }
+    straight += rest;
+  }
+  const weekly = Math.max(0, straight - o.otAfter);
+  return { straight: straight - weekly, ot: ot + weekly, dt };
+}
+function payroll(ctx, p, list) {
   const { o, staff } = ctx;
-  const reg = Math.min(h, o.otAfter), ot = Math.max(0, h - o.otAfter);
-  return staff[p].wage * (1 + o.burdenPct / 100) * (reg + ot * o.otMult);
+  const q = payParts(ctx, list);
+  return staff[p].wage * (1 + o.burdenPct / 100) * (q.straight + q.ot * o.otMult + q.dt * o.dtMult);
 }
 function softPenalty(ctx, p, h) {
   const { o, staff, target, avgWage } = ctx;
@@ -321,7 +362,7 @@ function softPenalty(ctx, p, h) {
 }
 function personScore(ctx, p, list) {
   const h = hoursOf(ctx, list);
-  return payroll(ctx, p, h) + softPenalty(ctx, p, h);
+  return payroll(ctx, p, list) + softPenalty(ctx, p, h);
 }
 
 function insertSorted(ctx, list, i) {
@@ -454,8 +495,9 @@ function summarise(ctx, owner) {
   let cost = 0, otHours = 0, hours = 0;
   const people = staff.map((p, k) => {
     const h = hoursOf(ctx, lists[k]);
-    const ot = Math.max(0, h - ctx.o.otAfter);
-    const c = payroll(ctx, k, h);
+    const q = payParts(ctx, lists[k]);
+    const ot = q.ot + q.dt;
+    const c = payroll(ctx, k, lists[k]);
     cost += c; otHours += ot; hours += h;
     return {
       name: p.name, shifts: lists[k].length, hours: h, otHours: ot, cost: c, wage: p.wage,
@@ -471,7 +513,7 @@ function whyUnfilled(ctx, owner, i) {
   const slot = ctx.slots[i];
   const lists = Array.from({ length: ctx.P }, () => []);
   owner.forEach((p, k) => { if (p >= 0) lists[p].push(k); });
-  const why = { free: 0, hours: 0, rest: 0, days: 0, overlap: 0 };
+  const why = { free: 0, hours: 0, rest: 0, days: 0, overlap: 0, daily: 0 };
   for (let p = 0; p < ctx.P; p++) {
     if (!ctx.elig[p][i]) continue;
     why.free++;
@@ -481,6 +523,7 @@ function whyUnfilled(ctx, owner, i) {
     const mins = nl.reduce((t, k) => t + ctx.slots[k].end - ctx.slots[k].start, 0);
     if (mins > ctx.staff[p].maxHours * 60 + 1e-9) { why.hours++; continue; }
     if (base.some((k) => ctx.slots[k].start < slot.end && slot.start < ctx.slots[k].end)) { why.overlap++; continue; }
+    if (overDaily(ctx, p, nl)) { why.daily++; continue; }
     const gapBad = slot.start < (ctx.staff[p].prevEnd ?? -Infinity) + ctx.restMin
       || base.some((k) => slot.start < ctx.slots[k].end + ctx.restMin && ctx.slots[k].start < slot.end + ctx.restMin);
     if (gapBad) why.rest++; else why.days++;
@@ -494,6 +537,7 @@ function whyUnfilled(ctx, owner, i) {
     if (why.overlap) bits.push(`${why.overlap} already on another shift`);
     if (why.rest) bits.push(`${why.rest} would break the rest rule`);
     if (why.hours) bits.push(`${why.hours} at their weekly hour limit`);
+    if (why.daily) bits.push(`${why.daily} at their daily hour limit`);
     if (why.days) bits.push(`${why.days} at the consecutive-days limit`);
     text = `${why.free} ${slot.role ? `with the role "${slot.role}" ` : ""}${why.free === 1 ? "person is" : "people are"} free then, but ${bits.join(", ") || "the others are needed elsewhere"}`;
   }
@@ -585,7 +629,7 @@ export function coverOptions(staff, slots, roster, slotIndex, options = {}) {
   const current = owner[slotIndex];
   const listOf = (p) => owner.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0);
   const sortList = (l) => l.sort((a, b) => slots[a].start - slots[b].start || a - b);
-  const dollars = (p, list) => payroll(ctx, p, hoursOf(ctx, list));
+  const dollars = (p, list) => payroll(ctx, p, list);
   const fits = [], blocked = [];
   for (let p = 0; p < ctx.P; p++) {
     if (p === current) continue;
@@ -599,13 +643,14 @@ export function coverOptions(staff, slots, roster, slotIndex, options = {}) {
         delta += dollars(current, cb.filter((k) => k !== slotIndex)) - dollars(current, cb);
       }
       const h = hoursOf(ctx, nl);
-      fits.push({ name: staff[p].name, extraCost: delta, hoursAfter: h, overtimeAfter: Math.max(0, h - ctx.o.otAfter) });
+      fits.push({ name: staff[p].name, extraCost: delta, hoursAfter: h, overtimeAfter: (({ ot, dt }) => ot + dt)(payParts(ctx, nl)) });
       continue;
     }
     let reason;
     const mins = nl.reduce((t, k) => t + slots[k].end - slots[k].start, 0);
     if (base.some((k) => slots[k].start < slot.end && slot.start < slots[k].end)) reason = "already on a shift at that time";
     else if (mins > staff[p].maxHours * 60 + 1e-9) reason = "would go over their weekly hour limit";
+    else if (overDaily(ctx, p, nl)) reason = "would go over their daily hour limit";
     else if (slot.start < (staff[p].prevEnd ?? -Infinity) + ctx.restMin
       || base.some((k) => slot.start < slots[k].end + ctx.restMin && slots[k].start < slot.end + ctx.restMin)) reason = "would break the rest rule";
     else reason = "would break the days-in-a-row limit";
