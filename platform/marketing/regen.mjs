@@ -135,6 +135,14 @@ const WRITE_MODE = /process\.argv\.includes\(['"]--write['"]\)/;
  * Exported so `regen.test.mjs` can assert this agrees with the directory
  * rather than re-deriving the same answer a second way.
  */
+/**
+ * Generators whose output is no longer committed. `front-door-tools.mjs` wrote
+ * ~5.9k gzipped files for the k3s origin retired on 2026-10-01; every venture PR
+ * that ran `regen` re-added them (process backlog P024). Its tests still build
+ * the mirror into a temp dir (`--out`), so the module stays.
+ */
+const RETIRED_GENERATORS = new Set(['front-door-tools.mjs']);
+
 export async function discoverGenerators(dir = HERE) {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const found = [];
@@ -143,6 +151,7 @@ export async function discoverGenerators(dir = HERE) {
     if (!entry.name.endsWith('.mjs')) continue;
     if (entry.name.endsWith('.test.mjs')) continue;
     if (entry.name === SELF) continue;
+    if (RETIRED_GENERATORS.has(entry.name)) continue;
     const source = await fs.readFile(path.join(dir, entry.name), 'utf8');
     if (WRITE_MODE.test(source)) found.push(entry.name);
   }
