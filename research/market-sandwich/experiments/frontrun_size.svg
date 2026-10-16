@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log line plot of the optimal front-run size against the victim trade size b: the exact value and the first-order approximation eps*b/(1-p) agree and both grow in proportion to b">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Market sandwich: front-run size the victim tolerates</text>
+<line x1="64" x2="624" y1="226.1" y2="226.1" stroke="#ddd"/><text x="58" y="230.1" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="106.5" y2="106.5" stroke="#ddd"/><text x="58" y="110.5" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="232.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="428.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">500</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">victim trade size b</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">front-run size x*</text>
+<polyline points="64.0,294.1 232.6,234.1 428.3,153.4 624.0,70.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="294.1" r="3" fill="#c0392b"/>
+<circle cx="232.6" cy="234.1" r="3" fill="#c0392b"/>
+<circle cx="428.3" cy="153.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">exact x*</text>
+<polyline points="64.0,309.6 232.6,237.7 428.3,154.1 624.0,70.5" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#1f6fb2"/>
+<circle cx="232.6" cy="237.7" r="3" fill="#1f6fb2"/>
+<circle cx="428.3" cy="154.1" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="70.5" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">first-order eps*b/(1-p)</text>
+</svg>

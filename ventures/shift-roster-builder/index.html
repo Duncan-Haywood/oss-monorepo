@@ -92,6 +92,7 @@
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <button type="button" class="secondary" id="save-setup">Save setup file</button>
     <label for="setup-file">Load setup file</label> <input id="setup-file" type="file" accept=".json,application/json">
+    <p><label for="lastweek-file">Carry over last week: choose last week's roster CSV</label> <input id="lastweek-file" type="file" accept=".csv,text/csv"> <span class="note">Sets each person's <code>prev:</code> (when their last shift ended) so rest rules hold across Monday.</span></p>
     <p class="note">Your people, shifts and settings are remembered on this device only (browser local storage), so next week you can open the page and click the button. <button type="button" class="secondary" id="forget">Forget saved data</button></p>
     <p id="form-status" role="status" class="note">Enter your people and shifts, then click the button.</p>
   </section>
@@ -164,7 +165,7 @@
   </footer>
 
   <script type="module">
-    import { scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -292,6 +293,12 @@
     for (const f of FIELDS) $("#" + f).addEventListener("input", persist);
     $("#forget").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} status.textContent = "Saved data removed from this device."; });
     $("#save-setup").addEventListener("click", () => download("roster-setup.json", JSON.stringify(snapshot(), null, 2), "application/json"));
+    $("#lastweek-file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { const r = carryOverStaff($("#staff").value, String(rd.result)); $("#staff").value = r.text; persist(); status.textContent = r.changed ? `Set "prev:" for ${r.changed} ${r.changed === 1 ? "person" : "people"} from ${f.name}. Click the button to rebuild.` : `No names in ${f.name} matched your people. Is it a roster CSV from this tool?`; };
+      rd.readAsText(f);
+    });
     $("#setup-file").addEventListener("change", (e) => {
       const f = e.target.files[0]; if (!f) return;
       const rd = new FileReader();
