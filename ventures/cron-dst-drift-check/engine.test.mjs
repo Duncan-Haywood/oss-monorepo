@@ -262,3 +262,29 @@ test("utcOffsetDrift: a target time near midnight can shift the UTC calendar day
     assert.ok(seg.utcHour >= 0 && seg.utcHour <= 23);
   }
 });
+
+test("parseCronExpression: @daily and friends expand to their 5-field form", () => {
+  assert.deepEqual([...parseCronExpression("@daily").hour], [0]);
+  assert.deepEqual([...parseCronExpression("@Hourly").minute], [0]);
+  assert.deepEqual([...parseCronExpression("@weekly").dow], [0]);
+  assert.throws(() => parseCronExpression("@reboot"), /unknown cron macro/);
+});
+
+test("parseCronExpression: ? in dom/dow behaves as a wildcard", () => {
+  const f = parseCronExpression("0 2 ? * MON");
+  assert.equal(f.domIsWildcard, true);
+  assert.deepEqual([...f.dow], [1]);
+});
+
+test("summarizeRuns: an expression that never fires says so instead of claiming no DST risk", () => {
+  const result = nextRuns("0 5 31 2 *", "America/New_York", { from: new Date(Date.UTC(2027, 0, 1)), count: 3 });
+  const s = summarizeRuns(result);
+  assert.equal(s.status, "never-fires");
+  assert.match(s.text, /never fires/);
+});
+
+test("nextRuns: @daily in New York across spring forward is clean at 00:00", () => {
+  const r = nextRuns("@daily", "America/New_York", { from: new Date(Date.UTC(2027, 2, 13)), count: 3 });
+  assert.equal(r.occurrences.length, 3);
+  assert.equal(r.flagged.length, 0);
+});
