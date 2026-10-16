@@ -154,6 +154,7 @@
           <button class="primary" type="submit">Price this sale</button>
           <button type="button" id="save">Save on this device</button>
           <button type="button" id="forget">Forget saved numbers</button>
+          <button type="button" id="copyLink">Copy shareable link</button>
         </div>
         <p class="hint" id="saveStatus" role="status" style="margin:8px 0 0"></p>
       </section>
@@ -209,6 +210,7 @@
   <script type="module">
     import { calculateSale, INPUT_IDS, TOGGLE_IDS, SELECT_IDS } from './calc.mjs';
     import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { encodeInputs, decodeInputs, formValues } from './share.mjs';
 
     const DRAFT_KEY = 'facebook-marketplace-fee-calculator-draft';
     const el = id => document.getElementById(id);
@@ -330,6 +332,18 @@
       el('saveStatus').textContent = 'Saved numbers deleted from this browser.';
     });
 
+    el('copyLink').addEventListener('click', async () => {
+      const query = encodeInputs(readAllInputs());
+      history.replaceState(null, '', `${location.pathname}${location.search}${query ? `#${query}` : ''}`);
+      try {
+        await navigator.clipboard.writeText(location.href);
+        el('saveStatus').textContent = 'Link copied. Nothing was uploaded to make it.';
+      } catch {
+        el('saveStatus').textContent = 'Copy was blocked — the link is now in your address bar.';
+      }
+      count('link_copied');
+    });
+
     let restored = false;
     try {
       const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
@@ -338,6 +352,16 @@
         restored = true;
       }
     } catch { /* storage is optional */ }
+
+    // A link (a shared sale, or an item handed over from the where-to-sell
+    // calculator) wins over a saved draft.
+    const fromLink = decodeInputs(location.hash || location.search);
+    if (Object.keys(fromLink).length > 0) {
+      writeAllInputs(formValues(fromLink));
+      restored = true;
+      el('saveStatus').textContent = 'Opened a shared sale. Review the numbers before you use them.';
+      count('opened_from_link');
+    }
 
     (() => {
       const example = calculateSale(readInput());
