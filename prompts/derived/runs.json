@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-16T01:04:54Z",
+ "generated": "2026-10-16T03:40:33Z",
  "rows": [
   {
    "date": "2026-10-01",
@@ -25,8 +25,8 @@
     "merged_at": "2026-10-13T03:12:11Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T03:12:11Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -49,8 +49,8 @@
     "merged_at": "2026-10-13T23:17:00Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T23:17:00Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -73,8 +73,8 @@
     "merged_at": "2026-10-13T18:22:51Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T18:22:51Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -108,8 +108,8 @@
     "merged_at": "2026-10-13T01:26:38Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T01:26:38Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -132,8 +132,8 @@
     "merged_at": "2026-10-13T09:59:54Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T09:59:54Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -156,8 +156,8 @@
     "merged_at": "2026-10-13T09:43:39Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T09:43:39Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -180,8 +180,8 @@
     "merged_at": "2026-10-13T19:13:21Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T19:13:21Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -204,8 +204,8 @@
     "merged_at": "2026-10-13T08:21:59Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T08:21:59Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -248,8 +248,8 @@
     "merged_at": "2026-10-13T14:14:26Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T14:14:26Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -272,8 +272,8 @@
     "merged_at": "2026-10-13T10:09:29Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T10:09:29Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -296,8 +296,8 @@
     "merged_at": "2026-10-13T03:18:32Z",
     "pr_commits": 6,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T03:18:32Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -320,8 +320,8 @@
     "merged_at": "2026-10-13T04:13:00Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T04:13:00Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -344,8 +344,8 @@
     "merged_at": "2026-10-13T12:26:56Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T12:26:56Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -368,8 +368,8 @@
     "merged_at": "2026-10-13T21:16:49Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T21:16:49Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -392,8 +392,8 @@
     "merged_at": "2026-10-13T06:37:26Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T06:37:26Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -416,8 +416,8 @@
     "merged_at": "2026-10-13T23:23:10Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T23:23:10Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -440,8 +440,8 @@
     "merged_at": "2026-10-13T20:48:28Z",
     "pr_commits": 5,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T20:48:28Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -464,8 +464,8 @@
     "merged_at": "2026-10-13T07:21:03Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T07:21:03Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -488,8 +488,8 @@
     "merged_at": "2026-10-13T04:23:13Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T04:23:13Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -523,8 +523,8 @@
     "merged_at": "2026-10-13T02:25:08Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T02:25:08Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -547,8 +547,8 @@
     "merged_at": "2026-10-13T00:11:54Z",
     "pr_commits": 1,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T00:11:54Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -571,8 +571,8 @@
     "merged_at": "2026-10-13T12:14:20Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T12:14:20Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -595,8 +595,8 @@
     "merged_at": "2026-10-13T20:10:58Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T20:10:58Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -619,8 +619,8 @@
     "merged_at": "2026-10-13T12:39:58Z",
     "pr_commits": 9,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T12:39:58Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -643,8 +643,8 @@
     "merged_at": "2026-10-13T21:26:50Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T21:26:50Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -667,8 +667,8 @@
     "merged_at": "2026-10-13T05:14:20Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T05:14:20Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -691,8 +691,8 @@
     "merged_at": "2026-10-13T14:09:26Z",
     "pr_commits": 8,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T14:09:26Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -715,8 +715,8 @@
     "merged_at": "2026-10-13T22:11:20Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T22:11:20Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -739,8 +739,8 @@
     "merged_at": "2026-10-13T18:25:26Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T18:25:26Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -763,8 +763,8 @@
     "merged_at": "2026-10-13T07:15:48Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T07:15:48Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -787,8 +787,8 @@
     "merged_at": "2026-10-13T07:47:38Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T07:47:38Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -811,8 +811,8 @@
     "merged_at": "2026-10-13T13:21:59Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T13:21:59Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -857,8 +857,8 @@
     "merged_at": "2026-10-13T22:16:11Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T22:16:11Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -881,8 +881,8 @@
     "merged_at": "2026-10-13T06:15:15Z",
     "pr_commits": 5,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T06:15:15Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -905,8 +905,8 @@
     "merged_at": "2026-10-13T07:55:41Z",
     "pr_commits": 5,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T07:55:41Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -929,8 +929,8 @@
     "merged_at": "2026-10-13T00:25:22Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T00:25:22Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -953,8 +953,8 @@
     "merged_at": "2026-10-13T09:24:05Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T09:24:05Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -977,8 +977,8 @@
     "merged_at": "2026-10-13T11:22:23Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T11:22:23Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1012,8 +1012,8 @@
     "merged_at": "2026-10-13T16:31:16Z",
     "pr_commits": 5,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T16:31:16Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1036,8 +1036,8 @@
     "merged_at": "2026-10-13T14:27:59Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T14:27:59Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1060,8 +1060,8 @@
     "merged_at": "2026-10-13T20:11:35Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T20:11:35Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1095,8 +1095,8 @@
     "merged_at": "2026-10-13T18:18:42Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T18:18:42Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1130,8 +1130,8 @@
     "merged_at": "2026-10-13T01:22:48Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T01:22:48Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1154,8 +1154,8 @@
     "merged_at": "2026-10-13T23:13:09Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T23:13:09Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1178,8 +1178,8 @@
     "merged_at": "2026-10-13T17:10:21Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T17:10:21Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1213,8 +1213,8 @@
     "merged_at": "2026-10-13T05:16:08Z",
     "pr_commits": 5,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T05:16:08Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1237,8 +1237,8 @@
     "merged_at": "2026-10-13T19:34:55Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T19:34:55Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1261,8 +1261,8 @@
     "merged_at": "2026-10-13T22:16:30Z",
     "pr_commits": 5,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T22:16:30Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1285,8 +1285,8 @@
     "merged_at": "2026-10-13T21:28:50Z",
     "pr_commits": 6,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T21:28:50Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1309,8 +1309,8 @@
     "merged_at": "2026-10-13T21:13:05Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T21:13:05Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1333,8 +1333,8 @@
     "merged_at": "2026-10-13T21:22:12Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T21:22:12Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1368,8 +1368,8 @@
     "merged_at": "2026-10-13T12:16:10Z",
     "pr_commits": 5,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T12:16:10Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1392,8 +1392,8 @@
     "merged_at": "2026-10-13T03:11:07Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T03:11:07Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1416,8 +1416,8 @@
     "merged_at": "2026-10-13T18:24:54Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T18:24:54Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1440,8 +1440,8 @@
     "merged_at": "2026-10-13T08:16:17Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T08:16:17Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1464,8 +1464,8 @@
     "merged_at": "2026-10-13T08:17:07Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T08:17:07Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1488,8 +1488,8 @@
     "merged_at": "2026-10-13T16:23:39Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T16:23:39Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1512,8 +1512,8 @@
     "merged_at": "2026-10-13T16:17:48Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T16:17:48Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1591,8 +1591,8 @@
     "merged_at": "2026-10-13T23:28:21Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T23:28:21Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1626,8 +1626,8 @@
     "merged_at": "2026-10-13T13:23:34Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T13:23:34Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1650,8 +1650,8 @@
     "merged_at": "2026-10-13T19:23:14Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T19:23:14Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1674,8 +1674,8 @@
     "merged_at": "2026-10-13T16:14:17Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T16:14:17Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1709,8 +1709,8 @@
     "merged_at": "2026-10-13T10:11:04Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T10:11:04Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1733,8 +1733,8 @@
     "merged_at": "2026-10-13T10:10:14Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T10:10:14Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1779,8 +1779,8 @@
     "merged_at": "2026-10-13T02:25:48Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T02:25:48Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1803,8 +1803,8 @@
     "merged_at": "2026-10-13T08:26:25Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T08:26:25Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1827,8 +1827,8 @@
     "merged_at": "2026-10-13T22:12:10Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T22:12:10Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1851,8 +1851,8 @@
     "merged_at": "2026-10-13T20:21:24Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T20:21:24Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1875,8 +1875,8 @@
     "merged_at": "2026-10-13T15:12:07Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T15:12:07Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1899,8 +1899,8 @@
     "merged_at": "2026-10-13T14:30:13Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T14:30:13Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1923,8 +1923,8 @@
     "merged_at": "2026-10-13T22:22:18Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T22:22:18Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1969,8 +1969,8 @@
     "merged_at": "2026-10-13T23:11:51Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T23:11:51Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -1993,8 +1993,8 @@
     "merged_at": "2026-10-13T05:25:22Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T05:25:22Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2017,8 +2017,8 @@
     "merged_at": "2026-10-13T12:25:02Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-27T12:25:02Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2063,8 +2063,8 @@
     "merged_at": "2026-10-14T23:20:25Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T23:20:25Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2087,8 +2087,8 @@
     "merged_at": "2026-10-14T00:18:56Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T00:18:56Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2111,8 +2111,8 @@
     "merged_at": "2026-10-14T14:11:15Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T14:11:15Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2135,8 +2135,8 @@
     "merged_at": "2026-10-14T21:22:01Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T21:22:01Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2159,8 +2159,8 @@
     "merged_at": "2026-10-14T21:37:57Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T21:37:57Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2183,8 +2183,8 @@
     "merged_at": "2026-10-14T00:14:16Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T00:14:16Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2218,8 +2218,8 @@
     "merged_at": "2026-10-14T15:14:49Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T15:14:49Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2242,8 +2242,8 @@
     "merged_at": "2026-10-14T23:11:29Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T23:11:29Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2266,8 +2266,8 @@
     "merged_at": "2026-10-14T22:58:05Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T22:58:05Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2290,8 +2290,8 @@
     "merged_at": "2026-10-14T00:18:19Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T00:18:19Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2314,8 +2314,8 @@
     "merged_at": "2026-10-14T23:10:36Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T23:10:36Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2338,8 +2338,8 @@
     "merged_at": "2026-10-14T20:26:48Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T20:26:48Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2373,8 +2373,8 @@
     "merged_at": "2026-10-14T09:24:37Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T09:24:37Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2397,8 +2397,8 @@
     "merged_at": "2026-10-14T09:12:11Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T09:12:11Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2421,8 +2421,8 @@
     "merged_at": "2026-10-14T23:46:09Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T23:46:09Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2445,8 +2445,8 @@
     "merged_at": "2026-10-14T02:12:12Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T02:12:12Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2469,8 +2469,8 @@
     "merged_at": "2026-10-14T14:24:15Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T14:24:15Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2493,8 +2493,8 @@
     "merged_at": "2026-10-14T19:20:59Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T19:20:59Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2517,8 +2517,8 @@
     "merged_at": "2026-10-14T17:25:26Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T17:25:26Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2541,8 +2541,8 @@
     "merged_at": "2026-10-14T18:11:43Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T18:11:43Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2596,8 +2596,8 @@
     "merged_at": "2026-10-14T22:22:03Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T22:22:03Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2620,8 +2620,8 @@
     "merged_at": "2026-10-14T18:10:54Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T18:10:54Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2655,8 +2655,8 @@
     "merged_at": "2026-10-14T01:13:31Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T01:13:31Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2679,8 +2679,8 @@
     "merged_at": "2026-10-14T16:17:08Z",
     "pr_commits": 5,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T16:17:08Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2703,8 +2703,8 @@
     "merged_at": "2026-10-14T01:25:38Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T01:25:38Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2727,8 +2727,8 @@
     "merged_at": "2026-10-14T03:13:32Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T03:13:32Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2751,8 +2751,8 @@
     "merged_at": "2026-10-14T07:11:41Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T07:11:41Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2775,8 +2775,8 @@
     "merged_at": "2026-10-14T09:55:09Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T09:55:09Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2799,8 +2799,8 @@
     "merged_at": "2026-10-14T05:22:27Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T05:22:27Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2823,8 +2823,8 @@
     "merged_at": "2026-10-14T23:29:40Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T23:29:40Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2847,8 +2847,8 @@
     "merged_at": "2026-10-14T07:26:52Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T07:26:52Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2871,8 +2871,8 @@
     "merged_at": "2026-10-14T07:12:29Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T07:12:29Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2895,8 +2895,8 @@
     "merged_at": "2026-10-14T04:31:11Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T04:31:11Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2919,8 +2919,8 @@
     "merged_at": "2026-10-14T01:10:00Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T01:10:00Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2943,8 +2943,8 @@
     "merged_at": "2026-10-14T05:10:29Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T05:10:29Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2967,8 +2967,8 @@
     "merged_at": "2026-10-14T13:52:59Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T13:52:59Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -2991,8 +2991,8 @@
     "merged_at": "2026-10-14T10:20:54Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T10:20:54Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3015,8 +3015,8 @@
     "merged_at": "2026-10-14T02:13:41Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T02:13:41Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3039,8 +3039,8 @@
     "merged_at": "2026-10-14T09:21:37Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T09:21:37Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3074,8 +3074,8 @@
     "merged_at": "2026-10-14T12:20:05Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T12:20:05Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3131,8 +3131,8 @@
     "merged_at": "2026-10-14T02:19:17Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T02:19:17Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3155,8 +3155,8 @@
     "merged_at": "2026-10-14T06:10:01Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T06:10:01Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3179,8 +3179,8 @@
     "merged_at": "2026-10-14T01:29:54Z",
     "pr_commits": 5,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T01:29:54Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3203,8 +3203,8 @@
     "merged_at": "2026-10-14T01:22:49Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T01:22:49Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3227,8 +3227,8 @@
     "merged_at": "2026-10-14T13:13:09Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T13:13:09Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3251,8 +3251,8 @@
     "merged_at": "2026-10-14T12:18:19Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T12:18:19Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3286,8 +3286,8 @@
     "merged_at": "2026-10-14T23:40:20Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T23:40:20Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3310,8 +3310,8 @@
     "merged_at": "2026-10-14T22:22:51Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T22:22:51Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3334,8 +3334,8 @@
     "merged_at": "2026-10-14T04:27:10Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T04:27:10Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3369,8 +3369,8 @@
     "merged_at": "2026-10-14T00:10:35Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T00:10:35Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3393,8 +3393,8 @@
     "merged_at": "2026-10-14T20:08:54Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T20:08:54Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3417,8 +3417,8 @@
     "merged_at": "2026-10-14T06:24:01Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T06:24:01Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3441,8 +3441,8 @@
     "merged_at": "2026-10-14T08:23:25Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T08:23:25Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3465,8 +3465,8 @@
     "merged_at": "2026-10-14T06:21:03Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T06:21:03Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3489,8 +3489,8 @@
     "merged_at": "2026-10-14T12:10:03Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T12:10:03Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3513,8 +3513,8 @@
     "merged_at": "2026-10-14T08:17:01Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T08:17:01Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3548,8 +3548,8 @@
     "merged_at": "2026-10-14T14:28:32Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-28T14:28:32Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3756,8 +3756,8 @@
     "merged_at": "2026-10-15T09:19:30Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T09:19:30Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3780,8 +3780,8 @@
     "merged_at": "2026-10-15T16:15:10Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T16:15:10Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -3874,8 +3874,8 @@
     "merged_at": "2026-10-15T19:36:46Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T19:36:46Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -4520,8 +4520,8 @@
     "merged_at": "2026-10-15T18:34:08Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T18:34:08Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -4592,8 +4592,8 @@
     "merged_at": "2026-10-15T17:27:51Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T17:27:51Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -4616,8 +4616,8 @@
     "merged_at": "2026-10-15T23:25:18Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T23:25:18Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -4651,8 +4651,8 @@
     "merged_at": "2026-10-15T22:21:54Z",
     "pr_commits": 6,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T22:21:54Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -5093,8 +5093,8 @@
     "merged_at": "2026-10-15T01:41:46Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T01:41:46Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -5224,8 +5224,8 @@
     "merged_at": "2026-10-15T18:45:23Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T18:45:23Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -5342,8 +5342,8 @@
     "merged_at": "2026-10-15T14:51:57Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T14:51:57Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -5401,8 +5401,8 @@
     "merged_at": "2026-10-15T06:09:48Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T06:09:48Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -5436,8 +5436,8 @@
     "merged_at": "2026-10-15T03:23:29Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T03:23:29Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -5506,8 +5506,8 @@
     "merged_at": "2026-10-15T11:11:42Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T11:11:42Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -5541,8 +5541,8 @@
     "merged_at": "2026-10-15T11:32:37Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T11:32:37Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -5694,8 +5694,8 @@
     "merged_at": "2026-10-15T19:25:26Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T19:25:26Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -5819,8 +5819,8 @@
     "merged_at": "2026-10-15T09:14:16Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T09:14:16Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -5944,8 +5944,8 @@
     "merged_at": "2026-10-15T15:34:51Z",
     "pr_commits": 6,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T15:34:51Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -6001,8 +6001,8 @@
     "merged_at": "2026-10-15T22:14:53Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T22:14:53Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -6266,8 +6266,8 @@
     "merged_at": "2026-10-15T18:23:51Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T18:23:51Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -6358,8 +6358,8 @@
     "merged_at": "2026-10-15T19:50:33Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T19:50:33Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -6441,8 +6441,8 @@
     "merged_at": "2026-10-15T06:02:33Z",
     "pr_commits": 5,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T06:02:33Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -7067,8 +7067,8 @@
     "merged_at": "2026-10-15T21:23:18Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T21:23:18Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -7113,8 +7113,8 @@
     "merged_at": "2026-10-15T10:52:23Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T10:52:23Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -7310,8 +7310,8 @@
     "merged_at": "2026-10-15T09:34:18Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T09:34:18Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -7450,8 +7450,8 @@
     "merged_at": "2026-10-15T05:23:07Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T05:23:07Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -7603,8 +7603,8 @@
     "merged_at": "2026-10-15T09:25:38Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T09:25:38Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -7638,8 +7638,8 @@
     "merged_at": "2026-10-15T13:49:32Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T13:49:32Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -7791,8 +7791,8 @@
     "merged_at": "2026-10-15T05:32:33Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T05:32:33Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -7815,8 +7815,8 @@
     "merged_at": "2026-10-15T17:09:57Z",
     "pr_commits": 3,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T17:09:57Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -7839,8 +7839,8 @@
     "merged_at": "2026-10-15T11:21:26Z",
     "pr_commits": 7,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T11:21:26Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -7909,8 +7909,8 @@
     "merged_at": "2026-10-15T12:46:32Z",
     "pr_commits": 4,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T12:46:32Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
@@ -7967,10 +7967,196 @@
   {
    "date": "2026-10-16",
    "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 0,
+   "record": "2026-10-16-session_011KgKjizXk5TewwKxtXAiw2.json",
+   "track": "redteam"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "additions": 225,
+    "changed_files": 6,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 1,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-16T01:43:50Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T01:43:50Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7250",
+   "prompt_version": 2,
+   "record": "2026-10-16-session_011XJrMH1EoDe4RmpwTAJKCP.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "additions": 1752,
+    "changed_files": 36,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 6,
+    "hours_open": 0.02,
+    "merged": true,
+    "merged_at": "2026-10-16T02:45:06Z",
+    "pr_commits": 14,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T02:45:06Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7260",
+   "prompt_version": 0,
+   "record": "2026-10-16-session_014BYXfCf6s6bzKoLdbZs651.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 0,
+   "record": "2026-10-16-session_014gFfYdRB1uuy2Q8edRHwo7.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 1,
+   "record": "2026-10-16-session_015Midnxi19AbgMVmM5y9s8b.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 1,
+   "record": "2026-10-16-session_015NJdeTh2bop4A4Gu4PKhsC.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "additions": 1498,
+    "changed_files": 2827,
+    "ci_head": "red",
+    "ci_red_commits": 5,
+    "deletions": 248,
+    "hours_open": 0.25,
+    "merged": true,
+    "merged_at": "2026-10-16T01:18:43Z",
+    "pr_commits": 7,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T01:18:43Z"
+    },
+    "state": "closed"
+   },
+   "model": null,
+   "pr": "Duncan-Haywood/oss-monorepo#7242",
+   "prompt_version": 1,
+   "record": "2026-10-16-session_015Zc5jy5RruuGDU64J5BXG6.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "additions": 373,
+    "changed_files": 14,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 9,
+    "hours_open": 0.19,
+    "merged": true,
+    "merged_at": "2026-10-16T03:13:07Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T03:13:07Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7264",
+   "prompt_version": 2,
+   "record": "2026-10-16-session_016kgL83WeBbkZe7YAQ3zVvB.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 1,
+   "record": "2026-10-16-session_016nNSiicK8gLiFz6my9s9cD.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "additions": 422,
+    "changed_files": 8,
+    "ci_head": "green",
+    "ci_red_commits": 0,
+    "deletions": 1,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-16T03:19:49Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T03:19:49Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7273",
+   "prompt_version": 0,
+   "record": "2026-10-16-session_018Jyz5LYy29ATXtg5WrQExB.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 1,
+   "record": "2026-10-16-session_018h7ZeH3wjopeE3rjNLa1eN.json",
+   "track": "process"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
     "additions": 978,
     "changed_files": 29,
-    "ci_head": "pending",
-    "ci_red_commits": 1,
+    "ci_head": "red",
+    "ci_red_commits": 2,
     "deletions": 62,
     "hours_open": 0.01,
     "merged": true,
@@ -7993,6 +8179,63 @@
    "measured": {
     "why": "the record names no pull request"
    },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 1,
+   "record": "2026-10-16-session_01945KecBumh7Stj7zTqsUQK.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "additions": 76,
+    "changed_files": 5,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 0,
+    "hours_open": 0.0,
+    "merged": true,
+    "merged_at": "2026-10-16T02:09:00Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T02:09:00Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7252",
+   "prompt_version": 1,
+   "record": "2026-10-16-session_019DRw9wwCaXm6LBeNd2vr5c.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 0,
+   "record": "2026-10-16-session_019FhikwsmnYivMUVsaLAAYM.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 1,
+   "record": "2026-10-16-session_019k1pXjTN68JYYhESdEV9xD.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
    "model": null,
    "pr": null,
    "prompt_version": 0,
@@ -8009,6 +8252,30 @@
    "prompt_version": 0,
    "record": "2026-10-16-session_019qGmkPBH2CQx41gFG71dE9.json",
    "track": "research"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "additions": 484,
+    "changed_files": 7,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 0,
+    "hours_open": 0.0,
+    "merged": true,
+    "merged_at": "2026-10-16T03:16:05Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T03:16:05Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7270",
+   "prompt_version": 2,
+   "record": "2026-10-16-session_01AkDZDCCLbP6yBRPGWnrr59.json",
+   "track": "ventures"
   },
   {
    "date": "2026-10-16",
@@ -8037,6 +8304,74 @@
   {
    "date": "2026-10-16",
    "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 0,
+   "record": "2026-10-16-session_01EX5gDAu68QS1U77pGSep8F.json",
+   "track": "redteam"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "additions": 81,
+    "changed_files": 8,
+    "ci_head": "red",
+    "ci_red_commits": 8,
+    "deletions": 1,
+    "hours_open": 1.57,
+    "merged": true,
+    "merged_at": "2026-10-16T01:42:40Z",
+    "pr_commits": 12,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T01:42:40Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7224",
+   "prompt_version": 1,
+   "record": "2026-10-16-session_01EnCJN8SV8us4evW9Wgr7S6.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 1,
+   "record": "2026-10-16-session_01Er4QhYpsxvcvCpFoENRYxe.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 0,
+   "record": "2026-10-16-session_01GJ9CLtLPEr7gX8iDiFXwRT.json",
+   "track": "explore"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 0,
+   "record": "2026-10-16-session_01H4dpLk88ShUG6zWWiBG7kx.json",
+   "track": "redteam"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
     "additions": 2940,
     "changed_files": 50,
     "ci_head": "red",
@@ -8056,6 +8391,52 @@
    "pr": "Duncan-Haywood/oss-monorepo#7228",
    "prompt_version": 0,
    "record": "2026-10-16-session_01HYuCT32fi2yJEDqtohwr4b.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 1,
+   "record": "2026-10-16-session_01Hmhdf4fSM4jDMf9wsC3AKa.json",
+   "track": "process"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-research-monorepo#615",
+   "prompt_version": 0,
+   "record": "2026-10-16-session_01KaE8Dn24Gab4d9jKaG5Xgu.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "additions": 109,
+    "changed_files": 18,
+    "ci_head": "red",
+    "ci_red_commits": 5,
+    "deletions": 918,
+    "hours_open": 1.78,
+    "merged": true,
+    "merged_at": "2026-10-16T02:50:51Z",
+    "pr_commits": 8,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T02:50:51Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7243",
+   "prompt_version": 0,
+   "record": "2026-10-16-session_01LCRzjxQN4vQ7hGAkFrBjcy.json",
    "track": "research"
   },
   {
@@ -8109,6 +8490,30 @@
   {
    "date": "2026-10-16",
    "measured": {
+    "additions": 429,
+    "changed_files": 14,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 13,
+    "hours_open": 0.04,
+    "merged": true,
+    "merged_at": "2026-10-16T03:23:29Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T03:23:29Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7274",
+   "prompt_version": 1,
+   "record": "2026-10-16-session_01PqCb3kHnX73YiQycjF1ST9.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
     "why": "the record names no pull request"
    },
    "model": "claude-sonnet-5-5",
@@ -8120,12 +8525,47 @@
   {
    "date": "2026-10-16",
    "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-research-monorepo#623",
+   "prompt_version": 0,
+   "record": "2026-10-16-session_01UQKnoJxdq6ZFnRkC17mqap.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
     "why": "the record names no pull request"
    },
    "model": "claude-sonnet-5-5",
    "pr": null,
    "prompt_version": 0,
    "record": "2026-10-16-session_01UWDGfjrEH8KTkKMohjiT9d.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "additions": 902,
+    "changed_files": 19,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 1,
+    "hours_open": 0.0,
+    "merged": true,
+    "merged_at": "2026-10-16T01:22:44Z",
+    "pr_commits": 6,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T01:22:44Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7248",
+   "prompt_version": 0,
+   "record": "2026-10-16-session_01Uwi7U8a5LTStcgrgqzcfEW.json",
    "track": "research"
   },
   {
@@ -8164,6 +8604,41 @@
    "track": "ventures"
   },
   {
+   "date": "2026-10-16",
+   "measured": {
+    "additions": 14705,
+    "changed_files": 10,
+    "ci_head": "green",
+    "ci_red_commits": 0,
+    "deletions": 13,
+    "hours_open": 0.02,
+    "merged": true,
+    "merged_at": "2026-10-16T01:08:44Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-10-30T01:08:44Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-opus-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7245",
+   "prompt_version": 1,
+   "record": "2026-10-16-session_01VxgtDQpjqzyKUxN1KZMbYD.json",
+   "track": "process"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 1,
+   "record": "2026-10-16-session_01YbfAar6JWCMogHyw7bDhpc.json",
+   "track": "ventures"
+  },
+  {
    "date": null,
    "measured": {
     "why": "the record names no pull request"
@@ -8187,8 +8662,8 @@
     "merged_at": "2026-10-15T05:41:35Z",
     "pr_commits": 2,
     "rework": {
-     "window": "open",
-     "window_closes": "2026-10-29T05:41:35Z"
+     "why": "no local branch for Duncan-Haywood/oss-research-monorepo",
+     "window": "unavailable"
     },
     "state": "closed"
    },
