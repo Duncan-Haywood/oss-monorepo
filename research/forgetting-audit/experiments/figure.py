@@ -1,4 +1,4 @@
-"""Write experiments/skip_ratio.svg: audit-loss ratio of a skipped task to an honest task against lag.
+"""Write experiments/skip_ratio.svg: loss of a skipped task relative to an honest task at the same lag, against lag (theory, E2).
 
     python experiments/figure.py
 
@@ -13,15 +13,33 @@ TEXT = (HERE / "results.txt").read_text().splitlines()
 COLS = ["#c0392b", "#1f6fb2", "#2e8b57", "#8e44ad"]
 
 
+def block(section):
+    """Lines of the results.txt block that starts with `section`."""
+    out, on = [], False
+    for l in TEXT:
+        if l.startswith(section):
+            on = True
+            continue
+        if on and (l.startswith("==") or re.match(r"\d\. ", l) or re.match(r"E\d ", l)):
+            break
+        if on:
+            out.append(l)
+    if not out:
+        raise SystemExit("no rows parsed for section " + section)
+    return out
+
+
 def main():
-    rows = [(int(m.group(1)), float(m.group(2))) for l in TEXT
-            if (m := re.match(r"\s*lag\s+(\d+): skipped/honest = ([\d.]+)", l))]
+    rows = [re.match(r"\s*lag\s+(\d+): skipped/honest = ([\d.]+)", l) for l in block("E2")]
+    rows = [m for m in rows if m]
     if not rows:
         raise SystemExit("no rows parsed")
-    series = [("skipped / honest (d=16, r=2)", [r[0] for r in rows], [r[1] for r in rows])]
-    lines("Forgetting audit: skipped / honest audit loss vs lag",
-          "Plot (log lag axis) of the ratio of a skipped task's audit loss to an honest task's against lag, falling toward the floor d over d minus r",
-          "lag (tasks since the audited one)", "skipped / honest loss ratio", series, "skip_ratio.svg", logx=True, hline=16 / 14)
+    xs = [int(m.group(1)) for m in rows]
+    ys = [float(m.group(2)) for m in rows]
+    floor = float(re.search(r"floor d/\(d-r\) = ([\d.]+)", "\n".join(TEXT)).group(1))
+    lines("Forgetting audit: skipped / honest loss ratio vs lag (d=16, r=2)",
+          "Log-log line plot of the skipped-to-honest loss ratio against lag: large at short lag, decaying to the floor d/(d-r)",
+          "lag (steps)", "ratio", [("skipped / honest", xs, ys)], "skip_ratio.svg", logx=True, logy=True, hline=floor)
 
 
 def lines(title, alt, xlabel, ylabel, series, fname, logx=False, logy=False, hline=None):
