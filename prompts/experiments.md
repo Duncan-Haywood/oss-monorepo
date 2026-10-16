@@ -225,6 +225,16 @@ lines by recording each incident as a permanent rule, and 43% of commits in
 record deviations yet to measure the effect of the split; E7's `deviations`
 field will.
 
+### G2: Process track weight, 0.10 → 0.05? (2026-10-16, E29)
+
+On 2026-10-16 the process track ran 32 times (14% of 224 runs) with 18
+successes (56%; every other track 83%-100%). It cost $56.44 of the day's
+$143.83 measured API spend (39%), or $3.76 per successful run against
+$0.47-$1.11 elsewhere. Its partial runs say why: backlog items too large for
+one run (P014, P017), one solve reverted after 97 test failures (P026), and
+items found already done. Question: halve `process` to 0.05 (to `research`
+or `ventures`) until its success rate passes 80% over 20 runs?
+
 ## E6: first scheduled review (2026-10-15)
 
 - Change: review prompt step 1 skips records mirrored from the upstream
@@ -554,4 +564,24 @@ field will.
 - Candidates: unchanged, overlap or too few runs.
 - Audit: league-schedule-generator, 69 pass. `derive.py fetch` got 16 of 18.
 - Drift: see `prompts/drift/2026-10-16j.md`.
+- Result: (next review)
+
+## E29: 24-hour review, 2026-10-16 (owner-requested)
+
+- Change: new `platform/ci/pyenv.py` (+7 tests) prints a python that imports
+  the named modules, installing with `<it> -m pip` or apt only if none does.
+  `CLAUDE.md`'s "No pytest?" line, `verify-and-merge.md` and
+  `research/CLAUDE.md` now point at it. Cause: about 20 of the day's 66
+  `CLAUDE.md` friction reports were one interpreter split (`python3` on PATH
+  is not what pip/apt install into). Also marked the four commands that pass
+  the 2-minute tool limit (unshallow, regen.mjs, run_workflow_locally
+  --for-changes and --tree) to run in the background: about 14 reports.
+- Measure: `CLAUDE.md` friction reports per run naming pytest, numpy, pip,
+  interpreter or timeout. Before: 2026-10-16, 224 runs, about 34 such
+  reports. Compare the next 100 runs.
+- Candidates: unchanged (overlap, or review/2 has 4 runs).
+- Audit: shift-roster-builder (7 merges today) re-run, 64 pass; disclaimer
+  and usage tracking present.
+- Proposal: G2 (process track weight).
+- Report: `prompts/drift/2026-10-16k.md`.
 - Result: (next review)
