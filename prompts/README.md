@@ -105,7 +105,8 @@ against measured) and rework by version and model.
 
 It never edits a record. Run `fetch` and `build` before `measure` in a
 review. It needs the full history (`git fetch --unshallow origin main`) and
-the research upstream commit that `research/_mirror/state.json` pins.
+the research upstream commit pinned in the mirror state file (research/_mirror/state.json), when
+that file exists (the mirror was cut over, so on current `main` it does not).
 
 ## Red team / blue team
 
