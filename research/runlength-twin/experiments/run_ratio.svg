@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the ratio of the real to the twin-predicted run length against the gain multiplier for three noise ratios; ratio is one only at m equal to one">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Run length the twin gets wrong: n_real / n_twin</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="257.6" y2="257.6" stroke="#ddd"/><text x="58" y="261.6" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="191.3" y2="191.3" stroke="#ddd"/><text x="58" y="195.3" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="124.9" y2="124.9" stroke="#ddd"/><text x="58" y="128.9" text-anchor="end" font-family="sans-serif" font-size="11">3</text>
+<line x1="64" x2="624" y1="58.6" y2="58.6" stroke="#ddd"/><text x="58" y="62.6" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.5</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">gain multiplier m (unstable settings omitted)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">n_real / n_twin</text>
+<line x1="64" x2="624" y1="257.6" y2="257.6" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,215.8 176.0,249.7 250.7,257.6 437.3,241.7 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="215.8" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="249.7" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="257.6" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="241.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">r = 0.1</text>
+<polyline points="64.0,168.1 176.0,234.4 250.7,257.6 437.3,276.9 624.0,243.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="168.1" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="234.4" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="257.6" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="276.9" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="243.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">r = 1.0</text>
+<polyline points="64.0,74.5 176.0,209.2 250.7,257.6 437.3,292.1 624.0,271.6" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="74.5" r="3" fill="#2e8b57"/>
+<circle cx="176.0" cy="209.2" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="257.6" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="292.1" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="271.6" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">r = 5.0</text>
+</svg>
