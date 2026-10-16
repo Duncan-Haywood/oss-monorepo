@@ -43,3 +43,7 @@ test("robots and sitemap let crawlers find the page", () => {
 test("footer links its sibling trial-converter", () => {
   assert.match(page("index.html"), /href="\.\.\/trial-converter\/"/);
 });
+
+test("footer links its sibling sign-keeper", () => {
+  assert.match(page("index.html"), /href="\.\.\/sign-keeper\/"/);
+});
