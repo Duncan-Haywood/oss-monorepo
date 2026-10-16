@@ -848,6 +848,9 @@ workflows:
 - workflow: league-schedule-generator-ci.yml
   classification: none
   publishes: []
+- workflow: liability-audit-ci.yml
+  classification: none
+  publishes: []
 - workflow: license-compat-check-ci.yml
   classification: none
   publishes: []

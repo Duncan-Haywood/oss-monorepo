@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1271 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1272 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -78,6 +78,14 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free internal link audit and planner. Drop in your site&#39;s HTML files: it finds orphan pages and pages linked only from menus, then suggests the exact sentences in your other pages that should link to them, with the link-equity gain. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Liability Audit — Scan Your App for Legal and Financial Exposure (Trackers, Auto-Renew, Leaked Keys, Uncapped AI Spend)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/liability-audit/"/>
+    <id>tag:marisstella.dev,2026:tool/liability-audit</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free, open-source scan of your app&#39;s code or built site for legal and financial exposure: trackers with no consent, subscriptions with no renewal terms, a missing privacy policy or terms, affiliate links with no disclosure, AI with no disclosure, live keys in the tree, LLM endpoints with no spend cap, and cloud IaC with no budget alarm. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>LLM Spend Guard — Hard Budget Caps and Runaway-Loop Breakers for OpenAI and Claude API Calls</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">A free, open-source alternative to Customer.io, Loops and Userlist: your app posts events, sequences send onboarding, trial and win-back email, and a goal event stops the rest. Preview exactly what a person would receive and when, in your browser, then run the server in your own account.</summary>
-  </entry>
-  <entry>
-    <title>Dunning Engine — Free Self-Hosted Stripe Failed Payment Recovery</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dunning-engine/"/>
-    <id>tag:marisstella.dev,2026:tool/dunning-engine</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="Self-hosted business apps"/>
-    <summary type="text">Recover failed Stripe subscription payments with decline-code-aware retries and emails you control. Preview the recovery schedule for any decline code, then run the open-source server in your own account. Free, MIT, no per-recovery fee.</summary>
   </entry>
 </feed>

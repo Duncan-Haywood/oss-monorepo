@@ -55,5 +55,5 @@ accounts.
 ## Related work in this repo
 
 - `ventures/llm-call-cost-scan`: the static check before code ships.
-- `ventures/liability-audit`: the repo-wide audit, whose `llm-no-spend-guard`
+- `ventures/liability-audit`: the repo-wide audit, whose `llm-endpoint-no-spend-control`
   rule points here.

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What a Small App Can Be Liable For, and How to Check (Privacy, Auto-Renewal, Disclosures, Leaked Keys, Runaway Spend)</title>
+  <meta name="description" content="The legal and financial exposures that small web apps and SaaS products most often carry without noticing: tracking without consent, auto-renewing subscriptions without terms, missing privacy notices, undisclosed affiliate links and AI, leaked keys, LLM endpoints with no spend limit, and cloud with no budget alarm. What each rule is, what a scan can and cannot see, and what we found running it on 1,780 of our own projects.">
+  <link rel="canonical" href="./what-a-small-app-can-be-liable-for-and-how-to-check.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which liabilities can an automated scan find?", "acceptedAnswer": {"@type": "Answer", "text": "The ones that leave a trace in files: a tracker script without a consent manager, subscription checkout code without renewal and cancellation wording, data-collecting forms without a privacy notice, affiliate links before any disclosure, AI calls without a statement that AI is used, live keys, LLM endpoints with no limit, cloud IaC with no budget, and copyleft licences in a lockfile."}}, {"@type": "Question", "name": "Which can it not find?", "acceptedAnswer": {"@type": "Answer", "text": "Anything that depends on facts outside the files: what your vendors do with data, whether your privacy notice is accurate, contracts, employment, tax registration, sector rules such as health or finance licensing, and anything in images or a CMS. A clean scan is not a compliance opinion."}}, {"@type": "Question", "name": "Why treat runaway cloud or AI spend as a liability?", "acceptedAnswer": {"@type": "Answer", "text": "Because it is one: the account owner owes the bill. A leaked key, an endpoint anyone can drive on your model key, or an autoscaler with no budget alarm can produce a charge larger than the business earns in a year, and providers do not have to forgive it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f2f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #2b2150; }
+    h2 { color: #2b2150; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .tablewrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ebe9f2; vertical-align: top; }
+    footer { margin-top: 34px; border-top: 1px solid #dad7e5; padding-top: 16px; font-size: .86rem; color: #5a5670; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Back to Liability Audit</a></p>
+  <h1>What a small app can be liable for, and how to check</h1>
+  <p>Most small apps never meet a regulator. The ones that get hurt are usually hurt by something cheap to have fixed: a chargeback wave from a subscription nobody knew renewed, a privacy complaint about an analytics pixel, a leaked key that ran up a five-figure cloud bill. Each of these leaves a trace in the code, so a scan can catch it before launch.</p>
+
+  <h2>The rules, and why each exists</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Rule</th><th>Exposure</th><th>Where it comes from</th></tr></thead>
+    <tbody>
+      <tr><td><code>tracker-without-consent</code></td><td>Fines and complaints for tracking before consent</td><td>EU ePrivacy rules and GDPR; UK PECR; opt-out rights in several US state privacy laws</td></tr>
+      <tr><td><code>personal-data-no-privacy-notice</code></td><td>Collecting data with no notice</td><td>GDPR Articles 13–14; California's CalOPPA; app-store rules</td></tr>
+      <tr><td><code>subscription-no-renewal-terms</code></td><td>Refunds, chargebacks, regulator action over recurring charges</td><td>US ROSCA and state automatic-renewal laws (for example California Business and Professions Code §17600 and following); EU and UK pre-contract information rules</td></tr>
+      <tr><td><code>payments-no-terms</code></td><td>No refund policy, liability cap or acceptable-use rule to rely on</td><td>Contract law; payment processors' expectations</td></tr>
+      <tr><td><code>affiliate-links-no-disclosure</code></td><td>Deceptive endorsement</td><td>FTC Endorsement Guides, 16 CFR Part 255; UK CAP Code; affiliate programme terms</td></tr>
+      <tr><td><code>ai-output-no-disclosure</code></td><td>Undisclosed AI interaction and unlabelled generated content</td><td>EU AI Act Article 50 (from 2 August 2026); California's B.O.T. Act</td></tr>
+      <tr><td><code>advice-without-disclaimer</code></td><td>Reliance claims on a tax, legal, medical or financial tool</td><td>Negligent misrepresentation; a stated limit of reliance is the usual mitigation</td></tr>
+      <tr><td><code>comparison-no-trademark-notice</code></td><td>Implied affiliation with a named product</td><td>Trademark law: nominative fair use is safest with a non-affiliation line</td></tr>
+      <tr><td><code>copyleft-dependency</code></td><td>Licence breach in a closed or conflicting product</td><td>GPL, AGPL and SSPL terms</td></tr>
+      <tr><td><code>secret-in-tree</code></td><td>A stolen key spends on your account</td><td>Provider terms generally make the account owner liable for usage</td></tr>
+      <tr><td><code>llm-endpoint-no-spend-control</code></td><td>Anyone who reaches the endpoint can spend your model budget</td><td>The provider bills the key's owner</td></tr>
+      <tr><td><code>llm-call-no-output-cap</code></td><td>Each call's worst case is the model's full output</td><td>Per-token billing</td></tr>
+      <tr><td><code>cloud-no-budget-alarm</code></td><td>No ceiling on a cloud bill, and no warning</td><td>Clouds bill usage with no default cap</td></tr>
+      <tr><td><code>no-license</code></td><td>Nobody has rights to use the code; contributors' rights unclear</td><td>Copyright default</td></tr>
+    </tbody>
+  </table></div>
+  <p>Every finding is phrased as an observation with its evidence, a file and line, so you can check it. None is a determination that something is or is not lawful.</p>
+
+  <h2>What we found running it on our own projects</h2>
+  <p>On 16 October 2026 we ran <code>node cli.mjs sweep</code> over this repository's 1,274 product directories and 506 research projects. It took about 14 seconds.</p>
+  <ul>
+    <li><strong>The product portfolio:</strong> 4 low-severity findings, all comparison pages naming another product without a non-affiliation line. These are static, browser-only tools that collect nothing and carry their disclaimers, which is the house rule. On a portfolio built to that rule, the scan's job is to keep it true as it grows.</li>
+    <li><strong>The one-click deploy templates:</strong> the OpenTofu templates that deploy an app into a stranger's AWS, Google Cloud or Azure account declared no budget or cost alarm. That is the financial exposure the rule exists for, and it lands on the person deploying. The same change that added this tool fixed it: each template now takes an optional alert address (or, on Google Cloud, a billing account) and creates a monthly budget that warns at 80% of actual and 100% of forecast spend.</li>
+    <li><strong>Getting the rules right took the sweep.</strong> The first version raised 153 findings, almost all false. Titles like "Pallet vs Carton" read as competitor comparisons. "Do I need to register for GST?" read as a sign-up form. Pattern lists inside scanners read as live LLM calls. A password box for an API key read as a login. Each is now a test case.</li>
+  </ul>
+
+  <h2>What a scan cannot see</h2>
+  <ul>
+    <li>Whether your privacy notice is true, or what your vendors do with data.</li>
+    <li>Your contracts, employment, tax registration, or sector licensing (health, finance, insurance).</li>
+    <li>Text in images, a CMS or a database; anything behind a login.</li>
+    <li>Runtime behaviour: the scan reads files, it does not watch traffic. For spend, pair it with a guard in the request path such as <a href="../llm-spend-guard/">LLM Spend Guard</a>.</li>
+  </ul>
+
+  <h2>Run it continuously</h2>
+  <p>Add <code>node cli.mjs scan . --fail-on high</code> to CI so a new high-severity exposure fails the pull request. Post <code>--format md</code> as a PR comment, or upload <code>--format sarif</code> to GitHub code scanning to see findings inline. For a monorepo, <code>sweep</code> gives one row per app. The repository's <code>AGENT.md</code> is a playbook for an AI coding agent: run the scan, triage each finding against the code, fix what is clearly a fix, and bring the judgment calls to a person.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, financial or security advice, and they do not replace a qualified professional. The tool pattern-matches files: it can miss problems and flag non-problems, and a clear report is not a finding that anything is lawful. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for your own compliance. Laws change and differ by place; the references above are starting points, not a complete or current statement of the law. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get the source and run it yourself.</p>
+  </footer>
+</body>
+</html>
