@@ -1,0 +1,7 @@
+{$COUNTER_HOST} {
+	reverse_proxy counter:8787
+	# Caddy's access log would hold IPs; the counter never stores them, so neither do we.
+	log {
+		output discard
+	}
+}
