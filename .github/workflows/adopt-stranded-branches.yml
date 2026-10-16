@@ -42,7 +42,7 @@ concurrency:
 jobs:
   adopt:
     if: vars.ADOPT_STRANDED_BRANCHES != 'false'
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     permissions:
       contents: read
@@ -51,6 +51,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Open draft PRs for stranded branches
         working-directory: platform/ci
         env:
