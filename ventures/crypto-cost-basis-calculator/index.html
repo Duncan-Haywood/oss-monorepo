@@ -92,6 +92,14 @@
     <div class="scroll"><table id="rt"><thead><tr><th>Description</th><th>Acquired</th><th>Sold</th><th class="n">Proceeds</th><th class="n">Basis</th><th class="n">Gain / loss</th><th>Term</th></tr></thead><tbody></tbody></table></div>
     <h3>Coins still held</h3>
     <div class="scroll"><table id="ht"><thead><tr><th>Asset</th><th class="n">Quantity</th><th class="n">Remaining basis</th></tr></thead><tbody></tbody></table></div>
+    <h3>Tax-loss harvesting: what selling your losing lots today would do</h3>
+    <p class="note">Type today's price for each coin you hold (you supply every price; nothing is fetched). The tool values each lot you still hold, finds the ones under water, and shows how much of this year's estimated tax selling them would remove.</p>
+    <label for="prices">Prices, one per line or comma-separated (e.g. BTC=65000)</label>
+    <textarea id="prices" spellcheck="false" rows="3" placeholder="BTC=65000&#10;ETH=3200"></textarea>
+    <label for="asof">Sell date</label>
+    <input id="asof" type="date">
+    <button type="button" class="secondary" id="harvest-run">Find losses to harvest</button>
+    <div id="harvest-out"></div>
     <button type="button" id="download">Download rows (CSV)</button>
   </section>
 
@@ -134,7 +142,7 @@
   </footer>
 
   <script type="module">
-    import { analyze, toForm8949Csv, SAMPLE_CSV, METHOD_LABELS } from "./calc.mjs";
+    import { analyze, parsePrices, harvestPlan, toForm8949Csv, SAMPLE_CSV, METHOD_LABELS } from "./calc.mjs";
     import { convertMany, FORMAT_LABELS } from "./importers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -177,6 +185,22 @@
       return true;
     }
 
+    function harvest() {
+      const out = $("#harvest-out");
+      if (!last) { out.innerHTML = ""; return; }
+      const { prices, errors } = parsePrices($("#prices").value);
+      const asOf = $("#asof").value || new Date().toISOString().slice(0, 10);
+      const rates = { shortRate: rate("#shortRate") ?? 0.24, longRate: rate("#longRate") ?? 0.15 };
+      const h = harvestPlan(last.openLots, prices, { asOf, summary: last.summary, ...rates });
+      const msgs = [...errors, ...(h.unpriced.length ? [`No price typed for: ${h.unpriced.join(", ")}. Those lots are left out.`] : [])].map((w) => `<div class="warn">${esc(w)}</div>`);
+      if (!h.lots.length) { out.innerHTML = msgs.join("") || '<p class="note">Type at least one price to see the plan.</p>'; return; }
+      const verdict = h.losers.length
+        ? `<p><strong>${h.losers.length} lot${h.losers.length > 1 ? "s" : ""} under water</strong>: ${usd(h.shortLoss)} short-term and ${usd(h.longLoss)} long-term. Selling them all on ${esc(asOf)} would lower the estimated ${last.year} tax from ${usd(h.taxBefore)} to ${usd(h.taxAfter)}, saving about <strong>${usd(h.taxSaved)}</strong>.` + (h.unusedLoss > 0 ? ` ${usd(h.unusedLoss)} of loss would be left over after netting (the annual deduction limit and carryforward are not modelled).` : "") + "</p>"
+        : "<p>None of the lots you hold is under water at these prices, so there is nothing to harvest.</p>";
+      const rows = h.losers.map((l) => `<tr><td>${esc(l.asset)}${l.wallet ? " · " + esc(l.wallet) : ""}</td><td>${l.acquired}</td><td class="n">${l.qty}</td><td class="n">${usd(l.basis)}</td><td class="n">${usd(l.value)}</td><td class="n">${usd(l.gain)}</td><td><span class="pill ${l.term === "Long" ? "good" : "info"}">${l.term}</span></td><td class="n">${usd(l.taxSaved)}</td></tr>`).join("");
+      out.innerHTML = msgs.join("") + verdict + (rows ? `<div class="scroll"><table><thead><tr><th>Lot</th><th>Acquired</th><th class="n">Qty</th><th class="n">Basis</th><th class="n">Value</th><th class="n">Loss</th><th>Term</th><th class="n">Tax saved alone</th></tr></thead><tbody>${rows}</tbody></table></div>` : "") + '<p class="note">Wash-sale rules are not applied. Whether they reach crypto depends on current law in your country; check before you sell and buy back. Selling costs fees and moves your holding; this is arithmetic on your typed prices, not advice.</p>';
+    }
+    $("#harvest-run").addEventListener("click", () => { harvest(); record("harvest_run"); });
     $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
     $("#load-example").addEventListener("click", () => {
       $("#csv").value = SAMPLE_CSV;

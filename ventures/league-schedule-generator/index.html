@@ -134,6 +134,7 @@
     <button type="button" class="secondary" id="copy-link">Copy share link</button>
     <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
     <button type="button" class="secondary" id="dl-text">Download text</button>
+    <button type="button" id="dl-page">Download league web page (.html)</button>
   </section>
 
   <section class="card">
@@ -175,7 +176,7 @@
   </footer>
 
   <script type="module">
-    import { readSpec, buildSchedule, applyRainouts, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, parseResults, standings, playoffBracket, bracketText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { readSpec, buildSchedule, applyRainouts, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -322,6 +323,11 @@
       record("ics_downloaded");
     });
     $("#dl-text").addEventListener("click", () => { if (!last) return; download("league-schedule.txt", fullText(), "text/plain"); record("text_shared"); });
+    $("#dl-page").addEventListener("click", () => {
+      if (!last) return;
+      download("league-page.html", leaguePageHtml(last.s, { title: "League schedule", table: last.table, bracket: last.bracket }), "text/html");
+      record("page_downloaded");
+    });
     $("#copy-text").addEventListener("click", async () => {
       if (!last) return;
       try { await navigator.clipboard.writeText(fullText()); status.textContent = "Copied. Paste it into your group chat."; record("text_shared"); }

@@ -304,7 +304,7 @@ export function analyze(text, options = {}) {
   const parsed = parseTransactions(text);
   const result = {
     errors: parsed.errors, skipped: parsed.skipped, warnings: [], years: [], year: null,
-    rows: [], summary: null, tax: null, comparison: [], holdings: [], income: 0, method, count: parsed.transactions.length,
+    rows: [], summary: null, tax: null, comparison: [], holdings: [], openLots: [], income: 0, method, count: parsed.transactions.length,
   };
   if (parsed.errors.length && parsed.transactions.length === 0) return result;
   const txs = parsed.transactions;
@@ -350,8 +350,62 @@ export function analyze(text, options = {}) {
     holdings.set(k, h);
   }
   result.holdings = [...holdings.values()].map((h) => ({ asset: h.asset, qty: Number(h.qty.toFixed(8)), basis: cents(h.basis) })).sort((a, b) => b.basis - a.basis);
+  result.openLots = main.openLots.map((l) => ({
+    asset: l.asset, wallet: l.wallet, acquired: l.date, qty: Number(l.qty.toFixed(8)), basis: cents((l.basis / l.qtyOriginal) * l.qty),
+  }));
   result.income = cents(txs.filter((t) => t.kind === "income" && (chosen === null || yearOf(t.date) === chosen)).reduce((a, t) => a + t.usd, 0));
   return result;
+}
+
+// "BTC=65000, ETH 3200" or one per line -> { BTC: 65000, ETH: 3200 }. Bad entries are reported, never guessed.
+export function parsePrices(text) {
+  const prices = {};
+  const errors = [];
+  for (const part of String(text || "").split(/[\n;]+|,(?=\s*[A-Za-z])/)) {
+    const t = part.trim();
+    if (!t) continue;
+    const m = t.match(/^([A-Za-z0-9.\-]+)\s*[=:\s]\s*\$?\s*([0-9][0-9,]*(?:\.[0-9]+)?)$/);
+    if (!m) { errors.push(`Could not read "${t}". Write it as BTC=65000.`); continue; }
+    const v = Number(m[2].replace(/,/g, ""));
+    if (!(v > 0)) { errors.push(`Price for ${m[1]} must be above zero.`); continue; }
+    prices[m[1].toUpperCase()] = v;
+  }
+  return { prices, errors };
+}
+
+// Tax-loss harvesting view of the lots still open. For each lot with a price you
+// typed: unrealized gain or loss and its term if sold on `asOf`. Then the tax
+// saved by selling every losing lot against the year's realized result
+// (`summary` from analyze, already net of the chosen method). Biggest tax saved
+// per lot first. No wash-sale rule is applied; see the page for why that is a
+// question of current law, not of arithmetic.
+export function harvestPlan(openLots, prices, { asOf, summary = null, shortRate = 0.24, longRate = 0.15 } = {}) {
+  const base = summary || { shortGain: 0, longGain: 0 };
+  const lots = [];
+  const unpriced = new Set();
+  for (const l of openLots) {
+    const price = prices[l.asset];
+    if (!price) { unpriced.add(l.asset); continue; }
+    const value = cents(l.qty * price);
+    const gain = cents(value - l.basis);
+    const term = holdingTerm(l.acquired, asOf);
+    lots.push({ asset: l.asset, wallet: l.wallet, acquired: l.acquired, qty: l.qty, basis: l.basis, value, gain, term });
+  }
+  const losers = lots.filter((l) => l.gain < 0);
+  const net = (extraShort, extraLong) => estimateTax({ shortGain: base.shortGain + extraShort, longGain: base.longGain + extraLong }, { shortRate, longRate });
+  const shortLoss = cents(losers.filter((l) => l.term === "Short").reduce((a, l) => a + l.gain, 0));
+  const longLoss = cents(losers.filter((l) => l.term === "Long").reduce((a, l) => a + l.gain, 0));
+  const taxBefore = net(0, 0);
+  const taxAfter = net(shortLoss, longLoss);
+  // Standalone saving per lot (against the current result), for ranking only.
+  for (const l of losers) l.taxSaved = cents(taxBefore - (l.term === "Short" ? net(l.gain, 0) : net(0, l.gain)));
+  losers.sort((a, b) => b.taxSaved - a.taxSaved || a.gain - b.gain);
+  return {
+    asOf, lots, losers, unpriced: [...unpriced].sort(),
+    unrealizedGain: cents(lots.reduce((a, l) => a + l.gain, 0)),
+    shortLoss, longLoss, taxBefore, taxAfter, taxSaved: cents(taxBefore - taxAfter),
+    unusedLoss: cents(Math.max(0, -(base.shortGain + shortLoss + base.longGain + longLoss))),
+  };
 }
 
 const q = (v) => {
