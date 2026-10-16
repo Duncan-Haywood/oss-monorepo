@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseCsv, parseDate, parseTransactions, normalizeType, holdingTerm, matchLots, analyze, estimateTax,
-  toForm8949Csv, SAMPLE_CSV, METHODS,
+  toForm8949Csv, SAMPLE_CSV, METHODS, parsePrices, harvestPlan,
 } from "./calc.mjs";
 
 const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.005, `${msg ?? ""} ${a} != ${b}`);
@@ -253,4 +253,47 @@ test("the sample CSV parses cleanly", () => {
 test("empty or header-only input returns no transactions and no errors", () => {
   assert.deepEqual(parseTransactions(""), { transactions: [], skipped: [], errors: [] });
   assert.deepEqual(parseTransactions("date,type,asset,quantity,total\n"), { transactions: [], skipped: [], errors: [] });
+});
+
+test("parsePrices reads several separators and reports bad entries", () => {
+  const r = parsePrices("btc=65,000\nETH: $3200.5; SOL 150, junk");
+  assert.deepEqual(r.prices, { BTC: 65000, ETH: 3200.5, SOL: 150 });
+  assert.equal(r.errors.length, 1);
+  assert.equal(parsePrices("BTC=0").errors.length, 1);
+});
+
+test("harvestPlan: loss lots offset realized gains at the right rates", () => {
+  const lots = [
+    { asset: "BTC", wallet: "", acquired: "2024-01-10", qty: 1, basis: 60000 },  // long by 2026-10-16, price 50000 -> -10000
+    { asset: "ETH", wallet: "", acquired: "2026-05-01", qty: 10, basis: 40000 }, // short, price 3000 -> -10000
+    { asset: "SOL", wallet: "", acquired: "2026-01-01", qty: 10, basis: 1000 },  // gain, ignored
+    { asset: "DOGE", wallet: "", acquired: "2026-01-01", qty: 1, basis: 5 },     // no price
+  ];
+  const h = harvestPlan(lots, { BTC: 50000, ETH: 3000, SOL: 200 }, {
+    asOf: "2026-10-16", summary: { shortGain: 20000, longGain: 5000 }, shortRate: 0.3, longRate: 0.2,
+  });
+  assert.equal(h.losers.length, 2);
+  assert.deepEqual(h.unpriced, ["DOGE"]);
+  assert.equal(h.shortLoss, -10000);
+  assert.equal(h.longLoss, -10000);
+  // before: 20000*.3 + 5000*.2 = 7000. after: short 10000, long -5000 -> 10000-5000=5000 * .3 = 1500
+  assert.equal(h.taxBefore, 7000);
+  assert.equal(h.taxAfter, 1500);
+  assert.equal(h.taxSaved, 5500);
+  assert.equal(h.losers[0].asset, "ETH"); // short loss saves more tax per dollar
+  assert.equal(h.unusedLoss, 0);
+});
+
+test("harvestPlan: no realized gains means the loss is unused, not tax saved", () => {
+  const h = harvestPlan([{ asset: "BTC", wallet: "", acquired: "2026-02-01", qty: 1, basis: 100 }], { BTC: 40 },
+    { asOf: "2026-10-16", summary: { shortGain: 0, longGain: 0 } });
+  assert.equal(h.taxSaved, 0);
+  assert.equal(h.unusedLoss, 60);
+});
+
+test("analyze exposes open lots that add up to the holdings", () => {
+  const r = analyze(SAMPLE_CSV);
+  const basis = r.openLots.reduce((a, l) => a + l.basis, 0);
+  const held = r.holdings.reduce((a, h) => a + h.basis, 0);
+  assert.ok(Math.abs(basis - held) < 0.05);
 });
