@@ -66,34 +66,26 @@ on. The guardrails still apply. Never fabricate anything, and never lower the
 quality bar just to have something to ship. A blocker is worth reporting, but
 report it alongside other useful work, not in place of it.
 
-## Long-term direction: automated, unpaid, compliant distribution
+## Standing directions (owner, 2026-10-15 and 2026-10-16)
 
-**Set by the owner on 2026-10-15.** Beyond search and AI discovery, the
-portfolio should publicize its products far more, automatically and for
-free, on the natural distribution platforms where users already look:
-package registries, extension and plugin stores, tool directories,
-syndicated feeds, labelled bot accounts. It is sales with no sale at the
-end. Agents build each channel's listing and publish pipeline, off by
-default with a dry run; the owner enables a channel once; then it runs
-unattended. **Never break a platform's terms or the law to do it**: no
-unsolicited messages, fake accounts, fake reviews, paid placement, or
-automated posting where a community forbids it. This is a direction for
-many runs, not a task every session must start on. Spec:
-[`portfolio/distribution/README.md`](portfolio/distribution/README.md);
-goal: [`prompts/goals.md`](prompts/goals.md).
+Quoted and specified in [`prompts/goals.md`](prompts/goals.md); read the
+section your work touches:
 
-## Directions added 2026-10-16
+- **Automated, unpaid, compliant distribution** (registries, stores,
+  directories, labelled bots; off by default with a dry run; the owner enables
+  a channel once). **Never break a platform's terms or the law**: no unsolicited
+  messages, fake accounts or reviews, paid placement, or posting where a
+  community forbids it. Spec: [`portfolio/distribution/README.md`](portfolio/distribution/README.md).
+- **Distribution and measurement are the limiter**: discoverability and a
+  privacy-respecting visitor count rank ahead of more products.
+- A professional, navigable public site; IaC deploys as a default, not a gate;
+  sales, marketing and business tools with AI on the user's own key
+  ([`portfolio/sales-tools/`](portfolio/sales-tools/README.md),
+  [`platform/llm/`](platform/llm/README.md)); every run records what it cost
+  (`prompts/runcost.py attach`, step 3 of `prompt.md`); a development dashboard
+  at `dev/` (`platform/devstats/`).
 
-Quoted and specified in [`prompts/goals.md`](prompts/goals.md):
-**distribution and measurement are the limiter** (discoverability work and a
-privacy-respecting visitor count for the Pages site rank ahead of more
-products); **a professional, navigable public site**; **IaC deploys** as a
-default, not a gate; **sales, marketing and business tools** with AI on the
-user's own key ([`portfolio/sales-tools/`](portfolio/sales-tools/README.md),
-[`platform/llm/`](platform/llm/README.md)); **every run records what it
-cost** (`prompts/runcost.py attach`, step 3 of `prompt.md`); and a
-**development dashboard** at `dev/` on the Pages site (`platform/devstats/`)
-with delivery and CI metrics, plus shift-left CI improvements judged by them.
+These are directions for many runs, not tasks every session must start on.
 
 ## Every session lands its own work: open the PR, then merge it
 
