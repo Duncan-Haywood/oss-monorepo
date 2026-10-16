@@ -2664,6 +2664,18 @@
      "summary": "A MuJoCo hinge pendulum (RK4, 0.002 s, dry friction, Student-t sensor noise) is the &lsquo;real&rsquo; system; twins change the integrator, timestep or friction. A boosted-tree classifier two-sample test (800 trajectories per class, 3 seeds) has AUROC 0.98 for semi-implicit Euler at 0.02 s (paired RMSE 0.028 rad), 0.90 at 0.01 s, 0.67 at 0.005 s (0.007 rad) and 0.53 at 0.002 s (0.003 rad), which is not separable from the null 0.51. A friction error of 10% gives 0.52 and 20% gives 0.61. Gaussian instead of Student-t noise of the same sd has zero paired error but AUROC 0.92. Limits: one toy system, one classifier, 3 seeds; the &lsquo;real&rsquo; system is itself simulated. Stylised, preliminary."
     }
    ]
+  },
+  {
+   "id": "house",
+   "name": "Open-source residential construction",
+   "blurb": "Cutting what it costs to design and build a home, with the engineering done as open, testable code and the designs published.",
+   "projects": [
+    {
+     "slug": "house-framing",
+     "title": "How much lumber, labour and heat does advanced framing save in a house's exterior walls, and does it still carry the roof?",
+     "summary": "An open takeoff of a stylised 28 &times; 40 ft one-storey house: every stud, plate, header, cripple and block under conventional and advanced (OVE) framing, with the NDS stud and header checks and a parallel-path whole-wall R-value. Advanced 2x6 framing at 24 in used 41% less exterior-wall lumber than conventional 2x6 and 26% fewer pieces, and raised the whole-wall R-value from 16.2 to 18.6. It still used 16% less lumber than conventional 2x4. At 30 psf of roof snow its studs work at 39% of capacity. The biggest single savings were 24 in spacing, the single top plate and header hangers. At assumed lumber prices the wall saving is only $440 to $880 a house, so the case for advanced framing rests on labour, which the model counts as pieces but does not price. <em>Stylised</em>: one house, exterior walls only, no lateral design, no labour rates, and not a code check or a design anyone should build from without a licensed review."
+    }
+   ]
   }
  ],
  "featured": [
