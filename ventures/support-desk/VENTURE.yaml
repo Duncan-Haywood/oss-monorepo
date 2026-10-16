@@ -4,7 +4,9 @@ description: >-
   forwarder) and website contact-form tickets, threading by ticket number,
   priority and spam guesses with visible reasons, first-reply targets with an
   overdue list, saved replies suggested by keyword weight, internal notes, a
-  customer portal link and CSV export. Browser triage demo plus a
+  customer portal link, CSV export and optional AI reply drafts on your own
+  key (Anthropic, OpenAI, Gemini or any compatible endpoint; templates without
+  one). Browser triage demo plus a
   zero-dependency server with a one-click Render deploy.
 stage: prototype
 owner: duncan
