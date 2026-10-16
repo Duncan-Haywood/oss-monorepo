@@ -49,7 +49,7 @@ export const HANDOFFS = [
     channel: 'ebay',
     slug: 'ebay-fee-calculator',
     label: 'eBay fee & profit calculator',
-    // What it adds beyond the flat 13.25% here: Promoted Listings at whatever
+    // What it adds beyond the flat 13.6% here: Promoted Listings at whatever
     // you bid, returns, Top Rated Plus, store subscription tiers, offers and
     // international fees.
     fields: {

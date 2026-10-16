@@ -7,7 +7,7 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
-  - claim: Seeing category referral rates diverge between marketplaces on the same item (8% electronics vs 20% jewelry on Amazon, flat 13.25% on eBay) changes a listing decision that a flat "eBay takes 13%" estimate would not.
+  - claim: Seeing category referral rates diverge between marketplaces on the same item (8% electronics vs 20% jewelry on Amazon, flat 13.6% on eBay) changes a listing decision that a flat "eBay takes 13%" estimate would not.
     status: untested
     checked: null
     evidence: customer-contact

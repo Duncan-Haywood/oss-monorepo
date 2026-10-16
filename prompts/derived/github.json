@@ -4795,6 +4795,28 @@
   "same_repo": true,
   "state": "closed"
  },
+ "duncan-haywood/oss-monorepo#7507": {
+  "additions": 362,
+  "base": "main",
+  "changed_files": 12,
+  "ci": {
+   "commits_checked": 8,
+   "head": "green",
+   "red_commits": 4,
+   "unchecked_commits": 2
+  },
+  "closed_at": "2026-10-16T20:34:05Z",
+  "commits": 8,
+  "created_at": "2026-10-16T19:11:51Z",
+  "deletions": 0,
+  "fetched_at": "2026-10-16T21:01:51Z",
+  "head_sha": "799c585572c01df345577e34b5febf102c279cac",
+  "merge_commit_sha": "34795e0d28d5391632c42acf4541b3f0fab11513",
+  "merged": true,
+  "merged_at": "2026-10-16T20:34:05Z",
+  "same_repo": true,
+  "state": "closed"
+ },
  "duncan-haywood/oss-monorepo#7508": {
   "additions": 1237,
   "base": "main",
@@ -4880,6 +4902,116 @@
   "merge_commit_sha": "53b8f1b4b34657e964c3591fbcfc0210371ceee4",
   "merged": true,
   "merged_at": "2026-10-16T19:42:08Z",
+  "same_repo": true,
+  "state": "closed"
+ },
+ "duncan-haywood/oss-monorepo#7518": {
+  "additions": 528,
+  "base": "main",
+  "changed_files": 13,
+  "ci": {
+   "commits_checked": 2,
+   "head": "green",
+   "red_commits": 0,
+   "unchecked_commits": 0
+  },
+  "closed_at": "2026-10-16T20:12:29Z",
+  "commits": 2,
+  "created_at": "2026-10-16T20:12:10Z",
+  "deletions": 0,
+  "fetched_at": "2026-10-16T21:01:49Z",
+  "head_sha": "33e2f39b6596d23f3d8dd32e889136aec1ec806d",
+  "merge_commit_sha": "caf6ff2e5808e349272c860cc1eb4f5bbd81e77c",
+  "merged": true,
+  "merged_at": "2026-10-16T20:12:29Z",
+  "same_repo": true,
+  "state": "closed"
+ },
+ "duncan-haywood/oss-monorepo#7519": {
+  "additions": 546,
+  "base": "main",
+  "changed_files": 12,
+  "ci": {
+   "commits_checked": 2,
+   "head": "green",
+   "red_commits": 0,
+   "unchecked_commits": 0
+  },
+  "closed_at": "2026-10-16T20:16:28Z",
+  "commits": 2,
+  "created_at": "2026-10-16T20:12:45Z",
+  "deletions": 0,
+  "fetched_at": "2026-10-16T21:01:49Z",
+  "head_sha": "f399e5316043ffb858fe2d2c3bf8a86c6c79ce6d",
+  "merge_commit_sha": "56b0c31b142e066b3900a4c29ea0b0de6885db7c",
+  "merged": true,
+  "merged_at": "2026-10-16T20:16:28Z",
+  "same_repo": true,
+  "state": "closed"
+ },
+ "duncan-haywood/oss-monorepo#7520": {
+  "additions": 415,
+  "base": "main",
+  "changed_files": 12,
+  "ci": {
+   "commits_checked": 3,
+   "head": "green",
+   "red_commits": 0,
+   "unchecked_commits": 0
+  },
+  "closed_at": "2026-10-16T20:21:16Z",
+  "commits": 3,
+  "created_at": "2026-10-16T20:15:15Z",
+  "deletions": 0,
+  "fetched_at": "2026-10-16T21:01:50Z",
+  "head_sha": "3335f1a9dc6154c1133d7ce8698600c26647af6b",
+  "merge_commit_sha": "7cf1c3903ca9be2d0cd8278fd85eb6525f75f2ff",
+  "merged": true,
+  "merged_at": "2026-10-16T20:21:16Z",
+  "same_repo": true,
+  "state": "closed"
+ },
+ "duncan-haywood/oss-monorepo#7522": {
+  "additions": 517,
+  "base": "main",
+  "changed_files": 8,
+  "ci": {
+   "commits_checked": 2,
+   "head": "green",
+   "red_commits": 0,
+   "unchecked_commits": 0
+  },
+  "closed_at": "2026-10-16T20:40:44Z",
+  "commits": 2,
+  "created_at": "2026-10-16T20:40:24Z",
+  "deletions": 1,
+  "fetched_at": "2026-10-16T21:01:49Z",
+  "head_sha": "2a7aeef2f4ab7372480e571f2406c7131210ff76",
+  "merge_commit_sha": "444753041b42334aaec1cfae4b243be04eb55c58",
+  "merged": true,
+  "merged_at": "2026-10-16T20:40:44Z",
+  "same_repo": true,
+  "state": "closed"
+ },
+ "duncan-haywood/oss-monorepo#7523": {
+  "additions": 279,
+  "base": "main",
+  "changed_files": 10,
+  "ci": {
+   "commits_checked": 2,
+   "head": "pending",
+   "red_commits": 0,
+   "unchecked_commits": 0
+  },
+  "closed_at": "2026-10-16T20:41:24Z",
+  "commits": 2,
+  "created_at": "2026-10-16T20:40:56Z",
+  "deletions": 0,
+  "fetched_at": "2026-10-16T21:01:49Z",
+  "head_sha": "a4eea36d43a32d8f293e63c8618fcd135ff63da5",
+  "merge_commit_sha": "e1dae8e46c5eb4cc84beaea64bfd114607669b24",
+  "merged": true,
+  "merged_at": "2026-10-16T20:41:24Z",
   "same_repo": true,
   "state": "closed"
  },
@@ -8510,6 +8642,50 @@
   "merge_commit_sha": "af6ceaa04732962f0f4420e1d00c882a0e6c7967",
   "merged": true,
   "merged_at": "2026-10-15T23:25:18Z",
+  "same_repo": true,
+  "state": "closed"
+ },
+ "duncan-haywood/oss-research-monorepo#615": {
+  "additions": 50,
+  "base": "main",
+  "changed_files": 7,
+  "ci": {
+   "commits_checked": 4,
+   "head": "green",
+   "red_commits": 0,
+   "unchecked_commits": 2
+  },
+  "closed_at": "2026-10-16T02:20:07Z",
+  "commits": 4,
+  "created_at": "2026-10-16T00:19:15Z",
+  "deletions": 3,
+  "fetched_at": "2026-10-16T21:01:49Z",
+  "head_sha": "41922a42d56ca6e170418028758534d8d109d01a",
+  "merge_commit_sha": "3f3ac1067a9e2fd79c4adbe7c2bb9f807a5f7fb0",
+  "merged": true,
+  "merged_at": "2026-10-16T02:20:07Z",
+  "same_repo": true,
+  "state": "closed"
+ },
+ "duncan-haywood/oss-research-monorepo#623": {
+  "additions": 1005,
+  "base": "main",
+  "changed_files": 14,
+  "ci": {
+   "commits_checked": 2,
+   "head": "green",
+   "red_commits": 0,
+   "unchecked_commits": 0
+  },
+  "closed_at": "2026-10-16T02:16:11Z",
+  "commits": 2,
+  "created_at": "2026-10-16T02:10:48Z",
+  "deletions": 0,
+  "fetched_at": "2026-10-16T21:01:49Z",
+  "head_sha": "04314a08d04e2e2cef183e3231e7282eae04ce06",
+  "merge_commit_sha": "fa7a68098da83f0858aa75e3d516d95dfd8248fc",
+  "merged": true,
+  "merged_at": "2026-10-16T02:16:11Z",
   "same_repo": true,
   "state": "closed"
  }
