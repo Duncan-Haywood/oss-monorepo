@@ -103,6 +103,18 @@ const text = await guard.guarded(
     <p>Read <a href="how-to-set-a-hard-spend-limit-on-openai-and-anthropic-api-calls.html">how to set a hard spend limit on OpenAI and Anthropic API calls</a> for what each control catches and where provider-side limits still matter.</p>
   </section>
 
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>How do I put a hard limit on my OpenAI or Anthropic API spend?</h3>
+    <p>Set the provider's own organisation or project limit as the backstop, then put a guard in front of your calls that refuses a request before it is sent when it would cross a budget. LLM Spend Guard does that as a local proxy (change the SDK base URL) or as a library call around your SDK call, with budgets per user, feature, key and agent run.</p>
+    <h3>How does it stop concurrent calls overshooting a budget?</h3>
+    <p>Each call holds its worst-case cost (a high estimate of its input plus its full output cap) against every budget before it is sent, like a card hold. Concurrent calls cannot all fit into the same remaining dollar. When the response reports real usage, the actual cost replaces the hold.</p>
+    <h3>What is a runaway loop breaker?</h3>
+    <p>An agent that keeps retrying the same tool call, or a bug that calls the model in a tight loop, can spend a month's budget in minutes. A breaker watches a rolling window and opens when one run sends the same request too many times, or calls or spend per minute pass a limit; while open it refuses calls for a cooldown, and the proxy answers HTTP 429 with Retry-After.</p>
+    <h3>Is my usage log uploaded?</h3>
+    <p>No. The simulator on this page replays the log you paste in your own browser and never sends it anywhere. The proxy runs on your machine or your server, and only talks to the provider you point it at.</p>
+  </section>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice, and it is not a billing system: it estimates cost from the prices you configure and the usage providers report, and its figures can differ from your invoice. Keep your provider's own spend limits switched on as well. <strong>You are responsible for reviewing and verifying its configuration and output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Vendor and model names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>

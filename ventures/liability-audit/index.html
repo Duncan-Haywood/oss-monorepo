@@ -77,6 +77,18 @@ node cli.mjs rules                        # every rule and the law behind it</pr
     <p>Read <a href="what-a-small-app-can-be-liable-for-and-how-to-check.html">what a small app can be liable for, and how to check</a> for the reasoning behind each rule and the limits of an automated scan.</p>
   </section>
 
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>Does a clean report mean my app is compliant?</h3>
+    <p>No. It means none of the patterns this tool looks for were found in the files you gave it. It cannot see your servers, your contracts, what your vendors do with data, or what your pages say in images. It is a checklist that finds the common, cheap-to-fix problems early; it is not legal advice and not a compliance certificate.</p>
+    <h3>Why does an LLM endpoint without a rate limit count as a liability?</h3>
+    <p>If your server calls a model on your own API key and anyone can reach that endpoint, one abusive user, a scraper or a stuck agent loop can run up the bill, and the provider charges the account owner. A per-user budget or rate limit in front of the call caps that exposure.</p>
+    <h3>Is my code uploaded?</h3>
+    <p>No. The page reads the folder or text you choose in your own browser and never sends it anywhere. The CLI reads local files and makes no network request.</p>
+    <h3>Can I run it in CI?</h3>
+    <p>Yes. node cli.mjs scan . --fail-on high exits 1 on any high-severity finding, --format md writes a PR comment, and --format sarif produces a file GitHub code scanning can show inline.</p>
+  </section>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or security advice, and it does not replace a qualified professional. It pattern-matches files: it can miss problems and flag non-problems, and a clear report is not a finding that anything is lawful. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for your own compliance. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Product and law names are used descriptively; this project is not affiliated with any vendor named in its rules.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>

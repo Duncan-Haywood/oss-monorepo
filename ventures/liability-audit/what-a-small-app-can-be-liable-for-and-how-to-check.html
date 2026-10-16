@@ -67,6 +67,16 @@
   <h2>Run it continuously</h2>
   <p>Add <code>node cli.mjs scan . --fail-on high</code> to CI so a new high-severity exposure fails the pull request. Post <code>--format md</code> as a PR comment, or upload <code>--format sarif</code> to GitHub code scanning to see findings inline. For a monorepo, <code>sweep</code> gives one row per app. The repository's <code>AGENT.md</code> is a playbook for an AI coding agent: run the scan, triage each finding against the code, fix what is clearly a fix, and bring the judgment calls to a person.</p>
 
+  <section id="faq">
+    <h2>Questions</h2>
+    <h3>Which liabilities can an automated scan find?</h3>
+    <p>The ones that leave a trace in files: a tracker script without a consent manager, subscription checkout code without renewal and cancellation wording, data-collecting forms without a privacy notice, affiliate links before any disclosure, AI calls without a statement that AI is used, live keys, LLM endpoints with no limit, cloud IaC with no budget, and copyleft licences in a lockfile.</p>
+    <h3>Which can it not find?</h3>
+    <p>Anything that depends on facts outside the files: what your vendors do with data, whether your privacy notice is accurate, contracts, employment, tax registration, sector rules such as health or finance licensing, and anything in images or a CMS. A clean scan is not a compliance opinion.</p>
+    <h3>Why treat runaway cloud or AI spend as a liability?</h3>
+    <p>Because it is one: the account owner owes the bill. A leaked key, an endpoint anyone can drive on your model key, or an autoscaler with no budget alarm can produce a charge larger than the business earns in a year, and providers do not have to forgive it.</p>
+  </section>
+
   <footer>
     <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, financial or security advice, and they do not replace a qualified professional. The tool pattern-matches files: it can miss problems and flag non-problems, and a clear report is not a finding that anything is lawful. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for your own compliance. Laws change and differ by place; the references above are starting points, not a complete or current statement of the law. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get the source and run it yourself.</p>

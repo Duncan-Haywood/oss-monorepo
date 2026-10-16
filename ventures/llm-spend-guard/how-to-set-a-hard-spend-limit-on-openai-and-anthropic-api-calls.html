@@ -74,6 +74,16 @@
   <h2>Other tools that do some of this</h2>
   <p>Gateways and observability platforms such as LiteLLM, Portkey and Helicone offer budgets, rate limits or spend dashboards in various forms; check their current documentation for what each enforces and on which plan. Use this tool if you want a dependency-free file you can read in an hour. It holds worst-case cost before a call, breaks on repeated requests per agent run, refuses unpriced models by default, and replays a log offline. Not affiliated with, endorsed by, or sponsored by LiteLLM, Portkey or Helicone; their names are trademarks of their owners, used here only to describe what this tool is and is not.</p>
 
+  <section id="faq">
+    <h2>Questions</h2>
+    <h3>Is the provider's own spend limit enough?</h3>
+    <p>Keep it on: it is the backstop that works even when your code is wrong. But it sees the whole organisation or project, not one user, feature or agent run, and depending on the provider and setting it may alert rather than refuse, or act after usage is counted. A guard in your own path can refuse one runaway user or run while everyone else keeps working.</p>
+    <h3>Why reserve the worst case before a call?</h3>
+    <p>Counting spend after responses arrive lets every concurrent call see the same remaining budget, so twenty parallel calls can all start under a limit that only one of them fits. Holding each call's worst case (input estimate plus full output cap) first means the budget is never promised twice.</p>
+    <h3>What should a first policy look like?</h3>
+    <p>A global daily and monthly dollar cap, a smaller per-user daily cap, a per-run total and step cap for agents, an output-token ceiling, a repeat breaker per run, and a calls-per-minute breaker globally. Start it in observe mode for a week, read what it would have refused, then switch to enforce.</p>
+  </section>
+
   <footer>
     <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. They are not financial, legal, security or engineering advice, and the tool is not a billing system: its figures come from prices you configure and usage providers report, and can differ from your invoice. <strong>You are responsible for reviewing and verifying its configuration and output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get the source and run it yourself.</p>
