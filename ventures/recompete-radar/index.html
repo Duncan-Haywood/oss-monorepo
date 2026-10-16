@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recompete Radar — Federal Contracts About to Expire</title>
+  <meta name="description" content="Free tool for small government contractors: list the federal contracts in your NAICS code and state that end in the next 6 to 24 months, who holds them, how concentrated the market is, and when the follow-on is likely to be solicited. Public USAspending data, runs in your browser.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
+  <meta property="og:title" content="Which federal contracts in my niche expire next?">
+  <meta property="og:description" content="Recompete calendar, incumbent ranking and market concentration for any NAICS code, from public USAspending data. Free, private, no signup.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Recompete Radar",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Expiring federal contract list by NAICS and state, incumbent ranking, market concentration (HHI), agency spend, likely solicitation window, CSV export, paste a USAspending CSV"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type": "Question", "name": "How do I find federal contracts that are about to be recompeted?",
+       "acceptedAnswer": {"@type": "Answer", "text": "Every federal contract award is public on USAspending.gov with its current end date. Filter by your NAICS code and place of performance, keep the awards whose end date falls in the next 6 to 24 months, and you have a recompete calendar. Recompete Radar does that filtering and adds the incumbent, the awarding office and the likely solicitation window."}},
+      {"@type": "Question", "name": "How far ahead of the end date is a recompete solicited?",
+       "acceptedAnswer": {"@type": "Answer", "text": "It varies by agency and contract type. A common pattern is a solicitation notice on SAM.gov roughly six to twelve months before the old contract ends, and many agencies extend the incumbent short-term when the follow-on is late. The tool lets you set the lead time and treats the result as a prompt to check SAM.gov, not a promise."}},
+      {"@type": "Question", "name": "Why might an end date be wrong?",
+       "acceptedAnswer": {"@type": "Answer", "text": "The current end date excludes option years the agency has not yet exercised, so a contract can run longer than shown. Agencies can also cancel, merge, set aside or extend a requirement. Treat every row as a lead to verify."}},
+      {"@type": "Question", "name": "Does my search leave my browser?",
+       "acceptedAnswer": {"@type": "Answer", "text": "The page asks api.usaspending.gov, the public government data service, for awards in your NAICS code and state. Nothing is sent to us, there is no account, and pasted CSV data never leaves the page."}}
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light dark; --bg:#fbfbfa; --fg:#1a1a19; --muted:#5c5c58; --card:#fff; --border:#e2e2dd; --accent:#1b4f8a; --warn-bg:#fdf4e3; --warn-fg:#6b4708; --bad:#a3251b; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#17181a; --fg:#ececeb; --muted:#a3a39e; --card:#202124; --border:#34353a; --accent:#7fb2ee; --warn-bg:#2c2517; --warn-fg:#e7c98a; --bad:#ef8c82; } }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+    .wrap { max-width:68rem; margin:0 auto; padding:2rem 1.1rem 4rem; }
+    h1 { font-size:1.8rem; line-height:1.2; margin:0 0 .5rem; } h2 { font-size:1.15rem; margin:0 0 .6rem; }
+    p.lede { color:var(--muted); max-width:46rem; font-size:1.05rem; }
+    section { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1.1rem 1.15rem; margin-top:1.25rem; }
+    .fields { display:grid; gap:.85rem 1rem; grid-template-columns:repeat(auto-fill,minmax(12rem,1fr)); }
+    label { display:block; font-weight:600; font-size:.9rem; margin-bottom:.2rem; }
+    .hint,.fine { color:var(--muted); font-size:.85rem; font-weight:400; }
+    input,select,button,textarea { font:inherit; width:100%; padding:.5rem .6rem; border:1px solid var(--border); border-radius:7px; background:var(--bg); color:var(--fg); }
+    textarea { min-height:7rem; font-family:ui-monospace,monospace; font-size:.8rem; }
+    button { background:var(--accent); color:var(--bg); font-weight:700; border:0; cursor:pointer; width:auto; padding:.6rem 1rem; }
+    button.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+    .row { display:flex; gap:.6rem; flex-wrap:wrap; margin-top:.9rem; }
+    table { width:100%; border-collapse:collapse; } .scroll { overflow-x:auto; }
+    th,td { text-align:left; padding:.5rem; border-bottom:1px solid var(--border); vertical-align:top; }
+    td.num,th.num { text-align:right; white-space:nowrap; } thead th { font-size:.8rem; color:var(--muted); }
+    .stats { display:grid; gap:.8rem; grid-template-columns:repeat(auto-fit,minmax(10rem,1fr)); }
+    .stat b { display:block; font-size:1.35rem; } .stat span { color:var(--muted); font-size:.82rem; }
+    .caveat { background:var(--warn-bg); color:var(--warn-fg); padding:.7rem .85rem; border-radius:8px; font-size:.9rem; margin-top:.8rem; }
+    .error { color:var(--bad); font-weight:600; }
+    nav a { margin-right:1rem; } [hidden] { display:none !important; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Recompete Radar</h1>
+  <p class="lede">The people who know which federal contracts end next are the incumbents and the paid intelligence vendors. The end dates are public. Enter your NAICS code and state and get the calendar, the incumbents, and how locked-up the market is.</p>
+
+  <section>
+    <h2>1. Find contracts</h2>
+    <div class="fields">
+      <div><label for="naics">NAICS code <span class="hint">2–6 digits, e.g. 561720 janitorial</span></label><input id="naics" inputmode="numeric" maxlength="6" value="561720"></div>
+      <div><label for="state">Place of performance <span class="hint">2-letter state, blank = all</span></label><input id="state" maxlength="2" placeholder="CO"></div>
+      <div><label for="setaside">Set-aside <span class="hint">limits who may bid</span></label>
+        <select id="setaside"><option value="">Any</option><option value="SBA">Small business</option><option value="8A">8(a)</option><option value="SDVOSBC">Service-disabled veteran</option><option value="WOSB">Women-owned</option><option value="HZC">HUBZone</option></select></div>
+      <div><label for="window">Ends within <span class="hint">months from today</span></label><input id="window" type="number" min="1" max="60" step="1" value="18"></div>
+      <div><label for="lead">Solicitation lead <span class="hint">months before end</span></label><input id="lead" type="number" min="1" max="36" step="1" value="9"></div>
+      <div><label for="minvalue">Minimum award $ <span class="hint">total value</span></label><input id="minvalue" type="number" min="0" step="10000" value="100000"></div>
+    </div>
+    <div class="row"><button id="fetch" type="button">Search USAspending</button><span id="status" class="fine" role="status"></span></div>
+    <p class="fine">Searches fetch up to 500 awards that had activity in the last 3 years, largest first, straight from api.usaspending.gov. Small awards beyond that are not listed. Prefer not to query? Paste a USAspending CSV below.</p>
+    <details><summary>Or paste a USAspending CSV</summary>
+      <label for="csv" class="fine">Download from USAspending Advanced Search → Download, then paste the contract file here.</label>
+      <textarea id="csv" spellcheck="false"></textarea>
+      <div class="row"><button id="runcsv" type="button" class="secondary">Analyse pasted CSV</button></div>
+    </details>
+  </section>
+
+  <section id="results" hidden>
+    <h2>2. What came back</h2>
+    <div class="stats" id="stats"></div>
+    <p id="reading" class="fine"></p>
+    <h2 style="margin-top:1.3rem">Recompete calendar</h2>
+    <div class="scroll"><table><thead><tr><th>Ends</th><th>Incumbent</th><th>Office</th><th class="num">Value</th><th class="num">≈ per year</th><th>Next step</th></tr></thead><tbody id="cal"></tbody></table></div>
+    <div class="row"><button id="download" type="button" class="secondary">Download as CSV</button></div>
+    <h2 style="margin-top:1.3rem">Who holds the dollars</h2>
+    <div class="scroll"><table><thead><tr><th>Vendor</th><th class="num">Dollars</th><th class="num">Share</th><th class="num">Awards</th><th class="num">Expiring</th></tr></thead><tbody id="vendors"></tbody></table></div>
+    <h2 style="margin-top:1.3rem">Who buys</h2>
+    <div class="scroll"><table><thead><tr><th>Agency</th><th class="num">Dollars</th><th class="num">Share</th></tr></thead><tbody id="agencies"></tbody></table></div>
+    <div class="caveat"><strong>Read each row as a lead, not a forecast.</strong> The end date excludes option years not yet exercised. Agencies extend, cancel, merge or set aside requirements. The solicitation date is the end date minus your lead time, not a published schedule. Check SAM.gov before acting.</div>
+  </section>
+
+  <section>
+    <h2>Use it safely</h2>
+    <p class="fine">The page queries the public USAspending.gov API from your browser; we run no server and see nothing. Pasted CSV stays on the page. We count anonymous feature events (searches run) in your browser's local storage only — never inputs, people, IPs or cookies — and honor Do Not Track and Global Privacy Control.</p>
+    <label class="fine"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not count anonymous local usage events</label>
+    <p class="fine"><strong>Data caveats.</strong> Federal award data is self-reported by agencies and can be late, mis-coded or incomplete. Not every contract is in the NAICS you expect.</p>
+    <p class="fine"><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Not legal, procurement or business advice. You are responsible for verifying every lead against SAM.gov and the solicitation itself before spending money on a bid. To the maximum extent permitted by law the authors accept no liability for loss arising from its use. Not affiliated with the U.S. government. Best-effort hosting, no SLA.</p>
+    <p class="fine">Open source (<a href="LICENSE">MIT</a>). If it saves you a bid, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the creator</a>.</p>
+  </section>
+</div>
+<script type="module">
+  import { normalizeAwards, parseCsv, analyze, readConcentration, buildRequest, recompetesToCsv, money } from "./calc.mjs";
+  import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+  const $ = (id) => document.getElementById(id);
+  const API = "https://api.usaspending.gov/api/v2/search/spending_by_award/";
+  const MAX_PAGES = 5;
+  let last = null;
+
+  function td(text, cls) { const c = document.createElement("td"); c.textContent = text; if (cls) c.className = cls; return c; }
+  function fill(id, rows) { const b = $(id); b.replaceChildren(...rows.map((cells) => { const r = document.createElement("tr"); cells.forEach((c) => r.append(c)); return r; })); }
+  const pct = (x) => `${(x * 100).toFixed(1)}%`;
+  const day = (d) => d.toISOString().slice(0, 10);
+
+  function render(awards, dropped) {
+    const opts = { windowMonths: +$("window").value || 18, leadMonths: +$("lead").value || 9, minValue: +$("minvalue").value || 0 };
+    const r = analyze(awards, opts);
+    last = r;
+    const stat = (v, l) => { const d = document.createElement("div"); d.className = "stat"; const b = document.createElement("b"); b.textContent = v; const s = document.createElement("span"); s.textContent = l; d.append(b, s); return d; };
+    $("stats").replaceChildren(
+      stat(String(r.recompetes.length), `contracts ending within ${opts.windowMonths} months`),
+      stat(money(r.expiringDollars), "total value of those"),
+      stat(money(r.sizes.median), "median award in this market"),
+      stat(r.top3Share === null ? "n/a" : pct(r.top3Share), "dollars held by top 3 vendors"),
+    );
+    $("reading").textContent = `${r.considered} awards considered (${dropped} rows unusable). Market concentration (HHI ${r.concentration === null ? "n/a" : Math.round(r.concentration)}): ${readConcentration(r.concentration)}.`;
+    fill("cal", r.recompetes.map((a) => {
+      const inc = td(a.vendor); const off = td([a.agency, a.subAgency].filter(Boolean).join(" / "));
+      off.title = a.description;
+      return [td(day(a.end)), inc, off, td(money(a.amount), "num"), td(money(a.annualValue), "num"), td(`${a.stage} (notice ≈ ${day(a.likelySolicitation)})`)];
+    }));
+    fill("vendors", r.topVendors.map((v) => [td(v.name), td(money(v.dollars), "num"), td(pct(v.share), "num"), td(String(v.awards), "num"), td(String(v.expiring), "num")]));
+    fill("agencies", r.topAgencies.map((a) => [td(a.name), td(money(a.dollars), "num"), td(pct(a.share), "num")]));
+    $("results").hidden = false;
+    $("results").scrollIntoView({ block: "start" });
+  }
+
+  function usage(event) { try { recordUsage(localStorage, $("usageOptOut").checked, event); } catch {} }
+
+  $("fetch").addEventListener("click", async () => {
+    const status = $("status"); status.className = "fine"; status.textContent = "Searching…";
+    $("fetch").disabled = true;
+    try {
+      const rows = [];
+      for (let page = 1; page <= MAX_PAGES; page += 1) {
+        const body = buildRequest({ naics: $("naics").value, state: $("state").value.trim(), setAsides: $("setaside").value ? [$("setaside").value] : [], page });
+        const res = await fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        if (!res.ok) throw new Error(`USAspending answered ${res.status}. Try again, or paste a CSV instead.`);
+        const data = await res.json();
+        rows.push(...(data.results || []));
+        status.textContent = `Fetched ${rows.length} awards…`;
+        if (!data.page_metadata?.hasNext) break;
+      }
+      const { awards, dropped } = normalizeAwards(rows);
+      if (!awards.length) throw new Error("No usable awards came back for that NAICS and state. Widen the state or NAICS.");
+      status.textContent = `${awards.length} awards.`;
+      render(awards, dropped);
+      usage("search_run");
+    } catch (e) {
+      status.className = "error"; status.textContent = e.message || String(e);
+    } finally { $("fetch").disabled = false; }
+  });
+
+  $("runcsv").addEventListener("click", () => {
+    const { awards, dropped } = normalizeAwards(parseCsv($("csv").value));
+    const status = $("status");
+    if (!awards.length) { status.className = "error"; status.textContent = "No usable rows. The CSV needs a recipient name, an amount and an end date column."; return; }
+    status.className = "fine"; status.textContent = `${awards.length} awards from CSV.`;
+    render(awards, dropped); usage("csv_run");
+  });
+
+  $("download").addEventListener("click", () => {
+    if (!last) return;
+    const url = URL.createObjectURL(new Blob([recompetesToCsv(last.recompetes)], { type: "text/csv" }));
+    const a = document.createElement("a"); a.href = url; a.download = "recompete-radar.csv"; a.click();
+    URL.revokeObjectURL(url); usage("csv_downloaded");
+  });
+
+  try { $("usageOptOut").checked = readOptOut(localStorage); } catch {}
+  $("usageOptOut").addEventListener("change", () => { try { writeOptOut(localStorage, $("usageOptOut").checked); } catch {} });
+</script>
+</body>
+</html>
