@@ -2476,6 +2476,11 @@
      "slug": "eda-equivpredict",
      "title": "Can cheap features say which simulation survivors formal can prove equivalent?",
      "summary": "Replay of the <em>eda-verify</em> log on the 27 mutants that 16 directed vectors do not kill (16 provably equivalent, 9 timeouts, 2 formal kills). Predicting from the mutated source line and running formal only on predicted-equivalent survivors costs 3,298&nbsp;CPU-s against 7,414&nbsp;s for always running formal (&minus;55%) and still finds 14 of 16 proofs, 93% accurate under leave-one-line-out; smoother rules (3-NN, a one-split rule) find 12 of 16 and operator kind is no better than guessing. The signal is the design region the solver finds hard, not a transferable rule. Stylised: 27 mutants, one design, one solver; nothing new was simulated."
+    },
+    {
+     "slug": "eda-equivinterval",
+     "title": "How sure is the 93% nearest-line equivalence predictor?",
+     "summary": "Uncertainty for <em>eda-equivpredict</em>, replayed from the same <em>eda-verify</em> log. The 27 survivors sit on only 11 distinct source lines, so a line-cluster bootstrap gives a 95% interval of 76.5&ndash;100% around the observed 25 of 27 (92.6%), against a 59.3% majority-class baseline, and a permutation test that shuffles line groups gives p&nbsp;=&nbsp;0.012. One design, one solver, predictors chosen with the log in view. Stylised."
     }
    ]
   },
