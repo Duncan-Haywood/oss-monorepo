@@ -1,0 +1,71 @@
+name: deal-keeper
+description: >-
+  Self-hosted sales pipeline forecaster and hygiene list for small B2B teams.
+  Stage win rates learned from your own closed deals (shrunk toward defaults,
+  monotone, with time-in-stage survival conditioning), a forecast with a
+  10th-90th percentile band, an out-of-time backtest that trains only on deals
+  closed before a cutoff, and stale/overdue/slipped/no-next-step flags ranked
+  by value at risk. Signed alert webhook, CSV day-one import, browser
+  simulator running the real engine, zero-dependency Node server, one-click
+  Render/Fly/Docker deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-16. Paid market is real and proven: Clari, Gong Forecast and
+# Aviso sell revenue forecasting to large teams for thousands a month, and the
+# forecasting tiers of Pipedrive, HubSpot Sales Hub and Close are the
+# expensive ones, all using generic stage percentages. The gap: a founder or a
+# 2-10 person sales team that wants "what will close this quarter and which
+# deals do I call today", learned from its own closed deals, with the accuracy
+# backtested and shown, and no per-seat fee or data leaving its server. Tenth
+# product for the buyer of pql-radar (finds the signup worth a call; this
+# manages the deal after the call), proposal-maker, drip-keeper, form-inbox and
+# churn-radar. duplicate_check: sales-seasonality-forecaster and
+# sales-quota-capacity-planner are browser calculators over totals;
+# lead-response-time-analyzer reads response times; freelance-lead-tracker is a
+# tracker with no learned probabilities. None learns stage chances or flags deals.
+#
+# First visitor: B2B founders and small-team sales leads on Hacker News,
+# r/sales, r/SaaS, Indie Hackers searching "pipeline forecast spreadsheet",
+# "weighted pipeline accuracy", "pipedrive forecast alternative", "stale deals
+# report". Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup (CRM export mapping, reading the first backtest), a hosted
+# copy under the deployer's own name, or GitHub Sponsors are the paid steps;
+# hosting under the public name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      Small-team sales leads will paste a real CRM deal export into the browser
+      page, see a hygiene list ranked by value at risk, and deploy the server to
+      get a stale-deal webhook, because "which deal do I call today" is
+      something they act on.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Learned stage chances forecast the next quarter better than the generic
+      stage percentages a CRM ships with (backtest Brier skill above 0.1).
+      Shown on synthetic data only so far.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a probability, forecast or backtest that is wrong given their data (look-ahead leakage, a mislabelled outcome); the training and validation path comes before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/deal-keeper/
+  analytics: null

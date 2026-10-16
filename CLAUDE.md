@@ -160,7 +160,8 @@ tools that help them earn more. Low variable cost, traditional software, AI
 only where it clearly helps. Payment code is allowed only off by default and on
 the deployer's own keys, never the owner's accounts (`prompts/goals.md`,
 "Payments: never the owner's"); the owner's own instances take GitHub Sponsors
-donations only. No new single-page calculators (`prompts/ventures/prompt-1.md`).
+donations only. Prefer higher-value work to another single-page calculator: a
+principle, not a ban (owner, 2026-10-16; `prompts/ventures/prompt-1.md`).
 
 ## Session gate (generic briefs only)
 
@@ -214,7 +215,7 @@ node --test platform/distribution/*.test.mjs
 node --test platform/llm/*.test.mjs
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
-# No pytest? `apt-get update && apt-get install -y python3-pytest` (pip may not reach PyPI). gitops/tests/test_worker_run.py fails ~26 on clean main when `gh` is preinstalled: compare against origin/main before blaming your change.
+# No pytest? `apt-get update && apt-get install -y python3-pytest` (pip may not reach PyPI). gitops/tests has a few failures on clean main that depend on the image (`gh` preinstalled, test_ci_runner.py): run the failing test on origin/main before blaming your change.
 (cd platform/ci && rc=0; for m in test_*.py; do python3 -m unittest "${m%.py}" || { echo "FAILED $m"; rc=1; }; done; exit $rc)  # runs every module, lists each failure
 (cd platform/ci/agent_review && python3 -m unittest test_review)
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline infra/tests -q

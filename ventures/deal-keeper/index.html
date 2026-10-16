@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Deal Keeper — Free Self-Hosted Sales Forecast and Pipeline Hygiene</title>
+  <meta name="description" content="A free, open-source alternative to the forecasting add-ons of Pipedrive, HubSpot and Clari for small B2B teams: win chances learned from your own closed deals, a backtested forecast range and a ranked list of stale or slipping deals. Paste a deal export and try it in your browser.">
+  <meta property="og:title" content="Deal Keeper — which deals are really at risk, and what will actually close">
+  <meta property="og:description" content="Stage win rates learned from your own history, a forecast range with a backtest, and a hygiene list ranked by value at risk. MIT, one Node process, your data.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Deal Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source sales pipeline forecast and hygiene for small B2B teams: win chances learned from your own closed deals, an out-of-time backtest, a forecast range and a ranked list of deals that need a call. Runs on your own server."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not use Pipedrive, HubSpot, Close or Streak?", "acceptedAnswer": {"@type": "Answer", "text": "Those are full CRMs: contacts, email sync, calling, automations and a per-seat price that adds up. Deal Keeper does the narrow job those tools do worst for a small team: tell you which open deals are really at risk and what the pipeline will plausibly close, using your own closed deals instead of the generic stage percentages every CRM ships with. It is one dependency-free Node process with a JSON file for state, there is no per-seat fee, and your deals never leave your server. Keep your CRM for contacts and email; point this at its export or its webhooks."}}, {"@type": "Question", "name": "How are win chances worked out?", "acceptedAnswer": {"@type": "Answer", "text": "For each stage, Deal Keeper counts how many of your past closed deals got that far and how many of those were won, then pulls that rate toward a generic default so three lucky deals cannot claim 100%. The rate is forced to rise (or stay level) as deals move down the funnel. A deal that has sat in its stage a long time is compared only with past deals that also stayed at least that long, which is how stalling lowers its chance. Every probability comes with the sentences behind it."}}, {"@type": "Question", "name": "How do I know the forecast is any good?", "acceptedAnswer": {"@type": "Answer", "text": "When your history has exact stage dates and enough closed deals, Deal Keeper runs an out-of-time backtest: it trains only on deals closed before a cutoff, forecasts the deals that were open that day using the stage each was in, and compares with how they ended. It reports how many wins it predicted against how many happened, and a Brier skill score against simply guessing your overall win rate. With too little data it says so and labels the chances as defaults. The forecast range is a 10th-to-90th percentile band that treats deals as independent, so it is optimistic when your deals move together."}}, {"@type": "Question", "name": "How much data do I need?", "acceptedAnswer": {"@type": "Answer", "text": "About 20 closed deals with at least 5 won and 5 lost for the stage chances to be called learned, and roughly 30 deals with exact stage dates for the backtest. Below that you still get the hygiene list (stale, overdue, slipped, no next step), which needs no history, and defaults for the chances. At a handful of deals a month, your own judgement beats any model; this pays off from a few dozen closed deals."}}, {"@type": "Question", "name": "What does the hygiene list flag?", "acceptedAnswer": {"@type": "Answer", "text": "No activity for longer than your won deals ever went quiet, a close date in the past, a close date pushed back twice or more, a deal past the first stage with no next step, a deal sitting longer in its stage than three quarters of your won deals did, and deals with no amount or no close date. Deals are ranked by the value at risk, probability times amount, so the one worth a phone call today is at the top."}}, {"@type": "Question", "name": "Is it safe to put real customer data in?", "acceptedAnswer": {"@type": "Answer", "text": "Send only deal ids you choose and short deal names, never contact details. You run the server, so you are responsible for securing the API key, backing up the state file and following the privacy rules where you and your buyers live. The browser page on this site runs entirely in your tab and uploads nothing."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2433; background: #f5f7fb; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1f45c4; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444; }
+    .card { background: #fff; border: 1px solid #dce1ee; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea, input[type=number] { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab3d0; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    textarea { min-height: 150px; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f45c4; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.alt { background: #fff; color: #1f45c4; border: 1px solid #1f45c4; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 8px 0 14px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e8f4; vertical-align: top; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    pre { background: #eef1fa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .err { color: #9b1c1c; font-weight: 600; }
+    .stat { display: inline-block; margin: 6px 22px 6px 0; } .stat b { display: block; font-size: 1.5rem; color: #14307a; }
+    .warn { background: #fff6e0; border: 1px solid #e8cf8a; border-radius: 8px; padding: 9px 12px; }
+    .flag { display: inline-block; background: #fdecec; color: #8a1c1c; border-radius: 5px; padding: 1px 6px; margin: 1px 4px 1px 0; font-size: .8rem; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Which deals are really at risk, and what will actually close?</h1>
+  <p>Deal Keeper is an open-source pipeline forecaster for small B2B sales teams. It learns each stage's real win rate from your own closed deals instead of the generic percentages in your CRM, gives a forecast range it has backtested against deals that were open in the past, and ranks the stale, slipping or stalled deals by the money at stake, so you know which phone call to make first.</p>
+
+  <section class="card" aria-labelledby="sim">
+    <h2 id="sim">1. Read your pipeline</h2>
+    <label for="deals">Deals, one per line: <code>id,name,stage,amount,status,created,closed,close_date,last_activity,next_step,stage_since,stage_history</code> (only id, stage and created are required; stages are lead, qualified, proposal, negotiation; status is open, won or lost; a header row is fine)</label>
+    <textarea id="deals" spellcheck="false" placeholder="acme,Acme renewal,proposal,12000,open,2026-08-20,,2026-11-15,2026-10-02,send quote,2026-09-20&#10;globex,Globex,qualified,4000,lost,2026-06-05,2026-06-30"></textarea>
+    <label for="target">Revenue target for the window (optional)</label>
+    <input id="target" type="number" min="0" step="1000" inputmode="numeric">
+    <label for="days">Forecast the next how many days</label>
+    <input id="days" type="number" min="7" max="365" value="90" inputmode="numeric">
+    <button id="run" type="button">Read my pipeline</button>
+    <button id="demo" type="button" class="alt">Try 244 synthetic deals</button>
+    <p class="note err" id="err" role="alert"></p>
+    <div id="out" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Run Deal Keeper yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/deal-keeper
+API_KEY=$(openssl rand -hex 16) ADMIN_KEY=$(openssl rand -hex 16) node server.mjs
+
+curl -X POST localhost:8080/v1/deals -H "authorization: Bearer $API_KEY" \
+  -d '{"id":"acme","name":"Acme","amount":12000,"stage":"proposal","closeDate":"2026-11-30"}'
+curl localhost:8080/v1/pipeline -H "authorization: Bearer $API_KEY"
+curl "localhost:8080/v1/forecast?target=50000" -H "authorization: Bearer $API_KEY"</pre>
+    <p class="note">Move a deal with another <code>POST /v1/deals</code> that changes <code>stage</code>; close it with <code>"status":"won"</code> or <code>"lost"</code>; log a conversation with <code>POST /v1/deals/:id/activity</code>. Set <code>ALERT_WEBHOOK_URL</code> and you get a signed webhook once when a deal first goes stale, overdue or slips. One-click deploy files for Render, Fly.io and Docker are in the folder.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not use Pipedrive, HubSpot, Close or Streak?</h3>
+    <p>Those are full CRMs: contacts, email sync, calling, automations and a per-seat price that adds up. Deal Keeper does the narrow job those tools do worst for a small team: tell you which open deals are really at risk and what the pipeline will plausibly close, using your own closed deals instead of the generic stage percentages every CRM ships with. It is one dependency-free Node process with a JSON file for state, there is no per-seat fee, and your deals never leave your server. Keep your CRM for contacts and email; point this at its export or its webhooks.</p>
+    <h3>How are win chances worked out?</h3>
+    <p>For each stage, Deal Keeper counts how many of your past closed deals got that far and how many of those were won, then pulls that rate toward a generic default so three lucky deals cannot claim 100%. The rate is forced to rise (or stay level) as deals move down the funnel. A deal that has sat in its stage a long time is compared only with past deals that also stayed at least that long, which is how stalling lowers its chance. Every probability comes with the sentences behind it.</p>
+    <h3>How do I know the forecast is any good?</h3>
+    <p>When your history has exact stage dates and enough closed deals, Deal Keeper runs an out-of-time backtest: it trains only on deals closed before a cutoff, forecasts the deals that were open that day using the stage each was in, and compares with how they ended. It reports how many wins it predicted against how many happened, and a Brier skill score against simply guessing your overall win rate. With too little data it says so and labels the chances as defaults. The forecast range is a 10th-to-90th percentile band that treats deals as independent, so it is optimistic when your deals move together.</p>
+    <h3>How much data do I need?</h3>
+    <p>About 20 closed deals with at least 5 won and 5 lost for the stage chances to be called learned, and roughly 30 deals with exact stage dates for the backtest. Below that you still get the hygiene list (stale, overdue, slipped, no next step), which needs no history, and defaults for the chances. At a handful of deals a month, your own judgement beats any model; this pays off from a few dozen closed deals.</p>
+    <h3>What does the hygiene list flag?</h3>
+    <p>No activity for longer than your won deals ever went quiet, a close date in the past, a close date pushed back twice or more, a deal past the first stage with no next step, a deal sitting longer in its stage than three quarters of your won deals did, and deals with no amount or no close date. Deals are ranked by the value at risk, probability times amount, so the one worth a phone call today is at the top.</p>
+    <h3>Is it safe to put real customer data in?</h3>
+    <p>Send only deal ids you choose and short deal names, never contact details. You run the server, so you are responsible for securing the API key, backing up the state file and following the privacy rules where you and your buyers live. The browser page on this site runs entirely in your tab and uploads nothing.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../pql-radar/">PQL Radar</a> ranks free signups worth a call, <a href="../proposal-maker/">Proposal Maker</a> writes the quote, <a href="../drip-keeper/">Drip Keeper</a> runs the follow-up emails, <a href="../form-inbox/">Form Inbox</a> catches the enquiries and <a href="../churn-radar/">Churn Radar</a> watches the customers you won.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. Win chances and forecasts are statistical estimates from the data you provide, can be wrong, and are not legal, tax, or financial advice; do not use them as a promise of revenue or to make decisions about people. You are the operator of your Deal Keeper: you are responsible for the accuracy of what you send it, for how you contact buyers, and for backups. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { train, pipeline, forecast, parseCsv, syntheticState, DAY } from "./engine.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const el = (tag, text, cls) => { const e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; return e; };
+    const pct = (x) => (x * 100).toFixed(0) + "%";
+    const money = (x) => "$" + Math.round(x).toLocaleString("en-US");
+    const day = (t) => (t == null ? "-" : new Date(t).toISOString().slice(0, 10));
+    function table(head, rows) {
+      const t = document.createElement("table"), hr = document.createElement("tr");
+      for (const [h, n] of head) { const th = el("th", h, n ? "n" : ""); th.scope = "col"; hr.append(th); }
+      const th = document.createElement("thead"); th.append(hr); t.append(th);
+      const tb = document.createElement("tbody");
+      for (const cells of rows) { const tr = document.createElement("tr"); cells.forEach((c, i) => { const td = c instanceof Node ? c : el(i === 0 ? "th" : "td", String(c), head[i][1] ? "n" : ""); if (i === 0 && td.tagName === "TH") td.scope = "row"; tr.append(td); }); tb.append(tr); }
+      t.append(tb); return t;
+    }
+    function show(state, now, label, target, days) {
+      const out = $("out"); out.replaceChildren();
+      const m = train(state, now), rows = pipeline(state, m, now), f = forecast(state, m, now, { from: now, to: now + days * DAY, target });
+      if (label) out.append(el("p", label, "note"));
+      if (m.note) out.append(el("p", m.note, "warn"));
+      const stats = el("div", ""), stat = (b, s) => { const d = el("span", "", "stat"); d.append(el("b", b), document.createTextNode(s)); stats.append(d); };
+      stat(money(f.weighted), `expected to close in the next ${days} days (${f.deals} dated deals)`);
+      stat(`${money(f.low)} to ${money(f.high)}`, "10th to 90th percentile, if deals were independent");
+      stat(String(rows.length), "open deals");
+      if (target != null) stat(f.gap > 0 ? money(f.gap) : "covered", `gap to ${money(target)} after ${money(f.wonSoFar)} won so far` + (f.coverage != null ? `; coverage ${f.coverage.toFixed(1)}x` : ""));
+      out.append(stats);
+      if (f.undated) out.append(el("p", `${f.undated} open deals have no close date and are not in the range above.`, "note"));
+      out.append(el("h2", "Fix these first"));
+      const risky = rows.filter((r) => r.atRisk > 0).slice(0, 12);
+      if (!risky.length) out.append(el("p", "No open deal is flagged. Check that created, last_activity and close_date are filled in.", "note"));
+      else out.append(table([["Deal"], ["Stage"], ["Amount", 1], ["Chance", 1], ["Why it needs you"]], risky.map((r) => { const why = document.createElement("td"); for (const fl of r.flags) { const s = el("span", fl.key, "flag"); s.title = fl.text; why.append(s); } why.append(document.createTextNode(r.flags.filter((x) => !["no-close-date", "no-amount"].includes(x.key))[0]?.text || "")); return [r.name || r.id, r.stage, r.amount == null ? "-" : money(r.amount), pct(r.probability), why]; })));
+      out.append(el("h2", "What your history says"));
+      out.append(table([["Stage"], ["Deals that got this far", 1], ["Won", 1], ["Chance, from your data", 1]], m.stages.map((s) => [s.name, s.n, s.wins, pct(s.p)])));
+      const v = m.validation;
+      if (v) out.append(el("p", `Backtest: trained only on the ${v.trainDeals} deals closed before ${day(v.cutoff)}, it forecast ${v.predictedWins.toFixed(1)} wins among the ${v.testDeals} deals that were open that day; ${v.actualWins} were won. Brier skill against guessing your overall win rate: ${v.skill == null ? "n/a" : v.skill.toFixed(2)} (0 means no better than the base rate, 1 is perfect).`, "note"));
+      else out.append(el("p", "No backtest: it needs about 30 closed deals with exact stage dates (the stage_history column).", "note"));
+      record("read");
+    }
+    $("run").addEventListener("click", () => {
+      $("err").textContent = "";
+      const { state, errors } = parseCsv($("deals").value);
+      if (errors.length) { $("err").textContent = errors.slice(0, 4).join(" "); return; }
+      if (!Object.keys(state.deals).length) { $("err").textContent = "Paste some deals first: id, name, stage, amount, status, created and so on."; return; }
+      const days = Math.max(7, Math.min(365, Number($("days").value) || 90)), t = $("target").value === "" ? null : Number($("target").value);
+      show(state, Date.now(), "Read as of today.", t, days);
+    });
+    $("demo").addEventListener("click", () => { $("err").textContent = ""; const now = Date.UTC(2026, 9, 15); show(syntheticState(now), now, "Synthetic deals generated in your browser to show the output; they are not real customers and the accuracy figures say nothing about your sales.", null, 90); });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>

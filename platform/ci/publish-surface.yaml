@@ -665,6 +665,9 @@ workflows:
 - workflow: datadog-bill-estimator-ci.yml
   classification: none
   publishes: []
+- workflow: deal-keeper-ci.yml
+  classification: none
+  publishes: []
 - workflow: deck-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -720,6 +723,12 @@ workflows:
   classification: none
   publishes: []
 - workflow: distribute-npm.yml
+  classification: none
+  publishes: []
+- workflow: distribute-pypi-packages.yml
+  classification: none
+  publishes: []
+- workflow: distribute-pypi.yml
   classification: none
   publishes: []
 - workflow: distribute-releases.yml

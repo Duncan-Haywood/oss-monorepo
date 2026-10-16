@@ -173,23 +173,24 @@ BUNDLE_INDEX = "branches.json"
 BUNDLE_NS = "refs/archive-bundle/"
 
 
-def write_bundle(root: Path, out: Path, want: dict[str, str], up_main: str) -> int:
+def write_bundle(root: Path, out: Path, want: dict[str, str], base: str = "HEAD") -> int:
     """Write every wanted ref to out/branches.bundle; return how many it holds.
 
-    Commits upstream main already has are left out (they are in this
-    repository's history), so a ref whose tip main contains is listed in
-    branches.json but not in the bundle.
+    Commits already in this repository's history (`base`, its main) are left
+    out, so a ref whose tip is there is listed in branches.json but not in the
+    bundle. Not upstream main: work merged upstream but not yet synced here
+    would then be in neither place.
     """
     out.mkdir(parents=True, exist_ok=True)
     stdin = "".join(f"update {BUNDLE_NS}{b} {sha}\n" for b, sha in sorted(want.items()))
     subprocess.run(["git", "update-ref", "--stdin"], cwd=root, input=stdin, text=True, check=True)
     try:
-        outside = [b for b, sha in sorted(want.items()) if not is_ancestor(root, sha, up_main)]
+        outside = [b for b, sha in sorted(want.items()) if not is_ancestor(root, sha, base)]
         (out / BUNDLE).unlink(missing_ok=True)
         if outside:
             git(root, "bundle", "create", "-q", str(out / BUNDLE),
-                *[BUNDLE_NS + b for b in outside], "--not", up_main)
-        dump(out / BUNDLE_INDEX, {"upstream_main": up_main, "refs": want,
+                *[BUNDLE_NS + b for b in outside], "--not", base)
+        dump(out / BUNDLE_INDEX, {"base": git(root, "rev-parse", base).strip(), "refs": want,
                                   "restore": f"git fetch {BUNDLE} '{BUNDLE_NS}*:refs/heads/*'"})
         return len(outside)
     finally:
@@ -517,11 +518,10 @@ def main(argv: list[str] | None = None) -> int:
                   + ("; `bundle` keeps the rest" if todo else ""))
             return 0
         if args.cmd == "bundle":
-            heads, _ = upstream_refs(root, args.upstream)
             want, _ = archive_branches(root, args.upstream, args.origin, do_push=False)
-            n = write_bundle(root, args.out, want, heads["main"])
+            n = write_bundle(root, args.out, want)
             print(f"bundled {n} of {len(want)} archive refs to {args.out / BUNDLE} "
-                  f"(the other {len(want) - n} are already in main's history)")
+                  f"(the other {len(want) - n} are already in this repository's history)")
             return 0
         if args.cmd == "export":
             query = token_query()

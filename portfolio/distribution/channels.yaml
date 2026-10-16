@@ -94,7 +94,34 @@ channels:
     safety: arguments go to node as an array, never a shell; 20 s timeout; 200 KB output cap; the child gets a minimal environment; CLIs importing http/https/net/child_process/vm or calling fetch/eval are excluded at build time
     terms_to_confirm_by_owner_when_enabling:
       - npm Terms of Use (same account as npm-cli-packages)
-      - MCP registry (registry.modelcontextprotocol.io) publishing: `mcp-publisher` needs a GitHub login proving the io.github.<owner> namespace; agents did not run it. server.json is generated into the package
+      - "MCP registry (registry.modelcontextprotocol.io) publishing: `mcp-publisher` needs a GitHub login proving the io.github.<owner> namespace; agents did not run it. server.json is generated into the package"
       - decide the package name before the first publish; a published name cannot be reclaimed
     owner_ask: same npm token as npm-cli-packages; set DISTRIBUTE_MCP=true; optionally run mcp-publisher once against the generated server.json
     dry_run: node platform/distribution/mcp.mjs
+  - id: pypi-python-clis
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/pypi.mjs
+    workflow: .github/workflows/distribute-pypi.yml
+    enabled_by: repository variable DISTRIBUTE_PYPI=true plus secret PYPI_TOKEN (a PyPI API token, passed to twine as the password with username __token__)
+    what_it_posts: one PyPI project per stdlib-only Python venture CLI (ventures/<slug>/check.py with a main(), an MIT LICENSE, a VENTURE.yaml description), at most 5 new per run, installable with `pipx run <slug>`. The tool source is shipped unchanged; the README gains a free/open-source/not-advice footer linking the tool page. Tools importing anything outside a stdlib allowlist, or any network or process module, are skipped.
+    dedupe: stateless; a project name that already exists on PyPI is skipped, so nothing is republished or overwritten
+    terms_to_confirm_by_owner_when_enabling:
+      - PyPI Terms of Use and Acceptable Use Policy (free public projects under your own account)
+      - PyPI's policy on name squatting and spam: each project is a working tool and the run is capped, but check the cap suits you
+      - project names are first-come and cannot be reclaimed once published; names equal the venture slugs
+      - agents did not read the live terms on build day (no network to pypi.org from the build session), so this row is unconfirmed until the owner does
+    owner_ask: create the PyPI account, create an API token, store it as PYPI_TOKEN, set DISTRIBUTE_PYPI=true (a first-run token must be account-scoped; narrow it afterwards)
+    dry_run: node platform/distribution/pypi.mjs
+  - id: pypi-pyproject-packages
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/pypi-packages.mjs
+    workflow: .github/workflows/distribute-pypi-packages.yml
+    enabled_by: same as pypi-python-clis (variable DISTRIBUTE_PYPI=true plus secret PYPI_TOKEN)
+    what_it_posts: "one PyPI project per Python venture that already ships a pyproject.toml, a src/ tree, a LICENSE and a README and has no runtime dependencies (5 today: backup-verification-evidence, cra-evidence-desk, einvoice-preflight, public-record-watch, vendor-change-watch), at most 3 new projects per run; built from a clean copy so no site files ship; all five built and passed twine check on 2026-10-16. Complements pypi-python-clis, which wraps single-file check.py tools."
+    dedupe: stateless; a project name already on PyPI is skipped
+    terms_to_confirm_by_owner_when_enabling:
+      - same PyPI terms and name-squatting policy as pypi-python-clis; the combined weekly cap is 5 + 3 new projects
+    owner_ask: none beyond pypi-python-clis
+    dry_run: node platform/distribution/pypi-packages.mjs

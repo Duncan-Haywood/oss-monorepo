@@ -1,0 +1,27 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+services:
+  - type: web
+    name: deal-keeper
+    runtime: docker
+    dockerContext: ventures/deal-keeper
+    dockerfilePath: ventures/deal-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: API_KEY
+        generateValue: true
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: STAGES
+        value: lead,qualified,proposal,negotiation
+      - key: ALERT_WEBHOOK_URL
+        sync: false
+      - key: ALERT_WEBHOOK_SECRET
+        sync: false
