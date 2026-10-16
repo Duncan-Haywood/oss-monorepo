@@ -150,6 +150,7 @@ configMapGenerator:
       - c__logistics.html.gz=front-door/c__logistics.html.gz
       - c__ci.html.gz=front-door/c__ci.html.gz
       - c__solo-earner.html.gz=front-door/c__solo-earner.html.gz
+      - c__self-hosted.html.gz=front-door/c__self-hosted.html.gz
       - c__more.html.gz=front-door/c__more.html.gz
       # The About and press-kit page, served from the document root by the
       # `^/about/?$` block in `front-door/default.conf`. Same ConfigMap for the
