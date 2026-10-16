@@ -58,9 +58,9 @@ class TestCheck(unittest.TestCase):
     def test_empty_document(self):
         self.assertEqual(sv.check({}, ["alpha"]), ["no ventures scored"])
 
-    def test_unscored_venture_is_a_problem(self):
-        problems = sv.check(doc(venture()), ["alpha", "beta"])
-        self.assertIn("no score: ['beta']", problems[0])
+    def test_unscored_venture_is_reported_not_failed(self):
+        self.assertEqual(sv.check(doc(venture()), ["alpha", "beta"]), [])
+        self.assertEqual(sv.unscored(doc(venture()), ["alpha", "beta"]), ["beta"])
 
     def test_scored_nonexistent_venture_is_a_problem(self):
         problems = sv.check(doc(venture()), [])
@@ -243,9 +243,12 @@ class TestRealDocument(unittest.TestCase):
             self.assertEqual(sv.main(["--json"]), 0)
         payload = json.loads(out.getvalue())
         # The ranking carries every scored venture; `agreement.ranked` narrows
-        # it to the ones actually allocated to.
-        self.assertEqual(len(payload["ranking"]), len(sv.documented_slugs()))
-        self.assertEqual(len(payload["agreement"]["ranked"]), len(sv.venture_slugs()))
+        # it to the scored ones actually allocated to. Unscored ventures are
+        # reported by `unscored`, not ranked.
+        doc = sv.load_doc()
+        self.assertEqual(len(payload["ranking"]), len(doc["ventures"]))
+        waiting = sv.unscored(doc, sv.venture_slugs())
+        self.assertEqual(len(payload["agreement"]["ranked"]), len(sv.venture_slugs()) - len(waiting))
 
 
 class TestVentureSlugs(unittest.TestCase):
@@ -288,9 +291,10 @@ class TestReclassifiedVentureKeepsItsScore(unittest.TestCase):
         problems = sv.check(doc(venture("alpha"), venture("ghost")), ["alpha"], ["alpha"])
         self.assertEqual(problems, ["scored but no such venture directory: ['ghost']"])
 
-    def test_allocated_venture_still_requires_a_score(self):
+    def test_allocated_venture_without_a_score_is_listed_as_waiting(self):
         problems = sv.check(doc(venture("alpha")), ["alpha", "beta"], ["alpha", "beta"])
-        self.assertEqual(problems, ["ventures with a VENTURE.yaml but no score: ['beta']"])
+        self.assertEqual(problems, [])
+        self.assertEqual(sv.unscored(doc(venture("alpha")), ["alpha", "beta"]), ["beta"])
 
     def test_agreement_excludes_reclassified_from_ranks_and_means(self):
         ranking = sv.merit_ranking(

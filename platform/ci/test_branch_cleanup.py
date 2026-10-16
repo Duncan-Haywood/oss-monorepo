@@ -99,7 +99,8 @@ class DecideTest(unittest.TestCase):
         self.assertIn("fork", decision.reason)
 
     def test_protected_refs_are_never_touched(self):
-        for ref in ("main", "master", "develop", "gh-pages", "release/2026-08"):
+        for ref in ("main", "master", "develop", "gh-pages", "release/2026-08",
+                    "archive/research/claude/x"):
             with self.subTest(ref=ref):
                 decision = call(pr(head_ref=ref))
                 self.assertFalse(decision.delete)

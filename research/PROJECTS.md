@@ -4,87 +4,30 @@ The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2
 started from `prompt.md` take their new work from here. There are eleven tracks. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
-README bullet, a `site/projects.json` entry, a home page on the Pages site (milestone 9 below)
-and a passing `python site/build.py`, as `CLAUDE.md` says. Every rule in `prompt.md` still applies, research integrity above all.
+README bullet, a `_homepage/projects.json` entry, a home page on the Pages site (milestone 9 below)
+and a passing `python3 research/_homepage/build.py`, as `CLAUDE.md` says. Every rule in `prompt.md` still applies, research integrity above all.
 
-## Repository merge (before the tracks)
+## Repository merge (done 2026-10-16)
 
-Set on 2026-10-14. All work is moving to `Duncan-Haywood/oss-monorepo`, under `research/`. Until
-then the two repositories are mirrored, with no history lost. `prompt.md` (Repository merge) has
-the rules. This is the action list. It is not a track and makes no `research/<slug>/` project.
+`oss-research-monorepo` was merged into `oss-monorepo` under `research/` with its full history
+(oss-monorepo#6832), mirrored while both were live, and cut over on 2026-10-16: the mirror is
+retired and research lands here. The old repository is read-only history, archived and never
+deleted; its pull requests, review threads and old Pages site stay there.
 
-**Before you pick a track,** take the first milestone below that is not done, not claimed by an
-open pull request in either repository, and not on a branch pushed in the last three hours. Put
-the milestone's name first in the pull request title, so the next run sees the claim. If every
-milestone is done or claimed, pick a track as usual. Milestones marked *oss-monorepo* push there.
-If your session cannot add that repository (`add_repo`, push access), skip them. Its
-`CLAUDE.md` governs those pull requests, except that a mirror pull request merges with a merge
-commit, never a squash.
+## Site milestones (both portfolios)
 
-**The mirror.** <https://github.com/Duncan-Haywood/oss-monorepo/pull/6832> merged this
-repository's history into oss-monorepo through #474. It also carried all of oss-monorepo#6143.
-Every commit here keeps its hash there, and `git log -- research/<slug>` lists the same commits
-in both. oss-monorepo's `research/_mirror/mirror.py` keeps its `research/` an exact copy of this
-`main`, and `research/_mirror/README.md` there is the spec.
-- `sync` merges this `main` as a parent and copies files by a fixed map. `research/**` keeps its
-  path, `site/**` goes to `research/_homepage/**`, and `LICENSE`, `.gitignore` and `PROJECTS.md`
-  go to `research/`. `README.md` is derived from this one, and each line of `prompts/runs.jsonl`
-  becomes a record under `prompts/runs/`.
-- Five files are *adapted* by hand there, each pinned to the version it was ported from:
-  `CLAUDE.md`, `prompt.md` (as `prompts/research/prompt-0.md`), `site/build.py`,
-  `site/template.html` and `.github/workflows/pages.yml`. A change to one of them here has to be
-  ported there by hand, then confirmed with `mirror.py ack`.
-- `sync` deletes any file in the copy that this repository lacks, and overwrites any edit. So
-  before cutover nobody adds or edits files under `research/` there.
-- `check` proves the copy is exact. On 2026-10-14 it was exact at #474 and 33 commits behind.
-
-**Milestones.**
-1. `mirror-sync` (*oss-monorepo*, recurring): whenever this `main` is ahead of `upstream_commit`
-   in `research/_mirror/state.json` there, sync it as that README says.
-   1. Run `mirror.py sync`.
-   2. Port each adapted file it lists, then run `mirror.py ack <path>`.
-   3. Run `mirror.py check`, `python3 research/_homepage/build.py` and
-      `python3 prompts/promptctl.py validate`.
-   4. Merge with a merge commit. If GitHub refuses one, that setting is the owner's: comment the
-      blocker on the pull request and stop. Never squash instead.
-   5. Confirm `git merge-base --is-ancestor <this main> origin/main` there.
-2. `mirror-guards` (*oss-monorepo*): make the rules enforce themselves.
-   - The auto-merge in `platform/ci/agent_review` squashes. Make it skip a mirror pull request
-     (one that changes `research/_mirror/state.json`) or merge it with a merge commit. Add a test.
-   - Run `mirror.py check --allow-behind` in `research-ci.yml` with full history, so a pull
-     request that edits the copy directly fails CI.
-3. `mirror-movable` (here): cut down the hand-porting. Make `site/build.py` and
-   `site/template.html` run unchanged at `oss-monorepo/research/_homepage/`, by finding projects
-   and the README relative to the layout. Keep `CLAUDE.md` and `prompt.md` free of anything that
-   only fits this repository. Then move those files to the exact map in `mirror.py`.
-   - *Progress (2026-10-15):* `site/build.py` and `site/template.html` now run unchanged in both
-     layouts (tested on a copy laid out as `research/_homepage/`); only the repository name differs,
-     via `HOMEPAGE_REPO` or `--repo`. Still open: `CLAUDE.md` and `prompt.md` portability, and the
-     `oss-monorepo` side that sets `HOMEPAGE_REPO` and drops `build.py` from the hand-ported list.
-4. `mirror-cutover` (both): prepare the cutover that `research/_mirror/README.md` describes. That
-   covers the "moved" notices for this README, `CLAUDE.md` and the Pages homepage, and serving the
-   research homepage from oss-monorepo's Pages, which already builds it at `/research/`. The
-   steps, in order:
-   1. The owner points the scheduled research routines at `oss-monorepo`.
-   2. A run merges the notices here, runs a final sync, and confirms `mirror.py check` exits 0
-      there.
-   3. The owner archives this repository and never deletes it. Its pull requests, review
-      threads, issues, branches and Pages site live only here.
-   4. A run removes `research/_mirror/` there. From then on, work lands in
-      `oss-monorepo/research/`.
 5. `site-redesign` (both): give the two GitHub Pages homepages a comprehensive, modern,
    professional redesign, with one super homepage that routes to both. Added on 2026-10-14 at the
-   owner's request. It is independent of milestones 1 to 4, so a run may take it while they are
-   claimed.
+   owner's request.
    - **The two sites.** The research homepage
      (<https://duncan-haywood.github.io/oss-research-monorepo/>) is built here by
-     `site/build.py` from `site/template.html` and `site/projects.json`. The product catalogue
+     `_homepage/build.py` from `_homepage/template.html` and `_homepage/projects.json`. The product catalogue
      (<https://duncan-haywood.github.io/monorepo-projects/>) is built in `oss-monorepo` by
      `platform/pages/build.mjs`.
    - **The super homepage.** One landing page introduces the whole portfolio and routes visitors
      to the products and to the research. It must not be a third, thin page that each side
      forgets to update. Prefer making it the `oss-monorepo` Pages root, with the catalogue and
-     the research homepage (`/research/`, milestone 4) under it, and keep the old URLs working
+     the research homepage (`/research/`) under it, and keep the old URLs working
      with redirects or links.
    - **Better HTML, CSS and JS.** Use semantic HTML and a shared design system: tokens for
      colour, type and spacing, light and dark themes, and a responsive layout from phone width
@@ -93,32 +36,31 @@ in both. oss-monorepo's `research/_mirror/mirror.py` keeps its `research/` an ex
      existing builders, and no third-party tracking. Make it accessible (WCAG AA contrast,
      labelled controls, keyboard navigation) and fast, with no layout shift.
    - **Keep what already works.** Every project and product card, the per-project test counts,
-     the disclaimers, usage tracking, sitemaps and SEO metadata all stay. `python site/build.py`
+     the disclaimers, usage tracking, sitemaps and SEO metadata all stay. `python3 research/_homepage/build.py`
      still prints `ok`. In `oss-monorepo`, run the starvation checklist from its `CLAUDE.md`,
      including `regen.mjs --verify` and the browser checks (`contrast.mjs`).
    - **Done when** both homepages and the super homepage ship the new design, each links to the
      other two, and before and after screenshots at phone and desktop widths are in the pull
-     request. Restyle the research side here. The mirror sync carries it across, but
-     `site/build.py` and `site/template.html` are ported by hand until milestone 3. Do the
-     catalogue and the super homepage in `oss-monorepo`.
+     request. The research side, the catalogue and the super homepage are all in this
+     repository now.
 
 9. `project-pages` (both): give every project and product its own home page on the GitHub-hosted
    site, by default. Added on 2026-10-14 at the owner's request. The goal (`oss-monorepo`
    `prompts/goals.md`, web presence) is one website on GitHub Pages from which all the work can be
    checked out visually. Independent of milestones 1 to 7; build on milestone 8's design system if
    it has landed, and do not wait for it if not.
-   - **Research (here).** `site/build.py` also writes `_site/<slug>/index.html` for every project:
+   - **Research (here).** `_homepage/build.py` also writes `_site/<slug>/index.html` for every project:
      the question it answers, the abstract and headline results, one or two figures from the
      project's own output, the test count, the white paper, code and results links, the AI
      assistance note, and its theme. The homepage card links to it. Generate it from
      `projects.json`, the README and the project's files, so a new project gets its page with no
      extra step, and make the build fail when a project's page cannot be built.
-   - *Progress (2026-10-15):* `site/build.py` now writes `_site/<slug>/index.html` from
+   - *Progress (2026-10-15):* `_homepage/build.py` now writes `_site/<slug>/index.html` from
      `site/project.html` for all projects (abstract, test count, links, AI note, and the first
      image under the project's `experiments/`), the homepage card links to it, and the build
      fails if a page cannot be built. Most projects ship no image yet (five were added 2026-10-15
      via `experiments/figure.py`, which parses the committed `results.txt`); `robofab-cell`, `robofab-cell-cv` and `robofab-cell-mva` followed, redrawn from their `results.json`, so most pages have no
-     figure yet. Four more (`appeal-panels`, `audit-weighted-scoring`, `balanced-routing`, `chip-abc-sweep`, 2026-10-15) follow the same pattern. Six more (`abstention-scoring`, `ambient-bandit`, `calibration-hedging`, `categorical-scores`, `chip-accel`, `challenge-window`) followed, each drawn by an `experiments/figure.py` that parses the committed `results.txt`. `chip-systolic-small`, `selfrep-reconcile` and `simdesign-filletfloor` followed (2026-10-15, grouped-bar SVGs parsed from `results.txt`). `blur-twin` and `aliasing-twin` followed (2026-10-15, line-plot SVGs parsed from `results.txt`). `selfrep-extinction` (log-scale bars: exact chain vs chain Monte Carlo vs DES), `simdesign-meshmargin` and `simdesign-patchsearch` (grouped bars from `results.txt`) followed (2026-10-15). `chip-ppa-script`, `chip-systolic-batch`, `compute-procurement` and `effort-contracts` followed the same way (2026-10-15). `chip-systolic-edge`, `chip-systolic-fanin`, `chip-systolic-hidden` and `chip-systolic-p32` followed (2026-10-15, best-systolic vs best-MAC-lane bars from `results.txt`). `swe-prflow`, `swe-ledger`, `osrobot-morph` and `garment-twonodelag` followed (2026-10-15, bar and line SVGs parsed from `results.txt`). `ambient-dr` and `ambient-drclip` followed (2026-10-15, signed grouped bars with std whiskers parsed from `results.txt`). `committee-sampling` and `conformal-tolerance` followed (2026-10-15, log-scale line plots parsed from `results.txt`). `chip-systolic`, `chip-ppa-mac`, `backlash-twin` and `deadband-twin` followed (2026-10-15, bar SVGs parsed from `results.txt`). `ambient-glance`, `ambient-urgency` and `ambient-memory` followed (2026-10-15, bar and line SVGs parsed from `results.txt`). `friction-twin`, `filter-twin`, `fog-twin`, `eiv-twin`, `crn-twin` and `flex-twin` followed (2026-10-15, line plots parsed from `results.txt`). `ambient-capcv`, `ambient-crossfit`, `ambient-drablate`, `ambient-drvalid`, `ambient-fullinfo` and `ambient-labelmatch` followed (2026-10-15, grouped bars with std whiskers parsed from `results.txt`). `gyro-twin`, `lag-twin`, `gust-twin`, `slew-twin`, `sag-twin`, `queue-twin` and `sweep-twin` followed (2026-10-15, line plots parsed from `results.txt`). `footprint-twin`, `finetune-twin`, `flyingpixel-twin` and `fusion-twin` followed (2026-10-15, line plots parsed from `results.txt`). `chip-systolic-hidewide`, `chip-rtl-probe`, `chip-ppa-loop` and `chip-ppa-sky130mac` followed (2026-10-15, bars parsed from `results.txt`). `groundeffect-twin`, `tilt-twin`, `watchdog-twin`, `rain-twin` and `retry-twin` followed (2026-10-15, line plots parsed from `results.txt`). `gate-twin`, `glint-twin`, `gnss-twin`, `grasp-twin`, `gravity-twin` and `grid-twin` followed (2026-10-15, line plots parsed from `results.txt`). `handover-twin`, `horizon-twin`, `impact-twin`, `inertia-twin`, `input-twin` and `interference-twin` followed (2026-10-15, line plots parsed from `results.txt`). `mount-twin`, `mix-twin` and `latency-twin` followed (2026-10-15, line plots parsed from `results.txt`). `jitter-twin`, `lens-twin`, `range-twin` and `slip-twin` followed (2026-10-15, line plots parsed from `results.txt`). `sidelobe-twin`, `shutter-twin`, `slosh-twin` and `smooth-twin` followed (2026-10-15, line plots parsed from `results.txt`). `forgetting-law`, `decision-scoring` and `expert-pooling` followed (2026-10-15, line plots parsed from `results.txt`). `occlusion-twin`, `multipath-twin` and `stereo-twin` followed (2026-10-15, line plots parsed from `results.txt`). `saturation-twin`, `sync-twin`, `thermal-twin`, `timestep-twin` and `shaper-twin` followed (2026-10-15, line plots parsed from `results.txt`). `selection-twin`, `cfmm-markets` and `windup-twin` followed (2026-10-15, line plots parsed from `results.txt`). `odometry-twin`, `ransac-twin`, `rendezvous-twin` and `particle-twin` followed (2026-10-15, line plots parsed from `results.txt`). `delayed-outer`, `delayed-routing`, `churn-checkpointing` and `error-feedback-sync` followed (2026-10-15, line plots parsed from `results.txt`). `nlos-twin`, `occupancy-twin`, `radar-clutter-twin` and `radar-detection-twin` followed (2026-10-16, line plots parsed from `results.txt`). `ladder-twin`, `explanation-twin` and `forgetting-audit` followed (2026-10-16, log-log and line plots parsed from `results.txt`). `garment-nestcost` followed (2026-10-16, line plot parsed from `results.txt`). Still open: have each project's experiment code write a figure, and the
+     figure yet. Four more (`appeal-panels`, `audit-weighted-scoring`, `balanced-routing`, `chip-abc-sweep`, 2026-10-15) follow the same pattern. Six more (`abstention-scoring`, `ambient-bandit`, `calibration-hedging`, `categorical-scores`, `chip-accel`, `challenge-window`) followed, each drawn by an `experiments/figure.py` that parses the committed `results.txt`. `chip-systolic-small`, `selfrep-reconcile` and `simdesign-filletfloor` followed (2026-10-15, grouped-bar SVGs parsed from `results.txt`). `blur-twin` and `aliasing-twin` followed (2026-10-15, line-plot SVGs parsed from `results.txt`). `selfrep-extinction` (log-scale bars: exact chain vs chain Monte Carlo vs DES), `simdesign-meshmargin` and `simdesign-patchsearch` (grouped bars from `results.txt`) followed (2026-10-15). `chip-ppa-script`, `chip-systolic-batch`, `compute-procurement` and `effort-contracts` followed the same way (2026-10-15). `chip-systolic-edge`, `chip-systolic-fanin`, `chip-systolic-hidden` and `chip-systolic-p32` followed (2026-10-15, best-systolic vs best-MAC-lane bars from `results.txt`). `swe-prflow`, `swe-ledger`, `osrobot-morph` and `garment-twonodelag` followed (2026-10-15, bar and line SVGs parsed from `results.txt`). `ambient-dr` and `ambient-drclip` followed (2026-10-15, signed grouped bars with std whiskers parsed from `results.txt`). `committee-sampling` and `conformal-tolerance` followed (2026-10-15, log-scale line plots parsed from `results.txt`). `chip-systolic`, `chip-ppa-mac`, `backlash-twin` and `deadband-twin` followed (2026-10-15, bar SVGs parsed from `results.txt`). `ambient-glance`, `ambient-urgency` and `ambient-memory` followed (2026-10-15, bar and line SVGs parsed from `results.txt`). `friction-twin`, `filter-twin`, `fog-twin`, `eiv-twin`, `crn-twin` and `flex-twin` followed (2026-10-15, line plots parsed from `results.txt`). `ambient-capcv`, `ambient-crossfit`, `ambient-drablate`, `ambient-drvalid`, `ambient-fullinfo` and `ambient-labelmatch` followed (2026-10-15, grouped bars with std whiskers parsed from `results.txt`). `gyro-twin`, `lag-twin`, `gust-twin`, `slew-twin`, `sag-twin`, `queue-twin` and `sweep-twin` followed (2026-10-15, line plots parsed from `results.txt`). `footprint-twin`, `finetune-twin`, `flyingpixel-twin` and `fusion-twin` followed (2026-10-15, line plots parsed from `results.txt`). `chip-systolic-hidewide`, `chip-rtl-probe`, `chip-ppa-loop` and `chip-ppa-sky130mac` followed (2026-10-15, bars parsed from `results.txt`). `groundeffect-twin`, `tilt-twin`, `watchdog-twin`, `rain-twin` and `retry-twin` followed (2026-10-15, line plots parsed from `results.txt`). `gate-twin`, `glint-twin`, `gnss-twin`, `grasp-twin`, `gravity-twin` and `grid-twin` followed (2026-10-15, line plots parsed from `results.txt`). `handover-twin`, `horizon-twin`, `impact-twin`, `inertia-twin`, `input-twin` and `interference-twin` followed (2026-10-15, line plots parsed from `results.txt`). `mount-twin`, `mix-twin` and `latency-twin` followed (2026-10-15, line plots parsed from `results.txt`). `jitter-twin`, `lens-twin`, `range-twin` and `slip-twin` followed (2026-10-15, line plots parsed from `results.txt`). `sidelobe-twin`, `shutter-twin`, `slosh-twin` and `smooth-twin` followed (2026-10-15, line plots parsed from `results.txt`). `forgetting-law`, `decision-scoring` and `expert-pooling` followed (2026-10-15, line plots parsed from `results.txt`). `occlusion-twin`, `multipath-twin` and `stereo-twin` followed (2026-10-15, line plots parsed from `results.txt`). `saturation-twin`, `sync-twin`, `thermal-twin`, `timestep-twin` and `shaper-twin` followed (2026-10-15, line plots parsed from `results.txt`). `selection-twin`, `cfmm-markets` and `windup-twin` followed (2026-10-15, line plots parsed from `results.txt`). `odometry-twin`, `ransac-twin`, `rendezvous-twin` and `particle-twin` followed (2026-10-15, line plots parsed from `results.txt`). `delayed-outer`, `delayed-routing`, `churn-checkpointing` and `error-feedback-sync` followed (2026-10-15, line plots parsed from `results.txt`). `nlos-twin`, `occupancy-twin`, `radar-clutter-twin` and `radar-detection-twin` followed (2026-10-16, line plots parsed from `results.txt`). `ladder-twin`, `explanation-twin` and `forgetting-audit` followed (2026-10-16, log-log and line plots parsed from `results.txt`). `garment-nestcost` followed (2026-10-16, line plot parsed from `results.txt`). `sequential-slashing`, `stale-rollouts` and `robust-aggregation` followed (2026-10-16, line plots parsed from `results.txt`). `garment-assist`, `garment-assistpower` and `garment-contactres` followed (2026-10-16, line plots parsed from `results.txt`). Still open: have each project's experiment code write a figure, and the
      `oss-monorepo` products half.
    - **Products (*oss-monorepo*).** Every venture gets a home or marketing page from the Pages
      build, including the CLIs, servers and apps the mirror excludes today: what it does and for
@@ -149,8 +91,8 @@ in both. oss-monorepo's `research/_mirror/mirror.py` keeps its `research/` an ex
    in the last three hours. When the listed milestones are done, take the next step from the
    latest project's "Next steps" section in that track.
 3. **Use the track's slug prefix and theme.** The prefix starts the slug (`selfrep-closure`).
-   The theme id goes in `site/projects.json`. The first project in a track adds that theme,
-   with a `--t-<id>` colour in both the light and dark blocks of `site/template.html`.
+   The theme id goes in `_homepage/projects.json`. The first project in a track adds that theme,
+   with a `--t-<id>` colour in both the light and dark blocks of `_homepage/template.html`.
 
 | Track | Prefix and theme id |
 |---|---|
@@ -673,7 +615,7 @@ becomes a target. Cohen (1960), kappa, for agreement between raters.
    track, a greedy value-per-token rule, Thompson sampling, and a bandits-with-knapsacks policy.
    Adopt a policy only if it wins both in the model and in a live trial.
 5. `swe-schedule`: schedule across subscriptions. Four runs start in the same minute, so
-   duplicate projects, merge conflicts on `README.md` and `site/projects.json`, and run-log
+   duplicate projects, merge conflicts on `README.md` and `_homepage/projects.json`, and run-log
    races all cost budget. Measure each from history. Model the runs as a queue against each
    subscription's usage limits, and test staggered starts, claim protocols and limits on work in
    progress in simulation.

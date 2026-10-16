@@ -4,9 +4,13 @@
 over rules"): where anything below would make you build something a sensible
 person would not, don't, and say so in the run record.
 
-**Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) and [`AGENTS.md`](AGENTS.md)
-first.** The portfolio's job is to ship products people use — not to debate
-policy, re-verify old PRs, or maintain admin queues.
+This repository holds two peer portfolios: products in `ventures/` and open
+research in `research/`. Their job is to ship products people use and research
+people can build on, not to debate policy, re-verify old PRs, or maintain admin
+queues. `README.md` ("Finding your way") says which guide covers which work.
+
+**For product work, read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) and
+[`AGENTS.md`](AGENTS.md) first.**
 
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) is how to build one: niche
 selection, product shapes with ~$0 marginal cost, the API-key switch, the
@@ -16,10 +20,11 @@ Usage — the metric while everything is free — is specified in
 
 `README.md` covers repo layout.
 
-**`research/` is the open research portfolio** (formerly the
-`oss-research-monorepo` repository). Work inside it follows
-[`research/CLAUDE.md`](research/CLAUDE.md) and its brief, not the product
-rules below; the public-repository rules apply everywhere.
+**For research work, read [`research/CLAUDE.md`](research/CLAUDE.md).** Research
+lands here (the `oss-research-monorepo` mirror was cut over on 2026-10-16 and
+that repository is archived). Its brief, not the product rules below, governs
+work inside `research/`; the public-repository and landing rules apply
+everywhere.
 
 **[`prompt.md`](prompt.md) is the master prompt.** It routes each run to a
 sub-prompt in `prompts/` (ventures, research, process, or the review track) with
@@ -128,7 +133,7 @@ fork, so:
   log.** History is public and copied the moment it is pushed.
 - "Merge when CI is green" below means branches pushed to this repository.
 
-## Product-first default
+## Product-first default (`ventures/`)
 
 Every session should move a venture closer to something strangers can use for
 free, with usage tracked and disclaimers in place. Features, fixes, landing
@@ -155,7 +160,8 @@ tools that help them earn more. Low variable cost, traditional software, AI
 only where it clearly helps. Payment code is allowed only off by default and on
 the deployer's own keys, never the owner's accounts (`prompts/goals.md`,
 "Payments: never the owner's"); the owner's own instances take GitHub Sponsors
-donations only. No new single-page calculators (`prompts/ventures/prompt-1.md`).
+donations only. Prefer higher-value work to another single-page calculator: a
+principle, not a ban (owner, 2026-10-16; `prompts/ventures/prompt-1.md`).
 
 ## Session gate (generic briefs only)
 

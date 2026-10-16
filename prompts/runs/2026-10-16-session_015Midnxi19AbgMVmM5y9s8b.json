@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_015Midnxi19AbgMVmM5y9s8b",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled routine; ventures brief)",
+  "input_sha256": "e5e9d642158602514f3e2712495fdabf392057e857025802649bfd6930c38acc",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T02:09:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The checklist's 'git fetch --unshallow' and regen.mjs each exceed the 120s tool default; both needed backgrounding. The first-time venture registration list (publish-surface.yaml, optout-persistence count, launched.json, workflow) lives only in an old commit, not in a doc."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "router drew explore/0 but the scheduled brief is the ventures brief verbatim, so I followed ventures/1."
+    }
+  ],
+  "goal": null,
+  "notes": "New venture error-keeper (self-hosted Sentry alternative): engine, server, browser+node SDK, dashboard, 37 tests, browser smoke on the demo page. Self-review caught two alert-dedupe bugs (spike/second regression suppressed for 7 days; new-issue alert lost on a failed webhook) before landing.",
+  "corrections": [],
+  "redteam": null
+}

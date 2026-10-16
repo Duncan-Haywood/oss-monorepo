@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PQL Radar — Free Self-Hosted Lead Scoring for Product-Led SaaS</title>
+  <meta name="description" content="A free, open-source alternative to MadKudu and Pocus for small SaaS: learn from your own signups which first-week behaviour comes before paying, with an honest out-of-time accuracy check. Paste an export and try it in your browser first.">
+  <meta property="og:title" content="PQL Radar — find the free signups about to become customers">
+  <meta property="og:description" content="Logistic-regression PQL scoring trained on your own events, validated out-of-time, with reasons per signup and a hot-lead webhook. MIT, one Node process, your data.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "PQL Radar", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source product-qualified-lead scoring for product-led SaaS: learns from your own signups' first-week usage which ones go on to pay, validates itself out-of-time, and alerts you when a new signup looks like your best customers. Runs on your own server."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not use MadKudu, Pocus, Endgame or HubSpot lead scoring?", "acceptedAnswer": {"@type": "Answer", "text": "Those are revenue platforms with CRM sync, enrichment and a price that starts in the hundreds or thousands of dollars a month. PQL Radar does one narrow thing for a product-led SaaS with a self-serve signup: learn from your own past signups which first-week behaviour comes before paying, and rank this month's signups by it. It is one dependency-free Node process with a JSON file for state, and your events never leave your server."}}, {"@type": "Question", "name": "How does the scoring work, and how accurate is it?", "acceptedAnswer": {"@type": "Answer", "text": "Each signup becomes one row built only from its first seven days: events, active days, distinct features used, its busiest day, hours to first use and whether it was still active at the end of the week. The row is labelled by whether the account paid within 30 days of signing up. A logistic regression is fitted to that and validated out-of-time (trained on older signups, scored on newer ones), and the AUC and the share of payers found in the top 20% are shown. Accuracy depends entirely on your data; the page says so when there is too little to validate, and it never invents a number."}}, {"@type": "Question", "name": "How much data do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Roughly 20 paying and 20 non-paying signups to train at all, and several times that to validate. Below that you get a plainly labelled engagement index, not a probability. At a few signups a week a person reading the list is as good as a model; this pays off once you have a few hundred signups and a steady paid rate."}}, {"@type": "Question", "name": "What do I do with the list?", "acceptedAnswer": {"@type": "Answer", "text": "Send the hot-lead webhook to something that acts: a personal email from the founder, a Slack message to sales, a Drip Keeper sequence or an in-app offer. The model ranks signups; it does not know who has budget, and a lead that looks engaged may still be a student."}}, {"@type": "Question", "name": "Is it safe to put real customer data in?", "acceptedAnswer": {"@type": "Answer", "text": "Send only account ids you choose, never names or emails. You run the server, so you are responsible for securing the API key, backing up the state file and following the privacy rules where you and your users live."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2433; background: #f5f7fb; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1f45c4; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444; }
+    .card { background: #fff; border: 1px solid #dce1ee; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0 18px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab3d0; border-radius: 7px; font: 13px ui-monospace, monospace; min-height: 130px; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f45c4; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.alt { background: #fff; color: #1f45c4; border: 1px solid #1f45c4; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e8f4; vertical-align: top; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    pre { background: #eef1fa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .err { color: #9b1c1c; font-weight: 600; }
+    .stat { display: inline-block; margin: 6px 22px 6px 0; } .stat b { display: block; font-size: 1.5rem; color: #14307a; }
+    .warn { background: #fff6e0; border: 1px solid #e8cf8a; border-radius: 8px; padding: 9px 12px; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Find the free signups that are about to become customers.</h1>
+  <p>PQL Radar is an open-source product-qualified-lead scorer for small SaaS teams with a free plan or trial. Your app sends product-usage events; it learns from your own past signups which first-week behaviour came before paying, scores every signup that has finished its first week, and tells you which ones look like your best customers, with the reason. It checks itself on signups it has not trained on and shows you the result, including when the answer is "not enough data". First, try it on an export. Everything runs in your browser, so nothing you paste is uploaded.</p>
+
+  <section class="card" aria-labelledby="sim">
+    <h2 id="sim">1. Score your signups</h2>
+    <div class="cols">
+      <div><label for="events">Events, one per line: account, date, optional feature name (the first event is taken as the signup)</label>
+<textarea id="events" spellcheck="false" placeholder="acme, 2026-09-01, login&#10;acme, 2026-09-02, import&#10;globex, 2026-09-01, login"></textarea></div>
+      <div><label for="paid">Accounts that started paying: account, first payment date</label>
+<textarea id="paid" spellcheck="false" placeholder="initech, 2026-09-12"></textarea></div>
+    </div>
+    <label for="asof">Score as of (blank means the latest event date)</label>
+    <input id="asof" type="date">
+    <button id="run" type="button">Score my signups</button>
+    <button id="demo" type="button" class="alt">Try 600 synthetic signups</button>
+    <p class="note err" id="err" role="alert"></p>
+    <div id="out" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Run the radar yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/pql-radar
+API_KEY=$(openssl rand -hex 16) ADMIN_KEY=$(openssl rand -hex 16) node server.mjs
+
+curl -X POST localhost:8080/v1/events -H "authorization: Bearer $API_KEY" \
+  -d '{"id":"evt_81","account":"acme","type":"import_data"}'
+curl localhost:8080/v1/hot-leads -H "authorization: Bearer $API_KEY"</pre>
+    <p class="note">Point a Stripe <code>customer.subscription.created</code> webhook at <code>/stripe/webhook</code> (set <code>STRIPE_WEBHOOK_SECRET</code>) and paid conversions are recorded for you; or call <code>POST /v1/conversions</code>. Set <code>ALERT_WEBHOOK_URL</code> to get a signed alert the first time a signup looks hot. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not use MadKudu, Pocus, Endgame or HubSpot lead scoring?</h3>
+    <p>Those are revenue platforms with CRM sync, enrichment and a price that starts in the hundreds or thousands of dollars a month. PQL Radar does one narrow thing for a product-led SaaS with a self-serve signup: learn from your own past signups which first-week behaviour comes before paying, and rank this month's signups by it. It is one dependency-free Node process with a JSON file for state, and your events never leave your server.</p>
+    <h3>How does the scoring work, and how accurate is it?</h3>
+    <p>Each signup becomes one row built only from its first seven days: events, active days, distinct features used, its busiest day, hours to first use and whether it was still active at the end of the week. The row is labelled by whether the account paid within 30 days of signing up. A logistic regression is fitted to that and validated out-of-time (trained on older signups, scored on newer ones), and the AUC and the share of payers found in the top 20% are shown. Accuracy depends entirely on your data; the page says so when there is too little to validate, and it never invents a number.</p>
+    <h3>How much data do I need?</h3>
+    <p>Roughly 20 paying and 20 non-paying signups to train at all, and several times that to validate. Below that you get a plainly labelled engagement index, not a probability. At a few signups a week a person reading the list is as good as a model; this pays off once you have a few hundred signups and a steady paid rate.</p>
+    <h3>What do I do with the list?</h3>
+    <p>Send the hot-lead webhook to something that acts: a personal email from the founder, a Slack message to sales, a Drip Keeper sequence or an in-app offer. The model ranks signups; it does not know who has budget, and a lead that looks engaged may still be a student.</p>
+    <h3>Is it safe to put real customer data in?</h3>
+    <p>Send only account ids you choose, never names or emails. You run the server, so you are responsible for securing the API key, backing up the state file and following the privacy rules where you and your users live.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../churn-radar/">Churn Radar</a> finds the paying account that is drifting away, <a href="../trial-converter/">Trial Converter</a> runs the trial-ending emails, <a href="../dunning-engine/">Dunning Engine</a> recovers failed payments, <a href="../meter-keeper/">Meter Keeper</a> meters usage and <a href="../deal-keeper/">Deal Keeper</a> forecasts the deals that follow.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. Scores are statistical estimates from the data you provide, can be wrong, and are not legal, tax, or financial advice; do not use them to make decisions about people beyond whom to contact. You are the operator of your radar: you are responsible for the accuracy of what you send it, for how you contact people, and for backups. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { train, score, summarize, parseCsv, syntheticAccounts, FEATURES } from "./engine.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const el = (tag, text, cls) => { const e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; return e; };
+    const pct = (x) => (x * 100).toFixed(0) + "%";
+    function show(accounts, now, label) {
+      const out = $("out"); out.replaceChildren();
+      const trained = train(accounts, now), rows = score(accounts, trained, now), sum = summarize(rows, trained);
+      if (label) out.append(el("p", label, "note"));
+      if (trained.note) out.append(el("p", trained.note, "warn"));
+      const v = trained.validation, stats = el("div", "");
+      const stat = (b, s) => { const d = el("span", "", "stat"); d.append(el("b", b), document.createTextNode(s)); stats.append(d); };
+      stat(String(sum.scored), "unpaid signups scored (week 1 done, under 45 days old)"); stat(String(sum.hot), trained.mode === "model" ? `at ${pct(sum.threshold)} or more` : "flagged by the engagement index");
+      if (v) { stat(v.auc == null ? "n/a" : v.auc.toFixed(2), "out-of-time AUC (0.5 is a coin flip)"); stat(pct(v.top20Capture), `of payers in the top 20% (a coin flip finds 20%; base rate ${pct(v.baseRate)})`); }
+      out.append(stats);
+      const t = document.createElement("table"); t.innerHTML = "<thead><tr><th scope='col'>Signup</th><th scope='col' class='n'>Score</th><th scope='col'>Why</th></tr></thead>";
+      const tb = document.createElement("tbody");
+      for (const r of rows.slice(0, 25)) { const tr = document.createElement("tr"); tr.append(el("th", r.id), el("td", r.calibrated ? pct(r.score) : `${Math.round(r.score * 100)}/100`, "n"), el("td", r.reasons.join("; ") || "-")); tr.firstChild.scope = "row"; tb.append(tr); }
+      t.append(tb); out.append(t);
+      if (rows.length > 25) out.append(el("p", `Top 25 of ${rows.length} shown.`, "note"));
+      if (trained.model) { const w = FEATURES.map((f, j) => `${f.label}: ${trained.model.w[j] >= 0 ? "+" : ""}${trained.model.w[j].toFixed(2)}`).join("  |  "); out.append(el("p", "What it learned (standardised weights; positive raises the chance of paying): " + w, "note")); }
+      record("score");
+    }
+    $("run").addEventListener("click", () => {
+      $("err").textContent = "";
+      const { accounts, errors } = parseCsv($("events").value, $("paid").value);
+      if (errors.length) { $("err").textContent = errors.join(" "); return; }
+      const all = Object.values(accounts).flatMap((a) => a.events.map((e) => e[0]));
+      if (!all.length) { $("err").textContent = "Paste some events first: account, date, optional feature name."; return; }
+      const now = $("asof").value ? Date.parse($("asof").value) : Math.max(...all);
+      show(accounts, now, `Scored as of ${new Date(now).toISOString().slice(0, 10)}.`);
+    });
+    $("demo").addEventListener("click", () => { $("err").textContent = ""; const now = Date.UTC(2026, 9, 15); show(syntheticAccounts(now), now, "Synthetic signups generated in your browser to show the output; they are not real customers and the accuracy figures describe this made-up data, not yours."); });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>

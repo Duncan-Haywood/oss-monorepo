@@ -8,7 +8,7 @@ ledger, or session notes that still treat policy compliance as the primary job.
 (`prompts/ventures/prompt-1.md`) win over this document where they differ.
 That covers the business model (one-click self-deployed copies with a donate
 link), payments (allowed on the deployer's own keys, never the owner's), and
-no new single-page calculators. Several sections below say "the owner's own
+a preference for higher-value work over more single-page calculators. Several sections below say "the owner's own
 framing, relayed" without quoting the owner. Read them as an agent's
 interpretation (`goals.md`, "Judgment over rules").
 
