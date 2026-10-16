@@ -1,4 +1,4 @@
-// Compares what one item nets across nine selling channels at once.
+// Compares what one item nets across ten selling channels at once.
 //
 // Why this exists
 // ---------------
@@ -52,8 +52,8 @@ export const CATEGORY_IDS = Object.freeze(Object.keys(CATEGORY_PRESETS));
  * The channels, in the order they are offered.
  *
  * `percentRate` is charged on the whole order the buyer pays (item price plus
- * whatever shipping they were charged). That is how all nine of these actually
- * bill — a seller who "gives free shipping" by folding postage into the price
+ * whatever shipping they were charged). That is how nine of these ten actually
+ * bill (Poshmark commissions the price alone, see `buyerPaysLabel`) — a seller who "gives free shipping" by folding postage into the price
  * still pays the percentage on it, which is the single most common way a
  * per-item margin quietly goes negative.
  *
@@ -173,6 +173,27 @@ export const CHANNELS = [
       "Local pickup (no fee at all), the dispute penalty on a lost chargeback, and sales tax Facebook collects.",
   },
   {
+    id: "poshmark",
+    label: "Poshmark",
+    percentRate: 20, // US: 20% of the sale price at $15.00 or more
+    fixedFee: 0,
+    // Below $15.00 Poshmark keeps a flat $2.95 instead of a percentage, so the
+    // fee is a cliff, not a rate: $14.99 pays $2.95 and $15.00 pays $3.00, and
+    // a $5 item pays 59%. The commission is on the sale price only.
+    flatBelow: { threshold: 15, fee: 2.95 },
+    // The buyer pays Poshmark for a prepaid label, which never reaches the
+    // seller. Postage is therefore neither revenue nor cost here, and the two
+    // shipping inputs are ignored for this row rather than double counted.
+    buyerPaysLabel: true,
+    monthlyFee: 0,
+    demandIncluded: true,
+    rateLabel: "Commission at $15+",
+    deepTool: "poshmark-fee-calculator",
+    deepToolLabel: "Poshmark fee calculator",
+    notCovered:
+      "Offer and bundle arithmetic around the $15 cliff, and sales-tax handling. Shipping is left out on both sides because the buyer buys the prepaid label.",
+  },
+  {
     id: "shopify",
     label: "Your own Shopify store",
     percentRate: 2.9,
@@ -202,7 +223,7 @@ export const CHANNEL_IDS = Object.freeze(CHANNELS.map((channel) => channel.id));
  * Whatnot is a livestream auction: commission sits on the hammer and payment
  * processing sits on the checkout total (item plus buyer-paid shipping and
  * tax), with published category caps a flat retail referral rate cannot
- * express. Ranking it beside seven fixed-fee retail channels would produce a
+ * express. Ranking it beside ten fixed-fee retail channels would produce a
  * number that looks comparable and is not.
  *
  * Reverb is different from the other two: its fee shape (a marketplace
@@ -236,7 +257,7 @@ export const EXCLUDED_CHANNELS = [
     deepTool: "reverb-fee-calculator",
     deepToolLabel: "Reverb fee calculator",
     why:
-      "Reverb only accepts musical instruments and gear, where the nine channels above sell almost anything — so seating it in a general-purpose ranking would read as a recommendation to list any item there, which is true for none of the other rows' inventory. Its fee shape (marketplace percentage plus payment processing) is genuinely close to eBay's, which the deep tool compares directly on the same guitar or pedal.",
+      "Reverb only accepts musical instruments and gear, where the ten channels above sell almost anything — so seating it in a general-purpose ranking would read as a recommendation to list any item there, which is true for none of the other rows' inventory. Its fee shape (marketplace percentage plus payment processing) is genuinely close to eBay's, which the deep tool compares directly on the same guitar or pedal.",
   },
 ];
 
@@ -301,9 +322,25 @@ export function resolveChannels(item, overrides = {}) {
  * break-even order is the smaller consistent solution of the two branches: the
  * percentage branch when its fee clears the floor, otherwise the floor branch.
  */
+function landedCost(channel, item) {
+  return item.itemCost + item.otherCost + (channel.buyerPaysLabel ? 0 : item.shippingCost);
+}
+
 function breakEvenPrice(channel, item, subscriptionPerOrder, cashInvested, targetProfit = 0) {
   const need = subscriptionPerOrder + cashInvested + targetProfit;
   const rate = channel.percentRate / 100;
+  if (channel.buyerPaysLabel) {
+    // The fee sits on the price alone and is flat under the threshold, so the
+    // answer is the cheaper consistent branch: the flat one when it lands
+    // below the threshold, otherwise the percentage one, which cannot go
+    // below the threshold without dropping back onto the flat fee.
+    if (channel.flatBelow) {
+      const flatPrice = need + channel.flatBelow.fee;
+      if (flatPrice < channel.flatBelow.threshold) return flatPrice;
+    }
+    const percentPrice = (need + channel.fixedFee) / (1 - rate);
+    return Math.max(0, channel.flatBelow ? Math.max(percentPrice, channel.flatBelow.threshold) : percentPrice);
+  }
   let order = (channel.fixedFee + need) / (1 - rate);
   if (channel.minFee && order * rate + channel.fixedFee < channel.minFee) {
     order = channel.minFee + need;
@@ -321,14 +358,18 @@ function breakEvenPrice(channel, item, subscriptionPerOrder, cashInvested, targe
  * meaningless.
  */
 export function calculateChannel(channel, item) {
-  const revenue = item.price + item.shippingCharged;
-  const percentFee = (revenue * channel.percentRate) / 100;
+  const revenue = channel.buyerPaysLabel ? item.price : item.price + item.shippingCharged;
+  const feeBase = channel.buyerPaysLabel ? item.price : revenue;
+  const percentFee = (feeBase * channel.percentRate) / 100;
   const subscriptionPerOrder = channel.monthlyFee / item.monthlyOrders;
   // `minFee` is a floor on the percentage-plus-fixed selling fee (Facebook's
   // $0.80 minimum), applied before the subscription share is added.
-  const orderFee = Math.max(percentFee + channel.fixedFee, channel.minFee ?? 0);
+  // `flatBelow` replaces the whole percentage fee under a price (Poshmark).
+  const orderFee = channel.flatBelow && feeBase < channel.flatBelow.threshold
+    ? Math.min(channel.flatBelow.fee, feeBase)
+    : Math.max(percentFee + channel.fixedFee, channel.minFee ?? 0);
   const channelFees = orderFee + subscriptionPerOrder;
-  const cashInvested = item.itemCost + item.shippingCost + item.otherCost;
+  const cashInvested = landedCost(channel, item);
   const profit = revenue - channelFees - cashInvested;
   return {
     id: channel.id,
@@ -368,7 +409,7 @@ export function calculateChannel(channel, item) {
  * answer; the page shows such a row as free-to-match rather than a number.
  */
 export function priceForProfit(channel, item, targetProfit) {
-  const cashInvested = item.itemCost + item.shippingCost + item.otherCost;
+  const cashInvested = landedCost(channel, item);
   const subscriptionPerOrder = channel.monthlyFee / item.monthlyOrders;
   // Same two-branch solve as the break-even price (it honours a minimum-fee
   // floor such as Facebook's), shifted by the profit the seller wants.

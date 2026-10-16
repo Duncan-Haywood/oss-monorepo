@@ -2,7 +2,7 @@
 
 **Which channel nets the most on this item?** Type one item once — price,
 landed cost, category, monthly order volume — and see net profit side by side
-on eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, and your own Shopify store.
+on eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Poshmark, and your own Shopify store.
 
 Free, no signup, and nothing you type leaves the browser.
 
@@ -42,6 +42,7 @@ own-store row out as the yardstick, since it brings no buyers.
 | Walmart Marketplace | referral by category, 8–20% | — | — |
 | TikTok Shop | 6% US referral | — | — |
 | Mercari | 10% selling fee on item + buyer-paid shipping (current schedule) | — | — |
+| Poshmark | flat $2.95 under $15.00, 20% of the sale price from $15.00 (buyer pays the prepaid label, so shipping is ignored on both sides) | — | — |
 | Your own Shopify store | 2.9% payment processing | $0.30 | $39/mo Basic |
 
 Every rate is an **editable default**, taken from the matching calculator in
