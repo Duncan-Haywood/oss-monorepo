@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs,
-  scheduleText, parseResults, standings, seedOrder, playoffBracket, bracketText, sampleFields,
+  scheduleText, parseResults, standings, seedOrder, playoffBracket, bracketText, sampleFields, encodeFields, decodeFields,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -340,4 +340,16 @@ test("the example league validates and uses a makeup round for the blackout", ()
   assert.equal(validateSchedule(s).ok, true);
   assert.equal(s.stats.matches, 15);
   assert.equal(s.rounds.filter((r) => r.makeup).length, 1);
+});
+
+test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B" };
+  const code = encodeFields(f);
+  assert.match(code, /^[A-Za-z0-9_-]+$/);
+  assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60 });
+  assert.deepEqual(decodeFields("#s=" + code), decodeFields(code));
+  const again = decodeFields(code);
+  assert.deepEqual(readSpec(again).spec.teams, readSpec(f).spec.teams);
+  for (const junk of ["", null, "!!!", "bm90anNvbg", encodeFields({}).slice(0, 1), "W10"]) assert.equal(decodeFields(junk), null, String(junk));
+  assert.equal(decodeFields(encodeFields({ weekdays: ["Tue", "Xyz"] })).weekdays.join(), "Tue");
 });
