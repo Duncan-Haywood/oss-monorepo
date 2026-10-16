@@ -65,6 +65,7 @@ API_KEY=$(openssl rand -hex 16) ADMIN_KEY=$(openssl rand -hex 16) node server.mj
 | `API_KEY`, `ADMIN_KEY` | required, 16+ characters; the first is for your tools, the second forces a retrain |
 | `STATE` | state file, default `/tmp/state.json`; put it on a disk |
 | `STAGES` | comma-separated stage names in order, first run only; default `lead,qualified,proposal,negotiation` |
+| `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, or `LLM_PROVIDER`/`LLM_MODEL`/`LLM_BASE_URL`/`LLM_API_KEY` | optional; your own key turns on model-written follow-up drafts (any OpenAI-compatible endpoint works, including a local Ollama). Only the deal's name, stage, amount, next step and flags are sent to the provider |
 | `ALERT_WEBHOOK_URL`, `ALERT_WEBHOOK_SECRET` | optional; a signed POST once when a deal first goes `stale`, `overdue` or `slipped` |
 
 API (bearer `API_KEY`):
@@ -73,6 +74,7 @@ API (bearer `API_KEY`):
 - `POST /v1/deals/:id/activity` — `{at?}` log a conversation. `DELETE /v1/deals/:id` removes a deal.
 - `GET /v1/pipeline` — every open deal: chance, weighted value, flags, the reasons in words, and `fixFirst`.
 - `GET /v1/forecast?from=&to=&target=` — weighted value with low/high band, likely (chance 60%+), won so far, and with a target the gap and coverage.
+- `POST /v1/deals/:id/followup` — a draft follow-up note for an open deal, built from why it was flagged. With no key it is a template (`source: "fallback"`); with your own key it is written by the model (`source: "model"`). It is only a draft: you read, edit and send it yourself, and nothing is sent.
 - `GET /v1/deals/:id` — one deal. `GET /v1/model` — mode, stage chances, backtest.
 - `POST /v1/admin/retrain` — bearer `ADMIN_KEY`.
 
