@@ -1,0 +1,47 @@
+{
+  "slug": "water-heater-bid-calculator",
+  "name": "Water heater replacement",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Tank, tankless and heat-pump water heater swaps priced from location, venting, gas, electrical and add-ons.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 48,
+  "burdenRate": 30,
+  "overheadRate": 16,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Swap 50 gal electric tank, garage, existing circuit",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 3.8,
+      "materialPerUnit": 115,
+      "source": "defaultInputs(): tank_electric, garage, electrical existing_ok; LABOR_RATES tankSwapHours 3.5 + electricalExistingHours 0.3; MATERIAL_RATES fittingsTank $95 + electricalExisting $20. Heater itself $0: heaterHardware defaults to 0 (enter your invoice)"
+    },
+    {
+      "label": "Expansion tank",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 0.6,
+      "materialPerUnit": 85,
+      "source": "defaultInputs() expansionTank 1; LABOR_RATES.expansionHours 0.6, MATERIAL_RATES.expansionTank $85"
+    },
+    {
+      "label": "Haul away old heater",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 0.4,
+      "materialPerUnit": 35,
+      "source": "defaultInputs() haulAway 1; LABOR_RATES.haulHours 0.4, MATERIAL_RATES.haulAway $35"
+    },
+    {
+      "label": "Permit and inspection",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.8,
+      "materialPerUnit": 85,
+      "source": "LABOR_RATES.inspectionHours 0.8 (always added); defaultInputs() permitFee $85"
+    }
+  ],
+  "specialistModels": "Gas, tankless and heat-pump types with location, venting, gas-line and electrical takeoffs, code add-ons, and warnings when a tankless is under-supplied; it has no trip fee or travel field."
+}

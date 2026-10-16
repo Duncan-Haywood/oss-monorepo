@@ -1,0 +1,57 @@
+{
+  "slug": "vinyl-liner-bid-calculator",
+  "name": "Pool liner replacement",
+  "group": "Landscaping & outdoor",
+  "summary": "Vinyl pool liner replacements priced from liner area, mil, waste, stairs, bead, track, cove and access.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 3.8,
+  "hourlyWage": 30,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "tripFee": 125,
+  "items": [
+    {
+      "label": "Install 20 mil solid liner, 16x32 hopper",
+      "unit": "sq ft",
+      "qty": 960.6,
+      "hoursPerUnit": 0.018,
+      "materialPerUnit": 1.998,
+      "source": "linerSf 960.64 (512 floor + 336 wall + 112.64 hopper, index.html); hoursPer100SfLiner 1.8 / 100; liner $1.85/sq ft x 1.08 solid waste (orderSf 1037.49 / linerSf)"
+    },
+    {
+      "label": "Pump-down and vac",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2.5,
+      "materialPerUnit": 0,
+      "source": "pumpDown checked, hoursPump 2.5 (index.html defaults)"
+    },
+    {
+      "label": "Fittings / gaskets",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 185,
+      "source": "fittingsLump $185 (index.html default)"
+    },
+    {
+      "label": "Old-liner disposal",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 95,
+      "source": "disposalFee $95 (index.html default)"
+    },
+    {
+      "label": "Mobilization",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 225,
+      "source": "mobilizationFee $225 (index.html default; soft cost before overhead in calculateBid)"
+    }
+  ],
+  "specialistModels": "Derives liner area from pool shape, depth profile and stairs with solid vs pattern waste, mil upgrades, bead conversions, access, track, cove, wall foam, cover and permit; setupHours = 3 trip + 0.8 travel hours."
+}

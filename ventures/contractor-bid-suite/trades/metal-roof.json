@@ -1,0 +1,56 @@
+{
+  "slug": "metal-roof-bid-calculator",
+  "name": "Metal roofing",
+  "group": "Exterior & roofing",
+  "summary": "Standing-seam and exposed-fastener metal roofs priced from pitched squares, trim, boots and tear-off.",
+  "fit": "partial",
+  "crewSize": 1,
+  "setupHours": 3,
+  "hourlyWage": 36,
+  "burdenRate": 32,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Exposed-fastener panels with underlayment",
+      "unit": "roof square",
+      "qty": 12.65,
+      "hoursPerUnit": 1.728,
+      "materialPerUnit": 248.6,
+      "source": "40x30 ft at 4/12 (x1.054) = 12.648 roof squares (index.html); 8% waste -> 1.6 h and $195 per panel square x 1.08, plus underlayment $38 per roof square (suggestedPanelKit('exposed') in calc.mjs, index.html)"
+    },
+    {
+      "label": "Ridge, rake and eave trim",
+      "unit": "linear ft",
+      "qty": 180,
+      "hoursPerUnit": 0.08,
+      "materialPerUnit": 7,
+      "source": "40 ridge + 60 rake + 80 eave lf (index.html); 0.08 h/lf; ($9x40 + $7x60 + $6x80)/180 = $7.00/lf (index.html rates)"
+    },
+    {
+      "label": "Pipe boots",
+      "unit": "each",
+      "qty": 4,
+      "hoursPerUnit": 0.35,
+      "materialPerUnit": 42,
+      "source": "4 boots, 0.35 h and $42 each (index.html defaults)"
+    },
+    {
+      "label": "Fasteners and clips",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 185,
+      "source": "fastenerLump $185 (index.html default)"
+    },
+    {
+      "label": "Travel, mobilization and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.8,
+      "materialPerUnit": 510,
+      "source": "Travel hours 0.8 (siteHours); mobilization $350 + travel and equipment $160 (index.html defaults). Trip/setup 3 h is setupHours"
+    }
+  ],
+  "specialistModels": "Pitch multipliers, panel-type kits with waste and seamer rental, hip/valley waste, tear-off and dumpster, story height, snow guards, ice-and-water and permit toggles."
+}

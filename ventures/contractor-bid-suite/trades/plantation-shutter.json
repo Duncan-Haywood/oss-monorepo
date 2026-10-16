@@ -1,0 +1,40 @@
+{
+  "slug": "plantation-shutter-bid-calculator",
+  "name": "Plantation shutters",
+  "group": "Interior & finishes",
+  "summary": "Plantation shutter installs priced from openings, size, panels, mount, grade and extras.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 42,
+  "burdenRate": 32,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "milesOneWay": 8,
+  "items": [
+    {
+      "label": "Inside-mount paint-grade shutter, 30x60, 2 panels",
+      "unit": "opening",
+      "qty": 6,
+      "hoursPerUnit": 2.05,
+      "materialPerUnit": 585,
+      "source": "6 openings 30x60 in = 12.5 sq ft each (index.html); hours 0.85/opening + 2 x 0.35/panel + 12.5 x 0.04/sq ft; material 12.5 x $28/sq ft + 2 x $95/panel + $45 mount hardware (suggestedMountKit('inside'), suggestedGradeKit('paint') in calc.mjs)"
+    },
+    {
+      "label": "Hang setup and plant invoice (product on site)",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2.4,
+      "materialPerUnit": 180,
+      "source": "hoursHang 2.4, plantInvoice $180 (suggestedScopeKit('product-install') in calc.mjs)"
+    },
+    {
+      "label": "Trip, site time, travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2,
+      "materialPerUnit": 75,
+      "source": "hoursTrip 1.2 + siteHours 0.8 (suggestedExtraKit); travel and equipment $75 (index.html). Per-mile time (0.035 h) and $2.40/mile left to the suite's mileage"
+    }
+  ],
+  "specialistModels": "Product-only vs measure-and-install vs template-custom scope kits, inside vs outside mount, stain grade, removal, arched/bypass/cafe extras and extra stories."
+}
