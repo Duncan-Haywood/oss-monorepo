@@ -89,8 +89,7 @@ the file with the most of them; what you cannot fix goes into
 ## 6. Drift audit
 
 Added 2026-10-15 at the owner's request: the owner reviews little, so agents
-must notice and fix drift from what the owner asked. Apply "Judgment over
-rules" in `prompts/goals.md`.
+must notice and fix drift ("Judgment over rules" in `prompts/goals.md`).
 
 1. **Read the owner's own words.** These are the `input` fields of run records
    that are not a routine trigger ("By starting message"), the owner's brief
@@ -111,9 +110,8 @@ rules" in `prompts/goals.md`.
    needs the owner (touches `goals.md`, intent unclear), add a short proposal
    under "Proposals for the owner" in `experiments.md`: quote the words, ask
    a one-line question.
-5. **Write the report** `prompts/drift/YYYY-MM-DD.md`: what drifted, the
-   evidence, what you fixed, what you propose, follow-up on the last report.
-   Two minutes to read, for an owner who reads rarely.
+5. **Write the report** `prompts/drift/YYYY-MM-DD.md` (what drifted, evidence,
+   fixes, proposals, follow-up on the last report), two minutes to read.
 
 ## 7. Log and follow up
 
