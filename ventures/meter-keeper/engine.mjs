@@ -253,3 +253,19 @@ export function toCsv(state, cfg, now) {
   const q = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
   return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
 }
+
+/** Every customer at a glance: this month's invoice, the projection, and how close each metered line is to its hard limit. */
+export function overview(state, cfg, now) {
+  const p = periodOf(now), customers = [];
+  for (const id of Object.keys(state.customers).sort()) {
+    const c = state.customers[id], plan = cfg.plans?.[c.plan];
+    if (!plan) { customers.push({ customer: id, plan: c.plan ?? null, error: "no plan" }); continue; }
+    const lines = plan.lines.map((l) => {
+      const used = usage(state, cfg, id, l.meter, p.from, p.to), limit = l.limit ?? null;
+      return { meter: l.meter, used, limit, percentOfLimit: limit ? Math.round((used / limit) * 1000) / 10 : null };
+    });
+    customers.push({ customer: id, plan: c.plan, total: invoice(state, cfg, id, now).total, projectedTotal: projection(state, cfg, id, now).projectedTotal, lines });
+  }
+  const billable = customers.filter((c) => !c.error), nearLimit = billable.filter((c) => c.lines.some((l) => l.percentOfLimit != null && l.percentOfLimit >= 80)).map((c) => c.customer);
+  return { period: { from: new Date(p.from).toISOString(), to: new Date(p.to).toISOString() }, totals: { customers: customers.length, total: billable.reduce((s, c) => s + c.total, 0), projectedTotal: billable.reduce((s, c) => s + c.projectedTotal, 0) }, nearLimit, customers };
+}
