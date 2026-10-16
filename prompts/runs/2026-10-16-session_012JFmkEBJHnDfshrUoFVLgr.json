@@ -1,0 +1,175 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_012JFmkEBJHnDfshrUoFVLgr",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo, develop/deploy/market revenue software",
+  "input_sha256": "2eb6ba62eeb60d76d671053c0f41a89f53e4d7b5cc814355677a2e2d95f198be",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T10:57:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "campaign on ventures/support-desk/render.mjs hit the 600s timeout and left the mutant in the working tree; had to git checkout it by hand"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/meter-keeper/engine.mjs",
+        "test": "node --test ventures/meter-keeper/**/*.test.mjs  (in .)",
+        "seed": 958319543,
+        "commit": "4ed90638d1",
+        "sites": 262,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 5,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "export const MAX_FUTURE_MS = 5 * 60_000; // ...or more than 5 minutes ahead",
+            "after": "export const MAX_FUTURE_MS = 6 * 60_000; // ...or more than 5 minutes ahead",
+            "line_text": "export const MAX_FUTURE_MS = 5 * 60_000; // ...or more than 5 minutes ahead",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "boundary/flat-fee/non-object tests added to meter-keeper engine.test.mjs"
+          },
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 43,
+            "col": 35,
+            "operator": "minus-to-plus",
+            "before": "if (t.length && t[t.length - 1].upTo != null) errors.push(`${at}: last tier must have upTo null`);",
+            "after": "if (t.length && t[t.length + 1].upTo != null) errors.push(`${at}: last tier must have upTo null`);",
+            "line_text": "        if (t.length && t[t.length - 1].upTo != null) errors.push(`${at}: last tier must have upTo null`);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 62,
+            "col": 10,
+            "operator": "or-to-and",
+            "before": "if (!ev || typeof ev !== \"object\") throw fail(\"event must be an object\");",
+            "after": "if (!ev && typeof ev !== \"object\") throw fail(\"event must be an object\");",
+            "line_text": "  if (!ev || typeof ev !== \"object\") throw fail(\"event must be an object\");",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "boundary/flat-fee/non-object tests added to meter-keeper engine.test.mjs"
+          },
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 70,
+            "col": 9,
+            "operator": "gt-to-ge",
+            "before": "if (ts > now + MAX_FUTURE_MS) throw fail(\"timestamp is in the future\");",
+            "after": "if (ts >= now + MAX_FUTURE_MS) throw fail(\"timestamp is in the future\");",
+            "line_text": "  if (ts > now + MAX_FUTURE_MS) throw fail(\"timestamp is in the future\");",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "boundary/flat-fee/non-object tests added to meter-keeper engine.test.mjs"
+          },
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 124,
+            "col": 41,
+            "operator": "plus-to-minus",
+            "before": "if (span > 0) total += span * t.unit + (t.flat || 0);",
+            "after": "if (span > 0) total += span * t.unit - (t.flat || 0);",
+            "line_text": "    if (span > 0) total += span * t.unit + (t.flat || 0);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "boundary/flat-fee/non-object tests added to meter-keeper engine.test.mjs"
+          },
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 151,
+            "col": 83,
+            "operator": "minus-to-plus",
+            "before": "const p = periodOf(now), elapsed = Math.max(now - p.from, DAY / 24), span = p.to - p.from;",
+            "after": "const p = periodOf(now), elapsed = Math.max(now - p.from, DAY / 24), span = p.to + p.from;",
+            "line_text": "  const p = periodOf(now), elapsed = Math.max(now - p.from, DAY / 24), span = p.to - p.from;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 175,
+            "col": 109,
+            "operator": "const-plus-one",
+            "before": "return { allowed: limit == null || after <= limit, used, limit, remaining: limit == null ? null : Math.max(0, limit - used), resetsAt: new Date(p.to).toISOString() };",
+            "after": "return { allowed: limit == null || after <= limit, used, limit, remaining: limit == null ? null : Math.max(1, limit - used), resetsAt: new Date(p.to).toISOString() };",
+            "line_text": "  return { allowed: limit == null || after <= limit, used, limit, remaining: limit == null ? null : Math.max(0, limit - used), resetsAt: new Date(p.to).toISOString() };",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 190,
+            "col": 34,
+            "operator": "or-to-and",
+            "before": "for (const at of cfg.alerts?.at || DEFAULT_ALERT_AT) {",
+            "after": "for (const at of cfg.alerts?.at && DEFAULT_ALERT_AT) {",
+            "line_text": "  for (const at of cfg.alerts?.at || DEFAULT_ALERT_AT) {",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/support-desk/server.mjs",
+        "issue": "contact form post from the mailbox's own reply-to address returned 500 (TypeError in afterIngest on an ignored ingest); now 400",
+        "patched": true
+      }
+    ]
+  }
+}

@@ -149,3 +149,11 @@ test("a customer rates a ticket once staff have answered; the dashboard and CSV 
   assert.match(await (await fetch(`${s.base}/admin/export.csv`, { headers: auth })).text(), /,bad\n/);
   s.close();
 });
+
+test("a form post from the mailbox's own reply-to address is refused cleanly, not a 500", async () => {
+  const s = await boot();
+  const r = await form(`${s.base}/m/${s.mb.id}`, { email: "help@acme.test", message: "hi" }, { origin: "https://shop.example" });
+  assert.equal(r.status, 400);
+  assert.equal(Object.keys(s.state.tickets).length, 0);
+  s.close();
+});
