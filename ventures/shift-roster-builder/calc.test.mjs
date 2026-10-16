@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import {
+import { laborPercent,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -398,4 +398,16 @@ test("off: keeps a person off a shift the solver would otherwise give them", () 
 test("off: reports unreadable text", () => {
   assert.equal(parseStaff("Ana, 20, 40, 0, any, off: Blursday").errors.length, 1);
   assert.equal(parseStaff("Ana, 20, 40, 0, any, off: Wed 9-").errors.length, 1);
+});
+
+test("laborPercent: share of sales, target headroom, bad input", () => {
+  const a = laborPercent(2800, 10000, 30);
+  assert.ok(Math.abs(a.pct - 28) < 1e-9);
+  assert.equal(a.maxPayroll, 3000);
+  assert.equal(a.headroom, 200);
+  assert.equal(a.over, false);
+  assert.equal(laborPercent(3500, 10000, 30).over, true);
+  assert.equal(laborPercent(2800, 10000).target, null);
+  assert.equal(laborPercent(2800, 0), null);
+  assert.equal(laborPercent(2800, "abc"), null);
 });

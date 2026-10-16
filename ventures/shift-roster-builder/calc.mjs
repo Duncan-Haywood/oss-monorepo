@@ -679,6 +679,19 @@ export function rosterMessages(r, weekStart = null) {
   return out;
 }
 
+// Labor cost as a share of projected sales, against an optional target.
+// Returns null when sales is not a positive number. maxPayroll is the payroll
+// that would hit the target exactly; headroom is how much of it is unspent.
+export function laborPercent(payroll, sales, targetPct = null) {
+  const s = Number(sales), c = Number(payroll);
+  if (!(s > 0) || !Number.isFinite(c) || c < 0) return null;
+  const pct = (c / s) * 100;
+  const t = Number(targetPct);
+  if (!(t > 0)) return { pct, target: null, maxPayroll: null, headroom: null, over: false };
+  const maxPayroll = (s * t) / 100;
+  return { pct, target: t, maxPayroll, headroom: maxPayroll - c, over: pct > t + 1e-9 };
+}
+
 export function hoursCsv(r) {
   const rows = ["person,shifts,hours,overtime_hours,estimated_payroll,minimum_hours,hours_under_minimum"];
   for (const p of r.people) rows.push([p.name.includes(",") ? `"${p.name}"` : p.name, p.shifts, p.hours.toFixed(2), p.otHours.toFixed(2), p.cost.toFixed(2), p.minHours, p.short.toFixed(2)].join(","));
