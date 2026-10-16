@@ -2002,6 +2002,11 @@
      "summary": "A negative result (stylised, preliminary). Scanning web width from 15.0 to 16.0&nbsp;mm (the slenderness rule forbids wider) at four fillet radii on 1.5, 1.0, 0.75 and 0.5&nbsp;mm meshes, the feasible widths found at 1.5&nbsp;mm are all infeasible at 1.0 and 0.5&nbsp;mm under the 100&nbsp;MPa peak-stress limit, with a single feasible point at 0.75&nbsp;mm. The lowest peak stress rises 11&ndash;14% from 1.5 to 0.5&nbsp;mm and is still creeping up, so convergence is not shown. One gauge, one load, a peak measure at a near-sharp fillet floor; no search was run on the fine meshes."
     },
     {
+     "slug": "simdesign-buckle15",
+     "title": "Does the lightest 1.5&nbsp;mm bracket design clear buckling in a converged 3D eigenbuckling model?",
+     "summary": "A small finite-element check (stylised, preliminary; ideal elastic clamped arms, one design). Meshing the 1.5&nbsp;mm, w&nbsp;=&nbsp;18.4&nbsp;mm design from <em>simdesign-bucklebound</em> with hexahedra at three resolutions, including two layers through the thickness, the governing vertical-arm buckling factor is 3.49 against 3.47 from the closed form (ratio 1.020 &rarr; 1.007 on refinement), so the design clears the floor of 3. The horizontal-arm formula is about 18% conservative. Nothing was made or tested."
+    },
+    {
      "slug": "simdesign-bucklebound",
      "title": "What changes when the w/b &le; 8 slenderness ceiling of the laser-cut bracket is replaced by a buckling-factor floor?",
      "summary": "A small optimiser study (stylised, preliminary; the buckling factor is an unvalidated closed form). Minimising mass over web width and fillet radius at four sheet gauges with differential evolution (three seeds, mesh 1.5&nbsp;mm): the old ceiling makes the 1.5&nbsp;mm gauge infeasible, while a buckling-factor floor of 1 or 3 yields a 31.0&nbsp;g design (w &approx; 18.4&nbsp;mm, factor 3.5), about 13% lighter than the best 2&nbsp;mm design (35.8&nbsp;g). At 2 and 3&nbsp;mm the three guards agree to 0.1%. At 1&nbsp;mm no design is feasible under any guard because the 1.2&nbsp;mm minimum-wall rule, not buckling, rejects it. Mass is the only objective; nothing was made or tested."
