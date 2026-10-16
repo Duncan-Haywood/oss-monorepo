@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of ankle and whole-body metabolic power reduction in percent against assistance gain 0.1 to 0.5">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Active ankle suit: metabolic saving vs gain (before suit mass)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="279.2" y2="279.2" stroke="#ddd"/><text x="58" y="283.2" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="234.3" y2="234.3" stroke="#ddd"/><text x="58" y="238.3" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="189.5" y2="189.5" stroke="#ddd"/><text x="58" y="193.5" text-anchor="end" font-family="sans-serif" font-size="11">30</text>
+<line x1="64" x2="624" y1="144.7" y2="144.7" stroke="#ddd"/><text x="58" y="148.7" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<line x1="64" x2="624" y1="99.9" y2="99.9" stroke="#ddd"/><text x="58" y="103.9" text-anchor="end" font-family="sans-serif" font-size="11">50</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">assistance gain (x biological torque)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">metabolic reduction (%)</text>
+<polyline points="64.0,268.9 204.0,216.0 344.0,165.3 484.0,116.9 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="268.9" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="216.0" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="165.3" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="116.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">ankle</text>
+<polyline points="64.0,310.1 204.0,297.1 344.0,284.6 484.0,272.4 624.0,260.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="310.1" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="297.1" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="284.6" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="272.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="260.8" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">whole body</text>
+</svg>

@@ -3,86 +3,116 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { readProject, patchPyproject, discover, stage, main, MAX_PER_RUN } from './pypi.mjs';
+import { importsOf, disqualifying, moduleName, pyproject, buildPackage, writePackage, discover, plan, run, MAX_PER_RUN } from './pypi.mjs';
 
-const toml = (extra = '') => `[build-system]\nrequires = ["setuptools"]\n\n[project]\nname = "demo-tool"\nversion = "0.1.0"\n${extra}\n[tool.setuptools.packages.find]\nwhere = ["src"]\n`;
-
-async function tree(ventures) {
+async function fixture(files) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'pypitest-'));
-  for (const [slug, { py, files = ['LICENSE', 'README.md', 'src/demo/__init__.py'] }] of Object.entries(ventures)) {
-    const d = path.join(root, 'ventures', slug);
-    await fs.mkdir(d, { recursive: true });
-    if (py) await fs.writeFile(path.join(d, 'pyproject.toml'), py);
-    for (const f of files) { await fs.mkdir(path.dirname(path.join(d, f)), { recursive: true }); await fs.writeFile(path.join(d, f), 'x'); }
+  for (const [rel, text] of Object.entries(files)) {
+    await fs.mkdir(path.dirname(path.join(root, rel)), { recursive: true });
+    await fs.writeFile(path.join(root, rel), text);
   }
   return root;
 }
-
-test('readProject reads name, version and dependency presence', () => {
-  assert.deepEqual(readProject(toml()), { name: 'demo-tool', version: '0.1.0', hasDeps: false, hasReadme: false, hasLicense: false });
-  assert.equal(readProject(toml('dependencies = ["requests"]\n')).hasDeps, true);
-  assert.equal(readProject(toml('dependencies = []\n')).hasDeps, false);
-  assert.equal(readProject('[tool.x]\na=1\n'), null);
+const MIT = 'MIT License\n\nCopyright (c) x';
+const SRC = '#!/usr/bin/env python3\nimport argparse, sys\nfrom pathlib import Path\n\ndef main(argv=None):\n    return 0\n\nif __name__ == "__main__":\n    sys.exit(main())\n';
+const venture = (name, over = {}) => ({
+  [`ventures/${name}/check.py`]: SRC,
+  [`ventures/${name}/LICENSE`]: MIT,
+  [`ventures/${name}/VENTURE.yaml`]: 'name: x\ndescription: Checks a "thing". Second sentence.\n',
+  ...over,
 });
 
-test('patchPyproject adds readme/license only when missing', () => {
-  const out = patchPyproject(toml());
-  assert.match(out, /readme = "README\.md"/);
-  assert.match(out, /license = \{file = "LICENSE"\}/);
-  const full = toml('readme = "R.md"\nlicense = {text = "MIT"}\n');
-  assert.equal(patchPyproject(full), full);
+test('importsOf reads import and from-import forms, top-level names only', () => {
+  const src = 'import os, sys\nimport xml.etree.ElementTree as ET\nfrom pathlib import Path\nfrom . import sibling\n    import json\nx = "import evil"\n';
+  assert.deepEqual(importsOf(src), ['.', 'json', 'os', 'pathlib', 'sys', 'xml']);
 });
 
-test('discover qualifies clean ventures and names why others are skipped', async () => {
-  const root = await tree({
-    good: { py: toml() },
-    deps: { py: toml('dependencies = ["x"]\n') },
-    nolic: { py: toml(), files: ['README.md', 'src/a.py'] },
-    nosrc: { py: toml(), files: ['LICENSE', 'README.md'] },
-    nopy: { files: ['index.html'] },
-  });
-  const { ok, skipped } = await discover(root);
-  assert.deepEqual(ok.map((p) => p.slug), ['good']);
-  assert.deepEqual(Object.fromEntries(skipped.map((s) => [s.slug, s.why])), {
-    deps: 'declares runtime dependencies', nolic: 'no LICENSE', nosrc: 'no src/ tree',
-  });
+test('disqualifying flags network, process and third-party imports, not stdlib', () => {
+  assert.equal(disqualifying(SRC), null);
+  assert.equal(disqualifying('import urllib.request\n'), 'urllib');
+  assert.equal(disqualifying('import subprocess\n'), 'subprocess');
+  assert.equal(disqualifying('import yaml\n'), 'yaml');
+  assert.equal(disqualifying('from . import x\n'), '.');
+  assert.equal(disqualifying('def f():\n    import socket\n'), 'socket');
 });
 
-test('stage ships only pyproject, LICENSE, README and src, without caches', async () => {
-  const root = await tree({ good: { py: toml(), files: ['LICENSE', 'README.md', 'index.html', 'src/demo/a.py', 'src/demo/__pycache__/a.pyc'] } });
-  const [pkg] = (await discover(root)).ok;
-  const out = path.join(root, 'out');
-  await stage(pkg, out);
-  assert.deepEqual((await fs.readdir(out)).sort(), ['LICENSE', 'README.md', 'pyproject.toml', 'src']);
-  assert.deepEqual(await fs.readdir(path.join(out, 'src/demo')), ['a.py']);
+test('moduleName and pyproject carry the entry point and escape the description', () => {
+  assert.equal(moduleName('a-b-check'), 'a_b_check');
+  const t = pyproject({ name: 'a-b', slug: 'a-b', description: 'say "hi"', version: '0.1.0' });
+  assert.match(t, /description = "say \\"hi\\""/);
+  assert.match(t, /^a-b = "a_b\.cli:main"$/m);
+  assert.match(t, /dependencies = \[\]/);
 });
 
-test('without the enabling variables nothing is fetched or executed', async () => {
-  const root = await tree({ good: { py: toml() } });
-  const lines = [];
-  const r = await main({ env: {}, root, fetchImpl: () => { throw new Error('network'); }, exec: () => { throw new Error('exec'); }, log: (s) => lines.push(s) });
-  assert.deepEqual(r, { published: 0, planned: 1 });
-  assert.match(lines.join('\n'), /DRY RUN/);
+test('buildPackage ships the source unchanged under <module>/cli.py', async () => {
+  const root = await fixture(venture('a-check'));
+  const pkg = await buildPackage({ slug: 'a-check', dir: path.join(root, 'ventures/a-check') });
+  assert.equal(pkg.name, 'a-check');
+  assert.equal(pkg.files['a_check/cli.py'], SRC);
+  assert.match(pkg.files['a_check/__main__.py'], /main\(\)/);
+  assert.match(pkg.files['README.md'], /Not legal, tax or professional advice/);
+  assert.deepEqual(Object.keys(pkg.files).sort(), ['LICENSE', 'README.md', 'a_check/__init__.py', 'a_check/__main__.py', 'a_check/cli.py', 'pyproject.toml']);
 });
 
-test('live: skips names already on PyPI, caps the run, uploads with a token', async () => {
-  const v = {};
-  for (const n of ['a', 'b', 'c', 'd', 'e']) v[n] = { py: toml().replace('demo-tool', `pkg-${n}`) };
-  const root = await tree(v);
-  const execs = [];
-  const fetchImpl = async (url) => ({ ok: !url.endsWith('pkg-a/json'), status: url.endsWith('pkg-a/json') ? 404 : 200 });
-  // pkg-a is NOT on PyPI (404); the rest exist, so only a is published.
-  const r = await main({
-    env: { DISTRIBUTE_PYPI: 'true', PYPI_TOKEN: 'pypi-secret' }, root, fetchImpl, log() {},
-    exec: async (cmd, args, opts) => {
-      execs.push([cmd, args, opts]);
-      if (args.includes('build')) await fs.mkdir(path.join(opts.cwd, 'dist')).then(() => fs.writeFile(path.join(opts.cwd, 'dist', 'x.whl'), ''));
-    },
-  });
-  assert.equal(r.published, 1);
-  const upload = execs.find((e) => e[1].includes('twine'));
-  assert.deepEqual(upload[1].slice(-1), [path.join('dist', 'x.whl')]);
-  assert.equal(upload[2].env.TWINE_USERNAME, '__token__');
-  assert.equal(upload[2].env.TWINE_PASSWORD, 'pypi-secret');
-  assert.ok(MAX_PER_RUN <= 3);
+test('buildPackage skips with a reason instead of guessing', async () => {
+  const skip = async (over) => {
+    const root = await fixture(venture('x', over));
+    return (await buildPackage({ slug: 'x', dir: path.join(root, 'ventures/x') })).skip;
+  };
+  assert.match(await skip({ 'ventures/x/check.py': 'import requests\ndef main():\n    pass\n' }), /requests/);
+  assert.match(await skip({ 'ventures/x/check.py': 'import sys\n' }), /no main/);
+  assert.match(await skip({ 'ventures/x/LICENSE': 'Proprietary' }), /MIT/);
+  assert.match(await skip({ 'ventures/x/VENTURE.yaml': 'name: x\n' }), /description/);
+  assert.match((await buildPackage({ slug: 'Bad_Name', dir: '/nonexistent' })).skip, /invalid/);
+});
+
+test('discover and plan split qualifying from skipped', async () => {
+  const root = await fixture({ ...venture('good-check'), ...venture('bad-check', { 'ventures/bad-check/check.py': 'import socket\ndef main():\n    pass\n' }) });
+  assert.deepEqual(await discover(root), ['bad-check', 'good-check']);
+  const { ok, skipped } = await plan({ root });
+  assert.deepEqual(ok.map((p) => p.slug), ['good-check']);
+  assert.deepEqual(skipped.map((s) => s.slug), ['bad-check']);
+});
+
+test('writePackage writes every file', async () => {
+  const root = await fixture(venture('w-check'));
+  const pkg = await buildPackage({ slug: 'w-check', dir: path.join(root, 'ventures/w-check') });
+  const out = await fs.mkdtemp(path.join(os.tmpdir(), 'pypiout-'));
+  await writePackage(pkg, out);
+  assert.equal(await fs.readFile(path.join(out, 'w_check/cli.py'), 'utf8'), SRC);
+});
+
+function many(n) {
+  const files = {};
+  for (let i = 0; i < n; i++) Object.assign(files, venture(`t${String(i).padStart(2, '0')}-check`));
+  return files;
+}
+
+test('dry run publishes nothing, skips names PyPI already has, caps at MAX_PER_RUN', async () => {
+  const root = await fixture(many(8));
+  const logs = [];
+  const asked = [];
+  const fetchImpl = async (url) => { asked.push(url); return { status: url.includes('/t00-check/') ? 200 : 404 }; };
+  const publish = async () => assert.fail('must not publish on a dry run');
+  const r = await run({ env: {}, root, fetchImpl, log: (l) => logs.push(l), publish });
+  assert.deepEqual(r, { published: 0, planned: MAX_PER_RUN });
+  assert.ok(logs.some((l) => /DRY RUN/.test(l)));
+  assert.ok(!logs.some((l) => /t00-check/.test(l) && /==/.test(l)));
+});
+
+test('live run needs both the variable and the token, then publishes the fresh ones', async () => {
+  const root = await fixture(many(2));
+  const fetchImpl = async () => ({ status: 404 });
+  const done = [];
+  const publish = async (dir) => { done.push(await fs.readdir(dir)); };
+  const half = await run({ env: { DISTRIBUTE_PYPI: 'true' }, root, fetchImpl, log() {}, publish });
+  assert.equal(half.published, 0);
+  const live = await run({ env: { DISTRIBUTE_PYPI: 'true', TWINE_PASSWORD: 'pypi-x' }, root, fetchImpl, log() {}, publish });
+  assert.equal(live.published, 2);
+  assert.equal(done.length, 2);
+});
+
+test('an unexpected registry status stops the run rather than guessing', async () => {
+  const root = await fixture(many(1));
+  await assert.rejects(run({ env: {}, root, fetchImpl: async () => ({ status: 503 }), log() {} }), /HTTP 503/);
 });

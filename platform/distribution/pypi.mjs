@@ -1,18 +1,17 @@
 /**
- * PyPI publisher: turns each dependency-free Python venture (`ventures/<slug>/pyproject.toml`
- * with a `src/` package) into a PyPI package so `pipx install <name>` works.
+ * PyPI publisher: turns each stdlib-only Python venture CLI (`ventures/<slug>/check.py`
+ * with a `main()`) into a PyPI package so `pipx run <name>` / `pip install <name>` works.
  * Off by default. See portfolio/distribution/README.md.
  *
- *   node platform/distribution/pypi.mjs                      # dry run: prints the packages it would publish
- *   DISTRIBUTE_PYPI=true PYPI_TOKEN=pypi-... node platform/distribution/pypi.mjs
+ *   node platform/distribution/pypi.mjs                          # dry run: prints the packages it would publish
+ *   node platform/distribution/pypi.mjs --pack <slug> <outDir>   # write one project to disk (to inspect or `python3 -m build`)
+ *   DISTRIBUTE_PYPI=true TWINE_PASSWORD=pypi-... node platform/distribution/pypi.mjs
  *
- * Stateless de-duplication: a project name that already exists on PyPI is
- * left alone (never republished or overwritten), and at most MAX_PER_RUN new
- * projects go out per run. Only ventures with no runtime dependencies, a
- * LICENSE, a README and a src/ tree qualify; anything else is skipped and the
- * reason printed, not guessed at. Each package is built from a clean copy
- * (pyproject, LICENSE, README, src) so stray site files never ship; if the
- * pyproject lacks `readme` / `license` keys they are added in the copy only.
+ * Stateless de-duplication: a project name that already exists on PyPI is left
+ * alone, and at most MAX_PER_RUN new projects go out per run. Only tools whose
+ * every import is on the stdlib allowlist below and none on the network list
+ * qualify: anything else is skipped, not guessed at. The tool's source is
+ * shipped unchanged as `<module>/cli.py`; only packaging files are generated.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -20,118 +19,177 @@ import os from 'node:os';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import { toolUrl } from './bluesky.mjs';
+import { descriptionOf } from './npm.mjs';
 
-const run = promisify(execFile);
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
-export const MAX_PER_RUN = 3;
+export const MAX_PER_RUN = 5;
+export const VERSION = '0.1.0';
+const REPO_URL = 'https://github.com/duncan-haywood/oss-monorepo';
 const NAME_RE = /^[a-z0-9][a-z0-9-]{0,99}$/;
 
-const exists = (p) => fs.access(p).then(() => true, () => false);
+/** Stdlib modules a qualifying tool may import (no network, no process spawning). */
+export const STDLIB_OK = new Set([
+  '__future__', 'argparse', 'base64', 'collections', 'copy', 'csv', 'dataclasses', 'datetime', 'difflib',
+  'enum', 'fnmatch', 'functools', 'glob', 'hashlib', 'html', 'io', 'ipaddress', 'itertools', 'json',
+  'logging', 'math', 'operator', 'os', 'pathlib', 're', 'shlex', 'shutil', 'stat', 'statistics', 'string',
+  'sys', 'tempfile', 'textwrap', 'time', 'tomllib', 'typing', 'xml', 'zipfile',
+]);
+const IMPORT_RE = /^[ \t]*(?:import[ \t]+([A-Za-z_][\w.]*(?:[ \t]*,[ \t]*[A-Za-z_][\w.]*)*)|from[ \t]+([A-Za-z_.][\w.]*)[ \t]+import\b)/gm;
 
-/** The `[project]` table of a pyproject.toml, as text (up to the next table header). */
-export function projectTable(toml) {
-  const m = toml.match(/^\[project\]\s*$([\s\S]*?)(?=^\[|(?![\s\S]))/m);
-  return m ? m[1] : null;
+/** Top-level module names imported by Python source `src` (relative imports appear as '.'). */
+export function importsOf(src) {
+  const out = new Set();
+  for (const m of src.matchAll(IMPORT_RE)) {
+    if (m[1]) for (const part of m[1].split(',')) out.add(part.trim().split('.')[0]);
+    else out.add(m[2].startsWith('.') ? '.' : m[2].split('.')[0]);
+  }
+  return [...out].sort();
 }
 
-/** Name, version and whether the project declares any runtime dependency. */
-export function readProject(toml) {
-  const t = projectTable(toml);
-  if (t === null) return null;
-  const name = t.match(/^name\s*=\s*"([^"]+)"/m)?.[1];
-  const version = t.match(/^version\s*=\s*"([^"]+)"/m)?.[1];
-  const deps = t.match(/^dependencies\s*=\s*\[([\s\S]*?)\]/m)?.[1] ?? '';
-  return { name, version, hasDeps: /["']/.test(deps), hasReadme: /^readme\s*=/m.test(t), hasLicense: /^license\s*=/m.test(t) };
+/** First import that disqualifies the tool, or null. Imports inside functions count too. */
+export function disqualifying(src) {
+  return importsOf(src).find((m) => !STDLIB_OK.has(m)) ?? null;
 }
 
-/** Add `readme` / `license` to the [project] table when missing (for the build copy only). */
-export function patchPyproject(toml) {
-  const p = readProject(toml);
-  const add = [];
-  if (!p.hasReadme) add.push('readme = "README.md"');
-  if (!p.hasLicense) add.push('license = {file = "LICENSE"}');
-  return add.length ? toml.replace(/^\[project\]\s*$/m, `[project]\n${add.join('\n')}`) : toml;
+export const moduleName = (slug) => slug.replace(/-/g, '_');
+
+const hasMain = (src) => /^def main\(/m.test(src);
+
+export function pyproject({ name, slug, description, version }) {
+  const esc = (s) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  const mod = moduleName(slug);
+  return `[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "${name}"
+version = "${version}"
+description = "${esc(description)}"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+dependencies = []
+keywords = ["cli", "free", "open-source"]
+classifiers = ["License :: OSI Approved :: MIT License", "Programming Language :: Python :: 3", "Environment :: Console"]
+
+[project.urls]
+Homepage = "${toolUrl(slug)}"
+Source = "${REPO_URL}/tree/main/ventures/${slug}"
+Issues = "${REPO_URL}/issues"
+
+[project.scripts]
+${slug} = "${mod}.cli:main"
+
+[tool.setuptools]
+packages = ["${mod}"]
+`;
 }
 
-/** Which ventures can be published, and why the others cannot. */
+/** The project for one venture: { name, version, files: { relPath: text } } or { skip }. */
+export async function buildPackage({ slug, dir, version = VERSION }) {
+  if (!NAME_RE.test(slug)) return { skip: `invalid project name ${slug}` };
+  const src = await fs.readFile(path.join(dir, 'check.py'), 'utf8').catch(() => null);
+  if (src === null) return { skip: 'no check.py' };
+  if (!hasMain(src)) return { skip: 'check.py has no main()' };
+  const bad = disqualifying(src);
+  if (bad) return { skip: `imports "${bad}"` };
+  const license = await fs.readFile(path.join(dir, 'LICENSE'), 'utf8').catch(() => null);
+  if (license === null || !/MIT License/i.test(license)) return { skip: 'no MIT LICENSE' };
+  const yaml = await fs.readFile(path.join(dir, 'VENTURE.yaml'), 'utf8').catch(() => '');
+  const description = descriptionOf(yaml);
+  if (!description) return { skip: 'no description in VENTURE.yaml' };
+  const mod = moduleName(slug);
+  const readme = await fs.readFile(path.join(dir, 'README.md'), 'utf8').catch(() => `# ${slug}\n\n${description}\n`);
+  const files = {
+    [`${mod}/__init__.py`]: '',
+    [`${mod}/__main__.py`]: `from .cli import main\nraise SystemExit(main())\n`,
+    [`${mod}/cli.py`]: src,
+    LICENSE: license,
+    'README.md': `${readme.trimEnd()}\n\n---\n\nFree and open source (MIT), from the [monorepo-projects](${toolUrl(slug)}) portfolio. Install: \`pipx run ${slug}\`. Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`,
+    'pyproject.toml': pyproject({ name: slug, slug, description, version }),
+  };
+  return { name: slug, version, files };
+}
+
+/** Every venture directory with a check.py, as slugs. */
 export async function discover(root = REPO_ROOT) {
   const dir = path.join(root, 'ventures');
+  const out = [];
+  for (const e of await fs.readdir(dir, { withFileTypes: true })) {
+    if (e.isDirectory() && await fs.stat(path.join(dir, e.name, 'check.py')).then(() => true, () => false)) out.push(e.name);
+  }
+  return out.sort();
+}
+
+export async function writePackage(pkg, outDir) {
+  for (const [rel, text] of Object.entries(pkg.files)) {
+    const target = path.join(outDir, rel);
+    await fs.mkdir(path.dirname(target), { recursive: true });
+    await fs.writeFile(target, text);
+  }
+}
+
+/** Projects that qualify, with skip reasons for the rest. */
+export async function plan({ root = REPO_ROOT, slugs } = {}) {
   const ok = [];
   const skipped = [];
-  for (const slug of (await fs.readdir(dir)).sort()) {
-    const base = path.join(dir, slug);
-    const toml = await fs.readFile(path.join(base, 'pyproject.toml'), 'utf8').catch(() => null);
-    if (toml === null) continue;
-    const p = readProject(toml);
-    const why = !p ? 'no [project] table'
-      : !p.name || !NAME_RE.test(p.name) ? 'invalid project name'
-      : !p.version ? 'no version'
-      : p.hasDeps ? 'declares runtime dependencies'
-      : !(await exists(path.join(base, 'LICENSE'))) ? 'no LICENSE'
-      : !(await exists(path.join(base, 'README.md'))) ? 'no README.md'
-      : !(await exists(path.join(base, 'src'))) ? 'no src/ tree'
-      : null;
-    if (why) skipped.push({ slug, why });
-    else ok.push({ slug, name: p.name, version: p.version, dir: base, toml });
+  for (const slug of slugs ?? await discover(root)) {
+    const pkg = await buildPackage({ slug, dir: path.join(root, 'ventures', slug) });
+    if (pkg.skip) skipped.push({ slug, reason: pkg.skip });
+    else ok.push({ slug, ...pkg });
   }
   return { ok, skipped };
 }
 
-async function onPyPI(fetchImpl, name) {
-  const res = await fetchImpl(`https://pypi.org/pypi/${encodeURIComponent(name)}/json`);
-  if (res.status === 404) return false;
-  if (!res.ok) throw new Error(`pypi.org lookup for ${name}: HTTP ${res.status}`);
-  return true;
-}
+const exec = promisify(execFile);
 
-/** Write the clean build tree for one package into `out`. */
-export async function stage(pkg, out) {
-  await fs.mkdir(out, { recursive: true });
-  await fs.writeFile(path.join(out, 'pyproject.toml'), patchPyproject(pkg.toml));
-  for (const f of ['LICENSE', 'README.md']) await fs.copyFile(path.join(pkg.dir, f), path.join(out, f));
-  await fs.cp(path.join(pkg.dir, 'src'), path.join(out, 'src'), {
-    recursive: true,
-    filter: (s) => !/(^|[\\/])(__pycache__|\.pytest_cache)([\\/]|$)|\.pyc$/.test(s),
-  });
-}
-
-export async function main({ env = process.env, fetchImpl = fetch, log = console.log, exec = run, root = REPO_ROOT } = {}) {
-  const live = env.DISTRIBUTE_PYPI === 'true' && !!env.PYPI_TOKEN;
-  const { ok, skipped } = await discover(root);
-  for (const s of skipped) log(`skip ${s.slug}: ${s.why}`);
-  const todo = [];
-  for (const pkg of ok) {
-    if (todo.length >= MAX_PER_RUN) break;
-    if (live || env.PYPI_CHECK === 'true') {
-      if (await onPyPI(fetchImpl, pkg.name)) { log(`exists ${pkg.name}`); continue; }
-    }
-    todo.push(pkg);
+export async function run({ env = process.env, fetchImpl = fetch, log = console.log, publish, root = REPO_ROOT } = {}) {
+  const live = env.DISTRIBUTE_PYPI === 'true' && !!env.TWINE_PASSWORD;
+  const { ok, skipped } = await plan({ root });
+  log(`${ok.length} of ${ok.length + skipped.length} venture CLIs qualify (${skipped.length} skipped)`);
+  const fresh = [];
+  for (const p of ok) {
+    if (fresh.length >= MAX_PER_RUN) break;
+    const res = await fetchImpl(`https://pypi.org/pypi/${p.name}/json`);
+    if (res.status === 200) continue;
+    if (res.status !== 404) throw new Error(`PyPI: HTTP ${res.status} for ${p.name}`);
+    fresh.push(p);
   }
   if (!live) {
-    log(`DRY RUN (set DISTRIBUTE_PYPI=true plus PYPI_TOKEN to publish). ${todo.length} package(s):`);
-    for (const p of todo) log(`--- ${p.name} ${p.version} (ventures/${p.slug})`);
-    return { published: 0, planned: todo.length };
+    log(`DRY RUN (set DISTRIBUTE_PYPI=true and TWINE_PASSWORD to publish). Would publish up to ${MAX_PER_RUN} new projects:`);
+    for (const p of fresh) log(`  ${p.name}==${p.version}  ${Object.keys(p.files).length} files`);
+    return { published: 0, planned: fresh.length };
   }
+  const doPublish = publish ?? (async (dir) => {
+    await exec('python3', ['-m', 'build', '--outdir', 'dist', dir], { cwd: dir, env });
+    await exec('python3', ['-m', 'twine', 'upload', '--non-interactive', 'dist/*'], { cwd: dir, env: { ...env, TWINE_USERNAME: '__token__' }, shell: false });
+  });
   let published = 0;
-  for (const pkg of todo) {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'pypi-'));
+  for (const p of fresh) {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pypipkg-'));
     try {
-      await stage(pkg, tmp);
-      await exec('python3', ['-m', 'build', '--outdir', 'dist', '.'], { cwd: tmp });
-      const files = (await fs.readdir(path.join(tmp, 'dist'))).map((f) => path.join('dist', f));
-      await exec('python3', ['-m', 'twine', 'upload', '--non-interactive', ...files], {
-        cwd: tmp, env: { ...env, TWINE_USERNAME: '__token__', TWINE_PASSWORD: env.PYPI_TOKEN },
-      });
-      log(`published ${pkg.name} ${pkg.version}`);
-      published++;
+      await writePackage(p, dir);
+      await doPublish(dir);
+      published += 1;
+      log(`published ${p.name}==${p.version}`);
     } finally {
-      await fs.rm(tmp, { recursive: true, force: true });
+      await fs.rm(dir, { recursive: true, force: true });
     }
   }
-  return { published, planned: todo.length };
+  return { published, planned: fresh.length };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main().catch((e) => { console.error(e.message); process.exit(1); });
+  const [flag, slug, outDir] = process.argv.slice(2);
+  if (flag === '--pack') {
+    const pkg = await buildPackage({ slug, dir: path.join(REPO_ROOT, 'ventures', slug) });
+    if (pkg.skip) { console.error(`${slug}: ${pkg.skip}`); process.exit(1); }
+    await writePackage(pkg, outDir);
+    console.log(`wrote ${pkg.name}==${pkg.version} to ${outDir}`);
+  } else {
+    run().catch((e) => { console.error(e.message); process.exit(1); });
+  }
 }

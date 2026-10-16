@@ -164,6 +164,8 @@ the owner step is the account, two secrets and `DISTRIBUTE_BLUESKY=true`.
 
 `npm-cli-packages` is at `artifact` (2026-10-15): 142 venture CLIs become `npx`-runnable npm packages, five new ones per weekly run, none overwritten. Dry run: `node platform/distribution/npm.mjs`; inspect one with `node platform/distribution/npm.mjs --pack <slug> <dir>`. Owner step: npm account, `NPM_TOKEN`, optional `NPM_SCOPE`, `DISTRIBUTE_NPM=true`.
 
-`pypi-python-packages` is at `artifact` (2026-10-16): the five dependency-free Python ventures become `pipx install`-able PyPI projects, three new ones per weekly run, none overwritten; all five built and passed `twine check`. Dry run: `node platform/distribution/pypi.mjs`. Owner step: PyPI account, `PYPI_TOKEN`, `DISTRIBUTE_PYPI=true`.
-
 `mcp-server` is at `artifact` (2026-10-16): one npm package, an MCP server that lets Claude Desktop, Cursor and VS Code search and run 133 venture CLIs locally, with a generated `server.json` for the official MCP registry. Dry run: `node platform/distribution/mcp.mjs` (`--skipped` lists the 9 excluded for network or process access, `--pack <dir>` writes the package). Owner step: the npm token from `npm-cli-packages` and `DISTRIBUTE_MCP=true`.
+
+`pypi-python-clis` is at `artifact` (2026-10-16): 22 stdlib-only Python venture CLIs (the `*-check` linters) become `pipx run`-able PyPI projects, five new per weekly run, none overwritten. Dry run: `node platform/distribution/pypi.mjs`; inspect one with `node platform/distribution/pypi.mjs --pack <slug> <dir>`.
+
+`pypi-pyproject-packages` is at `artifact` (2026-10-16): the five dependency-free Python ventures that already have a pyproject become PyPI projects, three new per weekly run; same owner step as `pypi-python-clis`. Dry run: `node platform/distribution/pypi-packages.mjs`.

@@ -49,3 +49,7 @@ test("index links one hop to the churn-radar sibling and each sibling exists", (
   assert.match(html, /href="\.\.\/churn-radar\/"/);
   for (const m of html.matchAll(/href="\.\.\/([a-z-]+)\/"/g)) assert.doesNotThrow(() => readFileSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
 });
+
+test("index links one hop to the deal-keeper sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/deal-keeper\/"/);
+});
