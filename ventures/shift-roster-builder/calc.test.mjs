@@ -437,3 +437,21 @@ test("laborPercent: share of sales, target headroom, bad input", () => {
   assert.equal(laborPercent(2800, 0), null);
   assert.equal(laborPercent(2800, "abc"), null);
 });
+
+test("daily hour limit: per-person cell and roster-wide setting are hard rules and explain themselves", () => {
+  const slots = slotsOf("Mon,8,14,1\nMon,14,20,1");
+  const free = staffOf("Ann,10,40,0,any");
+  assert.equal(buildRoster(free, slots, { minRestHours: 0 }).unfilledSlots, 0);
+  const capped = staffOf("Ann,10,40,0,any,daily: 8");
+  assert.equal(capped[0].maxDaily, 8);
+  const r = buildRoster(capped, slots, { minRestHours: 0 });
+  assert.equal(r.unfilledSlots, 1);
+  assert.match(r.unfilled[0].text, /daily hour limit/);
+  assert.equal(buildRoster(free, slots, { minRestHours: 0, maxDailyHours: 8 }).unfilledSlots, 1);
+  assert.equal(buildRoster(free, slots, { minRestHours: 0, maxDailyHours: 12 }).unfilledSlots, 0);
+  const two = staffOf("Ann,10,40,0,any,daily: 8\nBo,12,40,0,any");
+  const r2 = buildRoster(two, slots, { minRestHours: 0 });
+  assert.equal(r2.unfilledSlots, 0);
+  assert.notEqual(r2.owner[0], r2.owner[1]);
+  assert.ok(parseStaff("Ann,10,40,0,any,daily: lots").errors.length === 1);
+});

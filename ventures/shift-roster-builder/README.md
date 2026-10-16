@@ -15,7 +15,7 @@ shuffling on Sunday night.
 - Time off this week: add an `off:` cell, e.g. `off: Wed; Fri 5pm-close`, to remove whole days or hours from a person's standing availability without rewriting it (`applyTimeOff` in `calc.mjs`).
 - Shifts: `day(s), start, end, people needed, label, role: cook` (the role is optional; a shift with a role goes only to people who list it). An end at or before the start runs overnight.
 - Hard rules, never broken: availability covers the whole shift, no double-booking, minimum rest between shifts, max
-  hours per week, max days in a row.
+  hours per week, max days in a row, and (optional) most hours in one day: a roster-wide setting, or `daily: 8` in a person's row for a minor or a short-day contract.
 - Objective, in order: cover as many shift-hours as possible; then minimise real payroll (wage x (1 + extras), overtime
   above a threshold at a multiplier) plus soft penalties for hours under a person's minimum and for hours far from a fair
   share (balance slider).
