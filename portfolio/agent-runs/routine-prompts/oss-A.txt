@@ -1,0 +1,18 @@
+work on producing research implementing and pursuing furhter implications of the work of https://www.colorado.edu/cs-theory/alg-econ, https://www.bowaggoner.com/, https://raf.prof/index.html https://www.gensyn.ai/ https://www.gensyn.ai/research https://www.gensyn.ai/team/rafael-frongillo https://www.gensyn.ai/team/gabriel-andrade https://www.gensyn.ai/team/oguzhan-ersoy https://www.gensyn.ai/team/marx-zang https://www.gensyn.ai/team/bo-waggoner. merge changes when done. 
+
+
+the goal is to produce artificats white papers code projects implementations etc of value under mit liscence and further the research. this is a portfolio repo with the goal of helping me get a phd position eventually in ML, AI, OR and IE in a cs/math/econ/finance/ department and producing publishable white papers and otherwise useful artificats etc is helpful for this. you can use github pages for a portfolio page for this.  
+
+
+
+refence this as a sort of guideline from a job post that they are posting.  
+
+Research Intern 
+Machine intelligence will soon take over humanity’s role in knowledge-keeping and creation. What started in the mid-1990s as the gradual off-loading of knowledge and decision making to search engines will be rapidly replaced by vast neural networks - with all knowledge compressed into their artificial neurons. Unlike organic life, machine intelligence, built within silicon, needs protocols to coordinate and grow. And, like nature, these protocols should be open, permissionless, and neutral. Starting with compute hardware, the Gensyn protocol networks together the core resources required for machine intelligence to flourish alongside human intelligence.
+
+The Role
+Contribute to cutting-edge research in scalable, distributed machine learning systems alongside experienced researchers and engineers. Explore new ways of building and verifying neural networks that operate across huge, decentralised, topologies of heterogenous devices.
+Responsibilities
+Contribute to original research in deep learning with a focus on modular architectures, verifiability, continual learning, and scale
+Design and prototype novel neural network architectures for decentralized compute environments
+Contribute to joint publications and projects in collaboration with academic and industry researchers targeting top-tier AI venues such as NeurIPS, ICML, and ICLR
