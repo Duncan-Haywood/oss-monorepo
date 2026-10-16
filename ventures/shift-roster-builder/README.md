@@ -40,3 +40,5 @@ Open `index.html`, or `node --test` to run the tests. No build step, no dependen
 ## No warranty
 
 Provided free and as-is, without warranty of any kind. Not legal, tax, or financial advice. MIT licensed.
+
+**Sick-call finder.** After a roster is built, pick any shift (or an open one) to see who could take it without changing anyone else's week, cheapest first with overtime flagged, and which rule blocks everyone else (`coverOptions` in `calc.mjs`).

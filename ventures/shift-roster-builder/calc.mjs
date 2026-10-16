@@ -517,6 +517,46 @@ export function buildRoster(staff, slots, options = {}) {
   };
 }
 
+// Sick call or swap request: who could take shift `slotIndex` right now, leaving everyone else as the roster has them?
+// The person it is taken from (if any) is skipped. Each candidate gets the payroll change of the move (the shift
+// leaves its current owner and lands on them, overtime included); people who are free but blocked get the rule that blocks them.
+export function coverOptions(staff, slots, roster, slotIndex, options = {}) {
+  if (!roster || !roster.owner || !slots[slotIndex]) return { error: "Build a roster first." };
+  const ctx = buildContext(staff, slots, { ...(roster.options || {}), ...options });
+  const owner = roster.owner;
+  const slot = slots[slotIndex];
+  const current = owner[slotIndex];
+  const listOf = (p) => owner.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0);
+  const sortList = (l) => l.sort((a, b) => slots[a].start - slots[b].start || a - b);
+  const dollars = (p, list) => payroll(ctx, p, hoursOf(ctx, list));
+  const fits = [], blocked = [];
+  for (let p = 0; p < ctx.P; p++) {
+    if (p === current) continue;
+    if (!ctx.elig[p][slotIndex]) continue;
+    const base = sortList(listOf(p));
+    const nl = insertSorted(ctx, base, slotIndex);
+    if (validList(ctx, p, nl)) {
+      let delta = dollars(p, nl) - dollars(p, base);
+      if (current >= 0) {
+        const cb = sortList(listOf(current));
+        delta += dollars(current, cb.filter((k) => k !== slotIndex)) - dollars(current, cb);
+      }
+      const h = hoursOf(ctx, nl);
+      fits.push({ name: staff[p].name, extraCost: delta, hoursAfter: h, overtimeAfter: Math.max(0, h - ctx.o.otAfter) });
+      continue;
+    }
+    let reason;
+    const mins = nl.reduce((t, k) => t + slots[k].end - slots[k].start, 0);
+    if (base.some((k) => slots[k].start < slot.end && slot.start < slots[k].end)) reason = "already on a shift at that time";
+    else if (mins > staff[p].maxHours * 60 + 1e-9) reason = "would go over their weekly hour limit";
+    else if (base.some((k) => slot.start < slots[k].end + ctx.restMin && slots[k].start < slot.end + ctx.restMin)) reason = "would break the rest rule";
+    else reason = "would break the days-in-a-row limit";
+    blocked.push({ name: staff[p].name, reason });
+  }
+  fits.sort((a, b) => a.extraCost - b.extraCost || a.name.localeCompare(b.name));
+  return { slot, current: current >= 0 ? staff[current].name : null, fits, blocked };
+}
+
 export function rosterCsv(r) {
   const q = (s) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
   const rows = ["day,start,end,hours,label,assigned_to,role"];
