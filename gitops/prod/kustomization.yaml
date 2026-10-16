@@ -9,7 +9,6 @@ resources:
   - portfolio-front.yaml
   - portfolio-apex.yaml
   - site-usage.yaml
-  - front-door-tools/
 configMapGenerator:
   - name: portfolio-site-usage-script
     files:

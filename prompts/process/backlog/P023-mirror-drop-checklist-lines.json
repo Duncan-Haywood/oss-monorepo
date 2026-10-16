@@ -1,11 +1,16 @@
 {
-  "status": "open",
+  "status": "dropped",
   "owner": "agent",
   "opened": "2026-10-16",
   "source": "P021 split of P014",
   "pr": null,
-  "result": null,
-  "history": [],
+  "result": "Dropped: regen.mjs also regenerates the committed gitops/prod/front-door apex files, so the checklist lines still guard them.",
+  "history": [
+    {
+      "date": "2026-10-16",
+      "note": "Premise does not hold: regen.mjs also runs front-door.mjs, whose ~71 files under gitops/prod/front-door (apex, sitemap, feed, catalog) stay committed and stale-checked. The regen lines stay until those are also built at publish time; file that as its own item if wanted."
+    }
+  ],
   "touches": [
     "platform/marketing/",
     "gitops/tests/"

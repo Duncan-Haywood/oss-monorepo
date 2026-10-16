@@ -1,11 +1,16 @@
 {
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "opened": "2026-10-16",
   "source": "P021 split of P014",
   "pr": null,
   "result": null,
-  "history": [],
+  "history": [
+    {
+      "date": "2026-10-16",
+      "note": "Process run: git rm -r gitops/prod/front-door-tools (5,918 tracked files) and its kustomization resource line; generators and --headroom kept. test_manifests.py + test_front_door_serving.py: 83 passed, 19 skipped, 1 failed (OWNER_CHECKLIST claims 1268 mirrored tools, generator builds 1269; the test builds into a temp dir, so the removal does not cause it)."
+    }
+  ],
   "touches": [
     "platform/marketing/",
     "gitops/tests/"
