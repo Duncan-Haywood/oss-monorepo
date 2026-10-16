@@ -36,3 +36,7 @@ test("guides are linked and listed in the sitemap", () => {
 test("index links one hop to the ats-resume-checker sibling", () => {
   assert.match(html, /href="\.\.\/ats-resume-checker\/"/);
 });
+
+test("index links one hop to the job-search-agent sibling", () => {
+  assert.match(html, /href="\.\.\/job-search-agent\/"/);
+});
