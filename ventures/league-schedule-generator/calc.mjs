@@ -655,6 +655,113 @@ export function applyRainouts(schedule, text) {
 
 // ---------------------------------------------------------------- views and exports
 
+// ---------------------------------------------------------------- officials (referees, umpires, scorers)
+
+/**
+ * Officials, one per line: `Name`, `Name (Hawks)` when they belong to a team (a coach, parent or player; they never
+ * officiate that team's match), `Name: Tue, Thu` for the weekdays they can work, `Name (Hawks): Tue` for both, and an
+ * optional trailing `max 6` to cap how many matches they take.
+ */
+export function parseOfficials(text, teams = []) {
+  const officials = [];
+  const errors = [];
+  const seen = new Set();
+  for (const raw of String(text ?? "").split(/\r?\n/)) {
+    let line = raw.replace(/\s+/g, " ").trim();
+    if (!line) continue;
+    let max = Infinity;
+    const mx = line.match(/[\s,;]+max\s*(\d+)\s*$/i);
+    if (mx) { max = Number(mx[1]); line = line.slice(0, mx.index).trim(); }
+    const m = line.match(/^([^():]+?)\s*(?:\(([^)]*)\))?\s*(?::\s*(.*))?$/);
+    if (!m || !m[1].trim()) { errors.push(`"${raw.trim()}": could not read this official.`); continue; }
+    const name = m[1].trim();
+    if (seen.has(name.toLowerCase())) { errors.push(`"${name}" is listed twice.`); continue; }
+    seen.add(name.toLowerCase());
+    let team = -1;
+    if (m[2] && m[2].trim()) {
+      team = teamIndex(teams, m[2]);
+      if (team < 0) errors.push(`${name}: "${m[2].trim()}" is not one of the teams.`);
+    }
+    let days = null;
+    if (m[3] && m[3].trim()) {
+      const w = parseWeekdays(m[3]);
+      errors.push(...w.errors.map((e) => `${name}: ${e}`));
+      if (w.weekdays.length) days = w.weekdays;
+    }
+    if (!(max >= 1)) { errors.push(`${name}: max must be at least 1.`); max = Infinity; }
+    officials.push({ name, team, days, max });
+  }
+  return { officials, errors };
+}
+
+/**
+ * Give every match one official. Hard rules: the official can work that weekday, is not from either team in the match,
+ * is on at most one match per time slot of a night, and is under their cap. Among those who qualify, the least-loaded
+ * official takes the match, ties going to whoever has worked these two teams least, then to list order. Deterministic.
+ * Returns a copy of the schedule with `match.official` set, who works how much, and the matches nobody could take.
+ */
+export function assignOfficials(schedule, officials) {
+  const s = JSON.parse(JSON.stringify(schedule));
+  const load = officials.map(() => 0);
+  const seenTeam = officials.map(() => new Map());
+  const unfilled = [];
+  const busy = new Set();
+  for (const r of s.rounds) {
+    const wd = dayOfWeek(r.day);
+    for (const m of r.matches) {
+      const slot = `${r.day}|${m.time ?? ""}`;
+      const why = { weekday: 0, team: 0, busy: 0, cap: 0 };
+      const ok = [];
+      officials.forEach((o, i) => {
+        if (o.days && !o.days.includes(wd)) { why.weekday++; return; }
+        if (o.team === m.home || o.team === m.away) { why.team++; return; }
+        if (busy.has(`${i}|${slot}`)) { why.busy++; return; }
+        if (load[i] >= o.max) { why.cap++; return; }
+        ok.push(i);
+      });
+      if (!ok.length) {
+        const reason = !officials.length ? "no officials were listed" : Object.entries({ "off that weekday": why.weekday, "belong to a team in this match": why.team, "already on another match at that time": why.busy, "at their match cap": why.cap }).filter(([, c]) => c).map(([t, c]) => `${c} ${t}`).join(", ");
+        m.official = "";
+        unfilled.push({ round: r.label, day: r.day, time: m.time, court: m.court, home: m.homeName, away: m.awayName, reason });
+        continue;
+      }
+      const seen = (i) => (seenTeam[i].get(m.home) || 0) + (seenTeam[i].get(m.away) || 0);
+      ok.sort((a, b) => load[a] - load[b] || seen(a) - seen(b) || a - b);
+      const pick = ok[0];
+      load[pick]++;
+      busy.add(`${pick}|${slot}`);
+      for (const t of [m.home, m.away]) seenTeam[pick].set(t, (seenTeam[pick].get(t) || 0) + 1);
+      m.official = officials[pick].name;
+    }
+  }
+  const total = load.reduce((a, b) => a + b, 0);
+  return { schedule: s, loads: officials.map((o, i) => ({ name: o.name, matches: load[i] })), unfilled, total };
+}
+
+/** Independent re-check of the hard rules for a schedule carrying `match.official`. Empty list = clean. */
+export function validateOfficials(schedule, officials) {
+  const errors = [];
+  const byName = new Map(officials.map((o) => [o.name, o]));
+  const count = new Map();
+  for (const r of schedule.rounds) {
+    const used = new Set();
+    for (const m of r.matches) {
+      if (!m.official) continue;
+      const o = byName.get(m.official);
+      const tag = `${r.label}: ${m.homeName} v ${m.awayName}`;
+      if (!o) { errors.push(`${tag}: ${m.official} is not a listed official.`); continue; }
+      if (o.days && !o.days.includes(dayOfWeek(r.day))) errors.push(`${tag}: ${o.name} is off that weekday.`);
+      if (o.team === m.home || o.team === m.away) errors.push(`${tag}: ${o.name} belongs to a team in the match.`);
+      const key = `${o.name}|${m.time ?? ""}`;
+      if (used.has(key)) errors.push(`${tag}: ${o.name} is on two matches at ${m.time || "the same time"}.`);
+      used.add(key);
+      count.set(o.name, (count.get(o.name) || 0) + 1);
+    }
+  }
+  for (const o of officials) if ((count.get(o.name) || 0) > o.max) errors.push(`${o.name}: ${count.get(o.name)} matches is over their cap of ${o.max}.`);
+  return errors;
+}
+
 export function teamSchedule(schedule, teamIdx) {
   const rows = [];
   for (const r of schedule.rounds) {
@@ -676,10 +783,11 @@ function csvCell(v) {
 }
 
 export function scheduleCsv(schedule) {
-  const lines = [["Round", "Date", "Day", "Time", "Court", "Home", "Away"].join(",")];
+  const withOfficial = schedule.rounds.some((r) => r.matches.some((m) => m.official !== undefined));
+  const lines = [["Round", "Date", "Day", "Time", "Court", "Home", "Away", ...(withOfficial ? ["Official"] : [])].join(",")];
   for (const r of schedule.rounds) {
     for (const m of r.matches) {
-      lines.push([r.label, dayIso(r.day), WEEKDAYS[dayOfWeek(r.day)], m.time, m.court, m.homeName, m.awayName].map(csvCell).join(","));
+      lines.push([r.label, dayIso(r.day), WEEKDAYS[dayOfWeek(r.day)], m.time, m.court, m.homeName, m.awayName, ...(withOfficial ? [m.official || ""] : [])].map(csvCell).join(","));
     }
     if (r.bye !== null && r.bye !== undefined) lines.push([r.label, dayIso(r.day), WEEKDAYS[dayOfWeek(r.day)], "", "", schedule.teams[r.bye], "BYE"].map(csvCell).join(","));
   }
@@ -747,7 +855,7 @@ export function scheduleText(schedule, bracket = null) {
   const lines = [`${n}-team ${schedule.config.double ? "double" : "single"} round robin`, ""];
   for (const r of schedule.rounds) {
     lines.push(`${r.label} - ${dayLabel(r.day)}`);
-    for (const m of r.matches) lines.push(`  ${m.time ? m.time + " " : ""}${m.court}: ${m.homeName} (home) vs ${m.awayName}`);
+    for (const m of r.matches) lines.push(`  ${m.time ? m.time + " " : ""}${m.court}: ${m.homeName} (home) vs ${m.awayName}${m.official ? " [official: " + m.official + "]" : ""}`);
     if (r.bye !== null && r.bye !== undefined) lines.push(`  Bye: ${schedule.teams[r.bye]}`);
     lines.push("");
   }
@@ -767,9 +875,9 @@ export function leaguePageHtml(schedule, { title = "League schedule", table = nu
   const teams = schedule.teams;
   const t = htmlEsc(title);
   const rounds = schedule.rounds.map((r) => {
-    const rows = r.matches.map((m) => `<tr data-t="${m.home} ${m.away}"><td>${htmlEsc(m.time)}</td><td>${htmlEsc(m.court)}</td><td>${htmlEsc(m.homeName)}</td><td>${htmlEsc(m.awayName)}</td></tr>`);
+    const rows = r.matches.map((m) => `<tr data-t="${m.home} ${m.away}"><td>${htmlEsc(m.time)}</td><td>${htmlEsc(m.court)}</td><td>${htmlEsc(m.homeName)}</td><td>${htmlEsc(m.awayName)}</td>${m.official !== undefined ? `<td>${htmlEsc(m.official)}</td>` : ""}</tr>`);
     if (r.bye !== null && r.bye !== undefined) rows.push(`<tr data-t="${r.bye}" class="bye"><td colspan="4">Bye: ${htmlEsc(teams[r.bye])}</td></tr>`);
-    return `<section class="round"><h3>${htmlEsc(r.label)} <span>${htmlEsc(dayLabel(r.day))}</span></h3><table><thead><tr><th>Time</th><th>Court</th><th>Home</th><th>Away</th></tr></thead><tbody>${rows.join("")}</tbody></table></section>`;
+    return `<section class="round"><h3>${htmlEsc(r.label)} <span>${htmlEsc(dayLabel(r.day))}</span></h3><table><thead><tr><th>Time</th><th>Court</th><th>Home</th><th>Away</th>${r.matches.some((m) => m.official !== undefined) ? "<th>Official</th>" : ""}</tr></thead><tbody>${rows.join("")}</tbody></table></section>`;
   }).join("\n");
   const stand = table ? `<h2>Standings</h2><table><thead><tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead><tbody>${table.map((r) => `<tr><td>${r.rank}</td><td>${htmlEsc(r.name)}</td><td>${r.played}</td><td>${r.won}</td><td>${r.drawn}</td><td>${r.lost}</td><td>${r.gd}</td><td>${r.points}</td></tr>`).join("")}</tbody></table>` : "";
   const brk = bracket ? `<h2>Play-offs</h2><pre>${htmlEsc(bracketText(bracket))}</pre>` : "";
@@ -851,6 +959,117 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
     || y.gd - x.gd || y.gf - x.gf || x.index - y.index);
   rows.forEach((r, i) => { r.rank = i + 1; });
   return rows;
+}
+
+// ---------------------------------------------------------------- playoff race
+
+/** Most remaining fixtures worked through exhaustively (3^12 = 531,441 outcomes); beyond it, safe bounds. */
+export const RACE_EXACT_LIMIT = 12;
+
+/**
+ * Who has clinched a play-off place and who is out, from the results so far and the fixtures still
+ * to play. `remaining` is a list of [teamIndexA, teamIndexB] (`remainingFixtures` builds it from a
+ * schedule and its results). Ranking here is by points only, and a tie on points is counted
+ * against the team being tested, so "clinched" and "eliminated" are never wrong; goal difference
+ * can only help a team the table calls "alive" or "tied".
+ * Returns one row per team: { index, name, points, left, maxPoints, bestRank, worstRank,
+ * status: "clinched" | "eliminated" | "alive", magic }. `magic` is how many more points guarantee a
+ * place whatever the others do (null when out of reach or already clinched). `exact` says whether
+ * every outcome was worked through or the safe bounds were used.
+ */
+export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 1, loss = 0, exactLimit = RACE_EXACT_LIMIT } = {}) {
+  const n = teams.length;
+  const k = Math.max(1, Math.min(spots, n));
+  const pts = Array(n).fill(0);
+  for (const r of results) {
+    if (r.ga > r.gb) { pts[r.a] += win; pts[r.b] += loss; }
+    else if (r.ga < r.gb) { pts[r.b] += win; pts[r.a] += loss; }
+    else { pts[r.a] += draw; pts[r.b] += draw; }
+  }
+  const left = Array(n).fill(0);
+  for (const [a, b] of remaining) { left[a]++; left[b]++; }
+  const top = Math.max(win, draw, loss);
+  const low = Math.min(win, draw, loss);
+  const maxPts = pts.map((p, i) => p + left[i] * top);
+  const minPts = pts.map((p, i) => p + left[i] * low);
+  const best = Array(n).fill(n);
+  const worst = Array(n).fill(1);
+  const exact = remaining.length <= exactLimit;
+  const rankAll = (p) => {
+    for (let i = 0; i < n; i++) {
+      let above = 0;
+      let level = 0;
+      for (let j = 0; j < n; j++) { if (j === i) continue; if (p[j] > p[i]) above++; else if (p[j] === p[i]) level++; }
+      if (above + 1 < best[i]) best[i] = above + 1;
+      if (above + level + 1 > worst[i]) worst[i] = above + level + 1;
+    }
+  };
+  if (exact) {
+    const outcomes = [[win, loss], [draw, draw], [loss, win]];
+    const cur = pts.slice();
+    const walk = (f) => {
+      if (f === remaining.length) { rankAll(cur); return; }
+      const [a, b] = remaining[f];
+      for (const [x, y] of outcomes) { cur[a] += x; cur[b] += y; walk(f + 1); cur[a] -= x; cur[b] -= y; }
+    };
+    walk(0);
+  } else {
+    for (let i = 0; i < n; i++) {
+      let level = 0;
+      let surelyAbove = 0;
+      for (let j = 0; j < n; j++) {
+        if (j === i) continue;
+        if (maxPts[j] >= minPts[i]) level++;
+        if (minPts[j] > maxPts[i]) surelyAbove++;
+      }
+      best[i] = surelyAbove + 1;
+      worst[i] = level + 1;
+    }
+  }
+  const rows = teams.map((name, i) => {
+    const status = worst[i] <= k ? "clinched" : best[i] > k ? "eliminated" : "alive";
+    let magic = null;
+    if (status === "alive") {
+      // the smallest total of extra points that still clinches if every rival wins out
+      for (let extra = 1; extra <= left[i] * top; extra++) {
+        const mine = pts[i] + extra;
+        let rivals = 0;
+        for (let j = 0; j < n; j++) if (j !== i && maxPts[j] >= mine) rivals++;
+        if (rivals + 1 <= k) { magic = extra; break; }
+      }
+    }
+    return { index: i, name, points: pts[i], left: left[i], maxPoints: maxPts[i], bestRank: best[i], worstRank: worst[i], status, magic };
+  });
+  rows.sort((x, y) => y.points - x.points || x.index - y.index);
+  rows.exact = exact;
+  return rows;
+}
+
+/** The fixtures in `schedule` that no entry in `results` has used up (each result clears one meeting of that pair). */
+export function remainingFixtures(schedule, results) {
+  const played = new Map();
+  const key = (a, b) => (a < b ? `${a}-${b}` : `${b}-${a}`);
+  for (const r of results) played.set(key(r.a, r.b), (played.get(key(r.a, r.b)) ?? 0) + 1);
+  const left = [];
+  for (const round of schedule.rounds) {
+    for (const m of round.matches) {
+      const kk = key(m.home, m.away);
+      if (played.get(kk) > 0) played.set(kk, played.get(kk) - 1);
+      else left.push([m.home, m.away]);
+    }
+  }
+  return left;
+}
+
+/** One plain sentence per team that has a decided or live position. */
+export function raceText(rows, spots) {
+  const lines = [];
+  for (const r of rows) {
+    if (r.status === "clinched") lines.push(`${r.name}: clinched a top-${spots} place.`);
+    else if (r.status === "eliminated") lines.push(`${r.name}: out of the top ${spots} (best case ${r.maxPoints} pts).`);
+    else lines.push(`${r.name}: alive${r.magic != null ? `, ${r.magic} more point${r.magic === 1 ? "" : "s"} clinch it` : ""}${r.left ? ` (${r.left} to play)` : ""}.`);
+  }
+  return lines.join("\n");
 }
 
 // ---------------------------------------------------------------- pool play
@@ -982,7 +1201,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courts", "times", "seed", "minutes", "results", "playoff", "rainouts"];
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courts", "times", "seed", "minutes", "results", "playoff", "rainouts", "officials"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -1010,7 +1229,7 @@ export function decodeFields(text) {
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
-      rainouts: str(o.rainouts),
+      rainouts: str(o.rainouts), officials: str(o.officials),
     };
   } catch { return null; }
 }

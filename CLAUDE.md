@@ -71,6 +71,11 @@ report it alongside other useful work, not in place of it.
 Quoted and specified in [`prompts/goals.md`](prompts/goals.md); read the
 section your work touches:
 
+- **SEO is a top priority, on the GitHub Pages site and in the repository
+  itself** (owner, 2026-10-16): titles, descriptions, structured data,
+  sitemap and internal links on the site; READMEs that say plainly what each
+  thing is, in a searcher's words, and link to its live page. Prefer fixes to
+  shared templates and generators. No keyword stuffing or doorway pages.
 - **Automated, unpaid, compliant distribution** (registries, stores,
   directories, labelled bots; off by default with a dry run; the owner enables
   a channel once). **Never break a platform's terms or the law**: no unsolicited
@@ -198,7 +203,7 @@ python3 platform/ci/checklist_coverage.py  # fails if a line below is missing
 python3 platform/ci/sync_tree_counts.py  # AFTER merging main: fixes the counts a concurrent merge just invalidated
 # New workflow in a PR? gitops/ci/README counts go stale: python3 gitops/ci/sync_readme_counts.py
 node platform/marketing/regen.mjs --verify  # 9s, read-only: is the committed apex stale?
-node platform/marketing/regen.mjs           # if that exited 1: commit whatever this rewrites
+node platform/marketing/regen.mjs           # if that exited 1: commit whatever this rewrites (>2 min: background)
 node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
 node --test platform/proposal/*.test.mjs
 node --test platform/devlog/*.test.mjs
@@ -210,7 +215,7 @@ node --test platform/devstats/*.test.mjs
 node --test platform/counter/*.test.mjs
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
-# No pytest? `apt-get update && apt-get install -y python3-pytest` (pip may not reach PyPI). gitops/tests has a few failures on clean main that depend on the image (`gh` preinstalled, test_ci_runner.py): run the failing test on origin/main before blaming your change.
+# No pytest/numpy? PY=$(python3 platform/ci/pyenv.py pytest numpy), then "$PY" -m pytest: some images split python3 from what pip/apt install into. gitops/tests has a few failures on clean main that depend on the image (`gh` preinstalled, test_ci_runner.py): run the failing test on origin/main before blaming your change.
 (cd platform/ci && rc=0; for m in test_*.py; do python3 -m unittest "${m%.py}" || { echo "FAILED $m"; rc=1; }; done; exit $rc)  # runs every module, lists each failure
 (cd platform/ci/agent_review && python3 -m unittest test_review)
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline infra/tests -q
@@ -218,8 +223,8 @@ python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 shar
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
 python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt.md, prompts/, run records
 (cd research/<project> && PYTHONPATH=$(ls -d ../*/src | tr '\n' :) python3 -m pytest tests -q)  # research/ changes: one project at a time
-python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches
-python3 platform/ci/run_workflow_locally.py --tree          # and: is main itself green right now?
+python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches (>2 min: run_in_background)
+python3 platform/ci/run_workflow_locally.py --tree          # and: is main itself green right now? (>10 min: background)
 ```
 
 The traps in running those lines (what each is for, shallow clones,
@@ -312,8 +317,9 @@ python3 portfolio/ledger/supersede_check.py <pr>      # before closing a PR as "
   Merge `main` into the branch and resolve it. A conflict means the work is
   still wanted where others are editing.
 - **Shallow clones lie about history.** Run `git fetch --unshallow origin
-  main` (name the ref, because a bare `--unshallow` skips a ref you fetched
-  by name). Then check `git rev-list --count origin/main`, which should be in
+  main` with `run_in_background`: it takes 2-5 min. Name the ref, because a
+  bare `--unshallow` skips a ref you fetched by name. Then check
+  `git rev-list --count origin/main`, which should be in
   the thousands, not 1. Otherwise `git merge` reports unrelated histories and
   every branch seems to carry thousands of commits. Content reads
   (`git show origin/main:<path>`) are unaffected; when the two disagree,

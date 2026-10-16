@@ -32,10 +32,12 @@ What the lines are for, and the traps in running them:
   web sessions the bare names are `uv tool` shims with a different
   interpreter, and they report missing modules as failures. When a workflow
   step spells a tool bare, run both before you believe the red.
-- **Installing:** `python3 -m pip install pytest`, or when PyPI times out,
-  `apt-get update && apt-get install -y --no-install-recommends python3-pytest`.
-  `apt-get update &&` is load-bearing, because the image's package index is
-  stale. For the nginx and ssh suites that otherwise skip:
+- **Installing:** `PY=$(python3 platform/ci/pyenv.py pytest numpy)` prints an
+  interpreter that imports them, installing with `<it> -m pip` or apt only if
+  none does; then run `"$PY" -m pytest`. Some images put a bare python3 first
+  on PATH while pip and apt install into `/usr/bin/python3`. For any apt
+  install, `apt-get update &&` is load-bearing (the index is stale). For the nginx and ssh suites
+  that otherwise skip:
   `apt-get update && apt-get install -y --no-install-recommends nginx-light openssh-client`,
   then `python3 platform/ci/guard_state.py --require-runnable` lists what
   still skips and why. A skip is a green that means nothing ran.

@@ -10,6 +10,11 @@ Its public-repository rules do.
 
 New projects come from the priority tracks in [`PROJECTS.md`](PROJECTS.md).
 
+**SEO is a top priority here too** (owner, 2026-10-16; `prompts/goals.md`). A
+project's `README.md` and its page should open with the question it answers and
+its headline result in the words a searcher would use, and link to each other.
+Honest results still come first: never overstate a finding to rank.
+
 **Research work lands here.** `research/` is a peer of `ventures/`, not a copy of anything.
 It was merged in from `oss-research-monorepo` with its full history (`git log -- research/<slug>`
 shows each project's original commits), and the mirror that kept the two in step was retired at
@@ -64,3 +69,6 @@ results, in the same commit:
    `research/` project is missing from `projects.json` or `README.md`, or if either lists one
    that no longer exists. `.github/workflows/research-ci.yml` runs the same build on every
    pull request that touches `research/`. Open `research/_homepage/_site/index.html` to preview.
+
+Tests and figures need packages the image may lack: from the repo root,
+`PY=$(python3 platform/ci/pyenv.py pytest numpy matplotlib)`, then use `"$PY"` instead of `python3`.

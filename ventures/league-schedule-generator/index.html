@@ -99,6 +99,10 @@
     <label for="rainouts">One per line: a date cancels every match that night, a date plus team names cancels only their match. Each cancelled match moves to the earliest later night both teams are free and a court is open; nothing else changes. <code>2026-10-13</code> or <code>2026-10-13 Lob Squad</code></label>
     <textarea id="rainouts" rows="2" placeholder="2026-10-13 Lob Squad"></textarea>
 
+    <h2 style="margin-top:18px">6. Referees and officials (optional)</h2>
+    <label for="officials">One per line. Every match gets one official, shared out evenly. Put a team in brackets if they belong to it (they never work its matches), weekdays after a colon, and <code>max 4</code> to cap their matches. <code>Pat (Hawks): Tue, Thu max 4</code></label>
+    <textarea id="officials" rows="3" placeholder="Pat (Hawks): Tue, Thu max 4&#10;Sam"></textarea>
+
     <button type="button" id="build">Build the schedule</button>
     <button type="button" class="secondary" id="reshuffle">Reshuffle courts and times</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
@@ -111,7 +115,7 @@
     <div id="notices"></div>
     <div class="big" id="big"></div>
     <p id="check-line"></p>
-    <div class="scroll"><table id="rounds"><thead><tr><th>Round</th><th>Date</th><th>Time</th><th>Court</th><th>Home</th><th>Away</th></tr></thead><tbody></tbody></table></div>
+    <div class="scroll"><table id="rounds"><thead><tr><th>Round</th><th>Date</th><th>Time</th><th>Court</th><th>Home</th><th>Away</th><th id="off-th" hidden>Official</th></tr></thead><tbody></tbody></table></div>
 
     <h2 style="margin-top:22px">By team</h2>
     <label for="team">Show one team</label>
@@ -122,6 +126,11 @@
     <div id="standings-wrap" hidden>
       <h2 style="margin-top:22px">Standings</h2>
       <div class="scroll"><table id="standings"><thead><tr><th class="n">#</th><th>Team</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th class="n">GD</th><th class="n">Pts</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div id="race-wrap" hidden>
+      <h2 style="margin-top:22px">Play-off race</h2>
+      <p class="note" id="race-note"></p>
+      <div class="scroll"><table id="race"><thead><tr><th>Team</th><th class="n">Pts</th><th class="n">To play</th><th class="n">Max</th><th>Status</th><th class="n">Points to clinch</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div id="bracket-wrap" hidden>
       <h2 style="margin-top:22px">Play-off bracket</h2>
@@ -189,7 +198,7 @@
   </footer>
 
   <script type="module">
-    import { readSpec, buildSchedule, applyRainouts, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, buildPoolPlay, poolAdvancers, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { readSpec, buildSchedule, applyRainouts, parseOfficials, assignOfficials, validateOfficials, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, playoffRace, remainingFixtures, buildPoolPlay, poolAdvancers, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -213,6 +222,7 @@
       $("#playoff").value = f.playoff;
       $("#results").value = f.results;
       $("#rainouts").value = f.rainouts || "";
+      $("#officials").value = f.officials || "";
     }
 
     function readFields() {
@@ -222,7 +232,7 @@
         teams: $("#teams").value, double: $("#double").checked, start: $("#start").value, weekdays,
         skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courts: $("#courts").value, times: $("#times").value,
         seed: $("#seed").value, minutes: $("#minutes").value,
-        results: $("#results").value, playoff: $("#playoff").value, rainouts: $("#rainouts").value,
+        results: $("#results").value, playoff: $("#playoff").value, rainouts: $("#rainouts").value, officials: $("#officials").value,
       };
     }
 
@@ -245,9 +255,10 @@
       $("#check-line").innerHTML = v.ok
         ? `<span class="pill good">checked</span> Every pair meets the right number of times, nobody plays twice in a round, home and away is balanced and no court is double-booked.`
         : `<span class="pill high">problem</span> ${esc(v.errors.slice(0, 4).join(" "))}`;
+      $("#off-th").hidden = !s.rounds.some((r) => r.matches.some((m) => m.official !== undefined));
       $("#rounds tbody").innerHTML = s.rounds.map((r) => {
         const cls = r.makeup ? ' class="mk"' : "";
-        const rows = r.matches.map((m, i) => `<tr${cls}><td>${i === 0 ? esc(r.label) : ""}</td><td>${i === 0 ? dayLabel(r.day) : ""}</td><td>${esc(m.time)}</td><td>${esc(m.court)}</td><td>${esc(m.homeName)}</td><td>${esc(m.awayName)}</td></tr>`);
+        const rows = r.matches.map((m, i) => `<tr${cls}><td>${i === 0 ? esc(r.label) : ""}</td><td>${i === 0 ? dayLabel(r.day) : ""}</td><td>${esc(m.time)}</td><td>${esc(m.court)}</td><td>${esc(m.homeName)}</td><td>${esc(m.awayName)}</td>${m.official !== undefined ? `<td>${esc(m.official)}</td>` : ""}</tr>`);
         if (r.bye !== null && r.bye !== undefined) rows.push(`<tr class="bye"><td>${r.matches.length ? "" : esc(r.label)}</td><td></td><td colspan="4">Bye: ${esc(s.teams[r.bye])}</td></tr>`);
         return rows.join("");
       }).join("");
@@ -258,6 +269,11 @@
       showTeam();
       const sp = (o) => `${s.stats.courtSpread} court and ${s.stats.timeSpread} time-slot game(s)`;
       $("#fairness").textContent = `Biggest gap between one team's most and least used court or time: ${sp()}. Home/away breaks per team: ${s.stats.breaks.join(", ")} (in team order).`;
+      $("#race-wrap").hidden = !extra.race;
+      if (extra.race) {
+        $("#race-note").textContent = `Top ${extra.race.spots} qualify. ${extra.race.rows.exact ? "Every way the remaining games could finish was checked." : "Many games remain, so only the safe bounds are used: a team marked alive may already be settled."} Ranked on points only; a tie on points counts against the team, so "clinched" and "out" are never wrong, and goal difference can help a team marked alive.`;
+        $("#race tbody").innerHTML = extra.race.rows.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${r.points}</td><td class="n">${r.left}</td><td class="n">${r.maxPoints}</td><td>${r.status === "clinched" ? "Clinched" : r.status === "eliminated" ? "Out" : "Alive"}</td><td class="n">${r.magic ?? "–"}</td></tr>`).join("");
+      }
       $("#standings-wrap").hidden = !extra.table;
       if (extra.table) $("#standings tbody").innerHTML = extra.table.map((r) => `<tr><td class="n">${r.rank}</td><td>${esc(r.name)}</td><td class="n">${r.played}</td><td class="n">${r.won}</td><td class="n">${r.drawn}</td><td class="n">${r.lost}</td><td class="n">${r.gd}</td><td class="n">${r.points}</td></tr>`).join("");
       $("#bracket-wrap").hidden = !extra.bracketText;
@@ -284,6 +300,18 @@
         s = rr.schedule;
         warnings.push(...rr.errors, ...rr.moves.map((m) => `Rainout: ${m.home} v ${m.away} on ${dayLabel(m.from)} is now ${dayLabel(m.to)}${m.time ? " at " + m.time : ""}, ${m.court}.`));
       }
+      if ($("#officials").value.trim()) {
+        const po = parseOfficials($("#officials").value, s.teams);
+        warnings.push(...po.errors);
+        if (po.officials.length) {
+          const ar = assignOfficials(s, po.officials);
+          s = ar.schedule;
+          warnings.push(...validateOfficials(s, po.officials));
+          warnings.push(...ar.unfilled.slice(0, 6).map((u) => `No official for ${u.home} v ${u.away} on ${dayLabel(u.day)}${u.time ? " at " + u.time : ""}: ${u.reason}.`));
+          if (ar.unfilled.length > 6) warnings.push(`${ar.unfilled.length - 6} more matches have no official.`);
+          warnings.push("Official load: " + ar.loads.map((l) => `${l.name} ${l.matches}`).join(", ") + ".");
+        }
+      }
       const want = Math.trunc(Number($("#playoff").value) || 0);
       let seeds = s.teams;
       const resText = $("#results").value;
@@ -293,6 +321,11 @@
         table = standings(s.teams, pr.results, { headToHead: $("#h2h").checked });
         seeds = table.map((r) => r.name);
       }
+      let race = null;
+      if (resText.trim() && want >= 1 && want < s.teams.length) {
+        const pr2 = parseResults(resText, s.teams);
+        race = { spots: want, rows: playoffRace(s.teams, pr2.results, remainingFixtures(s, pr2.results), want) };
+      }
       let bracketTxt = "";
       if (want >= 2) {
         if (want > s.teams.length) warnings.push(`The play-off needs ${want} teams but there are only ${s.teams.length}.`);
@@ -301,7 +334,7 @@
           bracketTxt = bracketText(bracket);
         }
       }
-      render(s, { warnings, table, bracket, bracketText: bracketTxt });
+      render(s, { warnings, table, bracket, bracketText: bracketTxt, race });
       status.textContent = "Done. Scroll down for the schedule.";
       return true;
     }
@@ -322,7 +355,7 @@
       later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample league: invented teams, not a real league."; } });
     });
     $("#clear-all").addEventListener("click", () => {
-      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courts", "times", "results", "rainouts"]) $("#" + id).value = "";
+      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courts", "times", "results", "rainouts", "officials"]) $("#" + id).value = "";
       $("#playoff").value = "0"; $("#double").checked = false;
       $("#report").hidden = true; last = null; status.textContent = "Cleared.";
     });

@@ -71,8 +71,8 @@ export const REVERB_DEFAULTS = {
   givesRate: 0,
   bumpFee: 0,
   meetupCost: 0,
-  ebayFinalValueRate: 13.25,
-  ebayFixedFee: 0.3,
+  ebayFinalValueRate: 13.6,
+  ebayFixedFee: 0.4,
   shopSalePrice: 800,
   consignmentRate: 30,
   shopCashOffer: 520,
@@ -151,8 +151,8 @@ export function calculateEbaySale(input, salePrice = input?.price) {
   const shippingCost = number(input.shippingCost, 'Shipping cost', 0);
   const itemCost = number(input.itemCost, 'What you paid for the item', 0);
   const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
-  const finalValueRate = number(input.ebayFinalValueRate, 'eBay final value rate', 13.25);
-  const fixedFee = number(input.ebayFixedFee, 'eBay fixed fee', 0.3);
+  const finalValueRate = number(input.ebayFinalValueRate, 'eBay final value rate', 13.6);
+  const fixedFee = number(input.ebayFixedFee, 'eBay fixed fee', 0.4);
   if (finalValueRate >= 100) throw new Error('eBay final value rate must be below 100%');
   const revenue = price + shippingCharged;
   const finalValueFee = revenue * finalValueRate / 100;

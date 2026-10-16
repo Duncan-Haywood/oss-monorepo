@@ -4,7 +4,7 @@ import {
   applyRainouts, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs,
   scheduleText, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, buildPoolPlay, poolAdvancers,
+  splitPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -355,7 +355,7 @@ test("the example league validates and uses a makeup round for the blackout", ()
 });
 
 test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
-  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", timeLimits: "A: 18:00" };
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", timeLimits: "A: 18:00", officials: "Pat (A): Tue max 4" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
   assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60 });
@@ -487,4 +487,138 @@ test("pool advancers seed winners, then runners-up, best record first", () => {
   const A = standings(["a1", "a2", "a3"], [{ a: 0, b: 1, ga: 2, gb: 0 }, { a: 0, b: 2, ga: 1, gb: 0 }, { a: 1, b: 2, ga: 1, gb: 0 }]);
   const B = standings(["b1", "b2", "b3"], [{ a: 0, b: 1, ga: 5, gb: 0 }, { a: 0, b: 2, ga: 5, gb: 0 }, { a: 1, b: 2, ga: 0, gb: 0 }]);
   assert.deepEqual(poolAdvancers([A, B], 2), ["b1", "a1", "a2", "b2"]);
+});
+
+// ---- playoff race
+test("playoff race: a finished league has its top spots clinched and the rest out", () => {
+  const teams = ["A", "B", "C", "D"];
+  const res = [[0,1],[0,2],[1,2],[1,3],[2,3],[0,3]].map(([a,b]) => ({ a, b, ga: 1, gb: 0 }));
+  const done = playoffRace(teams, res, [], 2);
+  assert.equal(done[0].name, "A");
+  assert.deepEqual(done.map((r) => r.status), ["clinched", "clinched", "eliminated", "eliminated"]);
+});
+
+test("playoff race: clinched and eliminated agree with brute force over every outcome", () => {
+  const rnd = mulberry32(7);
+  for (let trial = 0; trial < 60; trial++) {
+    const n = 3 + Math.floor(rnd() * 3);
+    const teams = names(n);
+    const fixtures = [];
+    for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) fixtures.push([a, b]);
+    const played = fixtures.filter(() => rnd() < 0.5);
+    const results = played.map(([a, b]) => ({ a, b, ga: Math.floor(rnd() * 3), gb: Math.floor(rnd() * 3) }));
+    const remaining = fixtures.filter((f) => !played.includes(f));
+    const spots = 1 + Math.floor(rnd() * (n - 1));
+    const rows = playoffRace(teams, results, remaining, spots);
+    assert.equal(rows.exact, true);
+    // brute force: worst/best rank (ties against / for the team) over all 3^r outcomes
+    const base = Array(n).fill(0);
+    for (const r of results) { if (r.ga > r.gb) base[r.a] += 3; else if (r.ga < r.gb) base[r.b] += 3; else { base[r.a]++; base[r.b]++; } }
+    let combos = [base];
+    for (const [a, b] of remaining) combos = combos.flatMap((p) => [[3, 0], [1, 1], [0, 3]].map(([x, y]) => { const q = p.slice(); q[a] += x; q[b] += y; return q; }));
+    for (const row of rows) {
+      let always = true; let never = true;
+      for (const p of combos) {
+        const i = row.index;
+        const worst = 1 + p.filter((v, j) => j !== i && v >= p[i]).length;
+        const bestR = 1 + p.filter((v, j) => j !== i && v > p[i]).length;
+        if (worst > spots) always = false;
+        if (bestR <= spots) never = false;
+      }
+      assert.equal(row.status === "clinched", always, `trial ${trial} ${row.name}`);
+      assert.equal(row.status === "eliminated", never, `trial ${trial} ${row.name}`);
+    }
+  }
+});
+
+test("playoff race: the bounds used for long fixture lists never contradict the exact answer", () => {
+  const rnd = mulberry32(11);
+  for (let trial = 0; trial < 40; trial++) {
+    const n = 4 + Math.floor(rnd() * 2);
+    const fixtures = [];
+    for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) fixtures.push([a, b]);
+    const played = fixtures.filter(() => rnd() < 0.6);
+    const results = played.map(([a, b]) => ({ a, b, ga: Math.floor(rnd() * 3), gb: Math.floor(rnd() * 3) }));
+    const remaining = fixtures.filter((f) => !played.includes(f));
+    const spots = 1 + Math.floor(rnd() * (n - 1));
+    const exact = playoffRace(names(n), results, remaining, spots);
+    const bound = playoffRace(names(n), results, remaining, spots, { exactLimit: -1 });
+    assert.equal(bound.exact, false);
+    for (const r of bound) {
+      const e = exact.find((x) => x.index === r.index);
+      if (r.status !== "alive") assert.equal(r.status, e.status, `trial ${trial} ${r.name}`);
+    }
+  }
+  assert.ok(playoffRace(names(8), [], [[0, 1]], 4).every((r) => r.status === "alive"));
+});
+
+test("remainingFixtures clears one meeting per result and handles a double round robin", () => {
+  const s = buildSchedule(baseSpec(4, { double: true }));
+  assert.equal(remainingFixtures(s, []).length, 12);
+  const left = remainingFixtures(s, [{ a: 0, b: 1, ga: 1, gb: 0 }, { a: 1, b: 0, ga: 2, gb: 2 }]);
+  assert.equal(left.filter(([x, y]) => (x === 0 && y === 1) || (x === 1 && y === 0)).length, 0);
+  assert.equal(left.length, 10);
+});
+
+test("raceText names each team's position", () => {
+  const rows = playoffRace(["A", "B", "C"], [{ a: 0, b: 1, ga: 1, gb: 0 }], [[0, 2], [1, 2]], 1);
+  const text = raceText(rows, 1);
+  assert.match(text, /A: alive|A: clinched/);
+  assert.match(text.split("\n").join(" "), /B:/);
+});
+
+test("officials parse team, weekday and cap, and report bad lines", () => {
+  const teams = ["Hawks", "Owls", "Lynx", "Bears"];
+  const { officials, errors } = parseOfficials("Sam\nPat (Hawks): Tue, Thu\nKit (Owls) max 3\nSam\nZed (Nobody)", teams);
+  assert.deepEqual(officials.map((o) => o.name), ["Sam", "Pat", "Kit", "Zed"]);
+  assert.equal(officials[1].team, 0);
+  assert.deepEqual(officials[1].days, [2, 4]);
+  assert.equal(officials[2].max, 3);
+  assert.equal(errors.length, 2);
+});
+
+test("every match gets an official who obeys the hard rules, balanced", () => {
+  const s = buildSchedule(baseSpec(6, { courts: ["A", "B", "C"], times: [] }));
+  const teams = s.teams;
+  const { officials } = parseOfficials(["Ann", "Bo (Team 1)", "Cy (Team 2)", "Di"].join("\n"), teams);
+  const r = assignOfficials(s, officials);
+  assert.equal(r.unfilled.length, 0);
+  assert.deepEqual(validateOfficials(r.schedule, officials), []);
+  // three matches a night need three different officials; with 4 officials loads stay within 1 of each other
+  const counts = r.loads.map((l) => l.matches);
+  assert.ok(Math.max(...counts) - Math.min(...counts) <= 1, counts.join());
+  assert.equal(r.total, s.rounds.reduce((a, x) => a + x.matches.length, 0));
+});
+
+test("unfillable matches are named with a reason, never silently dropped", () => {
+  const s = buildSchedule(baseSpec(4));
+  const { officials } = parseOfficials("Ann: Mon\nBo max 1", s.teams);
+  const r = assignOfficials(s, officials);
+  assert.ok(r.unfilled.length > 0);
+  assert.match(r.unfilled[0].reason, /off that weekday|cap/);
+  assert.equal(assignOfficials(s, []).unfilled.length, r.total + r.unfilled.length);
+  assert.deepEqual(validateOfficials(r.schedule, officials), []);
+});
+
+test("the validator catches a broken assignment and the CSV gains an Official column", () => {
+  const s = buildSchedule(baseSpec(4));
+  const { officials } = parseOfficials("Ann (Team 1)\nBo", s.teams);
+  const r = assignOfficials(s, officials);
+  const bad = JSON.parse(JSON.stringify(r.schedule));
+  const m = bad.rounds[0].matches.find((x) => x.home === 0 || x.away === 0);
+  m.official = "Ann";
+  assert.ok(validateOfficials(bad, officials).some((e) => /belongs to a team/.test(e)));
+  assert.match(scheduleCsv(r.schedule).split("\r\n")[0], /,Official$/);
+  assert.doesNotMatch(scheduleCsv(s).split("\r\n")[0], /Official/);
+  assert.match(scheduleText(r.schedule), /\[official: /);
+});
+
+test("league page and share link carry officials", () => {
+  const s = buildSchedule(baseSpec(4));
+  const { officials } = parseOfficials("A <b>\nBo", s.teams);
+  const r = assignOfficials(s, officials);
+  const html = leaguePageHtml(r.schedule);
+  assert.match(html, /<th>Official<\/th>/);
+  assert.doesNotMatch(html, /<b>/);
+  assert.equal(decodeFields(encodeFields({ ...sampleFields(), officials: "Pat" })).officials, "Pat");
 });
