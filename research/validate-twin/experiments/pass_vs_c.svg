@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the probability that a twin whose true failure rate is c times its stated rate passes the difference test, for four real-sample sizes n; larger n rejects wrong twins more reliably">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Validate-twin: chance a wrong twin is validated</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="222.9" y2="222.9" stroke="#ddd"/><text x="58" y="226.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="172.3" y2="172.3" stroke="#ddd"/><text x="58" y="176.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="121.7" y2="121.7" stroke="#ddd"/><text x="58" y="125.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="99.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="157.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="215.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.5</text>
+<text x="274.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="390.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">true failure rate / stated rate c</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">P(twin passes difference test)</text>
+<polyline points="64.0,71.2 99.0,71.4 157.3,72.4 215.7,73.7 274.0,75.5 390.7,80.5 624.0,93.9" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="99.0" cy="71.4" r="3" fill="#c0392b"/>
+<circle cx="157.3" cy="72.4" r="3" fill="#c0392b"/>
+<circle cx="215.7" cy="73.7" r="3" fill="#c0392b"/>
+<circle cx="274.0" cy="75.5" r="3" fill="#c0392b"/>
+<circle cx="390.7" cy="80.5" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="93.9" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">n=100</text>
+<polyline points="64.0,71.2 99.0,71.7 157.3,74.7 215.7,81.3 274.0,91.4 390.7,119.5 624.0,186.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="99.0" cy="71.7" r="3" fill="#1f6fb2"/>
+<circle cx="157.3" cy="74.7" r="3" fill="#1f6fb2"/>
+<circle cx="215.7" cy="81.3" r="3" fill="#1f6fb2"/>
+<circle cx="274.0" cy="91.4" r="3" fill="#1f6fb2"/>
+<circle cx="390.7" cy="119.5" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="186.7" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">n=500</text>
+<polyline points="64.0,71.2 99.0,71.4 157.3,75.5 215.7,92.4 274.0,125.5 390.7,211.5 624.0,307.1" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="99.0" cy="71.4" r="3" fill="#2e8b57"/>
+<circle cx="157.3" cy="75.5" r="3" fill="#2e8b57"/>
+<circle cx="215.7" cy="92.4" r="3" fill="#2e8b57"/>
+<circle cx="274.0" cy="125.5" r="3" fill="#2e8b57"/>
+<circle cx="390.7" cy="211.5" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="307.1" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">n=2000</text>
+<polyline points="64.0,287.8 99.0,138.2 157.3,80.5 215.7,156.1 274.0,268.1 390.7,323.0 624.0,324.0" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="287.8" r="3" fill="#8e44ad"/>
+<circle cx="99.0" cy="138.2" r="3" fill="#8e44ad"/>
+<circle cx="157.3" cy="80.5" r="3" fill="#8e44ad"/>
+<circle cx="215.7" cy="156.1" r="3" fill="#8e44ad"/>
+<circle cx="274.0" cy="268.1" r="3" fill="#8e44ad"/>
+<circle cx="390.7" cy="323.0" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">n=10000</text>
+</svg>
