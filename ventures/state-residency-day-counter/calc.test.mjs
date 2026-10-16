@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES } from "./calc.mjs";
+import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays } from "./calc.mjs";
 
 const Y = 2025;
 const spec = (lines, extra = {}) => ({ year: Y, stays: parseStays(lines.join("\n"), Y).stays, abode: {}, overrides: {}, ...extra });
@@ -187,4 +187,19 @@ test("validation and the CSV export", () => {
 test("Rhode Island is a more-than-183-days-plus-abode state", () => {
   assert.equal(RULES.RI.limit, 183);
   assert.equal(RULES.RI.requiresAbode, true);
+test("icsToStays: all-day end is exclusive, locations and titles resolve, adjacent same-state merge", () => {
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "BEGIN:VEVENT", "DTSTART;VALUE=DATE:20250301", "DTEND;VALUE=DATE:20250304", "SUMMARY:Ski trip", "LOCATION:Denver\\, CO", "END:VEVENT",
+    "BEGIN:VEVENT", "DTSTART;VALUE=DATE:20250304", "DTEND;VALUE=DATE:20250306", "SUMMARY:Stay in Colorado", "END:VEVENT",
+    "BEGIN:VEVENT", "DTSTART:20250410T090000Z", "DTEND:20250412T170000Z", "SUMMARY:Conference", "LOCATION:Moscone Center\\, San Francisco\\,", " California", "END:VEVENT",
+    "BEGIN:VEVENT", "DTSTART;VALUE=DATE:20250501", "DTEND;VALUE=DATE:20250502", "SUMMARY:Dentist", "END:VEVENT",
+    "BEGIN:VEVENT", "DTSTART;VALUE=DATE:20240601", "DTEND;VALUE=DATE:20240602", "LOCATION:Austin\\, TX", "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+  const r = icsToStays(ics, 2025);
+  assert.deepEqual(r.lines, ["2025-03-01 to 2025-03-05 CO", "2025-04-10 to 2025-04-12 CA"]);
+  assert.equal(r.imported, 3);
+  assert.equal(r.skipped, 2);
+  assert.equal(parseStays(r.lines.join("\n"), 2025).errors.length, 0);
 });

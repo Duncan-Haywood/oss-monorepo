@@ -7,7 +7,7 @@ checks them against the commonly published statutory residency tests (more than
 Massachusetts, Pennsylvania, Minnesota, Rhode Island and Virginia; more than 200 days in
 Oregon; the nine-month presumption in California), shows the room left and the
 date you would cross a limit, splits remote-work wages by workdays, draws a
-year calendar coloured by state, and exports a day-range CSV. Nothing is uploaded.
+year calendar coloured by state, imports stays from a calendar (.ics) export, and exports a day-range CSV. Nothing is uploaded.
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

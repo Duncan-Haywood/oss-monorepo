@@ -88,6 +88,7 @@
     <button type="button" id="analyze">Count my days</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
+    <div style="margin-top:12px"><label for="ics">Or import your calendar (.ics file from Google, Apple or Outlook). Events whose location names a state become stay lines you can check and edit. The file is read in your browser and never uploaded.</label><input id="ics" type="file" accept=".ics,text/calendar"></div>
     <p id="form-status" role="status" class="note">Enter your stays, then click Count my days.</p>
   </section>
 
@@ -142,7 +143,7 @@
   </footer>
 
   <script type="module">
-    import { CONVENTIONS, parseStays, analyze, sampleSpec, reportCsv, statusText, dayIso, parseDate, toDay, fmtNum, fmtMoney, yearBounds, STATE_NAMES } from "./calc.mjs";
+    import { CONVENTIONS, icsToStays, parseStays, analyze, sampleSpec, reportCsv, statusText, dayIso, parseDate, toDay, fmtNum, fmtMoney, yearBounds, STATE_NAMES } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -165,6 +166,16 @@
       $("#limits").value = Object.entries(spec.overrides || {}).map(([k, v]) => `${k} ${v.limit}`).join(", ");
       $("#stays").value = spec.stays.map((s) => `${dayIso(s.start)} to ${dayIso(s.end)} ${s.state}${s.work === false ? " off" : ""}`).join("\n");
     }
+
+    $("#ics").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const r = icsToStays(await f.text(), Number($("#year").value));
+      if (!r.lines.length) { $("#form-status").textContent = `No events with a US state in the location were found (${r.skipped} skipped).`; return; }
+      const cur = $("#stays").value.trim();
+      $("#stays").value = (cur ? cur + "\n" : "") + r.lines.join("\n");
+      $("#form-status").textContent = `Imported ${r.imported} events as ${r.lines.length} stay lines; ${r.skipped} skipped (no state, or outside ${$("#year").value}). Check them, add the days the calendar does not cover, then click Count my days.`;
+    });
 
     function readSpec() {
       const year = Number($("#year").value);
