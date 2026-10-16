@@ -1,0 +1,102 @@
+name: uitest
+
+# platform/uitest: agent-driven UI tests. This workflow tests the tool, and
+# runs it through its own GitHub Action (`uses: ./platform/uitest`) so the
+# action that other repositories use is exercised on every change to it.
+#
+# Pull requests and pushes never pass a model key: the agent path is covered
+# by browser.test.mjs against a local stand-in model server, and nothing here
+# spends API budget unattended (CLAUDE.md, "Automation"). The manual
+# `workflow_dispatch` run can use the repository's ANTHROPIC_API_KEY secret
+# when someone asks for it, against any page in this repository.
+
+on:
+  pull_request:
+    paths:
+      - "platform/uitest/**"
+      - "platform/llm/**"
+      - ".github/workflows/uitest-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "platform/uitest/**"
+      - "platform/llm/**"
+      - ".github/workflows/uitest-ci.yml"
+  workflow_dispatch:
+    inputs:
+      serve:
+        description: "Directory to serve (e.g. ventures)"
+        default: "ventures"
+      path:
+        description: "Start page under it (e.g. /shift-roster-builder/)"
+        default: "/shift-roster-builder/"
+      goal:
+        description: "Plain-language goal for the agent (empty: smoke check only)"
+        default: ""
+      crawl:
+        description: "Same-site pages to smoke-test from the start page"
+        default: "5"
+      use-model-key:
+        description: "Use the repository's ANTHROPIC_API_KEY secret (spends API budget)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: uitest-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Unit tests (no browser)
+        run: node --test platform/uitest/*.test.mjs platform/llm/*.test.mjs
+
+      # The action installs Playwright and exports PLAYWRIGHT, so the browser
+      # tests after it run instead of skipping.
+      - name: The action, on the fixture app (scripted spec, no key)
+        id: fixture
+        uses: ./platform/uitest
+        with:
+          spec: platform/uitest/fixtures/app.uitest.json
+          serve: platform/uitest/fixtures/app
+          report-name: uitest-fixture
+
+      - name: The action reported a pass
+        env:
+          RESULT: ${{ steps.fixture.outputs.result }}
+        run: test "$RESULT" = pass
+
+      - name: Browser tests (real Chromium, stand-in model server)
+        run: |
+          test -n "$PLAYWRIGHT" || { echo "the action did not export PLAYWRIGHT"; exit 1; }
+          node --test platform/uitest/browser.test.mjs
+
+  manual:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: ./platform/uitest
+        with:
+          serve: ${{ inputs.serve }}
+          path: ${{ inputs.path }}
+          goal: ${{ inputs.goal }}
+          crawl: ${{ inputs.crawl }}
+          api-key: ${{ inputs.use-model-key && secrets.ANTHROPIC_API_KEY || '' }}
+          fail-on-skip: "false"
+          report-name: uitest-manual

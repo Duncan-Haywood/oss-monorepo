@@ -1505,6 +1505,9 @@ workflows:
 - workflow: ubuntu-agent-server-ci.yml
   classification: none
   publishes: []
+- workflow: uitest-ci.yml
+  classification: none
+  publishes: []
 - workflow: upstash-redis-bill-estimator-ci.yml
   classification: none
   publishes: []

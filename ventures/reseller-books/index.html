@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Reseller Books — One Profit and Loss Across eBay, Etsy, Poshmark and Whatnot</title>
+  <meta name="description" content="Free private tool for resellers: drop your eBay, Etsy, Poshmark and Whatnot reports and get one monthly profit and loss, what each channel really keeps, and a Schedule C style worksheet. Nothing is uploaded.">
+  <meta property="og:title" content="Reseller Books — all your marketplaces in one set of books">
+  <meta property="og:description" content="Monthly profit and loss, channel comparison and a tax-preparer worksheet from the reports you already download. Private: runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Reseller Books", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Combines eBay, Etsy, Poshmark and Whatnot seller reports into one monthly profit and loss, a per-channel comparison of what each marketplace really keeps, and a Schedule C style worksheet. Runs entirely in your browser; files are never uploaded.", "featureList": "Multi-marketplace monthly profit and loss, channel comparison, effective take rate, cost of goods by SKU, Schedule C style worksheet, CSV export, copyable summary"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I see my real profit across eBay, Etsy, Poshmark and Whatnot together?", "acceptedAnswer": {"@type": "Answer", "text": "Download each marketplace's report (eBay Transaction report from Seller Hub, Etsy Payment Account statement, Poshmark My Sales Report, Whatnot orders export), drop them all on this page and click Build my books. Each file is read in your browser, put into the same shape, and added into one monthly table, one comparison of what each channel keeps and one tax-preparer worksheet."}}, {"@type": "Question", "name": "What does each marketplace's report leave out?", "acceptedAnswer": {"@type": "Answer", "text": "eBay's report carries sales, fees, shipping labels and ads but not what you paid for the item. Etsy's statement has fees but not your costs, which is why the Sold Order Items file helps. Poshmark's and Whatnot's reports show a fee and a payout. None of them carries your cost of goods, so profit needs the costs you add."}}, {"@type": "Question", "name": "Why is profit blank for some channels?", "acceptedAnswer": {"@type": "Answer", "text": "Profit is only shown for a channel when every sale on it has a cost. Counting an uncosted sale as free would overstate profit, so the page leaves it blank and says which channel is missing costs."}}, {"@type": "Question", "name": "Is my sales data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The files are read in your browser tab and are never sent to a server. The page has no accounts and no analytics vendor, and a test in the repository fails if a network call is added."}}, {"@type": "Question", "name": "Can I use the worksheet for my taxes?", "acceptedAnswer": {"@type": "Answer", "text": "It groups the totals the way a Schedule C asks for them (gross receipts, returns, advertising, commissions and fees, postage, cost of goods), so a preparer starts from organised numbers. It is arithmetic on your files, not tax advice, and where a line depends on how you treat an item the row says so."}}, {"@type": "Question", "name": "Why do eBay and Whatnot show different sales definitions?", "acceptedAnswer": {"@type": "Answer", "text": "eBay and Etsy files record what the buyer paid the marketplace, including shipping you charged. Poshmark and Whatnot files are read at item price. Compare the share each channel keeps with that in mind; the model section lists it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">RESELLER BOOKS · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>One set of books for every marketplace you sell on.</h1>
+    <p>Drop your <strong>eBay, Etsy, Poshmark and Whatnot</strong> reports together and get <strong>one monthly profit and loss</strong>, <strong>what each channel really keeps of a sales dollar</strong> after fees, postage, ads and refunds, and a <strong>Schedule C style worksheet</strong> to hand a tax preparer. Add what you paid for the goods and it shows profit, channel by channel.</p>
+    <p class="note">Files are read in this browser tab and never leave your device. Independent of eBay, Etsy, Poshmark and Whatnot: not affiliated with or endorsed by any of them. Column names are matched by alias from memory of each export.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your reports</h2>
+    <p class="note">Any mix, any number: the <strong>eBay Transaction report</strong> (Seller Hub → Reports → Downloads), the <strong>Etsy Payment Account statement</strong> (and, to cost Etsy sales, the <strong>Sold Order Items</strong> file), the <strong>Poshmark My Sales Report</strong> and the <strong>Whatnot orders export</strong>. Each file is recognised from its header row. Give a file once: the same file twice is counted twice.</p>
+    <label for="files">Choose one or more CSV files</label>
+    <input type="file" id="files" accept=".csv,.tsv,.txt,text/csv" multiple>
+    <p class="note" id="file-list">No files chosen.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. What you paid (optional, but it is what makes this profit)</h2>
+    <p class="note">One per line: <strong>SKU or item title, cost</strong>. eBay matches on item title or number, Poshmark and Whatnot on SKU, order ID or title; a cost column already in a Poshmark or Whatnot file is used as it is. A channel shows profit only when every sale on it has a cost.</p>
+    <label for="costlist">Costs (optional)</label>
+    <textarea id="costlist" spellcheck="false" placeholder="LUL-001, 14.50&#10;Vintage Nikon FM2 35mm Film Camera Body, 140"></textarea>
+    <div class="grid">
+      <div><label for="feemode">Poshmark and Whatnot fee</label><select id="feemode"><option value="auto">Use the file's fee columns (schedule if there are none)</option><option value="schedule">Always apply the published schedule</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="build">Build my books</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose your files, then click Build my books.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By channel</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Channel</th><th class="n" scope="col">Orders</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Refunds</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Postage</th><th class="n" scope="col">Ads</th><th class="n" scope="col">Other</th><th class="n" scope="col">Net payout</th><th class="n" scope="col">Keeps</th><th class="n" scope="col">Cost of goods</th><th class="n" scope="col">Profit</th></tr></thead><tbody id="by-channel"></tbody></table></div>
+    <h3>By month, all channels</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Refunds</th><th class="n" scope="col">Marketplace deductions</th><th class="n" scope="col">Net payout</th><th class="n" scope="col">Cost of goods</th><th class="n" scope="col">Profit</th></tr></thead><tbody id="by-month"></tbody></table></div>
+    <h3>Worksheet for your tax preparer (Schedule C style)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">What</th><th class="n" scope="col">Amount</th><th scope="col">Note</th></tr></thead><tbody id="schedule"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <label for="summary">Copyable summary</label>
+    <textarea id="summary" readonly spellcheck="false"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download books as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Sales</strong> are what each file records: eBay and Etsy include shipping the buyer paid; Poshmark and Whatnot are read at item price. The share a channel keeps is therefore not perfectly like-for-like, and a heavy-item channel pays more in postage that is not its fee.</li>
+      <li><strong>Net payout</strong> is what the marketplace reports you kept: sales, less refunds, fees, postage bought there, ads and anything else it deducts. <strong>Reconciles.</strong> Every month, every channel and the total satisfy sales + refunds + deductions = net payout, and the months add up to the totals.</li>
+      <li><strong>Profit</strong> is net payout minus the cost you gave. A channel with any sale left uncosted shows no profit; the total shows no profit unless every channel has one.</li>
+      <li><strong>Worksheet.</strong> Totals are grouped under the Schedule C lines they usually belong on. Postage bought through a marketplace is often reported in cost of goods and sometimes as an other expense; the row says so. Opening and closing inventory are not modelled.</li>
+      <li><strong>Not modelled:</strong> sales tax and marketplace facilitator rules, income and self-employment tax, 1099-K differences, sourcing mileage, packaging, your own time, off-platform sales, currency conversion, and anything not in the files.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I see my real profit across eBay, Etsy, Poshmark and Whatnot together?</h3>
+    <p>Download each marketplace's report (eBay Transaction report from Seller Hub, Etsy Payment Account statement, Poshmark My Sales Report, Whatnot orders export), drop them all on this page and click Build my books. Each file is read in your browser, put into the same shape, and added into one monthly table, one comparison of what each channel keeps and one tax-preparer worksheet.</p>
+    <h3>What does each marketplace's report leave out?</h3>
+    <p>eBay's report carries sales, fees, shipping labels and ads but not what you paid for the item. Etsy's statement has fees but not your costs, which is why the Sold Order Items file helps. Poshmark's and Whatnot's reports show a fee and a payout. None of them carries your cost of goods, so profit needs the costs you add.</p>
+    <h3>Why is profit blank for some channels?</h3>
+    <p>Profit is only shown for a channel when every sale on it has a cost. Counting an uncosted sale as free would overstate profit, so the page leaves it blank and says which channel is missing costs.</p>
+    <h3>Is my sales data uploaded anywhere?</h3>
+    <p>No. The files are read in your browser tab and are never sent to a server. The page has no accounts and no analytics vendor, and a test in the repository fails if a network call is added.</p>
+    <h3>Can I use the worksheet for my taxes?</h3>
+    <p>It groups the totals the way a Schedule C asks for them (gross receipts, returns, advertising, commissions and fees, postage, cost of goods), so a preparer starts from organised numbers. It is arithmetic on your files, not tax advice, and where a line depends on how you treat an item the row says so.</p>
+    <h3>Why do eBay and Whatnot show different sales definitions?</h3>
+    <p>eBay and Etsy files record what the buyer paid the marketplace, including shipping you charged. Poshmark and Whatnot files are read at item price. Compare the share each channel keeps with that in mind; the model section lists it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the costs you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business or tax decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with eBay, Etsy, Poshmark or Whatnot.</strong> These are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to eBay Inc., Etsy, Inc., Poshmark, Inc., Whatnot, Inc. or any other platform in any way. Column names are matched by alias from memory of each export and may not match every export, and fee schedules may change.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your files are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>books_built</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Want one marketplace in depth? See the <a href="../ebay-transaction-report-analyzer/">eBay</a>, <a href="../etsy-statement-profit-analyzer/">Etsy</a>, <a href="../poshmark-sales-report-analyzer/">Poshmark</a> and <a href="../whatnot-sales-report-analyzer/">Whatnot</a> analyzers, or <a href="../where-to-sell-calculator/">where to sell an item next</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { buildBooks, summaryText, toCsv, sampleFiles, money, decodeBuffer } from "./books.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const pctOf = (v) => (v === null || v === undefined ? "–" : (v * 100).toFixed(1) + "%");
+    let last = null;
+    let loaded = [];
+
+    function run(files, costs) {
+      const r = buildBooks(files, { costs, feeMode: $("#feemode").value });
+      if (r.invalid) { status.textContent = r.invalid + (r.unread.length ? ` Not recognised: ${r.unread.join(", ")}.` : ""); report.hidden = true; return false; }
+      last = r;
+      const t = r.total;
+      $("#report-stats").innerHTML = `${r.channels.length} channel(s), ${t.orders} orders. Sales ${money(t.sales)}, net payout ${money(t.net)} (<strong>${pctOf(t.keepRate)}</strong> of sales kept before the cost of goods)` + (t.profit === null ? "." : `, profit <strong>${money(t.profit)}</strong> after ${money(t.cogs)} of goods.`);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4>${f.detail ? `<p>${esc(f.detail)}</p>` : ""}</div>`).join("");
+      const row = (c) => `<tr><th scope="row">${esc(c.label)}</th><td class="n">${c.orders}</td><td class="n">${money(c.sales)}</td><td class="n">${money(c.refunds)}</td><td class="n">${money(c.platformFees)}</td><td class="n">${money(c.labels)}</td><td class="n">${money(c.ads)}</td><td class="n">${money(c.other)}</td><td class="n">${money(c.net)}</td><td class="n">${pctOf(c.keepRate)}</td><td class="n">${money(c.cogs)}</td><td class="n">${money(c.profit)}</td></tr>`;
+      $("#by-channel").innerHTML = r.channels.map(row).join("") + (r.channels.length > 1 ? row({ label: "All channels", ...t, keepRate: t.keepRate }) : "");
+      $("#by-month").innerHTML = r.months.map((m) => `<tr><th scope="row">${esc(m.month)}</th><td class="n">${money(m.sales)}</td><td class="n">${money(m.refunds)}</td><td class="n">${money(m.deductions)}</td><td class="n">${money(m.net)}</td><td class="n">${m.costedChannels === m.channelsPresent ? money(m.cogs) : "–"}</td><td class="n">${money(m.profit)}</td></tr>`).join("");
+      $("#schedule").innerHTML = r.schedule.map((s) => `<tr><td>${esc(s.line)}</td><td>${esc(s.label)}</td><td class="n">${money(s.amount)}</td><td class="note">${esc(s.note)}</td></tr>`).join("");
+      const notes = [];
+      if (r.unread.length) notes.push(`Not recognised and left out: ${r.unread.join(", ")}.`);
+      for (const p of r.problems) notes.push(p);
+      $("#skipped").textContent = notes.join(" ");
+      $("#summary").value = summaryText(r);
+      report.hidden = false;
+      status.textContent = `Read ${files.length} file(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#files").addEventListener("change", async (e) => {
+      loaded = [];
+      for (const f of e.target.files) loaded.push({ name: f.name, text: decodeBuffer(await f.arrayBuffer()) });
+      $("#file-list").textContent = loaded.length ? loaded.map((f) => f.name).join(", ") : "No files chosen.";
+    });
+    $("#build").addEventListener("click", () => {
+      if (!loaded.length) { status.textContent = "Choose at least one report first."; return; }
+      if (run(loaded, $("#costlist").value)) record("books_built");
+    });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleFiles();
+      loaded = s.files;
+      $("#files").value = "";
+      $("#file-list").textContent = "Example: " + s.files.map((f) => f.name).join(", ");
+      $("#costlist").value = s.costs;
+      if (run(loaded, s.costs)) { record("example_loaded"); status.textContent = "Worked example: synthetic sales on four made-up shops. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { loaded = []; $("#files").value = ""; $("#file-list").textContent = "No files chosen."; $("#costlist").value = ""; $("#summary").value = ""; report.hidden = true; last = null; status.textContent = "Choose your files, then click Build my books."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Summary copied."; }
+      catch { box.select(); status.textContent = "Select the summary text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "reseller-books.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
