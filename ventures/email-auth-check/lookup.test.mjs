@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  dohQueryTxt, resolveSpfChain, resolveDkim, resolveDmarc, resolveBimi, runFullCheck, DKIM_SELECTORS,
+  dohQueryTxt, dohQueryCount, resolveSpfChain, resolveDkim, resolveDmarc, resolveBimi, runFullCheck, DKIM_SELECTORS,
 } from './lookup.mjs';
 
 // Every test in this file injects a fake `fetchImpl`/`fetchTxt` -- nothing
@@ -197,4 +197,42 @@ test('runFullCheck assembles a full report from one injected fetchTxt', async ()
 
 test('runFullCheck rejects an empty domain rather than making any request', async () => {
   await assert.rejects(() => runFullCheck('', {}), /domain is required/);
+});
+
+// ---------------------------------------------------------------------------
+// void lookups (RFC 7208 s4.6.4: more than 2 empty a/mx/exists lookups)
+// ---------------------------------------------------------------------------
+
+function countStub(map, calls = []) {
+  return async (name, type) => {
+    calls.push(`${type}:${name}`);
+    return { ok: true, count: (map[`${type}:${name}`] || 0), error: null };
+  };
+}
+
+test('resolveSpfChain counts a/mx/exists terms whose targets answer empty as void lookups', async () => {
+  const fetchTxt = domainMap({ 'example.com': ['v=spf1 a:gone.example.net mx:old.example.net exists:nx.example.net a -all'] });
+  const calls = [];
+  const queryCount = countStub({ 'A:example.com': 1 }, calls);
+  const { walk } = await resolveSpfChain('example.com', { fetchTxt, queryCount });
+  assert.deepEqual(walk.voidLookups.map((v) => `${v.mechanism}:${v.target}`), ['a:gone.example.net', 'mx:old.example.net', 'exists:nx.example.net']);
+  assert.equal(walk.voidUnchecked, 0);
+});
+
+test('an a term is not void when only AAAA exists; macros are skipped; transport errors are unchecked, not void', async () => {
+  const fetchTxt = domainMap({ 'example.com': ['v=spf1 a:v6.example.net exists:%{i}.bl.example.net mx:flaky.example.net -all'] });
+  const queryCount = async (name, type) => {
+    if (name === 'flaky.example.net') return { ok: false, count: null, error: 'timed out' };
+    return { ok: true, count: type === 'AAAA' ? 1 : 0, error: null };
+  };
+  const { walk } = await resolveSpfChain('example.com', { fetchTxt, queryCount });
+  assert.deepEqual(walk.voidLookups, []);
+  assert.equal(walk.voidUnchecked, 1);
+});
+
+test('dohQueryCount: empty answer and NXDOMAIN are count 0, transport failure is not ok', async () => {
+  const mk = (body, ok = true) => async () => ({ ok, status: ok ? 200 : 500, json: async () => body });
+  assert.deepEqual(await dohQueryCount('x.example', 'A', { fetchImpl: mk({ Status: 3 }) }), { ok: true, count: 0, error: null });
+  assert.deepEqual(await dohQueryCount('x.example', 'MX', { fetchImpl: mk({ Status: 0, Answer: [{ type: 15, data: '10 m.example.' }] }) }), { ok: true, count: 1, error: null });
+  assert.equal((await dohQueryCount('x.example', 'A', { fetchImpl: mk({}, false) })).ok, false);
 });

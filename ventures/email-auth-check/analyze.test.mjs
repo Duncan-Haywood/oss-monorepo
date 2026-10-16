@@ -359,3 +359,14 @@ test('buildReport: BIMI present but under-enforced DMARC is a notice, not silenc
   const report = buildReport('brand.example', { spfWalk, dkim, dmarc, bimi });
   assert.ok(report.findings.some((f) => f.id === 'bimi-present-not-honored' && f.severity === 'notice'));
 });
+
+test('buildReport: 3 void lookups is a danger, 1 is a notice, 0 is silent', () => {
+  const base = walkSpfChain('v.example', { 'v.example': ['v=spf1 -all'] });
+  const ids = (voidLookups) =>
+    buildReport('v.example', { spfWalk: { ...base, voidLookups }, dkim: analyzeDkim([]), dmarc: analyzeDmarc([]), bimi: analyzeBimi([], analyzeDmarc([])) })
+      .findings.filter((f) => f.id.includes('void')).map((f) => `${f.id}:${f.severity}`);
+  const v = (i) => ({ domain: 'v.example', mechanism: 'a', target: `x${i}.example` });
+  assert.deepEqual(ids([]), []);
+  assert.deepEqual(ids([v(1)]), ['spf-void-lookup:notice']);
+  assert.deepEqual(ids([v(1), v(2), v(3)]), ['spf-too-many-void-lookups:danger']);
+});
