@@ -1,20 +1,20 @@
 {
- "checked_at": "2026-10-16T02:48Z",
+ "checked_at": "2026-10-16T03:20Z",
  "checks": [
   {
-   "detail": "upstream main 33949adcba8a is not in this repository's history: merge it (with a merge commit, never a squash) before deleting upstream",
+   "detail": "upstream main 895ecf82e610 is not in this repository's history: merge it (with a merge commit, never a squash) before deleting upstream",
    "name": "main history",
    "ok": false
   },
   {
-   "detail": "5 neither a branch here nor in branches.bundle at their upstream tip, e.g. archive/research/claude/compassionate-bohr-vlb1d3, archive/research/claude/free-kfmismatch, archive/research/claude/swe-pickmix, archive/research/claude/trusting-thompson-a3hpxg, archive/research/main: run the Research archive workflow",
+   "detail": "all 632 upstream branches and orphaned pull request heads are kept at their current tips: 98 as archive/ branches here, 534 only in branches.bundle on archive/research-meta",
    "name": "branches",
-   "ok": false
+   "ok": true
   },
   {
-   "detail": "1 pull requests still open upstream: #619 (merge, close or move each one)",
+   "detail": "all 624 pull requests and 0 issues exported at their latest update; none open",
    "name": "pull requests and issues",
-   "ok": false
+   "ok": true
   }
  ],
  "not_carried": [

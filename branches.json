@@ -1,4 +1,5 @@
 {
+ "base": "e03e71f3b910c656fdc0568247e59a326d8d6cba",
  "refs": {
   "archive/research-pull/196": "9f362dadea8b33860ab4636dccb86c23e5d561a2",
   "archive/research-pull/218": "edfbbce9b97dc9d0268aa0c8605db6bd9dfbfa58",
@@ -631,8 +632,7 @@
   "archive/research/claude/youthful-knuth-vjxslh": "4d7aa792fd7a78fb77f8987235051602dcdf2acc",
   "archive/research/claude/youthful-knuth-xy04tn": "4cda9c89faa7cb7f1d58d8a3921ac9fddc9423ea",
   "archive/research/claude/zealous-lamport-r15mav": "d464c27e42067f2ee3cf203a1d05651e94ec28d4",
-  "archive/research/main": "33949adcba8ab5db616ace2d0ffa80187ae585fe"
+  "archive/research/main": "895ecf82e6108b97657c3ee510953cee92363e69"
  },
- "restore": "git fetch branches.bundle 'refs/archive-bundle/*:refs/heads/*'",
- "upstream_main": "33949adcba8ab5db616ace2d0ffa80187ae585fe"
+ "restore": "git fetch branches.bundle 'refs/archive-bundle/*:refs/heads/*'"
 }

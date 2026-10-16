@@ -1,10 +1,10 @@
 # Can oss-research-monorepo be deleted?
 
-**Not yet** (checked 2026-10-16T02:48Z by `platform/ci/research_archive.py ready`).
+**Not yet** (checked 2026-10-16T03:20Z by `platform/ci/research_archive.py ready`).
 
-- ❌ **main history**: upstream main 33949adcba8a is not in this repository's history: merge it (with a merge commit, never a squash) before deleting upstream
-- ❌ **branches**: 5 neither a branch here nor in branches.bundle at their upstream tip, e.g. archive/research/claude/compassionate-bohr-vlb1d3, archive/research/claude/free-kfmismatch, archive/research/claude/swe-pickmix, archive/research/claude/trusting-thompson-a3hpxg, archive/research/main: run the Research archive workflow
-- ❌ **pull requests and issues**: 1 pull requests still open upstream: #619 (merge, close or move each one)
+- ❌ **main history**: upstream main 895ecf82e610 is not in this repository's history: merge it (with a merge commit, never a squash) before deleting upstream
+- ✅ **branches**: all 632 upstream branches and orphaned pull request heads are kept at their current tips: 98 as archive/ branches here, 534 only in branches.bundle on archive/research-meta
+- ✅ **pull requests and issues**: all 624 pull requests and 0 issues exported at their latest update; none open
 
 Lost on deletion whatever this says, because nothing can copy them:
 

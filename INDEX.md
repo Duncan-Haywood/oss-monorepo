@@ -13,7 +13,7 @@ Upstream branch `<name>` is the branch `archive/research/<name>` in this reposit
 | 622 | MERGED | research/free-kfmismatch: exact cost of a mis-specified process noise in a scalar Kalman filter | `ab7bc7754f27` | [json](pulls/622.json) |
 | 621 | MERGED | research/ambient-multistart: likelihood-ranked multi-start for hardness-aware Dawid-Skene (stylised) | `93f3f592c784` | [json](pulls/621.json) |
 | 620 | MERGED | research/project-pages: figures for robofab-grasp and robofab-jointspeed | `7cf3d4df6c66` | [json](pulls/620.json) |
-| 619 | OPEN | mirror-cutover: moved notices pointing to oss-monorepo/research | `d464c27e4206` | [json](pulls/619.json) |
+| 619 | MERGED | mirror-cutover: moved notices pointing to oss-monorepo/research | `d464c27e4206` | [json](pulls/619.json) |
 | 618 | MERGED | swe-orgs: batch 3 and an ongoing research log on the Pages site | `fb74f27efe83` | [json](pulls/618.json) |
 | 617 | MERGED | research/project-pages: figures for forgetting-audit, garment-nestcost | `536b8d1b454d` | [json](pulls/617.json) |
 | 616 | MERGED | project-pages: figures for ladder-twin, explanation-twin, forgetting-audit | `ad7e9af51e7e` | [json](pulls/616.json) |
