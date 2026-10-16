@@ -25,6 +25,10 @@
     {
       "date": "2026-10-16",
       "note": "Split P014 into P022-P024 and added a split-first line to process/prompt-1.md. Result pending: partial share over the next 20 process runs."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Verify run: process runs in prompts/runs now 45, 11 partial (24%) vs baseline 9/41 (22%). Only ~4 runs since the change; too few to tell. Check again at 20."
     }
   ]
 }
