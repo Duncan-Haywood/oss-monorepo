@@ -75,6 +75,9 @@
     <label for="shifts">One requirement per line: day(s), start, end, people needed, label (optional)</label>
     <textarea id="shifts" spellcheck="false" placeholder="Mon-Fri, 6, 14, 2, open&#10;Sat, 12, 22, 2, close&#10;Fri, 22, 6, 1, night"></textarea>
     <p class="note">Days can be a range (<code>Mon-Fri</code>) or a list (<code>Mon/Wed/Fri</code>). Times can be <code>9</code>, <code>9:30</code> or <code>9am</code>. An end at or before the start runs overnight into the next day. People needed makes that many separate shifts.</p>
+    <label for="carry">Last week's tail (optional): name, when their last shift ended, days in a row</label>
+    <textarea id="carry" spellcheck="false" placeholder="Ana, Sun 11pm, 5&#10;Ben, Sat 10pm" style="min-height:4.5rem"></textarea>
+    <p class="note">Keeps the rest and days-in-a-row rules honest across the Sunday-to-Monday boundary, so nobody closes Sunday night and opens Monday morning. <code>Ana, Sun 11pm, 5</code> means her last shift ended Sunday 11pm and she had worked 5 days in a row. Skip people who were off Sunday.</p>
     <label for="file">…or upload a staff CSV</label>
     <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
     <div class="row3">
@@ -160,7 +163,7 @@
   </footer>
 
   <script type="module">
-    import { parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { parseStaff, parseShifts, parseCarry, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -183,12 +186,13 @@
 
     function run() {
       const st = parseStaff($("#staff").value), sh = parseShifts($("#shifts").value);
-      const errors = [...st.errors, ...sh.errors];
+      const cy = parseCarry($("#carry").value, st.staff);
+      const errors = [...st.errors, ...sh.errors, ...cy.errors];
       if (errors.length) { status.textContent = errors.slice(0, 4).join(" · ") + (errors.length > 4 ? ` · and ${errors.length - 4} more` : ""); report.hidden = true; return false; }
       status.textContent = "Building…";
       const r = buildRoster(st.staff, sh.slots, {
         minRestHours: val("rest", 10), maxConsecDays: val("consec", 6), otAfter: val("otafter", 40), otMult: val("otmult", 1.5),
-        burdenPct: val("burden", 0), balance: Math.min(100, Math.max(0, val("balance", 25))),
+        carry: cy.carry, burdenPct: val("burden", 0), balance: Math.min(100, Math.max(0, val("balance", 25))),
       });
       if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
       last = r; lastIn = { staff: st.staff, slots: sh.slots };
@@ -255,7 +259,7 @@
     });
 
     // Remember the team on this device only; nothing is sent anywhere.
-    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "burden", "balance"];
+    const FIELDS = ["staff", "shifts", "carry", "rest", "consec", "otafter", "otmult", "burden", "balance"];
     const KEY = "shift-roster-builder:setup:v1";
     const snapshot = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]));
     const apply = (o) => { for (const f of FIELDS) if (o && typeof o[f] === "string") $("#" + f).value = o[f]; };

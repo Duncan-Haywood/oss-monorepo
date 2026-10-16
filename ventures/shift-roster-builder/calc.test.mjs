@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs,
+  parseCarry, parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs,
   sampleStaff, sampleShifts, fmtClock, _internals,
 } from "./calc.mjs";
 
@@ -316,4 +316,38 @@ test("coverOptions: an open shift has no current owner and reports an unreadable
   assert.equal(c.fits.length, 0);
   assert.deepEqual(c.blocked, [{ name: "Ana", reason: "already on a shift at that time" }]);
   assert.ok(coverOptions(staff, slots, null, 0).error);
+});
+
+test("last week's tail: a Sunday-night close blocks a Monday-morning open", () => {
+  const staff = staffOf("Ana, 18, 40, 0, any\nBen, 18, 40, 0, any");
+  const slots = slotsOf("Mon, 6, 14, 1, open");
+  const free = buildRoster(staff, slots, { balance: 0 });
+  assert.equal(free.filledAll, true);
+  const { carry, errors } = parseCarry("Ana, Sun 11pm, 1\nBen, Sun 11pm, 1", staff);
+  assert.deepEqual(errors, []);
+  const blocked = buildRoster(staff, slots, { carry });
+  assert.equal(blocked.filledAll, false);
+  assert.match(blocked.unfilled[0].text, /rest rule/);
+  const one = parseCarry("Ana, Sun 11pm", staff).carry;
+  const r = buildRoster(staff, slots, { carry: one });
+  assert.equal(r.filledAll, true);
+  assert.equal(r.people.find((p) => p.name === "Ben").shifts, 1);
+});
+
+test("last week's tail: days in a row carry over the boundary", () => {
+  const staff = staffOf("Ana, 18, 40, 0, any");
+  const slots = slotsOf("Mon, 12, 16, 1");
+  const { carry } = parseCarry("Ana, Sun 5pm, 6", staff);
+  assert.equal(buildRoster(staff, slots, { carry, maxConsecDays: 6 }).filledAll, false);
+  assert.equal(buildRoster(staff, slots, { carry, maxConsecDays: 7 }).filledAll, true);
+  // a streak ending Saturday does not count toward Monday
+  assert.equal(parseCarry("Ana, Sat 5pm, 6", staff).carry.ana.streak, 0);
+});
+
+test("last week's tail: bad lines are named, not ignored", () => {
+  const staff = staffOf("Ana, 18, 40, 0, any");
+  assert.match(parseCarry("Zed, Sun 9pm", staff).errors[0], /not in the staff list/);
+  assert.match(parseCarry("Ana, someday", staff).errors[0], /Sun 11pm/);
+  assert.match(parseCarry("Ana, Sun 9pm, x", staff).errors[0], /whole number/);
+  assert.deepEqual(parseCarry("", staff), { carry: {}, errors: [] });
 });

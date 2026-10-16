@@ -220,13 +220,45 @@ export function buildContext(staff, slots, options = {}) {
   const capSum = caps.reduce((a, b) => a + b, 0) || 1;
   const target = staff.map((_, i) => (totalHours * caps[i]) / capSum);
   const avgWage = staff.length ? staff.reduce((t, p) => t + p.wage, 0) / staff.length : 0;
-  return { o, staff, slots, P, S, elig, target, avgWage, totalHours, restMin: Math.max(0, o.minRestHours) * 60 };
+  const carry = staff.map((p) => (o.carry && o.carry[p.name.toLowerCase()]) || null);
+  return { o, staff, slots, P, S, elig, target, avgWage, totalHours, carry, restMin: Math.max(0, o.minRestHours) * 60 };
+}
+
+// Last week's tail, so the rest and days-in-a-row rules hold across the week boundary.
+// One line per person: "name, <day> <time> [, days in a row]", e.g. "Ana, Sun 11pm, 5" = last week's final shift
+// ended Sunday 11pm and she had worked 5 days in a row up to and including Sunday (blank = 1).
+// Returns { carry: { lowercased name: { end, streak } }, errors }; `end` is minutes before this Monday 00:00 (negative).
+export function parseCarry(text, staff = []) {
+  const carry = {}, errors = [];
+  String(text || "").split(/\r?\n/).forEach((raw, i) => {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) return;
+    const c = splitLine(line);
+    const where = `Last-week line ${i + 1}`;
+    const name = (c[0] || "").trim();
+    const person = staff.find((p) => p.name.toLowerCase() === name.toLowerCase());
+    if (staff.length && !person) { errors.push(`${where}: "${name}" is not in the staff list`); return; }
+    const m = /^\s*([A-Za-z]+)\s+(.+)$/.exec(c[1] || "");
+    const d = m ? dayIndex(m[1]) : -1, t = m ? parseTime(m[2]) : NaN;
+    if (d < 0 || Number.isNaN(t)) { errors.push(`${where} (${name}): write the last shift's end like "Sun 11pm"`); return; }
+    const streak = (c[2] || "") === "" ? 1 : Number(c[2]);
+    if (!Number.isInteger(streak) || streak < 0 || streak > 30) { errors.push(`${where} (${name}): days in a row must be a whole number`); return; }
+    const end = (d - 7) * 1440 + t;
+    if (end > 0) { errors.push(`${where} (${name}): a shift that ends after this Monday starts belongs in this week`); return; }
+    carry[(person ? person.name : name).toLowerCase()] = { end, streak: d === 6 ? streak : 0 };
+  });
+  return { carry, errors };
 }
 
 function validList(ctx, p, list) {
   const { slots, staff, restMin, o } = ctx;
   let minutes = 0, maxEnd = -Infinity;
   const days = new Set();
+  const cf = ctx.carry && ctx.carry[p];
+  if (cf) {
+    maxEnd = cf.end;
+    for (let k = 1; k <= cf.streak; k++) days.add(-k);
+  }
   for (const i of list) {
     const s = slots[i];
     if (s.start < maxEnd + restMin) return false;
@@ -411,6 +443,12 @@ function summarise(ctx, owner) {
   return { owner: owner.slice(), people, cost, otHours, hours, unfilled, unfilledHours, lists };
 }
 
+function restClash(ctx, p, base, slot) {
+  const cf = ctx.carry[p];
+  if (cf && slot.start < cf.end + ctx.restMin) return true;
+  return base.some((k) => slot.start < ctx.slots[k].end + ctx.restMin && ctx.slots[k].start < slot.end + ctx.restMin);
+}
+
 function whyUnfilled(ctx, owner, i) {
   const slot = ctx.slots[i];
   const lists = Array.from({ length: ctx.P }, () => []);
@@ -425,7 +463,7 @@ function whyUnfilled(ctx, owner, i) {
     const mins = nl.reduce((t, k) => t + ctx.slots[k].end - ctx.slots[k].start, 0);
     if (mins > ctx.staff[p].maxHours * 60 + 1e-9) { why.hours++; continue; }
     if (base.some((k) => ctx.slots[k].start < slot.end && slot.start < ctx.slots[k].end)) { why.overlap++; continue; }
-    const gapBad = base.some((k) => slot.start < ctx.slots[k].end + ctx.restMin && ctx.slots[k].start < slot.end + ctx.restMin);
+    const gapBad = restClash(ctx, p, base, slot);
     if (gapBad) why.rest++; else why.days++;
   }
   let text;
@@ -549,7 +587,7 @@ export function coverOptions(staff, slots, roster, slotIndex, options = {}) {
     const mins = nl.reduce((t, k) => t + slots[k].end - slots[k].start, 0);
     if (base.some((k) => slots[k].start < slot.end && slot.start < slots[k].end)) reason = "already on a shift at that time";
     else if (mins > staff[p].maxHours * 60 + 1e-9) reason = "would go over their weekly hour limit";
-    else if (base.some((k) => slot.start < slots[k].end + ctx.restMin && slots[k].start < slot.end + ctx.restMin)) reason = "would break the rest rule";
+    else if (restClash(ctx, p, base, slot)) reason = "would break the rest rule";
     else reason = "would break the days-in-a-row limit";
     blocked.push({ name: staff[p].name, reason });
   }
