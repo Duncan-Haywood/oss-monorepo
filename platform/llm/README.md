@@ -34,4 +34,11 @@ Rules it encodes (PRODUCT_PLAYBOOK.md §3):
 - **No stale third-party model ids.** Only Anthropic has a default; for the
   others the person names the model.
 
+**Spend caps.** Pass an [LLM Spend Guard](../../ventures/llm-spend-guard/)
+to cap what a feature can spend: `complete(cfg, { prompt, guard, scope: { user, feature } })`.
+A call that would cross a budget is refused before it is sent (a `ByokError`
+with `reasons`), the output cap is lowered to the policy's ceiling, and real
+usage is charged afterwards. With a deployer's key on a server, this is what
+stops one visitor or one loop from spending the month.
+
 Tests: `node --test platform/llm/*.test.mjs` (no network; `fetch` is injected).

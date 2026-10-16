@@ -156,6 +156,12 @@ discovery have no price, and that the ones with a price are companies that
 arrived with an audience. Ask 0 is cheap and worth doing precisely because it is
 cheap — not because the measurements so far suggest it will pay.
 
+## 3. Does the code do what it says?
+
+| Study | Question | Finding |
+|---|---|---|
+| [`js-typecheck/`](js-typecheck/) | What would TypeScript's checker (`tsc --checkJs`, non-strict) find in the ventures' plain JavaScript? | **One user-visible bug in 3,911 diagnostics** across 3,410 product files: a duplicate object key that blanked the transaction count in two BAI2 tools (fixed, with regression tests). 80% of files pass once two browser privacy globals are declared, including two thirds of `calc.mjs`. Result: `PRODUCT_PLAYBOOK.md` §4 opts files in with `// @ts-check` one at a time, enforced in `ventures-tests`, rather than a tree-wide flag |
+
 ## Two methodological results worth keeping
 
 Each pass above corrected its predecessor on the same two classes of mistake.

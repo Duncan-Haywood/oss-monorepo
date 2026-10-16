@@ -131,6 +131,7 @@ async function deploy() {
         await gh(token, 'PUT', `/repos/${me.login}/${name}/actions/secrets/${k}`, { encrypted_value: sealSecretForGitHub(v, key.key), key_id: key.key_id });
       }
       await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'AWS_REGION', value: $('rg').value.trim() });
+      if ($('ab').value.trim()) await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'BUDGET_EMAIL', value: $('ab').value.trim() });
       log('The OpenTofu state passphrase was generated in this tab and stored only as a secret in your repository (GitHub never shows it again).');
     } else if (p.needs.includes('gcp')) {
       let sa;
@@ -144,6 +145,7 @@ async function deploy() {
       }
       await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'GCP_PROJECT', value: $('gp').value.trim() });
       await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'GCP_LOCATION', value: $('gl').value.trim() || 'US' });
+      if ($('gb').value.trim()) await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'GCP_BILLING_ACCOUNT', value: $('gb').value.trim() });
       log('The OpenTofu state passphrase was generated in this tab and stored only as a secret in your repository (GitHub never shows it again).');
     } else if (p.needs.includes('azure')) {
       log('Encrypting your Azure credentials in this tab and storing them as Actions secrets…');
@@ -159,6 +161,7 @@ async function deploy() {
         await gh(token, 'PUT', `/repos/${me.login}/${name}/actions/secrets/${k}`, { encrypted_value: sealSecretForGitHub(v, key.key), key_id: key.key_id });
       }
       await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'AZURE_LOCATION', value: $('zl').value.trim() || 'eastus' });
+      if ($('ze').value.trim()) await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'BUDGET_EMAIL', value: $('ze').value.trim() });
       log('The OpenTofu state passphrase was generated in this tab and stored only as a secret in your repository (GitHub never shows it again).');
     } else if (p.needs.includes('cloudflare')) {
       log('Encrypting your Cloudflare credentials in this tab and storing them as Actions secrets…');

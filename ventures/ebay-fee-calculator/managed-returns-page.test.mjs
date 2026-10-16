@@ -78,22 +78,22 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareManagedReturns({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
   });
   assert.equal(comparison.winner, 'buyer_pays');
-  assert.ok(Math.abs(comparison.self.expectedProfit - 18.0445) < 1e-6);
-  assert.ok(Math.abs(comparison.managed.expectedProfit - 16.9703) < 1e-6);
-  assert.ok(Math.abs(comparison.buyerPays.expectedProfit - 19.9487) < 1e-6);
+  assert.ok(Math.abs(comparison.self.expectedProfit - 17.8096) < 1e-6);
+  assert.ok(Math.abs(comparison.managed.expectedProfit - 16.74584) < 1e-6);
+  assert.ok(Math.abs(comparison.buyerPays.expectedProfit - 19.70336) < 1e-6);
   assert.match(html, /id="managedReturnFee"[^>]*value="5.50"/);
   assert.match(html, /id="managedReturnRatePercent"[^>]*value="14"/);
-  assert.match(html, /\$18\.04/);
-  assert.match(html, /\$16\.97/);
-  assert.match(html, /\$19\.95/);
-  assert.match(html, /\$1\.07/);
+  assert.match(html, /\$17\.81/);
+  assert.match(html, /\$16\.75/);
+  assert.match(html, /\$19\.70/);
+  assert.match(html, /\$1\.06/);
   assert.match(html, /10\.8%/);
   assert.match(html, /\$0\.25/);
 });

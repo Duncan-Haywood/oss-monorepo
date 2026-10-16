@@ -1,0 +1,19 @@
+[project]
+name = "house-plan"
+version = "0.1.0"
+description = "A house plan as data: parametric plan, framing takeoff and bill of materials, layout rule checks, IFC export, and a search for the lowest-lumber plan"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+ifc = ["ifcopenshell"]
+
+[project.scripts]
+house-plan = "house_plan.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-spans/src", "../house-framing/src"]

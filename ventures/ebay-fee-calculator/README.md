@@ -122,18 +122,18 @@ more than the extra postage you collected.
 A **Store subscription vs no-store rate** table then prices the
 same SKU four ways: stay at the final-value rate you type, or
 take example Starter, Basic, and Premium mixes after the monthly
-subscription. Forty $40 sales leave a $7.95 Starter $2.43 behind.
+subscription. Forty $40 sales leave a $7.95 Starter $4.01 ahead.
 [Is an eBay store worth it?](is-an-ebay-store-worth-it.html).
 An **incoming Best Offer vs waiting** table then prices the same
 listing two ways: take the buyer’s number now, or wait for list
 profit times your guessed chance it still sells. A $34 offer on
-a $40 listing keeps $5.60 more than waiting at 50%.
+a $40 listing keeps $5.49 more than waiting at 50%.
 [Should I accept this eBay offer?](should-i-accept-this-ebay-offer.html).
 A **Domestic vs worldwide at this list** table then prices the
 same SKU three ways: keep the listing domestic, turn worldwide
 on while the buyer pays extra postage, or absorb a typed extra
 label. A 1.65% international fee on a $40 sale costs $0.76;
-eating a $12 label drops leftover to $8.85.
+eating a $12 label drops leftover to $8.59.
 [Should I offer international shipping on eBay?](should-i-offer-international-shipping-on-ebay.html).
 A **Free shipping vs buyer-pays** table then prices the same SKU
 two ways: charge the typed postage, or offer free shipping at a
@@ -144,16 +144,16 @@ completed sale. Leaving the list at $40 loses after a $5 label.
 A **Skip vs insurance vs signature** table then prices the same
 already-sold tracked shipment three ways: skip the add-on, buy
 a typed premium that pays replacement value, or add signature
-confirmation. On a $40 sale a $1.80 premium keeps $1.00 less
+confirmation. On a $40 sale a $1.80 premium keeps $1.01 less
 than skip; an 8% claim rate or a $180 / $85-cost SKU flips it.
 [Should I add shipping insurance on eBay?](should-i-add-shipping-insurance-on-ebay.html).
 An **eBay label vs Pirate Ship** table then prices the same
 already-sold tracked shipment three ways: buy the eBay quote,
 buy a typed Pirate Ship / Shippo / carrier-account quote after
 upload time, or use that cheaper postage with no extra time.
-On a $40 sale a $4.25 quote after four minutes keeps $1.07
+On a $40 sale a $4.25 quote after four minutes keeps $1.06
 less than the $5 eBay label; the postage-only path keeps
-$0.13 more.
+$0.14 more.
 [Should I buy eBay shipping labels or use Pirate Ship?](should-i-buy-ebay-shipping-labels.html).
 
 **Live tool:** https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/
@@ -229,7 +229,7 @@ claim rate** — which used to mean turning GSP off because
 arrive.
 
 **After using the store page, you can now see whether a $7.95
-Starter still beats a 13.25% no-store rate after 40 sales** —
+Starter still beats a 13.6% no-store rate after 40 sales** —
 which used to mean subscribing because “the rate is lower” and
 never pricing the month.
 
@@ -260,6 +260,8 @@ Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
 fees eBay will charge: enter the rates and costs that apply to your category
 and store level, and verify them against your current eBay statements.
+
+Fee defaults checked against eBay's selling-fees page (https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822) on 2026-10-16: 13.6% final value fee, $0.40 per order over $10 ($0.30 at or under $10 and 2.35% above $7,500 are not modelled).
 
 ## Why it's different
 
@@ -406,6 +408,16 @@ may be slow, broken, moved, or taken offline without notice. We do not
 promise uptime, backups of anything you type, or that a URL will keep
 working. Do not use this as a system of record. If a tool needs to
 survive, export your inputs and run it yourself.
+
+## Selling the same item elsewhere
+
+eBay is one of ten channels in
+[`../marketplace-fee-compare`](../marketplace-fee-compare/), which ranks what
+one item nets on eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Depop,
+Facebook Marketplace, Poshmark and an own Shopify store, using this
+calculator's final value fee as its eBay default. Use it first to decide where
+to list, then come back here for the eBay-specific detail (promoted listings,
+returns, shipping, offers).
 
 ## Privacy and usage
 

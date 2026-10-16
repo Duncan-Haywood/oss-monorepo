@@ -78,8 +78,8 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareImmediatePayment({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
@@ -94,20 +94,20 @@ test('default inputs on the page match the worked example', () => {
     unpaidHourlyWage: 18,
     monthlyImmediateListings: 40,
   });
-  assert.ok(Math.abs(comparison.later.expectedProfit - 9.002917) < 1e-5, 'default later');
-  assert.ok(Math.abs(comparison.immediate.expectedProfit - 8.255025) < 1e-5, 'default immediate');
-  assert.match(html, /\$9\.00/);
-  assert.match(html, /\$8\.26/);
-  assert.match(html, /\$0\.75/);
-  assert.match(html, /\$29\.92/);
+  assert.ok(Math.abs(comparison.later.expectedProfit - 8.884058) < 1e-5, 'default later');
+  assert.ok(Math.abs(comparison.immediate.expectedProfit - 8.14932) < 1e-5, 'default immediate');
+  assert.match(html, /\$8\.88/);
+  assert.match(html, /\$8\.15/);
+  assert.match(html, /\$0\.73/);
+  assert.match(html, /\$29\.39/);
   assert.match(html, /13\.5%/);
   assert.match(html, /49\.1%/);
-  assert.match(html, /\$16\.37/);
-  assert.match(html, /\$18\.34/);
-  assert.match(html, /\$1\.98/);
+  assert.match(html, /\$16\.15/);
+  assert.match(html, /\$18\.11/);
+  assert.match(html, /\$1\.96/);
   assert.match(html, /\$6\.35/);
-  assert.match(html, /\$7\.37/);
-  assert.match(html, /\$9\.17/);
+  assert.match(html, /\$7\.27/);
+  assert.match(html, /\$9\.05/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

@@ -189,6 +189,33 @@ One session should produce something usable. Concretely:
   execute the action. If you can't run it, you can't say it ships.
 - **Leave `main` working.**
 
+### Rule of thumb: plain JavaScript, checked by TypeScript (2026-10-16)
+
+Venture code stays build-free `.mjs`, served as committed. TypeScript is used
+only as a checker, never as a build step:
+
+- **Start every new `.mjs` file with `// @ts-check`.** Add JSDoc types only
+  where tsc asks for them (`/** @type {HTMLFormElement} */` on a
+  `querySelector`, a `@typedef` for an object that is built up after its
+  literal). Keep the JSDoc true: a `@param {number}` the form actually passes
+  as `''` misleads the next session.
+- **A file you edit gets the pragma too, if it already passes.**
+  `node platform/pages/typecheck.mjs --candidates <slug>` lists which of the
+  venture's files pass today. Do not retrofit files that fail, and do not add
+  `--checkJs` across the tree.
+- **CI keeps opted-in files clean.** `node platform/pages/typecheck.mjs <slug>`
+  runs in `ventures-tests` on every venture a PR touches. It exits 1 on any
+  diagnostic in an opted-in file.
+
+Why opt-in and not everywhere: across all 3,410 venture product files,
+`--checkJs` reported 3,911 diagnostics and one user-visible bug. That bug was
+a duplicate object key that blanked a transaction count. With the two
+privacy-signal globals declared, 80% of files (two thirds of `calc.mjs`)
+already pass with no other edit. Opting a file in costs nothing, and it
+catches the renamed field, duplicate key or misspelled method in the edit
+that introduces it. Measurement:
+[`portfolio/research/js-typecheck/`](portfolio/research/js-typecheck/README.md).
+
 ## 5. Every product ships these five things
 
 A product is not done without them. They are cheap and they are what makes a
@@ -339,22 +366,24 @@ not just the disclaimer in §5b.
    rather than a fact sheet is a defamation and false-advertising exposure
    for a page that costs nothing to make safe instead.
 
-## 6. Money: donations only, and most of it already ships
+## 6. Money: the deployer's keys, never the owner's
 
-**Changed 2026-10-15 by the owner** (`prompts/goals.md`, "Payments: never the
-owner's"). Payment code in a product is allowed if it is off by default and
-runs only on the deployer's own keys from environment variables. The owner's
-own accounts are never wired in. The "no billing code, not even disabled" rule
-below and `check_no_payment_code.py` predate that change and still need
-updating to match it.
+Payment code is allowed (the owner, 2026-10-15: "I think payment is okay I just
+don't want mine. if other people want to fork and put their payment in it's
+okay with me"). Build it so that:
 
-No checkout, no card fields, no billing code, no merchant of record, not even
-disabled. That is on the owner-only list in
-[`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) because it needs a bank
-account and a tax identity. `python3 platform/ci/check_no_payment_code.py`
-enforces this fleet-wide in CI — see "Legal guardrails" in `DIRECTION.md` for
-the two pre-existing exceptions it currently allows and why adding a third
-needs a decision-queue row first, not a code review comment.
+- it is **off by default**: with no keys set, the product works and says
+  payments are not configured;
+- it reads every key, price id and link from **environment variables the
+  deployer sets**, and names them in the README and the deploy page;
+- it never carries a real account: no live keys, no Payment Link or
+  hosted-button ids. `python3 platform/ci/check_payment_keys.py` catches
+  those in CI;
+- the README says plainly that whoever turns payments on is the merchant,
+  with that role's tax, refund and dispute duties.
+
+The owner's own instances (the GitHub Pages site) take donations only: the
+GitHub Sponsors link below, and the one approved Buy Me a Coffee link.
 
 **Two separate things exist here — do not conflate them:**
 

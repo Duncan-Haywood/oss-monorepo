@@ -5,6 +5,8 @@ WidgetKit widget: pick a handful of major cities, and every widget size shows th
 local time, today's date, and sunrise/sunset — deliberately information-dense rather than a
 single decorative clock face.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/
+
 ## What's here
 
 ```

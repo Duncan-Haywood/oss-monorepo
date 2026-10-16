@@ -406,8 +406,8 @@ test('the eBay fee assumptions match the dedicated calculator', () => {
   // ebay-fee-calculator takes its final value rate and per-order fixed fee as
   // inputs with these as the fallbacks, so they are read from its own
   // behaviour rather than from a constant it does not export.
-  assert.equal(ebay.commissionRate, 13.25, 'final value fee disagrees with ebay-fee-calculator');
-  assert.equal(ebay.paymentFixed, 0.3, 'per-order fixed fee disagrees with ebay-fee-calculator');
+  assert.equal(ebay.commissionRate, 13.6, 'final value fee disagrees with eBay\'s published 13.6% (ebay-fee-calculator still defaults to 13.25 until P026 lands)');
+  assert.equal(ebay.paymentFixed, 0.4, 'per-order fixed fee disagrees with ebay-fee-calculator');
 });
 
 test('the Etsy fee assumptions match the dedicated calculator', () => {

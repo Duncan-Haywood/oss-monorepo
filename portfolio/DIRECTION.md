@@ -179,15 +179,11 @@ document.
    (`PRODUCT_PLAYBOOK.md` §5e) and the free public signals in
    `usage/README.md`'s table (stars, referrers, release downloads) — not by
    a `usage.yaml` field that cannot currently move either way.
-3. **Donations only, and most of the mechanism already ships.** Every live
-   venture carries a `github.com/sponsors/Duncan-Haywood` link (done, all
-   185) and should carry the `sponsor_link_clicked` usage counter
-   (`PRODUCT_PLAYBOOK.md` §6) — the one signal that will eventually say
-   whether the ask works. No checkout, no card fields, no billing code, not
-   even disabled behind an unset env var, anywhere outside the two flagged
-   pre-existing exceptions (`local-site-studio`, `print-atelier`); this is
-   enforced in CI by `platform/ci/check_no_payment_code.py`. A payout rail
-   is owner-only and not close — see the decision queue.
+3. **Donations on the owner's site; payments on the deployer's keys.** Every
+   live venture carries a `github.com/sponsors/Duncan-Haywood` link and the
+   `sponsor_link_clicked` counter. A product may also ship payment code that
+   is off by default and runs on the deployer's own keys
+   (`PRODUCT_PLAYBOOK.md` §6).
 4. **Happy customers come from the product working and being honest, not
    from a separate initiative.** Run the venture's own tests and the
    browser checks before calling something done; keep the
@@ -260,8 +256,8 @@ Concretely, as measured this session (`session_gate.py`, `allocate.py`,
    automatic, not a reason to under-market.** Landing pages, SEO content,
    and named-competitor comparison pages are how a free niche product gets
    found without ad spend — keep writing them. `platform/pages/clauses.mjs`
-   and `platform/ci/check_no_payment_code.py` already catch a missing
-   disclaimer or a stray payment SDK fleet-wide in CI; follow
+   and `platform/ci/check_payment_keys.py` already catch a missing
+   disclaimer or a hardcoded payment account fleet-wide in CI; follow
    `PRODUCT_PLAYBOOK.md` §5b/§5f when writing the copy and let CI be the
    backstop instead of re-deriving the rules by hand each time.
 5. **Donations are the only revenue lever agents hold, and the mechanism is
@@ -290,7 +286,7 @@ shipped: on 2026-10-05, 100 branches from the prior two weeks had been pushed
 and never PR'd, four finished ventures among them.
 
 1. A live product is broken, or a fleet-wide guardrail is red
-   (`check_no_payment_code.py`, `clauses.mjs`, the accessibility/contrast
+   (`check_payment_keys.py`, `clauses.mjs`, the accessibility/contrast
    checks) — a defect or exposure on something a stranger can already reach
    outranks everything below.
 2. Finished work is stranded — a green PR whose author went quiet, or a
@@ -315,8 +311,8 @@ the five items above, not a separate, riskier track needing extra sign-off.
 once, from `portfolio-validate.yml` on any push or PR touching
 `ventures/**/*.html` — so a comparison page missing its nominative-fair-use
 disclaimer fails CI fleet-wide, not just in the venture's own workflow, the
-day it's added. `platform/ci/check_no_payment_code.py` gives the same
-fleet-wide backstop against payment-processor code. Write the copy, keep the
+day it's added. `platform/ci/check_payment_keys.py` gives the same
+fleet-wide backstop against a hardcoded payment account. Write the copy, keep the
 disclaimer wording from `PRODUCT_PLAYBOOK.md` §5b (every page) and §5f
 (comparison pages), and let CI catch a slip — do not read "legal exposure is
 the one hard stop" as a reason to under-market a product.
@@ -340,7 +336,7 @@ down on.
 
 Revenue comes later. For now:
 
-- Do **not** collect payment or wire payout rails.
+- Do **not** collect payment on, or wire payout rails to, the owner's accounts.
 - **Do** keep liability-limiting disclaimers in every user-facing product
   (see "Legal guardrails" below).
 - **Do** add GitHub Sponsors or a donation link where it fits — optional
@@ -559,14 +555,9 @@ The "new ventures first" ranking in that text was superseded 2026-10-16
 
 ## Revenue: donations, and keeping customers happy
 
-**Superseded in part 2026-10-15** (`prompts/goals.md`, "Payments: never the
-owner's"): the owner's own instances take donations only, but a product may
-ship payment code that is off by default and runs on the deployer's own keys.
-
-The portfolio's revenue model is, and stays, **donations only** — GitHub
-Sponsors, nothing else. No payment collection, no payout rails, no merchant
-account: that is unchanged and is not up for a rescore by any session (see
-"Legal guardrails" below and `PRODUCT_PLAYBOOK.md` §6).
+The owner's own instances take donations only (GitHub Sponsors). A product
+may ship payment code that is off by default and runs on the deployer's own
+keys (`PRODUCT_PLAYBOOK.md` §6, from the owner's 2026-10-15 message).
 
 **Corrected 2026-09-06: donations are not blocked on an owner decision, and
 this section previously read as if they were.** `PRODUCT_PLAYBOOK.md` §6 has
@@ -718,15 +709,11 @@ both owner-only (`python3 portfolio/ledger/decision_queue.py`); that does
 not make everything donation-adjacent an agent can do less worth doing.
 
 **Legal exposure is the one place "build more, faster" does not apply.**
-`ventures/local-site-studio` still carries a full Stripe checkout
-integration behind unset env vars, gated on the still-open
-`local-site-studio-subtree-gate-crossing` decision (PR #731) — see "Legal
-guardrails" below. A new venture that reaches for payment collection, a
-compliance warranty, or scraped personal data to move faster is not a
-viable business here no matter how good its numbers look — it is exposure
-the owner has to resolve personally, the same way #731 still is. Donations
-only, disclaimed, evidence-not-advice: those are not friction to build
-around, they are what keeps a fast-shipping fleet an asset instead of a
+A venture that reaches for a compliance warranty, scraped personal data, or
+payments on the owner's accounts to move faster is exposure the owner has to
+resolve personally, however good its numbers look. Disclaimed,
+evidence-not-advice, and the deployer's keys for any payment: those are not
+friction to build around, they are what keeps a fast-shipping fleet an asset instead of a
 liability.
 
 **Customer happiness is still measured at zero, fleet-wide, as of this
@@ -793,7 +780,7 @@ within scope merges without waiting for human review. Iterate in production
 Still required before merge:
 
 - Relevant tests and builds green (read CI; do not hand-rebuild what CI already ran)
-- No payment collection, no new legal exposure beyond documented disclaimers
+- No payment on the owner's accounts, no new legal exposure beyond documented disclaimers
 - Usage instrumentation included for new user-facing features
 
 Still **owner-only** (flag on issue #139 / `portfolio/ledger/asks.yaml` only
@@ -852,46 +839,10 @@ These stay in every product regardless of the speed mandate:
   someone else's trademark; get it wrong and the exposure is the owner's, not
   the session's.
 
-Payment is deferred, not disclaimers.
-
-**Two existing exceptions need an owner decision, not agent judgment.**
-`ventures/local-site-studio` carries a full, working Stripe checkout/webhook
-integration (`src/app/api/stripe/`, ~2,300 lines) — real checkout sessions,
-recurring upgrades, and dispute handling — gated only by unset
-`STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` env vars. That is exactly what
-`PRODUCT_PLAYBOOK.md` §6 forbids everywhere else in the fleet ("no checkout,
-no card fields, no billing code... not even disabled"), and it arrived
-through a still-open gate-crossing (`local-site-studio-subtree-gate-crossing`,
-PR #731, in `portfolio/ledger/asks.yaml`): a self-merged 1,405-commit subtree
-the owner has not yet said accept-or-revert on.
-
-**A second, previously-undocumented instance was found 2026-09-06:**
-`ventures/print-atelier` carries real Stripe checkout, Connect-payout, and
-webhook code (`src/app/api/stripe/`, `src/lib/stripe-checkout-server.ts`,
-`src/lib/commerce/stripe-connect.ts`) with the same unset-key gating and the
-same never-been-live status — but no decision-queue row existed until this
-session added one (`print-atelier-stripe-checkout`,
-`portfolio/ledger/asks.yaml`). Unlike `local-site-studio`'s bot self-merge,
-this one arrived by the owner's own direct subtree merge on 2026-07-29, four
-weeks before this donations-only policy was first written — so it is not a
-process violation, just a pre-existing venture nobody reconciled against the
-policy once it existed. That distinction does not change what an agent does
-with it: **do not extend either Stripe integration, do not supply or wire
-live keys, and do not copy this pattern into any other venture** — the
-donations-only model above governs everywhere else in the fleet regardless
-of these two unresolved cases.
-
-**This is now enforced, not just stated.**
-`platform/ci/check_no_payment_code.py` (added 2026-09-06, wired into
-`portfolio-validate.yml`) fails CI if any `ventures/*` directory outside its
-`ALLOWED_EXCEPTIONS` (currently exactly these two, each pointing at its
-decision row) imports a payment-processor SDK — Stripe, Braintree, Square,
-PayPal's server SDK, Adyen, Checkout.com, Razorpay, Klarna — or lists one as
-a dependency. Two instances existing before any check did is the reason it
-exists: the policy sentence above was already accurate reading of
-`PRODUCT_PLAYBOOK.md`, and a second venture still slipped past it undetected
-for six weeks. Run `python3 platform/ci/check_no_payment_code.py` before
-adding a payment-adjacent dependency to anything.
+Payment code is allowed off by default on the deployer's own keys, never the
+owner's (`PRODUCT_PLAYBOOK.md` §6). `local-site-studio` and `print-atelier`
+already work that way: their Stripe code reads every key from the
+environment and is inactive without one.
 
 ## Success signals
 
