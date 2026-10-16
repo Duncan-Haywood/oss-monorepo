@@ -230,7 +230,9 @@ export function analyze({ n1, c1, n2, c2, alpha = 0.05, controlShare = 0.5, tau,
   }
   const srm = srmCheck(n1, n2, controlShare);
   const bay = bayes(c1, n1, c2, n2);
-  const priorSd = tau > 0 ? tau : Math.max(0.1 * p1, 1e-4);
+  // Default prior sd: 10% of the control rate, but never below the standard error;
+  // a prior far tighter than the data makes the mixture interval absurdly wide.
+  const priorSd = tau > 0 ? tau : Math.max(0.1 * p1, seDiff, 1e-4);
   const seq = seDiff > 0 ? mixtureSequential(diff, seDiff * seDiff, priorSd, alpha) : { p: 1, low: NaN, high: NaN, significant: false };
   const inflated = looks > 1 ? peekingInflation(looks, alpha) : alpha;
 
