@@ -92,6 +92,10 @@
     <label for="results">Results so far, one per line, to rank the teams (blank = seeded in the order you listed them): <code>Hawks 3 - 2 Owls</code></label>
     <textarea id="results" rows="3" placeholder="Hawks 3 - 2 Owls"></textarea>
 
+    <h2 style="margin-top:18px">5. Rainouts and cancellations (optional)</h2>
+    <label for="rainouts">One per line: a date cancels every match that night, a date plus team names cancels only their match. Each cancelled match moves to the earliest later night both teams are free and a court is open; nothing else changes. <code>2026-10-13</code> or <code>2026-10-13 Lob Squad</code></label>
+    <textarea id="rainouts" rows="2" placeholder="2026-10-13 Lob Squad"></textarea>
+
     <button type="button" id="build">Build the schedule</button>
     <button type="button" class="secondary" id="reshuffle">Reshuffle courts and times</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
@@ -168,7 +172,7 @@
   </footer>
 
   <script type="module">
-    import { readSpec, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, parseResults, standings, playoffBracket, bracketText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { readSpec, buildSchedule, applyRainouts, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, parseResults, standings, playoffBracket, bracketText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -190,6 +194,7 @@
       $("#times").value = f.times;
       $("#playoff").value = f.playoff;
       $("#results").value = f.results;
+      $("#rainouts").value = f.rainouts || "";
     }
 
     function readFields() {
@@ -199,7 +204,7 @@
         teams: $("#teams").value, double: $("#double").checked, start: $("#start").value, weekdays,
         skip: $("#skip").value, blackouts: $("#blackouts").value, courts: $("#courts").value, times: $("#times").value,
         seed: $("#seed").value, minutes: $("#minutes").value,
-        results: $("#results").value, playoff: $("#playoff").value,
+        results: $("#results").value, playoff: $("#playoff").value, rainouts: $("#rainouts").value,
       };
     }
 
@@ -256,6 +261,11 @@
       if (errors.length) { status.textContent = errors.join(" "); return false; }
       let s;
       try { s = buildSchedule(spec); } catch (e) { status.textContent = e.message; return false; }
+      if ($("#rainouts").value.trim()) {
+        const rr = applyRainouts(s, $("#rainouts").value);
+        s = rr.schedule;
+        warnings.push(...rr.errors, ...rr.moves.map((m) => `Rainout: ${m.home} v ${m.away} on ${dayLabel(m.from)} is now ${dayLabel(m.to)}${m.time ? " at " + m.time : ""}, ${m.court}.`));
+      }
       const want = Math.trunc(Number($("#playoff").value) || 0);
       let seeds = s.teams;
       const resText = $("#results").value;
@@ -294,7 +304,7 @@
       later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample league: invented teams, not a real league."; } });
     });
     $("#clear-all").addEventListener("click", () => {
-      for (const id of ["teams", "start", "skip", "blackouts", "courts", "times", "results"]) $("#" + id).value = "";
+      for (const id of ["teams", "start", "skip", "blackouts", "courts", "times", "results", "rainouts"]) $("#" + id).value = "";
       $("#playoff").value = "0"; $("#double").checked = false;
       $("#report").hidden = true; last = null; status.textContent = "Cleared.";
     });
