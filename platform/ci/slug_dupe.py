@@ -33,7 +33,8 @@ def check(slug, days=14, remote="origin", ref=None):
     rc, out = git("ls-remote", "--heads", remote, f"*{slug}*")
     branches = [l.split("\t")[1].removeprefix("refs/heads/") for l in out.splitlines()] if rc == 0 else []
     _, cur = git("branch", "--show-current")
-    return on_main, commits, [b for b in branches if b != cur.strip()]
+    # archive/* only preserves history (research/_mirror/archive.py); nobody is building there.
+    return on_main, commits, [b for b in branches if b != cur.strip() and not b.startswith("archive/")]
 
 
 def main(argv=None):
