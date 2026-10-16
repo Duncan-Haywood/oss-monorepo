@@ -1,0 +1,28 @@
+SKY130 liberty energies against accel-fetchprice breakevens (library values, not measurements).
+idle flop, one cycle: clock-pin internal 40.5 fJ (table range 39.8-42.4) + pin C*V^2 5.81 fJ + leakage 0.0001 fJ at an assumed 10 ns = e_flop 46.4 fJ
+sky130_sram_1rw1r_44x64_8: 44-bit word, clk0 10.35 pJ per access (rise = fall value in the file)
+sky130_sram_1rw1r_80x64_8: 80-bit word, clk0 16.78 pJ per access (rise = fall value in the file)
+sky130_sram_1rw1r_64x256_8: 64-bit word, clk0 45.62 pJ per access (rise = fall value in the file)
+sky130_sram_1rw1r_128x256_8: 128-bit word, clk0 89.55 pJ per access (rise = fall value in the file)
+
+Register-file WS beats OS iff e_weight > e_flop / (e_flop*/e_w). Minimum e_weight for that, pJ per 4-bit weight fetch:
+shape      B  min e_weight pJ
+L1 64x70   2             2.24
+L1 64x70   4             4.47
+L1 64x70   8             8.92
+L1 64x70  16            17.83
+L2 11x64   2             3.28
+L2 11x64   4             6.52
+L2 11x64   8            13.00
+L2 11x64  16            25.95
+
+Verdicts per macro; 'unpacked' = one 4-bit weight per access, 'packed' = width/4 weights share an access. Cells: reg-file WS / psum-in-SRAM WS (the winner).
+shape      B 44b-unpacked 44b-packed   80b-unpacked 80b-packed   64b-unpacked 64b-packed   128b-unpacked 128b-packed  
+L1 64x70   2        WS/OS        OS/OS        WS/OS        OS/OS        WS/OS        WS/OS         WS/OS         WS/OS
+L1 64x70   4        WS/OS        OS/OS        WS/OS        OS/OS        WS/OS        OS/OS         WS/OS         OS/OS
+L1 64x70   8        WS/OS        OS/OS        WS/OS        OS/OS        WS/OS        OS/OS         WS/OS         OS/OS
+L1 64x70  16        OS/OS        OS/OS        OS/OS        OS/OS        WS/OS        OS/OS         WS/OS         OS/OS
+L2 11x64   2        WS/OS        OS/OS        WS/OS        OS/OS        WS/OS        OS/OS         WS/OS         OS/OS
+L2 11x64   4        WS/OS        OS/OS        WS/OS        OS/OS        WS/OS        OS/OS         WS/OS         OS/OS
+L2 11x64   8        OS/OS        OS/OS        WS/OS        OS/OS        WS/OS        OS/OS         WS/OS         OS/OS
+L2 11x64  16        OS/OS        OS/OS        OS/OS        OS/OS        WS/OS        OS/OS         WS/OS         OS/OS
