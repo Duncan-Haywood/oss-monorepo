@@ -78,8 +78,8 @@ test('default inputs on the page match the worked example', () => {
   const comparison = comparePartialRefund({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
@@ -88,15 +88,15 @@ test('default inputs on the page match the worked example', () => {
     partialRefundAmount: 15,
     monthlyCases: 4,
   });
-  assert.ok(Math.abs(comparison.partial.kept - 8.5925) < 1e-6, 'default partial keep');
+  assert.ok(Math.abs(comparison.partial.kept - 8.384) < 1e-6, 'default partial keep');
   assert.ok(Math.abs(comparison.takeReturn.kept + 11) < 1e-6, 'default return keep');
-  assert.ok(Math.abs(comparison.keepItemFull.kept + 18.3) < 1e-6, 'default full-keep keep');
-  assert.match(html, /\$8\.59/);
+  assert.ok(Math.abs(comparison.keepItemFull.kept + 18.4) < 1e-6, 'default full-keep keep');
+  assert.match(html, /\$8\.38/);
   assert.match(html, /−\$11\.00|-\$11\.00/);
-  assert.match(html, /−\$18\.30|-\$18\.30/);
-  assert.match(html, /\$19\.59/);
-  assert.match(html, /\$78\.37/);
-  assert.match(html, /\$37\.59/);
+  assert.match(html, /−\$18\.40|-\$18\.40/);
+  assert.match(html, /\$19\.38/);
+  assert.match(html, /\$77\.54/);
+  assert.match(html, /\$37\.44/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

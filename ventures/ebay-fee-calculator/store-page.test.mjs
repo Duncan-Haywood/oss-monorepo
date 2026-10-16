@@ -77,25 +77,25 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareStoreTiers({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
   });
-  assert.equal(comparison.winner, 'current');
-  assert.ok(Math.abs(comparison.current.monthlyProfit - 864.2) < 1e-6);
-  assert.ok(Math.abs(comparison.starter.monthlyProfit - 861.77) < 1e-6);
-  assert.ok(Math.abs(comparison.extraKeptOnStarter + 2.43) < 1e-6);
+  assert.equal(comparison.winner, 'starter');
+  assert.ok(Math.abs(comparison.current.monthlyProfit - 853.76) < 1e-6);
+  assert.ok(Math.abs(comparison.starter.monthlyProfit - 857.77) < 1e-6);
+  assert.ok(Math.abs(comparison.extraKeptOnStarter - 4.01) < 1e-6);
   assert.match(html, /id="monthlyStoreOrders"[^>]*value="40"/);
   assert.match(html, /id="monthlyStoreFee"[^>]*value="0"/);
-  assert.match(html, /\$864\.20/);
-  assert.match(html, /\$861\.77/);
-  assert.match(html, /\$2\.43/);
-  assert.match(html, /\$849\.13/);
-  assert.match(html, /\$815\.01/);
-  assert.match(html, /58/);
-  assert.match(html, /\$3\.09/);
+  assert.match(html, /\$853\.76/);
+  assert.match(html, /\$857\.77/);
+  assert.match(html, /\$4\.01/);
+  assert.match(html, /\$845\.13/);
+  assert.match(html, /\$811\.01/);
+  assert.match(html, /27/);
+  assert.match(html, /\$15\.97/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

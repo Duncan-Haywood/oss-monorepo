@@ -78,8 +78,8 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareQuantityDiscount({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
@@ -96,20 +96,20 @@ test('default inputs on the page match the worked example', () => {
     qtyTakePct: 70,
     monthlyQtyOrders: 20,
   });
-  assert.ok(Math.abs(comparison.singles.expectedProfit - 20.17895) < 1e-6, 'default singles');
-  assert.ok(Math.abs(comparison.discount.expectedProfit - 22.20995) < 1e-6, 'default discount');
-  assert.ok(Math.abs(comparison.breakEvenTakePct - 63.59881494555369) < 1e-6, 'default take floor');
-  assert.match(html, /\$20\.18/);
-  assert.match(html, /\$22\.21/);
-  assert.match(html, /\$2\.03/);
-  assert.match(html, /\$40\.62/);
-  assert.match(html, /63\.6%/);
-  assert.match(html, /2\.1%/);
-  assert.match(html, /\$4\.96/);
-  assert.match(html, /\$36\.69/);
-  assert.match(html, /\$31\.73/);
-  assert.match(html, /\$17\.84/);
-  assert.match(html, /\$17\.45/);
+  assert.ok(Math.abs(comparison.singles.expectedProfit - 19.92056) < 1e-6, 'default singles');
+  assert.ok(Math.abs(comparison.discount.expectedProfit - 21.97496) < 1e-6, 'default discount');
+  assert.ok(Math.abs(comparison.breakEvenTakePct - 63.45582426543667) < 1e-6, 'default take floor');
+  assert.match(html, /\$19\.92/);
+  assert.match(html, /\$21\.97/);
+  assert.match(html, /\$2\.05/);
+  assert.match(html, /\$41\.09/);
+  assert.match(html, /63\.5%/);
+  assert.match(html, /2\.2%/);
+  assert.match(html, /\$4\.83/);
+  assert.match(html, /\$36\.22/);
+  assert.match(html, /\$31\.39/);
+  assert.match(html, /\$17\.62/);
+  assert.match(html, /\$17\.27/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

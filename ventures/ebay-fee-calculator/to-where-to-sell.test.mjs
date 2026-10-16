@@ -22,7 +22,7 @@ const INPUTS = {
   packagingCost: '2',
   otherCost: '3',
   // eBay-only fields that must not leak into the where-to-sell payload.
-  finalValueRate: '13.25',
+  finalValueRate: '13.6',
   promotedRate: '10',
   quantity: '4',
 };

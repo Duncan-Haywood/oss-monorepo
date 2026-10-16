@@ -31,7 +31,7 @@
         "name": "Should I buy eBay shipping labels or use Pirate Ship?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "A cheaper Pirate Ship, Shippo, or carrier-account quote is not automatically more leftover. eBay labels auto-upload tracking and usually keep a lower item-not-received claim rate. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 eBay label, $4.25 third-party label, 10% returns, 0.8% eBay claims, 2.5% third-party claims, 4 minutes at $18) the eBay label expects $18.05, the timed third-party path expects $16.99, and the same third-party postage with no extra time expects $18.19. Four minutes wipes a $0.75 postage save. That is arithmetic on your inputs, not advice to buy a label."
+          "text": "A cheaper Pirate Ship, Shippo, or carrier-account quote is not automatically more leftover. eBay labels auto-upload tracking and usually keep a lower item-not-received claim rate. On the calculator defaults ($40 item, $6 shipping charged, 13.6% final value fee, $12 cost, $5 eBay label, $4.25 third-party label, 10% returns, 0.8% eBay claims, 2.5% third-party claims, 4 minutes at $18) the eBay label expects $17.82, the timed third-party path expects $16.76, and the same third-party postage with no extra time expects $17.96. Four minutes wipes a $0.75 postage save. That is arithmetic on your inputs, not advice to buy a label."
         }
       },
       {
@@ -39,7 +39,7 @@
         "name": "When does Pirate Ship beat an eBay shipping label?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "When the quote is cheap enough, the extra upload time is already sunk, and the claim-rate gap stays small. On the same $40 listing, a 4% third-party claim rate with no extra time expects $17.64 against $18.05 on the eBay label. A $180 item with $85 cost and a $12 eBay label versus a $9.50 third-party quote still prefers eBay ($56.68 vs $55.31) because 2.5% of a high sunk cost is already more than the postage save."
+          "text": "When the quote is cheap enough, the extra upload time is already sunk, and the claim-rate gap stays small. On the same $40 listing, a 4% third-party claim rate with no extra time expects $17.42 against $17.82 on the eBay label. A $180 item with $85 cost and a $12 eBay label versus a $9.50 third-party quote still prefers eBay ($56.68 vs $55.32) because 2.5% of a high sunk cost is already more than the postage save."
         }
       },
       {
@@ -116,8 +116,8 @@
       <div class="fields">
         <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
         <label>Shipping charged to buyer <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
-        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
-        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.6"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.40"></label>
         <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
         <label>eBay label cost <input id="ebayLabelCost" type="number" min="0" step="0.01" value="5"></label>
         <label>Third-party / Pirate Ship label <input id="thirdPartyLabelCost" type="number" min="0" step="0.01" value="4.25"></label>
@@ -177,32 +177,32 @@
       and uploading tracking.
     </p>
     <p>
-      On the defaults — $40 item, $6 shipping charged, 13.25%
-      final value fee, $0.30 fixed, $12 cost, $5 eBay label,
+      On the defaults — $40 item, $6 shipping charged, 13.6%
+      final value fee, $0.40 fixed, $12 cost, $5 eBay label,
       $4.25 Pirate Ship quote, $1 pack, $5 return label, 10%
       returns, 0.8% eBay claims, 2.5% third-party claims, 4
       minutes at $18, forty shipments — the eBay label expects
-      $18.05, the timed third-party path expects $16.99, and
+      $17.82, the timed third-party path expects $16.76, and
       the same third-party postage with no extra time expects
-      $18.19. Four minutes keeps $1.07 less on this decision
-      and −$42.71 across forty shipments. The postage-only
-      path keeps $0.13 more (+$5.29 / 40). No third-party
+      $17.96. Four minutes keeps $1.06 less on this decision
+      and −$42.55 across forty shipments. The postage-only
+      path keeps $0.14 more (+$5.45 / 40). No third-party
       claim rate on these timed labels can match eBay. The
-      third-party quote has to stay at about $3.18, or extra
-      time has to stay under about 0.4 minutes, before the
+      third-party quote has to stay at about $3.19, or extra
+      time has to stay under about 0.5 minutes, before the
       timed path matches. If they keep the item, leftover is
-      $21.61 eBay versus $21.16 timed third-party.
+      $21.34 eBay versus $20.89 timed third-party.
     </p>
     <p>
       A higher claim rate or a heavier sunk cost flips the
       postage-only path too. Keep the same $40 listing, drop
       extra time to zero, and raise third-party claims to 4%.
-      eBay still expects $18.05; third-party expects $17.64 —
+      eBay still expects $17.82; third-party expects $17.42 —
       $0.41 less. Claims have to stay at about 2.9% before
       that path matches. A $180 item with $12 shipping
       charged, $85 cost, a $12 eBay label, a $9.50
       third-party quote, and $2 pack expects $56.68 eBay
-      versus $55.31 timed third-party (−$1.37). Third-party
+      versus $55.32 timed third-party (−$1.37). Third-party
       claims only have to reach about 1.6% before eBay
       matches, because 2.5% of a high sunk cost is already
       more than a $2.50 postage save.
@@ -223,9 +223,9 @@
   </section>
   <h2>Common questions</h2>
   <h3>Should I buy eBay shipping labels or use Pirate Ship?</h3>
-  <p>A cheaper Pirate Ship, Shippo, or carrier-account quote is not automatically more leftover. eBay labels auto-upload tracking and usually keep a lower item-not-received claim rate. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 eBay label, $4.25 third-party label, 10% returns, 0.8% eBay claims, 2.5% third-party claims, 4 minutes at $18) the eBay label expects $18.05, the timed third-party path expects $16.99, and the same third-party postage with no extra time expects $18.19. Four minutes wipes a $0.75 postage save. That is arithmetic on your inputs, not advice to buy a label.</p>
+  <p>A cheaper Pirate Ship, Shippo, or carrier-account quote is not automatically more leftover. eBay labels auto-upload tracking and usually keep a lower item-not-received claim rate. On the calculator defaults ($40 item, $6 shipping charged, 13.6% final value fee, $12 cost, $5 eBay label, $4.25 third-party label, 10% returns, 0.8% eBay claims, 2.5% third-party claims, 4 minutes at $18) the eBay label expects $17.82, the timed third-party path expects $16.76, and the same third-party postage with no extra time expects $17.96. Four minutes wipes a $0.75 postage save. That is arithmetic on your inputs, not advice to buy a label.</p>
   <h3>When does Pirate Ship beat an eBay shipping label?</h3>
-  <p>When the quote is cheap enough, the extra upload time is already sunk, and the claim-rate gap stays small. On the same $40 listing, a 4% third-party claim rate with no extra time expects $17.64 against $18.05 on the eBay label. A $180 item with $85 cost and a $12 eBay label versus a $9.50 third-party quote still prefers eBay ($56.68 vs $55.31) because 2.5% of a high sunk cost is already more than the postage save.</p>
+  <p>When the quote is cheap enough, the extra upload time is already sunk, and the claim-rate gap stays small. On the same $40 listing, a 4% third-party claim rate with no extra time expects $17.42 against $17.82 on the eBay label. A $180 item with $85 cost and a $12 eBay label versus a $9.50 third-party quote still prefers eBay ($56.68 vs $55.32) because 2.5% of a high sunk cost is already more than the postage save.</p>
   <h3>Is this the same as shipping insurance or a Standard Envelope?</h3>
   <p>No. Package protection is an add-on on a tracked label you already bought. Standard Envelope is cheap untracked mail versus a tracked label. This page is where you buy the tracked label: eBay Shipping versus Pirate Ship, Shippo, or a carrier account, after the claim rate that usually moves with seller protection and the minutes you spend uploading tracking.</p>
 
