@@ -461,7 +461,13 @@ workflows:
 - workflow: distribute-devto.yml
   classification: none
   publishes: []
+- workflow: distribute-ghcr.yml
+  classification: none
+  publishes: []
 - workflow: distribute-hashnode.yml
+  classification: none
+  publishes: []
+- workflow: distribute-homebrew.yml
   classification: none
   publishes: []
 - workflow: distribute-mastodon.yml
