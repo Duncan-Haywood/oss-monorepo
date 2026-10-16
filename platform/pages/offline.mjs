@@ -67,16 +67,25 @@ function chunk(type, data) {
   return Buffer.concat([length, body, crc]);
 }
 
-function encodePngRect(width, height, rgba) {
+function encodePngRect(width, height, rgba, { alpha = true } = {}) {
+  if (!alpha) {
+    const rgb = Buffer.alloc(width * height * 3);
+    for (let i = 0, j = 0; i < rgba.length; i += 4, j += 3) { rgb[j] = rgba[i]; rgb[j + 1] = rgba[i + 1]; rgb[j + 2] = rgba[i + 2]; }
+    return encodeRaw(width, height, rgb, 3, 2);
+  }
+  return encodeRaw(width, height, rgba, 4, 6);
+}
+
+function encodeRaw(width, height, rgba, channels, colourType) {
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(width, 0);
   ihdr.writeUInt32BE(height, 4);
   ihdr[8] = 8; // bit depth
-  ihdr[9] = 6; // colour type: RGBA
+  ihdr[9] = colourType; // 6 = RGBA, 2 = RGB
   // 10..12 stay zero: deflate, adaptive filtering, no interlace.
 
   // One filter byte (0 = none) per scanline, ahead of that row's pixels.
-  const stride = width * 4;
+  const stride = width * channels;
   const raw = Buffer.alloc((stride + 1) * height);
   for (let y = 0; y < height; y += 1) {
     const rowStart = y * (stride + 1);
@@ -107,7 +116,7 @@ const hexToRgb = (hex) => [
  * is what Android crops to a circle; the plain variant keeps a rounded square
  * so it still reads as an icon where no mask is applied.
  */
-export function renderIcon({ size = 192, maskable = false } = {}) {
+export function renderIcon({ size = 192, maskable = false, opaque = false } = {}) {
   const rgba = Buffer.alloc(size * size * 4);
   const [ar, ag, ab] = hexToRgb(THEME_COLOR);
 
@@ -132,7 +141,9 @@ export function renderIcon({ size = 192, maskable = false } = {}) {
 
   const pad = maskable ? size * 0.1 : 0;
   const plate = size - pad * 2;
-  const plateRadius = maskable ? plate * 0.5 : size * 0.22;
+  // `opaque` is a full-bleed square with no transparent corners: the App Store
+  // rejects an icon with an alpha channel and rounds the corners itself.
+  const plateRadius = opaque ? 0 : maskable ? plate * 0.5 : size * 0.22;
 
   for (let y = 0; y < size; y += 1) {
     for (let x = 0; x < size; x += 1) {
@@ -166,7 +177,7 @@ export function renderIcon({ size = 192, maskable = false } = {}) {
     }
   }
 
-  return encodePng(size, rgba);
+  return opaque ? encodePngRect(size, size, rgba, { alpha: false }) : encodePng(size, rgba);
 }
 
 export const ICONS = [
