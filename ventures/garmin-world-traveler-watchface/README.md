@@ -8,6 +8,8 @@ tiers. Your own local time is digital, big and centered, framed by a
 sub-dial ring; a small accent marker on the outer ring ties it back to
 the world-time bezel.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/garmin-world-traveler-watchface/
+
 ![Design mockup](docs/design-mockup.png)
 
 *(The image above is a design mockup rendered outside the Connect IQ

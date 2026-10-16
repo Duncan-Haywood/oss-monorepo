@@ -5,6 +5,8 @@ Etsy, Poshmark and Whatnot reports together and get one monthly profit and loss,
 channel really keeps of a sales dollar, and a Schedule C style worksheet for your tax
 preparer.** Files are read in the browser; nothing is uploaded and no account access is needed.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/reseller-books/
+
 After using this, you can now **see all your marketplaces in one set of books, compare what
 eBay, Etsy, Poshmark and Whatnot actually keep after fees, postage, ads and refunds, and hand
 a preparer numbers already grouped by tax line**, which used to mean four exports, four

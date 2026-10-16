@@ -7,6 +7,8 @@ need to recover ownership costs. Download a plain-text quote snapshot for your
 records, or copy a share link that hands a live, editable copy of the same
 scenario to a partner or customer.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/equipment-rental-break-even/
+
 After using this, you can now price a rental booking with delivery, cleaning,
 damage reserve, and idle-time costs included, which used to take a spreadsheet
 and a guess at utilization.
