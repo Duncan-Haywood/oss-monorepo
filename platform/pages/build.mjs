@@ -28,6 +28,7 @@ import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
 
 import { decodeEntities } from './entities.mjs';
+import { buildEngineeringPage, ENGINEERING_PATH } from './engineering.mjs';
 import {
   FEED_MAX_ENTRIES,
   feedUpdatedAt,
@@ -1573,6 +1574,8 @@ const CATEGORY_RULES = [
       || slug === 'meta-catalog-csv-check'
       // `redirect-map-check` joined 2026-10-05: a site-migration redirect map pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
       || slug === 'redirect-map-check'
+      // `internal-link-planner` joined 2026-10-16: a site-structure audit for the same technical-SEO audience, filed beside `redirect-map-check` rather than in the catch-all.
+      || slug === 'internal-link-planner'
       // `brevo-contacts-csv-check` joined 2026-10-05: the Brevo (email + SMS contacts) member of the same import pre-flight family.
       || slug === 'brevo-contacts-csv-check'
       // `gtin-list-check` joined 2026-10-05: a product-list barcode pre-flight, the same line-numbered findings and explicit not-checked list as the file pre-flights above, filed beside them for the same bundle-bound reason.
@@ -7018,6 +7021,7 @@ ${disclaimerHtml('', surfaces)}
         <a href="${GUIDES_PATH}">Guides</a> ·
         <a href="${COMPARE_PATH}">Comparisons</a> ·
         <a href="${RESEARCH_PATH}">Research</a> ·
+        <a href="${ENGINEERING_PATH}">Engineering status</a> ·
         <a href="deploy/">Deploy your own copy</a> ·
         <a href="catalog.json">Machine-readable catalog</a> ·
         <a href="llms.txt">llms.txt</a> ·
@@ -9618,6 +9622,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     }
   }
   researchSlugs.sort();
+
+  // The engineering status page: what the agent fleet shipped, is working on,
+  // spent and is blocked on, read from the committed run records and history.
+  // `noindex` and in no sitemap; see `engineering.mjs`.
+  await buildEngineeringPage(outDir, base);
 
   // The comparison index. After the categories because it links every one of
   // them, and before the sitemaps for the same reason they are.
