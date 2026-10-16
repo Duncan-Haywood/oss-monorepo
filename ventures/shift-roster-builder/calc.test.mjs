@@ -277,3 +277,19 @@ test("ics export: one event per assigned shift, overnight ends next day, per-per
   assert.throws(() => rosterIcs(r, "2026-10-13"), /Monday/);
   assert.throws(() => rosterIcs(r, "nope"), /YYYY/);
 });
+
+test("hire what-if: an unfillable shift reports what one more person would cover", () => {
+  const staff = staffOf("Ann, 15, 40, 0, Mon-Fri 9-17");
+  const slots = slotsOf("Sat, 9, 13, 1, Open");
+  const r = buildRoster(staff, slots);
+  assert.equal(r.unfilledSlots, 1);
+  assert.ok(r.hireTest);
+  assert.equal(r.hireTest.coveredHours, 4);
+  assert.equal(r.hireTest.stillUnfilledHours, 0);
+  assert.ok(Math.abs(r.hireTest.extraCost - 60) < 1e-6);
+});
+
+test("hire what-if: absent when everything is covered", () => {
+  const r = buildRoster(staffOf("Ann, 15, 40, 0, any"), slotsOf("Mon, 9, 13, 1, Open"));
+  assert.equal(r.hireTest, null);
+});
