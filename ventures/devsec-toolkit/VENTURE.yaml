@@ -1,0 +1,48 @@
+name: devsec-toolkit
+description: 'Free, open-source DevSecOps toolkit: one zero-dependency command that runs a repository through 22 static security checks (GitHub Actions injection, cache and artifact poisoning, secrets in workflows and image layers, privileged Compose services and Kubernetes pods, dependency confusion, end-of-life runtimes, JWT misuse, ReDoS, AI-agent permissions) and reports every finding once, on one severity scale, as text, JSON, Markdown or SARIF for GitHub code scanning, with baselines so CI fails only on new findings. Nothing is uploaded.'
+stage: prototype
+
+owner: duncan
+
+# Owner-directed (2026-10-16): "build open source cysec toolkits. a lot of what
+# currently exists is paid or piecemeal ... for devsec. long term project."
+# Not a scored pipeline candidate. It deepens the portfolio's existing devsec
+# checks (each its own venture) into one product, rather than adding a 23rd
+# standalone page. The long-term plan is ROADMAP.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are both
+# high. It is a read-only static analyser that runs locally, makes no network
+# calls, holds no user data, and frames output as observations with fixes,
+# never as "secure" or "compliant" (page.test.mjs enforces the wording).
+hypotheses:
+  - claim: A maintainer who already runs one free scanner (zizmor, Trivy, Checkov) will add devsec-toolkit for the CI/CD and AI-agent checks those tools do not cover, because it is one workflow file with no install.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Baselines make adoption on an existing repository possible in one sitting; a repository with hundreds of findings will turn on `--fail-on` rather than give up.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Scanning a large, real repository finishes in under a minute with no check erroring.
+    status: supported
+    checked: 2026-10-16
+    evidence: in-repo
+    note: This monorepo (about 300 MB, around 1,300 workflows), 31 s, 21 checks ok, 1 not applicable, 0 errors.
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No external repository runs devsec.py (GitHub code search for devsec-toolkit/devsec.py in workflows) within 180 days of the page and template being public.
+  - The wrapped checks drift faster than the drift tests can be kept green for two consecutive months.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/devsec-toolkit/
+  analytics: null
