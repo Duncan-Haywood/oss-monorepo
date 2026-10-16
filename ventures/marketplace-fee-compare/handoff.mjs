@@ -1,6 +1,6 @@
 // Carry the item you just ranked into the winning channel's own calculator.
 //
-// This page ranks six channels on headline fees and stops there, deliberately:
+// This page ranks seven channels on headline fees and stops there, deliberately:
 // its whole value is that one set of inputs produces a comparable table. Every
 // channel on it then has a dedicated calculator in this portfolio that models
 // the things a flat percentage cannot — Promoted Listings, FBA size tiers, WFS,
@@ -16,7 +16,7 @@
 //
 // `ventures/where-to-sell-calculator/handoff.mjs` solved the same problem for
 // the other comparison page in this portfolio, and this is the same mechanism
-// pointed at this page's six channels. It is a separate table rather than an
+// pointed at this page's seven channels. It is a separate table rather than an
 // import because the two pages do not share an input vocabulary — this page
 // folds packaging into one `otherCost`, where-to-sell keeps `packagingCost`
 // separate — and a runtime import across ventures would make one page's link
@@ -33,7 +33,7 @@
 // that target's own page actually offers.
 
 /**
- * The six ranked channels, and how this page's item maps onto each deep tool.
+ * The seven ranked channels, and how this page's item maps onto each deep tool.
  *
  * `fields` maps this page's item key to the target's input id. A channel absent
  * from this table gets no item-carrying link — deliberately, since a link that
@@ -169,6 +169,25 @@ export const HANDOFFS = [
       // longer multiplies to what the seller typed here — a number that looks
       // like theirs and is not.
       monthlyOrders: 'it takes units per day; converting would hand back a rounded figure',
+    },
+  },
+  {
+    channel: 'mercari',
+    slug: 'mercari-fee-calculator',
+    label: 'Mercari fee calculator',
+    // What it adds: the listing-date switch between Mercari's two fee
+    // schedules (a listing created before 6 Jan 2025 and never edited still
+    // pays the old 10% plus processing), and a target-profit price solver.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'labelCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    drops: {
+      // Mercari has no subscription, so there is nothing to amortise.
+      monthlyOrders: 'no monthly fee there; nothing to spread over orders',
     },
   },
   {
