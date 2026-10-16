@@ -5,6 +5,8 @@ WooCommerce: **paste or drop Shopify's product export CSV and download a WooComm
 import CSV**, with every note about what could not be carried across. The file is read in the
 browser; nothing is uploaded and no login or API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shopify-to-woocommerce-converter/
+
 After using this, you can now **import a Shopify catalogue into WooCommerce with its variants
 as variable products and variations, Compare At Prices as sale prices, stock, weights, tags and
 images intact**, which used to mean rebuilding the file by hand in a spreadsheet or paying for a

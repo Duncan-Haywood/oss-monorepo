@@ -5,6 +5,8 @@ Directive (2023/970, Art. 9) requires employers with 100 or more workers to repo
 pay gap, share of women and men receiving variable pay, women and men in each pay quartile, and the gap per job category with
 the Art. 10 five-percent joint-pay-assessment flag. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/eu-pay-gap-report-calculator/
+
 After using this, you can now **see your pay gap indicators and which job categories cross the 5% line before the first report
 is due (7 June 2027 for employers with 150 or more workers)**, which used to be a payroll-spreadsheet exercise redone by hand.
 

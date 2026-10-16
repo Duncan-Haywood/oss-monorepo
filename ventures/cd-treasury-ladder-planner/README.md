@@ -5,6 +5,8 @@ ladder with its after-tax yield per rung, when cash comes due, and how it compar
 short terms if rates rise or fall by up to two points.** Treasuries skip state income tax; CDs do not. Nothing
 is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cd-treasury-ladder-planner/
+
 ## Model
 
 - Quote line: months, APY %, `cd` or `treasury`. After-tax yield: CD `apy x (1 - fed - state)`, Treasury

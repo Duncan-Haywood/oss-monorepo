@@ -4,6 +4,8 @@ A free browser tool for the self-employed: **enter your business profit and the 
 premiums you paid, and see the Schedule 1 deduction (Form 7206) after the profit ceiling, employer-plan months and
 age caps, the income tax it saves, and how the answer moves if profit changes.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/self-employed-health-insurance-deduction-calculator/
+
 After using this, you can now **see how much of your premiums you can actually deduct and what it is worth**,
 which used to take reading the Form 7206 worksheet and doing the self-employment-tax loop by hand.
 

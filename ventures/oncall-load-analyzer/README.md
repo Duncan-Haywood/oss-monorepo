@@ -5,6 +5,8 @@ export from PagerDuty, Opsgenie, Grafana OnCall or any tool that writes CSV, and
 who carries the pager, which nights were broken, which alerts fix themselves or
 repeat, and how many hours a cleanup would give back.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/oncall-load-analyzer/
+
 After using this, you can now **show your team, with numbers, whether the rotation is
 fair and which three alerts to fix first**, which used to need a vendor analytics tier
 or an afternoon in a spreadsheet.

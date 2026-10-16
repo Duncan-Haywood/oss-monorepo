@@ -10,6 +10,8 @@ or fall through to the wildcard group and end up partially blocked. It also
 does a lightweight structural check of `llms.txt`, the emerging
 [llmstxt.org](https://llmstxt.org/) convention.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ai-crawler-access-check/
+
 After using this, you can now **tell exactly which AI crawlers your site
 currently allows or blocks, in one paste**, which used to take manually
 cross-referencing your `robots.txt` against each crawler operator's own docs

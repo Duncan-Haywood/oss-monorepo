@@ -11,6 +11,8 @@ shipping-label cost, the item price you need to hit a target profit, and
 which schedule actually pays more on a given sale. Nothing is uploaded; the
 arithmetic runs on the visitor's own device.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mercari-fee-calculator/
+
 ```
 cd ventures/mercari-fee-calculator && node --test
 ```

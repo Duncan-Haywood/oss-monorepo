@@ -2,6 +2,8 @@
 
 Independent ATM route operators can use this free browser-local calculator to find real monthly profit for one location — after the location's surcharge commission split and/or flat placement fee, per-transaction processor fees, the vault cash cost of capital, refill labor and travel, and the machine's own cost — then roll a list of locations up into monthly route profit and check it against an income goal. **After using this, you can tell which placements are actually worth keeping, which used to take a spreadsheet and a guess about what the location split and processor fees were quietly taking off the top.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/atm-route-margin/
+
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.
 
 ## Why a transaction count is the wrong number to judge a placement by

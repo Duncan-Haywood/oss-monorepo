@@ -6,6 +6,8 @@ removal, repairs, holding and the return on your cash) and it returns the **maxi
 bid** that still hits your target profit, then stress-tests the bids you are weighing
 against a 10% and 20% lower resale.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tax-deed-auction-max-bid-planner/
+
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.
 

@@ -6,6 +6,8 @@ break-even age for waiting, and, for a couple, the best pair of claim ages once 
 and the survivor benefit are counted**, including the case where one spouse dies early and the other
 lives long. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/social-security-claiming-age-calculator/
+
 After using this, you can now **see how much of the claiming decision is the survivor's income rather
 than a break-even age, and pick a pair of ages instead of two separate ones**, which most single-person
 calculators cannot show.

@@ -2,6 +2,8 @@
 
 The free mobile detailing bid calculator shows the minimum quote and target-margin price for a mobile detail job after hands-on time, travel/setup/cleanup hours, hourly wage plus payroll burden, round-trip miles, vehicle cost, supplies, overhead, and payment fees. After using this, you can price a job with its real travel burden, which used to take a spreadsheet and a second guess. A $180 default bid stays in the black when wage is left at 0; putting $28/hour plus 25% burden on the 4.25-hour stop turns it into a loss. Fee and margin are both slices of the final price — the form names how much of the ticket they already claim, and it will not print a negative quote when they jointly exceed 100%.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mobile-detailing-bid-calculator/
+
 Once the number is right, **Print proposal** turns it into the one-page sheet you hand the customer: your business details, the scope drafted from the job you just priced, the price, a price-held date, and a signature line. Your wage, burden, supplies, overhead, and margin are not on it and are not printed. Print or "Save as PDF" from the browser.
 
 **Copy share link** encodes the whole job — hours, miles, wage, burden, supplies, overhead, fee, and target margin, plus the deposit/terms from the proposal panel — into a URL fragment you can send to a second detailer, whoever books the calendar, or the customer; nothing is uploaded, and opening the link reopens the same quote instead of the form's defaults. See [`share.mjs`](share.mjs).

@@ -4,6 +4,8 @@ A free browser tool for freelancers, agencies and contractors: **paste or upload
 what it actually took) and get calibrated 50/70/80/90% outcomes for your next estimate, the buffer and fixed price that
 covers them, the chance a fixed price loses money, and a back-test on your most recent projects.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/project-estimate-calibrator/
+
 After using this, you can now **quote a fixed price with a buffer taken from how your own estimates have actually
 missed, and know the chance it still loses money**, which used to take a gut feeling of "add 20%".
 

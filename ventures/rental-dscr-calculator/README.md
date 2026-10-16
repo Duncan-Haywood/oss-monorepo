@@ -4,6 +4,8 @@ A free browser tool for rental investors: **enter price, rent, loan terms and op
 two ways (rent over PITIA, and NOI over debt service), cash-on-cash, cap rate, break-even occupancy, the largest
 loan a lender's minimum DSCR allows, and how a higher interest rate cuts coverage.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rental-dscr-calculator/
+
 After using this, you can now **see whether a deal clears a DSCR loan's minimum and how big a loan it supports**,
 which used to take a spreadsheet you had to build and trust yourself.
 

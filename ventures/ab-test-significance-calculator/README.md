@@ -6,6 +6,8 @@ confidence interval, a sample ratio mismatch check, the Bayesian probability tha
 always-valid result that stays honest when you peeked at the test while it ran. A second panel plans sample size
 and duration before you start. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ab-test-significance-calculator/
+
 After using this, you can now **tell a real lift from noise, catch a broken traffic split, and know how many
 visitors you need before launching a test**.
 

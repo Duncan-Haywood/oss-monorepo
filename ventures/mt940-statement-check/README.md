@@ -8,6 +8,8 @@ no :86: description, repeats, and a missing closing - line. It gives a line numb
 a repaired MT940, and converts the transactions to CSV with the :86: text split into name and
 purpose. The file is read locally and never uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mt940-statement-check/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

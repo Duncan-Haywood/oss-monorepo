@@ -6,6 +6,8 @@ the fees. It returns the yearly discount rate the buyer earns, cents on the doll
 worth at a rate you call fair, and what the same payments would fetch at other rates, as a counter-offer
 range. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/structured-settlement-buyout-calculator/
+
 After using this, you can **see the interest rate hidden in a factoring offer** and shop it, instead of
 comparing two dollar figures.
 

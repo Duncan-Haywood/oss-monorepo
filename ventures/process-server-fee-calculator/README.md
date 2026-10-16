@@ -2,6 +2,8 @@
 
 Independent process servers can use this free browser-local calculator to find real net profit for one service-of-process job — after extra-attempt, rush, and skip-trace add-ons, mileage, and the server's own vehicle cost and time — then compare two or three clients' fee schedules by what they actually pay per hour, not just their headline base fee. **After using this, you can tell which of two clients paying different base fees for the same kind of job is actually worth serving for, which used to mean a guess about how much a hard-to-find defendant and a long drive were quietly eating into a "good" flat rate.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/process-server-fee-calculator/
+
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.
 
 ## Why a flat per-serve fee is the wrong number to judge a client by

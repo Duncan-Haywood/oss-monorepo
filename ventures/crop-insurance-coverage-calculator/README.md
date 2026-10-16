@@ -7,6 +7,8 @@ yield, what each extra 5 points costs per dollar of added guarantee, and the net
 in each year and across them, under Revenue Protection, RP with Harvest Price Exclusion or Yield
 Protection. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/crop-insurance-coverage-calculator/
+
 After using this, you can **see what the next 5 points of coverage actually buys** before you sit
 down with your agent.
 

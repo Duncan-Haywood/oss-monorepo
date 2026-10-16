@@ -6,6 +6,8 @@ rate, the cap rate an asking price implies, debt service coverage, cash on cash,
 rent-increase value grid, and what a lot rent increase is worth after the move-outs you expect,
 with the break-even number of move-outs. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mobile-home-park-valuation-calculator/
+
 After using this, you can **see what a lot rent increase does to value and how many tenants you
 can lose before it stops paying**, instead of rebuilding a spreadsheet for every deal.
 

@@ -8,6 +8,8 @@ net deposit, splits a payout that straddles a month end into one journal per mon
 each to a Stripe clearing account. Rows no rule recognises are journalled to an uncategorised
 account rather than dropped. The report is read locally and never uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/stripe-payout-to-journal/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

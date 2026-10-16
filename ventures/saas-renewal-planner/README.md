@@ -5,6 +5,8 @@ you pay for are rarely the seats people use. Paste your subscriptions (renewal d
 proposed increase) and get the last day to act on each one, the renewals ranked by what negotiating could save, a floor and
 stretch target price, an email draft per vendor and a calendar file of the deadlines. Browser page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/saas-renewal-planner/
+
 ```
 node cli.mjs plan renewals.csv --as-of 2026-10-02 --ask 10 --json
 node cli.mjs email renewals.csv --vendor Slack

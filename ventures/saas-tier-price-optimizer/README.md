@@ -2,6 +2,8 @@
 
 A free browser tool for SaaS founders: **paste what each surveyed customer would pay per month for each plan, and get the Good-Better-Best prices that earn the most profit**, who lands on each plan, and what that is worth against your current prices.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/saas-tier-price-optimizer/
+
 After using this, you can **set a three-plan price ladder from a willingness-to-pay survey in minutes**, which used to take a spreadsheet of guesses or a paid pricing consultant.
 
 ## Model

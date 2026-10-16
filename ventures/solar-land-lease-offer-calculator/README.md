@@ -6,6 +6,8 @@ present value of the lease against keeping the land as it is, the year-1 rent an
 would break even, how far inflation erodes a flat rent, and rent as a share of project revenue.**
 A sensitivity grid shows the gain across escalators and rents. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/solar-land-lease-offer-calculator/
+
 After using this, you can now **tell whether a solar lease offer beats farming or cash-renting the land
 over its whole term and what to counter with**, which used to be a first-year-rent comparison or a
 spreadsheet rebuilt for each offer.

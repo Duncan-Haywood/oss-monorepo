@@ -7,6 +7,8 @@ setup and teardown minutes, a generator when the site has no outlet, a paid
 attendant for a water slide or dunk tank, and general-liability insurance
 sized to the fleet actually deployed, not to the quote.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bounce-house-rental-calculator/
+
 Everything runs in the visitor's browser. No account, no network requests, no
 build step, no dependencies.
 

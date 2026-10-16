@@ -6,6 +6,8 @@ visits and miles. It shows profit per route hour, the **weekly take each machine
 and the **highest commission you can pay** and still earn the hourly you want, after
 prizes, card fees, repairs, licences, machine wear and driving.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/amusement-route-location-calculator/
+
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.
 

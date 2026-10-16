@@ -4,6 +4,8 @@ After using this, you can now see which virtual brands to keep running out of on
 them all, with every combination checked exactly, which used to mean adding brands until the line jammed or dropping the one
 with the lowest sales.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ghost-kitchen-brand-picker/
+
 Free, runs in the browser, nothing is uploaded. Open `index.html`.
 
 - Up to 14 brands, each with weekly orders, order value, food cost %, delivery-app fee %, packaging, prep minutes and its own monthly cost.

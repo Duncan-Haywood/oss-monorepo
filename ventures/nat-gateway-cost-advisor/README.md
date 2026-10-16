@@ -5,6 +5,8 @@ what the gateway costs, which destinations should bypass it through a **free S3/
 endpoint** or a **paid interface endpoint that still beats $0.045/GB**, the net saving after endpoint fees,
 and the `aws ec2 create-vpc-endpoint` commands. Browser page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/nat-gateway-cost-advisor/
+
 After using this, you can name the S3 and DynamoDB traffic you are paying $0.045/GB to push through a NAT
 gateway for nothing, and the exact endpoints to create, which used to take a Flow Logs spreadsheet and a
 pricing-page calculation per service.

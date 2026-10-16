@@ -7,6 +7,8 @@ business share of each expense, a comparison with the simplified method, and wha
 one more weekly hour is worth. No child or family information is needed; nothing
 is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/family-child-care-time-space-calculator/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, time and space shares, regular and simplified methods, CSV.

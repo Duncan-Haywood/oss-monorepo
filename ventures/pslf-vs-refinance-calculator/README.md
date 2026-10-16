@@ -5,6 +5,8 @@ your income and a private refinance offer, and see the total paid under Public S
 the balance forgiven, the income at which refinancing starts to win, and what leaving public service early
 costs.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pslf-vs-refinance-calculator/
+
 After using this, you can now **see in dollars whether a refinance offer beats staying federal for PSLF**,
 which used to take a spreadsheet with an income-driven payment schedule, a forgiveness date and a
 break-even you had to guess at.

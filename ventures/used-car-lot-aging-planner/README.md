@@ -7,6 +7,8 @@ per day, the exact best day to wholesale it, which units to wholesale now ranked
 floorplan line per day, and the dollars a wait-until-it-sells policy leaves behind. Browser page or zero-dependency
 CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/used-car-lot-aging-planner/
+
 After using this, you can now see in one paste which aged units to send to auction this week and the day to send the
 rest, with what each one costs to keep, which used to take a spreadsheet per unit and a gut call at the 90-day
 curtailment.

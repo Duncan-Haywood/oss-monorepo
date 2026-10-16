@@ -5,6 +5,8 @@ prices one placement the way the trade actually quotes it — a **markup on the
 pay rate** — and then shows what that markup earns once the employer burden it
 has to carry is counted.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/staffing-markup-calculator/
+
 Everything runs in the visitor's browser. No account, no network requests, no
 build step, no dependencies.
 

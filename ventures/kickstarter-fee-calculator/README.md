@@ -5,6 +5,8 @@ actually keeps after Kickstarter's 5% platform fee and its per-pledge payment
 processing fee, and why two campaigns raising the identical total can keep
 very different amounts.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/kickstarter-fee-calculator/
+
 ## Why this exists
 
 Most "Kickstarter takes 8-10%" summaries treat the fee as a flat percentage

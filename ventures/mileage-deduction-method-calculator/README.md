@@ -4,6 +4,8 @@ A free browser calculator comparing the 2026 IRS standard mileage rate with
 actual vehicle expenses for a self-employed person's business car. Entirely
 client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mileage-deduction-method-calculator/
+
 After using this, you can now **see which vehicle deduction is larger for
 your car in 2026 and roughly what it is worth in tax** -- using the two
 mid-year 2026 rates instead of a single flat one.

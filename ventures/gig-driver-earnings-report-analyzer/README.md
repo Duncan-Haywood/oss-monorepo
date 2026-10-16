@@ -5,6 +5,8 @@ in a trip or delivery history CSV and see what you really earn per hour and per 
 after the car.** The file is read in the browser; nothing is uploaded and no account
 access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/gig-driver-earnings-report-analyzer/
+
 After using this, you can now **see net pay per hour and per mile after vehicle cost,
 which app, weekday and time of day pays best, how much of your pay the car takes, and
 the trips that paid less than they cost to drive**, which used to mean giving a

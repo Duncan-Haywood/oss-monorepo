@@ -6,6 +6,8 @@ wall-type and height factor, then drain stone, geogrid, corners, and the
 engineer/permit step a per-linear-foot quote cannot see — and shows the
 margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/retaining-wall-bid-calculator/
+
 **After using this, you can now price a 40 ft, 6 ft engineered wall with
 geogrid and an engineer stamp as a different job from a 40 ft, 3 ft garden
 wall of the same length**, which used to take a spreadsheet that still

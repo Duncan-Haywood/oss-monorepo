@@ -7,6 +7,8 @@ and a transformer versus an add-on home-run, easy lawn versus irrigated
 turf versus rocky soil, then well lights, a photocell, and a driveway
 saw-cut — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/landscape-lighting-bid-calculator/
+
 **After using this, you can now** send a walk-away landscape-lighting
 price that sees the fixtures and the trench, **which used to take**
 matching a published $150 / light special that treats six path lights

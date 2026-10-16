@@ -2,6 +2,8 @@
 
 A free browser tool for agencies, consultancies, studios and freelance teams: **list your people (cost per hour, hours free, skills) and your projects (bill rate, hours to staff, skill needed), and get the split of hours that earns the most margin.** It also shows who is the bottleneck (the extra margin one more hour of their time would earn) and which work is left unstaffed and why. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/project-staffing-margin-optimizer/
+
 After using this, you can **stop staffing by gut feel and first-come-first-served**: see what the best plan earns, which person to add hours to, and which work is not worth taking at the rate on offer.
 
 ## Model

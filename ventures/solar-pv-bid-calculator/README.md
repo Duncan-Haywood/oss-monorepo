@@ -5,6 +5,8 @@ ground-mount PV job the way the trade actually loses money — watts, then a
 roof-difficulty factor, then electrical extras that a dollars-per-watt quote
 cannot see — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/solar-pv-bid-calculator/
+
 **After using this, you can now price a 10 kW tile-roof job with a 100 A → 200 A
 upgrade as a different job from a 10 kW composition-roof job on a clean 200 A
 panel**, which used to take a spreadsheet that still started from a published

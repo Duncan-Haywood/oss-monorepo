@@ -4,6 +4,8 @@ After using this, you can now **ship a feature to 10% of users, then staff-only,
 then everyone, and switch it off in one request**, from one small server you run,
 instead of paying a feature-flag service per seat or per monthly active user.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/flag-keeper/
+
 Three parts, all free and MIT:
 
 - **`index.html`**: a rollout simulator. Paste your flag config, simulate

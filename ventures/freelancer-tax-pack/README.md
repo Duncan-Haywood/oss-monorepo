@@ -4,6 +4,8 @@ After using this, you know your 2026 net profit, what self-employment and federa
 tax that implies, what you still owe in quarterly estimates, and which clients
 should send you a 1099-NEC, without retyping a number.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/freelancer-tax-pack/
+
 Free, no account, no watermark, works offline. Everything runs in your browser.
 
 - Reads, read-only, what [Invoice Maker](../invoice-maker/), [Expense Tracker](../expense-tracker/) and [Mileage Log](../mileage-log/) keep in `localStorage` on the same device; or load their JSON backups

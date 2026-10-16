@@ -5,6 +5,8 @@ times, supplies and fees and see the **loaded cost of one house call**, the visi
 surcharge** that reach your target margin, multi-pet and in-home euthanasia presets, the cost of
 no-shows, and the **profit for a day** of N visits at your average drive time. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mobile-vet-house-call-fee-calculator/
+
 ## Model
 
 - Hours = drive both ways + setup + exam and treatment (+ minutes per extra pet) + charting.

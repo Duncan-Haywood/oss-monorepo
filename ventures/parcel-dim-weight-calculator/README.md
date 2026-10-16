@@ -2,6 +2,8 @@
 
 What a parcel actually bills at, before you buy the cartons.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/
+
 Carriers charge on the **greater** of a package's actual weight and its
 *dimensional* weight — the cube of the carton divided by a contract constant
 called the DIM divisor — rounded up to the next whole pound. For anyone

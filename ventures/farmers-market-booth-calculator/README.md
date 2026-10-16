@@ -2,6 +2,8 @@
 
 **Find which market, craft fair or festival is actually worth your day: profit per hour after booth fee, drive, product cost, waste and card fees, break-even sales, the sales needed to hit your target wage, and what a 20 percent worse day does.** Browser page, no install.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/farmers-market-booth-calculator/
+
 After using this, you know which market to keep, reprice or drop.
 
 ## Your numbers, not advice

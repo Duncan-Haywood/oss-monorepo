@@ -7,6 +7,8 @@ replacement reserve) and your loan terms. It returns the **adjusted cash flow**,
 your required debt coverage), and tests the prices you are weighing, including coverage
 if revenue falls 10% or 20%.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/laundromat-acquisition-offer-calculator/
+
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.
 

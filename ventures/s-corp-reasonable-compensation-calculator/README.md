@@ -6,6 +6,8 @@ comparable full-time wage for your role, and see whether your salary is
 defensible against the actual test the IRS and courts apply — plus the
 FICA-tax cost of closing any gap.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/s-corp-reasonable-compensation-calculator/
+
 Open `index.html` in a browser. The calculation is local and works without
 an account, network request, or API key.
 

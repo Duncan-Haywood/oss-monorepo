@@ -5,6 +5,8 @@ sees it: required LastName and Company, email format and typos, repeated emails,
 values, numeric fields, field lengths, Excel damage to phones and IDs, and mixed date orders, each
 with its line number, plus a safe-fixes pass that only touches formatting.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/salesforce-lead-import-csv-check/
+
 - Static ES modules, no build step, no dependencies. Open `index.html` or run `node --test`.
 - `calc.mjs` is pure (no DOM, no network); `usage.mjs` keeps opt-out, local-only event counts.
 - Rules are read from memory of Salesforce's public import documentation and listed on the page,

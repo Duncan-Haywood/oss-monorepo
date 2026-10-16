@@ -7,6 +7,8 @@ granted, the net cash that reaches the budget, cents kept per credit dollar, its
 what one more qualified dollar is worth, the qualified share at which the programme starts to pay, and
 grids by sale price and by wait. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/film-tax-credit-net-value-calculator/
+
 After using this, you can **compare a credit bid or a shoot-location decision on net cash**, instead of
 on the headline rate.
 

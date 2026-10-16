@@ -4,6 +4,8 @@ A free browser tool for bail bond agents and small agencies. Type the open bonds
 book nets after the surety's share and the build-up fund, what it owes if bonds are forfeited, whether cash covers the largest ones, and a
 court-date call list. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bail-bond-agency-exposure-calculator/
+
 After using this, you can now **see in dollars how much of your open book is uncollateralized, whether your cash would survive the largest
 forfeiture, and who to call this week**, which used to mean a spreadsheet kept by hand.
 

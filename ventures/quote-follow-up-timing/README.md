@@ -4,6 +4,8 @@ A free browser tool for contractors, agencies and freelancers: **paste or upload
 sending to the decision, won / lost / open, optionally the value) and see when your wins actually arrive, your real
 win rate with open quotes counted correctly, and how much chance each open quote still has.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/quote-follow-up-timing/
+
 After using this, you can now **tell which open quotes are still worth chasing and when to let the rest go**, which
 used to take a gut feeling or a CRM report that counts open quotes as losses.
 

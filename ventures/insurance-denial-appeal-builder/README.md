@@ -5,6 +5,8 @@ denial reason, your appeal deadline, a draft appeal letter, a checklist of what 
 calendar file with reminders.** The text is read in the browser. Nothing is uploaded and no
 account is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/insurance-denial-appeal-builder/
+
 After using this, you can **appeal a denied claim with the right deadline, the right attachments
 for that kind of denial and a letter that asks for the plan's criteria and claim file**, which
 used to mean reading a dense notice, guessing the window and writing the letter from scratch.

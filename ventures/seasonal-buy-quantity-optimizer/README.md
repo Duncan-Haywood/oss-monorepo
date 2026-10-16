@@ -5,6 +5,8 @@ seasons handled) or a low / likely / high guess, plus price, cost, supplier pric
 order quantity that maximises expected profit, a cautious order, the chance of selling out or losing money, and a
 back-test on your own history.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/seasonal-buy-quantity-optimizer/
+
 After using this, you can now **decide how many units to order for a holiday, a drop or an event, see what a supplier
 price break is really worth, and know how much cash you are risking**.
 

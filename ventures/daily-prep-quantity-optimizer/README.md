@@ -2,6 +2,8 @@
 
 A free browser tool for bakeries, cafes, food trucks and prepared-food counters: **paste the units each item sold on past days, with price, cost and what a leftover is worth, and get the prep quantity with the highest expected profit.** It shows expected leftovers, the chance of selling out, and what the plan gains over today's prep. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/daily-prep-quantity-optimizer/
+
 After using this, you can **stop prepping by habit**: see which items you over-make (waste) and which you under-make (sold out by mid-afternoon), in dollars.
 
 ## Model

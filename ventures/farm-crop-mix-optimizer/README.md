@@ -2,6 +2,8 @@
 
 A free browser tool for row-crop and hay growers: **type your acres, peak-season labor hours and operating capital, then each crop's yield, price, cost and labor, and get the exact acreage plan with the highest gross margin.** It compares the result with your current plan and prices one more acre, one more labor hour and one more dollar of operating capital (shadow prices). Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/farm-crop-mix-optimizer/
+
 After using this, you can **see which limit is actually holding your farm back, and what you could pay to relax it** (a lease, a seasonal hire, a larger operating line), which used to take a spreadsheet Solver run most growers never set up.
 
 ## Model

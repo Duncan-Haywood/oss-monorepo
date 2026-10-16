@@ -5,6 +5,8 @@ prices a residential sunroom from the glazed-wall square feet a
 floor-square-foot special cannot see, the thermal floor, the insulated roof,
 and HVAC — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sunroom-bid-calculator/
+
 **After using this, you can now send a sunroom price that includes the glass,
 the slab, and the roof**, which used to take a spreadsheet that still started
 from the coupon’s floor square feet.

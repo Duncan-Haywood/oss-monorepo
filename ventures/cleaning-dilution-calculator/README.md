@@ -5,6 +5,8 @@ or job from the concentrate label and supplier price. The calculator includes
 optional mixing labor and waste allowance, so an operator can use the result in
 a purchasing decision or a janitorial bid.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cleaning-dilution-calculator/
+
 Open [`index.html`](index.html) directly or serve this directory statically.
 It is a zero-dependency browser app: no account, network request, or paid API.
 

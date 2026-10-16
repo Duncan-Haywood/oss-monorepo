@@ -6,6 +6,8 @@ of fields; it works out the real time on each field, the cost per acre, a recomm
 quote that respects your minimum charge, and the acres you need this season to break
 even. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ag-spray-drone-quote-calculator/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - flow-limited speed, sortie limits (tank vs battery), crew turnaround vs

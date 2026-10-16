@@ -5,6 +5,8 @@ Stripe and have license keys issued, limited per machine, renewed with the
 subscription and revoked on refund, on your own server**, which used to mean
 paying a licensing platform per license or writing the plumbing yourself.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/license-keeper/
+
 Two parts, both free and MIT:
 
 - **`index.html`**: generate an Ed25519 key pair, sign a test license and verify

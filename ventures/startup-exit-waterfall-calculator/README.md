@@ -5,6 +5,8 @@ preferred series with liquidation preference, participation caps, seniority and 
 is paid, the sale price at which each series is better off converting, and a sweep across sale prices.** Nothing is
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/startup-exit-waterfall-calculator/
+
 After using this, you can now **see what your shares or options are actually worth at a given exit, and how much
 of the sale the preference stack takes first**, which used to take a lawyer, a cap table platform subscription, or a
 spreadsheet with a circular reference.

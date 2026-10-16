@@ -10,6 +10,8 @@ Exports a CSV, a calendar (.ics) file for the whole roster or one volunteer,
 plain-text reminder messages and a share link (the typed text, encoded in the
 URL fragment, which browsers never send to a server). Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/volunteer-shift-scheduler/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsers for slots, shifts and volunteers; the assignment (hardest

@@ -3,6 +3,8 @@
 A free browser tool that prices the lines of a workers' compensation premium audit a small employer may be able to dispute, names the
 record that would prove each one, and drafts an editable dispute note. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/workers-comp-audit-dispute-checker/
+
 After using this, you can now **see which audit lines are worth a dispute in premium dollars and which paper to gather for each**,
 which used to mean accepting the carrier's bill or paying a broker to read it.
 

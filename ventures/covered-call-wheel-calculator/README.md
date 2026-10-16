@@ -5,6 +5,8 @@ ranked by annualized premium yield, model chance of assignment, breakeven and pa
 calls (you own the shares) or cash-secured puts (you want to). It picks the highest-paying quote that stays
 under the assignment chance you set. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/covered-call-wheel-calculator/
+
 After using this, you can **choose a strike by yield against the risk of losing the shares** instead of by
 eye, and see what the premium costs you in capped upside.
 

@@ -4,6 +4,8 @@ After using this, you know how many hours you tracked, what they are worth, and
 how much of it you have never invoiced, and you can turn a client's unbilled
 hours into an invoice in one click.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/time-tracker/
+
 Free, no account, no watermark, works offline. Everything runs in your browser;
 entries are stored in `localStorage` on your device and never uploaded.
 

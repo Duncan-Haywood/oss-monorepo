@@ -5,6 +5,8 @@ tutors, personal trainers, mobile detailers): **drop in your booking export and 
 appointments you lose to no-shows and late cancellations, what it costs, and who and when.** The
 file is read in the browser. Nothing is uploaded and no scheduling-app login is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-analyzer/
+
 After using this, you can now **see your no-show rate and late-cancel rate, the revenue lost, the
 weekdays, hours, services and lead times that get missed, your repeat no-show clients with the
 dollars they cost, and a typed-assumption estimate of what a deposit or no-show fee would
