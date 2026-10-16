@@ -298,6 +298,17 @@ test("followUps lists quiet or expiring sent proposals, most urgent first", () =
   assert.equal(r[1].value, 700000);
 });
 
+test("followUps breaks ties on expiry by quietest first, and keeps input order when both are unknown", () => {
+  const today = "2026-10-10";
+  const a = base({ id: "a", sentOn: "2026-10-04", validUntil: "" });
+  const b = base({ id: "b", sentOn: "2026-10-01", validUntil: "" });
+  assert.deepEqual(followUps([a, b], today).map((x) => x.id), ["b", "a"]);
+  // Same expiry day, no sent date: neither has a quiet count, so order is untouched.
+  const c = base({ id: "c", sentOn: "", validUntil: "2026-10-11" });
+  const d = base({ id: "d", sentOn: "", validUntil: "2026-10-11" });
+  assert.deepEqual(followUps([c, d], today).map((x) => x.id), ["c", "d"]);
+});
+
 test("followUpText names the proposal and the remaining days", () => {
   const txt = followUpText({ clientName: "Acme", number: "PROP-0003", title: "Website rebuild", reason: "expiring", daysLeft: 1 });
   assert.match(txt, /^Hi Acme,/);
