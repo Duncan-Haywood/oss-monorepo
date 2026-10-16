@@ -49,3 +49,5 @@ test("index links one hop to the cancel-flow sibling and each sibling exists", (
   assert.match(html, /href="\.\.\/cancel-flow\/"/);
   for (const m of html.matchAll(/href="\.\.\/([a-z-]+)\/"/g)) assert.doesNotThrow(() => readFileSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
 });
+
+test("footer names pql-radar so no sibling is an orphan", () => { assert.match(page("index.html"), /href="\.\.\/pql-radar\/"/); });
