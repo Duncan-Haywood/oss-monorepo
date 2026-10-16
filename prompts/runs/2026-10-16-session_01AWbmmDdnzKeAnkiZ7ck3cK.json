@@ -41,7 +41,7 @@
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Not CI-verified at record time; local checks: 5 unit tests, _homepage/build.py ok. Cost fields not attached (runcost.py not run).",
+  "notes": "Not CI-verified at record time; local checks: 5 unit tests, _homepage/build.py ok. Cost attached by runcost.py.",
   "corrections": [],
   "redteam": null,
   "usage": {
