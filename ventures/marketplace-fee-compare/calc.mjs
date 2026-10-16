@@ -229,9 +229,8 @@ export const CHANNEL_IDS = Object.freeze(CHANNELS.map((channel) => channel.id));
  * Reverb is different from the other two: its fee shape (a marketplace
  * percentage plus payment processing) is genuinely comparable to eBay's or
  * Etsy's. It is excluded anyway because it is category-restricted rather than
- * general retail — it only accepts musical instruments and gear, where the six
- * channels above sell almost anything. A general "which marketplace" table
- * that seats a single-category channel beside seven general ones would read as a
+ * general retail — it only accepts musical instruments and gear, where the channels above sell almost anything. A general "which marketplace" table
+ * that seats a single-category channel beside the general ones would read as a
  * recommendation to list *any* item there, which is not true for the vast
  * majority of what this page's other sellers carry.
  *
