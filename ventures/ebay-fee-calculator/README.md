@@ -407,6 +407,16 @@ promise uptime, backups of anything you type, or that a URL will keep
 working. Do not use this as a system of record. If a tool needs to
 survive, export your inputs and run it yourself.
 
+## Selling the same item elsewhere
+
+eBay is one of ten channels in
+[`../marketplace-fee-compare`](../marketplace-fee-compare/), which ranks what
+one item nets on eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Depop,
+Facebook Marketplace, Poshmark and an own Shopify store, using this
+calculator's final value fee as its eBay default. Use it first to decide where
+to list, then come back here for the eBay-specific detail (promoted listings,
+returns, shipping, offers).
+
 ## Privacy and usage
 
 Everything runs in your browser. Your prices, costs, and sourcing data are
