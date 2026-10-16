@@ -16,6 +16,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readMeta, recentLaunches, toolUrl } from './bluesky.mjs';
+import { tagUrl } from './attribution.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -35,7 +36,7 @@ export function composeRelease(items, today) {
   const lines = items.map(({ slug, meta }) => {
     const name = meta.title.split(/\s[—–|-]\s/)[0];
     const desc = meta.description.split(/(?<=\.)\s/)[0];
-    return `- [${name}](${toolUrl(slug)}): ${desc}`;
+    return `- [${name}](${tagUrl(toolUrl(slug), 'release')}): ${desc}`;
   });
   const body = [
     `New free tools from this portfolio, week of ${week}.`,

@@ -12,6 +12,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { REF_KEY } from './counter.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const OUT = path.resolve(HERE, '..', '..', 'portfolio', 'usage', 'site-visits.json');
@@ -30,15 +31,22 @@ export function mergeDays(existing = {}, incoming = {}) {
 
 export function summarise(days) {
   const totals = {};
+  const channels = {};
   let all = 0;
   for (const slugs of Object.values(days)) {
     for (const [slug, n] of Object.entries(slugs)) {
+      // `ref:<tag>` keys count arrivals by channel link; each one is also a
+      // page load already counted under its slug, so adding it would double.
+      if (slug.startsWith(REF_KEY)) {
+        channels[slug.slice(REF_KEY.length)] = (channels[slug.slice(REF_KEY.length)] || 0) + n;
+        continue;
+      }
       totals[slug] = (totals[slug] || 0) + n;
       all += n;
     }
   }
   const top = Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 20);
-  return { days: Object.keys(days).length, page_loads: all, top };
+  return { days: Object.keys(days).length, page_loads: all, top, channels };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
@@ -65,5 +73,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   };
   fs.writeFileSync(OUT, `${JSON.stringify(doc, null, 1)}\n`);
   const s = summarise(merged);
-  console.log(`${s.page_loads} page loads over ${s.days} day(s). Top: ${s.top.slice(0, 5).map(([k, n]) => `${k}=${n}`).join(', ') || 'none'}`);
+  console.log(`${s.page_loads} page loads over ${s.days} day(s). Top: ${s.top.slice(0, 5).map(([k, n]) => `${k}=${n}`).join(', ') || 'none'}. By channel link: ${Object.entries(s.channels).map(([k, n]) => `${k}=${n}`).join(', ') || 'none'}`);
 }

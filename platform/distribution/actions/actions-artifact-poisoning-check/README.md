@@ -9,4 +9,4 @@ Free, read-only checker that scans GitHub Actions workflow YAML for a workflow_r
     path: .
 ```
 
-Runs [`ventures/actions-artifact-poisoning-check/check.py`](../../../../ventures/actions-artifact-poisoning-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-artifact-poisoning-check/
+Runs [`ventures/actions-artifact-poisoning-check/check.py`](../../../../ventures/actions-artifact-poisoning-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-artifact-poisoning-check/?ref=gh-action

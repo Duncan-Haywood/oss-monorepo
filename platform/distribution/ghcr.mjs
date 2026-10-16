@@ -20,6 +20,7 @@ import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { plan, buildPackage, writePackage, VERSION } from './npm.mjs';
 import { toolUrl } from './bluesky.mjs';
+import { tagUrl } from './attribution.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -44,7 +45,7 @@ export function dockerfile({ slug, description, version = VERSION }) {
 LABEL org.opencontainers.image.title="${slug}" \\
       org.opencontainers.image.description="${oneLine(description)}" \\
       org.opencontainers.image.source="${REPO_URL}" \\
-      org.opencontainers.image.url="${toolUrl(slug)}" \\
+      org.opencontainers.image.url="${tagUrl(toolUrl(slug), 'ghcr')}" \\
       org.opencontainers.image.licenses="MIT" \\
       org.opencontainers.image.version="${version}"
 COPY . /opt/tool

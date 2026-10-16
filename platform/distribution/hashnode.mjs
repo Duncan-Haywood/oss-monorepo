@@ -30,7 +30,7 @@ const TAGS = [
 
 /** Article input for one tool. Reuses the dev.to body so the disclosures stay identical across channels. */
 export function composeArticle(meta, url) {
-  const a = composeDevto(meta, url);
+  const a = composeDevto(meta, url, 'hashnode');
   return {
     title: a.title,
     contentMarkdown: a.body_markdown,

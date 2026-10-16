@@ -17,6 +17,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readMeta, recentLaunches, toolUrl, MAX_PER_RUN } from './bluesky.mjs';
+import { tagUrl } from './attribution.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -48,7 +49,7 @@ export async function plan({ launched, today, seenText = '', readPage, max = MAX
     const html = await readPage(slug);
     const meta = html && readMeta(html);
     if (!meta) continue;
-    out.push({ slug, url, text: composeStatus(meta, url) });
+    out.push({ slug, url, text: composeStatus(meta, tagUrl(url, 'mastodon')) });
     if (out.length >= max) break;
   }
   return out;

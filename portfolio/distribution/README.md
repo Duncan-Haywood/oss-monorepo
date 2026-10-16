@@ -135,9 +135,27 @@ contribution.
 ## Measuring it
 
 Progress is the number of products with at least one `live` channel beyond
-search, and the usage those channels bring, read from
-`portfolio/usage/usage.yaml` by `ref` tag. "Never measured" is not zero
-(`goals.md`). Record readings, not estimates.
+search, and the usage those channels bring, read by `ref` tag. "Never
+measured" is not zero (`goals.md`). Record readings, not estimates.
+
+The `ref` tags are wired end to end (2026-10-16):
+
+- Every channel's link back to a tool page goes through `tagUrl` in
+  [`platform/distribution/attribution.mjs`](../../platform/distribution/attribution.mjs),
+  which adds `?ref=<tag>` from a closed list (`CHANNEL_REFS`: `npm`, `pypi`,
+  `bluesky`, `release`, ...). Canonical URLs (dev.to `canonical_url`,
+  Hashnode `originalArticleURL`) stay clean.
+- The site's shared chrome sends a known tag with the counter ping and
+  removes it from the address bar, so a re-shared link is not credited twice.
+- The counter (`platform/counter/`) adds one to `ref:<tag>` per day beside
+  the page's own count; `pull.mjs` commits it to
+  `portfolio/usage/site-visits.json` with everything else.
+- `node platform/distribution/attribution.mjs` prints each channel's rung,
+  tag and reading, and marks a channel ready for `measured` once a non-zero
+  count is on file. Until the counter is on it says "no reading", not 0.
+
+A new channel adds its tag to `CHANNEL_REFS` and to the counter's `REFS`
+(one test fails if they drift) and passes its links through `tagUrl`.
 
 ## Related
 

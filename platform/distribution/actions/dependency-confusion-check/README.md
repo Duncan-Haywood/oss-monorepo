@@ -9,4 +9,4 @@ Free, read-only checker for two configuration shapes behind the 2021 dependency-
     path: .
 ```
 
-Runs [`ventures/dependency-confusion-check/check.py`](../../../../ventures/dependency-confusion-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/
+Runs [`ventures/dependency-confusion-check/check.py`](../../../../ventures/dependency-confusion-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/?ref=gh-action

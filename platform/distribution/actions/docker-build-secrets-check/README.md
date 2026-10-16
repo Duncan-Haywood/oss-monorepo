@@ -9,4 +9,4 @@ Free, read-only checker that scans a repository's Dockerfiles for build-time sec
     path: .
 ```
 
-Runs [`ventures/docker-build-secrets-check/check.py`](../../../../ventures/docker-build-secrets-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/docker-build-secrets-check/
+Runs [`ventures/docker-build-secrets-check/check.py`](../../../../ventures/docker-build-secrets-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/docker-build-secrets-check/?ref=gh-action

@@ -28,6 +28,7 @@ import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
 
 import { decodeEntities } from './entities.mjs';
+import { REFS as CHANNEL_REFS } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH } from './engineering.mjs';
 import {
   FEED_MAX_ENTRIES,
@@ -5363,8 +5364,10 @@ function disclaimerHtml(toRoot, surfaces = []) {
         which tools get opened, never anything about who opened them — and that
         count stays in your own browser's local storage.${counterOn() ? ` Each page load
         also adds one to a daily per-page total on our own open-source counter
-        (which page, which day; nothing you type, no cookie, no IP address
-        stored), and those totals are published in the repository.` : ''} Browsers sending
+        (which page, which day, and — if you followed one of our own channel
+        links, such as a release note or package page — which channel; nothing
+        you type, no cookie, no IP address stored), and those totals are
+        published in the repository.` : ''} Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
       </p>`;
@@ -6466,9 +6469,12 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         tally that is written to your own browser's local storage${counterOn() ? `. One
         page-view ping per load also goes to this site's own
         <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/platform/counter">open-source counter</a>:
-        it carries the page's name and nothing else, and the counter keeps one
-        number per page per day — no IP address, cookie, browser string or
-        referrer is stored. The daily totals are committed to the public
+        it carries the page's name and, when you arrived by one of this
+        portfolio's own channel links (a <code>?ref=</code> tag such as
+        <code>?ref=npm</code>, removed from the address bar on arrival), that
+        channel's name, and nothing else. The counter keeps one number per page
+        per day and one per channel per day — no IP address, cookie, browser
+        string or referrer is stored. The daily totals are committed to the public
         repository` : ` and is never
         sent anywhere`}. It exists so the next tool built is one people actually
         opened. Browsers sending <em>Do&nbsp;Not&nbsp;Track</em> or
@@ -8057,7 +8063,17 @@ const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
     var tag=document.querySelector('script[${CHROME_SLUG_ATTR}]');
     var slug=tag?tag.getAttribute('${CHROME_SLUG_ATTR}')||'':'';
     if(!slug)return;${counterUrl ? `
-    try{navigator.sendBeacon(${JSON.stringify(`${counterUrl}/hit`)},new Blob([JSON.stringify({p:slug})],{type:'text/plain'}));}catch(e){}` : ''}
+    var hit={p:slug};
+    try{
+      var q=new URLSearchParams(location.search),ref=q.get('ref');
+      if(ref&&${JSON.stringify(CHANNEL_REFS)}.indexOf(ref)>=0){
+        hit.r=ref;
+        q.delete('ref');
+        var s=q.toString();
+        history.replaceState(history.state,'',location.pathname+(s?'?'+s:'')+location.hash);
+      }
+    }catch(e){}
+    try{navigator.sendBeacon(${JSON.stringify(`${counterUrl}/hit`)},new Blob([JSON.stringify(hit)],{type:'text/plain'}));}catch(e){}` : ''}
     var k='portfolio-hub-usage';
     var bump=function(event){
       try{

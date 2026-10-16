@@ -9,4 +9,4 @@ Free, read-only checker that scans GitHub Actions workflow YAML for an actions/c
     path: .
 ```
 
-Runs [`ventures/actions-cache-poisoning-check/check.py`](../../../../ventures/actions-cache-poisoning-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-cache-poisoning-check/
+Runs [`ventures/actions-cache-poisoning-check/check.py`](../../../../ventures/actions-cache-poisoning-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-cache-poisoning-check/?ref=gh-action

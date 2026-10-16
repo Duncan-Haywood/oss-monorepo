@@ -18,7 +18,12 @@ small always-on process, and this is it.
 { "2026-10-16": { "hub": 41, "shop-rate-calculator": 3 } }
 ```
 
-It keeps one integer per UTC day per page slug and nothing else. It stores no
+It keeps one integer per UTC day per page slug and nothing else, plus one
+per day per distribution channel (`"ref:npm": 2`) when a visitor followed one
+of the portfolio's own tagged links (`?ref=<tag>`, a closed list in `REFS`;
+see `platform/distribution/attribution.mjs`). Those keys are arrivals already
+counted under their page, so `pull.mjs` reports them separately rather than
+adding them to the total. It stores no
 IP address, user agent, referrer, cookie, identifier, or any time finer than
 the day. The page sends only its own `data-pf-slug`, and the server rejects
 anything that does not match `SLUG_RE`. Requests carrying `DNT: 1` or

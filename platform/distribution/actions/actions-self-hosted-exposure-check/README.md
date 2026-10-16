@@ -9,4 +9,4 @@ Free, read-only checker that scans a repository's GitHub Actions workflow files 
     path: .
 ```
 
-Runs [`ventures/actions-self-hosted-exposure-check/check.py`](../../../../ventures/actions-self-hosted-exposure-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-self-hosted-exposure-check/
+Runs [`ventures/actions-self-hosted-exposure-check/check.py`](../../../../ventures/actions-self-hosted-exposure-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-self-hosted-exposure-check/?ref=gh-action
