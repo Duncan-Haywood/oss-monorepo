@@ -69,7 +69,7 @@ ADMIN_KEY=$(openssl rand -hex 16) PUBLIC_URL=https://sign.example.com COMPANY_NA
 
   <section class="card">
     <h2>Related tools</h2>
-    <p>Pair with <a href="../testimonial-keeper/">Testimonial Keeper</a> to collect proof after the job and <a href="../dunning-engine/">Dunning Engine</a> to chase late invoices.</p>
+    <p>Pair with <a href="../testimonial-keeper/">Testimonial Keeper</a> to collect proof after the job and <a href="../dunning-engine/">Dunning Engine</a> to chase late invoices. Publishing a release? <a href="../changelog-keeper/">Changelog Keeper</a> is the same self-hosted shape for release notes.</p>
   </section>
 
   <section class="card">
@@ -77,7 +77,7 @@ ADMIN_KEY=$(openssl rand -hex 16) PUBLIC_URL=https://sign.example.com COMPANY_NA
     <h3>Is a typed-name signature legally valid?</h3>
     <p>In many places, including the US (ESIGN Act and UETA) and the EU/UK (eIDAS/ECA as a simple electronic signature), a typed name with clear intent to sign and a record of it is generally accepted for ordinary contracts. Some documents are excluded (wills, certain family-law and real-estate papers, notices a statute says must be on paper). Sign Keeper is not legal advice; check what your document needs.</p>
     <h3>Can someone alter a document after it is signed?</h3>
-    <p>Not undetectably. The text has a SHA-256 fingerprint and every audit event hashes the one before it. The certificate page and /c/<token>.json recompute all of it from stored data and report any mismatch. It is tamper-evident, not tamper-proof: whoever controls your server can still delete the file, so keep certificate copies.</p>
+    <p>Not undetectably. The text has a SHA-256 fingerprint and every audit event hashes the one before it. The certificate page and /c/&lt;token&gt;.json recompute all of it from stored data and report any mismatch. It is tamper-evident, not tamper-proof: whoever controls your server can still delete the file, so keep certificate copies.</p>
     <h3>What does it store about the signer?</h3>
     <p>The typed name, the time, the consent wording they ticked and a salted HMAC of their network address that cannot be turned back into the address. Not a raw IP, not a device fingerprint.</p>
     <h3>How is this different from DocuSign or PandaDoc?</h3>
