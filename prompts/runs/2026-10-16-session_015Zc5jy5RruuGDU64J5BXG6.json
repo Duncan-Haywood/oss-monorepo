@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7242",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,13 +26,18 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Route sent the run to the research track, whose prompt says to use the upstream repo; re-routed to ventures by hand."
+    }
+  ],
   "deviations": [],
   "goal": null,
-  "notes": "",
+  "notes": "Built churn-radar (self-hosted churn prediction, logistic regression with out-of-time validation); refreshed gh-pages snapshot; no CI check runs appeared on the PR, so verified locally: venture tests, preflight, gitops tests, optout test, checklist_coverage.",
   "corrections": [],
   "redteam": null
 }
