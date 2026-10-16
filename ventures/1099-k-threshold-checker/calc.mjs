@@ -73,12 +73,30 @@ export const STRICTER_STATE_THRESHOLDS = {
   VA: { amount: 600, label: 'Virginia' },
 };
 
+// States that secondary sources (tax-software and TPSO compliance blogs,
+// 2026 web search) say set their own 1099-K figure, but whose statutes this
+// tool has NOT checked, and whose sources disagree on the amounts (for
+// example Missouri). No amount is guessed: the result keeps the federal
+// answer and adds a caution to confirm with the state revenue department.
+export const UNVERIFIED_STATE_FLAGS = {
+  DC: 'District of Columbia',
+  IL: 'Illinois',
+  MO: 'Missouri',
+  NJ: 'New Jersey',
+  AR: 'Arkansas',
+};
+
 export const STATE_OPTIONS = [
   { value: '', label: 'Not sure / prefer not to say' },
   { value: 'MD', label: 'Maryland ($600 state threshold)' },
   { value: 'MA', label: 'Massachusetts ($600 state threshold)' },
   { value: 'VT', label: 'Vermont ($600 state threshold)' },
   { value: 'VA', label: 'Virginia ($600 state threshold)' },
+  { value: 'DC', label: 'District of Columbia (may have its own rule; not verified here)' },
+  { value: 'IL', label: 'Illinois (may have its own rule; not verified here)' },
+  { value: 'MO', label: 'Missouri (may have its own rule; not verified here)' },
+  { value: 'NJ', label: 'New Jersey (may have its own rule; not verified here)' },
+  { value: 'AR', label: 'Arkansas (may have its own rule; not verified here)' },
   { value: 'OTHER', label: 'A different state (follows the federal threshold, as far as this tool has verified)' },
 ];
 
@@ -148,8 +166,15 @@ export function checkSource(source, options = {}) {
     status = 'Below every threshold this tool checked — a 1099-K is not required, though a platform may still issue one voluntarily';
   }
 
+  const flagged = UNVERIFIED_STATE_FLAGS[source.state];
+  const stateCaution = flagged && !stateMet
+    ? `${flagged} may set its own, lower 1099-K figure that this tool has not verified; confirm with the state revenue department before relying on a "no".`
+    : null;
+  if (stateCaution && !likely) status += ` (${stateCaution})`;
+
   return {
     ...source,
+    stateCaution,
     grossPayments,
     transactionCount: Number.isFinite(transactionCount) ? transactionCount : null,
     federalThreshold: federal,

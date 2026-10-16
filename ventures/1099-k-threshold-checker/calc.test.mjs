@@ -44,7 +44,7 @@ test('four states carry a stricter $600 threshold than the federal one; an unlis
 
 test('STATE_OPTIONS lists every stricter state plus a not-sure and an other option', () => {
   const values = STATE_OPTIONS.map((o) => o.value);
-  assert.deepEqual(values, ['', 'MD', 'MA', 'VT', 'VA', 'OTHER']);
+  assert.deepEqual(values, ['', 'MD', 'MA', 'VT', 'VA', 'DC', 'IL', 'MO', 'NJ', 'AR', 'OTHER']);
 });
 
 test('federalEraNote flags the 2024 retroactive-correction wrinkle and is silent for every other year', () => {
@@ -159,4 +159,16 @@ test('loadSources drops non-object rows and never throws on malformed JSON', () 
   assert.deepEqual(loadSources('not json'), []);
   assert.deepEqual(loadSources('[1,2,{"platform":"eBay"}]'), [{ platform: 'eBay' }]);
   assert.deepEqual(loadSources(JSON.stringify(sampleSources())), sampleSources());
+});
+
+test('an unverified flagged state keeps the federal answer and adds a caution, never a guessed amount', () => {
+  const below = checkSource({ platform: 'Etsy', state: 'IL', grossPayments: 3000, transactionCount: 10 }, { taxYear: 2026 });
+  assert.equal(below.likely, false);
+  assert.equal(below.stateThreshold, null);
+  assert.match(below.stateCaution, /Illinois/);
+  assert.match(below.status, /confirm with the state revenue department/);
+  const above = checkSource({ platform: 'eBay', state: 'MO', grossPayments: 30000, transactionCount: 300 }, { taxYear: 2026 });
+  assert.equal(above.likely, true);
+  assert.doesNotMatch(above.status, /confirm with/);
+  assert.equal(checkSource({ platform: 'x', state: 'OTHER', grossPayments: 1, transactionCount: 1 }).stateCaution, null);
 });
