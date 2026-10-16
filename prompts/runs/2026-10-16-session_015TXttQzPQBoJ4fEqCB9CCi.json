@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_015TXttQzPQBoJ4fEqCB9CCi",
+  "track": "review",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T09:09:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 7354,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": 0,
+  "integrity_issues": 0,
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-2.md",
+      "issue": "Step 1 derive fetch hit 403 for 2 of 21 PRs; the 403 instruction worked but 'sandbox shell lost cwd' after cd into ventures/ cost a step."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Checklist still very long for a doc-only review run; only validate and unittest were relevant."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "runcost attach skipped: no transcript path available in this scheduled run."
+    }
+  ],
+  "goal": null,
+  "notes": "Review: rebuilt derived data, audited 3 venture PRs (no corrections), drift report, trimmed land-your-work.md under budget. No candidate verdicts (too few/overlap).",
+  "corrections": [],
+  "redteam": null
+}
