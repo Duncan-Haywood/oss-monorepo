@@ -1,0 +1,126 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01VxgtDQpjqzyKUxN1KZMbYD",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "I want to gather metadata about the development process and the applications both for research and also for improvement loops. what are some good ideas of things to track? / yeah add that as a goal and then work on it.",
+  "input_sha256": "fe5d3aee52116275760bb7483e06744c9f87804c273d4f55abceb912d73f9a2b",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-16T00:53:41Z",
+  "ended": "2026-10-16T01:07:03Z",
+  "wall_minutes": 14.0,
+  "tokens_in": 7841541,
+  "tokens_out": 46770,
+  "cost_usd": 3.4438,
+  "tool_calls": 65,
+  "task": "Owner request: set a goal for measured process/application metadata and build the first piece (derived PR facts + rework).",
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7245",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    "First fetch hung for minutes on #6832 (1,330 commits); capped CI checks to a PR's last 30 commits and parallelised.",
+    "Excluded research/ from rework for all repos at first, which dropped the upstream research PRs' own code; now excluded only for this repo's mirror copy."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "Step 1 asked reviews to look up each PR by hand and edit merged/ci_failures_before_green into records; 410 of 441 were still null. Replaced with derive.py."
+    }
+  ],
+  "deviations": [],
+  "goal": "Measured, not typed (prompts/goals.md)",
+  "notes": "merged unknown 410 -> 180 (rest name no PR). 69/~71 oss-monorepo PRs merged 10-15/16 with a red validate/build head check that ran (not starved), consistent with P012's base-red validate. Rework windows close from ~10-27.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e8d51d2d-e2c8-5473-8ccc-7de586341ff9",
+    "transcripts": 1,
+    "first": "2026-10-16T00:53:41Z",
+    "last": "2026-10-16T01:07:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 118,
+        "output": 46770,
+        "thinking": 12675,
+        "cache_read": 7720950,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120473,
+        "api_equivalent_usd": 3.4438,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 118,
+      "output": 46770,
+      "thinking": 12675,
+      "cache_read": 7720950,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120473,
+      "api_equivalent_usd": 3.4438,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 55,
+      "Edit": 4,
+      "Write": 2,
+      "ToolSearch": 1,
+      "Glob": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.0,
+      "active_minutes": 12.75,
+      "model_minutes": 8.25,
+      "tool_minutes": 4.5,
+      "waiting_on_human_minutes": 1.25,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design + ~400 lines of Python with git/API edge cases and tests, plus docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 174.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
