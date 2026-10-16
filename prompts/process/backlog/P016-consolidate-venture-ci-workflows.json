@@ -1,0 +1,25 @@
+{
+  "id": "P016",
+  "title": "Replace ~869 per-venture *-ci.yml workflows with one matrix workflow",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": ".github/workflows holds 893 files, 869 of them <slug>-ci.yml. Two sampled ones differ only in the slug and a comment, so each new venture copies a workflow and fixes have to be applied hundreds of times. CAVEAT: filed from a one-pass repo-organization review (2026-10-16), not a measured study. The change is a first guess and may be oversimplified; check the evidence and the dependents before acting on it, and drop the item with a reason if it does not hold up.",
+  "evidence": [
+    "ls .github/workflows | wc -l on origin/main 2029d18f86: 893; ls *-ci.yml: 869",
+    "diff of 1099-vendor-tracker-ci.yml vs 3d-print-price-calculator-ci.yml with slugs normalised: only header comment differs"
+  ],
+  "change": "Diff all 869 against a normalised template to find the ones that really differ (setup steps, paths filters, Python vs node). If most are identical, one workflow with a changed-ventures matrix (paths filter -> list of slugs) can replace them; keep the outliers. Check what depends on the per-venture check names first (branch protection, agent_review auto-merge, Claude Approvals) before deleting any.",
+  "touches": [
+    ".github/workflows/*-ci.yml",
+    "platform/ci/"
+  ],
+  "metric": "Workflow files in .github/workflows",
+  "baseline": "893 (869 per-venture *-ci.yml)",
+  "opened": "2026-10-16",
+  "source": "Repo-organization review in a Claude Code session, 2026-10-16 (unmeasured; see CAVEAT in problem)",
+  "pr": null,
+  "result": null,
+  "history": []
+}

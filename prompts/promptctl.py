@@ -160,7 +160,10 @@ def _landing_order(runs: list[tuple[Path, dict[str, Any]]]) -> dict[str, int]:
 
 
 def runs_since_review(runs: list[tuple[Path, dict[str, Any]]]) -> int:
-    """Non-review runs recorded after the most recent review run."""
+    """Non-review runs recorded after the most recent review run.
+
+    Records mirrored from the upstream research repo (they carry `source`) are
+    not runs of this repository and do not make a review due."""
     rank = _landing_order(runs)
     ordered = sorted(
         enumerate(runs),
@@ -170,7 +173,7 @@ def runs_since_review(runs: list[tuple[Path, dict[str, Any]]]) -> int:
     for _, (_, rec) in ordered:
         if rec.get("track") == REVIEW:
             count = 0
-        else:
+        elif not rec.get("source"):
             count += 1
     return count
 
@@ -557,9 +560,16 @@ def wilson(successes: int, n: int, z: float = 1.96) -> tuple[float, float]:
     return max(0.0, centre - half), min(1.0, centre + half)
 
 
+def merged_of(rec: dict[str, Any]) -> bool | None:
+    """The record's own `merged`, else what prompts/derive.py measured from GitHub."""
+    if rec.get("merged") is not None:
+        return rec["merged"]
+    return (rec.get("_measured") or {}).get("merged")
+
+
 def summarise(recs: list[dict[str, Any]]) -> dict[str, Any]:
     n = len(recs)
-    ok = sum(1 for r in recs if r.get("outcome") == "success" and r.get("merged") is not False)
+    ok = sum(1 for r in recs if r.get("outcome") == "success" and merged_of(r) is not False)
     low, high = wilson(ok, n)
     ci = [r["ci_failures_before_green"] for r in recs
           if isinstance(r.get("ci_failures_before_green"), (int, float))]
@@ -567,20 +577,27 @@ def summarise(recs: list[dict[str, Any]]) -> dict[str, Any]:
     # API-equivalent dollars, measured by prompts/runcost.py where a record has
     # a `usage` block; the free-typed cost_usd otherwise.
     usd = [r["cost_usd"] for r in recs if isinstance(r.get("cost_usd"), (int, float))]
+    rework = [w for r in recs
+              if (w := (r.get("_measured") or {}).get("rework") or {}).get("window") == "closed"]
+    alive = [w["survival"] for w in rework if isinstance(w.get("survival"), (int, float))]
     return {
         "runs": n,
         "success": ok,
         "success_rate": round(ok / n, 3) if n else None,
         "success_ci95": [round(low, 3), round(high, 3)],
         "integrity_issues": sum(len(r.get("integrity_issues") or []) for r in recs),
-        "leaked": sum(1 for r in recs if r.get("merged") is False),
-        "merged_unknown": sum(1 for r in recs if r.get("merged") is None),
+        "leaked": sum(1 for r in recs if merged_of(r) is False),
+        "merged_unknown": sum(1 for r in recs if merged_of(r) is None),
         "errors_per_run": round(sum(len(r.get("errors") or []) for r in recs) / n, 2) if n else None,
         "ci_failures_mean": round(statistics.mean(ci), 2) if ci else None,
         "wall_minutes_median": statistics.median(minutes) if minutes else None,
         "doc_friction": sum(len(r.get("doc_friction") or []) for r in recs),
         "cost_usd_median": round(statistics.median(usd), 2) if usd else None,
         "cost_measured": sum(1 for r in recs if isinstance(r.get("usage"), dict)),
+        # Rework, measured by prompts/derive.py once a PR's 14-day window has closed.
+        "rework_measured": len(rework),
+        "reverted": sum(1 for w in rework if w["reverted"]),
+        "survival_median": round(statistics.median(alive), 3) if alive else None,
     }
 
 
@@ -601,8 +618,10 @@ def verdict(champ: dict[str, Any], cand: dict[str, Any], min_runs: int = 10) -> 
 
 
 def measure(root: Path = ROOT) -> dict[str, Any]:
+    from derive import load_measured  # prompts/derive.py, alongside this file
     routing = load_routing(root)
-    runs = [rec for _, rec in load_runs(root)]
+    measured = load_measured(root)
+    runs = [{**rec, "_measured": measured.get(path.name)} for path, rec in load_runs(root)]
     by_version: dict[tuple[str, int], list[dict[str, Any]]] = defaultdict(list)
     by_model: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     by_input: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -677,15 +696,16 @@ def print_measure(m: dict[str, Any]) -> None:
 
     def table(title: str, rows: dict[str, dict[str, Any]]) -> None:
         print(f"## {title}\n")
-        print("| | runs | success | 95% CI | integrity | leaked | merged? | errors/run | CI fails | minutes | friction | API $ (median) |")
-        print("|---|---|---|---|---|---|---|---|---|---|---|---|")
+        print("| | runs | success | 95% CI | integrity | leaked | merged? | errors/run | CI fails | minutes | friction | API $ (median) | 14-day survival (reverted) |")
+        print("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
         for key, s in rows.items():
             rate = "-" if s["success_rate"] is None else f"{s['success_rate']:.0%}"
             lo, hi = s["success_ci95"]
             print(f"| {key} | {s['runs']} | {rate} | {lo:.0%}-{hi:.0%} | {s['integrity_issues']} | "
                   f"{s['leaked']} | {s['merged_unknown']} unknown | {s['errors_per_run']} | "
                   f"{s['ci_failures_mean']} | {s['wall_minutes_median']} | {s['doc_friction']} | "
-                  f"{s['cost_usd_median']} ({s['cost_measured']} measured) |")
+                  f"{s['cost_usd_median']} ({s['cost_measured']} measured) | "
+                  f"{s['survival_median']} ({s['reverted']} of {s['rework_measured']}) |")
         print()
 
     table("By track and prompt version", m["by_version"])

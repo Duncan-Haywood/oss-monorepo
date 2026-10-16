@@ -163,3 +163,5 @@ the owner step is the account, two secrets and `DISTRIBUTE_BLUESKY=true`.
 `github-release-digest` is at `artifact` (2026-10-15): a weekly release on this repository listing the week's launches, needing no external account (only `DISTRIBUTE_RELEASES=true`). Dry run: `node platform/distribution/releases.mjs`.
 
 `npm-cli-packages` is at `artifact` (2026-10-15): 142 venture CLIs become `npx`-runnable npm packages, five new ones per weekly run, none overwritten. Dry run: `node platform/distribution/npm.mjs`; inspect one with `node platform/distribution/npm.mjs --pack <slug> <dir>`. Owner step: npm account, `NPM_TOKEN`, optional `NPM_SCOPE`, `DISTRIBUTE_NPM=true`.
+
+`mcp-server` is at `artifact` (2026-10-16): one npm package, an MCP server that lets Claude Desktop, Cursor and VS Code search and run 133 venture CLIs locally, with a generated `server.json` for the official MCP registry. Dry run: `node platform/distribution/mcp.mjs` (`--skipped` lists the 9 excluded for network or process access, `--pack <dir>` writes the package). Owner step: the npm token from `npm-cli-packages` and `DISTRIBUTE_MCP=true`.

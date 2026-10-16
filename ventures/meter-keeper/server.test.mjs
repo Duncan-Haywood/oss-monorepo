@@ -111,3 +111,19 @@ test("webhookSender signs the raw body and rejects non-2xx", async () => {
   assert.equal(seen.o.headers["x-meter-signature"], `sha256=${hm("sha256", "s3cret").update(seen.o.body).digest("hex")}`);
   await assert.rejects(webhookSender({ url: "https://x.test/h", fetchImpl: async () => ({ ok: false, status: 500 }) })({}), /webhook 500/);
 });
+
+test("admin overview totals every customer and flags the ones near a limit", async () => {
+  const { srv, state, call } = await boot();
+  setCustomer(state, "idle", { plan: "pro" }); setCustomer(state, "noplan", {});
+  await call("POST", "/v1/events", { id: "o1", customer: "acme", meter: "api", value: 85 });
+  const o = await (await call("GET", "/v1/admin/overview", null, ADMIN)).json();
+  assert.deepEqual(o.nearLimit, ["acme"]);
+  const acme = o.customers.find((c) => c.customer === "acme");
+  assert.equal(acme.lines[0].percentOfLimit, 85);
+  assert.equal(acme.total, 1000 + 75); // base + (85 - 10 included) at 1 cent
+  assert.equal(o.customers.find((c) => c.customer === "idle").total, 1000);
+  assert.equal(o.customers.find((c) => c.customer === "noplan").error, "no plan");
+  assert.equal(o.totals.total, 2075);
+  assert.equal((await call("GET", "/v1/admin/overview", null, KEY)).status, 401);
+  srv.close();
+});
