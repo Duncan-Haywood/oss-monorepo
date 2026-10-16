@@ -56,6 +56,7 @@ export function handler(cfg) {
         if (req.method === "GET" && a === "/outbox") return json(200, { pending: cfg.state.outbox.length, alertsPending: (cfg.state.alertOutbox || []).length, dead: cfg.state.dead.slice(-50), dryRun: cfg.dryRun });
         if (req.method === "POST" && a === "/flush") { const r = cfg.dryRun || !cfg.send ? { skipped: "dry run or no STRIPE_SECRET_KEY", pending: cfg.state.outbox.length } : await E.flush(cfg.state, cfg.send, now()); cfg.save(); return json(200, r); }
         if (req.method === "GET" && a === "/export.csv") { res.writeHead(200, { "content-type": "text/csv; charset=utf-8", "content-disposition": 'attachment; filename="usage.csv"' }); return res.end(E.toCsv(cfg.state, cfg.config, now())); }
+        if (req.method === "GET" && a === "/overview") return json(200, E.overview(cfg.state, cfg.config, now()));
         if (req.method === "GET" && a === "/customers") return json(200, cfg.state.customers);
         if (req.method === "PUT" && (m = a.match(/^\/customers\/([^/]+)$/))) {
           const b = JSON.parse((await readBody(req)) || "{}");
