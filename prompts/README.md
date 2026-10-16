@@ -104,8 +104,8 @@ shows median survival per row. `derive.py report` prints coverage (typed
 against measured) and rework by version and model.
 
 It never edits a record. Run `fetch` and `build` before `measure` in a
-review. It needs the full history (`git fetch --unshallow origin main`) and
-the research upstream commit that `research/_mirror/state.json` pins.
+review. It needs the full history (`git fetch --unshallow origin main`). The
+research mirror it once pinned was cut over on 2026-10-16.
 
 ## Red team / blue team
 
