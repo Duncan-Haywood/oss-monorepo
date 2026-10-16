@@ -273,7 +273,7 @@ def record(root: Path, track: str, version: int, session: str, model: str | None
 # validate
 
 
-MIRRORED_RUNS_SOURCE = "oss-research-monorepo prompts/runs.jsonl"  # as research/_mirror/mirror.py writes it
+MIRRORED_RUNS_SOURCE = "oss-research-monorepo prompts/runs.jsonl"  # as the retired research mirror wrote it (records before the 2026-10-16 cutover)
 
 
 def validate_record(root: Path, path: Path, rec: Any, tracks: dict[str, Any]) -> list[str]:

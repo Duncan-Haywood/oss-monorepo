@@ -79,22 +79,14 @@ touch closer to that:
   above means ideas and public behaviour, never another product's code, copy
   or assets under an incompatible license.
 
-**One repository is the end state (added 2026-10-13; the move landed in
-#6832; changed 2026-10-14).** This repository is where everything ends up.
-The research portfolio, `Duncan-Haywood/oss-research-monorepo`, lives under
-`research/` with its full commit history, so `git log -- research/<slug>`
-shows each project's original commits. Until the owner's cutover, research
-work still lands in that repository, and `research/` here is its exact
-mirror. `python3 research/_mirror/mirror.py sync` brings in new upstream
-history, and `mirror.py check` proves the two match
-(`research/_mirror/README.md`). Keeping the mirror current is standing work.
-Its action list is "Repository merge" in the research repository's
-`PROJECTS.md`. Change nothing under `research/` here except through a sync.
-Merge a sync PR with a merge commit, never a squash, because a squash drops
-the upstream history. At cutover the research repository is archived, never
-deleted. Do not create a top-level `research/` for anything else. Inside it,
-the research rules (`research/CLAUDE.md`, the research track of `prompts/`)
-apply, not the product rules.
+**One repository, two peer portfolios (added 2026-10-13; cut over
+2026-10-16).** Everything lands here. `ventures/` holds the products and
+`research/` the open research portfolio, merged in from
+`Duncan-Haywood/oss-research-monorepo` with its full history (`git log --
+research/<slug>`); that repository is archived, read-only history. Neither
+portfolio is a side project of the other. Inside `research/`, the research
+rules (`research/CLAUDE.md`, the research track of `prompts/`) apply, not the
+product rules. Do not create a top-level `research/` for anything else.
 
 Making a repository public is the owner's call (publishing under the
 portfolio's name, `CLAUDE.md`). Preparing for it is every session's job.

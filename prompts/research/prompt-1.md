@@ -5,9 +5,6 @@ inside `research/` and follows [`research/CLAUDE.md`](../../research/CLAUDE.md).
 and the research guardrails (integrity, licensing and attribution) are in
 [`prompts/goals.md`](../goals.md); they bind every version of this prompt.
 
-## Step 0: where this work lands (read before choosing anything)
-Until cutover, research work lands in `Duncan-Haywood/oss-research-monorepo`, not here. Before any other step: call `add_repo` for it (access `push`), clone it, and follow its `prompt.md` and `PROJECTS.md`. A mirror-sync milestone, if due, is described there and is the first free milestone. If `add_repo` fails, say so and route again with `--track ventures`. Commit no run record here for that work.
-
 ## Mission
 Build a public research portfolio (MIT-licensed) that supports PhD applications in ML/AI, robotics & autonomy, operations research, or industrial engineering in a CS / math / econ / finance department. Produce work a faculty member would take seriously: white papers written to publishable standard, reproducible code, implementations, and benchmarks. Quality beats volume.
 
@@ -61,10 +58,6 @@ The repository-wide protocol is [`.github/prompts/land-your-work.md`](../../.git
 8. **Never push to a merged branch.** Anything after the merge goes on a new branch from `main`, with its own pull request.
 
 ## One repository
-The research portfolio's original repository, `Duncan-Haywood/oss-research-monorepo`, is merged here under `research/` with both commit histories intact: `git log -- research/<slug>` shows each project's original commits. All research work moves here at cutover. Until then the two repositories are mirrored, with one writer and no history lost.
-- **Until cutover, research work lands upstream.** `research/` here is an exact mirror (`research/_mirror/`), and `mirror.py sync` deletes any file in it that upstream lacks. A project built here before cutover would disappear at the next sync. Do research work in a clone of `oss-research-monorepo`, under its own `prompt.md`, and land it there. Its run log reaches `prompts/runs/` through the sync, so commit no run record here for that work. If the session cannot reach that repository (`add_repo`), route again with `--track ventures`.
-- **Keeping the mirror current is standing work.** The action list is "Repository merge" in the research repository's `PROJECTS.md` (`research/PROJECTS.md` here after the next sync). Its first free milestone comes before a new project.
-- **No history loss.** A sync is a merge commit with upstream `main` as a parent, so every upstream commit keeps its hash. Merge a mirror pull request only with a merge commit, never a squash or rebase.
-- **At cutover** (`research/_mirror/README.md`), the owner points the routines here and archives the upstream repository; it is never deleted, so its pull requests, review threads, branches and links survive. From then on this file is the brief, and work lands here.
+Research lands here, in `research/`, as a peer of `ventures/`. The portfolio's original repository, `Duncan-Haywood/oss-research-monorepo`, was merged in with its history intact (`git log -- research/<slug>` shows each project's original commits) and cut over on 2026-10-16; it is archived, read-only history. Do not push to it or open pull requests there. Its run log already sits under `prompts/runs/` here; record new runs here like any other track.
 
 Keep every project self-contained under `research/<slug>/`, and use relative paths rather than this repository's name, URL or root paths.
