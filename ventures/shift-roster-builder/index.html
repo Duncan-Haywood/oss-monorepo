@@ -88,6 +88,9 @@
     <button type="button" id="analyze">Build the roster</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
+    <button type="button" class="secondary" id="save-setup">Save setup file</button>
+    <label for="setup-file">Load setup file</label> <input id="setup-file" type="file" accept=".json,application/json">
+    <p class="note">Your people, shifts and settings are remembered on this device only (browser local storage), so next week you can open the page and click the button. <button type="button" class="secondary" id="forget">Forget saved data</button></p>
     <p id="form-status" role="status" class="note">Enter your people and shifts, then click the button.</p>
   </section>
 
@@ -215,22 +218,39 @@
     }
     $("#analyze").addEventListener("click", () => { if (run()) record("roster_built"); });
     $("#load-example").addEventListener("click", () => {
-      $("#staff").value = sampleStaff(); $("#shifts").value = sampleShifts();
+      $("#staff").value = sampleStaff(); $("#shifts").value = sampleShifts(); persist();
       if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented café with seven people."; }
     });
     $("#file").addEventListener("change", (e) => {
       const f = e.target.files[0]; if (!f) return;
       const rd = new FileReader();
-      rd.onload = () => { $("#staff").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name} into the people box. Add your shifts and click the button.`; };
+      rd.onload = () => { $("#staff").value = String(rd.result); persist(); record("file_loaded"); status.textContent = `Loaded ${f.name} into the people box. Add your shifts and click the button.`; };
       rd.readAsText(f);
     });
-    $("#clear-all").addEventListener("click", () => { $("#staff").value = ""; $("#shifts").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Enter your people and shifts, then click the button."; });
+    $("#clear-all").addEventListener("click", () => { $("#staff").value = ""; $("#shifts").value = ""; persist(); $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Enter your people and shifts, then click the button."; });
     $("#download").addEventListener("click", () => { if (last) download("roster.csv", rosterCsv(last)); });
     $("#download-hours").addEventListener("click", () => { if (last) download("roster-hours.csv", hoursCsv(last)); });
     $("#download-ics").addEventListener("click", () => {
       if (!last) return;
       try { const who = $("#icsperson").value || null; download(who ? `roster-${who}.ics` : "roster.ics", rosterIcs(last, $("#weekstart").value, who), "text/calendar"); }
       catch (e) { status.textContent = e.message === "weekStart must be a Monday" ? "Pick a date that is a Monday." : "Pick the Monday the week starts on."; }
+    });
+
+    // Remember the team on this device only; nothing is sent anywhere.
+    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "burden", "balance"];
+    const KEY = "shift-roster-builder:setup:v1";
+    const snapshot = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]));
+    const apply = (o) => { for (const f of FIELDS) if (o && typeof o[f] === "string") $("#" + f).value = o[f]; };
+    function persist() { try { localStorage.setItem(KEY, JSON.stringify(snapshot())); } catch (e) {} }
+    try { const saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved) { apply(saved); status.textContent = "Restored your last setup from this device. Click the button to rebuild."; } } catch (e) {}
+    for (const f of FIELDS) $("#" + f).addEventListener("input", persist);
+    $("#forget").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} status.textContent = "Saved data removed from this device."; });
+    $("#save-setup").addEventListener("click", () => download("roster-setup.json", JSON.stringify(snapshot(), null, 2), "application/json"));
+    $("#setup-file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { try { apply(JSON.parse(String(rd.result))); persist(); status.textContent = `Loaded ${f.name}. Click the button to build the roster.`; } catch (err) { status.textContent = "That file is not a setup file saved by this tool."; } };
+      rd.readAsText(f);
     });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }

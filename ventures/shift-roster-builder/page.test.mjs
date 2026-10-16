@@ -109,3 +109,12 @@ test("the guide page carries a disclaimer, FAQ JSON-LD and links back", () => {
   assert.equal(blocks[0]["@type"], "FAQPage");
   for (const q of blocks[0].mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("setup is remembered on-device only, with save/load/forget controls", () => {
+  const html = page("index.html");
+  assert.match(html, /localStorage\.setItem\(KEY/);
+  assert.match(html, /id="save-setup"/);
+  assert.match(html, /id="setup-file"/);
+  assert.match(html, /id="forget"/);
+  assert.match(html, /this device only/);
+});
