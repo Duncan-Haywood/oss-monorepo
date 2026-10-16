@@ -65,6 +65,7 @@ API (bearer `API_KEY`):
 - `POST /v1/events` — `{id, account, type, timestamp?, signup?}` or `{events:[...]}` up to 500. Idempotent on `id`.
 - `POST /v1/outcomes` — `{account, churnedAt?}` records a cancellation; `{account, churned:false}` undoes it.
 - `GET /v1/at-risk?limit=20` — accounts at or above the threshold, with reasons.
+- `GET /v1/digest?limit=10[&format=text]` — a paste-ready "talk to these people" list for Slack or email, with the reasons.
 - `GET /v1/accounts/:id` — one account's score.
 - `GET /v1/model` — mode, sample sizes, out-of-time validation, weights.
 - `POST /stripe/webhook` — `customer.subscription.deleted` records a cancellation,

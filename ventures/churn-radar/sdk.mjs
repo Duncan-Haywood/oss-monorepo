@@ -13,6 +13,8 @@ export function createRadar({ url, key, fetchImpl = fetch, onError = () => {} })
     },
     /** Tell the radar an account cancelled (the Stripe webhook does this for you if you set it up). */
     churned(account, when) { return post("/v1/outcomes", { account, churnedAt: when }).catch(onError); },
+    /** A paste-ready weekly list: `(await radar.digest()).text` goes straight into Slack or an email. */
+    async digest(limit = 10) { const r = await fetchImpl(`${url.replace(/\/$/, "")}/v1/digest?limit=${limit}`, { headers: { authorization: `Bearer ${key}` } }); return r.json(); },
     async atRisk(limit = 20) { const r = await fetchImpl(`${url.replace(/\/$/, "")}/v1/at-risk?limit=${limit}`, { headers: { authorization: `Bearer ${key}` } }); return r.json(); },
   };
 }
