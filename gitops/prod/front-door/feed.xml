@@ -48,6 +48,14 @@
     <summary type="text">A help center you host yourself: Markdown articles, typo-tolerant ranked search, helpful votes and a report of what visitors searched for and could not find. Open source, MIT, no per-seat fee. Try the search in your browser.</summary>
   </entry>
   <entry>
+    <title>Job Search Agent — One Interview, Then It Fills Your Applications</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/job-search-agent/"/>
+    <id>tag:marisstella.dev,2026:tool/job-search-agent</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free, private job search agent. Answer one long intake interview once; it then triages job postings in bulk, fills application questions from your answers, preps interview answers from your own stories, and drafts your salary counter-offer. Runs in your browser. Optional AI on your own key.</summary>
+  </entry>
+  <entry>
     <title>PQL Radar — Free Self-Hosted Lead Scoring for Product-Led SaaS</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pql-radar/"/>
     <id>tag:marisstella.dev,2026:tool/pql-radar</id>
@@ -158,13 +166,5 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">A free, open-source alternative to Lago, Orb and Metronome for small SaaS: send usage events to your own server, get exact per-customer usage, tiered invoice previews, hard-limit checks, and a reliable feed into Stripe Billing Meters. Try your pricing on real usage numbers in your browser first.</summary>
-  </entry>
-  <entry>
-    <title>MRR Pulse — Free Self-Hosted Stripe MRR &amp; Churn Dashboard</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mrr-pulse/"/>
-    <id>tag:marisstella.dev,2026:tool/mrr-pulse</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">See MRR, ARR, net revenue retention, logo churn and quick ratio from your Stripe subscriptions without paying a metrics service a share of your revenue. Paste a subscription export to try it in the browser, then run the open-source read-only server in your own account. Free, MIT.</summary>
   </entry>
 </feed>
