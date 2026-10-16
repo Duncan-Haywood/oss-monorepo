@@ -2,6 +2,16 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-16 · Batch 4: a CPU-budget postmortem, blameless review and two Amazon ideas; the ledger moved
+
+- Added 4 sources and 4 practices (22 of each): Cloudflare's 2019 outage postmortem (P19), Allspaw's *Blameless PostMortems and a Just Culture* at Etsy (P20), Bryar and Carr's *Working Backwards* (P21) and Vogels's 2006 ACM Queue interview behind "you build it, you run it" (P22). Large-company sources this time, as batch 3 left the early-stage side alone.
+- **Cloudflare's change passed a simulated-mode rollout and still took down traffic worldwide**, because nothing measured its CPU cost. It transfers in part to this loop: runs here lose work to suites that outrun the 10-minute tool cap, and no suite has a runtime budget (P19, tooling, 4.0% of runs). It is the highest-ranked practice that is not already adopted, at a 2.0% priority, still below the 5% bar.
+- **P20 and P22 describe things the loop already does** (run records with `errors` and `doc_friction`; the rule that the session that wrote a change merges it), so they are marked adopted. P21 is partly adopted: READMEs open with a question, but nobody drafts the finished-state release first.
+- **Two stale statuses fixed.** P16 and P4 said a research mirror was missing a check or under way. It was retired at the cutover, so both are now `adopted`, and batch 3's one lead (check the mirror) no longer applies.
+- **The ledger moved under the project.** `prompts/runs.jsonl` no longer exists; each run is a file in `prompts/runs/`. `run.py` crashed on the new path, so `load_ledger` now reads either layout and one run's `errors` entry that is a dict. The ledger has 474 rows (it had 280), and every failure class fell (tooling 6.1% to 4.0%, duplicate 5.7% to 3.6%), because the extra runs mostly reported no error. Percentages in batches 1 to 3 used the old file and are not comparable.
+- **Still no proposal**, and no practice that transfers as `yes` and is not adopted has a ceiling above 1.7%.
+- Verification was by web search only; none of the four pages could be fetched. All are marked `partly` checked, and the Bryar and Carr row names the claims that were not confirmed (publisher, single-threaded teams, two-pizza teams), which the catalogue therefore does not use.
+
 ## 2026-10-16 · Batch 3: postmortems, a regulator's finding and two early-stage sources
 
 - Added 4 sources and 4 practices (18 of each): GitLab's 2017 database-outage postmortem, the SEC's 2013 order on Knight Capital's 2012 deployment failure, Paul Graham's *Maker's Schedule, Manager's Schedule* (2009), and Linear's published method. These are the catalogue's first postmortem and first regulatory finding, which the earlier limitations named as missing.
