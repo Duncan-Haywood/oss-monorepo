@@ -109,8 +109,37 @@ test("a subscription is spread over the seller's own volume, not ignored", () =>
 test("marketplace fees stay out of invested cash so ROI stays comparable", () => {
   const item = loadItem(ITEM);
   for (const row of compareChannels(item)) {
-    assert.equal(row.cashInvested.toFixed(2), "18.00", `${row.label} moved the cash basis`);
+    // Poshmark's buyer buys the prepaid label, so the seller's $5 postage is not theirs.
+    const expected = row.id === "poshmark" ? "13.00" : "18.00";
+    assert.equal(row.cashInvested.toFixed(2), expected, `${row.label} moved the cash basis`);
   }
+});
+
+test("Poshmark: flat $2.95 under $15, 20% of the price from $15, postage ignored", () => {
+  const posh = (price, extra = {}) =>
+    compareChannels(loadItem({ ...ITEM, price, ...extra })).find((row) => row.id === "poshmark");
+  assert.equal(posh(10).channelFees.toFixed(2), "2.95");
+  assert.equal(posh(14.99).channelFees.toFixed(2), "2.95");
+  assert.equal(posh(15).channelFees.toFixed(2), "3.00");
+  assert.equal(posh(50).channelFees.toFixed(2), "10.00");
+  // Buyer-paid postage is not seller revenue and not commissioned.
+  assert.equal(posh(50, { shippingCharged: 9 }).channelFees.toFixed(2), "10.00");
+  assert.equal(posh(50, { shippingCharged: 9 }).revenue, 50);
+  // Never charge more than the price on a tiny sale.
+  assert.equal(posh(2).channelFees.toFixed(2), "2.00");
+});
+
+test("Poshmark break-even and parity prices land on the right side of the cliff", () => {
+  const poshChannel = CHANNELS.find((c) => c.id === "poshmark");
+  const item = loadItem({ ...ITEM, itemCost: 5, shippingCost: 0, otherCost: 0 });
+  // Needs 5 net: flat branch gives 7.95, under $15, so that is the answer.
+  assert.equal(priceForProfit(poshChannel, item, 0).toFixed(2), "7.95");
+  // Needs 12.10 net: flat gives 15.05 (over the cliff), percent gives 15.125.
+  assert.equal(priceForProfit(poshChannel, item, 7.1).toFixed(3), "15.125");
+  // Needs 12.00 net: flat 14.95 still nets exactly 12.00.
+  assert.equal(priceForProfit(poshChannel, item, 7).toFixed(2), "14.95");
+  // Needs 40 net: percent branch, 40 / 0.8 = 50.
+  assert.equal(priceForProfit(poshChannel, item, 35).toFixed(2), "50.00");
 });
 
 test("break-even price is the price at which that channel nets zero", () => {
