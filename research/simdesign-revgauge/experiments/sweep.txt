@@ -1,0 +1,5 @@
+Reversed load (vertical arm in compression), floor 3. factor = critical load / 100 N.
+stage b_mm w_mm factor mass_g seconds
+coarse 1.5 20.000 2.544 32.97 49
+coarse 1.5 24.000 3.315 38.43 20
+coarse 1.5 22.000 2.915 35.75 17
