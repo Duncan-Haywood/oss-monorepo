@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 340" font-family="sans-serif" font-size="12">
+<rect width="100%" height="100%" fill="white"/>
+<text x="60" y="22" font-size="14" font-weight="bold">N-gram detector, held-out families: AUROC by text length</text>
+<line x1="60" x2="540" y1="290.0" y2="290.0" stroke="#ddd"/><text x="52" y="294.0" text-anchor="end">0.5</text>
+<line x1="60" x2="540" y1="240.0" y2="240.0" stroke="#ddd"/><text x="52" y="244.0" text-anchor="end">0.6</text>
+<line x1="60" x2="540" y1="190.0" y2="190.0" stroke="#ddd"/><text x="52" y="194.0" text-anchor="end">0.7</text>
+<line x1="60" x2="540" y1="140.0" y2="140.0" stroke="#ddd"/><text x="52" y="144.0" text-anchor="end">0.8</text>
+<line x1="60" x2="540" y1="90.0" y2="90.0" stroke="#ddd"/><text x="52" y="94.0" text-anchor="end">0.9</text>
+<line x1="60" x2="540" y1="40.0" y2="40.0" stroke="#ddd"/><text x="52" y="44.0" text-anchor="end">1.0</text>
+<text x="60.0" y="308" text-anchor="middle">50</text>
+<text x="157.8" y="308" text-anchor="middle">100</text>
+<text x="255.6" y="308" text-anchor="middle">200</text>
+<text x="353.5" y="308" text-anchor="middle">400</text>
+<text x="451.3" y="308" text-anchor="middle">800</text>
+<text x="540.0" y="308" text-anchor="middle">1500</text>
+<text x="300.0" y="332" text-anchor="middle">characters kept (log scale)</text>
+<polyline points="60.0,213.7 157.8,163.3 255.6,149.9 353.5,121.0 451.3,93.5 540.0,76.3" fill="none" stroke="#1b6ca8" stroke-width="2"/>
+<line x1="60.0" x2="60.0" y1="227.4" y2="202.8" stroke="#1b6ca8"/><circle cx="60.0" cy="213.7" r="3" fill="#1b6ca8"/>
+<line x1="157.8" x2="157.8" y1="176.7" y2="154.0" stroke="#1b6ca8"/><circle cx="157.8" cy="163.3" r="3" fill="#1b6ca8"/>
+<line x1="255.6" x2="255.6" y1="161.4" y2="139.8" stroke="#1b6ca8"/><circle cx="255.6" cy="149.9" r="3" fill="#1b6ca8"/>
+<line x1="353.5" x2="353.5" y1="130.3" y2="112.3" stroke="#1b6ca8"/><circle cx="353.5" cy="121.0" r="3" fill="#1b6ca8"/>
+<line x1="451.3" x2="451.3" y1="101.3" y2="85.8" stroke="#1b6ca8"/><circle cx="451.3" cy="93.5" r="3" fill="#1b6ca8"/>
+<line x1="540.0" x2="540.0" y1="82.2" y2="69.9" stroke="#1b6ca8"/><circle cx="540.0" cy="76.3" r="3" fill="#1b6ca8"/>
+<line x1="310" x2="334" y1="56" y2="56" stroke="#1b6ca8" stroke-width="2"/><text x="340" y="60">fit and scored on the prefix</text>
+<polyline points="60.0,249.9 157.8,190.1 255.6,161.4 353.5,135.6 451.3,102.3 540.0,76.3" fill="none" stroke="#c0502a" stroke-width="2"/>
+<line x1="60.0" x2="60.0" y1="264.6" y2="237.8" stroke="#c0502a"/><circle cx="60.0" cy="249.9" r="3" fill="#c0502a"/>
+<line x1="157.8" x2="157.8" y1="203.0" y2="178.7" stroke="#c0502a"/><circle cx="157.8" cy="190.1" r="3" fill="#c0502a"/>
+<line x1="255.6" x2="255.6" y1="172.7" y2="152.2" stroke="#c0502a"/><circle cx="255.6" cy="161.4" r="3" fill="#c0502a"/>
+<line x1="353.5" x2="353.5" y1="147.0" y2="126.3" stroke="#c0502a"/><circle cx="353.5" cy="135.6" r="3" fill="#c0502a"/>
+<line x1="451.3" x2="451.3" y1="110.1" y2="93.9" stroke="#c0502a"/><circle cx="451.3" cy="102.3" r="3" fill="#c0502a"/>
+<line x1="540.0" x2="540.0" y1="82.2" y2="69.9" stroke="#c0502a"/><circle cx="540.0" cy="76.3" r="3" fill="#c0502a"/>
+<line x1="310" x2="334" y1="74" y2="74" stroke="#c0502a" stroke-width="2"/><text x="340" y="78">fit on full text, scored on prefix</text>
+</svg>
