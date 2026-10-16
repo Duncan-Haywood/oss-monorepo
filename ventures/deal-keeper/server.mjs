@@ -5,6 +5,8 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual, createHmac } from "node:crypto";
 import * as E from "./engine.mjs";
+import { configFromEnv } from "./byok.mjs";
+import { draftFollowUp } from "./ai.mjs";
 
 const env = process.env;
 const RETRAIN_MS = 6 * 3_600_000;
@@ -76,9 +78,15 @@ export function handler(cfg) {
           return json(results.every((r) => r.status === "rejected") ? 400 : 200, { results });
         }
         let m;
-        if ((m = path.match(/^\/v1\/deals\/([^/]+)(\/activity)?$/))) {
+        if ((m = path.match(/^\/v1\/deals\/([^/]+)(\/activity|\/followup)?$/))) {
           const id = decodeURIComponent(m[1]);
-          if (m[2] && req.method === "POST") { const b = JSON.parse((await readBody(req)) || "{}"); E.addActivity(st, id, b.at, now()); cfg.save(); return json(200, { ok: true }); }
+          if (m[2] === "/followup" && req.method === "POST") { // AI follow-up draft on the operator's own key; falls back to a template
+            if (!st.deals[id]) return json(404, { error: "unknown deal" });
+            const row = E.pipeline(st, ensureModel(st, now()), now()).find((r) => r.id === id);
+            if (!row) return json(409, { error: "only open deals get a follow-up draft" });
+            return json(200, { id, ...(await draftFollowUp(cfg.llm || {}, row, cfg.fetch)), note: "A draft for you to check and send yourself. Nothing was sent." });
+          }
+          if (m[2] === "/activity" && req.method === "POST") { const b = JSON.parse((await readBody(req)) || "{}"); E.addActivity(st, id, b.at, now()); cfg.save(); return json(200, { ok: true }); }
           if (!m[2] && req.method === "DELETE") { E.removeDeal(st, id); cfg.save(); return json(200, { ok: true }); }
           if (!m[2] && req.method === "GET") {
             const row = E.pipeline(st, ensureModel(st, now()), now()).find((r) => r.id === id);
@@ -117,6 +125,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const file = env.STATE || "/tmp/state.json", state = loadState(file);
   const save = () => { fs.writeFileSync(`${file}.tmp`, JSON.stringify(state)); fs.renameSync(`${file}.tmp`, file); };
   const postAlert = env.ALERT_WEBHOOK_URL ? webhookSender({ url: env.ALERT_WEBHOOK_URL, secret: env.ALERT_WEBHOOK_SECRET }) : null;
-  http.createServer(handler({ state, save, apiKey: env.API_KEY, adminKey: env.ADMIN_KEY, sdk: fs.readFileSync(new URL("./sdk.mjs", import.meta.url), "utf8") })).listen(Number(env.PORT) || 8080, () => console.log(`deal-keeper on :${env.PORT || 8080}`));
+  http.createServer(handler({ state, save, apiKey: env.API_KEY, adminKey: env.ADMIN_KEY, llm: configFromEnv(env), sdk: fs.readFileSync(new URL("./sdk.mjs", import.meta.url), "utf8") })).listen(Number(env.PORT) || 8080, () => console.log(`deal-keeper on :${env.PORT || 8080}`));
   setInterval(async () => { try { if (postAlert) await runAlerts(state, postAlert, Date.now()); save(); } catch (e) { console.error("hourly pass failed:", e.message); } }, 3_600_000).unref();
 }
