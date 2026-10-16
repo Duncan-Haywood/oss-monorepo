@@ -51,6 +51,6 @@ test("privacy policy page exists, is in the sitemap and makes no tracking claims
   const html = page("privacy.html");
   assert.match(html, /no analytics/);
   assert.match(html, /Nothing\./);
-  assert.doesNotMatch(html, /<script(?! type="application\/ld\+json")|fetch\(/); // JSON-LD is data, not code
+  assert.doesNotMatch(html, /<script(?![^>]*application\/ld\+json)|fetch\(/);
   assert.match(page("sitemap.xml"), /privacy\.html/);
 });

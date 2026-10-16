@@ -41,7 +41,13 @@ now issue, a client they can now keep.
 
 ## 2. Choose a shape that costs us nothing per user
 
-In rough order of preference:
+In rough order of preference. **This order is about cost, not about what to
+build next** (2026-10-16): read as a recipe, it produced 121 near-identical
+`<trade>-bid-calculator` ventures
+([`docs/reports/2026-10-16-calculator-glut.md`](docs/reports/2026-10-16-calculator-glut.md)).
+A CLI, library, desktop app or extension (shape 2) costs nothing to serve
+either, and the owner wants that track run alongside web tools. Before adding
+a product in an existing template family, extend or consolidate the family.
 
 1. **Static site / browser app.** All computation client-side, state in
    `localStorage` or a file the user downloads. GitHub Pages hosts it. Zero

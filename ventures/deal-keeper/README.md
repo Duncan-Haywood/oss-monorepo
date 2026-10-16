@@ -66,6 +66,7 @@ API_KEY=$(openssl rand -hex 16) ADMIN_KEY=$(openssl rand -hex 16) node server.mj
 | `STATE` | state file, default `/tmp/state.json`; put it on a disk |
 | `STAGES` | comma-separated stage names in order, first run only; default `lead,qualified,proposal,negotiation` |
 | `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, or `LLM_PROVIDER`/`LLM_MODEL`/`LLM_BASE_URL`/`LLM_API_KEY` | optional; your own key turns on model-written follow-up drafts (any OpenAI-compatible endpoint works, including a local Ollama). Only the deal's name, stage, amount, next step and flags are sent to the provider |
+| `PIPEDRIVE_STAGES`, `HUBSPOT_STAGES` | optional JSON maps from the CRM's stage ids to your stage names, for the webhook connectors below |
 | `ALERT_WEBHOOK_URL`, `ALERT_WEBHOOK_SECRET` | optional; a signed POST once when a deal first goes `stale`, `overdue` or `slipped` |
 
 API (bearer `API_KEY`):
@@ -90,6 +91,24 @@ DEALS_URL=https://deals.example.com DEALS_API_KEY=... node import.mjs deals.csv
 Safe to re-run. Rows without `stage_history` still train the stage chances but
 cannot feed the time-in-stage model or the backtest. Most CRMs can export
 stage-change dates from their deal history report.
+
+**Live sync from Pipedrive or HubSpot (no glue code).** Point the CRM's own
+webhook at your server and the pipeline stays current:
+
+- *Pipedrive*: Tools > Webhooks > add one for event `*.deal` (v1 or v2) to
+  `https://<your host>/v1/webhooks/pipedrive`, HTTP auth with any user name and
+  your `API_KEY` as the password. Set `PIPEDRIVE_STAGES='{"7":"qualified","8":"proposal"}'`
+  to map Pipedrive stage ids to your `STAGES`. Deals are stored as `pd-<id>`.
+- *HubSpot*: a deal workflow with the action "Send a webhook" (POST, JSON),
+  URL `https://<your host>/v1/webhooks/hubspot?key=<API_KEY>`, sending the
+  properties `hs_object_id, dealname, amount, dealstage, createdate, closedate, hs_is_closed, hs_is_closed_won`.
+  Map stages with `HUBSPOT_STAGES='{"contractsent":"proposal"}'`. Deals are `hs-<id>`.
+
+A stage the map does not know leaves the deal's stage alone and says so in the
+response; unrelated events get a 200 so the CRM never disables the hook. Stage
+moves are recorded when the webhook arrives, so run the CSV import first for
+history. Anything else (Close, Zoho, a spreadsheet, Zapier/Make) can POST to
+`/v1/deals`.
 
 `sdk.mjs` is a tiny fetch-based client: `deals.upsert({...})`, `deals.activity(id)`.
 Alert signature: `x-keeper-signature: sha256=HMAC(ALERT_WEBHOOK_SECRET, body)`.

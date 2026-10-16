@@ -169,3 +169,5 @@ the owner step is the account, two secrets and `DISTRIBUTE_BLUESKY=true`.
 `pypi-python-clis` is at `artifact` (2026-10-16): 22 stdlib-only Python venture CLIs (the `*-check` linters) become `pipx run`-able PyPI projects, five new per weekly run, none overwritten. Dry run: `node platform/distribution/pypi.mjs`; inspect one with `node platform/distribution/pypi.mjs --pack <slug> <dir>`.
 
 `pypi-pyproject-packages` is at `artifact` (2026-10-16): the five dependency-free Python ventures that already have a pyproject become PyPI projects, three new per weekly run; same owner step as `pypi-python-clis`. Dry run: `node platform/distribution/pypi-packages.mjs`.
+
+`homebrew-tap` is at `artifact` (2026-10-16): formulas for the venture CLIs that npm-cli-packages has published, written into the owner's own tap repository (`brew install <tap>/<slug>`); needs `DISTRIBUTE_NPM` live first. Dry run: `node platform/distribution/homebrew.mjs`.
