@@ -101,3 +101,13 @@ test("Stripe 5xx and 429 retry; other 4xx are permanent", async () => {
     await assert.rejects(mk(status)({ id: "a", event: "e", stripeCustomerId: "c", value: 1, ts: 1000 }), (e) => e.retry === retry && /nope/.test(e.message));
   }
 });
+
+import { webhookSender } from "./server.mjs";
+import { createHmac as hm } from "node:crypto";
+test("webhookSender signs the raw body and rejects non-2xx", async () => {
+  let seen;
+  const ok = webhookSender({ url: "https://x.test/h", secret: "s3cret", fetchImpl: async (u, o) => { seen = { u, o }; return { ok: true }; } });
+  await ok({ a: 1 });
+  assert.equal(seen.o.headers["x-meter-signature"], `sha256=${hm("sha256", "s3cret").update(seen.o.body).digest("hex")}`);
+  await assert.rejects(webhookSender({ url: "https://x.test/h", fetchImpl: async () => ({ ok: false, status: 500 }) })({}), /webhook 500/);
+});

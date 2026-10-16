@@ -15,7 +15,7 @@ Two parts, both free and MIT:
 | A shared Gmail inbox or alias | No owner, no status, replies collide, nothing shows what is overdue | Status, assignee, notes, reply targets, overdue list |
 | Chatwoot, FreeScout, Zammad | Full products: database, queue, operations | One Node process and one JSON file |
 
-Honest limits: no live chat, no attachments (file parts are dropped), no mobile app, one admin key for the whole team (assignee is a name, not a login), keyword-based suggestions rather than a language model. For more than a few agents or high volume use a full help desk.
+Honest limits: no live chat, no attachments (file parts are dropped), no mobile app, no user accounts or roles (each agent can have a personal key, below, but every key has full admin rights), keyword-based suggestions rather than a language model. For more than a few agents or high volume use a full help desk.
 
 ## How it works
 
@@ -35,7 +35,7 @@ node --test        # no network
 ADMIN_KEY=$(openssl rand -hex 16) COMPANY_NAME=Acme node server.mjs
 ```
 
-Email starts in **dry run**: replies are stored on the ticket but nothing is sent. To send, set `DRY_RUN=false`, `RESEND_API_KEY` and `MAIL_FROM` (an address on a domain you verified with Resend, your own account). Optional: `ALERT_WEBHOOK_URL` (Slack/Discord, https) pings on each new ticket; `STATE` (JSON file path; keep it on a persistent disk), `PORT`, `PUBLIC_URL` (used in links), `TRUST_PROXY=true` behind a proxy, `HIDE_SPONSOR_LINK=true`, `AUTO_CLOSE_DAYS`, `RETENTION_DAYS`.
+Email starts in **dry run**: replies are stored on the ticket but nothing is sent. To send, set `DRY_RUN=false`, `RESEND_API_KEY` and `MAIL_FROM` (an address on a domain you verified with Resend, your own account). Optional: `ALERT_WEBHOOK_URL` (Slack/Discord, https) pings on each new ticket; `STATE` (JSON file path; keep it on a persistent disk), `PORT`, `PUBLIC_URL` (used in links), `AGENT_KEYS` (`alice:key-of-12-chars-or-more,bob:...`: each agent signs in at `/admin` with their name and personal key, replies and notes are signed with it, and a reply claims an unassigned ticket; `ADMIN_KEY` keeps working and signs as "agent"), `TRUST_PROXY=true` behind a proxy, `HIDE_SPONSOR_LINK=true`, `AUTO_CLOSE_DAYS`, `RETENTION_DAYS`.
 
 ## One-click deploy
 
