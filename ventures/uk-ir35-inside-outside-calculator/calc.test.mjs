@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { insideIr35, outsideIr35, breakEvenInvoice, compare, summaryText, SAMPLE, incomeTax, employeeNi } from "./calc.mjs";
+import { insideIr35, outsideIr35, breakEvenInvoice, compare, summaryText, SAMPLE, incomeTax, employeeNi, personalAllowance, class4, limitedCompany, bestSalary } from "./calc.mjs";
 
 const near = (a, b, eps = 0.02) => assert.ok(Math.abs(a - b) <= eps, `${a} != ${b}`);
 
@@ -63,4 +63,31 @@ test("summary names both routes and the break-even rate", () => {
   assert.match(s, /Outside IR35/);
   assert.match(s, /Inside IR35/);
   assert.match(s, /Not tax advice/);
+});
+
+test("personal allowance tapers by 1 for every 2 above 100,000 and never goes negative", () => {
+  assert.equal(personalAllowance(100000), 12570);
+  assert.equal(personalAllowance(110000), 7570);
+  assert.equal(personalAllowance(125140), 0);
+  assert.equal(personalAllowance(200000), 0);
+});
+
+test("class 4 NI: 6% between the limits, 2% above the upper limit", () => {
+  assert.equal(class4(12570), 0);
+  assert.ok(Math.abs(class4(50270) - 2262) < 1e-9);
+  assert.ok(Math.abs(class4(60270) - 2462) < 1e-9);
+});
+
+test("limited company: costs and salary both reduce corporation tax profit", () => {
+  const c = limitedCompany(100000, 10000, 2000, false, 0);
+  // employer NI 750; CT profit 100000 - 2000 - 10000 - 750 = 87250 at 25% less marginal relief (250000-87250)*3/200
+  assert.equal(c.employerNi, 750);
+  assert.equal(c.corporationTax, 19371.25);
+});
+
+test("bestSalary keeps costs at 0 by default and handles zero profit without a floor", () => {
+  assert.equal(bestSalary(100000).costs, 0);
+  const z = bestSalary(0, 0, false, false);
+  assert.equal(z.salary, 0);
+  assert.equal(z.takeHome, 0);
 });
