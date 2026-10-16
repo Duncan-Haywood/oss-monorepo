@@ -130,7 +130,7 @@ export const CHANNELS = [
     deepTool: "tiktok-shop-fee-calculator",
     deepToolLabel: "TikTok Shop fee calculator",
     notCovered:
-      "Creator/affiliate commission, and the announced 1 Oct 2026 move to 8% plus 1.5% facilitation.",
+      "Creator/affiliate commission, and a possible move to 8%: as of 16 Oct 2026 third-party guides date it to 4 Aug 2026, TikTok's public table was reported still at 6%, and no source found confirms the announced 1.5% facilitation fee. Check Seller Center.",
   },
   {
     id: "mercari",

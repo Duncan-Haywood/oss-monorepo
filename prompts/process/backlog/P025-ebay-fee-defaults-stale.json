@@ -1,0 +1,33 @@
+{
+  "id": "P025",
+  "title": "eBay fee defaults are stale across four ventures (13.25% + $0.30 vs 13.6% + $0.30/$0.40)",
+  "status": "dropped",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 3,
+  "problem": "ebay-fee-calculator, marketplace-fee-compare, where-to-sell-calculator and reverb-fee-calculator default to a 13.25% final value fee and a flat $0.30 per-order fee. eBay's selling-fees help page (https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822, fetched 2026-10-16) lists 13.6% of the total sale up to $7,500 plus 2.35% above it, and a per-order fee of $0.30 for orders of $10.00 or less and $0.40 above. Every ranking and net-profit figure for eBay is therefore overstated by about 0.35 points of the order plus $0.10 on most orders, and the engines have no tiered per-order fee or over-$7,500 band.",
+  "evidence": [
+    "eBay selling-fees page, fetched 2026-10-16 by a ventures run (no effective date shown on the page)",
+    "Probe: replacing 13.25 with 13.6 in the four ventures breaks ebay-fee-calculator (30+ tests), marketplace-fee-compare (5), where-to-sell-calculator (8) and reverb-fee-calculator (2): hand-computed worked examples in tests and in ~38 static HTML explainers embed the old figures",
+    "grep -rl '13\\.25' ventures: 76 files"
+  ],
+  "change": "Change the default rate to 13.6 and add a tiered per-order fee (0.30 at or under $10, 0.40 above) plus the 2.35% band above $7,500 to ebay-fee-calculator/calc.mjs; point the other three at the same constants. Regenerate every test and explainer figure from the engine (do not hand-edit), re-run each suite, then dated-stamp the rates in the READMEs as 'checked against eBay's page on <date>'. Do it as one PR so the ventures never disagree.",
+  "touches": [
+    "ventures/ebay-fee-calculator",
+    "ventures/marketplace-fee-compare",
+    "ventures/where-to-sell-calculator",
+    "ventures/reverb-fee-calculator"
+  ],
+  "metric": "grep -rl '13\\.25' ventures returns nothing in these four ventures, and their suites pass",
+  "baseline": "76 files carry 13.25",
+  "opened": "2026-10-16",
+  "source": "ventures run 2026-10-16",
+  "pr": null,
+  "result": "Split into P026-P029, one venture each (single PR touched ~76 files and silently stale derived figures; see their evidence).",
+  "history": [
+    {
+      "date": "2026-10-16",
+      "note": "Split into P026-P029; probe showed pages' derived figures are not pinned by tests."
+    }
+  ]
+}
