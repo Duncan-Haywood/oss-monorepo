@@ -31,7 +31,7 @@
         "name": "Should I use eBay Global Shipping Program?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Global Shipping Program ships to a US hub on your domestic label. The buyer pays eBay the international bill. You-ship collects that postage and buys the label. On the calculator defaults ($40 item, $6 domestic shipping charged, 13.25% final value fee, $12 cost, $5 hub label, $1 pack, 6% GSP returns, 40% GSP sell-through, $22 you-ship postage, $18 international label, 1.65% international fee, 10% you-ship returns, 8% claims, 55% you-ship sell-through) GSP expects $7.86 and you-ship expects $6.54. GSP keeps $1.32 more after sell-through. On leftover — if the international sale completes — GSP leaves $19.65 and you-ship leaves $11.89, $7.76 more, because an 8% claim never returns the item. Claims have to stay at about 2.8%, or you-ship has to convert about 66.1%, before those paths match. That is arithmetic on your inputs, not advice to enroll."
+          "text": "Global Shipping Program ships to a US hub on your domestic label. The buyer pays eBay the international bill. You-ship collects that postage and buys the label. On the calculator defaults ($40 item, $6 domestic shipping charged, 13.6% final value fee, $12 cost, $5 hub label, $1 pack, 6% GSP returns, 40% GSP sell-through, $22 you-ship postage, $18 international label, 1.65% international fee, 10% you-ship returns, 8% claims, 55% you-ship sell-through) GSP expects $7.76 and you-ship expects $6.39. GSP keeps $1.37 more after sell-through. On leftover — if the international sale completes — GSP leaves $19.40 and you-ship leaves $11.62, $7.78 more, because an 8% claim never returns the item. Claims have to stay at about 2.6%, or you-ship has to convert about 66.8%, before those paths match. That is arithmetic on your inputs, not advice to enroll."
         }
       },
       {
@@ -39,7 +39,7 @@
         "name": "When does buying the international label beat Global Shipping Program?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "When the extra postage you collect covers the label, the extra international fee, and the claims. On the same $40 listing, a 0% claim rate expects $8.59 against $7.86 GSP. A 70% you-ship sell-through flips ($8.32 vs $7.86). A $10 international label flips harder ($10.94). Matching the 40% GSP close rate already loses ($4.75). A 30% GSP close rate — sticker shock — loses to the default you-ship path ($5.89 vs $6.54)."
+          "text": "When the extra postage you collect covers the label, the extra international fee, and the claims. On the same $40 listing, a 0% claim rate expects $8.43 against $7.76 GSP. A 70% you-ship sell-through flips ($8.14 vs $7.76). A $10 international label flips harder ($10.79). Matching the 40% GSP close rate already loses ($4.65). A 30% GSP close rate — sticker shock — loses to the default you-ship path ($5.82 vs $6.39)."
         }
       },
       {
@@ -117,8 +117,8 @@
       <div class="fields">
         <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
         <label>Domestic shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
-        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
-        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.6"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.40"></label>
         <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
         <label>Hub / domestic label <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
         <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
@@ -182,29 +182,29 @@
     </p>
     <p>
       On the defaults — $40 item, $6 domestic shipping charged,
-      13.25% final value fee, $0.30 fixed, $12 cost, $5 hub
+      13.6% final value fee, $0.40 fixed, $12 cost, $5 hub
       label, $1 pack, $5 GSP return label, 6% GSP returns, 40%
       GSP sell-through, $22 you-ship postage, $18 international
       label, $18 you-ship return, 1.65% international fee, 10%
       you-ship returns, 8% claims, 55% you-ship sell-through,
-      twenty listings — Global Shipping Program expects $7.86
-      and you-ship expects $6.54. GSP keeps $1.32 more on this
-      decision and $26.44 across twenty listings. Claims have
-      to stay at about 2.8%, or you-ship has to convert about
-      66.1%, before those paths match. If the international
-      sale completes, leftover on GSP is $19.65 versus $11.89
-      when you buy the label — $7.76 more — because an 8% claim
+      twenty listings — Global Shipping Program expects $7.76
+      and you-ship expects $6.39. GSP keeps $1.37 more on this
+      decision and $27.36 across twenty listings. Claims have
+      to stay at about 2.6%, or you-ship has to convert about
+      66.8%, before those paths match. If the international
+      sale completes, leftover on GSP is $19.40 versus $11.62
+      when you buy the label — $7.78 more — because an 8% claim
       never returns the item. That claim still costs $31.00
       (cost of goods plus the international label and pack).
     </p>
     <p>
       Zero claims already flip. Keep the same listing and hold
-      the claim rate at 0%. You-ship expects $8.59; GSP still
-      expects $7.86. A 70% you-ship sell-through flips ($8.32
-      vs $7.86). A $10 international label flips harder
-      ($10.94). Matching the 40% GSP close rate already loses
-      ($4.75). A 30% GSP close rate — the sticker-shock case —
-      loses to the default you-ship path ($5.89 vs $6.54). The
+      the claim rate at 0%. You-ship expects $8.43; GSP still
+      expects $7.76. A 70% you-ship sell-through flips ($8.14
+      vs $7.76). A $10 international label flips harder
+      ($10.79). Matching the 40% GSP close rate already loses
+      ($4.65). A 30% GSP close rate — the sticker-shock case —
+      loses to the default you-ship path ($5.82 vs $6.39). The
       postage you thought you collected did not cover the boxes
       that never arrived.
     </p>
@@ -227,9 +227,9 @@
   </section>
   <h2>Common questions</h2>
   <h3>Should I use eBay Global Shipping Program?</h3>
-  <p>Global Shipping Program ships to a US hub on your domestic label. The buyer pays eBay the international bill. You-ship collects that postage and buys the label. On the calculator defaults ($40 item, $6 domestic shipping charged, 13.25% final value fee, $12 cost, $5 hub label, $1 pack, 6% GSP returns, 40% GSP sell-through, $22 you-ship postage, $18 international label, 1.65% international fee, 10% you-ship returns, 8% claims, 55% you-ship sell-through) GSP expects $7.86 and you-ship expects $6.54. GSP keeps $1.32 more after sell-through. On leftover — if the international sale completes — GSP leaves $19.65 and you-ship leaves $11.89, $7.76 more, because an 8% claim never returns the item. Claims have to stay at about 2.8%, or you-ship has to convert about 66.1%, before those paths match. That is arithmetic on your inputs, not advice to enroll.</p>
+  <p>Global Shipping Program ships to a US hub on your domestic label. The buyer pays eBay the international bill. You-ship collects that postage and buys the label. On the calculator defaults ($40 item, $6 domestic shipping charged, 13.6% final value fee, $12 cost, $5 hub label, $1 pack, 6% GSP returns, 40% GSP sell-through, $22 you-ship postage, $18 international label, 1.65% international fee, 10% you-ship returns, 8% claims, 55% you-ship sell-through) GSP expects $7.76 and you-ship expects $6.39. GSP keeps $1.37 more after sell-through. On leftover — if the international sale completes — GSP leaves $19.40 and you-ship leaves $11.62, $7.78 more, because an 8% claim never returns the item. Claims have to stay at about 2.6%, or you-ship has to convert about 66.8%, before those paths match. That is arithmetic on your inputs, not advice to enroll.</p>
   <h3>When does buying the international label beat Global Shipping Program?</h3>
-  <p>When the extra postage you collect covers the label, the extra international fee, and the claims. On the same $40 listing, a 0% claim rate expects $8.59 against $7.86 GSP. A 70% you-ship sell-through flips ($8.32 vs $7.86). A $10 international label flips harder ($10.94). Matching the 40% GSP close rate already loses ($4.75). A 30% GSP close rate — sticker shock — loses to the default you-ship path ($5.89 vs $6.54).</p>
+  <p>When the extra postage you collect covers the label, the extra international fee, and the claims. On the same $40 listing, a 0% claim rate expects $8.43 against $7.76 GSP. A 70% you-ship sell-through flips ($8.14 vs $7.76). A $10 international label flips harder ($10.79). Matching the 40% GSP close rate already loses ($4.65). A 30% GSP close rate — sticker shock — loses to the default you-ship path ($5.82 vs $6.39).</p>
   <h3>Is Global Shipping Program the same as Standard Envelope or Authenticity Guarantee?</h3>
   <p>No. Standard Envelope is cheap domestic postage versus an item-not-received claim. Authenticity Guarantee is a hub label for authentication. Combined shipping is two already-sold domestic boxes. Global Shipping Program is how an international buyer receives one item.</p>
 

@@ -78,8 +78,8 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareSellerInitiatedOffer({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
@@ -91,19 +91,19 @@ test('default inputs on the page match the worked example', () => {
     offerAcceptPct: 55,
     monthlyOffers: 40,
   });
-  assert.ok(Math.abs(comparison.wait.expectedProfit - 7.3378) < 1e-6, 'default wait');
-  assert.ok(Math.abs(comparison.offer.expectedProfit - 8.371825) < 1e-6, 'default offer');
-  assert.ok(Math.abs(comparison.breakEvenAcceptPct - 48.20681273199094) < 1e-6, 'default accept floor');
-  assert.match(html, /\$7\.34/);
-  assert.match(html, /\$8\.37/);
-  assert.match(html, /\$1\.03/);
-  assert.match(html, /\$41\.36/);
-  assert.match(html, /48\.2%/);
-  assert.match(html, /16\.0%/);
-  assert.match(html, /\$33\.59/);
-  assert.match(html, /\$6\.65/);
-  assert.match(html, /\$9\.17/);
-  assert.match(html, /\$0\.69/);
+  assert.ok(Math.abs(comparison.wait.expectedProfit - 7.24384) < 1e-6, 'default wait');
+  assert.ok(Math.abs(comparison.offer.expectedProfit - 8.24956) < 1e-6, 'default offer');
+  assert.ok(Math.abs(comparison.breakEvenAcceptPct - 48.29484239159422) < 1e-6, 'default accept floor');
+  assert.match(html, /\$7\.24/);
+  assert.match(html, /\$8\.25/);
+  assert.match(html, /\$1\.01/);
+  assert.match(html, /\$40\.23/);
+  assert.match(html, /48\.3%/);
+  assert.match(html, /15\.9%/);
+  assert.match(html, /\$33\.65/);
+  assert.match(html, /\$6\.54/);
+  assert.match(html, /\$9\.05/);
+  assert.match(html, /\$0\.70/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

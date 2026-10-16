@@ -1,7 +1,7 @@
 {
   "id": "P026",
   "title": "eBay fee defaults in ebay-fee-calculator: 13.6% FVF and tiered per-order fee (split from P025)",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 3,
@@ -20,6 +20,11 @@
   "opened": "2026-10-16",
   "source": "process run 2026-10-16, split of P025",
   "pr": null,
-  "result": null,
-  "history": []
+  "result": "ebay-fee-calculator: 13.6% FVF, $0.40 per-order default (tiers/2.35% band noted, not modelled, as in P027); explainer prose recomputed from the engine; suite 499/499. calc.test.mjs keeps explicit 13.25%/$0.30 fixtures by design, so grep still finds them there.",
+  "history": [
+    {
+      "date": "2026-10-16",
+      "note": "Landed via fan-out: engine defaults, then per-page recomputation by subagents."
+    }
+  ]
 }

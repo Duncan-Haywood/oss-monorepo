@@ -78,8 +78,8 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareGlobalShipping({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
@@ -96,23 +96,23 @@ test('default inputs on the page match the worked example', () => {
     selfShipSellThroughPct: 55,
     monthlyGspListings: 20,
   });
-  assert.ok(Math.abs(comparison.gsp.expectedProfit - 7.85948) < 1e-5, 'default GSP');
-  assert.ok(Math.abs(comparison.selfShip.expectedProfit - 6.5375948) < 1e-5, 'default you-ship');
-  assert.match(html, /\$7\.86/);
-  assert.match(html, /\$6\.54/);
-  assert.match(html, /\$1\.32/);
-  assert.match(html, /\$26\.44/);
-  assert.match(html, /2\.8%/);
-  assert.match(html, /66\.1%/);
-  assert.match(html, /\$19\.65/);
-  assert.match(html, /\$11\.89/);
+  assert.ok(Math.abs(comparison.gsp.expectedProfit - 7.761344) < 1e-5, 'default GSP');
+  assert.ok(Math.abs(comparison.selfShip.expectedProfit - 6.393233) < 1e-5, 'default you-ship');
   assert.match(html, /\$7\.76/);
+  assert.match(html, /\$6\.39/);
+  assert.match(html, /\$1\.37/);
+  assert.match(html, /\$27\.36/);
+  assert.match(html, /2\.6%/);
+  assert.match(html, /66\.8%/);
+  assert.match(html, /\$19\.40/);
+  assert.match(html, /\$11\.62/);
+  assert.match(html, /\$7\.78/);
   assert.match(html, /\$31\.00/);
-  assert.match(html, /\$8\.59/);
-  assert.match(html, /\$8\.32/);
-  assert.match(html, /\$10\.94/);
-  assert.match(html, /\$4\.75/);
-  assert.match(html, /\$5\.89/);
+  assert.match(html, /\$8\.43/);
+  assert.match(html, /\$8\.14/);
+  assert.match(html, /\$10\.79/);
+  assert.match(html, /\$4\.65/);
+  assert.match(html, /\$5\.82/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

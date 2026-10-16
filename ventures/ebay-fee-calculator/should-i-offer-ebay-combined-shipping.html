@@ -31,7 +31,7 @@
         "name": "Should I offer combined shipping on eBay?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Combined shipping is a fulfillment decision after two listings already sold to the same buyer. You either ship each item on its own label or invoice one combined postage and pay one box. On the calculator defaults (two $40 items, $6 shipping charged each, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, $8 combined charged, $6.50 one label, $1.25 pack) two labels expect $36.69 and one box expects $38.44. Combining keeps $1.75 more. Combined shipping charged has to stay at about $5.76 before one box matches two labels. That is arithmetic on your inputs, not advice to combine."
+          "text": "Combined shipping is a fulfillment decision after two listings already sold to the same buyer. You either ship each item on its own label or invoice one combined postage and pay one box. On the calculator defaults (two $40 items, $6 shipping charged each, 13.6% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, $8 combined charged, $6.50 one label, $1.25 pack) two labels expect $36.22 and one box expects $38.07. Combining keeps $1.85 more. Combined shipping charged has to stay at about $5.62 before one box matches two labels. That is arithmetic on your inputs, not advice to combine."
         }
       },
       {
@@ -39,7 +39,7 @@
         "name": "When do two eBay labels beat combined shipping?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "When the combined invoice gives away more shipping revenue than the second label costs. On the same two $40 sales, a $4 “I’ll combine them cheap” invoice expects $35.31 against $36.69 for two labels — $1.38 less. The buyer-friendly discount looks kind and still loses cash after fees."
+          "text": "When the combined invoice gives away more shipping revenue than the second label costs. On the same two $40 sales, a $4 “I’ll combine them cheap” invoice expects $34.96 against $36.22 for two labels — $1.26 less. The buyer-friendly discount looks kind and still loses cash after fees."
         }
       },
       {
@@ -117,8 +117,8 @@
         <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
         <label>Items already sold <input id="combinedItemCount" type="number" min="2" max="20" step="1" value="2"></label>
         <label>Shipping charged per listing <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
-        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
-        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.6"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.40"></label>
         <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
         <label>Separate shipping label <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
         <label>Separate packaging <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
@@ -128,7 +128,7 @@
         <label>Combined postage <input id="combinedShippingCost" type="number" min="0" step="0.01" value="6.50"></label>
         <label>Combined packaging <input id="combinedPackagingCost" type="number" min="0" step="0.01" value="1.25"></label>
         <label>Combined return postage <input id="combinedReturnShippingCost" type="number" min="0" step="0.01" value="6.50"></label>
-        <label>Combined per-order fixed fee <input id="combinedFixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Combined per-order fixed fee <input id="combinedFixedFee" type="number" min="0" step="0.01" value="0.40"></label>
         <label>Combined return rate (%) <input id="combinedReturnRatePercent" type="number" min="0" max="100" step="0.1" value="10"></label>
         <label>Combined invoices per month <input id="monthlyCombinedOrders" type="number" min="0" step="1" value="12"></label>
       </div>
@@ -178,19 +178,19 @@
     </p>
     <p>
       On the defaults — two $40 items, $6 shipping charged each,
-      13.25% final value fee, $0.30 fixed, $12 cost, $5 outbound,
+      13.6% final value fee, $0.40 fixed, $12 cost, $5 outbound,
       $1 pack, $5 return label, 10% returns, $8 combined charged,
       $6.50 one label, $1.25 pack, $6.50 combined return, one
-      $0.30 checkout fee — two labels expect $36.69 and one box
-      expects $38.44. Combining keeps $1.75 more (+$1.75) on this
-      invoice and +$20.96 across twelve invoices. Combined shipping
-      charged has to stay at about $5.76, or combined postage has
-      to rise to about $8.25, before one box matches two labels.
+      $0.40 checkout fee — two labels expect $36.22 and one box
+      expects $38.07. Combining keeps $1.85 more (+$1.85) on this
+      invoice and +$22.20 across twelve invoices. Combined shipping
+      charged has to stay at about $5.62, or combined postage has
+      to rise to about $8.35, before one box matches two labels.
     </p>
     <p>
       A courtesy invoice flips. Keep the same two sales and charge
-      $4 to combine. Two labels still expect $36.69; the cheap
-      combine expects $35.31 — $1.38 less. The second label you
+      $4 to combine. Two labels still expect $36.22; the cheap
+      combine expects $34.96 — $1.26 less. The second label you
       thought you saved did not cover the shipping revenue you
       gave away.
     </p>
@@ -211,9 +211,9 @@
   </section>
   <h2>Common questions</h2>
   <h3>Should I offer combined shipping on eBay?</h3>
-  <p>Combined shipping is a fulfillment decision after two listings already sold to the same buyer. You either ship each item on its own label or invoice one combined postage and pay one box. On the calculator defaults (two $40 items, $6 shipping charged each, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, $8 combined charged, $6.50 one label, $1.25 pack) two labels expect $36.69 and one box expects $38.44. Combining keeps $1.75 more. Combined shipping charged has to stay at about $5.76 before one box matches two labels. That is arithmetic on your inputs, not advice to combine.</p>
+  <p>Combined shipping is a fulfillment decision after two listings already sold to the same buyer. You either ship each item on its own label or invoice one combined postage and pay one box. On the calculator defaults (two $40 items, $6 shipping charged each, 13.6% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, $8 combined charged, $6.50 one label, $1.25 pack) two labels expect $36.22 and one box expects $38.07. Combining keeps $1.85 more. Combined shipping charged has to stay at about $5.62 before one box matches two labels. That is arithmetic on your inputs, not advice to combine.</p>
   <h3>When do two eBay labels beat combined shipping?</h3>
-  <p>When the combined invoice gives away more shipping revenue than the second label costs. On the same two $40 sales, a $4 “I’ll combine them cheap” invoice expects $35.31 against $36.69 for two labels — $1.38 less. The buyer-friendly discount looks kind and still loses cash after fees.</p>
+  <p>When the combined invoice gives away more shipping revenue than the second label costs. On the same two $40 sales, a $4 “I’ll combine them cheap” invoice expects $34.96 against $36.22 for two labels — $1.26 less. The buyer-friendly discount looks kind and still loses cash after fees.</p>
   <h3>Is eBay combined shipping the same as listing a lot?</h3>
   <p>No. A lot versus singles is a listing decision before anyone buys: one title or N titles, N insertions, N sell-through rates. Combined shipping is after two separately listed items already sold. You are choosing how many boxes to send, not how many listings to write.</p>
 
