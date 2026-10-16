@@ -5,7 +5,8 @@ name: Research archive
 # Upstream `main` and its history are already merged into research/. Deleting
 # the upstream repository would still lose its branches (623 on 2026-10-16, 64
 # with commits not on main) and its 618 pull requests with their reviews. This
-# job copies each upstream branch here as `archive/research/<name>`, exports
+# job copies each upstream branch here as `archive/research/<name>` where
+# GitHub allows it and to a git bundle on `archive/research-meta` always, exports
 # every pull request and issue as JSON to the branch `archive/research-meta`,
 # and records the verdict there as READY.md / READY.json. `research_archive.py status`
 # reads it back; the run summary shows it too. Details and tests:
@@ -45,11 +46,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Archive upstream branches
-        run: python3 platform/ci/research_archive.py branches --push
-      - name: Export pull requests and issues
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check out the meta branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898+github-actions[bot]@users.noreply.github.com"
@@ -62,7 +59,17 @@ jobs:
             git -C "$meta" checkout -q --orphan archive/research-meta
             git -C "$meta" rm -rqf .
           fi
-          python3 platform/ci/research_archive.py export "$meta"
+      # GitHub refuses this token any branch whose tree would add a workflow
+      # file, which is most upstream branches (they carry upstream's pages.yml).
+      # Those are listed, not fatal: the bundle below keeps every branch.
+      - name: Archive upstream branches as archive/research/* where GitHub allows
+        run: python3 platform/ci/research_archive.py branches --push
+      - name: Bundle every upstream branch
+        run: python3 platform/ci/research_archive.py bundle "$RUNNER_TEMP/meta"
+      - name: Export pull requests and issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 platform/ci/research_archive.py export "$RUNNER_TEMP/meta"
       - name: Check whether upstream can be deleted
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
