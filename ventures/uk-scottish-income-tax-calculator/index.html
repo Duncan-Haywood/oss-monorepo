@@ -153,8 +153,9 @@
       if (r.pensionFromPay) rows.push(["Pension paid from your pay", -r.pensionFromPay]);
       rows.push(["Take-home pay", r.takeHome]);
       $("#tests").innerHTML = rows.map((x) => `<tr><td>${esc(x[0])}</td><td class="n">${gbp(x[1])}</td><td class="n">${gbp(x[1] / 12)}</td></tr>`).join("");
-      $("#compare-wrap").hidden = !r.compare.length;
-      $("#compare").innerHTML = r.compare.map((c) => `<tr><td>${esc(c.label)}</td><td class="n">${gbp(c.costToYou)}</td><td class="n">${gbp(c.intoPension)}</td></tr>`).join("");
+      const compare = r.compare || [];
+      $("#compare-wrap").hidden = !compare.length;
+      $("#compare").innerHTML = compare.map((c) => `<tr><td>${esc(c.label)}</td><td class="n">${gbp(c.costToYou)}</td><td class="n">${gbp(c.intoPension)}</td></tr>`).join("");
       $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Verify against the source named in the summary.";

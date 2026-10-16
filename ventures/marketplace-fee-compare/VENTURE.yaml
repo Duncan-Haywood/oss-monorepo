@@ -1,5 +1,5 @@
 name: marketplace-fee-compare
-description: A private browser comparison that takes one item once — price, landed cost, category, monthly volume — and ranks net profit across eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Poshmark, and an own Shopify store side by side, spreading subscriptions over the seller's own order count and naming what each channel's headline rate leaves out.
+description: A private browser comparison that takes one item once — price, landed cost, category, monthly volume — and ranks net profit across eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Depop, Poshmark, Facebook Marketplace, and an own Shopify store side by side, spreading subscriptions over the seller's own order count and naming what each channel's headline rate leaves out.
 stage: prototype
 owner: duncan
 hypotheses:
