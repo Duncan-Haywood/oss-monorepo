@@ -28,6 +28,7 @@ export const RULES = {
   PA: { limit: 183, requiresAbode: true, kind: "statutory", note: "Statutory resident: a permanent place of abode plus more than 183 days." },
   MN: { limit: 183, requiresAbode: true, kind: "statutory", note: "Statutory resident: a permanent place of abode plus more than 183 days." },
   VA: { limit: 183, requiresAbode: true, kind: "statutory", note: "Resident for tax if you keep a place of abode and spend more than 183 days." },
+  RI: { limit: 183, requiresAbode: true, kind: "statutory", note: "Resident for tax if you are not domiciled there but keep a permanent place of abode and spend more than 183 days (R.I. Gen. Laws 44-30-5)." },
   OR: { limit: 200, requiresAbode: true, kind: "statutory", note: "Resident for tax if you keep a permanent place of abode and spend more than 200 days." },
   CA: { limit: 270, requiresAbode: false, kind: "presumption", note: "Residency turns on domicile and where your ties are strongest. Time in the state beyond about nine months is commonly treated as a presumption of residency that you would have to rebut." },
 };
@@ -122,6 +123,57 @@ export function parseStays(text, year) {
     stays.push({ state, start, end, work });
   });
   return { stays, errors };
+}
+
+// Calendar import. Pass the text of an .ics file (Google, Apple and Outlook all
+// export one); every event whose LOCATION (or, failing that, title) names a US
+// state becomes a stay line you can read and correct before counting. Events
+// with no state are skipped and counted. All-day end dates are exclusive in
+// iCalendar, so the last day is one earlier. Adjacent or overlapping events in
+// the same state are merged into one line.
+function icsState(text) {
+  const lower = String(text || "").toLowerCase();
+  for (const [name, code] of NAME_TO_CODE) {
+    if (new RegExp(`\\b${name}\\b`).test(lower)) return code;
+  }
+  const m = String(text || "").match(/,\s*([A-Z]{2})\b/);
+  return m && STATE_NAMES[m[1]] ? m[1] : null;
+}
+
+function icsDay(value) {
+  const m = /(\d{4})(\d{2})(\d{2})/.exec(value || "");
+  return m ? { day: toDay(+m[1], +m[2], +m[3]), allDay: !/T\d/.test(value) } : null;
+}
+
+export function icsToStays(text, year) {
+  const unfolded = String(text || "").replace(/\r?\n[ \t]/g, "");
+  const events = unfolded.split(/BEGIN:VEVENT/i).slice(1);
+  const found = [];
+  let skipped = 0;
+  const prop = (ev, name) => {
+    const m = new RegExp(`^${name}[^:\\n]*:(.*)$`, "im").exec(ev);
+    return m ? m[1].replace(/\\([,;nN\\])/g, (_, c) => (c === "n" || c === "N" ? " " : c)).trim() : "";
+  };
+  for (const ev of events) {
+    const a = icsDay(prop(ev, "DTSTART"));
+    if (!a) { skipped++; continue; }
+    const b = icsDay(prop(ev, "DTEND")) || a;
+    let end = b.allDay && b.day > a.day ? b.day - 1 : b.day;
+    if (end < a.day) end = a.day;
+    const state = icsState(prop(ev, "LOCATION")) || icsState(prop(ev, "SUMMARY"));
+    if (!state) { skipped++; continue; }
+    if (year && (+dayIso(end).slice(0, 4) < +year || +dayIso(a.day).slice(0, 4) > +year)) { skipped++; continue; }
+    found.push({ state, start: a.day, end });
+  }
+  found.sort((x, y) => x.start - y.start || x.end - y.end);
+  const merged = [];
+  for (const f of found) {
+    const last = merged[merged.length - 1];
+    if (last && last.state === f.state && f.start <= last.end + 1) last.end = Math.max(last.end, f.end);
+    else merged.push({ ...f });
+  }
+  const lines = merged.map((s) => (s.start === s.end ? `${dayIso(s.start)} ${s.state}` : `${dayIso(s.start)} to ${dayIso(s.end)} ${s.state}`));
+  return { lines, imported: found.length, skipped };
 }
 
 // ---- analysis ----------------------------------------------------------------
