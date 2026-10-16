@@ -93,6 +93,13 @@ document.
    public URL is not a product yet. `python3 platform/ci/pages_state.py`
    says whether the live snapshot matches `main`; if it says `stale`, that
    refresh outranks new work (see "Current priority" below).
+   > **Superseded 2026-10-16** ([`docs/reports/2026-10-16-calculator-glut.md`](../docs/reports/2026-10-16-calculator-glut.md)):
+   > "new ventures first" is how 121 near-identical `*-bid-calculator` ventures and
+   > 521 other calculators were built while none was ever measured. A new venture
+   > is welcome when it is a genuinely different product (web or not), never another
+   > copy of an existing template family; distribution, measurement and the
+   > router's `Consolidate:` task rank ahead of it.
+
 2. **New ventures get first call, right now, not the leftover slot — and the
    owner has a standing special interest in them, so raise the bar rather
    than the count.** `portfolio/pipeline/candidates.yaml` has **zero**
@@ -566,6 +573,13 @@ share link, a save slot, an export format — anything copied fleet-wide
 rather than requested by that specific product's own users or friction),
 check that venture's row in `usage.yaml` first. Zero usage after a fair run
 (`PRODUCT_PLAYBOOK.md` §8) means spend the session on one of these instead:
+
+> **Superseded 2026-10-16** ([`docs/reports/2026-10-16-calculator-glut.md`](../docs/reports/2026-10-16-calculator-glut.md)):
+> "new ventures first" is how 121 near-identical `*-bid-calculator` ventures and
+> 521 other calculators were built while none was ever measured. A new venture
+> is welcome when it is a genuinely different product (web or not), never another
+> copy of an existing template family; distribution, measurement and the
+> router's `Consolidate:` task rank ahead of it.
 
 1. **A new venture.** Graduate a `build-now` pipeline candidate, or a strong
    fresh niche not in `screened-out.md`. This is not the fourth-place, do-it-

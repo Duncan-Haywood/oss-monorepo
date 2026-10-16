@@ -177,14 +177,27 @@ def fetch(root: Path = ROOT, refresh: bool = False, get: Callable[[str], Any] = 
                      if (ref := parse_pr(rec))}.items())
     todo = [(k, ref) for k, ref in wanted if refresh or k not in cache or not is_final(cache[k])]
     log(f"{len(wanted)} pull request(s) named by run records; fetching {len(todo)}")
+    def safe(item: Any) -> tuple[str, Any]:
+        try:
+            return item[0], fetch_pr(*item[1], get)
+        except (urllib.error.URLError, OSError) as e:  # 403 without a token, network down
+            return item[0], e
+
+    failed = 0
     with ThreadPoolExecutor(max_workers=8) as pool:
-        results = pool.map(lambda item: (item[0], fetch_pr(*item[1], get)), todo)
+        results = pool.map(safe, todo)
         for i, (k, facts) in enumerate(results, 1):
+            if isinstance(facts, Exception):
+                failed += 1  # leave it uncached so the next fetch retries it
+                continue
             cache[k] = facts if facts is not None else {"missing": True, "fetched_at": now_iso()}
             if i % 25 == 0:
                 log(f"  {i}/{len(todo)}")
                 write_json(root / "derived" / "github.json", cache)
     write_json(root / "derived" / "github.json", cache)
+    if failed:
+        log(f"{failed} of {len(todo)} could not be fetched (set GITHUB_TOKEN if the proxy returns 403); "
+            "kept the cache and carried on")
     return cache
 
 

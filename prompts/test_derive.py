@@ -124,6 +124,22 @@ class ReworkTest(unittest.TestCase):
         self.assertTrue(derive.excluded("research/p/model.py", mirrored=True))
 
 
+class FetchForbiddenTest(unittest.TestCase):
+    def test_403_keeps_the_cache_and_does_not_raise(self) -> None:
+        def forbidden(path: str) -> None:
+            raise derive.urllib.error.URLError("403")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "prompts"
+            (root / "runs").mkdir(parents=True)
+            rec = {**promptctl.RECORD_FIELDS, "date": "2026-10-01", "session": "s", "track": "ventures",
+                   "prompt_version": 1, "outcome": "success", "pr": 9}
+            (root / "runs" / "2026-10-01-s.json").write_text(json.dumps(rec))
+            logs: list[str] = []
+            cache = derive.fetch(root, get=forbidden, log=logs.append)
+            self.assertEqual(cache, {})
+            self.assertTrue(any("could not be fetched" in m for m in logs))
+
+
 class MeasureFallbackTest(unittest.TestCase):
     def test_measured_merged_fills_a_null(self) -> None:
         recs = [{"outcome": "success", "merged": None, "_measured": {"merged": False}},

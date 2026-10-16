@@ -1,6 +1,7 @@
 # Agent instructions
 
-Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) first, then
+Skim [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) by section headings
+(`grep -n '^## '`; it is ~15k tokens, so read only what your task needs), then
 [`prompts/ventures/prompt-1.md`](prompts/ventures/prompt-1.md) (its depth rules
 win over anything below that pushes toward another cheap static page). Before
 pushing a direction-only change, run

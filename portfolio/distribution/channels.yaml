@@ -125,3 +125,46 @@ channels:
       - same PyPI terms and name-squatting policy as pypi-python-clis; the combined weekly cap is 5 + 3 new projects
     owner_ask: none beyond pypi-python-clis
     dry_run: node platform/distribution/pypi-packages.mjs
+  - id: homebrew-tap
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/homebrew.mjs
+    workflow: .github/workflows/distribute-homebrew.yml
+    enabled_by: repository variable DISTRIBUTE_HOMEBREW=true, variable HOMEBREW_TAP_REPO (e.g. you/homebrew-tools), and secret HOMEBREW_TAP_TOKEN (a token with contents:write on that one repository only)
+    what_it_posts: one `Formula/<slug>.rb` per venture CLI already published by npm-cli-packages, in the owner's own tap repository (not homebrew-core). The formula installs the npm tarball and its sha256 is computed from the tarball the registry serves; a package not yet on npm is skipped. At most 10 new formulas per run.
+    dedupe: stateless; a formula file already in the tap is never rewritten
+    depends_on: npm-cli-packages must be live first
+    terms_to_confirm_by_owner_when_enabling:
+      - Homebrew taps are third-party repositories, so no Homebrew approval is involved; GitHub Terms apply to the tap repository
+      - agents did not read live terms on build day, and the generated formulas were not run through `brew audit` (no Homebrew in the build session)
+    owner_ask: create an empty homebrew-<name> repository, store HOMEBREW_TAP_TOKEN, set HOMEBREW_TAP_REPO and DISTRIBUTE_HOMEBREW=true (after DISTRIBUTE_NPM has published packages)
+    dry_run: node platform/distribution/homebrew.mjs
+  - id: ghcr-container-images
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/ghcr.mjs
+    workflow: .github/workflows/distribute-ghcr.yml
+    enabled_by: repository variable DISTRIBUTE_GHCR=true (no secret, the job logs in to ghcr.io with its own GITHUB_TOKEN, packages:write)
+    what_it_posts: one image `ghcr.io/<owner>/<slug>:0.1.0` per venture CLI that npm-cli-packages can package (FROM node:22-alpine, non-root, OCI source/licence labels linking to this repository). At most 5 new images per run.
+    dedupe: stateless; a tag that `docker manifest inspect` finds is never rebuilt
+    depends_on: nothing (does not need npm to be live)
+    terms_to_confirm_by_owner_when_enabling:
+      - GitHub Terms and the Container registry terms; agents did not read live terms on build day
+      - new GHCR packages are private by default: after the first push, set each package (or the org default) to public in package settings, which only the owner can do
+      - the Dockerfile and workflow were not built here (no Docker daemon in the build session); the build context was checked by running its bin.mjs with node
+    owner_ask: set DISTRIBUTE_GHCR=true, then make the first pushed packages public
+    dry_run: node platform/distribution/ghcr.mjs
+  - id: zenodo-citation
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/citation.mjs
+    workflow: none (a one-time owner switch, then releases.mjs's weekly GitHub release is archived automatically)
+    enabled_by: the owner switches this repository on in Zenodo's GitHub integration; nothing in the tree is gated
+    what_it_posts: root CITATION.cff (GitHub's "Cite this repository" box, read by Zenodo for the archive's metadata) and research/CITATIONS.bib (one BibTeX entry per research project, 463 at build). Authors are the project ("oss-monorepo contributors"), never a named person.
+    dedupe: files are regenerated deterministically; `node platform/distribution/citation.mjs --check` exits 1 when stale
+    depends_on: DISTRIBUTE_RELEASES=true (github-release-digest) for a DOI per release; CITATION.cff works without it
+    terms_to_confirm_by_owner_when_enabling:
+      - Zenodo terms of use and GitHub integration docs; agents did not read them live on build day
+      - a DOI is minted under the owner's Zenodo account and is permanent: review the metadata before the first release is archived
+    owner_ask: log in to zenodo.org with GitHub and flip this repository on
+    dry_run: node platform/distribution/citation.mjs

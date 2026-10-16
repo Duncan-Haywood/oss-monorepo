@@ -24,6 +24,10 @@ shuffling on Sunday night.
 - Reports: who is on each shift, shifts nobody could take and the reason, hours and pay per person, who the week depends on
   (rebuild without each person), and a comparison with filling shifts in listed order. CSV exports, and a `.ics` calendar file for the week (everyone, or one person to hand them their own shifts).
 
+- What-if: when shifts stay open, rebuilds with one extra person free at any time (average wage, 40 h) and reports the hours it would cover and the payroll it adds.
+
+- Returning each week: people, shifts and settings are remembered in this browser's local storage only ("Forget saved data" removes them), and can be saved to or loaded from a `roster-setup.json` file to move between devices.
+
 ## Limits
 
 Not modelled: predictive-scheduling and fair-workweek notice rules, meal and rest breaks, minor-labor limits, split-shift
@@ -38,3 +42,5 @@ Open `index.html`, or `node --test` to run the tests. No build step, no dependen
 ## No warranty
 
 Provided free and as-is, without warranty of any kind. Not legal, tax, or financial advice. MIT licensed.
+
+**Sick-call finder.** After a roster is built, pick any shift (or an open one) to see who could take it without changing anyone else's week, cheapest first with overtime flagged, and which rule blocks everyone else (`coverOptions` in `calc.mjs`).
