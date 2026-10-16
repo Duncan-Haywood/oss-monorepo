@@ -67,6 +67,13 @@ on:
       - "platform/pages/**"
       - "research/_homepage/**"
       - "research/README.md"
+      # The engineering status page (`platform/pages/engineering.mjs`) reads
+      # these: a run record lands with nearly every PR, so the page tracks main.
+      - "research/*/LOG.md"
+      - "prompts/runs/**"
+      - "prompts/derived/**"
+      - "prompts/process/backlog/**"
+      - "portfolio/ledger/asks.yaml"
       - ".github/workflows/publish-pages-branch.yml"
   workflow_dispatch:
 
@@ -93,6 +100,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Enough history for the engineering page's "landed on main" view.
+          # Depth 1 would still build; the page would say history is missing.
+          fetch-depth: 400
 
       - uses: actions/setup-node@v4
         with:
