@@ -58,6 +58,12 @@ import {
   SELLING_FEE_RATE as MERCARI_SELLING_FEE_RATE,
   calculateSale as calculateMercariSale,
 } from '../mercari-fee-calculator/calc.mjs';
+import { REGIONS as DEPOP_REGIONS, calculateSale as calculateDepopSale } from '../depop-fee-calculator/calc.mjs';
+import {
+  FEE_RATE as FACEBOOK_FEE_RATE,
+  MIN_FEE as FACEBOOK_MIN_FEE,
+  calculateSale as calculateFacebookSale,
+} from '../facebook-marketplace-fee-calculator/calc.mjs';
 
 const reverb = CHANNEL_PRESETS.find((preset) => preset.id === 'reverb');
 const tiktok = CHANNEL_PRESETS.find((preset) => preset.id === 'tiktok');
@@ -65,6 +71,8 @@ const whatnot = CHANNEL_PRESETS.find((preset) => preset.id === 'whatnot');
 const poshmark = CHANNEL_PRESETS.find((preset) => preset.id === 'poshmark');
 const stockx = CHANNEL_PRESETS.find((preset) => preset.id === 'stockx');
 const mercari = CHANNEL_PRESETS.find((preset) => preset.id === 'mercari');
+const depop = CHANNEL_PRESETS.find((preset) => preset.id === 'depop');
+const facebook = CHANNEL_PRESETS.find((preset) => preset.id === 'facebook-marketplace');
 
 test('this page still has a Reverb channel to compare', () => {
   // Guard the guard: if the preset is renamed or removed, every assertion
@@ -582,6 +590,46 @@ test('Mercari net profit matches the dedicated calculator on the shared worked e
   );
   near(here.fees.commission, there.sellingFee, 'selling fee on the same order total');
   near(here.profit, there.profit, 'net profit must not jump across the handoff');
+});
+
+test('the Depop row matches the dedicated calculator\'s US schedule and net profit', () => {
+  assert.ok(depop, 'no channel with id "depop" in CHANNEL_PRESETS');
+  const us = DEPOP_REGIONS.us;
+  assert.equal(depop.commissionRate, us.sellingRate, 'Depop selling fee disagrees with depop-fee-calculator (US)');
+  assert.equal(depop.paymentRate, us.processingRate, 'Depop processing rate disagrees with depop-fee-calculator (US)');
+  assert.equal(depop.paymentFixed, us.processingFixed, 'Depop flat fee disagrees with depop-fee-calculator (US)');
+  const shared = { price: 40, shippingCharged: 6, shippingCost: 5, itemCost: 15, packagingCost: 0, otherCost: 2, monthlyOrders: 1 };
+  const here = calculateChannel({ ...depop, enabled: true }, shared);
+  const there = calculateDepopSale({
+    itemPrice: shared.price,
+    buyerShipping: shared.shippingCharged,
+    labelCost: shared.shippingCost,
+    itemCost: shared.itemCost,
+    otherCost: shared.otherCost,
+    region: 'us',
+  });
+  assert.equal(there.ok, true, JSON.stringify(there.errors ?? []));
+  assert.ok(Math.abs(here.profit - there.profit) < 1e-9, `Depop profit: this page ${here.profit}, depop-fee-calculator ${there.profit}`);
+});
+
+test('the Facebook Marketplace row matches the dedicated calculator above its minimum fee', () => {
+  assert.ok(facebook, 'no channel with id "facebook-marketplace" in CHANNEL_PRESETS');
+  assert.equal(facebook.commissionRate, FACEBOOK_FEE_RATE, 'Facebook fee disagrees with facebook-marketplace-fee-calculator');
+  assert.equal(facebook.paymentRate, 0);
+  assert.equal(facebook.paymentFixed, 0);
+  const shared = { price: 40, shippingCharged: 6, shippingCost: 5, itemCost: 15, packagingCost: 0, otherCost: 2, monthlyOrders: 1 };
+  assert.ok((shared.price + shared.shippingCharged) * (FACEBOOK_FEE_RATE / 100) > FACEBOOK_MIN_FEE, 'example must sit above the minimum fee');
+  const here = calculateChannel({ ...facebook, enabled: true }, shared);
+  const there = calculateFacebookSale({
+    itemPrice: shared.price,
+    buyerShipping: shared.shippingCharged,
+    labelCost: shared.shippingCost,
+    itemCost: shared.itemCost,
+    otherCost: shared.otherCost,
+    channel: 'shipped',
+  });
+  assert.equal(there.ok, true, JSON.stringify(there.errors ?? []));
+  assert.ok(Math.abs(here.profit - there.profit) < 1e-9, `Facebook profit: this page ${here.profit}, dedicated ${there.profit}`);
 });
 
 test('every channel with a handoff has a parity assertion in this file', () => {

@@ -1,14 +1,18 @@
 {
-  "status": "done",
+  "status": "open",
   "owner": "agent",
   "opened": "2026-10-16",
   "source": "P021 split of P014",
   "pr": 7440,
-  "result": null,
+  "result": "No change: marked done by PR #7440 but only scoped the work; git ls-files gitops/prod/front-door-tools still lists 5,922 files (baseline 5,839) on 2026-10-16. Reopened.",
   "history": [
     {
       "date": "2026-10-16",
       "note": "Process run: scoped by experiment (git rm then regen --verify and gitops/tests); the original change would have left regen and one test red."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Verify run: reopened. #7440 shipped no deletion. Do the three steps in `change` in one PR."
     }
   ],
   "touches": [

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the number of verifiers who enter against the subsidy b on a log axis; entry grows by about seven per doubling of b">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Verifiers a market-maker subsidy buys (a=0.7, c=0.005)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="262.3" y2="262.3" stroke="#ddd"/><text x="58" y="266.3" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="200.7" y2="200.7" stroke="#ddd"/><text x="58" y="204.7" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="139.0" y2="139.0" stroke="#ddd"/><text x="58" y="143.0" text-anchor="end" font-family="sans-serif" font-size="11">30</text>
+<line x1="64" x2="624" y1="77.3" y2="77.3" stroke="#ddd"/><text x="58" y="81.3" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="195.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="294.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="393.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="492.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">market-maker subsidy b</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">verifiers entering n*</text>
+<polyline points="64.0,299.3 195.2,256.2 294.4,213.0 393.6,169.8 492.8,126.7 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="299.3" r="3" fill="#c0392b"/>
+<circle cx="195.2" cy="256.2" r="3" fill="#c0392b"/>
+<circle cx="294.4" cy="213.0" r="3" fill="#c0392b"/>
+<circle cx="393.6" cy="169.8" r="3" fill="#c0392b"/>
+<circle cx="492.8" cy="126.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">n*</text>
+</svg>
