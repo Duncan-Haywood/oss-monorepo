@@ -216,7 +216,7 @@ test("a short file is marked so the page can say the pattern is thin", () => {
 
 test("savings adds up only the active merchants chosen", () => {
   const a = analyze(read(csv(monthly("NETFLIX.COM", 15.49, 4), monthly("SPOTIFY", 11.99, 4, "09"))).rows);
-  assert.deepEqual(savings(a, ["NETFLIX.COM", "NOT THERE"]), { count: 1, perMonth: 15.49, perYear: 185.88 });
+  assert.deepEqual(savings(a, ["NETFLIX", "NOT THERE"]), { count: 1, perMonth: 15.49, perYear: 185.88 });
   assert.deepEqual(savings(a, []), { count: 0, perMonth: 0, perYear: 0 });
 });
 
@@ -230,7 +230,7 @@ test("totals reconcile: per-year is the sum of the rows and per-month is a twelf
 test("sample data shows a price rise, a double charge, overlap and an ended charge", () => {
   const a = analyze(read(sampleCsv()).rows);
   const titles = a.findings.map((f) => f.title).join("|");
-  assert.match(titles, /NETFLIX.COM went up/);
+  assert.match(titles, /NETFLIX went up/);
   assert.match(titles, /HULU charged/);
   assert.match(titles, /video streaming services/);
   assert.match(titles, /seem to have stopped/);
@@ -246,11 +246,44 @@ test("CSV export neutralises formula cells and reads back", () => {
 
 test("summary names totals and the selected saving", () => {
   const a = analyze(read(csv(monthly("NETFLIX.COM", 15.49, 4))).rows);
-  const t = summaryText(a, ["NETFLIX.COM"]);
+  const t = summaryText(a, ["NETFLIX"]);
   assert.match(t, /\$185\.88 a year/);
   assert.match(t, /Cancelling the 1 selected/);
 });
 
 test("analyze refuses an empty input", () => {
   assert.match(analyze([]).invalid, /no charges/);
+});
+
+import { identifyService, storeBiller, SERVICES } from "./services.mjs";
+
+test("directory: descriptor variants of one service merge into one line", () => {
+  const text = csv(monthly("NETFLIX.COM 866-579-7172 CA", 15.49, 3), monthly("NETFLIX INC LOS GATOS", 15.49, 3, "05", 2026, 4));
+  const a = analyze(read(text).rows);
+  assert.equal(a.active.length, 1);
+  assert.equal(a.active[0].merchant, "NETFLIX");
+  assert.equal(a.active[0].site, "netflix.com");
+  assert.equal(a.active[0].count, 6);
+});
+
+test("directory: every entry matches its own name and no two services share a kind-name", () => {
+  const names = new Set();
+  for (const s of SERVICES) {
+    assert.ok(!names.has(s.name), s.name);
+    names.add(s.name);
+    assert.ok(s.site && s.kind && s.re instanceof RegExp, s.name);
+  }
+  assert.equal(identifyService("SPOTIFY USA").name, "Spotify");
+  assert.equal(identifyService("JOES DINER"), null);
+  assert.equal(identifyService("CALMWATER PLUMBING"), null);
+});
+
+test("app-store charges are flagged with where to look, and not guessed", () => {
+  assert.equal(storeBiller("APPLE.COM/BILL 866-712-7753 CA").id, "apple");
+  assert.equal(storeBiller("GOOGLE *Play Store").id, "google");
+  assert.equal(storeBiller("NETFLIX.COM"), null);
+  const a = analyze(read(csv(monthly("APPLE.COM/BILL 866-712-7753 CA", 9.99, 4))).rows);
+  const f = a.findings.find((x) => /billed through Apple/.test(x.title));
+  assert.ok(f);
+  assert.match(f.detail, /Settings > your name > Subscriptions/);
 });

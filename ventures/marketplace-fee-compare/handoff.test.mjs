@@ -38,6 +38,7 @@ import { INPUT_FIELDS as WALMART_FIELDS } from '../walmart-marketplace-calculato
 import { FIELD_IDS as TIKTOK_FIELDS } from '../tiktok-shop-fee-calculator/calc.mjs';
 import { INPUT_IDS as MERCARI_FIELDS } from '../mercari-fee-calculator/calc.mjs';
 import { INPUT_IDS as DEPOP_FIELDS } from '../depop-fee-calculator/calc.mjs';
+import { INPUT_IDS as POSHMARK_FIELDS } from '../poshmark-fee-calculator/calc.mjs';
 import { INPUT_IDS as FACEBOOK_FIELDS } from '../facebook-marketplace-fee-calculator/calc.mjs';
 import { FIELD_IDS as SHOPIFY_FIELDS } from '../shopify-fee-calculator/share.mjs';
 
@@ -60,6 +61,7 @@ const TARGET_FIELDS = {
   'mercari-fee-calculator': MERCARI_FIELDS,
   'depop-fee-calculator': DEPOP_FIELDS,
   'facebook-marketplace-fee-calculator': FACEBOOK_FIELDS,
+  'poshmark-fee-calculator': POSHMARK_FIELDS,
   'shopify-fee-calculator': SHOPIFY_FIELDS,
 };
 
@@ -274,8 +276,8 @@ test('values ride in the fragment, not the query string', () => {
 });
 
 test('an unknown channel gets no link rather than a broken one', () => {
-  assert.equal(handoffFor('poshmark'), null);
-  assert.equal(handoffUrl('poshmark', ITEM), null);
+  assert.equal(handoffFor('not-a-channel'), null);
+  assert.equal(handoffUrl('not-a-channel', ITEM), null);
 });
 
 test('handoffValues on no entry is empty rather than throwing', () => {

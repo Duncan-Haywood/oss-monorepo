@@ -5,6 +5,8 @@
 // are matched by alias and no real bank export was available when this was
 // written. Pure functions, no DOM, no network.
 
+import { identifyService, storeBiller } from "./services.mjs";
+
 export const DAY = 86400000;
 export const CADENCES = [
   { id: "weekly", label: "Weekly", days: 7, lo: 5, hi: 9, perYear: 52, needs: 4, fixedOnly: true },
@@ -150,6 +152,8 @@ export function merchantKey(desc) {
 }
 
 export function kindOf(key) {
+  const svc = identifyService(key);
+  if (svc) return svc.kind;
   for (const [name, re] of KINDS) if (re.test(key)) return name;
   return null;
 }
@@ -236,8 +240,11 @@ export function analyze(rows, opts = {}) {
 
   const groups = new Map();
   for (const r of rows) {
-    const key = merchantKey(r.desc);
+    let key = merchantKey(r.desc);
     if (!key) continue;
+    // Descriptor variants of one known service share a line.
+    const known = identifyService(key);
+    if (known) key = known.name.toUpperCase();
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(r);
   }
@@ -275,7 +282,7 @@ export function analyze(rows, opts = {}) {
     const endedBefore = last.day + Math.round(cadence.days * 1.5);
     const status = endedBefore < asOf ? "ended" : "active";
     subs.push({
-      merchant: key, sample: last.desc, kind: kindOf(key), cadence: cadence.id, cadenceLabel: cadence.label, fixed,
+      merchant: key, sample: last.desc, kind: kindOf(key), site: identifyService(key)?.site ?? null, via: storeBiller(last.desc), cadence: cadence.id, cadenceLabel: cadence.label, fixed,
       count: cycle.length, first: days[0], last: last.day, amount: r2(current), perMonth: r2(perYear / 12), perYear: r2(perYear),
       total: r2(amounts.reduce((a, b) => a + b, 0)), rises, riseImpactYear: r2(rises.length ? (current - amounts[0]) * cadence.perYear : 0),
       next, nextInDays: next - asOf, status,
@@ -298,6 +305,11 @@ export function analyze(rows, opts = {}) {
   for (const d of doubleCharges) findings.push({ severity: "high", title: `${d.merchant} charged ${usd(d.amount)} twice within two days`, detail: `Two identical charges, ${isoDay(d.first)} and ${isoDay(d.day)}. It can be a pending charge shown twice; if it stays on the statement, ask the merchant or the card issuer.` });
   for (const o of overlaps) findings.push({ severity: "medium", title: `${o.merchants.length} ${o.kind.toLowerCase()} services at once`, detail: `${o.merchants.join(", ")} together cost about ${usd(o.perMonth)} a month. The category is guessed from the names. Keep the one you use most.` });
   for (const s of upcoming) findings.push({ severity: "info", title: `${s.merchant} renews ${s.nextInDays <= 0 ? "about now" : `in about ${s.nextInDays} days`}`, detail: `${s.cadenceLabel} charge of ${usd(s.amount)}, next expected around ${isoDay(s.next)}. This is the one to cancel before, if you are going to.` });
+  const viaStore = active.filter((s) => s.via && !identifyService(s.merchant));
+  for (const b of new Set(viaStore.map((s) => s.via))) {
+    const mine = viaStore.filter((s) => s.via === b);
+    findings.push({ severity: "medium", title: `${mine.length} recurring charge(s) billed through ${b.label} hide what they are for`, detail: `${mine.map((s) => `${usd(s.amount)} ${s.cadenceLabel.toLowerCase()}`).join("; ")} (about ${usd(mine.reduce((a, s) => a + s.perYear, 0))} a year). The statement names ${b.label}, not the app. ${b.where}` });
+  }
   const ended = subs.filter((s) => s.status === "ended");
   if (ended.length) findings.push({ severity: "info", title: `${ended.length} recurring charge(s) seem to have stopped`, detail: ended.map((s) => `${s.merchant} (last ${isoDay(s.last)})`).join("; ") + ". Not counted in the totals. If one was not something you cancelled, look at it." });
 
@@ -350,6 +362,7 @@ export function sampleCsv() {
     add(`${m}-08`, `SQ *BLUE BOTTLE COFFEE ${100 + i} OAKLAND CA`, (-(4.5 + (i % 3))).toFixed(2));
     add(`${m}-${9 + (i % 4)}`.replace(/-(\d)$/, "-0$1"), `WHOLEFDS MKT ${200 + i} SEATTLE WA`, (-(60 + i * 7.3)).toFixed(2));
     add(`${m}-24`, `WHOLEFDS MKT ${300 + i} SEATTLE WA`, (-(41 + i * 3.1)).toFixed(2));
+    add(`${m}-16`, "APPLE.COM/BILL 866-712-7753 CA", "-4.99");
     if (i < 4) add(`${m}-05`, "SKILLSHARE.COM NEW YORK NY", "-19.00");
   });
   add("2025-09-17", "DROPBOX*ANNUAL 8005555 CA", "-119.88");
