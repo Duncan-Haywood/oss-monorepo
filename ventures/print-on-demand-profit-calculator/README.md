@@ -3,6 +3,8 @@
 A free browser tool for print-on-demand sellers: **type your price and what Printful, Printify or
 Gelato charges you, and see what a sale actually leaves after marketplace fees.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/print-on-demand-profit-calculator/
+
 After using this, you can now **see profit per sale after Etsy, Shopify or eBay fees, refunds, ads
 and samples, get the price that hits your target margin, know the most you can pay per sale in ads
 (and the break-even ROAS), and see the same sale on the other platforms**, which used to mean a

@@ -6,6 +6,8 @@ adjuster's estimate, plus your own unit prices. It prices the gap line by line a
 shows what the claim pays now and on completion. Entirely client-side; no policy or
 homeowner information is asked for.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/roofing-insurance-supplement-finder/
+
 After using this, you can **see what an estimate left out in dollars, argue the
 measurement gaps and the price gap separately, and tell whether a supplement
 service's fee is worth paying**.

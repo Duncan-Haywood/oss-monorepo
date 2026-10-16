@@ -1,0 +1,40 @@
+{
+  "slug": "tree-service-bid-calculator",
+  "name": "Tree removal",
+  "group": "Landscaping & outdoor",
+  "summary": "Tree removals priced per tree from trunk size, height, species, access, hazards, stump grinding and haul.",
+  "fit": "partial",
+  "crewSize": 1,
+  "setupHours": 0.6667,
+  "hourlyWage": 180,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Remove 24 in backyard oak near house, chip and haul",
+      "unit": "tree",
+      "qty": 1,
+      "hoursPerUnit": 12.6,
+      "materialPerUnit": 652,
+      "source": "STARTING_TREES[0] (index.html): (24/12)^2 x hardwood 1.25 x height 60/50 = 6.0 base h; removal 6.0 x backyard 1.4 x (1 + nearStructure 0.25) = 10.5 h + chip_haul 0.35 x 6.0 = 2.1 h; equipment $45/on-site h x 12.6 + dumpFeePerTree $85"
+    },
+    {
+      "label": "Grind 24 in stump",
+      "unit": "stump",
+      "qty": 1,
+      "hoursPerUnit": 1.8,
+      "materialPerUnit": 81,
+      "source": "stumpGrindHours(24) = 0.2 + (24/12)^2 x 0.4 = 1.8 h (calc.mjs); equipmentHourly $45 x 1.8"
+    },
+    {
+      "label": "Remove 12 in street pine, leave wood",
+      "unit": "tree",
+      "qty": 1,
+      "hoursPerUnit": 0.68,
+      "materialPerUnit": 30.6,
+      "source": "STARTING_TREES[1] (index.html): (12/12)^2 x softwood 0.85 x height 40/50 = 0.68 h, street access 1.0, leave 0 haul share; equipmentHourly $45 x 0.68"
+    }
+  ],
+  "specialistModels": "Removal hours from DBH squared, height, species, access and hazard premiums, crane day rate, a $450 minimum stop charge, and a per-tree price split; wage is the whole-crew rate ($180/h) and setupHours is 40 min round-trip travel."
+}

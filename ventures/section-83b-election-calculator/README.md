@@ -5,6 +5,8 @@ shares, the price you pay, the value per share at grant and at sale, and see the
 83(b) election, the tax you would pay at each vest date without one, the break-even sale value, the tax
 wasted if you leave before vesting, and your 30-day filing deadline.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/section-83b-election-calculator/
+
 After using this, you can now **see that electing costs $0 in tax when you pay full value for the shares,
 and how much tax you would put at risk if you had to pay on a spread and then left early**.
 

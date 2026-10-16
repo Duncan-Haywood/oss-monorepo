@@ -4,6 +4,8 @@ A free browser tool for employees in an employee stock purchase plan: **enter yo
 prices, discount and lookback and see the after-tax result of selling at purchase, holding a year, or
 holding to a qualifying sale, plus the price below which waiting loses.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/espp-tax-calculator/
+
 After using this, you can now **decide sell-now versus hold with the tax and the price risk on one
 page**, and fix the 1099-B cost basis that otherwise taxes the discount twice, which used to take a
 spreadsheet and a read of IRS Publication 525.

@@ -4,6 +4,8 @@ A free browser calculator for 2026 **self-employment tax** (Schedule SE) for
 freelancers, sole proprietors and gig workers. Entirely client-side; nothing
 is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/self-employment-tax-calculator/
+
 After using this, you can now **see your SE tax, the deductible half, the
 effect of W-2 wages and the Social Security wage base, and the percent of each
 payment to set aside** — which used to mean working Schedule SE and Form 8959

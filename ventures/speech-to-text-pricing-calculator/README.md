@@ -4,6 +4,8 @@ Price the OpenAI Whisper API, Deepgram, AssemblyAI, Google, AWS, Azure and a sel
 by side for your monthly audio hours and your streaming and speaker-label needs, see the 12-month spend as
 volume grows, and find the hours where the cheapest option changes (where self-hosting starts to win).
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/speech-to-text-pricing-calculator/
+
 ```
 node cli.mjs compare --hours 500 --diarization --growth 5
 node cli.mjs compare --hours 500 --diarization --provider aws --budget 400   # CI gate: exit 1 over budget

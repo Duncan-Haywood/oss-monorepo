@@ -4,6 +4,8 @@ A free browser tool for small landlords: **drop in your bank or card CSV and get
 transaction sorted into an IRS Schedule E, Part I line, per rental property.** The file is read
 in the browser; nothing is uploaded and no bank login is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rental-property-schedule-e-categorizer/
+
 After using this, you can now **see rents and each expense line per property, which
 transactions could not be categorised, which repairs may really be improvements, which months
 have no rent deposit, and download every row with its category and the rule that decided it**,

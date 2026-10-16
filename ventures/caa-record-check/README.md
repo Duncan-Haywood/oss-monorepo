@@ -8,6 +8,8 @@ CA-account-authorization parameters), flags a critical unrecognized property tag
 block every certificate authority, and names whether each of 8 well-known CAs — or any other CA
 domain you enter — is authorized to issue non-wildcard and wildcard certificates.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/caa-record-check/
+
 **This tool never contacts the hostname you check.** It only queries Cloudflare's public
 DNS-over-HTTPS resolver, reading CAA and CNAME records the domain owner already published for
 anyone to see. That is a narrower, safer request surface than most tools in this catalogue's

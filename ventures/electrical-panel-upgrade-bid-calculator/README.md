@@ -7,6 +7,8 @@ underground versus overhead, grounding, the meter socket, temporary
 power, and the utility as their own hours — and shows the margin before
 the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/electrical-panel-upgrade-bid-calculator/
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts. Not yet deployed to a public URL —

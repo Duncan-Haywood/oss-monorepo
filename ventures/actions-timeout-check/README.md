@@ -3,6 +3,8 @@
 A free tool that scans GitHub Actions workflow files for jobs that can hang
 for GitHub's default six hours:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/actions-timeout-check/
+
 1. **`job-missing-timeout`** — a job on a runner (`runs-on:`) with no
    job-level `timeout-minutes`. GitHub cancels it only at its default limit
    of 360 minutes, so one deadlocked test or stalled download holds a runner

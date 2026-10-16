@@ -6,6 +6,8 @@ local preflight — in the browser or in CI — which used to mean waiting for a
 network rejection. Open `index.html` and drop a JSON, UBL, CII, or Factur-X
 PDF file, or run the CLI below. The page never uploads the invoice.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/
+
 This free local CLI also checks a small, transparent JSON, UBL XML,
 UN/CEFACT CII (XRechnung CII / Factur-X), or Factur-X / ZUGFeRD PDF invoice
 for missing fields and arithmetic mistakes, then prints rule IDs and

@@ -9,6 +9,8 @@ versus power-pack versus heavy-duty, then wood versus concrete
 versus open-riser attach, folding rail, circuit, and pull-out —
 and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/stair-lift-bid-calculator/
+
 **After using this, you can now** send a walk-away stair-lift
 price that sees the rail and the chair, **which used to take**
 matching a published $3,995 installed special that treats a

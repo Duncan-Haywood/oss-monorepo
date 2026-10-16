@@ -8,6 +8,8 @@ profit at other portfolio sizes, the management fee that earns the most on an ow
 sensitivity you set, and whether winning another owner pays back. Entirely
 client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/property-management-profit-calculator/
+
 After using this, you can **see how many doors you need and what the next hire
 costs** before you take on the portfolio or the person.
 

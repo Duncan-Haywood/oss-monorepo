@@ -4,6 +4,8 @@ A free browser tool for Bandcamp artists and labels: **drop in your sales report
 what the fees actually took and what each release and format nets you.** The file is read
 in the browser; nothing is uploaded and no Bandcamp login is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bandcamp-sales-report-analyzer/
+
 After using this, you can now **see fees paid and the fee rate, net by item type, release,
 month and country, the fee drag on small sales, vinyl and merch profit after your own unit
 cost and postage with a break-even price, refunds, discount-code share and repeat buyers**,

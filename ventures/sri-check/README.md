@@ -2,6 +2,8 @@
 
 Two free tools sharing one classification engine (`sri.mjs`):
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sri-check/
+
 - **Hash generator** — paste a script or stylesheet's exact contents and get
   back the `integrity="sha384-..."` value to paste onto its `<script>` or
   `<link>` tag. Hashed entirely in your browser with the Web Crypto API;

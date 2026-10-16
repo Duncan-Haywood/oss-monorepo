@@ -2,6 +2,8 @@
 
 Wedding and event florists can use this free browser-local calculator to price one proposal from the stem recipe up — buying whole wholesale bunches instead of loose stems, adding the shrink allowance before the rounding, marking up what is actually purchased, pricing design and on-site labour by the hour, and reporting the gross margin. **After using this, you can send a proposal knowing what the wholesale invoice will say, instead of marking up a stem count you never pay for.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/wedding-florist-proposal-calculator/
+
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.
 
 ## Three things a markup-on-recipe spreadsheet misses

@@ -5,6 +5,8 @@ consultants): **estimate a range for a 2026 cash balance plan contribution by ag
 profit sharing, and see the tax it could save, what employee contributions cost, and a multi-year
 projection.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cash-balance-plan-calculator/
+
 After using this, you can now **walk into an actuary conversation knowing roughly how much you could deduct
 and what it costs for staff**, which used to take a sales call.
 

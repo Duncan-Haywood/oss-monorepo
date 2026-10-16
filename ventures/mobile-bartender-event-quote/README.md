@@ -5,6 +5,8 @@ insurance: get the staffing, the drinks to stock, a walk-away floor, the price p
 target margin, a three-way comparison of full bar / beer and wine / service only, and a check of
 what a client's "$X a head" ask nets you.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mobile-bartender-event-quote/
+
 ```
 node cli.mjs --guests 120 --hours 5 --bartender-rate 32 --client Acme
 node cli.mjs --guests 120 --ask 28          # exit 1 when the per-head ask loses money

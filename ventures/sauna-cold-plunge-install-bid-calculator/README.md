@@ -7,6 +7,8 @@ leaves if it runs long, how the price climbs with distance, a check on a price
 you were offered, and how many jobs a month cover your fixed costs. Entirely
 client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sauna-cold-plunge-install-bid-calculator/
+
 After using this, you can **bid an install knowing what delivery, the electrician and a
 long day cost you**.
 

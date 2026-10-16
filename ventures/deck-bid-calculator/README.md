@@ -5,6 +5,8 @@ way the trade actually loses money when they skip it — each surface by height
 and material, then railing lineal feet and stairs — and shows the walk-away
 number before a $28-a-foot postcard goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/deck-bid-calculator/
+
 **After using this, you can now hold a walk-away price that includes height,
 rail, and stairs, which used to take a spreadsheet that most crews never
 opened on a Saturday estimate.**

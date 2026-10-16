@@ -5,6 +5,8 @@ from a read-only Stripe key, on a server you run**, instead of paying a metrics
 service a monthly fee that grows with your revenue and sharing your customer
 list with it.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mrr-pulse/
+
 Two parts, both free and MIT:
 
 - **`index.html`**: paste a Stripe subscription export (or load sample data)

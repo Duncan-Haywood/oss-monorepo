@@ -7,6 +7,8 @@ duplicate UIDs and identical duplicate cards, each with its line number. It writ
 with every provable fix applied and leaves the rest untouched. The file is read locally and never
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/vcard-contacts-check/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

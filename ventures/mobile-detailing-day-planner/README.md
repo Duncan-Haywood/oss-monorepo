@@ -6,6 +6,8 @@ most profitable set that fits your hours, shows take-home per hour including
 the drive, and names the price each job needs to earn your target. Entirely
 client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mobile-detailing-day-planner/
+
 After using this, you can **decide which jobs to take today and which to
 reprice or move to another day**, instead of filling the calendar in booking
 order.

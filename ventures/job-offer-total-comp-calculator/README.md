@@ -4,6 +4,8 @@ A free browser tool for anyone weighing job offers: **enter up to three offers a
 four-year average pay (equity cut to a confidence you choose), its true hourly rate after commute and time
 off, and the base salary you would need to counter with to match the best offer.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/job-offer-total-comp-calculator/
+
 After using this, you can now **compare an equity-heavy startup offer with a higher-cash one on the same
 footing**, which used to take a spreadsheet you had to build and trust yourself.
 

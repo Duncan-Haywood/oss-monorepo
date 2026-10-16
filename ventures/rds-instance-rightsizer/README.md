@@ -5,6 +5,8 @@ get the next class in the same family, a Graviton saving for x86 classes, the mo
 (Multi-AZ doubles the instance price) and the `aws rds modify-db-instance` command. Browser page or
 zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rds-instance-rightsizer/
+
 ```
 aws rds describe-db-instances --output json > rds.json
 node cli.mjs analyze rds.json metrics.csv --commands

@@ -1,0 +1,39 @@
+{
+  "slug": "sod-install-bid-calculator",
+  "name": "Sod installation",
+  "group": "Landscaping & outdoor",
+  "summary": "Sod lawns priced from area, waste, full pallets, grass type, soil prep, delivery, slope and watering.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 22,
+  "burdenRate": 28,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Lay tall fescue sod on ready soil",
+      "unit": "sq ft",
+      "qty": 2000,
+      "hoursPerUnit": 0.002333,
+      "materialPerUnit": 0.5063,
+      "source": "50 x 40 ft lawn, 5% waste = 2,100 sq ft at 1/450 h per sq ft = 4.667 h; ceil(2,100 / 450) = 5 pallets = 2,250 sq ft at $0.45 = $1,012.50; both spread over 2,000 lawn sq ft (index.html defaults; suggestedGrassKit('fescue'), palletCount in calc.mjs)"
+    },
+    {
+      "label": "Starter fertilizer and roller",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 63,
+      "source": "fertilizerEach $28 + rollerEach $35 (suggestedGrassKit('fescue')); both checked by default (index.html)"
+    },
+    {
+      "label": "Trip and site time",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.5,
+      "materialPerUnit": 45,
+      "source": "hoursTrip 1 + siteHours 0.5 (suggestedGrassKit('fescue')); farm pickup adds no delivery; travel & equipment $45 (index.html)"
+    }
+  ],
+  "specialistModels": "Full-pallet rounding and leftover sod, grass-type comparison, till/grade or strip-and-haul prep, farm delivery trips, a slope factor, watering visits and irrigation heads."
+}

@@ -5,6 +5,8 @@ quote price, won or lost, and your cost for the job, and get a win-probability c
 expected profit inside the range you have actually quoted, and a back-test that says whether price explains your
 wins at all.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bid-win-rate-optimizer/
+
 After using this, you can now **see how much each extra 10% on a quote costs you in win chance, which markup earns
 the most per bid, and whether your history can answer that at all**, which used to take a statistician or a guess.
 

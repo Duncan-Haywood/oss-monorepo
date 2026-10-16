@@ -4,6 +4,8 @@ A free browser tool for craft distillers: **enter the bottles (50 mL to 1.75 L) 
 warehouse in a year, and see the federal spirits excise tax at the Craft Beverage Modernization Act rates, the tax built into each
 bottle size and a 1.5 oz pour, and what growth past 100,000 proof gallons does to the bill.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/distillery-excise-tax-calculator/
+
 After using this, you can now **price a bottle knowing the federal tax inside it at its proof, and see the cost of crossing
 100,000 proof gallons before you plan the expansion**, which used to be a proof-gallon tier calculation redone by hand each time.
 

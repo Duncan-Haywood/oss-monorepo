@@ -8,6 +8,8 @@ trim, shutters, a scrape of failing paint, a primer coat,
 occupied-home protection, and hard second-story access as their own
 hours — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/exterior-painting-bid-calculator/
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts. Not yet deployed to a public URL —

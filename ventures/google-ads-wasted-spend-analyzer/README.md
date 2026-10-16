@@ -6,6 +6,8 @@ converted, how sure you can be, and which negative keywords are safe to add.**
 The file is read in the browser; nothing is uploaded and no account access is
 needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/google-ads-wasted-spend-analyzer/
+
 After using this, you can now **see your wasted spend split into proven,
 overspent and too-little-data, get a negative keyword list that never contains a
 word from a converting search term, and find the converting terms you only reach

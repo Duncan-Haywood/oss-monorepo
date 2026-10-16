@@ -5,6 +5,8 @@ similar 1:1 instructors: compares a discounted prepaid session package
 against pay-per-session pricing, on both revenue and effective hourly pay.
 Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/
+
 After using this, you can now **see whether your session package actually
 pays better per hour than charging full price per session, not just whether
 it looks safer on revenue** — the gap most instructors never separately

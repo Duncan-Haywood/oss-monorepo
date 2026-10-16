@@ -5,6 +5,8 @@ well-known dotenv filenames (`.env`, `.env.local`, `.env.production`, `.env.prod
 `.env.development.local`) and names which ones are **publicly readable** — verified against the
 real `KEY=VALUE` line shape of a dotenv file, not just an HTTP status.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dotenv-exposure-check/
+
 **Variable values are never read, stored, or shown anywhere by this tool — only variable names.**
 A dotenv file's whole purpose is holding secrets, so a checker for this exposure class has to be
 careful not to become a second way to leak them. See

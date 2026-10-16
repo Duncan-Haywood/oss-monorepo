@@ -2,6 +2,8 @@
 
 A free browser tool: **type a practice's claim volume and average collection per claim, what a claim costs you to handle, and three prices you might quote, and see which one earns the most** — percent of collections, fee per claim or a flat monthly fee — with margin under each, the smallest practice you can afford at each price, the price that hits your target margin, and what happens if the practice's collections move. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/medical-billing-pricing-calculator/
+
 After using this, you can **quote a billing client a price that covers your own cost plus a target margin**, which used to mean defaulting to the going percentage.
 
 ## Model

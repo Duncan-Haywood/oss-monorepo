@@ -9,6 +9,8 @@ borrow. The planner shows the expected collection day, retained cash release
 day, cash needed before payment, any funding gap, what that gap costs to carry,
 and how many further days of late payment the scenario survives.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/subcontractor-cashflow-planner/
+
 **After using this, you can now** see the cash a subcontract needs, what
 bridging it costs, and how much late payment it survives, **which used to take**
 a spreadsheet and a hopeful guess.

@@ -7,6 +7,8 @@ useful life. It shows **payback, yearly return on the money tied up and break-ev
 unit** for every item, **ranks the inventory**, and finds the **lowest rental price** that pays
 an item back within the years you choose.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/event-rental-inventory-payback-calculator/
+
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.
 

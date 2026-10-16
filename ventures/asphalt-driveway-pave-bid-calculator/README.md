@@ -6,6 +6,8 @@ mill-and-overlay versus full-depth, mix tons from thickness, the street
 apron, failed base, and the sawcut — and shows the margin before the
 price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/asphalt-driveway-pave-bid-calculator/
+
 **After using this, you can now** send a paving bid that names the
 method, the tons, and the walk-away number, **which used to take**
 matching a published $3.50-a-square-foot special and hoping the base

@@ -5,6 +5,8 @@ the trade actually keeps a Saturday from losing money — inventory hours for a
 first-floor short carry, then the extra trips stairs and a long carry create —
 and shows the margin before the quote goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/moving-bid-calculator/
+
 **After using this, you can now see whether a cheap “3-bedroom for $800” quote
 covers a third-floor walk-up**, which used to take a guess and a lost Saturday.
 

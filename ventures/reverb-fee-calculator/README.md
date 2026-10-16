@@ -6,6 +6,8 @@ you paid for the gear. Use it when a buyer offer lands and you need to know
 whether taking it still beats waiting for list — or listing the same item on
 eBay.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/reverb-fee-calculator/
+
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
 fees Reverb or eBay will charge: enter the rates from your last payout and

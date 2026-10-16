@@ -3,6 +3,8 @@
 A free browser calculator for the 2026 ACA premium tax credit and its **400%-of-poverty cliff**.
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/aca-subsidy-cliff-calculator/
+
 After using this, you can now **see whether your expected income is under the line where the whole
 premium tax credit disappears, how much credit one dollar over it costs, and how much deduction
 (HSA, solo 401(k), SEP) would bring you back under**, which used to mean reading IRS Form 8962

@@ -4,6 +4,8 @@ After using this, you have a plain-language freelance service agreement with the
 scope, the payment schedule, the revisions, who owns the work, and what happens
 if the client cancels, ready to print, save as PDF or paste into an email.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/freelance-contract-maker/
+
 Free, no account, no watermark, works offline. Everything runs in your browser;
 your answers are stored in `localStorage` on your device and never uploaded.
 

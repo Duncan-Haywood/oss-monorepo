@@ -5,6 +5,8 @@ campaign link with UTM parameters, send iPhone and Android visitors to the
 right app store, and see clicks by day, referrer and device**, without paying
 a per-link or per-click tier and without storing anyone's IP address.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/link-keeper/
+
 Two parts, both free and MIT:
 
 - **`index.html`**: a campaign-link planner. Paste destinations, set

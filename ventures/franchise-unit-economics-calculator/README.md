@@ -8,6 +8,8 @@ cash and annual return, the break-even sales, whether the cash cushion survives 
 ramp-up, loan cover, a sales-by-cost sensitivity grid, and how much the brand has to
 lift your sales to beat opening the same business independently. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/franchise-unit-economics-calculator/
+
 After using this, you can **tell whether a franchise unit pays, how much cash it needs
 before it does, and what sales lift the brand must deliver to be worth its fees**.
 

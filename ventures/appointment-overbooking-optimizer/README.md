@@ -5,6 +5,8 @@ over-full day costs, plus either your no-show rate or a history of booked and sh
 profit-maximising number of extra bookings, the chance anyone is over capacity, and how sure the answer is.** Only
 daily counts are used, never patient names. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/appointment-overbooking-optimizer/
+
 After using this, you can now **decide how many extra appointments to book each day, see the risk of an over-full day,
 and know whether your own history supports the plan**.
 

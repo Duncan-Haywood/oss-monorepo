@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01Xuf6CdnZDd7epu1BDLGUSZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T21:43:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shift-roster-builder avoid: soft preference",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/ledger/session_gate.py",
+      "why": "Gate said refresh gh-pages first; that is a push to a branch other than my designated one, so I did not."
+    }
+  ],
+  "goal": null,
+  "notes": "Added avoid: soft preference to shift-roster-builder engine, page text, README, 3 tests (67 pass).",
+  "corrections": [],
+  "redteam": null
+}

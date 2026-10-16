@@ -1,0 +1,49 @@
+{
+  "slug": "walk-in-tub-bid-calculator",
+  "name": "Walk-in tub install",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Walk-in tub installs priced per tub from scope, tub type, door swing, accessibility extras and travel.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2.6,
+  "hourlyWage": 42,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "tripFee": 95,
+  "items": [
+    {
+      "label": "Demo old tub and set base, alcove swap",
+      "unit": "tub",
+      "qty": 1,
+      "hoursPerUnit": 5.5,
+      "materialPerUnit": 0,
+      "source": "suggestedScopeKit('alcove-swap'): hoursDemoEach 2.5 + hoursSetBase 3.0; no material in the scope kit"
+    },
+    {
+      "label": "Acrylic soaker walk-in tub",
+      "unit": "tub",
+      "qty": 1,
+      "hoursPerUnit": 2.2,
+      "materialPerUnit": 1850,
+      "source": "suggestedTubKit('soaker-acrylic'): hoursTubEach 2.2, tubInvoice $1,850"
+    },
+    {
+      "label": "Inward-swing door",
+      "unit": "tub",
+      "qty": 1,
+      "hoursPerUnit": 1.2,
+      "materialPerUnit": 0,
+      "source": "suggestedDoorKit('inward'): hoursDoorEach 1.2, doorInvoice $0"
+    },
+    {
+      "label": "Travel",
+      "unit": "mile",
+      "qty": 8,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 3.2,
+      "source": "travelMiles 8 (index.html); suggestedExtraKit hoursPerMile 0.035, travelPerMile $3.20"
+    }
+  ],
+  "specialistModels": "Scope, tub and door kits (drain relocate, whirlpool, bariatric, walk-through), cast-iron demo, tile surround, grab bars, handheld, floor sistering and permit; setupHours = 1.6 trip + 1.0 site hours."
+}

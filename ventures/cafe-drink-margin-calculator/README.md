@@ -2,6 +2,8 @@
 
 A free browser tool for coffee shop owners: **type your drinks and costs and see what each one really earns** after beans, milk, cup, card fee and the barista's time, which drinks use a busy hour best, the price that hits your target margin, an alternative-milk surcharge, and how many drinks a day cover fixed costs.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cafe-drink-margin-calculator/
+
 After using this, you can **reprice the three drinks that lose money and know what an oat milk upcharge has to be**, which used to be a guess or a spreadsheet.
 
 ## Model

@@ -8,6 +8,8 @@ not add up, declared counts and totals that do not match, missing booking dates,
 that is not well formed. It gives a line number for each and converts the entries to CSV. The file
 is read locally and never uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/camt053-statement-check/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

@@ -7,6 +7,8 @@ agent — for Unicode characters designed to be invisible or misleading to a
 human reviewer while a program reading the raw bytes still sees and can act
 on them.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hidden-unicode-check/
+
 After using this, you can now **spot a hidden or reordered instruction in a
 pasted file in seconds**, including reading back the exact hidden text when
 it was encoded with the invisible Unicode Tag characters — which used to

@@ -3,6 +3,8 @@
 A free browser calculator for fractional CFOs, CMOs, CTOs, COOs and other
 part-time executives. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fractional-executive-rate-calculator/
+
 After using this, you can now **quote a day rate and monthly retainer that
 replace the full-time package you are leaving** — after unsold days, admin and
 business-development time, the benefits you now buy yourself and the payroll

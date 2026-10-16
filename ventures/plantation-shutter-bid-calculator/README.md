@@ -8,6 +8,8 @@ stain-grade, then openings, panels, a second story, treatment
 removal, and a bypass track — and shows the margin before the price
 goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/plantation-shutter-bid-calculator/
+
 **After using this, you can now** send a walk-away shutter-install
 price that sees the openings and the extras, **which used to take**
 matching a published $250-a-window special that treats a 30×60

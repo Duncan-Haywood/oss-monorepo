@@ -8,6 +8,8 @@ a typical retail value) and plans the week-by-week markdown that maximises expec
 revenue plus salvage, using a stochastic dynamic program over weeks, stock and price
 level.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/clearance-markdown-planner/
+
 **After using this, you can now** know which week to cut price and by how much, and
 what to do if you fall behind or get ahead, **which used to be** a guess at a
 round-number discount near the end of the season.

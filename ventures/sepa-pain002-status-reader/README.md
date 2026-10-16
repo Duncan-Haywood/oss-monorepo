@@ -6,6 +6,8 @@ what each reason code means and what to do about it, the rejected total, and a l
 rejected payments to fix.** The file is read in the browser; nothing is uploaded and no login,
 bank account or API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sepa-pain002-status-reader/
+
 After using this, you can now **tell that INV-1002 failed because the payee's account is closed
 (AC04), INV-1003 because you were short of funds (AM04), and that three payments worth 5,850.00
 EUR need action**, which used to mean reading a status XML and a bank's code list by hand.

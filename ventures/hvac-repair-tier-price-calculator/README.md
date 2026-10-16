@@ -2,6 +2,8 @@
 
 **Find your true cost per billable hour as an HVAC contractor, price a service call at Good, Better and Best with tiered parts and equipment markup and a callback reserve, set a diagnostic fee, and see what an average call earns at your mix of customer choices against quoting one repair price.** Browser page, no install; a price-book builder exports CSV.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hvac-repair-tier-price-calculator/
+
 After using this, you can put three priced options in front of a customer from your own costs, which used to be one number copied from a competitor.
 
 ## Your numbers, not advice

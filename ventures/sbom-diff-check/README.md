@@ -5,6 +5,8 @@ CycloneDX or SPDX JSON, from `syft`, `docker sbom`, `trivy`, `cdxgen`, or
 similar — and reports exactly which packages were added, removed, or changed
 version between two builds.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sbom-diff-check/
+
 **What it is not:** a vulnerability scanner, a license checker, or a
 compliance attestation. It compares only each package's name and version; it
 makes no claim about whether any package or version is safe, vulnerable, or

@@ -6,6 +6,8 @@ result, ROAS and CTR for every ad, which creatives show fatigue signals, how muc
 spend produced no results, and which ads beat the account median.** The file is
 read in the browser; nothing is uploaded and no ad-account access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/meta-ads-fatigue-analyzer/
+
 After using this, you can now **see which ads pair a high frequency with a weak
 CTR or cost per result against your own account median, split spend with no
 results into proven, overspent and too-little-data, and shortlist the ads that

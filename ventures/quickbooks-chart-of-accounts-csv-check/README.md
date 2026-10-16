@@ -6,6 +6,8 @@ import skips accounts, then download a cleaned copy.** The file is read in the b
 uploaded and no login or API key is needed. Customers, vendors and items are covered by the sibling
 `quickbooks-import-csv-check`; the engine here also reads those layouts but the page checks accounts.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/quickbooks-chart-of-accounts-csv-check/
+
 After using this, you can now **find the account typed `Expense`, the blank detail type, the account
 number used twice, the sub-account listed before its parent and the balance on an income account**,
 which used to mean a "some rows were not imported" message and a hunt through the file.

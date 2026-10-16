@@ -6,6 +6,8 @@ check that opening balance plus entries equals the closing balance, and download
 CSV.** The file is read in the browser; nothing is uploaded and no login, bank connection or
 API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/eu-bank-statement-reader/
+
 After using this, you can now **open a statement you could not read, see which amount makes it
 fail its balance check, spot a duplicated entry or a missing statement, and export a clean CSV**,
 which used to mean a paid converter or uploading bank data to a stranger's server.

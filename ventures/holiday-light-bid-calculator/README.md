@@ -7,6 +7,8 @@ service with storage, 1-story versus 2-story lift versus 3-story lift,
 then peaks, tree wraps, and bushes — and shows the margin before the
 price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/holiday-light-bid-calculator/
+
 **After using this, you can now** send a walk-away holiday-light
 price that sees the hang and the take-down, **which used to take**
 matching a published $3 / LF hang special that treats a 1-story ranch

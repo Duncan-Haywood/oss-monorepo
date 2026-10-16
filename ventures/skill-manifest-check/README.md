@@ -8,6 +8,8 @@ skill from triggering reliably: missing or malformed YAML frontmatter, a
 or more skills, and an instruction body large enough to be worth a
 context-budget caution.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/skill-manifest-check/
+
 After using this, you can now **catch the frontmatter and description
 mistakes that keep a skill silent before you ship it**, which used to mean
 publishing the skill, using it for a while, and eventually noticing it never
