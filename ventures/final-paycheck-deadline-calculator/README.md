@@ -1,5 +1,7 @@
 # Final Paycheck Deadline Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/final-paycheck-deadline-calculator/>
+
 A free browser calculator for the legal deadline on a departing employee's
 final paycheck, by US state and separation type. Entirely client-side;
 nothing is uploaded.

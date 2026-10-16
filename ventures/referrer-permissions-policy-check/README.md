@@ -1,5 +1,7 @@
 # Referrer-Policy & Permissions-Policy Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/referrer-permissions-policy-check/>
+
 A free tool for web developers and security researchers: sends **one real
 HTTP GET request** to a URL you choose and classifies its `Referrer-Policy`
 and `Permissions-Policy` headers into the misconfiguration patterns that

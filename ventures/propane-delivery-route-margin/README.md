@@ -1,5 +1,7 @@
 # Propane Delivery Route Margin Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/propane-delivery-route-margin/>
+
 Independent propane (LP gas) delivery route operators can use this free browser-local calculator to find real annual and monthly profit for one customer — after the retail/wholesale price spread, a small-fill minimum-delivery fee, drive time and mileage, and the fixed monthly tank rental and hazmat compliance cost — then roll a list of customers up into monthly route profit and check it against an income goal. **After using this, you can tell which customers are actually worth the trip, which used to take a spreadsheet and a guess about whether a small-fill account was quietly losing money to a minimum-delivery fee you weren't charging.**
 
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.

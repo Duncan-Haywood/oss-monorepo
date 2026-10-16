@@ -1,5 +1,7 @@
 # Film Tax Credit Net Value Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/film-tax-credit-net-value-calculator/>
+
 A free browser tool for film and TV producers, line producers and production accountants. Type your
 incentive programme's terms (base rate, uplift, minimum, cap) and your budget, then the cents on the
 dollar you can get for the credit, the fees, the wait and what a bridge loan costs. It returns the credit

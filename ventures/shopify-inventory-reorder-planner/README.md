@@ -1,5 +1,7 @@
 # Inventory Reorder Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shopify-inventory-reorder-planner/>
+
 A free browser tool for small online sellers: **load your orders export and a stock export and
 see what to reorder, how many, and which stock is dead cash.** Files are read in the browser;
 nothing is uploaded and no app install or store login is needed.

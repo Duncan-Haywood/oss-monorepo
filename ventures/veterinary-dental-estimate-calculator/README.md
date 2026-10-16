@@ -1,5 +1,7 @@
 # Veterinary Dental Estimate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/veterinary-dental-estimate-calculator/>
+
 A free browser tool for veterinary clinics: enter your own fees, costs and times and see an
 **itemised dental estimate and clinic profit for each grade (1-4) of dental disease**, the profit per
 anesthesia hour, the price that reaches your target margin, a suggested estimate range, and what a

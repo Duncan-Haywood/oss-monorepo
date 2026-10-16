@@ -1,5 +1,7 @@
 # Shoe Repair Shop Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shoe-repair-shop-profit-calculator/>
+
 A free browser tool for independent shoe repair shops: **enter your heel, repair and rework prices, bench minutes, supplies, cobbler pay, machines and rent, and get profit per job and per bench hour, the price each job needs for your target margin, what a prepaid repair package really earns per visit, the break-even volume, and the season at 50 to 150 percent of the volume you expect**. Nothing is uploaded.
 
 After using this, you can now **tell which job to push when the bench is full and how many jobs cover the machines and the rent**, which used to take a spreadsheet and a guess.

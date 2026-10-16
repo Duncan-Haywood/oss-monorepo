@@ -1,5 +1,7 @@
 # Freight Accessorial Invoice Auditor
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/freight-accessorial-auditor/>
+
 Small shippers and freight brokers can now audit billed accessorial lines for duplicates, amounts above an expected contract figure, missing codes, and missing or contradictory evidence — then copy a factual review draft and download a CSV. Sibling pages compare a detention line to the dock clock after free time, compare a billed fuel surcharge to the contract percent of linehaul, and compare eating an extra versus billing the customer versus paying first and reviewing for a credit.
 
 **After using this, you can now** import the carrier's own invoice export, apply your contract rate card once, see whether a billed fuel surcharge matches the contract percent of linehaul, and identify invoice lines worth handing to AP with a dated review record — which used to take a manual spreadsheet pass against the rate confirmation, one line at a time.

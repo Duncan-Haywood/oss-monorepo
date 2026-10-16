@@ -1,5 +1,7 @@
 # Winery Excise Tax Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/winery-excise-tax-calculator/>
+
 A free browser tool for wineries and cideries: **enter the cases, bottles and bulk gallons that leave your bonded premises in a year,
 and see the federal excise tax before and after the Craft Beverage Modernization Act credit, the tax built into each bottle, and
 what growth past 30,000 and 130,000 wine gallons does to the bill.** Nothing is uploaded.

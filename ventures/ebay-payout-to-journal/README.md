@@ -1,5 +1,7 @@
 # Ebay Payout To Journal
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ebay-payout-to-journal/>
+
 Free browser tool that turns an eBay Transaction report (Seller Hub, Payments, Reports) into
 balanced accounting journals for Xero, QuickBooks Online and QuickBooks Desktop (IIF). It proves
 each payout's rows add up to its Payout row (or a deposit typed in from the bank), splits every

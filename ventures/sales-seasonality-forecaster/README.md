@@ -1,5 +1,7 @@
 # Sales Seasonality Forecaster
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sales-seasonality-forecaster/>
+
 A free browser tool for shops, restaurants, cafes and any seasonal business:
 **paste or upload a CSV of date and sales and get a forecast for the next 6 to 12 months, with the slow months and
 the cash cushion to get through them.** It fits Holt-Winters exponential smoothing to your own history, shows 80%

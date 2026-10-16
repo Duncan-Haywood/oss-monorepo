@@ -1,5 +1,7 @@
 # Junk Removal Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/junk-removal-bid-calculator/>
+
 A free browser calculator for independent junk haulers. It prices a cleanout
 the way the landfill actually bills one — each pile turned into estimated
 tons — and shows the dump ticket, the loaded labor, and the walk-away number

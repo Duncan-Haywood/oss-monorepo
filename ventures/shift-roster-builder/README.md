@@ -1,5 +1,7 @@
 # Shift Roster Builder
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/>
+
 A free browser tool for restaurants, cafés, salons, shops and clinics that schedule named people by the week: **list the
 shifts you need covered and your staff with availability, weekly hour limits and wages, and get a roster that covers as
 many shifts as possible, avoids overtime, respects rest gaps, and tells you which shifts it could not fill and why**.

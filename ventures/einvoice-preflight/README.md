@@ -1,5 +1,7 @@
 # E-invoice preflight
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/>
+
 **Validate a structured invoice before submission.** After using this, you can
 now see which fields, totals, VAT digits, or payment instructions would fail a
 local preflight — in the browser or in CI — which used to mean waiting for a

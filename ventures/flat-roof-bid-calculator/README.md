@@ -1,5 +1,7 @@
 # Flat Roof Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/flat-roof-bid-calculator/>
+
 A free browser calculator for TPO, EPDM, PVC, and modified-bitumen crews. It
 prices a low-slope roof from the membrane squares a per-square special cannot
 see, the tear-off, the insulation, the parapet, and the drains — and shows the

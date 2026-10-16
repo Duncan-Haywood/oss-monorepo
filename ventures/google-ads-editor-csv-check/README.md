@@ -1,5 +1,7 @@
 # Google Ads Editor Csv Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/google-ads-editor-csv-check/>
+
 Free browser tool that checks a Google Ads Editor import CSV before it is imported: headlines over
 30 characters and descriptions over 90, responsive search ads with too few headlines or
 descriptions, exclamation marks and duplicate headlines, display paths, keywords with symbols Google

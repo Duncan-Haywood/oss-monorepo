@@ -1,5 +1,7 @@
 # Lead Response Time Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/lead-response-time-analyzer/>
+
 A free browser tool for home-service and other lead-driven businesses: **paste or upload a CSV of inbound leads
 (minutes until your first reply, won or lost, optional job value) and see your win rate by reply-time band, a fitted
 curve, and the extra jobs and monthly revenue a faster reply would have won, with a range.** Nothing is uploaded.

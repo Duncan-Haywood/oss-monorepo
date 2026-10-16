@@ -1,5 +1,7 @@
 # Tuckpointing Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tuckpointing-bid-calculator/>
+
 A free browser calculator for masonry contractors. It prices brick
 pointing the way the trade actually loses money — grind versus smear,
 scaffold versus swing stage, Type N versus historic lime, then lintels,

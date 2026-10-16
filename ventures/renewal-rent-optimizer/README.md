@@ -1,5 +1,7 @@
 # Renewal Rent Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/renewal-rent-optimizer/>
+
 A free browser tool for small landlords and property managers: **paste or upload a CSV of past lease renewals
 (current rent, the rent you offered, renewed or left), say what a move-out costs you, and get a renewal-chance
 curve, the rent increase with the highest expected income over the next lease inside the range you have actually

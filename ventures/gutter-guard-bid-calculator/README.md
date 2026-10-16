@@ -1,5 +1,7 @@
 # Gutter Guard Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/gutter-guard-bid-calculator/>
+
 A free browser calculator for gutter shops. It prices a screen, foam,
 reverse-curve, or micromesh install the way the trade actually loses
 money — the included one-story ranch, then the extra story, the extra

@@ -1,5 +1,7 @@
 # Docker Base Image EOL Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/docker-base-image-eol-check/>
+
 A free tool that scans Dockerfiles and flags every `FROM` line whose base
 image release line (`node:18`, `python:3.9`, `ubuntu:20.04`, ...) has passed
 its publisher's own end-of-life date, or is due to soon — using a small,

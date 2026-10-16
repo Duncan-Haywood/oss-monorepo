@@ -1,5 +1,7 @@
 # PDF Accessibility Tag Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/>
+
 A free tool for anyone who publishes PDFs a government body, school, or
 business is obligated (or just trying) to make accessible: reads a PDF's
 **internal structure** — not a screenshot, the actual tag tree, metadata, and

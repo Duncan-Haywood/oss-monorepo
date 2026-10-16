@@ -1,5 +1,7 @@
 # Process Server Day Picker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/process-server-day-picker/>
+
 Taking serves in the order they were assigned, or the biggest fee first, fills a one-vehicle day with the wrong work. Paste
 the day's assigned serves (fee, costs, minutes on site, the window the person can be reached, where they are) and get
 the exact set and order of jobs with the highest profit for the day, the drive and idle time it implies, what each

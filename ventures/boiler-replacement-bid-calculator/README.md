@@ -1,5 +1,7 @@
 # Boiler Replacement Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/boiler-replacement-bid-calculator/>
+
 A free browser calculator for hydronic and steam techs. It prices a
 residential boiler replacement the way the trade actually loses
 money — like-for-like versus a condensing upgrade versus a

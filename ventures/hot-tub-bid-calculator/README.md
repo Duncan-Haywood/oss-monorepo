@@ -1,5 +1,7 @@
 # Hot Tub Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hot-tub-bid-calculator/>
+
 A free browser calculator for pool and spa dealers. It prices a
 hot-tub install the way the trade actually loses money —
 crane access, a new pad, circuit footage, a 60-amp disconnect,

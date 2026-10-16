@@ -1,5 +1,7 @@
 # Laundromat Acquisition Offer Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/laundromat-acquisition-offer-calculator/>
+
 Free, browser-only calculator for people buying a laundromat. Enter the seller's
 revenue and the real costs (utilities, rent, labor, repairs, a manager and a machine
 replacement reserve) and your loan terms. It returns the **adjusted cash flow**, the

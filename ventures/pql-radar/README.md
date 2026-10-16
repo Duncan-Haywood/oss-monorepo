@@ -1,5 +1,7 @@
 # PQL Radar
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pql-radar/>
+
 Product-qualified-lead scoring for small SaaS teams with a free plan or trial.
 Your app sends product-usage events; PQL Radar learns from your own past signups
 which first-week behaviour came before paying, scores every signup that has

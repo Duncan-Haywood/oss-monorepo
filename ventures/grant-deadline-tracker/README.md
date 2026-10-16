@@ -1,5 +1,7 @@
 # Grant Deadline Tracker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/grant-deadline-tracker/>
+
 Small nonprofits can track grant applications, reporting dates, and remaining award funds without rebuilding a fragile spreadsheet every month. Open `index.html` in a browser, add your grants, and export a private CSV for a board or finance meeting.
 
 **After using this, you can now** see which report or application is overdue, how much of each award remains, whether a contract grant writer still costs less than the cash a late report puts at risk, hand finance a CSV, and drop a calendar file with a reminder for every obligation into Google Calendar, Outlook, or Apple Calendar — which used to take a hand-maintained spreadsheet and a calendar reminder you set yourself, one grant at a time.

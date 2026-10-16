@@ -1,5 +1,7 @@
 # Branch Protection Drift Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/branch-protection-drift-check/>
+
 Free browser + CLI tool that compares a GitHub repository's *actual*
 branch protection settings against a *declared policy*, and flags every
 rule that has drifted weaker than the policy requires — a review

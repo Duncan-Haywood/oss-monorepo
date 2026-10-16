@@ -1,5 +1,7 @@
 # Subdomain Takeover Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/subdomain-takeover-check/>
+
 A free tool for anyone who manages a DNS zone: follows a hostname's real CNAME chain over public
 DNS-over-HTTPS, matches the final target against 25 known takeover-prone hosting providers (S3,
 Heroku, GitHub Pages, Azure, Fastly, Shopify, and more), and — for a match — sends one live GET

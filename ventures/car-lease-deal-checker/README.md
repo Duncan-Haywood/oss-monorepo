@@ -1,5 +1,7 @@
 # Car Lease Deal Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/car-lease-deal-checker/>
+
 Free, browser-only checker for a car lease quote. It shows the interest rate inside
 the quote, finds the money factor hiding in a quoted payment when the dealer will not
 say, prices any markup over the base rate in dollars, and compares leasing with buying

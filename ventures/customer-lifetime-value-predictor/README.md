@@ -1,5 +1,7 @@
 # Customer Lifetime Value Predictor
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/customer-lifetime-value-predictor/>
+
 A free browser tool for online shops, DTC brands and any business where customers come back at irregular times:
 **drop in an order export (customer, date, amount) and get a predicted lifetime value for every customer.** It fits
 the BG/NBD and Gamma-Gamma models to your own data, reports the probability each customer is still active, lists

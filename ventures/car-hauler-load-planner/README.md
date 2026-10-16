@@ -1,5 +1,7 @@
 # Car Hauler Load Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/car-hauler-load-planner/>
+
 A free browser tool for car haulers: **paste the vehicles on your dispatch board with their pickup and drop miles, describe your two-deck trailer, and get which cars to carry and which deck each rides on** to net the most, with the lowest pay worth taking for each car.
 
 After using this, you can **build a load from a long board and counter-offer with a number**, instead of filling the trailer with the best-paying cars first and finding at mile 300 that the cars picked up later no longer fit.

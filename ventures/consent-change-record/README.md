@@ -1,5 +1,7 @@
 # Consent Change Record
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/consent-change-record/>
+
 Web agencies and site operators can compare two browser trace exports around a consent choice and download a source-linked record of observable request and storage-key changes. This is evidence for review, not a compliance badge.
 
 ## Use it

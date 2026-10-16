@@ -1,5 +1,7 @@
 # Mobile Oil Change Route Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mobile-oil-change-route-profit-calculator/>
+
 A free browser tool for independent mobile oil-change operators: **enter your weekly jobs by service type (conventional, synthetic, fleet or commercial stops), prices, quarts and oil and filter cost, used-oil disposal, on-site and drive minutes, the no-show rate, mileage and van costs, and get profit per job and per working hour including drive time, break-even jobs per week, the price each service type needs for your target margin, what no-shows cost, what batching fleet stops does to profit per hour, and the same route worked solo, with a franchise fee, or as an employee**. Nothing is uploaded.
 
 After using this, you can now **set prices that clear your target margin once the drive, the oil and the no-shows are counted, group fleet stops where it pays, and judge a franchise fee or a job offer against working for yourself**, which used to take a spreadsheet and a guess.

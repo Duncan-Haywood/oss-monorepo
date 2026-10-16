@@ -1,5 +1,7 @@
 # Standby Generator Install Price Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/standby-generator-install-price-calculator/>
+
 A free browser tool for electricians and generator installers: **enter the equipment, the gas and electrical runs, your crew and your margin, and get a price, the cash you need before install day, what an overrun does to a fixed price, what a service plan adds, and a rough generator size check**. Nothing is uploaded.
 
 After using this, you can now **quote a standby generator install knowing the deposit that carries the equipment and how much slack the price has**, which used to take a spreadsheet and a guess about how long the gas run would take.

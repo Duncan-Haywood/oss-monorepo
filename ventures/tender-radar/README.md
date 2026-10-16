@@ -1,5 +1,7 @@
 # Tender Radar
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tender-radar/>
+
 Tender Radar is a free, local-first shortlist tool for small contractors who
 need to review public tender listings without spending an afternoon in a
 portal. Paste a CSV exported from a tender portal, filter by your trade and

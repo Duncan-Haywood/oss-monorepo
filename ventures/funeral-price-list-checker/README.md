@@ -1,5 +1,7 @@
 # Funeral Price List Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/funeral-price-list-checker/>
+
 Paste the lines of a funeral home's **General Price List or quote** and see which charges you
 cannot decline, which are usually needed, which are **your choice**, which are paid to someone
 else, and which the **FTC Funeral Rule** (16 CFR 453) speaks to (a casket handling fee for a

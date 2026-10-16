@@ -1,5 +1,7 @@
 # HOA Reserve Fund Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hoa-reserve-fund-calculator/>
+
 Free browser-local calculator for HOA/condo board treasurers and community
 association managers. List the association's known future capital
 components — roof, repaving, painting, pool resurfacing, elevator, HVAC, and

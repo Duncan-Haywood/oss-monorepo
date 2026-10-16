@@ -1,5 +1,7 @@
 # Free Shipping Threshold Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/free-shipping-threshold-optimizer/>
+
 What should your free-shipping minimum be? Paste past orders (subtotal, optional shipping cost) and see
 what every round threshold would earn against what you do today, the checkout drop-off at which each
 one breaks even, and the threshold that loses least if your guesses are wrong. Browser page or

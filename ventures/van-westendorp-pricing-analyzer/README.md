@@ -1,5 +1,7 @@
 # Van Westendorp Pricing Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/van-westendorp-pricing-analyzer/>
+
 A free browser tool for founders, product managers and pricing consultants: **paste the answers from a
 four-question price survey (too cheap, cheap, expensive, too expensive) and see the range of acceptable
 prices, the optimal price point, the indifference price, a chart of the four curves and a bootstrap band

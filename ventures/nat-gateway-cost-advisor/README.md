@@ -1,5 +1,7 @@
 # NAT Gateway Cost Advisor
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/nat-gateway-cost-advisor/>
+
 Is your NAT gateway bill avoidable? Paste one row per NAT gateway and destination (GB per month) and see
 what the gateway costs, which destinations should bypass it through a **free S3/DynamoDB gateway
 endpoint** or a **paid interface endpoint that still beats $0.045/GB**, the net saving after endpoint fees,

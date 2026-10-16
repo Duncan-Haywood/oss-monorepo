@@ -1,5 +1,7 @@
 # Actions checkout credentials check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/actions-checkout-credentials-check/>
+
 A free, zero-dependency CLI that scans GitHub Actions workflow files for
 `actions/checkout` steps that leave the job's `GITHUB_TOKEN` in `.git/config`
 (no `persist-credentials: false`).

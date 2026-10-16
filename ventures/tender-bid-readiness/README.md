@@ -1,5 +1,7 @@
 # Tender Bid Readiness Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tender-bid-readiness/>
+
 **Before you spend hours assembling a public-contract bid, find the requirements you still need to verify.** Paste a solicitation into the browser tool and it highlights common signals for deadlines, bonds, insurance, licenses, questions, addenda, and submission channels.
 
 This is a local-first, deterministic checklist, not a tender monitor or bid-writing service. It does not fetch public portals, upload text, decide eligibility, or submit anything. It is distinct from the portfolio's bid calculators: those price work after a contractor decides to pursue it; this helps with the earlier go/no-go paperwork decision.

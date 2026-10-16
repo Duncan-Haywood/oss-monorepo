@@ -1,5 +1,7 @@
 # Change Order Margin Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/change-order-margin-calculator/>
+
 Price a construction or trade change order from the added labor, loaded wage,
 materials, subcontractor cost, schedule delay, overhead, and target margin. The
 result gives a target price, a walk-away cost floor, what your contract's

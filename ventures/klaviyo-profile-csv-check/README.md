@@ -1,5 +1,7 @@
 # klaviyo-profile-csv-check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/klaviyo-profile-csv-check/>
+
 Checks a Klaviyo profile import CSV in the browser before it is imported: emails and duplicates,
 phone format, rows with no identifier, Excel damage to zips, phones and IDs, latitude, longitude and
 timezone values, mixed date formats and near-miss column names, each with its line number, plus a

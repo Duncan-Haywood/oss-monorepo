@@ -1,5 +1,7 @@
 # Bakery Production Scheduler
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bakery-production-scheduler/>
+
 A free browser tool for small and wholesale bakeries. List your products (batch
 size, prep, proof and bake minutes, price and unit cost) and your orders with
 due times. It plans backwards from every due time, shares your ovens and bakers

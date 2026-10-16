@@ -1,5 +1,7 @@
 # LTL Freight Class Estimator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ltl-freight-class-estimator/>
+
 Estimate an LTL freight class from pallet or crate dimensions and weight before
 you request a carrier quote. It turns a common shipping question, "what freight
 class is this?", into the cube, density, and class band that a shipper can check

@@ -1,5 +1,7 @@
 # Solo 401(k) Contribution Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/solo-401k-contribution-calculator/>
+
 A free browser calculator for the 2026 Solo 401(k) contribution limit for a
 sole proprietor or single-member LLC. Entirely client-side; nothing is
 uploaded.

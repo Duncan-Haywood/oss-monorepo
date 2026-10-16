@@ -1,5 +1,7 @@
 # Requirements Pin Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/requirements-pin-check/>
+
 A free tool that reads a Python `requirements.txt` and lists every line that lets
 two installs differ or exposes the install to tampering: bare package names,
 range versions, a second `--extra-index-url` (dependency confusion), plain-http

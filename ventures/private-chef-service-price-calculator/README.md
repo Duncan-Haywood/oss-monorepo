@@ -1,5 +1,7 @@
 # Private Chef Service Price Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/private-chef-service-price-calculator/>
+
 A free browser tool for private chefs and meal-prep businesses: **enter the guests, the hours and your costs, and get a cost-plus price per visit and per guest, what the price you quote today earns you per hour, and how the price moves with the size of the table**. Nothing is uploaded.
 
 After using this, you can now **quote a small dinner at a price that covers the shopping, travel and cleanup that do not shrink with the table**, which used to take a per-person rate and a guess.

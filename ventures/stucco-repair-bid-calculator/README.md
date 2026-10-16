@@ -1,5 +1,7 @@
 # Stucco / EIFS Repair Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/stucco-repair-bid-calculator/>
+
 A free browser calculator for stucco and EIFS contractors. It prices a
 repair the way the trade actually loses money — crack linear feet, hollow
 area, tear-off to the substrate, stories and scaffolding, window

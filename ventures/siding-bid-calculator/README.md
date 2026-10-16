@@ -1,5 +1,7 @@
 # Siding Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/siding-bid-calculator/>
+
 A free browser calculator for siding contractors. It prices a job the way
 the trade actually loses money when they skip it — net wall squares plus
 waste, then stories, tear-off, openings, linear trim, and margin — and

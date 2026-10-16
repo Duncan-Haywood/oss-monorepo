@@ -1,5 +1,7 @@
 # Appointment Overbooking Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/appointment-overbooking-optimizer/>
+
 A free browser tool for clinics, dentists, salons and studios: **enter your slots, what a visit earns and what an
 over-full day costs, plus either your no-show rate or a history of booked and showed counts per day, and get the
 profit-maximising number of extra bookings, the chance anyone is over capacity, and how sure the answer is.** Only

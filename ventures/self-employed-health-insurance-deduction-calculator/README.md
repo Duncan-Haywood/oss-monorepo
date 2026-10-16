@@ -1,5 +1,7 @@
 # Self-Employed Health Insurance Deduction Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/self-employed-health-insurance-deduction-calculator/>
+
 A free browser tool for the self-employed: **enter your business profit and the health, Medicare and long-term-care
 premiums you paid, and see the Schedule 1 deduction (Form 7206) after the profit ceiling, employer-plan months and
 age caps, the income tax it saves, and how the answer moves if profit changes.** Nothing is uploaded.

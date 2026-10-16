@@ -1,5 +1,7 @@
 # California Meal & Rest Break Premium Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ca-meal-rest-break-premium-checker/>
+
 Free, browser-only audit for California meal and rest break premium pay (Labor
 Code section 226.7). Paste timecards with the meal period and rest breaks taken.
 It reports:

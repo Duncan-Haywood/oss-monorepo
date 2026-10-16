@@ -1,5 +1,7 @@
 # Security Camera Installation Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/security-camera-bid-calculator/>
+
 A private browser calculator for low-voltage and security installers. It prices
 an IP camera install from the drops, the cable, the head end, and your own wage
 and margin — and it checks the three things a camera bid gets wrong before the

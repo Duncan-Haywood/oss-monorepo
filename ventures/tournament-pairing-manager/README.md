@@ -1,5 +1,7 @@
 # Tournament Pairing Manager
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tournament-pairing-manager/>
+
 Free, browser-only tournament runner for chess clubs, pickleball, darts, table
 tennis, esports and school events. Paste the players (ratings optional) and pick
 a format:

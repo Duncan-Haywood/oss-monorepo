@@ -1,5 +1,7 @@
 # Quarterly Estimated Tax Calendar
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/quarterly-estimated-tax-calendar/>
+
 A free calculator for US freelancers, 1099 contractors, and gig workers that
 applies the IRS's own safe-harbor rule (Form 1040-ES) to a filer's own
 numbers — last year's tax, this year's estimate, what's already withheld or

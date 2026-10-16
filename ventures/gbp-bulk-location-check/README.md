@@ -1,5 +1,7 @@
 # Gbp Bulk Location Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/gbp-bulk-location-check/>
+
 Free browser tool that checks a Google Business Profile bulk-location spreadsheet (CSV or TSV)
 before it is uploaded: semicolon or UTF-16 files, missing template columns, duplicate or damaged
 store codes, business names over 100 characters, in all capitals or stuffed with keywords, phone

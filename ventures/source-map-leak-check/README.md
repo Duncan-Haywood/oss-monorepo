@@ -1,5 +1,7 @@
 # Source Map Leak Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/>
+
 A free tool for anyone shipping a JavaScript build to production: reads each script's own
 trailing `sourceMappingURL` comment, fetches the map it points at (or decodes it, if it's an
 inline `data:` URI), and names which scripts have a **publicly readable production source map** —

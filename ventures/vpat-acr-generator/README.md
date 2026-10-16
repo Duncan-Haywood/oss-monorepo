@@ -1,5 +1,7 @@
 # VPAT / Accessibility Conformance Report Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/vpat-acr-generator/>
+
 Software vendors responding to a federal (Section 508) or enterprise procurement RFP are usually asked for a VPAT (Voluntary Product Accessibility Template) -- a completed one is called an Accessibility Conformance Report (ACR). This tool turns your own WCAG 2.1 Level A/AA self-assessment (which criterion you determined "Supports", "Partially Supports", "Does Not Support", or "Not Applicable", and your remarks on each) into a correctly formatted VPAT 2.5-shaped ACR document, ready to attach to a proposal.
 
 **It does not test your product.** You choose every conformance level and write every remark yourself, from your own testing (automated tools, manual keyboard/screen-reader testing, or both). This tool only assembles those answers into the standard table and flags the specific completeness problems that make an ACR look untrustworthy to a procurement reviewer -- a Partially Supports or Does Not Support row with no remarks explaining it, and a missing header field.

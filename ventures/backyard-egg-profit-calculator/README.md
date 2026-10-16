@@ -1,5 +1,7 @@
 # Backyard Egg Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/backyard-egg-profit-calculator/>
+
 **Find what a dozen eggs costs you in cash and hours, your profit per dozen and per hour, the price per dozen you need to pay yourself a wage, and how feed cost and winter lay rate move it.** Browser page, no install.
 
 After using this, you know whether your egg money beats the feed bill, the price you need for the wage you want, and how much a dark winter costs you.

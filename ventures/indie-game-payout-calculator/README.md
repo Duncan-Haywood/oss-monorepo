@@ -1,5 +1,7 @@
 # indie-game-payout-calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/indie-game-payout-calculator/>
+
 A free, private, browser-only calculator for indie game developers. Type a
 price, copies sold and what the game cost, and see what the **same copies**
 pay you on Steam, Epic Games Store, itch.io and GOG after tax, refunds, the

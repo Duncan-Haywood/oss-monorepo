@@ -1,5 +1,7 @@
 # Docker Cache Order Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/docker-cache-order-check/>
+
 A free tool that scans a Dockerfile's instruction order for three documented
 Docker build-cache-invalidation mistakes: a dependency manifest copied and
 installed **after** a whole-build-context `COPY . .` already ran, an install

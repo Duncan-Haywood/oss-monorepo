@@ -1,5 +1,7 @@
 # Skill Manifest Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/skill-manifest-check/>
+
 A free tool that checks one or more pasted `SKILL.md` files — the
 frontmatter-plus-Markdown format Claude Code and similar agent systems use
 for an agent "Skill" — for the authoring mistakes that most often keep a

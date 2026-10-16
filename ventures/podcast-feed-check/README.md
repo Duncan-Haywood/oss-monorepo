@@ -1,5 +1,7 @@
 # Podcast Feed Validator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/podcast-feed-check/>
+
 A free tool that checks a podcast's RSS 2.0 + iTunes/Podcast-namespace feed
 against the specific, documented requirements that cause an episode to be
 rejected by Apple Podcasts, dropped by a podcast app, or silently reappear

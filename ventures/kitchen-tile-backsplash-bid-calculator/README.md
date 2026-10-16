@@ -1,5 +1,7 @@
 # Kitchen Tile Backsplash Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/kitchen-tile-backsplash-bid-calculator/>
+
 A free browser calculator for tile setters and kitchen remodelers. It
 prices a kitchen tile backsplash the way the trade actually loses
 money — tile-only on a ready wall versus new prep versus

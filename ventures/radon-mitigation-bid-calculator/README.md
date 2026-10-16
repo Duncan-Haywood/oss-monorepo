@@ -1,5 +1,7 @@
 # Radon Mitigation Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/radon-mitigation-bid-calculator/>
+
 A free browser calculator for licensed radon mitigators. It prices a
 sub-slab or crawl depressurization install the way the trade actually
 loses money — the included footprint, then the extra suction pit, the

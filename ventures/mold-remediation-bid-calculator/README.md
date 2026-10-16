@@ -1,5 +1,7 @@
 # Mold Remediation Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mold-remediation-bid-calculator/>
+
 A free browser calculator for mold remediators. It prices a
 containment, demolition, dry-out, and clearance job the way the trade
 actually loses money — the included closet, then the extra zone, the

@@ -1,5 +1,7 @@
 # Spray Foam Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/spray-foam-bid-calculator/>
+
 A free browser calculator for spray-foam insulation crews. It prices a
 residential foam job from the board feet an attic-square-foot special cannot
 see, the cell (open, closed, or hybrid), the rim joists, and the ignition

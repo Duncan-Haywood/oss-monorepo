@@ -1,5 +1,7 @@
 # Print-on-Demand Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/print-on-demand-profit-calculator/>
+
 A free browser tool for print-on-demand sellers: **type your price and what Printful, Printify or
 Gelato charges you, and see what a sale actually leaves after marketplace fees.** Nothing is uploaded.
 

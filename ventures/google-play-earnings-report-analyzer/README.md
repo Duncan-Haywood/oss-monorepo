@@ -1,5 +1,7 @@
 # Google Play Earnings Report Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/google-play-earnings-report-analyzer/>
+
 A free browser tool for Android developers: **drop in your Google Play Console Earnings
 report and see what each app and product really netted after Google's fee and refunds.**
 The file is read in the browser; nothing is uploaded and no Play Console login or API

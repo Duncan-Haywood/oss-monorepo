@@ -1,5 +1,7 @@
 # SaaS Renewal Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/saas-renewal-planner/>
+
 Most SaaS contracts auto-renew at a higher price unless you give notice by a date buried in the order form, and the seats
 you pay for are rarely the seats people use. Paste your subscriptions (renewal date, notice days, seats paid and used,
 proposed increase) and get the last day to act on each one, the renewals ranked by what negotiating could save, a floor and

@@ -1,5 +1,7 @@
 # Terraform Plan Cost Estimate
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/terraform-plan-cost-estimate/>
+
 A free, offline tool that reads a Terraform *structured* plan
 (`terraform show -json`) and answers one question before you apply it:
 **roughly what does this add to, or take off, the monthly AWS bill?**

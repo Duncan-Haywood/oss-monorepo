@@ -1,5 +1,7 @@
 # BigCommerce Product CSV Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bigcommerce-product-csv-check/>
+
 A free browser tool for BigCommerce store owners, agencies and catalogue editors who import
 products by CSV: **paste or drop the file and see every problem with its line number before
 the import fails or quietly creates products with no price or no variants, then download a

@@ -1,5 +1,7 @@
 # CRA evidence desk
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cra-evidence-desk/>
+
 **Find affected software components and assemble a customer-reviewed Cyber Resilience Act incident draft in minutes.** Give it a customer-owned SBOM and advisory export; it makes only exact name/ecosystem/version matches and produces JSON evidence or a copyable Article 14 draft.
 
 Two surfaces, same rules:

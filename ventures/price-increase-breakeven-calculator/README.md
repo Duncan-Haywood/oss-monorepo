@@ -1,5 +1,7 @@
 # Price Increase Break-Even Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/price-increase-breakeven-calculator/>
+
 How many customers can you lose after a price increase? Paste items (name, price, unit cost, units sold),
 set the raise, and see per item how much volume you can lose before profit falls, the customer sensitivity
 (elasticity) at which the raise stops paying, and which items can take it first. Browser page or

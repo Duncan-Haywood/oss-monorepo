@@ -1,5 +1,7 @@
 # Workers' Comp Premium Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/workers-comp-premium-calculator/>
+
 A free browser calculator that rebuilds a small employer's workers'
 compensation premium from the class-code rates on their own quote, and shows
 what a final audit will add or return. Entirely client-side; nothing is

@@ -1,5 +1,7 @@
 # Water Heater Replacement Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/water-heater-bid-calculator/>
+
 A free browser calculator for plumbers and water-heater installers. It prices
 a residential replacement from the heater type, the location, the vent, and
 the gas or electrical path — and shows the margin before the price goes out.

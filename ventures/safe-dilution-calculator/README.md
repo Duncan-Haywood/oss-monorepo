@@ -1,5 +1,7 @@
 # SAFE Dilution Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/safe-dilution-calculator/>
+
 A free browser tool for startup founders. Enter your cap table, your SAFEs
 and the priced round you expect; it converts the SAFEs, sizes the option
 pool top-up and shows what you own afterwards. Entirely client-side; nothing

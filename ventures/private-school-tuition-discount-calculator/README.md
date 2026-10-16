@@ -1,5 +1,7 @@
 # Private School Tuition Discount Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/private-school-tuition-discount-calculator/>
+
 Free, browser-only calculator for independent-school business offices and board
 finance committees. Enter the sticker price and the students in each
 financial-aid group. It shows the **discount rate**, net tuition revenue and per

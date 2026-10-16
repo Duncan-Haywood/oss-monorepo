@@ -1,5 +1,7 @@
 # UCR Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ucr-fee-calculator/>
+
 A free browser tool for owner-operators, brokers and small fleets: **list each registrant with its vehicle count and see the Unified
 Carrier Registration fee bracket, the fee, how many more trucks fit before the fee jumps, and the cost per vehicle and per mile.**
 Nothing is uploaded.

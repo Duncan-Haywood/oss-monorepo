@@ -1,5 +1,7 @@
 # QCD Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/qcd-calculator/>
+
 A free browser tool: **type your IRA distribution, Social Security and other income and the gift you plan to make,
 and see whether a qualified charitable distribution (QCD) beats giving the same cash.** It shows AGI, taxable
 Social Security, the senior deduction, federal and state tax for each route, what the gift really costs after tax,

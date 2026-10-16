@@ -1,5 +1,7 @@
 # Heat Pump vs Furnace Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/heat-pump-vs-furnace-calculator/>
+
 A free browser tool for homeowners replacing a furnace: **enter your gas use, your gas and electricity prices,
 the heat pump's COP and the two quotes, and see the heating cost per million BTU, the break-even COP, payback
 against a new furnace and AC, and the lifetime difference.** Nothing is uploaded.

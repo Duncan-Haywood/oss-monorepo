@@ -1,5 +1,7 @@
 # Christmas Tree Farm Profit Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/christmas-tree-farm-profit-planner/>
+
 A free browser tool for people planting or running a Christmas tree plantation.
 Enter acres per year, survival, prices and costs. It lays out cash flow year by
 year across planting blocks, finds the payback year, the deepest cash hole, NPV

@@ -1,5 +1,7 @@
 # Home Staging Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/home-staging-bid-calculator/>
+
 Independent home stagers (one or a few furniture packages, not a franchise
 with a warehouse team) can use this free browser-local calculator to price a
 vacant-listing staging job — from the included term, furniture carrying cost,

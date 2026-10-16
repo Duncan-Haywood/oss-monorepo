@@ -1,5 +1,7 @@
 # Braiding Studio Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/braiding-studio-profit-calculator/>
+
 A free browser tool for independent braiding studio owners: **enter your knotless, cornrow and twist prices, chair minutes, supplies, no-show rate, rent, equipment, retail attach and commission, and get profit per style and per chair hour, the price each service needs for your target margin, break-even styles per week, what no-shows cost, and what the same chair nets you braiding it yourself, employing a braider on commission, or renting it by the week**. Nothing is uploaded.
 
 After using this, you can now **decide whether to braid, employ or rent out a chair, and what a braiding appointment has to cost to clear your target margin once rent and empty slots are counted**, which used to take a spreadsheet and a guess.

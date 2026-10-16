@@ -1,5 +1,7 @@
 # VS Code Extension Drift Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/vscode-extension-drift-check/>
+
 A free tool that snapshots which VS Code (or Cursor, Windsurf, VSCodium)
 extensions are installed and tells you exactly which ones changed their
 **activation surface** — a new startup-activation trigger, a new extension

@@ -1,5 +1,7 @@
 # Studio Class Slot Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/studio-class-slot-optimizer/>
+
 A free browser tool for fitness, yoga, pilates and dance studios: **paste or upload an attendance log (one row per
 class held: slot, attended, optional capacity) and see which timetable slots lose money, your break-even class size,
 and which classes are full enough to need a second one.** Nothing is uploaded.

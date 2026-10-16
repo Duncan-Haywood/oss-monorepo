@@ -1,5 +1,7 @@
 # Stripe Payout To Journal
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/stripe-payout-to-journal/>
+
 Free browser tool that turns a Stripe payout reconciliation report (or balance-transactions export)
 into balanced accounting journals for Xero, QuickBooks Online and QuickBooks Desktop (IIF). It
 proves each payout's rows add up to the payout (from the payout row, or a deposit typed in from the

@@ -1,5 +1,7 @@
 # Snow Removal Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/snow-removal-bid-calculator/>
+
 A free browser calculator for independent snow-removal contractors. It prices
 a winter the way the job actually costs money — minutes on the route, a loaded
 truck, salt, and the storm count you expect — and shows the seasonal, the

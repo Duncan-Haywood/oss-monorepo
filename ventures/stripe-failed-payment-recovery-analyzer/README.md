@@ -1,5 +1,7 @@
 # Stripe Failed Payment Recovery Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/stripe-failed-payment-recovery-analyzer/>
+
 A free browser tool for subscription founders: **drop in a Stripe payments CSV
 export and see how much failed-payment revenue you recover, how much you lose,
 and which declines are fixable.** The file is read in the browser; nothing is

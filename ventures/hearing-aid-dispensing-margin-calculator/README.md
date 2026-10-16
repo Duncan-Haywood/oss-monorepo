@@ -1,5 +1,7 @@
 # Hearing Aid Dispensing Margin Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hearing-aid-dispensing-margin-calculator/>
+
 A free browser tool for hearing aid clinics and audiology practices: **type your sale types and costs and see what each kind of hearing aid sale really earns** after the device and accessories, an allowance for trial-period returns, the follow-up visits bundled into the price, commission, card and plan fees and the clinician's time, which sales use a clinician hour best, the patient price that hits your target margin, how plan-funded sales compare with private-pay sales, how over-the-counter price pressure would hit the month, and how many sales a month cover fixed costs.
 
 After using this, you can **see which bundles and tiers earn less than they look like they do once returns and follow-up visits are counted, and what to charge to reach your target**, which used to be a spreadsheet nobody kept current.

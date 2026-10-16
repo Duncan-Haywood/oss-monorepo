@@ -1,5 +1,7 @@
 # LLM Output Regression Diff
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/llm-output-regression-diff/>
+
 Did the new model or prompt break your outputs? Save outputs from before and after a model swap or prompt
 edit as JSONL, and get a per-case list of what broke: invalid JSON, lost keys, changed types, new
 refusals, unclosed code fences, truncation, lost numbers, lost lists/headings/code blocks, large length

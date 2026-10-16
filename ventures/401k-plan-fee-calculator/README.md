@@ -1,5 +1,7 @@
 # 401(k) Plan Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/401k-plan-fee-calculator/>
+
 A free browser tool for small-business owners and plan committees: **enter your funds, recordkeeper, advisor and admin fees and see the
 all-in cost as a percent of assets and per participant, the gap to an editable size benchmark, and what that gap costs an average
 participant over time.** Nothing is uploaded.

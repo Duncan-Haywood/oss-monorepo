@@ -1,5 +1,7 @@
 # Actions Runtime Deprecation Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/actions-runtime-deprecation-check/>
+
 A free, zero-dependency CLI that scans `.github/workflows/` for steps pinned to
 a first-party `actions/*` version that runs on a deprecated or ageing Node
 runtime:

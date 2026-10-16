@@ -1,5 +1,7 @@
 # Small-Batch Run Size Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/small-batch-run-size-optimizer/>
+
 A free browser tool for small makers who produce in batches: **enter what you sell in a year, what a changeover costs and what stock costs to hold, and get the run size with the lowest yearly cost** for each product. It rounds to your pack or mould size, keeps runs inside shelf life, and shows what the plan saves against the run size you use today. Nothing is uploaded.
 
 After using this, you can **stop picking run sizes by habit**: see the yearly dollars lost to too many changeovers or too much stock, and the range of run sizes that cost almost the same, so you can pick a convenient one.

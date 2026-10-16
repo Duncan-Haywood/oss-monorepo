@@ -1,5 +1,7 @@
 # Git Timesheet
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/git-timesheet/>
+
 Turn `git log` into estimated hours per day, a plain-language summary of what shipped, and the
 amount to invoice at your rate — Markdown, CSV or JSON. After using this, a freelancer or agency
 can send a client a readable work report in a minute, which used to mean reconstructing the week

@@ -1,5 +1,7 @@
 # 83(b) Election Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/section-83b-election-calculator/>
+
 A free browser tool for founders and startup employees holding vesting restricted stock: **enter your
 shares, the price you pay, the value per share at grant and at sale, and see the tax due at grant with an
 83(b) election, the tax you would pay at each vest date without one, the break-even sale value, the tax

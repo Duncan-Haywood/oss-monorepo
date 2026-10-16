@@ -1,5 +1,7 @@
 # Databricks Cluster Cost Advisor
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/databricks-cluster-cost-advisor/>
+
 Why is your Databricks bill so high? Paste one row per cluster and see what each costs in dollars,
 scheduled work paying the all-purpose DBU rate, clusters that never terminate, and long
 autotermination tails, each with the setting to change. Browser page or zero-dependency CLI.

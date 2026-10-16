@@ -1,5 +1,7 @@
 # Shed Install Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shed-install-bid-calculator/>
+
 A free browser calculator for shed dealers and backyard-building crews. It
 prices an install the way the trade actually loses money — pad, delivery
 miles, crane versus forklift, then ramp, windows, loft, and haul-away —

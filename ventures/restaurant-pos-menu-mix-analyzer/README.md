@@ -1,5 +1,7 @@
 # Restaurant POS Menu Mix Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/restaurant-pos-menu-mix-analyzer/>
+
 A free browser tool for restaurant owners: **drop in your POS item-sales export and see every
 menu item as a Star, Plowhorse, Puzzle or Dog.** The file is read in the browser; nothing is
 uploaded and no POS login is needed.

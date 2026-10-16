@@ -1,5 +1,7 @@
 # Roth Conversion Bracket-Fill Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/roth-conversion-bracket-fill-calculator/>
+
 A free browser calculator for 2026 **Roth conversions**. Enter your income
 before converting and a target bracket; it returns the exact conversion that
 fills the bracket, the federal tax it costs, what every bracket would allow,

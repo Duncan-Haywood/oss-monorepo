@@ -1,5 +1,7 @@
 # Experience Mod Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/experience-mod-calculator/>
+
 A free browser tool for contractors and small employers: **type the values from your workers' comp experience rating worksheet and your claims, and see
 your estimated experience mod, the premium it adds or saves, and what each claim costs you per year and over the three years it counts.** Nothing is
 uploaded.

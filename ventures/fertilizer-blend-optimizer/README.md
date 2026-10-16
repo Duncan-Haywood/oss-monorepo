@@ -1,5 +1,7 @@
 # Fertilizer Blend Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fertilizer-blend-optimizer/>
+
 Free, browser-only least-cost fertilizer program solver for row-crop, hay and
 garden growers. List products with a price per ton and a grade (N, P2O5, K2O,
 S), enter the pounds per acre of each nutrient your crop needs, and it finds the

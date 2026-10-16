@@ -1,5 +1,7 @@
 # Gutter Cleaning Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/gutter-cleaning-bid-calculator/>
+
 A free browser calculator for independent gutter-cleaning contractors. It
 prices a visit the way the job actually takes time — each run of trough,
 the story it sits on, the pitch, the guards, the debris, and every

@@ -1,5 +1,7 @@
 # ICP Lens
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/icp-lens/>
+
 Learn who your best customers are from your own won and lost list, then rank
 the prospects you already have by how much they look like them. For founders
 and small B2B sales teams who today decide "who do I email first" by gut.

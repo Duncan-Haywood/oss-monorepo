@@ -1,5 +1,7 @@
 # Project Estimate Calibrator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/project-estimate-calibrator/>
+
 A free browser tool for freelancers, agencies and contractors: **paste or upload a CSV of finished projects (estimate and
 what it actually took) and get calibrated 50/70/80/90% outcomes for your next estimate, the buffer and fixed price that
 covers them, the chance a fixed price loses money, and a back-test on your most recent projects.** Nothing is uploaded.

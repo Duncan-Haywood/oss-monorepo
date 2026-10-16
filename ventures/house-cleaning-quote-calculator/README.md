@@ -1,5 +1,7 @@
 # House Cleaning Quote Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/house-cleaning-quote-calculator/>
+
 Free, browser-only tool for residential cleaning business owners. Enter the home,
 your own cleaning pace, wages, supplies and drive time, and the frequencies you
 sell (one-time, weekly, every two weeks, monthly) with the discount each gets. It

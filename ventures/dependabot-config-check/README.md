@@ -1,5 +1,7 @@
 # Dependabot Config Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/dependabot-config-check/>
+
 A free tool that lints `.github/dependabot.yml` and compares it with your
 repository's file list to find **manifests Dependabot never updates**.
 

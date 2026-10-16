@@ -1,5 +1,7 @@
 # Snow Plow Contract Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/snow-plow-contract-calculator/>
+
 **Compare per-push, per-inch, seasonal flat, capped and hybrid snow plow contracts on your own route across a low, normal and high snow year, and audit which contract model has actually paid you best per hour.** List your sites and the storms you expect, enter what your truck, driver, fuel, blade wear, deadhead and salt cost, and get each model's expected season revenue and effective hourly in each kind of year, the storm count where it stops paying, the seasonal flat price that clears your target in a low year versus the price that loses money in a high year, and a walk-away price. Paste past site-seasons with contract model, revenue and hours and see net hourly by model. Browser page or zero-dependency CLI, for independent snow plowing and ice-management contractors.
 
 After using this, you can now see before you sign a seasonal contract what it pays if the winter is mild and what it costs you if it is not, which used to take a spreadsheet and a guess about the weather.

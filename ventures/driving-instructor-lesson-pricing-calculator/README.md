@@ -1,5 +1,7 @@
 # Driving Instructor Lesson Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/driving-instructor-lesson-pricing-calculator/>
+
 A free browser calculator for independent driving instructors (ADIs and
 behind-the-wheel or driver-ed instructors who own their car): profit per
 lesson, break-even price, the price that reaches a take-home target, and the

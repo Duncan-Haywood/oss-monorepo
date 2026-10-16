@@ -1,5 +1,7 @@
 # ISO Exercise AMT Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/iso-exercise-amt-calculator/>
+
 A free browser tool for employees with incentive stock options: **enter your income and options and see
 how many you can exercise this year before the alternative minimum tax starts, and the AMT and cash
 needed if you exercise more.** Nothing is uploaded.

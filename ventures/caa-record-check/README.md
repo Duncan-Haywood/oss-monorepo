@@ -1,5 +1,7 @@
 # CAA Record Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/caa-record-check/>
+
 A free tool for anyone who manages a domain's DNS or has hit a confusing "CAA record prevents
 issuance" certificate error: resolves the CAA record set that actually governs certificate issuance
 for a hostname, following RFC 8659's tree-walk up to the first ancestor domain that publishes one

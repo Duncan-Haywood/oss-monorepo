@@ -1,5 +1,7 @@
 # MCP Config Risk Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mcp-config-risk-check/>
+
 A free tool that checks a pasted Model Context Protocol (MCP) server config
 — `mcp.json`, `claude_desktop_config.json`, a VS Code `.vscode/mcp.json`, or
 any list of server entries — for structural risk patterns: a server granted

@@ -1,5 +1,7 @@
 # Charity Bunching Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/charity-bunching-planner/>
+
 A free browser tool for donors whose itemized deductions sit below the standard deduction: **enter what you
 give each year and your deductions, and see exactly which years to fund a donor-advised fund (DAF) so the
 same giving saves the most tax**, next to giving directly every year and the regular every-k-years cycles.

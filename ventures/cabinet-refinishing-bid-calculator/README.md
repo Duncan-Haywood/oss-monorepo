@@ -1,5 +1,7 @@
 # Cabinet Refinishing Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cabinet-refinishing-bid-calculator/>
+
 A free browser calculator for cabinet painters. It prices a kitchen refinish
 from the parts a published per-door number cannot see — drawer fronts,
 face-frame openings, hardware remove-and-rehang, degrease, and a dark-to-light

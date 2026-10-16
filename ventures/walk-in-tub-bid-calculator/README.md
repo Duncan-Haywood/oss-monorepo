@@ -1,5 +1,7 @@
 # Walk-In Tub Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/walk-in-tub-bid-calculator/>
+
 A free browser calculator for bath remodelers and accessibility
 contractors. It prices a walk-in tub install the way the trade
 actually loses money — alcove swap versus drain relocate versus

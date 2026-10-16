@@ -1,5 +1,7 @@
 # Stripe Churn and Cohort Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/stripe-churn-cohort-analyzer/>
+
 A free browser tool for subscription founders: **drop in a Stripe subscriptions
 CSV export and see MRR, churn and cohort retention.** The file is read in the
 browser; nothing is uploaded.

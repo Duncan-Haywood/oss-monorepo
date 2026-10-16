@@ -1,5 +1,7 @@
 # YouTube Sponsorship Rate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/youtube-sponsorship-rate-calculator/>
+
 A free, no-sign-up calculator that turns a YouTube channel's **median views**,
 niche and deal format (integration, dedicated video, short mention) into a
 sponsorship price range, then adds what to charge on top for **paid-usage /

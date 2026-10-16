@@ -1,5 +1,7 @@
 # etsy-listing-csv-check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/etsy-listing-csv-check/>
+
 Checks an Etsy bulk listing CSV in the browser before it is uploaded: title length, tag count and
 length, price, currency, quantity, image links, variation values, SKUs and Excel damage, each with
 its line number, plus a safe-fixes pass that only touches formatting.

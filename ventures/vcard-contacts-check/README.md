@@ -1,5 +1,7 @@
 # Vcard Contacts Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/vcard-contacts-check/>
+
 Free browser tool that checks a vCard (.vcf) contacts file for what makes Google Contacts, Apple
 Contacts and Outlook skip, blank or garble contacts: cards with no FN or N, malformed emails and
 phone numbers, impossible birthdays, quoted-printable text in 3.0 and 4.0 cards, unclosed cards,

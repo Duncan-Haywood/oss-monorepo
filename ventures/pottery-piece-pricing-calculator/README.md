@@ -1,5 +1,7 @@
 # Pottery Piece Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pottery-piece-pricing-calculator/>
+
 A free browser tool for potters who sell. Enter clay, glaze, kiln loads,
 breakage, your hours and studio rent. It shows the true cost of a *sellable*
 piece, the retail and wholesale price that reaches your target margin, your

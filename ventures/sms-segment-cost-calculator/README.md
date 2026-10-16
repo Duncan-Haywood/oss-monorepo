@@ -1,5 +1,7 @@
 # SMS Segment Cost Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sms-segment-cost-calculator/>
+
 After using this, you can see exactly why a text message bills as three
 segments instead of one, which character caused it, and what fixing it saves per
 month at your volume — which used to mean reading provider docs and counting

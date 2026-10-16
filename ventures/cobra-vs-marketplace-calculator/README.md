@@ -1,5 +1,7 @@
 # COBRA vs Marketplace Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cobra-vs-marketplace-calculator/>
+
 After using this, you can see whether keeping your old employer plan on COBRA or buying a marketplace plan
 costs less over the months you need coverage, at five levels of medical care, and the dates you must act by —
 which used to mean comparing two plan PDFs and an election notice by hand.

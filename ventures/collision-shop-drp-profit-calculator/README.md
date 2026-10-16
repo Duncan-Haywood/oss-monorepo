@@ -1,5 +1,7 @@
 # Collision Shop DRP Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/collision-shop-drp-profit-calculator/>
+
 A free browser tool for collision repair shop owners deciding whether to sign (or
 keep) an insurer direct repair program. Enter a typical repair order at your retail
 prices and at the program's labor rate, parts discount and paint-and-materials cap,

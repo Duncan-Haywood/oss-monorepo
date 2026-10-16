@@ -1,5 +1,7 @@
 # Cell Tower Lease Buyout Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cell-tower-lease-buyout-calculator/>
+
 A free browser tool for landowners with a cell tower, rooftop or ground lease who have received an
 unsolicited lump-sum offer for their future rent. Type the rent, escalator, expected added carriers,
 yearly tenant-exit chance and the offer. It returns what the rent is worth at your own discount

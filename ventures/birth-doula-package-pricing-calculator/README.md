@@ -1,5 +1,7 @@
 # Birth Doula Package Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/birth-doula-package-pricing-calculator/>
+
 A free browser tool: **type your package price and what a client really costs you (visits, hours at the birth, driving, on-call days, backup cover, overhead) and see your pay per worked hour and the price that reaches your target.** It also shows how a 30-hour labor changes the answer and how many births a year your income goal takes. Nothing is uploaded.
 
 After using this, you can **price a birth package from the hourly rate you want**, which used to be a guess against what the doula down the road charges.

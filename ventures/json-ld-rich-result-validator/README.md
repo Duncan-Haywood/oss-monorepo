@@ -1,5 +1,7 @@
 # JSON-LD Rich Result Validator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/json-ld-rich-result-validator/>
+
 A free browser tool for site owners, SEOs, developers and agencies: **paste a page's HTML or a JSON-LD block and
 see why it is not eligible for rich results.** It finds every structured-data entity, lists the required
 properties that are missing and the recommended ones that would help, and flags the usual traps: a price written

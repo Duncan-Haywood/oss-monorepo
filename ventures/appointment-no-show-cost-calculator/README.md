@@ -1,5 +1,7 @@
 # Appointment No-Show Cost Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-cost-calculator/>
+
 A free browser tool for small medical, dental, therapy, chiropractic, vet and
 salon practices. Enter your schedule, visit revenue, no-show and late-cancel
 rates, the share of empty slots you refill, a no-show fee or deposit, and what

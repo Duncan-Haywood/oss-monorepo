@@ -1,5 +1,7 @@
 # Market Event Picker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/market-event-picker/>
+
 The Saturday festival pays the biggest booth fee, but it blocks the morning market and the evening rally
 that together net more. Paste the markets, fairs and festivals you could work, with expected sales, booth
 fee or percentage cut, travel and hours, and see the exact set that earns the most after costs, with the

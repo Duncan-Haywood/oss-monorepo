@@ -1,5 +1,7 @@
 # Commercial Lease Effective Rent Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/commercial-lease-effective-rent-calculator/>
+
 A free browser tool for small-business tenants (retail, restaurants, clinics, studios, offices, light industrial)
 weighing commercial lease offers: **enter up to three offers and see each one's net effective rent, its levelized
 all-in cost per square foot, what leaving early costs, and the base rent that would make a worse offer match the best

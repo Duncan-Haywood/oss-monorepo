@@ -1,5 +1,7 @@
 # Beef Cattle Ration Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/beef-cattle-ration-optimizer/>
+
 Free, browser-only least-cost ration formulator for beef cattle. List feeds with
 a price per ton, dry matter and protein, TDN, calcium and phosphorus; choose an
 animal class; and it finds the pounds of each feed per head per day that meet

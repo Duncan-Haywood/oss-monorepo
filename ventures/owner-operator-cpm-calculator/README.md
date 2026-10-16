@@ -1,5 +1,7 @@
 # Owner Operator Cost Per Mile Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/owner-operator-cpm-calculator/>
+
 A free browser calculator for independent owner-operators. It costs a week of
 running — loaded miles, deadhead, fuel, the truck note, insurance, and
 per-mile reserves — and shows the all-in cost per mile plus the **loaded rate

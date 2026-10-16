@@ -1,5 +1,7 @@
 # Tax Lien Certificate Yield Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tax-lien-certificate-yield-calculator/>
+
 A free browser tool for people who buy county tax lien certificates. Type the interest rule from
 the sale terms (simple annual, percent per month, or percent per six-month period, with any cap or
 minimum), the certificate face, premium, fees and the later taxes you expect to pay. It returns

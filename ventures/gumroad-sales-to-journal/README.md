@@ -1,5 +1,7 @@
 # Gumroad Sales To Journal
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/gumroad-sales-to-journal/>
+
 Free browser tool that turns a Gumroad sales export into balanced accounting journals for Xero,
 QuickBooks Online and QuickBooks Desktop (IIF). It splits every sale into product sales, shipping
 income, tax collected and Gumroad's fee, books refunds separately instead of the net payout, proves

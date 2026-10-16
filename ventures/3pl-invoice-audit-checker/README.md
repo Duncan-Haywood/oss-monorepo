@@ -1,5 +1,7 @@
 # 3PL Invoice Audit Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/3pl-invoice-audit-checker/>
+
 **Did your 3PL bill you what your contract says, for the activity your own records show?** Enter the rate card from your 3PL agreement (receiving per pallet or carton, storage per pallet or bin per month, pick fee for the first and each additional unit, pack and materials, returns, kitting, account minimum, long-term storage, fuel and handling surcharges), the counts from your WMS and order export, and paste the invoice lines as CSV (`description,qty,rate,amount`). The checker recomputes every line and lists what looks recoverable, biggest first, with the record that proves each one.
 
 Open `index.html` in a browser. It needs no account, network request or API key. Export the findings as CSV, copy a ready-to-send dispute note, or copy a shareable link (the inputs live in the link itself).

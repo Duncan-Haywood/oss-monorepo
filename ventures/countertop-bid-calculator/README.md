@@ -1,5 +1,7 @@
 # Quartz & Granite Countertop Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/countertop-bid-calculator/>
+
 A free browser calculator for stone fabricators. It prices a quartz or granite
 kitchen the way the shop actually loses money — layout waste into whole slabs,
 polished sink and cooktop holes, edge profile, backsplash, and waterfall ends —

@@ -1,5 +1,7 @@
 # Severance Package Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/severance-package-calculator/>
+
 A free browser tool: **type a severance offer and your situation and see whether the weeks are in the usual
 range, what you take home as a lump sum now, a lump sum in January or salary continuation, the COBRA gap, the
 unemployment benefits at risk, your runway, and a list of what to ask for.** Nothing is uploaded.

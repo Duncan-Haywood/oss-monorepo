@@ -1,5 +1,7 @@
 # Camt053 Statement Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/camt053-statement-check/>
+
 Free browser tool that checks an ISO 20022 camt.053 XML bank statement before it goes into
 QuickBooks, Xero, Sage, DATEV, Exact, Moneybird or a spreadsheet, and says why an import fails or
 does not reconcile: opening balance plus booked entries that do not equal the closing balance (and

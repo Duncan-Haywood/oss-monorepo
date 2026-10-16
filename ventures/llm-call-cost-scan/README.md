@@ -1,5 +1,7 @@
 # LLM Call Cost Scan
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/llm-call-cost-scan/>
+
 Find the OpenAI, Anthropic and Gemini calls in your code that quietly cost
 money — before they run.
 

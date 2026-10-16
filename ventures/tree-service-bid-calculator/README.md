@@ -1,5 +1,7 @@
 # Tree Service Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tree-service-bid-calculator/>
+
 A free browser calculator for independent tree-service owners. It prices a
 removal stop the way the job actually costs — wood volume from the square of
 DBH, then access, targets, stump grinding, haul, travel, and the loaded crew —

@@ -1,5 +1,7 @@
 # Asbestos Abatement Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/>
+
 Free browser-local bid calculator for licensed asbestos abatement
 contractors quoting a removal job. After using this, you can now price a
 job from what actually drives the cost — OSHA/EPA containment class (Class

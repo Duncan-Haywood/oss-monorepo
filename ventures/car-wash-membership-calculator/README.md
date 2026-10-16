@@ -1,5 +1,7 @@
 # Car Wash Membership Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/car-wash-membership-calculator/>
+
 Free, browser-only tool for car wash owners and managers weighing an unlimited
 wash plan. Enter plan price, single-wash price, cost per wash, how often each
 kind of member washes, churn, signup cost and tunnel hours. It shows net per

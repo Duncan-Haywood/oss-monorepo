@@ -1,5 +1,7 @@
 # eBay Fee & Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/>
+
 A free eBay fee and profit calculator for resellers. It shows what an order
 leaves after the final value fee, the per-order fixed fee, promoted-listings
 and international fees, shipping, packaging, and — the part generic fee

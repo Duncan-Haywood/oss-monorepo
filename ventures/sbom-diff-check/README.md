@@ -1,5 +1,7 @@
 # SBOM Diff Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sbom-diff-check/>
+
 A free tool that compares two SBOM (Software Bill of Materials) documents —
 CycloneDX or SPDX JSON, from `syft`, `docker sbom`, `trivy`, `cdxgen`, or
 similar — and reports exactly which packages were added, removed, or changed

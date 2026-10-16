@@ -1,5 +1,7 @@
 # Android Data Safety Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/>
+
 Two free, related checkers for Android developers preparing a Google Play
 submission, sharing one venture, one license, and one usage counter -- see
 [Target API level checker](#target-api-level-checker) below for the second.

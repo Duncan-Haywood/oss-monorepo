@@ -1,5 +1,7 @@
 # Shift Rotation Schedule Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shift-rotation-schedule-generator/>
+
 Generate rotating shift calendars for **Pitman 2-2-3, 4-on-4-off, 3-on-3-off, DuPont (28-day)
 and 24/48 / 48/96** patterns. See the real hours per week, the worst 7-day stretch, days off and
 full weekends off a year; find your crew and cycle day from a few dates you remember; export an

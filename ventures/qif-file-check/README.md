@@ -1,5 +1,7 @@
 # Qif File Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/qif-file-check/>
+
 Free browser tool that checks a QIF (Quicken Interchange Format) bank or card export before it goes
 into Quicken, QuickBooks, Xero, YNAB, GnuCash or Banktivity, and says why an import fails or posts
 wrong: no !Type header, a last record with no closing ^, dates whose day/month order the file cannot

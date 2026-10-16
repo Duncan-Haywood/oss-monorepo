@@ -1,5 +1,7 @@
 # Repository Branch Hygiene
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/repository-branch-hygiene/>
+
 A local, read-only scanner for GitHub-heavy teams that need to understand stale
 branches before deleting anything. It turns a portable snapshot into a report
 and a recovery manifest.

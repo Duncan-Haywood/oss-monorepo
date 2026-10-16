@@ -1,5 +1,7 @@
 # Quickbooks Iif File Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/quickbooks-iif-file-check/>
+
 Free browser tool that checks a QuickBooks Desktop IIF (Intuit Interchange Format) import file
 before it goes in, and says why the import fails or posts wrong: a transaction with no ENDTRNS row,
 TRNS and SPL amounts that do not sum to zero, a row with more columns than its header (a stray tab),

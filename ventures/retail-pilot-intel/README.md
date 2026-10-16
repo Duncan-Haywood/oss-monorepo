@@ -1,5 +1,7 @@
 # Retail Pilot Intel
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/retail-pilot-intel/>
+
 Privacy-first retail analytics for small-format pilot stores (initial target: ~10 m² leather boutique, Italy).
 
 **Stack:** TypeScript monorepo (pnpm), TSX documentation site, Node 22+ with built-in SQLite.

@@ -1,5 +1,7 @@
 # Docker Build Secrets Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/docker-build-secrets-check/>
+
 A free tool that scans Dockerfiles for build-time secret exposure: `ENV` or
 `ARG` instructions whose name looks like a secret, and `COPY`/`ADD` of a
 handful of well-known credential files (`.env`, `id_rsa`, `.npmrc`,

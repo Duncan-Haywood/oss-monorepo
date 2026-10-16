@@ -1,5 +1,7 @@
 # Object Storage Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/object-storage-pricing-calculator/>
+
 Price Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, DigitalOcean Spaces and Hetzner Object Storage
 side by side at the GB you store and the GB you serve each month, see the 12-month spend under your
 growth rate, and find the egress level where the cheapest provider changes — before you build on one.

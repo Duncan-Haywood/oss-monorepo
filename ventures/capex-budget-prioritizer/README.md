@@ -1,5 +1,7 @@
 # Capex budget prioritizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/capex-budget-prioritizer/>
+
 After using this, you can now see which equipment, vehicle, software or building projects to fund from a limited budget,
 with the combination worth the most in net present value checked exactly, which used to take a spreadsheet and a guess at
 which projects to leave out.

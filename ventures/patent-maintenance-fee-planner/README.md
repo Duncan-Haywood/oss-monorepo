@@ -1,5 +1,7 @@
 # Patent Maintenance Fee Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/patent-maintenance-fee-planner/>
+
 **Which US patent maintenance fees are due, when does the surcharge start, when does the patent expire, and what will the portfolio cost?** Paste patents with grant dates and entity size. The planner shows, for the next fee on each patent, the window-open date, the no-surcharge due date, the end of the surcharge period and the expiry date if unpaid; a multi-year fee budget; what letting chosen patents lapse would save; and exports a CSV and an `.ics` calendar file with a reminder and a last-day event per fee.
 
 Open `index.html` in a browser. No account, network request or API key.

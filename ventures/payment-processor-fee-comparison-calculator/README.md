@@ -1,5 +1,7 @@
 # Payment Processor Fee Comparison Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/payment-processor-fee-comparison-calculator/>
+
 A free browser tool for small merchants, market vendors, food trucks, salons and online sellers: **enter your monthly card sales, your average sale and each
 processor's quote, and see the monthly bill, the yearly bill and the effective rate on your sales**, plus how that rate moves as your average sale shrinks or
 grows. Nothing is uploaded.

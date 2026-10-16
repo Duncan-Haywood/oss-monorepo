@@ -1,5 +1,7 @@
 # Fishing Crew Share Settlement Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fishing-crew-share-settlement-calculator/>
+
 A free browser tool for commercial fishing boats. Enter the catch (species,
 pounds, price), the costs taken off the top (commission, fuel, ice, bait,
 food), the boat's percentage and each crew member's shares. You get every

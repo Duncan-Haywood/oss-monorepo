@@ -1,5 +1,7 @@
 # GraphQL Introspection Exposure Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/>
+
 A free tool for API developers: sends **one real introspection query** to a
 GraphQL endpoint URL you choose and reports whether introspection is
 **enabled** — exposing every query, mutation, and subscription field name,

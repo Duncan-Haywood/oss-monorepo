@@ -1,5 +1,7 @@
 # Estimate Maker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/estimate-maker/>
+
 After using this, you can send a clear estimate with good, better and best
 options in two minutes, which used to mean a paid field-service app or a Word
 template, and see which of your estimates you actually win.

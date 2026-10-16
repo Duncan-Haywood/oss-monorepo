@@ -1,5 +1,7 @@
 # Merchant Feed Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/>
+
 A free tool that checks a Google Merchant Center / Meta Catalog product feed
 (CSV, TSV, or JSON) against the published product-data specification, and
 reports exactly which items would be flagged and why — before the crawler

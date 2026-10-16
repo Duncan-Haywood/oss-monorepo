@@ -1,5 +1,7 @@
 # Sales Commission Plan Comparison Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sales-commission-plan-comparison-calculator/>
+
 A free browser tool for salespeople weighing offers: **enter two compensation plans (base salary, target
 variable, threshold, accelerator, cap, signing bonus, ramp) and see pay at every quota attainment, the
 attainment where the plans cross, and which one pays more at the attainment you expect.** Nothing is uploaded.

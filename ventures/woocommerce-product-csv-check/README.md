@@ -1,5 +1,7 @@
 # WooCommerce Product CSV Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/woocommerce-product-csv-check/>
+
 A free browser tool for WooCommerce store owners, agencies and catalogue editors who import
 products by CSV: **paste or drop the file and see every problem with its line number before
 the import fails or quietly creates orphaned variations, then download a cleaned copy.** The

@@ -1,5 +1,7 @@
 # Etsy Statement To Journal
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/etsy-statement-to-journal/>
+
 Free browser tool that turns an Etsy Payment account statement CSV into balanced monthly accounting
 journals for Xero, QuickBooks Online and QuickBooks Desktop (IIF). It checks every row (amount plus
 fees and taxes equals net), books gross sales, listing and transaction fees, ads, shipping labels,

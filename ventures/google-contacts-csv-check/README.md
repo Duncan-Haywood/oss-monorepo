@@ -1,5 +1,7 @@
 # Google Contacts CSV Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/google-contacts-csv-check/>
+
 A free browser tool for anyone moving contacts into Google Contacts from a phone, Outlook, a CRM or a
 spreadsheet: **paste or drop the CSV and see every problem with its line number before the import
 comes in blank or duplicates everyone, then download a cleaned copy or smaller files.** The file is

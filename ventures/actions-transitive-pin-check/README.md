@@ -1,5 +1,7 @@
 # Actions Transitive Pin Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/>
+
 After using this, you can now confirm that a reusable workflow or composite
 action you've pinned to a commit SHA doesn't itself load a third-party
 action by a mutable tag — which used to be invisible, because every

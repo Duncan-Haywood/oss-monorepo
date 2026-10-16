@@ -1,5 +1,7 @@
 # Substack Subscriber Export Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/substack-subscriber-export-analyzer/>
+
 A free browser tool for Substack writers: **drop in your subscribers export CSV and see
 how many readers pay, how long they stay and what is coming due.** The file is read in
 the browser; nothing is uploaded and no Substack login is needed.

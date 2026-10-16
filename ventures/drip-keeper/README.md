@@ -1,5 +1,7 @@
 # Drip Keeper
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/drip-keeper/>
+
 After using this, you can now **send onboarding, trial and win-back email
 sequences triggered by what your customers do, and stop them the moment they
 convert**, from one small server you run, instead of paying a lifecycle-email

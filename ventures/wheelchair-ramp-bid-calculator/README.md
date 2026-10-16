@@ -1,5 +1,7 @@
 # Wheelchair Ramp Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/wheelchair-ramp-bid-calculator/>
+
 A free browser calculator for accessibility and deck crews. It prices a
 residential wheelchair ramp from the rise, the landings a lineal-foot special
 cannot see, both-side handrails, surface, demo, and permit — and shows the

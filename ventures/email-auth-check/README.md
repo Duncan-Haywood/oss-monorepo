@@ -1,5 +1,7 @@
 # Email Authentication Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/email-auth-check/>
+
 Your outbound mail is landing in spam, or you're not sure whether someone
 could send email that looks like it came from your domain -- and the usual
 answer is a paid dashboard behind a signup wall, or a bare pass/fail badge

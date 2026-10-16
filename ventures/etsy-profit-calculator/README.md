@@ -1,5 +1,7 @@
 # Etsy Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/etsy-profit-calculator/>
+
 The free Etsy profit calculator shows what an order leaves after listing fees,
 transaction fees, payment processing, offsite ads, shipping, materials, and
 other per-order costs — including return on the cash you put into materials and

@@ -1,5 +1,7 @@
 # Flaky Test Finder
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/>
+
 A free tool that classifies tests as **flaky**, **broken**, or **stable**
 from two or more JUnit-XML test reports — the format pytest, Jest (via
 jest-junit), Go (via go-junit-report), PHPUnit, RSpec (via

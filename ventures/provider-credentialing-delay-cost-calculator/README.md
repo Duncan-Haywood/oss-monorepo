@@ -1,5 +1,7 @@
 # Provider Credentialing Delay Cost Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/provider-credentialing-delay-cost-calculator/>
+
 A free browser tool for medical, dental and therapy practices: **list each new clinician and the days they wait for payer enrollment, and see what the wait costs** in lost and deferred revenue, pay going out while visits cannot be billed, and what filing applications earlier would have saved.
 
 After using this, you can **put a dollar figure on starting credentialing paperwork during recruiting instead of on day one**, which used to be a gut feeling in a hiring meeting.

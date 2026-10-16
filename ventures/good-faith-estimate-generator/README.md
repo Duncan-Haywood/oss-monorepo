@@ -1,5 +1,7 @@
 # Good Faith Estimate Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/good-faith-estimate-generator/>
+
 A free browser tool for small practices and clinics that see self-pay and uninsured
 patients. List the expected services with codes, diagnoses and charges; it builds a
 printable Good Faith Estimate, totals it per billing provider, works out when it has

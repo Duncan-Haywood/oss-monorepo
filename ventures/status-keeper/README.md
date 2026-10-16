@@ -1,5 +1,7 @@
 # status-keeper
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/status-keeper/>
+
 After using this, you can now **publish a status page that stays up when your
 app goes down**, with uptime checks, 90-day bars, incident updates and alerts,
 on your own server, which used to mean paying Statuspage, Instatus or Better

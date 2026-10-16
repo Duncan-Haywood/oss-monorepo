@@ -1,5 +1,7 @@
 # Prometheus Cardinality Cost
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/prometheus-cardinality-cost/>
+
 Find the labels inflating your Prometheus / Grafana Cloud / Datadog-style
 metrics bill — from one `/metrics` scrape, before the invoice.
 

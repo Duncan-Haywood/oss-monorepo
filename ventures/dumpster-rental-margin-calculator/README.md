@@ -1,5 +1,7 @@
 # Dumpster Rental Margin Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/dumpster-rental-margin-calculator/>
+
 Independent roll-off dumpster rental operators (a truck or two and a handful
 of containers, not a full waste-hauling fleet) can use this free
 browser-local calculator to price one rental — from the included weight

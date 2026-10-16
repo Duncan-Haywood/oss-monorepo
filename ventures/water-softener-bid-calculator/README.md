@@ -1,5 +1,7 @@
 # Water Softener Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/water-softener-bid-calculator/>
+
 A free browser calculator for plumbing and water-treatment shops. It prices
 a water-softener install the way the trade actually loses money — extra
 pipe past the included run, copper versus PEX, an iron filter or

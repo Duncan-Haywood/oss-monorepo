@@ -1,5 +1,7 @@
 # Course Launch Revenue Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/course-launch-revenue-calculator/>
+
 Free, browser-only tool for creators selling an online course. Enter your email list, the share who
 visit the sales page and buy, your price, refunds, platform and processor fees, affiliate commissions
 and ad spend. It shows the net profit, where the money goes, the list size where the launch breaks

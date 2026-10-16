@@ -1,5 +1,7 @@
 # tip-pool-compliance-calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tip-pool-compliance-calculator/>
+
 A browser calculator for restaurant and bar owners that checks a mandatory
 **tip pool** against the two federal FLSA rules that govern who can legally
 be in it, and works out the tip-credit back-wage exposure a non-compliant

@@ -1,5 +1,7 @@
 # Faire Wholesale Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/faire-wholesale-calculator/>
+
 The free Faire seller fee calculator shows what a wholesale order leaves after
 marketplace commission, the one-time new-customer fee, payout-speed processing,
 and your cost of goods. It puts the **same invoice** through a marketplace first

@@ -1,5 +1,7 @@
 # AI Engineering Academy
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/>
+
 An AI-mentored, project-first engineering education platform. The goal:
 help motivated learners become world-class engineers by building real
 products, not by sitting through lectures and exams.

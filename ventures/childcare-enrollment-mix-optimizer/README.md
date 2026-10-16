@@ -1,5 +1,7 @@
 # Childcare enrollment mix optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/childcare-enrollment-mix-optimizer/>
+
 After using this, you can now see how many infants, toddlers, twos, preschoolers and school-age children to enrol to make the
 most weekly profit from your floor space, with the staffing staircase and licensing ratios built in, which used to take trial
 and error on a spreadsheet and a guess that the highest-tuition room should fill first.

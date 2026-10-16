@@ -1,5 +1,7 @@
 # brevo-contacts-csv-check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/brevo-contacts-csv-check/>
+
 Checks a Brevo (formerly Sendinblue) contacts import CSV in the browser before it is imported: emails and
 duplicates, rows with neither email nor SMS, SMS numbers with no country code or ruined by Excel,
 unquoted commas, mixed date formats and near-miss column names, each with its line number, plus a

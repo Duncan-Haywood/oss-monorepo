@@ -1,5 +1,7 @@
 # Cost Segregation Study Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cost-segregation-study-calculator/>
+
 A free browser tool for owners of rental and commercial property: **estimate what a cost segregation study could
 save in year one, and whether it still pays after the study fee, passive-loss limits and recapture on sale.**
 Nothing is uploaded.

@@ -1,5 +1,7 @@
 # Job Margin Variance
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/job-margin-variance/>
+
 Job Margin Variance is a free, local-first completed-job review for independent
 contractors. Enter the estimate and actual hours and costs to see where the job
 drifted, what the variance means in the same currency, and which assumption is

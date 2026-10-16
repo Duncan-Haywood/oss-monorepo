@@ -1,5 +1,7 @@
 # 401(k) Loan vs Withdrawal Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/401k-loan-vs-withdrawal-calculator/>
+
 A free browser tool: **type the cash you need and your 401(k) details, and see what a 401(k) loan, an early
 withdrawal and an outside loan each cost you at retirement.** Nothing is uploaded.
 

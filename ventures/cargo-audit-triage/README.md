@@ -1,5 +1,7 @@
 # cargo audit Triage
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cargo-audit-triage/>
+
 `cargo audit` lists every RustSec advisory that matches `Cargo.lock`, mixing
 vulnerabilities with unmaintained, unsound and yanked warnings, and it cannot
 say whether your code uses the crate. This tool takes `cargo audit --json`

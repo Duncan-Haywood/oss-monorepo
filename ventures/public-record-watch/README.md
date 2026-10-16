@@ -1,5 +1,7 @@
 # Public-Record Watch
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/public-record-watch/>
+
 Compare two customer-supplied public-register snapshots and get a source-linked
 change report. It is designed for credentialing teams and specialist recruiters
 who need to notice that a public license record was added, removed, or changed

@@ -1,5 +1,7 @@
 # Dog Boarding & Daycare Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/dog-boarding-daycare-pricing/>
+
 Independent dog boarding and daycare facility owners (a home-based boarder or
 a small kennel/run building — not a marketplace app) can use this free
 browser-local calculator to price a reservation from staff time, supplies,

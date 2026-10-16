@@ -1,5 +1,7 @@
 # Holiday Light Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/holiday-light-bid-calculator/>
+
 A free browser calculator for holiday lighting contractors. It prices
 Christmas and holiday lights the way the trade actually loses money —
 hang-only on customer-owned C9 versus hang-and-takedown versus full

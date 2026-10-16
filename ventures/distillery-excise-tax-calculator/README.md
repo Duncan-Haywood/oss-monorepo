@@ -1,5 +1,7 @@
 # Distillery Excise Tax Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/distillery-excise-tax-calculator/>
+
 A free browser tool for craft distillers: **enter the bottles (50 mL to 1.75 L) and bulk proof gallons that leave the bonded
 warehouse in a year, and see the federal spirits excise tax at the Craft Beverage Modernization Act rates, the tax built into each
 bottle size and a 1.5 oz pour, and what growth past 100,000 proof gallons does to the bill.** Nothing is uploaded.

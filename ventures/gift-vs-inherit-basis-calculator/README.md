@@ -1,5 +1,7 @@
 # Gift vs Inherit Basis Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/gift-vs-inherit-basis-calculator/>
+
 A free browser tool: **type the value and cost basis of a house or stock position and see the tax each path costs: gift it now (the recipient takes your low basis), let it pass at death (the basis steps up), or sell now.** It adds the federal estate tax a gift can avoid, flags Form 709, and shows how the answer moves with the years to death. Nothing is uploaded.
 
 After using this, you can **decide whether putting a child on the deed or gifting shares is worth the lost step-up** before signing anything, instead of finding the capital gains bill when they sell.

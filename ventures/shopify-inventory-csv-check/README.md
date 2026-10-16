@@ -1,5 +1,7 @@
 # shopify-inventory-csv-check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shopify-inventory-csv-check/>
+
 Checks a Shopify inventory import CSV in the browser before it is imported: the `On hand (new)` column,
 quantities that are text, fractions or have a thousands comma, tenfold jumps, duplicate variant-and-location
 rows, malformed handles, locations spelled two ways and Excel-damaged SKUs, each with its line number, plus a

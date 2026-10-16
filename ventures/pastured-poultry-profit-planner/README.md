@@ -1,5 +1,7 @@
 # Pastured Poultry Profit Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pastured-poultry-profit-planner/>
+
 A free browser tool for people raising, or thinking of raising, pasture-raised
 meat chickens. Enter batch size, losses, feed, processing and prices. It shows
 profit per batch, per bird and per hour of your own labour, the dressed price per

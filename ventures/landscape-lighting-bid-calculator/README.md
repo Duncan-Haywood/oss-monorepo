@@ -1,5 +1,7 @@
 # Landscape Lighting Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/landscape-lighting-bid-calculator/>
+
 A free browser calculator for landscape lighting contractors. It prices
 low-voltage outdoor lighting the way the trade actually loses money —
 fixtures-only on an existing transformer versus a new system with trench

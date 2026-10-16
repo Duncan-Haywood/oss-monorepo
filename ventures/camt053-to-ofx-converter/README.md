@@ -1,5 +1,7 @@
 # Camt053 To Ofx Converter
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/camt053-to-ofx-converter/>
+
 Free browser tool that converts an ISO 20022 camt.053 (XML) or SWIFT MT940 bank statement into the
 import files accounting software accepts: OFX/QBO for QuickBooks and Quicken, QIF, and Xero's
 statement CSV. It checks the statement first (opening balance plus booked entries must equal the

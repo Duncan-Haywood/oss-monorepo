@@ -1,5 +1,7 @@
 # salesforce-lead-import-csv-check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/salesforce-lead-import-csv-check/>
+
 Checks a Salesforce lead import CSV in the browser before the Data Import Wizard or Data Loader
 sees it: required LastName and Company, email format and typos, repeated emails, default picklist
 values, numeric fields, field lengths, Excel damage to phones and IDs, and mixed date orders, each

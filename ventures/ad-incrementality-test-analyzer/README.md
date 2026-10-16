@@ -1,5 +1,7 @@
 # Ad Incrementality Test Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ad-incrementality-test-analyzer/>
+
 A free browser tool for anyone who runs ads: **paste sales by store or region, name the test regions and the campaign
 start date, and get the incremental lift with an interval, incremental ROAS, profit after ad spend, and the smallest
 lift the test could have detected.** Nothing is uploaded.

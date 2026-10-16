@@ -1,5 +1,7 @@
 # DNS Configuration Evidence
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/dns-configuration-evidence/>
+
 A local, free-first recorder for customer-authorized DNS observations. Capture
 what named resolvers answer now, capture again after a change, and emit a
 source-linked report that distinguishes changed, unchanged, and inconclusive

@@ -1,5 +1,7 @@
 # Pressure Washing Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pressure-washing-bid-calculator/>
+
 A free browser calculator for pressure-washing and soft-wash contractors. It
 prices a job the way the trade actually runs one — each surface divided by
 its own production rate, plus the drive and the setup a flat per-square-foot

@@ -1,5 +1,7 @@
 # Pool Plaster / Resurfacing Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pool-plaster-bid-calculator/>
+
 A free browser calculator for pool plaster and resurfacing contractors. It
 prices a drain-and-replaster the way the trade actually loses money — floor
 plus walls (not the homeowner's length × width), finish, chip-out, spa,

@@ -1,5 +1,7 @@
 # Class Price and Minimum Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/class-price-and-minimum-optimizer/>
+
 A free browser tool for tutoring centers, music schools, studios and workshops: **enter the price and average sign-ups from past terms, plus seats, the minimum to run and what a class costs, and get the per-seat price with the highest expected profit per class offered.** It shows the chance the class runs, the chance it fills, break-even seats and the gain over your current price. Nothing is uploaded.
 
 ## Model

@@ -1,5 +1,7 @@
 # Insurance Commission Reconciler
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/insurance-commission-reconciler/>
+
 Free, private browser tool for independent insurance agencies: load your policy book and the commission statements your carriers sent, and it finds the money that did not arrive. Policies that never appeared on a statement, commission paid at a lower rate than your agreement, chargebacks on policies your book shows in force, lines paid twice (a chargeback waiting to happen), a rate that differs from what the same carrier pays you on every other policy of that line, and statements whose own total does not match their lines. It writes one review request per carrier, worded as a question, and downloads the findings as CSV.
 
 Open `index.html`. Tests: `node --test 'ventures/insurance-commission-reconciler/**/*.test.mjs'`.

@@ -1,5 +1,7 @@
 # Patreon Members Churn Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/patreon-members-churn-analyzer/>
+
 A free browser tool for Patreon creators: **drop in your Members export CSV and see who
 is leaving, what is at risk and what the fees leave you.** The file is read in the
 browser; nothing is uploaded and no Patreon account access is needed.

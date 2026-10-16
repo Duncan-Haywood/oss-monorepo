@@ -1,5 +1,7 @@
 # SBA Loan Capacity Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sba-loan-capacity-calculator/>
+
 A free browser tool for small-business owners about to talk to a lender. Lenders size a loan backwards from cash flow:
 **type in your cash flow, existing debt, rate, term and fees and get the largest loan a coverage floor (commonly 1.25x
 DSCR) supports, how the loan you want measures up, and how term, rate and a weak year change the answer.** Nothing is

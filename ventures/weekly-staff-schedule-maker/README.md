@@ -1,5 +1,7 @@
 # Weekly Staff Schedule Maker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/weekly-staff-schedule-maker/>
+
 Free, browser-only weekly schedule generator for restaurants, cafes, shops,
 salons and other small shift teams. List each person (roles, weekly hour limit,
 minimum hours, hourly rate, days off) and the shifts to cover; it assigns people

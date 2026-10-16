@@ -1,5 +1,7 @@
 # Lambda vs Fargate Cost Break-Even
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/lambda-vs-fargate-cost-breakeven/>
+
 Compare the monthly cost of **AWS Lambda, Google Cloud Run, AWS Fargate and EC2** for one workload
 and find the request volume where always-on containers beat pay-per-request. Browser page or
 zero-dependency CLI; nothing is uploaded and no cloud account is contacted.

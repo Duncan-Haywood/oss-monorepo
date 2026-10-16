@@ -1,5 +1,7 @@
 # Basement Finishing Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/basement-finishing-bid-calculator/>
+
 A free browser calculator for basement remodelers. It prices a
 basement finish the way the trade actually loses money — rec-room
 paint and a drop ceiling versus framed-finish versus legal living,

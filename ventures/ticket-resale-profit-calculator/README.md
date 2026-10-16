@@ -1,5 +1,7 @@
 # Ticket Resale Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ticket-resale-profit-calculator/>
+
 What do you actually take home when you resell tickets? Price one listing (net payout, break-even and
 target-profit list price, the same order on StubHub / SeatGeek / Vivid Seats / Ticketmaster, and expected
 profit once some listings do not sell), or audit a log of past sales by marketplace. Browser page or

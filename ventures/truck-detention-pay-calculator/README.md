@@ -1,5 +1,7 @@
 # Truck Detention Pay Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/truck-detention-pay-calculator/>
+
 A free browser calculator for owner-operators and drivers: turn gate arrival/departure times and the detention terms from a rate confirmation into billable hours, the dollars owed, real hourly pay with and without the claim, and a claim email to paste to the broker. Entirely client-side; nothing is uploaded.
 
 After using this, you can now **claim the detention you are owed in two minutes with the right numbers**, which used to mean doing the clock math by hand and writing the email from scratch.

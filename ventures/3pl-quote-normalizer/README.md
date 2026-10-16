@@ -1,5 +1,7 @@
 # 3PL Quote Normalizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/>
+
 Compare a third-party logistics quote with in-house fulfillment costs before
 you sign. Enter the rate-card lines for receiving, storage, pick and pack,
 packaging, shipping, returns, return handling, restocking, fixed fees, and

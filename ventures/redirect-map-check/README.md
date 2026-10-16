@@ -1,5 +1,7 @@
 # Redirect Map Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/redirect-map-check/>
+
 Free browser tool that checks a site-migration redirect map (CSV, TSV or one old-new pair per line)
 before launch: redirect loops and self-redirects, chains that should be one hop, the same old URL
 sent to two places, a large share of rows redirected to the homepage (a soft-404 pattern), spaces,

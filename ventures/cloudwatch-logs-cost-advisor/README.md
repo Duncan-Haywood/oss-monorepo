@@ -1,5 +1,7 @@
 # CloudWatch Logs Cost Advisor
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cloudwatch-logs-cost-advisor/>
+
 Why is your CloudWatch Logs bill so high? Paste one row per log group and see what ingestion and
 storage each cost, which groups never expire, which are dead, which are Infrequent Access candidates,
 and the `aws logs put-retention-policy` command for each retention worth changing. Browser page or

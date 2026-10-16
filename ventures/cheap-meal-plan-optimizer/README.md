@@ -1,5 +1,7 @@
 # Cheapest Meal Plan Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cheap-meal-plan-optimizer/>
+
 Free, browser-only minimum-cost diet solver. List foods with a price and
 nutrition per serving, set calorie, protein, fat, carb and fibre bounds, and it
 finds the lowest-cost servings per day that meet them, the weekly cost, what

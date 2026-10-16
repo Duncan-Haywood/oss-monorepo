@@ -1,5 +1,7 @@
 # SEPA Payment File Validator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sepa-payment-file-validator/>
+
 A free browser tool for anyone who pays suppliers or staff by SEPA bulk upload: **paste or
 drop the pain.001 XML file and see every error with its line number before the bank
 rejects it, then rebuild the counts and control sums after a hand edit.** The file is read

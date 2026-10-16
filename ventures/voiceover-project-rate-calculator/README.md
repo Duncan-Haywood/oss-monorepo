@@ -1,5 +1,7 @@
 # Voice-Over Project Rate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/voiceover-project-rate-calculator/>
+
 A free calculator that turns a voice-over artist's own script or manuscript
 into a defensible project rate — a script-based project (commercial,
 e-learning/corporate narration, IVR/telephony, explainer, animation) priced

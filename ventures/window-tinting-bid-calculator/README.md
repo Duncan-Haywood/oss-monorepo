@@ -1,5 +1,7 @@
 # Window Tinting Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/window-tinting-bid-calculator/>
+
 Free browser-local bid calculator for independent auto window tinting
 installers (a one-to-two-person shop or mobile installer, not a
 dealership-scale tint department) quoting a vehicle film job. After using

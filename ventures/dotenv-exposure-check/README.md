@@ -1,5 +1,7 @@
 # Dotenv Exposure Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/dotenv-exposure-check/>
+
 A free tool for anyone shipping a web deployment: sends one plain GET request to each of five
 well-known dotenv filenames (`.env`, `.env.local`, `.env.production`, `.env.production.local`,
 `.env.development.local`) and names which ones are **publicly readable** — verified against the

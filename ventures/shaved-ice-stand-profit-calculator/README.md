@@ -1,5 +1,7 @@
 # Shaved Ice Stand Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shaved-ice-stand-profit-calculator/>
+
 A free browser tool for shaved ice, lemonade and frozen-treat stands: **enter your prices, cup recipe, staff and the booth
 fee, and see the margin per cup, the cups an event must sell to break even, profit on a hot, normal and rainy day, and the
 most booth fee the event can bear.** Nothing is uploaded.

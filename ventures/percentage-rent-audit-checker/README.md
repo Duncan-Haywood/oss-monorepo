@@ -1,5 +1,7 @@
 # Percentage Rent Audit Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/percentage-rent-audit-checker/>
+
 A free browser tool that recomputes a landlord's percentage-rent statement for a retail or restaurant tenant from the lease terms and the
 tenant's own sales, prices each line worth questioning, names the record that would prove it, and drafts an editable review note. Entirely
 client-side; nothing is uploaded.

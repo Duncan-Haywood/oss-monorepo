@@ -1,5 +1,7 @@
 # STR Turnover Crew Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/str-turnover-crew-planner/>
+
 Booking turnovers in the order owners ask, or biggest fee first, fills a busy checkout day with the wrong work.
 Paste the day's turnovers (fee, supplies, clean minutes, checkout, next check-in, where each unit is) and get the
 exact set of cleans with the highest profit, which of your one to three crews does each and in what order, the

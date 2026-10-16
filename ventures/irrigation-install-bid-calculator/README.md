@@ -1,5 +1,7 @@
 # Irrigation Install Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/irrigation-install-bid-calculator/>
+
 A free browser calculator for irrigation and landscape contractors. It
 prices a new sprinkler-system install the way the trade actually
 loses money — extra heads, trench footage, clay versus dirt, a

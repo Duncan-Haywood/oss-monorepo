@@ -1,5 +1,7 @@
 # Ice Dam Removal Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ice-dam-removal-bid-calculator/>
+
 Independent ice dam removal contractors (a truck, a steam machine, and a
 two- or three-person crew — not a roofing company, not a gutter-cleaning
 outfit, not a snow-plow route) can use this free browser-local calculator to

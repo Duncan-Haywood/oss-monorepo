@@ -1,5 +1,7 @@
 # Scrap Metal Yard Payout Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/scrap-metal-yard-payout-calculator/>
+
 Free, browser-only calculator for scrappers, electricians, plumbers, HVAC techs and demolition
 crews. Enter the lots you are hauling and what two yards pay for each. It shows what the load
 **nets at each yard after fuel, time, fees and grading deductions**, whether **splitting the

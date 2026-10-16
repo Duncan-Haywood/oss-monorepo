@@ -1,5 +1,7 @@
 # Route Account Pruner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/route-account-pruner/>
+
 A free browser tool for lawn, pool, pest, cleaning and other recurring route businesses: **paste or upload a CSV of
 your accounts (price, visits per month, minutes on site, drive minutes, materials), say what an hour of route time
 is worth to you, and get every account ranked by what it earns per route hour, with a keep, reprice or drop

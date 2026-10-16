@@ -1,5 +1,7 @@
 # Deck Staining Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/deck-staining-bid-calculator/>
+
 A free browser calculator for deck-staining contractors. It prices a
 stain or seal the way the trade actually loses money — stainable
 surface from picket rails and stairs, strip versus wash, oil two-coat

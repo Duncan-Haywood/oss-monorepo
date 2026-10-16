@@ -1,5 +1,7 @@
 # Food Truck Prep Mix Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/food-truck-prep-mix-optimizer/>
+
 A free browser tool for food trucks, pop-ups and market stalls: **type your prep minutes, grill or fryer minutes and ingredient cash, then each menu item's price, food cost, times and expected demand, and get the exact prep plan with the highest contribution.** It compares the result with your current plan and prices one more prep minute, one more station minute and one more ingredient dollar (shadow prices). Nothing is uploaded.
 
 After using this, you can **see which limit is really capping a service, and what a helper, a second fryer or more cash is worth**, which used to take a spreadsheet Solver run almost no truck owner sets up.

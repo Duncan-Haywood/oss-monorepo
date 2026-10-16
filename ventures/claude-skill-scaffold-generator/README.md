@@ -1,5 +1,7 @@
 # Claude Skill Scaffold Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/claude-skill-scaffold-generator/>
+
 A free tool that turns a plain-language description of a Claude Agent
 Skill — what it does, when Claude should use it, and any scripts,
 references, or assets it bundles — into a starter `SKILL.md` with valid

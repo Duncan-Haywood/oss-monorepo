@@ -1,5 +1,7 @@
 # Coffee Roaster Margin Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/coffee-roaster-margin-calculator/>
+
 Free, browser-only pricing tool for small and micro coffee roasters. Type the green
 coffee price and your roast loss and it shows the true cost per roasted pound, what a
 bag earns on each channel (retail, subscription, wholesale, market) including card

@@ -1,5 +1,7 @@
 # Gpx Track Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/gpx-track-check/>
+
 Free browser tool that checks a GPX track file for what makes Strava, Garmin Connect and Komoot
 reject or mis-read it: missing creator, version and namespace, points at 0,0, GPS jumps, timestamps
 out of order, tracks with no times, impossible elevations, truncated files and empty segments, each

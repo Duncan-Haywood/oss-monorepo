@@ -1,5 +1,7 @@
 # Exempt Salary Threshold Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/exempt-salary-threshold-checker/>
+
 A free browser calculator for the 2026 FLSA white-collar overtime-exemption
 salary threshold. Entirely client-side; nothing is uploaded.
 

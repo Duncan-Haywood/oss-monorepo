@@ -1,5 +1,7 @@
 # Installment Sale Tax Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/installment-sale-tax-calculator/>
+
 Free, private browser tool for people selling a business, rental property or land and financing the buyer with a note: see the gain taxed each year, the depreciation recapture due in the sale year, the tax saved by spreading the gain and the after-tax value of the interest.
 
 After using this, you can see what a seller-financed sale really costs in tax each year and how note length changes it, which used to mean building a Form 6252 schedule by hand or paying a preparer to model it.

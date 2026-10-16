@@ -1,5 +1,7 @@
 # Surety Bond Capacity Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/surety-bond-capacity-calculator/>
+
 A free browser tool for contractors who bid bonded work: **price the performance and payment bond into each bid, check it against your single-job and aggregate bonding limits, see when it will fit, and choose which bids to submit.** Nothing is uploaded.
 
 After using this, you can **stop discovering at award time that the bond or the limit kills the job**: see what each bid really costs with the premium recovered, which bids are over your limit today or ever at your working capital, and which combination of bids gives the most expected profit without risking more wins than your surety will carry.

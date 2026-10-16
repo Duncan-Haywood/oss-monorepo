@@ -1,5 +1,7 @@
 # Standby Generator Installation Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/standby-generator-bid-calculator/>
+
 A free browser calculator for electrical contractors and generator dealers. It
 prices a residential standby (whole-house) generator install from the machine,
 the transfer switch, the pad, the fuel line, and the setback — and shows the

@@ -1,5 +1,7 @@
 # Secret Santa Draw
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/secret-santa-draw/>
+
 Free, browser-only Secret Santa generator. No sign-up, no email addresses, and
 the organizer can play without seeing who drew whom.
 

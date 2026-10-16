@@ -1,5 +1,7 @@
 # STR Host Payout Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/str-host-payout-calculator/>
+
 A free browser calculator for short-term rental hosts. It puts one stay
 through Airbnb’s 2026 host-only fee, the retired 3% split, Vrbo
 (pay-per-booking and the legacy annual plan), and a direct booking, then

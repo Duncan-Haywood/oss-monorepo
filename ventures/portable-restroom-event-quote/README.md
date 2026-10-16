@@ -1,5 +1,7 @@
 # Porta Potty Event Quote Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/portable-restroom-event-quote/>
+
 A free browser calculator for portable sanitation yards. It prices a porta
 potty / portable restroom event rental the way the yard actually loses money
 when it skips the math — every day the boxes sit, every extra pump-out, and

@@ -1,5 +1,7 @@
 # Rev Rec
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rev-rec/>
+
 After using this, you can now **hand your bookkeeper a deferred-revenue
 schedule and balanced journal entries built from your Stripe invoices, from a
 read-only key, on a server you run**, instead of paying a percentage of your

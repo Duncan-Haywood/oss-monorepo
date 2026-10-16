@@ -1,5 +1,7 @@
 # Tow Motor Club Call Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tow-motor-club-call-calculator/>
+
 A free browser calculator for independent towing and roadside operators: **should I accept this
 motor-club (Agero, Urgent.ly, Honk, AAA-contractor …) dispatch, or wait for a cash call?**
 Everything is typed by you; nothing is uploaded and nothing about any club's terms is assumed.

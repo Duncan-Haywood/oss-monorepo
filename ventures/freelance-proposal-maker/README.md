@@ -1,5 +1,7 @@
 # Freelance Proposal Maker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/freelance-proposal-maker/>
+
 After using this, you have a client-ready proposal: the client's problem in
 their words, what you deliver, a timeline with real dates, up to three priced
 options with deposits worked out, and an expiry date, ready to print, save as

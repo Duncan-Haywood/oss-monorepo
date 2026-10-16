@@ -1,5 +1,7 @@
 # Gravel Driveway Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/gravel-driveway-bid-calculator/>
+
 A free browser calculator for excavation and landscape shops. It prices a
 gravel drive the way the trade actually loses money — compacted depth to
 tons, then whole truckloads, soil prep, fabric, and a street apron — and

@@ -1,5 +1,7 @@
 # World Clock Widget
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/>
+
 An iPhone/iPad app (and, via "Designed for iPad" on Apple Silicon Macs, a Mac app) plus a
 WidgetKit widget: pick a handful of major cities, and every widget size shows their current
 local time, today's date, and sunrise/sunset — deliberately information-dense rather than a

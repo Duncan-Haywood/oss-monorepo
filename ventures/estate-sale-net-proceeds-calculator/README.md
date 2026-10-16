@@ -1,5 +1,7 @@
 # Estate Sale Net Proceeds Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/estate-sale-net-proceeds-calculator/>
+
 A free browser tool for families evaluating estate sale company quotes. Enter
 a company's actual tiered commission schedule and flat fees — setup/staging,
 credit-card processing, haul-away/donation for unsold items — against an

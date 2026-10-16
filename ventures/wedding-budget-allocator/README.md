@@ -1,5 +1,7 @@
 # Wedding Budget Allocator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/wedding-budget-allocator/>
+
 A free browser tool that splits a wedding budget across 14 categories using guest
 count, region, season and up to three priorities. Entirely client-side; nothing is
 uploaded.

@@ -1,5 +1,7 @@
 # Roommate Rent Splitter
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/roommate-rent-splitter/>
+
 Free, browser-only rent splitter for roommates in rooms that are not equal.
 Everyone privately says what each room is worth to them; the tool gives the rooms
 to the people who want them most and sets rents that add up to the total so that

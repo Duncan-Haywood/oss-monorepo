@@ -1,5 +1,7 @@
 # Commercial Solar: Buy vs PPA vs Lease Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/commercial-solar-ppa-lease-buy-calculator/>
+
 A free browser tool for businesses, farms, nonprofits and landlords: **type a purchase quote, a PPA quote and a lease quote and see them on the same after-tax cash flows**, with NPV, payback, IRR on buying, the PPA rate at which buying stops winning, and a sensitivity to utility rate escalation.
 
 After using this, you can **tell which of three commercial solar quotes is worth more to you and what an installer would have to price a PPA at to beat buying**, which used to be a spreadsheet the installer built for you.

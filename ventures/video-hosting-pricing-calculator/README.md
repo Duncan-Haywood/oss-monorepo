@@ -1,5 +1,7 @@
 # Video Hosting Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/video-hosting-pricing-calculator/>
+
 Price Cloudflare Stream, Mux, Bunny Stream, api.video and a DIY AWS MediaConvert + CloudFront pipeline
 side by side at the minutes of video you store, the minutes viewers watch each month and your
 monthly uploads, see the 12-month spend under your growth rate, and find the viewing level where

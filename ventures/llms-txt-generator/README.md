@@ -1,5 +1,7 @@
 # llms.txt Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/llms-txt-generator/>
+
 A free tool that builds a spec-compliant
 [`llms.txt`](https://llmstxt.org/) file — the emerging convention that gives
 AI assistants a short, curated map of a site's key pages — from a pasted

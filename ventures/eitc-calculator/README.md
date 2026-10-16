@@ -1,5 +1,7 @@
 # EITC Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/eitc-calculator/>
+
 A free browser calculator for the federal Earned Income Tax Credit (EITC).
 Entirely client-side; nothing is uploaded.
 

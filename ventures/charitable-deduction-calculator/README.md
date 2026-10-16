@@ -1,5 +1,7 @@
 # Charitable Deduction Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/charitable-deduction-calculator/>
+
 A free browser calculator comparing two 2026 charitable-giving deduction
 paths under the One Big Beautiful Bill Act: the new above-the-line
 deduction for non-itemizers, and itemizing cash gifts after the new

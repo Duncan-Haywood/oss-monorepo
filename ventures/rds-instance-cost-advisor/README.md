@@ -1,5 +1,7 @@
 # RDS Instance Cost Advisor
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rds-instance-cost-advisor/>
+
 Why is your RDS bill so high? Paste one row per instance and see what each costs in dollars, Multi-AZ
 you pay double for outside production, io1 provisioned IOPS that a gp3 volume covers, x86 classes with
 a cheaper Graviton twin and idle instances, each with the `aws rds` command. Browser page or

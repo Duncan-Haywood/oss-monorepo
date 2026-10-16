@@ -1,5 +1,7 @@
 # Timber Sale Offer Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/timber-sale-offer-checker/>
+
 A free browser tool (and small Node CLI) for landowners: **list your logs, put your own
 price per MBF on each species, enter a logger's offer, and see whether it looks low.**
 Board feet are computed under Doyle, Scribner and International 1/4-inch rules, because the

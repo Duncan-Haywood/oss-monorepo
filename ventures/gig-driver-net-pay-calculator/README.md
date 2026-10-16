@@ -1,5 +1,7 @@
 # Gig Driver Net Pay Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/gig-driver-net-pay-calculator/>
+
 A free browser calculator for DoorDash, Uber Eats, Instacart, Uber, and Lyft
 drivers. It turns one session's gross app pay into **net pay per hour and per
 mile after gas, maintenance, and a prorated share of insurance** — the cost

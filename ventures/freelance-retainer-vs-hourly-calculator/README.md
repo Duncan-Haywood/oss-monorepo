@@ -1,5 +1,7 @@
 # Freelance Retainer vs Hourly Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-vs-hourly-calculator/>
+
 Free, browser-only tool for freelancers, consultants and small agencies. Paste your
 own time log (date, client, hours, optional billed amount), enter your hourly rate and
 a monthly retainer you are considering, and it replays the retainer against your real

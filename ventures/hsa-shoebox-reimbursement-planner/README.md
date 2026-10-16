@@ -1,5 +1,7 @@
 # HSA Shoebox Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hsa-shoebox-reimbursement-planner/>
+
 A free browser tool for HSA holders: **paste the medical receipts you paid out of pocket and see your
 tax-free withdrawal room today, and what leaving the HSA invested and reimbursing yourself later saves
 after tax compared with reimbursing every year.** Nothing is uploaded.

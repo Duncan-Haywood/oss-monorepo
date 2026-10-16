@@ -1,5 +1,7 @@
 # Grease Trap Pumping Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/grease-trap-pumping-price-calculator/>
+
 A free browser tool for grease trap and interceptor pumping companies: **enter the trap, the truck and your costs, and get a price per visit, the pump-out interval that keeps the trap under the 25% grease-and-solids rule, and what each interval costs per year**. Nothing is uploaded.
 
 After using this, you can now **bid a restaurant's grease trap from the dump trips it really costs, the disposal fee and the interval it needs**, which used to take a flat per-gallon rate and a guess about how often the customer should be pumped.

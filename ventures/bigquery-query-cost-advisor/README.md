@@ -1,5 +1,7 @@
 # BigQuery Query Cost Advisor
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bigquery-query-cost-advisor/>
+
 Why is your BigQuery bill so high, and would Editions (slot-hours) be cheaper than on-demand? Paste one row
 per recurring query group and see what each costs on-demand, what the same work costs in slot-hours, which
 group dominates, which single runs are expensive enough to deserve a `--maximum_bytes_billed` cap, and which

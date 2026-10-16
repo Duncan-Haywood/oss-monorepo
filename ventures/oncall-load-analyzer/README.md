@@ -1,5 +1,7 @@
 # On-Call Load Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/oncall-load-analyzer/>
+
 A free browser tool (and small Node CLI) for engineering teams: **paste an incident
 export from PagerDuty, Opsgenie, Grafana OnCall or any tool that writes CSV, and see
 who carries the pager, which nights were broken, which alerts fix themselves or

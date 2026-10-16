@@ -1,5 +1,7 @@
 # Vineyard: Sell the Grapes or Bottle the Wine
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/vineyard-grape-vs-wine-calculator/>
+
 A free browser tool (and small Node CLI) for vineyard owners and growers deciding between a grape contract and
 their own label: **enter acres, yield, farming cost, the grape price you are offered, and what you expect to
 get per bottle direct and through a distributor. You get net profit each way, your all-in cost per bottle, the

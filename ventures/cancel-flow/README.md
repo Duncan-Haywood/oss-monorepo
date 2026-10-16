@@ -1,5 +1,7 @@
 # cancel-flow
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cancel-flow/>
+
 After using this, you can now **put a smart exit flow between "Cancel
 subscription" and Stripe, on your own server**: it asks why, offers the save
 that fits the answer, cancels cleanly if the customer still wants out, and

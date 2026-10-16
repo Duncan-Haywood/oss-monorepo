@@ -1,5 +1,7 @@
 # card-bonus-planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/card-bonus-planner/>
+
 After using this, you can now **plan credit card sign-up bonuses around your
 real monthly spending** and know the date your 5/24 count drops and the
 earliest day each new application fits, which used to be a hand-kept

@@ -1,5 +1,7 @@
 # Revenue Target Lead Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/revenue-target-lead-planner/>
+
 A free browser tool for freelancers, agencies and small sales teams: **paste or upload your past weeks or months
 (leads, deals won, revenue won), enter the revenue you want next period, and see your real conversion rate, the
 chance of hitting the target, and how many leads give you a 50%, 80% or 90% chance.** Nothing is uploaded.

@@ -1,5 +1,7 @@
 # Vendor Change Watch
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/vendor-change-watch/>
+
 A free command-line tool that watches the vendor pages you choose — terms of
 service, privacy policy, subprocessor list, security page — and shows you a
 source-linked diff when the text changes. Built for security, procurement,

@@ -1,5 +1,7 @@
 # CSA Share Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/csa-share-pricing-calculator/>
+
 A farm sells a season of weekly produce boxes up front, and a share that looks fair to members can still pay
 the farmer a few dollars an hour. List the items in the box with their weeks, retail value, cost and labour
 and see what a member gets at retail, what the season pays you per hour, the price that pays your target

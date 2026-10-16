@@ -1,5 +1,7 @@
 # Pipedrive Import CSV Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pipedrive-import-csv-check/>
+
 A free browser tool for sales teams, agencies and ops people moving deals, people or organizations
 into Pipedrive from a spreadsheet or another CRM: **paste or drop the CSV and see every problem with
 its line number before the import skips rows or doubles your pipeline, then download a cleaned

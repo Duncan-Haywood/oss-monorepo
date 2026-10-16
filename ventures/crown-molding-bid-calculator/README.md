@@ -1,5 +1,7 @@
 # Crown Molding Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/crown-molding-bid-calculator/>
+
 A free browser calculator for finish carpenters. It prices a
 residential crown-molding install the way the trade actually loses
 money — paint-grade versus stain-grade, simple cove versus colonial

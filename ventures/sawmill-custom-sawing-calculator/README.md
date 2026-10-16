@@ -1,5 +1,7 @@
 # Sawmill Custom Sawing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sawmill-custom-sawing-calculator/>
+
 A free browser tool (and small Node CLI) for portable-sawmill operators who saw other people's logs for money:
 **enter your mill, blades, fuel, crew and the logs on a job, and see what a sawing hour really costs, the
 break-even and target quote per board foot and per hour, which pricing model pays more on this job, and

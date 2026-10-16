@@ -1,5 +1,7 @@
 # Vendor Watch
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/vendor-watch/>
+
 Paste a vendor's public terms, privacy policy, or subprocessor page and get a
 timestamped, source-linked, word-level diff when the text changes. Fetch
 failures are labeled **inconclusive** — they never overwrite a good snapshot

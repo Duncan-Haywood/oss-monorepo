@@ -1,5 +1,7 @@
 # Roofing Insurance Supplement Finder
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/roofing-insurance-supplement-finder/>
+
 A free browser tool for roofing contractors and homeowners after a storm claim.
 Type the quantities from a roof measurement report beside the quantities on the
 adjuster's estimate, plus your own unit prices. It prices the gap line by line and

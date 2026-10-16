@@ -1,5 +1,7 @@
 # Automatic Driveway Gate Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/automatic-driveway-gate-bid-calculator/>
+
 A free browser calculator for gate contractors. It prices an automatic
 driveway gate the way the trade actually loses money — single swing
 versus dual swing versus slide, operators from leaf count, masonry

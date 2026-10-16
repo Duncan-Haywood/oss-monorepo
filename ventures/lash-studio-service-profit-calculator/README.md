@@ -1,5 +1,7 @@
 # Lash Studio Service Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/lash-studio-service-profit-calculator/>
+
 A free browser tool for lash artists and small lash studios: **type each service's price, chair time, supplies and no-show rate, plus your rent and card fees, and see what it really takes home per hour of chair time.** It ranks up to three services (a full set, a fill, a volume set), shows the price that reaches your target take-home, the bookings a month that cover the studio, and what a returning client is worth over time. Nothing is uploaded.
 
 After using this, you can **set or hold a price, and decide how hard to discount a first set, knowing the take-home per hour**, which used to take a spreadsheet and a guess at what the studio costs per booked hour.

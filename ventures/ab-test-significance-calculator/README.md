@@ -1,5 +1,7 @@
 # A/B Test Significance Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ab-test-significance-calculator/>
+
 A free browser tool for growth teams, product managers, marketers and founders: **enter visitors and
 conversions for a control and a variant and see whether the result is real.** It reports the p-value and
 confidence interval, a sample ratio mismatch check, the Bayesian probability that the variant is better, and an

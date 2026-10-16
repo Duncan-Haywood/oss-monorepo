@@ -1,5 +1,7 @@
 # Wedding Venue Date Pricing Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/wedding-venue-date-pricing-optimizer/>
+
 A free browser tool for wedding venue owners: **for each kind of date (peak Saturday, off-peak Saturday, Friday or Sunday, weekday), type the dates you have, today's price, bookings, turned-away enquiries and price sensitivity, and get the price that earns the most after the cost of hosting.** It shows expected bookings, flags date types that still sell out, and stress-tests the answer if your price-sensitivity guess is off by 30%. Nothing is uploaded.
 
 After using this, you can **raise the price of dates you keep selling out and stop over-pricing the dates that sit empty**, with a number behind each change.

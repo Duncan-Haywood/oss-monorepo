@@ -1,5 +1,7 @@
 # Shipping Box Size Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shipping-box-size-optimizer/>
+
 Free, browser-only tool for online sellers who pack their own orders. List your
 products (packed size, weight, orders per month) and the cartons you could buy.
 It solves which 1 to 10 box sizes to stock so every order ships in its cheapest

@@ -1,5 +1,7 @@
 # Equipment Rental Break-Even
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/equipment-rental-break-even/>
+
 Free equipment-rental pricing calculator for independent tool, party, and
 construction-equipment rental operators. Enter a proposed booking and see the
 minimum price, contribution after variable costs, and monthly utilization you

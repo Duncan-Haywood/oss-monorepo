@@ -1,5 +1,7 @@
 # Reverb Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/reverb-fee-calculator/>
+
 The free Reverb fee calculator shows what a sale leaves after marketplace
 fees, payment processing, optional Reverb Gives, a bump, shipping, and what
 you paid for the gear. Use it when a buyer offer lands and you need to know

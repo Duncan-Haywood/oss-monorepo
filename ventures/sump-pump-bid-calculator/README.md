@@ -1,5 +1,7 @@
 # Sump Pump Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sump-pump-bid-calculator/>
+
 A free browser calculator for plumbers and basement shops. It prices a
 sump-pump install the way the trade actually loses money — a new basin
 versus an existing-pit swap, extra discharge past the included first

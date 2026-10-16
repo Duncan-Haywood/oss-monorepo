@@ -1,5 +1,7 @@
 # Trampoline Park Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/trampoline-park-profit-calculator/>
+
 Free, browser-only calculator for anyone planning or running a trampoline park or family
 entertainment center. Enter jumper capacity, sessions, fill, ticket price, birthday parties,
 members, snacks, floor staff, rent, insurance, the build cost and any loan. It shows **monthly

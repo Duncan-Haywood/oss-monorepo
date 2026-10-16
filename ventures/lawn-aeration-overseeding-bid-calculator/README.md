@@ -1,5 +1,7 @@
 # Lawn Aeration and Overseeding Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/lawn-aeration-overseeding-bid-calculator/>
+
 Free, browser-only calculator for lawn-care operators pricing core aeration and overseeding.
 Enter the lot, the beds and hardscape, aerator swath, speed and passes, seed and starter
 fertilizer rates and prices, crew and truck, the aerator's cost per hour, card fees and yearly

@@ -1,5 +1,7 @@
 # 529 to Roth IRA Rollover Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/529-to-roth-rollover-calculator/>
+
 A free browser tool: **type a 529 balance, what was added in the last five years and the beneficiary's income, and get a
 year-by-year plan for rolling leftover 529 money into the beneficiary's Roth IRA.** Nothing is uploaded.
 

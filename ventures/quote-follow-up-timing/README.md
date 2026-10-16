@@ -1,5 +1,7 @@
 # Quote Follow-Up Timing
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/quote-follow-up-timing/>
+
 A free browser tool for contractors, agencies and freelancers: **paste or upload a CSV of past quotes (days from
 sending to the decision, won / lost / open, optionally the value) and see when your wins actually arrive, your real
 win rate with open quotes counted correctly, and how much chance each open quote still has.** Nothing is uploaded.

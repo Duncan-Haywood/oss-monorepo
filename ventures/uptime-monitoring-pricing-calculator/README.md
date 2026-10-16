@@ -1,5 +1,7 @@
 # Uptime Monitoring Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/uptime-monitoring-pricing-calculator/>
+
 Price UptimeRobot, Better Stack, Hyperping, Pingdom and self-hosted Uptime Kuma side by side for the
 number of monitors you need, the check interval and an optional public status page, see the 12-month
 spend as your monitor count grows, and find the monitor count where the cheapest option changes.

@@ -1,5 +1,7 @@
 # Shared Kitchen Rate Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shared-kitchen-rate-planner/>
+
 A free browser tool for shared and commissary kitchen owners. Enter monthly
 costs, stations, open hours, hourly rate and memberships; it returns profit,
 the utilization you need to break even and to hit a profit goal, the hourly

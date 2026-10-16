@@ -1,5 +1,7 @@
 # Which Job First
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/which-job-first/>
+
 **Turn a list of possible jobs into a work order without scoring anything.** Paste the jobs you could take, answer a run of this-or-that questions, and get them back in order. The tool runs entirely in the browser; the list never leaves your device.
 
 After using this, you can now turn an overwhelming list of possible jobs into an order you can act on, which used to mean staring at a whiteboard or scoring every job out of ten and getting twelve near-identical numbers back.

@@ -1,5 +1,7 @@
 # Axe Throwing Bar Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/axe-throwing-bar-profit-calculator/>
+
 Free, browser-only calculator for anyone planning or running an axe throwing bar or family
 entertainment center. Enter thrower capacity, sessions, fill, ticket price, private events,
 league players, food and drinks, coaches and bar staff, rent, insurance, the build cost and any loan. It shows **monthly

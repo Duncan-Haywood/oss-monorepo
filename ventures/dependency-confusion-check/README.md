@@ -1,5 +1,7 @@
 # Dependency Confusion Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/>
+
 A free tool that scans pip and npm configuration for the two documented
 configuration shapes behind the 2021 dependency-confusion incidents
 (Alex Birsan's research against Apple, Microsoft, PayPal, Netflix, Uber,

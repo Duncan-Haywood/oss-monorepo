@@ -1,5 +1,7 @@
 # Churn Radar
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/churn-radar/>
+
 Churn prediction for small SaaS teams. Your app sends product-usage events;
 Churn Radar learns from your own past cancellations which usage patterns come
 before one, scores every active account, and says which look like the accounts

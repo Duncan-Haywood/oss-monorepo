@@ -1,5 +1,7 @@
 # Business Vehicle Depreciation Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/business-vehicle-depreciation-calculator/>
+
 After using this, you can see how much of a business vehicle you can write off this year under regular
 MACRS, 100% bonus depreciation and Section 179 — with the car "luxury auto" caps and the 6,000 lb SUV cap
 applied — and the tax that saves, which used to mean reading Publication 946 and a Rev. Proc. table.

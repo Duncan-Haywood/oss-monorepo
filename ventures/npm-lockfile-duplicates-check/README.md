@@ -1,5 +1,7 @@
 # npm Lockfile Duplicates Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/npm-lockfile-duplicates-check/>
+
 A free tool that reads an npm `package-lock.json` and lists every package installed
 at more than one version, who requires each copy, and the likely fix. **Same-major**
 copies (2.0.0 and 2.1.3) come first because `npm dedupe` can usually collapse them;

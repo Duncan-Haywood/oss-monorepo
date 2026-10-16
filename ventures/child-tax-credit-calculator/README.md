@@ -1,5 +1,7 @@
 # Child Tax Credit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/child-tax-credit-calculator/>
+
 A free browser calculator for the federal Child Tax Credit and Credit for
 Other Dependents, made permanent by the One Big Beautiful Bill Act starting
 tax year 2025. Entirely client-side; nothing is uploaded.

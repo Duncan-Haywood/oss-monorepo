@@ -1,5 +1,7 @@
 # Appointment Deposit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/>
+
 A free browser calculator for salons, trainers, tutors, photographers, and other small service businesses. Set a service-specific appointment deposit, see the balance due and expected annual cash secured, check whether the deposit actually leaves you better off, then copy a transparent deposit and cancellation policy draft.
 
 After using this, you can now choose and explain an upfront booking deposit, and see whether it pays for itself — both of which used to take guessing or adapting a generic policy.

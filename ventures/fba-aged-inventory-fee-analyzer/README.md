@@ -1,5 +1,7 @@
 # FBA Aged Inventory & Storage Fee Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fba-aged-inventory-fee-analyzer/>
+
 A free browser tool for Amazon FBA sellers: **load your Inventory Age report and see, per SKU,
 the storage fees and aged-inventory surcharge you will pay, and whether holding, marking down
 or removing the stock earns more.** The file is read in the browser; nothing is uploaded and no

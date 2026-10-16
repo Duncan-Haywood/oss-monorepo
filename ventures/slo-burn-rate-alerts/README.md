@@ -1,5 +1,7 @@
 # SLO Burn-Rate Alerts
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/slo-burn-rate-alerts/>
+
 From an SLO to Prometheus alert rules that can actually fire — error budget,
 multi-window multi-burn-rate thresholds (Google SRE Workbook method), detection
 time per alert, and lint, before the pager teaches you the hard way.

@@ -1,5 +1,7 @@
 # Excess Business Loss Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/excess-business-loss-calculator/>
+
 A free browser calculator for the IRC Section 461(l) excess business loss
 limitation, made permanent by the One Big Beautiful Bill Act. Entirely
 client-side; nothing is uploaded.

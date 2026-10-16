@@ -1,5 +1,7 @@
 # EV Charger Installation Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ev-charger-bid-calculator/>
+
 A free browser calculator for electrical contractors. It prices a residential
 Level 2 EV charger (EVSE) install from the circuit, the run, the trench, and
 the panel work — and shows the margin before the price goes out.

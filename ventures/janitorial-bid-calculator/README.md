@@ -1,5 +1,7 @@
 # Janitorial Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/janitorial-bid-calculator/>
+
 A free browser calculator for commercial cleaning contractors. It prices a
 recurring janitorial contract the way the trade actually bids one — each space
 divided by the production rate the crew really hits — and shows the margin

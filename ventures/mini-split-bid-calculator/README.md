@@ -1,5 +1,7 @@
 # Mini-Split / Ductless Install Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mini-split-bid-calculator/>
+
 A free browser calculator for HVAC installers. It prices a ductless
 mini-split job the way the trade actually loses money — heads, then a
 head-type and story factor, then line-set and electrical extras that a

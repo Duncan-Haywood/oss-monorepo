@@ -1,5 +1,7 @@
 # Medical Courier Route Margin Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/medical-courier-route-margin/>
+
 Medical couriers can price a scheduled, STAT, or dedicated route with the costs a per-mile calculator misses: stops, paid wait, deadhead, loaded labor, vehicle cost, temperature-control consumables, overhead, and contribution margin per vehicle-hour. It then answers the other half of the offer -- what the route has to pay to break even, and what to quote per stop for a target margin.
 
 After using this, you can now see contribution margin per vehicle-hour including paid wait and deadhead, and the per-stop rate to counter with, **which used to take** a spreadsheet that hid waiting and handling time.

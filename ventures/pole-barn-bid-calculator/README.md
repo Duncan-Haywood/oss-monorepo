@@ -1,5 +1,7 @@
 # Pole Barn Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pole-barn-bid-calculator/>
+
 A free browser calculator for post-frame and pole-barn builders. It prices
 a building the way the trade actually loses money — bays to posts and
 trusses, then extra eave height, overhead doors, a lean-to, and gravel

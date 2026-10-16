@@ -1,5 +1,7 @@
 # Sponsor Ready
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sponsor-ready/>
+
 A free, client-side checklist that scores a public GitHub repo against the
 signals that correlate with attracting GitHub Sponsors, and returns a ranked
 "fix this first" list. No account, no server, no stored data — every check

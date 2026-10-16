@@ -1,5 +1,7 @@
 # AWS Bill Change Explainer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/aws-bill-change-explainer/>
+
 A free, offline tool that reads the CSV AWS Cost Explorer lets you download and
 answers one question: **why did the bill go up between these two periods?**
 

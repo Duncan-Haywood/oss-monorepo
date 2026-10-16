@@ -1,5 +1,7 @@
 # App Store Commission Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/app-store-commission-calculator/>
+
 Price Apple's 30% and 15% tiers, Google Play's 15% and 30% tiers, and web checkout via Stripe, Stripe Tax and
 Paddle side by side at your monthly app revenue, average in-app price and international share. The cost of
 filing sales tax and VAT yourself is counted where you are the seller, so you can see **what you keep** and

@@ -1,5 +1,7 @@
 # Shopify Payments Fee Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shopify-payments-fee-analyzer/>
+
 A free browser tool for Shopify merchants: **drop in your Payments Transactions
 export and see what Shopify Payments really costs you, and why.** The file is
 read in the browser; nothing is uploaded. Independent of Shopify and not

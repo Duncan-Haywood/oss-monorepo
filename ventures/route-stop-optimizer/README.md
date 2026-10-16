@@ -1,5 +1,7 @@
 # Route Stop Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/route-stop-optimizer/>
+
 A free browser tool for mobile service businesses, couriers, inspectors, sales reps and home-visit professionals:
 **paste the day's stops (latitude, longitude, how long each takes, and any customer time window), and get the order that
 cuts drive time, split across as many drivers as you have**, with arrival times, what it saves against the order you had,

@@ -1,5 +1,7 @@
 # Slopsquatting Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/slopsquatting-check/>
+
 A free tool that flags an npm dependency name that looks like a hallucinated
 or typosquatted variant of a well-known package. A May 2025 USENIX Security
 study, *"We Have a Package for You! A Comprehensive Analysis of Package

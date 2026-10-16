@@ -1,5 +1,7 @@
 # Dryer Vent Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/dryer-vent-bid-calculator/>
+
 A free browser calculator for dryer-vent techs. It prices a wall-cap,
 roof-cap, or multi-dryer clean the way the trade actually loses money
 — the included one-story wall cap, then the extra story, the extra

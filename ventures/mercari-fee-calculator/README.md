@@ -1,5 +1,7 @@
 # Mercari Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mercari-fee-calculator/>
+
 A free browser tool that prices one Mercari sale against both of Mercari's
 live US fee schedules: the current one (10% on the item price plus any
 buyer-paid shipping, effective for listings created or updated on or after

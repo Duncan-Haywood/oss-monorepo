@@ -1,5 +1,7 @@
 # BAI2 Statement Reader
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bai2-statement-reader/>
+
 A free browser tool for anyone who receives bank statement files in BAI2 format:
 **paste or drop the file and see its accounts, balances and transactions as a table,
 download a CSV, and find out why an import fails, with the line number.** The file is read

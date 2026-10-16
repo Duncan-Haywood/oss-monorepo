@@ -1,5 +1,7 @@
 # Patio Door Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/patio-door-bid-calculator/>
+
 A free browser calculator for window and door shops. It prices a
 sliding glass or patio-door replacement the way the trade actually
 loses money — extra panels, impact glass, a full-frame

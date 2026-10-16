@@ -1,5 +1,7 @@
 # Family Child Care Time-Space Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/family-child-care-time-space-calculator/>
+
 Free, browser-only tool for family child care and home day care providers. List
 the rooms you use, the hours you are in business and your annual home expenses.
 It computes the time-space percentage described in IRS Publication 587, the

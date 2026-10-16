@@ -1,5 +1,7 @@
 # Shopify to WooCommerce Product Converter
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shopify-to-woocommerce-converter/>
+
 A free browser tool for store owners and agencies moving a catalogue from Shopify to
 WooCommerce: **paste or drop Shopify's product export CSV and download a WooCommerce product
 import CSV**, with every note about what could not be carried across. The file is read in the

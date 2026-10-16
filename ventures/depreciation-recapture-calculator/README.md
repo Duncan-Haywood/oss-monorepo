@@ -1,5 +1,7 @@
 # Depreciation Recapture Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/depreciation-recapture-calculator/>
+
 A free calculator for a landlord or real-estate investor selling a rental or
 investment property. It splits the taxable gain into **unrecaptured Section
 1250 gain** (depreciation recapture, taxed at your ordinary rate, capped at

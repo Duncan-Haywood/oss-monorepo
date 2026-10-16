@@ -1,5 +1,7 @@
 # Bandcamp Sales Report Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bandcamp-sales-report-analyzer/>
+
 A free browser tool for Bandcamp artists and labels: **drop in your sales report CSV and see
 what the fees actually took and what each release and format nets you.** The file is read
 in the browser; nothing is uploaded and no Bandcamp login is needed.

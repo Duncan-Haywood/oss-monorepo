@@ -1,5 +1,7 @@
 # Event Rental Inventory Payback Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/event-rental-inventory-payback-calculator/>
+
 Free, browser-only calculator for party, tent and event rental companies deciding what to buy
 next. List each item (chairs, tables, linens, dance floor) with units owned, cost, price per
 rental, rentals per unit a year, handling per rental, yearly loss and damage, storage and

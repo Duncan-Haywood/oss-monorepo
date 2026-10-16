@@ -1,5 +1,7 @@
 # Student Loan RAP vs IBR vs Standard Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/student-loan-rap-ibr-standard-calculator/>
+
 A free browser tool: **type your federal loan balance, rate and income and see what the tiered Standard plan,
 the Repayment Assistance Plan (RAP) and Income-Based Repayment (IBR) each cost** - first payment, total paid,
 amount forgiven, tax on the forgiven amount and net cost - with a PSLF mode and a sensitivity grid for income

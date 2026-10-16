@@ -1,5 +1,7 @@
 # Cut List Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cut-list-optimizer/>
+
 Cut List Optimizer is a free browser tool for woodworkers, sign shops, and makers who need to turn a list of required pieces into a practical low-waste plan before buying stock. It covers the two jobs a shop actually has:
 
 - **Sheet goods** — plywood, MDF, acrylic, ACM, coroplast. Paste your parts and get a labelled layout diagram for every sheet, the offcuts worth racking, and what the material will cost.

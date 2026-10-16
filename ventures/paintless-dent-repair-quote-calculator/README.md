@@ -1,5 +1,7 @@
 # Paintless Dent Repair Quote Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/paintless-dent-repair-quote-calculator/>
+
 A free browser tool for paintless dent repair (PDR) and hail techs: **enter the dents by size, the share on aluminum and body lines, your tech time and costs, and get a cost-plus price, whether your per-dent matrix covers it, the tech days the car holds a stall, and how the quote moves as the hail count changes**. Nothing is uploaded.
 
 After using this, you can now **see where a flat per-dent matrix loses money and quote the higher, correct number**, which used to take a hail matrix and a guess about aluminum, body lines and remove-and-install time.

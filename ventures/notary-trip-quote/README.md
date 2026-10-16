@@ -1,5 +1,7 @@
 # Mobile Notary Travel Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/notary-trip-quote/>
+
 Mobile notaries can now quote an appointment from round-trip mileage, drive time, service time, waiting, witnesses, after-hours work, statutory fees, and a minimum appointment fee. This replaces a hand-built guess with a transparent number that can be copied into a booking conversation.
 
 Open `index.html` directly or serve this directory statically. It is a zero-dependency browser app: no account, network call, or API key. Run `node --test` for the arithmetic tests.

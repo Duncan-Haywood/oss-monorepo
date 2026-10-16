@@ -1,5 +1,7 @@
 # Moving Company Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/moving-bid-calculator/>
+
 A free browser calculator for local moving companies. It prices a job the way
 the trade actually keeps a Saturday from losing money — inventory hours for a
 first-floor short carry, then the extra trips stairs and a long carry create —

@@ -1,5 +1,7 @@
 # Bed Bug Heat Treatment Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bed-bug-heat-treatment-price-calculator/>
+
 A free browser tool for pest control operators: **enter the unit, your heaters and your costs, and get a price, a price per square foot, the heater count and length of the day, the expected cost of warranty retreats, and a comparison with a chemical programme**. Nothing is uploaded.
 
 After using this, you can now **bid a heat treatment from the clutter, heaters and callback rate it really carries**, which used to take a flat per-room price and a guess about how many jobs come back.

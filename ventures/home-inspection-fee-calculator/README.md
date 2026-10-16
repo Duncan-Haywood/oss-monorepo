@@ -1,5 +1,7 @@
 # Home Inspection Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/home-inspection-fee-calculator/>
+
 Independent residential home inspectors can use this free browser-local
 calculator to price one inspection from square footage, stories, foundation
 type, and home age — the specifics that actually drive on-site time, which a

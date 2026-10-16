@@ -1,5 +1,7 @@
 # Liquidation Pallet Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/liquidation-pallet-bid-calculator/>
+
 A free browser tool for resellers who buy liquidation pallets and truckloads at auction and resell the contents:
 **paste or upload the manifest and get the most you can bid.** It runs a seeded Monte Carlo simulation over recovery
 rate, sell-through and damage, and reports the probability of a profit, expected net profit, the 10th, 50th and 90th

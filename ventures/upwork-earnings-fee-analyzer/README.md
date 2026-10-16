@@ -1,5 +1,7 @@
 # Upwork Earnings and Fee Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/upwork-earnings-fee-analyzer/>
+
 A free browser tool for freelancers: **drop in your Upwork (or similar) transaction
 history CSV and see what you actually keep.** The file is read in the browser; nothing
 is uploaded and no account access is needed.

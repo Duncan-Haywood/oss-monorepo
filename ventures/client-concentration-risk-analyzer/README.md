@@ -1,5 +1,7 @@
 # Client Concentration Risk Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/client-concentration-risk-analyzer/>
+
 How much of your revenue depends on one client? Paste an invoice export (client, optional date, amount) and
 see every client's share, the top-1/3/5 shares, the Herfindahl index, whether the biggest client's share is
 rising, and whether average monthly revenue without them still covers your costs. Browser page or

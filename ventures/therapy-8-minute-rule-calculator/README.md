@@ -1,5 +1,7 @@
 # Therapy 8-Minute Rule Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/therapy-8-minute-rule-calculator/>
+
 A free browser tool for physical, occupational and speech therapy clinics: **paste each visit's timed CPT minutes and see the billable units** under the Medicare 8-minute rule, which code each unit goes to, what a per-code count would give instead, which visits were a few minutes short of the next unit, and what the difference is worth at your rates.
 
 After using this, you can **check a day's visits against the CMS table in seconds and see where a payer's counting method changes the units**, which used to be a chart taped to a monitor and a spreadsheet.

@@ -1,5 +1,7 @@
 # PTO Accrual Liability Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pto-accrual-liability-calculator/>
+
 A free browser tool for small employers: **paste a roster of PTO balances and see what unused vacation costs you today and a year from now**, by employee, with state payout rules and the cost of balances above a target.
 
 After using this, you can **put a dollar figure on accrued PTO, see who is at their cap, and decide whether to set or lower a cap**, which used to be a payroll-report export and a spreadsheet.

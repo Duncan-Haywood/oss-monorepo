@@ -1,5 +1,7 @@
 # Workflow Audit
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/workflow-audit/>
+
 One free GitHub Action (and zero-dependency CLI) that runs twelve read-only
 checks over `.github/workflows` and merges the findings into one
 severity-ranked report: job summary, JSON, Markdown or SARIF for Code

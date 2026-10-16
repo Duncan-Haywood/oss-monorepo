@@ -1,5 +1,7 @@
 # Metal Roof Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/metal-roof-bid-calculator/>
+
 A free browser calculator for standing-seam and exposed-fastener metal-roofing
 crews. It prices a residential metal roof from the panel squares a per-square
 special cannot see, the tear-off, the stories, and the trim — and shows the

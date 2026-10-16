@@ -1,5 +1,7 @@
 # Photo Package Add-On Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/photo-addon-pricing-calculator/>
+
 Independent wedding and event photographers can use this free browser-local calculator to find real net profit for one package add-on — an extra hour of coverage, a second shooter, an album/print upgrade, an engagement session — after the photographer's own shoot/cull/edit time (valued at their target hourly rate) and gear depreciation/wear are netted out, then compare two or three add-on options by what they actually pay per hour, not just their headline price. **After using this, you can tell which of two add-ons priced differently is actually worth offering, which used to mean a guess about how much culling and editing time a "quick" add-on quietly generated.**
 
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.

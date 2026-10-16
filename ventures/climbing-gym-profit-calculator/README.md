@@ -1,5 +1,7 @@
 # Climbing Gym Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/climbing-gym-profit-calculator/>
+
 Free, browser-only calculator for anyone planning or running a climbing or bouldering gym. Enter
 day passes, members and the membership fee, youth programs, parties, front desk staff, route
 setting, rent, insurance, the build cost and any loan. It shows **monthly profit and margin**,

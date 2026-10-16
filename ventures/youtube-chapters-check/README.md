@@ -1,5 +1,7 @@
 # Youtube Chapters Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/youtube-chapters-check/>
+
 Free browser tool that checks a YouTube chapter list against the rules that decide whether chapters
 show (first timestamp 0:00, at least three timestamps in ascending order, each chapter at least 10
 seconds), with a line number for every problem, and fixes ordering and format. It also converts

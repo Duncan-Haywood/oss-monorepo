@@ -1,5 +1,7 @@
 # package.json Exports Drift Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/>
+
 A free tool that flattens a `package.json` **`exports`** map — every
 subpath, every nested condition (`import`/`require`/`types`/...), every
 fallback array — and checks that each **literal file target actually

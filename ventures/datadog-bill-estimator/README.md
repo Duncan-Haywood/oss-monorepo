@@ -1,5 +1,7 @@
 # Datadog Bill Estimator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/datadog-bill-estimator/>
+
 Estimate a monthly Datadog bill from your own usage numbers, and see which
 changes cut it most, each with a dollar figure — before the invoice.
 

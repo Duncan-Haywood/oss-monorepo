@@ -1,5 +1,7 @@
 # Fence Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fence-bid-calculator/>
+
 A free browser calculator for fence contractors. It prices an install the way
 the job actually costs — posts from spacing, heavier terminals at ends,
 corners, and gates, tear-out, and the extra hours clay or rock will eat — and

@@ -1,5 +1,7 @@
 # Courier Van Route Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/courier-van-route-profit-calculator/>
+
 Free, browser-only calculator for independent last-mile delivery contractors who own or
 lease their van. Enter route pay (flat, per stop, per package or a mix), stops, packages,
 hours, miles, fuel, van payment, insurance, maintenance, depreciation, tolls, a claims

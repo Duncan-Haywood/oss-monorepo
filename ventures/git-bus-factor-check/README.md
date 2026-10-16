@@ -1,5 +1,7 @@
 # Git Bus Factor Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/git-bus-factor-check/>
+
 A free tool that reads your repository's own commit history and reports, per
 folder, who actually owns it, whether they are still around, and who to pair
 with. It computes a recency-weighted **bus factor** (truck factor): the fewest

@@ -1,5 +1,7 @@
 # Party Bus Charter Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/party-bus-charter-profit-calculator/>
+
 Free, browser-only calculator for party bus, limo and shuttle charter operators. Enter the
 charter price, hours booked and your minimum, deadhead and positioning hours, miles, fuel,
 cleaning, the gratuity share you pay the driver, card fees, the vehicle's cost and expected

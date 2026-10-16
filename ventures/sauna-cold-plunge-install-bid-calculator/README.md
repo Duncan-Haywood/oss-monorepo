@@ -1,5 +1,7 @@
 # Sauna & Cold Plunge Install Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sauna-cold-plunge-install-bid-calculator/>
+
 A free browser tool for backyard sauna and cold plunge installers and the small builders adding them.
 Enter the hours on site, the drive, your pay, rig and consumables, materials and
 fixed costs; it shows the price that earns your target margin, what the job

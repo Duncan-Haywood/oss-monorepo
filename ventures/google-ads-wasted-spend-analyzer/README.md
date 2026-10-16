@@ -1,5 +1,7 @@
 # Google Ads Wasted Spend Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/google-ads-wasted-spend-analyzer/>
+
 A free browser tool for small advertisers and freelance PPC managers: **drop in a
 Google Ads search terms report and see how much you spent on searches that never
 converted, how sure you can be, and which negative keywords are safe to add.**

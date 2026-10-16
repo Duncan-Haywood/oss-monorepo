@@ -1,5 +1,7 @@
 # Quote Margin Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/quote-margin-check/>
+
 Quote Margin Check is a free, local-first calculator for freelancers and small
 agencies. It turns a proposed price, delivery hours, overhead, subcontractor
 costs, and revision buffer into a transparent effective hourly rate and a

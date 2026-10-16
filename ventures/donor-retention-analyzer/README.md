@@ -1,5 +1,7 @@
 # Donor Retention Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/donor-retention-analyzer/>
+
 Free, browser-only tool for small nonprofits. Paste one row per gift (donor, date,
 amount). It computes donor retention by fiscal year with a seeded bootstrap range,
 splits first-time from repeat donors, reports dollar retention, and lists your

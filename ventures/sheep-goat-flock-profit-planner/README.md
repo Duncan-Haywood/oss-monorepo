@@ -1,5 +1,7 @@
 # Sheep and Goat Flock Profit Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sheep-goat-flock-profit-planner/>
+
 A free browser tool for small sheep and meat-goat producers. Enter your ewes or
 does, weaning rate, prices, hay and costs. It projects the flock and its profit
 year by year, re-runs the plan at different weaning rates, hay prices and market

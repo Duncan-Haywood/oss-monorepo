@@ -1,5 +1,7 @@
 # EU Green Claims Copy Scanner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/eu-green-claims-copy-scanner/>
+
 Free, private browser tool for anyone selling into the EU: paste a product page, ad or packaging text and see every phrase that the Empowering Consumers Directive (EU) 2024/825 targets since 27 September 2026 — product-level "carbon neutral" claims, vague words like "eco-friendly" and "sustainable", home-made badges, future net-zero promises, whole-product claims and legal-minimum claims — with the rule behind each and a safer rewrite. Scans English, German, French, Spanish, Italian and Dutch copy.
 
 After using this, you know which lines of your copy to change before a competitor or a consumer body points at them, without sending the copy to anyone.

@@ -1,5 +1,7 @@
 # SaaS Feature Packaging Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/saas-feature-packaging-optimizer/>
+
 A free browser tool for SaaS founders: **paste what each surveyed customer would pay per month for each feature, and get which features belong in which plan and the plan prices that earn the most profit**, who lands on each plan, what each feature is worth in each plan, and what that is worth against your current packaging.
 
 After using this, you can **decide the contents and prices of a Good-Better-Best ladder from one survey**, which used to take a spreadsheet of guesses or a paid pricing consultant. It is the companion to `saas-tier-price-optimizer`, which prices plans whose contents you have already fixed.

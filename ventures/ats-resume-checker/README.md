@@ -1,5 +1,7 @@
 # ATS Resume Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ats-resume-checker/>
+
 A free tool that runs the "copy-paste test" career coaches already
 recommend by hand: copy the text out of your resume file, paste it here,
 and see the specific, well-documented formatting problems that break

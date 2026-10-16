@@ -1,5 +1,7 @@
 # Meta Catalog Csv Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/meta-catalog-csv-check/>
+
 Free browser tool that checks a Meta (Facebook and Instagram) catalog feed (CSV or TSV) before it is
 uploaded to Commerce Manager: semicolon or UTF-16 files, missing required columns, duplicate or
 damaged ids, prices without an ISO currency or written with a symbol or decimal comma, sale prices

@@ -1,5 +1,7 @@
 # Depop Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/depop-fee-calculator/>
+
 A free browser tool that prices one Depop sale against Depop's current,
 per-region fee schedule: **0% selling fee** for US and UK sellers (just a
 payment-processing fee of 3.3% + $0.45 in the US, or 2.9% + £0.30 in the UK,

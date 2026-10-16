@@ -1,5 +1,7 @@
 # App Store Sales Report Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/app-store-sales-report-analyzer/>
+
 A free browser tool for iOS developers: **drop in your App Store Connect Summary Sales
 report and see what your apps earn after Apple's cut, by product, country and month.**
 The file is read in the browser; nothing is uploaded and no App Store Connect login or

@@ -1,5 +1,7 @@
 # mailchimp-audience-csv-check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mailchimp-audience-csv-check/>
+
 Checks a Mailchimp audience import CSV in the browser before it is imported: emails and duplicates,
 rows with no email, unquoted commas in Tags, birthday format, phone Excel damage, mixed date formats
 and near-miss column names, each with its line number, plus a safe-fixes pass that only touches

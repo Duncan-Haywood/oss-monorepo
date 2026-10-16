@@ -1,5 +1,7 @@
 # Auth MAU Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/auth-mau-pricing-calculator/>
+
 Price Clerk, Auth0, AWS Cognito, Firebase / Identity Platform, Supabase Auth and WorkOS AuthKit
 side by side at your monthly active user count, see the 12-month spend under your growth rate, and
 find the user counts where the cheapest provider changes — before you build on one.

@@ -1,5 +1,7 @@
 # Terraform Plan Blast Radius Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/terraform-plan-blast-radius-check/>
+
 A free tool that reads a Terraform *structured* plan (`terraform show -json`)
 and answers one question before you apply it: **what does this take away?**
 

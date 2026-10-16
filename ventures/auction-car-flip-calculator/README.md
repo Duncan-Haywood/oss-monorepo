@@ -1,5 +1,7 @@
 # Auction Car Flip Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/auction-car-flip-calculator/>
+
 Free, browser-only tool for people who buy cars at auction to repair and resell.
 Enter the expected resale price, repairs, the auction's buyer fee tiers,
 transport, tax, holding and financing costs and the profit you require. It solves

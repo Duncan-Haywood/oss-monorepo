@@ -1,5 +1,7 @@
 # Cow-Calf Breakeven Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cow-calf-breakeven-calculator/>
+
 **Find what a cow costs you a year, what her calf brings in, the calf price per hundredweight you need to break even, and how hay price, weaning weight and calves weaned move it.** Browser page, no install.
 
 After using this, you know your margin per cow and across the herd, the price, weight or weaning rate at which you break even, and which cost line to attack first.

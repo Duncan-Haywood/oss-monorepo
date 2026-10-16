@@ -1,5 +1,7 @@
 # Dog Grooming Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/dog-grooming-profit-calculator/>
+
 Free, browser-only tool for dog groomers and grooming salon owners. List your
 services with price, minutes, supplies and dogs per week, plus your overhead. It
 shows profit per hour for each service after card fees and overhead, the price

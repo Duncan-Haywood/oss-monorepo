@@ -1,5 +1,7 @@
 # Solar PV Install Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/solar-pv-bid-calculator/>
+
 A free browser calculator for solar installers. It prices a rooftop or
 ground-mount PV job the way the trade actually loses money — watts, then a
 roof-difficulty factor, then electrical extras that a dollars-per-watt quote

@@ -1,5 +1,7 @@
 # JWT Verification Misuse Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/jwt-verification-misuse-check/>
+
 A free tool that scans your own JavaScript/TypeScript, Python, Go and Java
 source for the JWT mistakes that let an attacker forge a token your server will
 trust. Each finding prints `file:line`, the risk and the exact fix.

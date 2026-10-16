@@ -1,5 +1,7 @@
 # Concrete Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/concrete-bid-calculator/>
+
 A free browser calculator for independent concrete contractors. It prices a
 driveway, patio, sidewalk, or slab the way the trade actually bids one —
 area times thickness for cubic yards, forms by the edge, finish by the

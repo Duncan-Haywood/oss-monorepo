@@ -1,5 +1,7 @@
 # Farmland Lease Calculator: Cash Rent vs Crop Share vs Flex
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/farmland-lease-cash-rent-vs-crop-share-calculator/>
+
 A free browser tool for landowners and farm operators negotiating a lease. Enter expected
 yield, price, input costs and the terms of each lease. It shows, per acre and per field, what
 the landlord and the operator each end up with under **cash rent**, a **crop share** and a

@@ -1,5 +1,7 @@
 # HubSpot Contacts CSV Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hubspot-contacts-csv-check/>
+
 A free browser tool for sales-ops people, marketers and agencies loading a contacts or companies
 list into HubSpot from a spreadsheet, another CRM or an old export: **paste or drop the CSV and see
 every problem with its line number before the import fails or creates the wrong records, then

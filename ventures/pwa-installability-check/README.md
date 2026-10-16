@@ -1,5 +1,7 @@
 # PWA Installability Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pwa-installability-check/>
+
 A free tool for web developers: fetches a page you choose, its linked **Web
 App Manifest**, and every icon that manifest lists, then classifies the
 result against **Chrome's documented installability criteria** — the same

@@ -1,5 +1,7 @@
 # Market Garden Bed Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/market-garden-bed-planner/>
+
 Free, browser-only tool for small vegetable and flower farms. Enter one row per crop
 (yield per bed-foot, price, days in bed, cost, labor, what you can sell) and your total
 bed-feet, season length and labor hours. It solves the crop mix that earns the most as an

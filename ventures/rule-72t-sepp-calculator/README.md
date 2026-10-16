@@ -1,5 +1,7 @@
 # Rule 72(t) SEPP Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rule-72t-sepp-calculator/>
+
 A free browser tool for people who want to draw on an IRA before age 59½ without the 10% additional tax:
 **enter age, balance and interest rate and see substantially equal periodic payments under the RMD method and
 fixed amortization, the lock-in length, the balance needed for an income target, and the penalty exposure if the

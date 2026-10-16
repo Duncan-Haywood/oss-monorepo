@@ -1,5 +1,7 @@
 # Container Load Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/container-load-planner/>
+
 Free, browser-only 3D load planner for small exporters, Amazon/FBA and DTC
 sellers shipping cartons or pallets. List cargo lines (size, weight, quantity,
 rotation, highest layer, weight allowed on top), pick a 20 ft, 40 ft, 40 ft high

@@ -1,5 +1,7 @@
 # Kubernetes Deprecated API Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/>
+
 A free tool that reads Kubernetes manifest YAML and reports every
 `apiVersion` + `kind` pair that a past Kubernetes release has already
 removed, or that a release you name would remove — sourced from Kubernetes'

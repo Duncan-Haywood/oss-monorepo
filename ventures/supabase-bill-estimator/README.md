@@ -1,5 +1,7 @@
 # Supabase Bill Estimator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/supabase-bill-estimator/>
+
 Estimate a monthly Supabase Pro bill from the usage numbers on your dashboard, and
 see which changes cut it most, each with a dollar figure — before the invoice.
 

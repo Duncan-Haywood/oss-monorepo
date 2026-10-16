@@ -1,5 +1,7 @@
 # Docker Compose Security Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/docker-compose-security-check/>
+
 A free tool that scans your own `docker-compose.yml` for the settings that hand
 a container the host or leak a credential. Each finding prints `file:line`, the
 risk and the exact fix.

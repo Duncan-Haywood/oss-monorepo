@@ -1,5 +1,7 @@
 # EU VAT OSS Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/eu-vat-oss-calculator/>
+
 A free browser tool for small sellers of digital goods, services and e-commerce products to
 EU consumers: **paste or drop your sales CSV, see whether you have crossed the EUR 10,000
 distance-sales threshold and on which sale, then get the VAT due per destination country and

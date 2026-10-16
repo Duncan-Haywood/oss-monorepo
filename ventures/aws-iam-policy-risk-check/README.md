@@ -1,5 +1,7 @@
 # AWS IAM Policy Risk Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/aws-iam-policy-risk-check/>
+
 A free browser tool (and small Node CLI) for anyone writing AWS IAM: **paste one
 policy, trust policy or bucket policy as JSON and see its score, every admin
 wildcard, privilege-escalation action, Allow+NotAction grant and public

@@ -1,5 +1,7 @@
 # Physician wRVU Contract Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/physician-wrvu-contract-calculator/>
+
 A free browser tool for physicians comparing job offers: **enter two offers (base salary, wRVU incentive
 threshold, dollars per wRVU, sign-on, other pay) and the wRVUs you expect to produce, and see each offer's
 yearly value, your effective cash pay per wRVU, the volume where the offers pay the same, and how each moves

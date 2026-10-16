@@ -1,5 +1,7 @@
 # GitHub Actions Secret Leak Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/actions-secret-leak-check/>
+
 A free, read-only checker for two documented ways a secret reaches a
 GitHub Actions log, or a later step, in plain text despite GitHub's own log
 masking. Paste your workflow YAML into the browser page, or run the CLI

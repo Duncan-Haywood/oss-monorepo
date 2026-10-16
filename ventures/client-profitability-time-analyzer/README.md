@@ -1,5 +1,7 @@
 # Client Profitability Time Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/client-profitability-time-analyzer/>
+
 A free browser tool for freelancers, consultants and small agencies: **load a time export and
 see what each client really pays you per hour.** The file is read in the browser; nothing is
 uploaded and no tracker login is needed.

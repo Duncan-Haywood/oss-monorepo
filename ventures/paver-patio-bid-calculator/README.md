@@ -1,5 +1,7 @@
 # Paver Patio Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/paver-patio-bid-calculator/>
+
 A free browser calculator for hardscape contractors. It prices an interlocking
 paver patio from the parts a published per-square-foot number cannot see —
 pattern waste, compacted-base cubic yards, edge restraint, and spoil haul-away

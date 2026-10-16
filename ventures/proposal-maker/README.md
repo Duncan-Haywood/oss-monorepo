@@ -1,5 +1,7 @@
 # Proposal Maker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/proposal-maker/>
+
 After using this, you can send a priced, scoped proposal in 15 minutes that
 used to take an afternoon in Word.
 

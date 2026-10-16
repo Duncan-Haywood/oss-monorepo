@@ -1,5 +1,7 @@
 # Farrier Visit Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/farrier-visit-pricing-calculator/>
+
 Free, private browser tool for mobile farriers: drive time, minutes per horse, materials, yearly fixed costs and the income you want become a trip charge plus a per-horse rate, the price for each stop size, and a check on the flat per-horse rate you charge today.
 
 After using this, you can quote a one-horse stop and a six-horse barn so both pay, which used to mean one flat rate per horse that only paid on the big barns.

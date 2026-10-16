@@ -1,5 +1,7 @@
 # Rush job sequencer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rush-job-sequencer/>
+
 After using this, you can now see which order to do a queue of rush jobs in so that the total cost of lateness is as small
 as it can be, with every possible order checked exactly, which used to take a gut call about who shouts loudest.
 

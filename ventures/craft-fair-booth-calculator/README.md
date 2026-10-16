@@ -1,5 +1,7 @@
 # Craft Fair Booth Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/craft-fair-booth-calculator/>
+
 Makers who sell at craft fairs, farmers markets, art festivals, and holiday markets can use this free browser-local calculator to decide whether one booth is worth taking — what the day has to sell to break even, what share of the table that represents, what the weekend actually pays per hour once prep, travel, setup and teardown are counted, and the most a booth could cost and still clear the rate they want for their own time. **After using this, you can answer an open application with arithmetic instead of a feeling, which used to take a gut check that counted the booth fee and nothing else.**
 
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.

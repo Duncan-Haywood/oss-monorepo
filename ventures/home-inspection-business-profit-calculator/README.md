@@ -1,5 +1,7 @@
 # Home Inspection Business Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/home-inspection-business-profit-calculator/>
+
 A free browser tool for independent home inspectors: **enter inspections per week by type, fees by home size, on-site, report and drive hours, mileage, fall-through, insurance, software and equipment, and get profit per inspection and per hour all-in, the fee each type needs for your target margin, break-even inspections per month, what each add-on earns per hour, and solo versus hiring an associate inspector paid per inspection**. Nothing is uploaded.
 
 After using this, you can now **see what an inspection earns per hour once the drive, the report and the deals that fall through are counted, which add-ons are worth pushing, and whether an associate adds profit**, which used to take a spreadsheet and a guess.

@@ -1,5 +1,7 @@
 # Home Service Lead ROI Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/home-service-lead-roi-analyzer/>
+
 A free browser tool for plumbers, electricians, HVAC techs, roofers and other home-service
 pros who buy leads: **load a lead log and see which sources actually book jobs.** The file is
 read in the browser; nothing is uploaded and no platform account access is needed.

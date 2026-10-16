@@ -1,5 +1,7 @@
 # Fractional Executive Rate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fractional-executive-rate-calculator/>
+
 A free browser calculator for fractional CFOs, CMOs, CTOs, COOs and other
 part-time executives. Nothing is uploaded.
 

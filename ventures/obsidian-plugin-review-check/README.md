@@ -1,5 +1,7 @@
 # Obsidian Plugin Review Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/obsidian-plugin-review-check/>
+
 A free tool for Obsidian plugin developers: scans your **`manifest.json`**,
 **`versions.json`**, and **JavaScript/TypeScript source** for the patterns
 behind common Obsidian community-plugin review delays, before a reviewer

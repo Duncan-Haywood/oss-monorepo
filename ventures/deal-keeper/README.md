@@ -1,5 +1,7 @@
 # Deal Keeper
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/deal-keeper/>
+
 A sales pipeline forecaster for small B2B teams. It learns each stage's real win
 rate from your own closed deals, gives a forecast range it has **backtested
 against deals that were open in the past**, and ranks the stale, slipping or

@@ -1,5 +1,7 @@
 # Wash and Fold Price Per Pound Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/wash-and-fold-price-calculator/>
+
 Laundromat owners and laundry pickup-and-delivery operators can use this free,
 browser-local calculator to find what a pound of wash-dry-fold actually costs
 them — labour minutes, wash and dry cycles, supplies, delivery stops and an

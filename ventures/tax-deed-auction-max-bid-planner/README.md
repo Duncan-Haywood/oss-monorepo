@@ -1,5 +1,7 @@
 # Tax Deed Auction Max Bid Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tax-deed-auction-max-bid-planner/>
+
 Free, browser-only calculator for tax deed auction buyers. Enter the resale price and
 what winning will really cost (buyer's premium, surviving liens, quiet title, occupant
 removal, repairs, holding and the return on your cash) and it returns the **maximum

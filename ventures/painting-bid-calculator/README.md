@@ -1,5 +1,7 @@
 # Painting Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/painting-bid-calculator/>
+
 A free browser calculator for independent interior painters. It prices a
 repaint the way the trade actually estimates one — each surface divided by the
 production rate the painter really hits — and shows the margin before the

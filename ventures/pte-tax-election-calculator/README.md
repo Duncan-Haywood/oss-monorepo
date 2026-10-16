@@ -1,5 +1,7 @@
 # PTE Tax Election Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pte-tax-election-calculator/>
+
 A free browser tool for S corporation and partnership owners in states with a
 pass-through entity tax (PTET) election. Enter your pass-through income, the
 state's PTET rate and credit, your other state and local taxes, your other

@@ -1,5 +1,7 @@
 # Rent vs Buy Break-Even Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rent-vs-buy-breakeven-calculator/>
+
 A free browser tool: **type a house and a comparable rental and see the year buying pulls ahead, the
 net-worth gap at the year you plan to move, and the starting rent at which renting and buying are exactly
 level.** A sensitivity grid shows how far home-price growth and investment return move the answer. Nothing

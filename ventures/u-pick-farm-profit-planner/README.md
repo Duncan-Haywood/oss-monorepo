@@ -1,5 +1,7 @@
 # U-Pick Farm Profit Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/u-pick-farm-profit-planner/>
+
 A free browser tool for u-pick farms, pumpkin patches and small agritourism
 operations. Enter open days, weather losses, daily visitors, admission, what
 people pick and spend, and your season costs; it returns season profit, the

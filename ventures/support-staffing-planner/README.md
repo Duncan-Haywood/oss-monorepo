@@ -1,5 +1,7 @@
 # Support Staffing Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/support-staffing-planner/>
+
 How many agents does a phone, chat or ticket queue need in every half hour, and what is the cheapest set of
 shifts that covers them? Paste contacts per interval for a typical week, set a service target (for example 80%
 answered within 20 seconds), shrinkage, an occupancy cap, the shift lengths you allow and an hourly cost.

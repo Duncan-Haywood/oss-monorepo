@@ -1,5 +1,7 @@
 # Hay Baling Own vs Hire Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hay-baling-own-vs-hire-calculator/>
+
 A free browser tool for hay producers deciding whether to buy a baler (with the
 mower and rake it needs) or keep hiring custom baling. Enter acres, yield, bale
 weight, equipment cost and the custom price per bale; it compares the year's

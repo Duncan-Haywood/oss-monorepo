@@ -1,5 +1,7 @@
 # 1099-NEC Vendor CSV Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/1099-vendor-csv-checker/>
+
 A free browser tool for small businesses and bookkeepers: **paste or drop your vendor
 payments CSV and see who crosses the 1099-NEC threshold ($2,000 for payments after 2025,
 $600 before) and every data fault that would draw an IRS notice, row by row, then download

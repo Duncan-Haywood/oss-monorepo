@@ -1,5 +1,7 @@
 # Kubernetes Resource Limits Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/k8s-resource-limits-check/>
+
 A free tool that reads Kubernetes workload YAML (`Pod`, `Deployment`,
 `StatefulSet`, `DaemonSet`, `ReplicaSet`, `Job`, `CronJob`) and reports every
 container missing a memory limit, memory request, CPU request, or

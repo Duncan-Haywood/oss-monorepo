@@ -1,5 +1,7 @@
 # GPU Training Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/training-gpu-pricing-calculator/>
+
 Price an H100, A100, L40S or RTX 4090 workload on RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google
 Cloud and Modal side by side at your busy GPU-hours and real utilisation, see the 12-month spend
 under growth, and find the busy hours a month above which buying the card beats renting.

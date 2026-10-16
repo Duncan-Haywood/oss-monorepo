@@ -1,5 +1,7 @@
 # Pay Application Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pay-application-generator/>
+
 Free, private browser tool for subcontractors and small general contractors: paste a schedule of values with what was billed before and this period, set retainage, and get the contract sum, change orders, retainage held, previous certificates, current payment due and balance to finish, a line-by-line table, and a CSV. Flags lines billed over their value and front-loaded billing.
 
 Open `index.html`. Tests: `node --test 'ventures/pay-application-generator/**/*.test.mjs'`.

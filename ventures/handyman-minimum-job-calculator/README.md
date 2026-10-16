@@ -1,5 +1,7 @@
 # Handyman Minimum Job Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/handyman-minimum-job-calculator/>
+
 Free, browser-only tool for handymen and small repair businesses. Enter the hourly
 pay you want for your own time, monthly overhead, and the drive, estimate and
 supply-run time every call costs. It shows the minimum trip charge, the smallest job

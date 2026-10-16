@@ -1,5 +1,7 @@
 # Restaurant Labor Cost Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/restaurant-labor-cost-daypart-analyzer/>
+
 A free browser tool for restaurant owners: **drop in your sales-by-hour report and your time-entry
 export and see which dayparts and hours run over your labor target.** Both files are read in the
 browser; nothing is uploaded and no POS login is needed.

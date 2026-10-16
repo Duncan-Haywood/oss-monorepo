@@ -1,5 +1,7 @@
 # Invoice Aging & Late Payer Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/invoice-aging-late-payer-analyzer/>
+
 A free browser tool for freelancers, agencies, trades and any small business that invoices on
 terms: **load an invoice export and see who owes you, how late it is, and who always pays
 slow.** The file is read in the browser; nothing is uploaded and no accounting login is needed.

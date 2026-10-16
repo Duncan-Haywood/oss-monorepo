@@ -1,5 +1,7 @@
 # Shopify Permission Drift Record
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shopify-permission-drift/>
+
 Shopify agencies and merchants can compare two customer-authorized app inventories and see exactly which scopes, webhook topics, or authorization states changed.
 
 After using this, you can now hand a merchant a before-and-after permission

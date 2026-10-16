@@ -1,5 +1,7 @@
 # self-storage-rate-increase-calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/self-storage-rate-increase-calculator/>
+
 A browser calculator for independent self-storage operators. It prices an
 **existing-customer rate increase** the way the decision is actually made —
 against the move-outs it will cause — and reports the one number nobody has:

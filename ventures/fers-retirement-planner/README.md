@@ -1,5 +1,7 @@
 # FERS Retirement Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fers-retirement-planner/>
+
 A free browser tool for federal employees under FERS: **enter birth month, service start, pay, sick leave and TSP and see the pension, Special Retirement Supplement and TSP income at every retirement age, the month each kind of retirement first opens, and what one more year of work adds.**
 
 After using this, you can **see whether waiting for 62 (the 1.1% multiplier) or for 30 years (the supplement) beats retiring at your minimum retirement age**, which used to be an OPM estimate request or a spreadsheet per scenario.

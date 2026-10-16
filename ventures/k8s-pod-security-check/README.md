@@ -1,5 +1,7 @@
 # Kubernetes Pod Security Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/k8s-pod-security-check/>
+
 A free tool that scans your own Kubernetes manifests (Pod, Deployment,
 StatefulSet, DaemonSet, ReplicaSet, Job, CronJob; multi-document `---` files
 work) for risky pod and container security settings. Each finding prints

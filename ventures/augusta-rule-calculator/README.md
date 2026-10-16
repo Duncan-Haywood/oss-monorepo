@@ -1,5 +1,7 @@
 # Augusta Rule Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/augusta-rule-calculator/>
+
 A free browser tool for small-business owners who own their home: **enter the days you would rent it to your
 own business, a fair daily rent and your tax rates, and see the rent excluded from your income, the federal,
 self-employment and state tax saved, the net after costs, and what happens if the daily rate is cut back.**

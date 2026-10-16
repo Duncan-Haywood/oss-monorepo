@@ -1,5 +1,7 @@
 # Agent Instructions Drift Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/agent-instructions-drift-check/>
+
 A free tool that checks an AI-coding-agent instruction file — `AGENTS.md`,
 `CLAUDE.md`, `.cursorrules`, `.github/copilot-instructions.md`, or similar —
 for drift against the repo it actually describes: a markdown-link or

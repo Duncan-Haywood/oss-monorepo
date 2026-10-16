@@ -1,5 +1,7 @@
 # hreflang Reciprocity Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hreflang-reciprocity-check/>
+
 A free tool that checks a page's `<link rel="alternate" hreflang="..."
 href="...">` tags for the well-documented international-SEO
 misconfigurations Google's own hreflang documentation names directly:

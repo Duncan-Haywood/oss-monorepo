@@ -1,5 +1,7 @@
 # CD & Treasury Ladder Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cd-treasury-ladder-planner/>
+
 A free browser tool for savers: **type the CD and Treasury rates you can get today and see an equally spaced
 ladder with its after-tax yield per rung, when cash comes due, and how it compares with one long CD or rolling
 short terms if rates rise or fall by up to two points.** Treasuries skip state income tax; CDs do not. Nothing

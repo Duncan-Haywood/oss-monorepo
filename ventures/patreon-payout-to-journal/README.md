@@ -1,5 +1,7 @@
 # Patreon Payout To Journal
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/patreon-payout-to-journal/>
+
 Free browser tool that turns a Patreon earnings export into balanced accounting journals for Xero,
 QuickBooks Online and QuickBooks Desktop (IIF). It splits every pledge charge into membership
 income, shipping income, tax collected and Patreon's fee, books refunds separately instead of the

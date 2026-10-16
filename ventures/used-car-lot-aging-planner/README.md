@@ -1,5 +1,7 @@
 # Used Car Lot Aging Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/used-car-lot-aging-planner/>
+
 "Wait until it sells" pays floorplan interest, curtailments and lot costs on units that lose value every week. Paste
 an independent dealer's inventory (days on lot, total cost, floored amount, expected retail and wholesale values and
 how fast each falls, expected days to retail, daily holding cost) and get each unit's true carrying cost to date and

@@ -1,5 +1,7 @@
 # Asphalt Sealcoating Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/asphalt-sealcoat-bid-calculator/>
+
 A free browser calculator for sealcoating contractors. It prices a driveway or
 parking-lot job the way the trade actually loses money when they skip it —
 square feet times coats and coverage, then oil-spot primer, crack fill,

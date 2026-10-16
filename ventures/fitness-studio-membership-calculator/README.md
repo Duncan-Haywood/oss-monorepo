@@ -1,5 +1,7 @@
 # Fitness Studio Membership Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fitness-studio-membership-calculator/>
+
 A free browser tool for boutique gym, yoga, pilates and CrossFit owners: **type your members, price, churn, joins and costs and see what a member is worth**, what it costs to win one, how fast they pay it back, where the member count settles, how many members cover fixed costs, class-capacity utilization, and what a point of churn or $10 of price is worth.
 
 After using this, you can **decide whether to spend the next dollar on ads or on retention**, which used to be a gut call.

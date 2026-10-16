@@ -1,5 +1,7 @@
 # Link Keeper
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/link-keeper/>
+
 After using this, you can **run short links on your own domain, tag every
 campaign link with UTM parameters, send iPhone and Android visitors to the
 right app store, and see clicks by day, referrer and device**, without paying

@@ -1,5 +1,7 @@
 # Amusement Route Location Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/amusement-route-location-calculator/>
+
 Free, browser-only calculator for coin-op route operators (arcade cabinets, pool tables,
 claw machines, kiddie rides). Enter each location's weekly take per machine, commission,
 visits and miles. It shows profit per route hour, the **weekly take each machine needs**,

@@ -1,5 +1,7 @@
 # Firebase Security Rules Exposure Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/>
+
 A free tool for anyone running a Firebase project: sends **real, read-only, unauthenticated
 requests** to the project's Realtime Database and/or named Firestore collections, and names which
 ones return **real data with no login** — the default-open / left-in-test-mode **security rules**

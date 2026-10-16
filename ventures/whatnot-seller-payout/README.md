@@ -1,5 +1,7 @@
 # Whatnot Seller Payout Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/whatnot-seller-payout/>
+
 A free browser tool that prices one Whatnot lot the way a payout statement
 actually lands: commission on the hammer, payment processing on the checkout
 total (item + buyer-paid shipping + tax) plus the flat 30 cents, leftover

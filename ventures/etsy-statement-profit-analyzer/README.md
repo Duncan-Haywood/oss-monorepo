@@ -1,5 +1,7 @@
 # Etsy Statement Profit Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/etsy-statement-profit-analyzer/>
+
 A free browser tool for Etsy sellers: **drop in your Payment Account statement
 (and Sold Order Items) and see where every sale went, and which listings make
 money.** The files are read in the browser; nothing is uploaded. Independent of

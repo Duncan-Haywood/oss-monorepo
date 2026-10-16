@@ -1,5 +1,7 @@
 # Clearance Markdown Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/clearance-markdown-planner/>
+
 Free browser tool for retailers and online sellers with stock they need to clear
 before a deadline. Enter the units left, the weeks left, and what a leftover unit
 is worth; paste recent `date, price, units` rows and the tool measures how your

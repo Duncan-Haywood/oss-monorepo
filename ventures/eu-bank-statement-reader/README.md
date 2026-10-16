@@ -1,5 +1,7 @@
 # EU Bank Statement Reader
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/eu-bank-statement-reader/>
+
 A free browser tool for anyone handed an ISO 20022 **camt.053** XML or a SWIFT **MT940** bank
 statement: **paste or drop it and see each account, its balances and every entry as a table,
 check that opening balance plus entries equals the closing balance, and download the entries as

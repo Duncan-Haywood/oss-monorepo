@@ -1,5 +1,7 @@
 # Slot Keeper
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/slot-keeper/>
+
 After using this, you can now **let people book time with you from a page you host yourself**, offering only the times you are really free, in each visitor's own time zone, with an invitation, a reminder and a cancel or reschedule link, instead of paying a scheduling service per seat or trading emails about times.
 
 Two parts, both free and MIT:

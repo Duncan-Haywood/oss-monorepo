@@ -1,5 +1,7 @@
 # Lumper Fee Reimbursement Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/lumper-fee-reimbursement-calculator/>
+
 A free browser tool for owner-operators, small carriers and dispatchers: **enter the lumper receipt, the dock wait and each way a broker might pay you back, and see what you are really out on each route**. Nothing is uploaded.
 
 After using this, you can now **know what to ask the broker to reimburse before you pay the lumper**, which used to be a receipt, an advance fee and a 45-day wait that nobody added up.

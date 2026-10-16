@@ -1,5 +1,7 @@
 # Actions Cache Poisoning Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/actions-cache-poisoning-check/>
+
 A free tool that scans GitHub Actions workflow files for two documented
 cache-poisoning patterns:
 

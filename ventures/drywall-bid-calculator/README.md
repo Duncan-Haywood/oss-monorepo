@@ -1,5 +1,7 @@
 # Drywall Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/drywall-bid-calculator/>
+
 A free browser calculator for drywall contractors. It prices a job the way
 the trade actually loses money when they skip it — hang is the cheap half;
 finish level, texture, height, openings, and waste decide whether the week

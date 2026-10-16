@@ -1,5 +1,7 @@
 # CORS Misconfiguration Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cors-misconfig-check/>
+
 A free tool for API developers: sends **six real HTTP GET requests** to a URL
 you choose, each with a different `Origin` header, and classifies the
 responses into the CORS misconfiguration patterns that actually get exploited:

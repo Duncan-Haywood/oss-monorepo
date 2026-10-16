@@ -1,5 +1,7 @@
 # Photos Import Tools
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/photos-import-tools/>
+
 Resumable macOS photo-import utilities for safely moving JPEG and RAW media
 into Apple Photos. The tools provide manifest-backed progress, duplicate-risk
 handling, structured error classification, watchdog supervision, and SD-card

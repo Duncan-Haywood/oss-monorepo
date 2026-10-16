@@ -1,5 +1,7 @@
 # Cash Runway Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cash-runway-planner/>
+
 Small service businesses often know their profit and still run out of cash because invoices arrive later than bills. Cash Runway Planner turns starting cash, weekly income, invoice collection delay, and recurring costs into a low-balance forecast of up to 52 weeks.
 
 When the forecast dips below zero it names **the first week cash goes negative**, which is usually earlier than the lowest week and is the date an invoice or a bill has to move in front of.

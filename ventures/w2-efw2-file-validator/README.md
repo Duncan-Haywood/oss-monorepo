@@ -1,5 +1,7 @@
 # W-2 EFW2 File Validator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/w2-efw2-file-validator/>
+
 A free browser tool for payroll preparers, bookkeepers and small employers who file W-2s
 with the Social Security Administration by wage file: **paste or drop the EFW2 file and see
 every structural error with its line number before Business Services Online rejects it,

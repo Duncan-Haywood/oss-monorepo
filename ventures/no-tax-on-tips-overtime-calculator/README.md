@@ -1,5 +1,7 @@
 # No Tax on Tips & Overtime Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/no-tax-on-tips-overtime-calculator/>
+
 A free browser calculator for two new federal deductions: the "no tax on
 tips" qualified-tips deduction and the "no tax on overtime" qualified
 overtime compensation deduction, both enacted by the One Big Beautiful Bill

@@ -1,5 +1,7 @@
 # Shopify Fee & Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/>
+
 A free Shopify fee calculator for merchants. It shows what an order leaves
 after **Shopify Payments** or a **third-party processor** (PayPal, Stripe, and
 the rest), including the extra Shopify third-party transaction fee that generic

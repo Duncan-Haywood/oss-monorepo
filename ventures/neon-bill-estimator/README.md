@@ -1,5 +1,7 @@
 # Neon Bill Estimator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/neon-bill-estimator/>
+
 Estimate a monthly Neon (serverless Postgres) bill from the usage numbers in your console, and
 see which changes cut it most, each with a dollar figure — before the invoice.
 

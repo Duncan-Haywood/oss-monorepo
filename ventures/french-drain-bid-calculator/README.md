@@ -1,5 +1,7 @@
 # French Drain Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/french-drain-bid-calculator/>
+
 A free browser calculator for drainage and excavation contractors. It
 prices an exterior French-drain install the way the trade actually
 loses money — trench depth, pipe size, clay versus dirt, daylight

@@ -1,5 +1,7 @@
 # Crew Dispatch Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/crew-dispatch-optimizer/>
+
 A free browser tool for plumbers, HVAC, electricians, cleaners, landscapers and any small service business that sends
 crews to jobs: **paste today's jobs and your crews, and get which crew takes each job and the order of each crew's
 stops at the lowest cost**, respecting skills, hours in the day and what each job is worth. Nothing is uploaded.

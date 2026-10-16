@@ -1,5 +1,7 @@
 # License Drift Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/license-drift-check/>
+
 A free tool that diffs two point-in-time snapshots of a dependency tree's
 declared licenses — and tells you exactly which packages' **license**
 changed since the last one. Not their version. Their license.

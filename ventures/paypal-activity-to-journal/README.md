@@ -1,5 +1,7 @@
 # Paypal Activity To Journal
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/paypal-activity-to-journal/>
+
 Free browser tool that turns a PayPal Activity download (CSV) into balanced accounting journals for
 Xero, QuickBooks Online and QuickBooks Desktop (IIF). It walks the running Balance column row by row
 to prove no transaction is missing or out of order (naming the row where the chain breaks), books

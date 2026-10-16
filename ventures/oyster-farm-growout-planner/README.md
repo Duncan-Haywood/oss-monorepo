@@ -1,5 +1,7 @@
 # Oyster Farm Growout Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/oyster-farm-growout-planner/>
+
 A free browser tool (and small Node CLI) for oyster growers and people about to become one:
 **enter seed, survival, growout months, gear, lease and prices by grade, and see net for the crop,
 net per 1,000 oysters sold, the break-even price and survival, and the cash you need before the

@@ -1,5 +1,7 @@
 # Commissary Kitchen Cost Split Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/commissary-kitchen-cost-split-calculator/>
+
 Free browser-local calculator for commissary/shared-kitchen operators, or a
 lead tenant coordinating with others, to split pooled monthly kitchen costs
 (rent, utilities, trash, cleaning, pest control, insurance, etc.) fairly

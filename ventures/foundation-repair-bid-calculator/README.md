@@ -1,5 +1,7 @@
 # Foundation Repair Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/foundation-repair-bid-calculator/>
+
 A free browser calculator for foundation-repair contractors. It prices helical
 piers, hydraulic push piers, or bowed-wall stabilization the way the trade
 actually loses money — extra shaft past the footage already in the pier price,

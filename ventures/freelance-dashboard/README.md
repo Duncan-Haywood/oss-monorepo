@@ -1,5 +1,7 @@
 # Freelance Dashboard
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/freelance-dashboard/>
+
 After using this, you know what you are owed and by whom, what hours you have
 worked but not billed, which quotes need a follow-up, what your profit is so
 far this year after costs, and what to do first today.

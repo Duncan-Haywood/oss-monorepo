@@ -1,5 +1,7 @@
 # Hidden Unicode Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hidden-unicode-check/>
+
 A free tool that scans pasted text — `CLAUDE.md`, `AGENTS.md`,
 `.cursorrules`, `.github/copilot-instructions.md`, a README, a dependency's
 docs, a PR description, or anything else you might hand to an AI coding

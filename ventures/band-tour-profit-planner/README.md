@@ -1,5 +1,7 @@
 # Band Tour Profit Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/band-tour-profit-planner/>
+
 Free, browser-only tour and gig budget for touring bands, solo acts and DJs.
 List each show (miles, expected paid attendance, ticket price, venue deal, merch,
 nights stayed) and your costs (van cost per mile, rooms, per diems, crew, agent

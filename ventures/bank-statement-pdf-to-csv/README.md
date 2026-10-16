@@ -1,5 +1,7 @@
 # Bank Statement Pdf To Csv
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bank-statement-pdf-to-csv/>
+
 Free browser tool that converts a text-based bank or credit card statement PDF into CSV for Xero,
 QuickBooks Online or a spreadsheet, and proves the result against the statement itself: opening
 balance plus every row must equal the closing balance, each row is checked against the printed

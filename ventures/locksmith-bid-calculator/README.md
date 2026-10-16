@@ -1,5 +1,7 @@
 # Locksmith Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/locksmith-bid-calculator/>
+
 Mobile and small-shop locksmiths can use this free browser-local calculator to
 price one service call — lockout, rekey, lock or cylinder install, or fob
 programming — from labor and travel time, an after-hours/emergency premium

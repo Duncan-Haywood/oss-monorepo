@@ -1,5 +1,7 @@
 # Amazon Seller Profit Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/amazon-seller-profit-analyzer/>
+
 A free browser tool for Amazon sellers: **drop in the Seller Central
 Transaction report CSV and see profit per SKU.** The file is read in the
 browser; nothing is uploaded. Independent of Amazon and not affiliated with it.

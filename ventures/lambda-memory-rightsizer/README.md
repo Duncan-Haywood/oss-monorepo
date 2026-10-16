@@ -1,5 +1,7 @@
 # Lambda Memory Rightsizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/lambda-memory-rightsizer/>
+
 Find the AWS Lambda memory size that minimises cost without a latency regression — from
 the `REPORT` lines already in your CloudWatch Logs. Browser page or zero-dependency CLI.
 

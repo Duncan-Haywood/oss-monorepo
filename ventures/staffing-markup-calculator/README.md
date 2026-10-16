@@ -1,5 +1,7 @@
 # staffing-markup-calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/staffing-markup-calculator/>
+
 A browser calculator for independent staffing agencies and recruiters. It
 prices one placement the way the trade actually quotes it — a **markup on the
 pay rate** — and then shows what that markup earns once the employer burden it

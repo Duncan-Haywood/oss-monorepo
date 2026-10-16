@@ -1,5 +1,7 @@
 # Gumroad Sales Fee Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/gumroad-sales-fee-analyzer/>
+
 A free browser tool for Gumroad sellers: **drop in your sales CSV and see
 what you actually take home.** The file is read in the browser; nothing is uploaded and
 no Gumroad account access is needed.

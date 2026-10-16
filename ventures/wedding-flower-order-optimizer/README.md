@@ -1,5 +1,7 @@
 # Wedding flower order optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/wedding-flower-order-optimizer/>
+
 After using this, you can now see the cheapest wholesale order that covers every stem an event needs, with a damage allowance and
 the spare stems it leaves, which used to mean rounding each flower up to a whole box by feel and over-ordering to be safe.
 

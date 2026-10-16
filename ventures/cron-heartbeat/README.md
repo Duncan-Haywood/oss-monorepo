@@ -1,5 +1,7 @@
 # cron-heartbeat
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cron-heartbeat/>
+
 After using this, you can now **find out within minutes when a cron job stops
 running or starts failing**, which used to mean noticing a missing backup weeks
 later.

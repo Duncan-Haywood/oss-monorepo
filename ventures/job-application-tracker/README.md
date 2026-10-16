@@ -1,5 +1,7 @@
 # Job Application Tracker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/job-application-tracker/>
+
 A free job application tracker that lives in your browser. Log each
 application once; it tells you which follow-ups are due today, flags
 applications that have been silent for 30+ days, and shows your reply and

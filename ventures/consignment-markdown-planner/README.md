@@ -1,5 +1,7 @@
 # Consignment Markdown Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/consignment-markdown-planner/>
+
 A fixed 25%-at-30-days, 50%-at-60 rule treats a $12 tee and a $210 handbag the same. Paste the items on your
 consignment or resale floor (price, weekly sell rate, your share of the sale, shelf cost per week) and get the
 exact markdown schedule with the highest expected profit for each, which items are not worth taking in and what

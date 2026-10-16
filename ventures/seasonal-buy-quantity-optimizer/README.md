@@ -1,5 +1,7 @@
 # Seasonal Buy Quantity Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/seasonal-buy-quantity-optimizer/>
+
 A free browser tool for anyone who buys stock once per season and cannot reorder: **enter past seasons (sold-out
 seasons handled) or a low / likely / high guess, plus price, cost, supplier price breaks and leftover value, and get the
 order quantity that maximises expected profit, a cautious order, the chance of selling out or losing money, and a

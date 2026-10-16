@@ -1,5 +1,7 @@
 # Mobile Home Park Valuation Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mobile-home-park-valuation-calculator/>
+
 A free browser tool for people buying, owning or listing a manufactured-home community. Type the
 lots, occupancy, lot rent and the expense lines from a T-12. It returns NOI, value at your cap
 rate, the cap rate an asking price implies, debt service coverage, cash on cash, a cap-rate by

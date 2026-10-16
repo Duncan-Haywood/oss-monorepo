@@ -1,5 +1,7 @@
 # Pet Sitting Platform Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pet-sitting-platform-fee-calculator/>
+
 A free browser tool: **type your bookings, price and the marketplace's cut, and see what you keep per booking and per
 hour on Rover, Wag or another platform versus booking clients directly.** It shows the break-even number of direct
 bookings per month, the platform price that would net the same, and take-home at 0-100% direct. Nothing is uploaded.

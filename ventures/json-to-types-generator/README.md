@@ -1,5 +1,7 @@
 # JSON to Types Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/json-to-types-generator/>
+
 Paste JSON samples, get **TypeScript interfaces, Zod schemas, JSON Schema or Go structs**.
 Several samples are merged, so fields missing from some become optional and fields that
 are sometimes `null` become nullable. Integers stay integers until a decimal appears;

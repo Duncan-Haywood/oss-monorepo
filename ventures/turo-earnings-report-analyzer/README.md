@@ -1,5 +1,7 @@
 # Turo Earnings Report Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/turo-earnings-report-analyzer/>
+
 A free browser tool for Turo hosts: **drop in your earnings or trip history CSV and see
 which cars actually make money.** The file is read in the browser; nothing is uploaded
 and no Turo account access is needed.

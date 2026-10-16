@@ -1,5 +1,7 @@
 # Stair Lift Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/stair-lift-bid-calculator/>
+
 A free browser calculator for accessibility contractors and
 aging-in-place remodelers. It prices a stair-lift / chair-lift
 install the way the trade actually loses money — straight

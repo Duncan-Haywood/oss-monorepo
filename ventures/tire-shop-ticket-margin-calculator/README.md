@@ -1,5 +1,7 @@
 # Tire Shop Ticket Margin Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tire-shop-ticket-margin-calculator/>
+
 Free, browser-only tool for independent tire shop owners and managers. List your
 ticket lines (tires, alignment, road hazard coverage, sensor service, fees) with
 price, parts cost, labor minutes and attach rate, plus technician cost, overhead

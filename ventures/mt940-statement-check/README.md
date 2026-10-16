@@ -1,5 +1,7 @@
 # Mt940 Statement Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mt940-statement-check/>
+
 Free browser tool that checks a SWIFT MT940 bank statement before it goes into QuickBooks, Xero,
 Sage, DATEV, Exact, Moneybird or a spreadsheet, and says why an import fails or posts wrong: opening
 balance plus transactions that do not equal the closing balance (and by how much), a statement that

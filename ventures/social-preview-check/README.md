@@ -1,5 +1,7 @@
 # Social Preview Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/social-preview-check/>
+
 A free tool for developers, marketers, and content creators: fetches a page's
 Open Graph and Twitter Card meta tags, fetches enough of its `og:image` /
 `twitter:image` to read the **real pixel dimensions straight out of the

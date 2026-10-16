@@ -1,5 +1,7 @@
 # Egress Window Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/egress-window-bid-calculator/>
+
 A free browser calculator for foundation and basement contractors. It
 prices an egress-window install the way the trade actually loses
 money — retrofit on an existing hole versus a wood, masonry, or

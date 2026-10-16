@@ -1,5 +1,7 @@
 # Backflow Test Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/backflow-test-fee-calculator/>
+
 A free browser calculator for licensed backflow-preventer testers quoting a
 property visit with one or more devices (RPZ, double-check, PVB): a
 per-device test fee, a multi-device discount applied to every device after

@@ -1,5 +1,7 @@
 # SaaS Seat True-Up Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/saas-seat-true-up/>
+
 If you are preparing a SaaS renewal, this free browser calculator shows how many purchased seats were unused and how much recurring spend is exposed. **After using this, you can now take a quantified seat-reduction scenario into a vendor renewal discussion, which used to take a spreadsheet and manual arithmetic.**
 
 Open [`index.html`](index.html) directly or serve this directory as a static site. It needs no account, API key, network call, or paid dependency. All calculations are deterministic and the user's data stays in the browser. The product is distinct from quote-margin tools because it focuses on recurring software-seat utilization and renewal timing.

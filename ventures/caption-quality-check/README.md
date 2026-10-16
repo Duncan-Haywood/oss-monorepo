@@ -1,5 +1,7 @@
 # Caption Quality Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/caption-quality-check/>
+
 A free tool that checks an **SRT** or **WebVTT** caption file against
 commonly-used caption style-guide thresholds — the readability rules that
 sit on top of "captions exist," which is all WCAG 1.2.2 and Section 508

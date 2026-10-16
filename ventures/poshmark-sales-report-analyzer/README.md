@@ -1,5 +1,7 @@
 # Poshmark Sales Report Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/poshmark-sales-report-analyzer/>
+
 A free browser tool for Poshmark sellers: **load your My Sales Report CSV and see which
 items and brands actually make money.** The file is read in the browser; nothing is
 uploaded and no Poshmark account access is needed.

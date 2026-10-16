@@ -1,5 +1,7 @@
 # Garage Door Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/garage-door-bid-calculator/>
+
 A free browser calculator for garage-door technicians and small shops. It
 prices a replacement or a broken-spring service from parts, shop hours, and
 the drive — then shows the walk-away number and whether travel is eating the

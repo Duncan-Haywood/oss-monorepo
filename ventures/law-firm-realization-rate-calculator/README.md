@@ -1,5 +1,7 @@
 # Law Firm Realization Rate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/law-firm-realization-rate-calculator/>
+
 Free browser calculator for law firms and solo lawyers that turns three columns every billing system
 already prints (value of time recorded at standard rates, amount billed, amount collected) into
 realization, collection rate and yield per timekeeper and for the firm, splits the loss into write-

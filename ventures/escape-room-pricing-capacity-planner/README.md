@@ -1,5 +1,7 @@
 # Escape Room Pricing and Capacity Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/escape-room-pricing-capacity-planner/>
+
 A free browser tool for escape room and other timed-slot venue owners (axe
 throwing, VR arenas, themed experiences). Enter rooms, opening hours, game and
 reset length, price per player, the occupancy you see and your costs; it counts

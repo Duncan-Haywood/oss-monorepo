@@ -1,5 +1,7 @@
 # Facebook Marketplace Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/facebook-marketplace-fee-calculator/>
+
 A free browser tool that prices one Facebook Marketplace sale against the
 current, corroborated fee schedule: **10% of the buyer-paid total** (item
 price, buyer-paid shipping, and any sales tax Facebook collected) on a

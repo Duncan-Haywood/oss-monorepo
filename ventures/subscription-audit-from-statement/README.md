@@ -1,5 +1,7 @@
 # Subscription Audit From Your Bank Statement
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/subscription-audit-from-statement/>
+
 A free browser tool: **drop in a CSV export from your bank or credit card and see every recurring
 charge.** The file is read in the browser; nothing is uploaded and no bank connection is needed.
 

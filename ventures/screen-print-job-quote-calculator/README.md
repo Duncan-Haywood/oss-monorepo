@@ -1,5 +1,7 @@
 # Screen Print Job Quote Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/screen-print-job-quote-calculator/>
+
 A free browser tool: **enter an order and your shop's costs, and get the price per piece that hits your margin, a price-break
 ladder by quantity, and the smallest order that pays at the price you were going to quote.** Nothing is uploaded.
 

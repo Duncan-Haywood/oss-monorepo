@@ -1,5 +1,7 @@
 # Xero Invoice CSV Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/xero-invoice-csv-check/>
+
 A free browser tool for bookkeepers, freelancers and small businesses who bulk-import sales
 invoices into Xero from a spreadsheet or billing export: **paste or drop the file and see every
 problem with its line number before the import fails or posts the wrong thing, then download a

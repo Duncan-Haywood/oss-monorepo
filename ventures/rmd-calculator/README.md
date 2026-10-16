@@ -1,5 +1,7 @@
 # RMD Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rmd-calculator/>
+
 A free browser tool for retirees with traditional IRAs and 401(k)s: **enter your December 31
 balances and see this year's required minimum distribution, a projection to age 95, what delaying the
 first RMD to April 1 costs, how much qualified charitable distributions cut the taxable amount, and the

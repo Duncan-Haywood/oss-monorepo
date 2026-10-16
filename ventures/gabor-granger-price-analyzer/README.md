@@ -1,5 +1,7 @@
 # Gabor-Granger Price Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/gabor-granger-price-analyzer/>
+
 A free browser tool for founders, product managers and pricing consultants: **paste the highest price each
 survey respondent said they would buy at and see the demand curve, the revenue-maximising price, the
 profit-maximising price for a unit cost you enter, price elasticity between tested prices and a bootstrap

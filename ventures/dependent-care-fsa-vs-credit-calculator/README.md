@@ -1,5 +1,7 @@
 # Dependent Care FSA vs Child Care Credit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/dependent-care-fsa-vs-credit-calculator/>
+
 A free browser tool for working parents: **enter your childcare spending, income and tax rates, and see
 whether a dependent care FSA or the child and dependent care tax credit saves more, and the best split
 between the two.** Nothing is uploaded.

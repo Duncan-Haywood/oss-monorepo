@@ -1,5 +1,7 @@
 # Speaker Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/speaker-fee-calculator/>
+
 A free browser tool: **type the income you want from speaking, your overhead and expected bookings, and see the
 keynote fee the year needs, a stacked quote with add-ons, a virtual price, and what each booking nets per hour.**
 Nothing is uploaded.

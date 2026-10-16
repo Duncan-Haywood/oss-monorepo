@@ -1,5 +1,7 @@
 # Chiropractor New Patient ROI Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/chiropractor-new-patient-roi-calculator/>
+
 A free browser calculator for chiropractic, physical therapy and wellness
 clinics. Nothing is uploaded.
 

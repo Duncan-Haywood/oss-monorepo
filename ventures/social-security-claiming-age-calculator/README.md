@@ -1,5 +1,7 @@
 # Social Security Claiming Age Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/social-security-claiming-age-calculator/>
+
 A free browser tool for people approaching retirement: **enter your benefit at full retirement age
 from your Social Security statement, and see what claiming at each age from 62 to 70 pays, the
 break-even age for waiting, and, for a couple, the best pair of claim ages once the spousal top-up

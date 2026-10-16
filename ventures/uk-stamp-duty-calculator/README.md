@@ -1,5 +1,7 @@
 # UK Stamp Duty Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/uk-stamp-duty-calculator/>
+
 Free, private browser tool: enter the price and buyer type and see Stamp Duty Land Tax for England and Northern Ireland (rates from 1 April 2025) band by band, with first-time buyer relief, the 5% additional property rate and the 2% non-UK resident surcharge, plus the same price under each buyer status.
 
 After using this, you know what Stamp Duty you will owe at completion and what each status costs, without working the bands out by hand.

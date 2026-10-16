@@ -1,5 +1,7 @@
 # Deck Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/deck-bid-calculator/>
+
 A free browser calculator for deck builders. It prices a residential deck the
 way the trade actually loses money when they skip it — each surface by height
 and material, then railing lineal feet and stairs — and shows the walk-away

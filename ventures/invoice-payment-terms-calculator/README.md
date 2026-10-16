@@ -1,5 +1,7 @@
 # Invoice Payment Terms Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/invoice-payment-terms-calculator/>
+
 Free browser tool for freelancers and small service businesses. Enter an invoice amount, terms, late-rate assumption, and outstanding invoices to get the due date, **when the cash actually lands on your client's payment run**, cash-flow exposure, 30/60/90-day late-fee scenarios, copyable payment-terms wording, whether a **2/10 Net 30 discount still beats waiting**, and whether **factoring still beats waiting** after your carrying cost. Before the first invoice goes out, it also prices the **billing schedule** — how much of your finished work a deposit or milestone split actually leaves unpaid on handover day.
 
 **After using this, you can now** see when the invoice is due, when the money actually arrives, how many operating days several unpaid invoices consume, whether giving 2% to get paid in 10 days still covers the float, whether a 3% factor fee still beats waiting, and how much of a project you are financing under each billing schedule — which used to mean a spreadsheet that forgot grace days, treated “2/10 Net 30” and “get paid now” as slogans, or argued about the deposit percentage without checking when the deposit arrives.

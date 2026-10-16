@@ -1,5 +1,7 @@
 # Grant Writer Proposal Price Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/grant-writer-proposal-price-calculator/>
+
 A free browser calculator for freelance grant writers and nonprofit
 consultants. Nothing is uploaded.
 

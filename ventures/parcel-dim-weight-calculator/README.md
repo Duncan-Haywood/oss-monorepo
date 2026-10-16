@@ -1,5 +1,7 @@
 # parcel-dim-weight-calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/>
+
 What a parcel actually bills at, before you buy the cartons.
 
 Carriers charge on the **greater** of a package's actual weight and its

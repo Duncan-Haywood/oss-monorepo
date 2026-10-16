@@ -1,5 +1,7 @@
 # Covered Call & Wheel Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/covered-call-wheel-calculator/>
+
 A free browser tool for options income sellers: **paste option quotes for one stock and see every strike
 ranked by annualized premium yield, model chance of assignment, breakeven and payoff at expiry**, for covered
 calls (you own the shares) or cash-secured puts (you want to). It picks the highest-paying quote that stays

@@ -1,5 +1,7 @@
 # Tax Season Client Picker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tax-season-client-picker/>
+
 Taking late-season clients as they call, or the biggest fee first, fills an independent preparer's last weeks with the
 wrong returns. Paste the queue of engagements on offer (fee, hours of work, the business day each is due by, direct cost)
 and get the exact set with the highest total net that can still be finished by the filing or extension deadlines, the

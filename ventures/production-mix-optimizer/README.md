@@ -1,5 +1,7 @@
 # Weekly Production Mix Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/production-mix-optimizer/>
+
 Free, browser-only tool for bakeries, workshops and small makers. List what you
 make (price, unit cost, minimum, maximum, batch size) and how much of each
 limited resource (oven hours, labour, machine time) a unit uses. It finds the

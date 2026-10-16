@@ -1,5 +1,7 @@
 # Tutor Weekly Schedule Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tutor-weekly-schedule-optimizer/>
+
 A free browser tool for private tutors, music teachers, coaches and instructors: **list your students with what they pay and when they can come, give the hours you teach, and get the weekly timetable that earns the most.** It respects the gap you need between lessons, daily limits, the cost of opening a day and students you will not drop. Nothing is uploaded.
 
 After using this, you can **stop building the timetable by hand as students arrive**: see which students to book where, what a first-come timetable would have cost you, and which single question to ask a family (could Wednesday work?) is worth the most.

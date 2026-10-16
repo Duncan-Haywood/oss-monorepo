@@ -1,5 +1,7 @@
 # Tent Rental Job Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tent-rental-job-profit-calculator/>
+
 Free, browser-only calculator for tent, party and event rental companies. Enter the rental
 price, delivery fee, crew size and hours, truck miles, supplies, damage reserve, card fees, the
 tent's cost and expected rentals, and your yearly storage/insurance/truck overhead. It shows

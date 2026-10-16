@@ -1,5 +1,7 @@
 # EUDR Scope Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/eudr-scope-checker/>
+
 Free, private browser tool: choose your role (operator, downstream operator, trader) and size, tick the commodities you trade, and see whether Regulation (EU) 2023/1115 (the EU Deforestation Regulation) covers you, your duties with the Article behind each, how country risk changes your due diligence, and your application date. Paste customs codes to screen them against Annex I headings.
 
 After using this, you know whether your coffee, cocoa, rubber, soya, palm, cattle or wood products are in scope, what you must file or keep and by when, which used to take a consultant's first call.

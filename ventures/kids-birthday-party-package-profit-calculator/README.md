@@ -1,5 +1,7 @@
 # Kids Birthday Party Package Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/kids-birthday-party-package-profit-calculator/>
+
 Free, browser-only calculator for trampoline parks, bounce gyms, play cafes and family
 entertainment centers. Enter the package price, children included, party length, setup and
 cleanup, hosts and pay, food and goodie cost per child, card fees, the open-play margin the

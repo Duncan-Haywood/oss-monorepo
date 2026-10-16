@@ -1,5 +1,7 @@
 # Fiverr Earnings Fee Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fiverr-earnings-fee-analyzer/>
+
 A free browser tool for Fiverr sellers: **drop in your earnings or revenue CSV and see
 what you actually take home.** The file is read in the browser; nothing is uploaded and
 no Fiverr account access is needed.

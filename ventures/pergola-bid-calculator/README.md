@@ -1,5 +1,7 @@
 # Pergola Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pergola-bid-calculator/>
+
 A free browser calculator for deck and outdoor-living crews. It prices a
 residential pergola or patio cover from the posts a square-foot special
 cannot see, the shade layer, the height, and the attached ledger — and shows

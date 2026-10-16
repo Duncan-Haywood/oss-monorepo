@@ -1,5 +1,7 @@
 # Golf Simulator Bay Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/golf-simulator-bay-profit-calculator/>
+
 Free, browser-only calculator for anyone planning or running an indoor golf simulator lounge (or
 another bay-rental venue). Enter bays, open hours, peak and off-peak rates and utilization, members,
 food and drink, league nights, staff, rent, software per bay, card fees, the build cost and any loan. It shows **monthly profit and

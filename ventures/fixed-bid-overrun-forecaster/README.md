@@ -1,5 +1,7 @@
 # Fixed-Bid Overrun Forecaster
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fixed-bid-overrun-forecaster/>
+
 A free browser tool (and small Node CLI) for anyone billing a fixed fee: **enter the price,
 your cost budget, how much is physically done and what you have spent, and see whether the
 job finishes inside the price.** Nothing is uploaded.

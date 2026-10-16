@@ -1,5 +1,7 @@
 # CDN Bandwidth Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cdn-bandwidth-pricing-calculator/>
+
 Price Amazon CloudFront, Google Cloud CDN, Fastly, Bunny CDN and KeyCDN side by side at your monthly
 bandwidth (GB delivered), see the 12-month spend under your growth rate, and find the volumes where the
 cheapest provider changes — before you build on one.

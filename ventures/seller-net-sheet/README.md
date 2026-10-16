@@ -1,5 +1,7 @@
 # Seller Net Sheet Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/seller-net-sheet/>
+
 A free seller net sheet for homeowners and listing agents. It shows **cash
 at closing** after the loan payoff, listing-broker pay, optional
 buyer-broker compensation, other concessions, title, transfer tax, and

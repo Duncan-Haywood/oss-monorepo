@@ -1,5 +1,7 @@
 # Candle Batch Cost Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/candle-batch-cost-calculator/>
+
 Free, browser-only tool for candle, wax-melt and soap makers. List your products
 with retail and wholesale price, wax weight, other cost per unit and labor
 minutes, plus wax and fragrance prices, waste, fees and channel mix. It shows

@@ -1,5 +1,7 @@
 # UK minimum wage checker (2026/27)
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/uk-minimum-wage-checker/>
+
 Free, private browser tool: enter one pay period — pay, hours actually worked, deductions for the employer's benefit and accommodation — and see the effective hourly rate against the National Living Wage or NMW for the worker's age band, any shortfall, and the arrears and HMRC penalty exposure.
 
 After using this, a UK small employer knows whether a worker is really above the minimum once unpaid hours and deductions are counted, which used to mean reading several GOV.UK pages and a spreadsheet.

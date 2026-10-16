@@ -1,5 +1,7 @@
 # MRR Pulse
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mrr-pulse/>
+
 After using this, you can now **see your MRR, churn and net revenue retention
 from a read-only Stripe key, on a server you run**, instead of paying a metrics
 service a monthly fee that grows with your revenue and sharing your customer

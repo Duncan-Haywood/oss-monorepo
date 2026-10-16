@@ -1,5 +1,7 @@
 # Rental Property DSCR Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rental-dscr-calculator/>
+
 A free browser tool for rental investors: **enter price, rent, loan terms and operating costs, and see DSCR
 two ways (rent over PITIA, and NOI over debt service), cash-on-cash, cap rate, break-even occupancy, the largest
 loan a lender's minimum DSCR allows, and how a higher interest rate cuts coverage.** Nothing is uploaded.

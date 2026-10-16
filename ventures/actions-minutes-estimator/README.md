@@ -1,5 +1,7 @@
 # actions-minutes-estimator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/actions-minutes-estimator/>
+
 **What will this GitHub Actions workflow cost you a month?**
 
 A free browser tool and zero-dependency Node CLI that reads workflow YAML and

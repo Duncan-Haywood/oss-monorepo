@@ -1,5 +1,7 @@
 # 1099-K Reconciliation Worksheet
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/1099k-reconciliation-worksheet/>
+
 A free browser worksheet for gig and marketplace sellers — Etsy, eBay,
 Poshmark, Mercari, Depop, Whatnot, StockX, or any other marketplace or
 payment app — that reconciles one or more Form 1099-K Box 1a gross-payment

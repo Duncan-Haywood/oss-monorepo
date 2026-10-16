@@ -1,5 +1,7 @@
 # UGC creator rate calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ugc-creator-rate-calculator/>
+
 After using this, a UGC creator can price a brand deal as content **plus rights** (paid-ad usage, whitelisting, exclusivity, raw footage, rush) in a minute, with a walk-away floor and a ready-to-send quote, which used to be a guess from a blog post.
 
 Static browser tool: `index.html` + `calc.mjs`. Nothing is uploaded. Multipliers are rule-of-thumb starting points, not a market survey; the page says so.

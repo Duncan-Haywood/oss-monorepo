@@ -1,5 +1,7 @@
 # Ad Slot Sell-Through Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ad-slot-sell-through-planner/>
+
 A free browser tool for newsletter and podcast publishers who sell sponsorship
 slots. Paste your last runs (label, slots offered, slots sold, price); it shows
 sell-through and its trend, revenue left unsold, how your sales respond to

@@ -1,5 +1,7 @@
 # Cannabis 280E Tax Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cannabis-280e-tax-calculator/>
+
 Estimate what IRC section 280E costs a cannabis business: tax on **gross profit** versus tax on
 **real profit**, the extra tax, whether tax is owed on a real loss, how tax moves with operating
 expenses, and what a cost-of-goods-sold reclassification would be worth per $1,000.

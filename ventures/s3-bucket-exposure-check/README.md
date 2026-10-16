@@ -1,5 +1,7 @@
 # S3 Bucket Exposure Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/s3-bucket-exposure-check/>
+
 A free tool for anyone who owns or audits an AWS S3 bucket: sends two plain, **unsigned** GET
 requests to the bucket's own REST endpoint — a `ListBucket` request and a `GetBucketAcl` request —
 and names whether the bucket allows anonymous listing, and whether its ACL grants read or write

@@ -1,5 +1,7 @@
 # Tow Truck Rate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tow-truck-rate-calculator/>
+
 A free browser calculator for independent towing and roadside operators: **a defensible
 price per tow job from your own costs.** Entirely client-side; nothing is uploaded.
 

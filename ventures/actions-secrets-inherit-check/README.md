@@ -1,5 +1,7 @@
 # Actions secrets: inherit Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/actions-secrets-inherit-check/>
+
 A free tool that scans GitHub Actions workflow files for two documented
 `secrets: inherit` risks on a reusable-workflow call:
 

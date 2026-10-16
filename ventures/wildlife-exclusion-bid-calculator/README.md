@@ -1,5 +1,7 @@
 # wildlife-exclusion-bid-calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/wildlife-exclusion-bid-calculator/>
+
 A browser calculator for independent nuisance wildlife control operators
 (NWCOs). It prices a bat, raccoon, squirrel, bird or ground-animal exclusion
 job the way the flat "removal fee" this trade is shopped against never does —

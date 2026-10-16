@@ -1,5 +1,7 @@
 # ifta-quarterly-fuel-tax-calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ifta-quarterly-fuel-tax-calculator/>
+
 A browser worksheet for small motor carriers and owner-operators who file their
 own **IFTA quarterly fuel tax return**. It works the jurisdiction schedule the
 way the return works it, and gets right the one line hand-built spreadsheets

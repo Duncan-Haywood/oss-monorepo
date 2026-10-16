@@ -1,5 +1,7 @@
 # Meter Keeper
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/meter-keeper/>
+
 Usage metering for small SaaS teams that bill through Stripe. Your app sends
 usage events; Meter Keeper counts each exactly once, prices the month, tells
 your app when a customer is over a limit, and feeds

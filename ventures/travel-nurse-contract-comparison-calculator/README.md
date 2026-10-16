@@ -1,5 +1,7 @@
 # Travel Nurse Contract Comparison Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/travel-nurse-contract-comparison-calculator/>
+
 A free browser tool for travel nurses and locum clinicians: **enter up to three contract offers and
 see what each one actually keeps** after tax, health premium, housing and travel, averaged over the
 unpaid weeks between assignments, plus what happens if the hospital cancels shifts and the taxable

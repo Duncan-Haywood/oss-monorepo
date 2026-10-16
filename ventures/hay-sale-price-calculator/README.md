@@ -1,5 +1,7 @@
 # Hay Sale Price Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hay-sale-price-calculator/>
+
 A free browser tool (and small Node CLI) for hay producers: **enter acres, yield, growing and baling costs
 and what each buyer offers per bale, and see the break-even price per ton and per bale, net profit per acre,
 and which of small squares, large squares or round bales pays best.** A sensitivity table shows the best

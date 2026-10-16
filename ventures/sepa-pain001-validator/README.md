@@ -1,5 +1,7 @@
 # SEPA pain.001 Validator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sepa-pain001-validator/>
+
 A free browser tool for anyone who sends euro payments or collections to their bank as an
 XML file: **paste or drop the SEPA file and see every problem with its line, path, cause and
 fix before the bank rejects it, then repair the control totals and disallowed characters.**

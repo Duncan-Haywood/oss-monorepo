@@ -1,5 +1,7 @@
 # Pool Service Route Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pool-service-route-calculator/>
+
 **Find out what each pool account on your route really earns per hour once the drive, the chemicals and the callbacks are counted, which to reprice or drop, and what a stop 15 minutes away does to the whole route.** Enter every account's monthly price, visit minutes, drive minutes into the stop, chemical cost per month and callbacks per year, plus your truck cost and a target hourly. Get a ranked list with the price that clears your target, a keep, reprice or drop move, the route's hourly if the account were gone, a new-stop table by drive minutes, and a CSV you can keep. Browser page or zero-dependency CLI, for independent pool service route owners.
 
 After using this, you can now see which accounts the route is paying you to keep and which it is paying for you to carry, which used to take a spreadsheet and a guess about the drive.

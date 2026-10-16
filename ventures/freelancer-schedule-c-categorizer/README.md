@@ -1,5 +1,7 @@
 # Freelancer Schedule C Categorizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/freelancer-schedule-c-categorizer/>
+
 A free browser tool for freelancers and sole proprietors: **drop in your bank or card CSV and get
 every transaction sorted into an IRS Schedule C line.** The file is read in the browser; nothing is
 uploaded and no bank login is needed.

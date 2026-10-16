@@ -1,5 +1,7 @@
 # QuickBooks Import CSV Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/quickbooks-import-csv-check/>
+
 A free browser tool for bookkeepers and small-business owners who load customers, vendors or
 products and services into QuickBooks Online from a spreadsheet: **choose what you are importing,
 paste or drop the CSV and see every problem with its line number before the import skips rows,

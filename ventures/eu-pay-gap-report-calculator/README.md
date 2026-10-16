@@ -1,5 +1,7 @@
 # EU Pay Gap Report Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/eu-pay-gap-report-calculator/>
+
 A free browser tool for HR and payroll teams: **paste one row per worker and get the pay gap indicators the EU Pay Transparency
 Directive (2023/970, Art. 9) requires employers with 100 or more workers to report**: mean and median hourly pay gap, variable
 pay gap, share of women and men receiving variable pay, women and men in each pay quartile, and the gap per job category with

@@ -1,5 +1,7 @@
 # Usage-Based Pricing Simulator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/usage-based-pricing-simulator/>
+
 A free browser tool for SaaS, API and infrastructure founders setting metered prices: **describe up to three
 plans (platform fee, included units, overage price, volume tier) and your customers' usage, and see revenue,
 margin, bill shock, customers who cost you money, what happens if customers pick the cheapest plan, and revenue

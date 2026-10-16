@@ -1,5 +1,7 @@
 # Cash Balance Plan Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cash-balance-plan-calculator/>
+
 A free browser tool for self-employed, S-corp and small-practice owners aged 40+ (doctors, dentists,
 consultants): **estimate a range for a 2026 cash balance plan contribution by age, stacked with a 401(k) and
 profit sharing, and see the tax it could save, what employee contributions cost, and a multi-year

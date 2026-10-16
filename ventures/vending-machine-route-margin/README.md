@@ -1,5 +1,7 @@
 # Vending Machine Route Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/vending-machine-route-margin/>
+
 Independent vending-machine route operators can use this free browser-local calculator to find real profit for one location — after location commission, card processing fees, shrink/spoilage, drive time, mileage, restock labor, and the machine's own amortized cost — then roll a list of locations up into monthly route profit and check it against an income goal. **After using this, you can tell which locations are actually worth keeping, which used to take a spreadsheet and a guess about what commission and card fees were quietly taking off the top.**
 
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.

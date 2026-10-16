@@ -1,5 +1,7 @@
 # 1099-K Threshold Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/>
+
 A free browser checker for gig and marketplace sellers that estimates
 whether a platform (eBay, Etsy, Poshmark, Venmo, PayPal, Cash App, StockX,
 and others) is likely to issue a Form 1099-K, per platform and per tax

@@ -1,5 +1,7 @@
 # Search API Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/search-api-pricing-calculator/>
+
 Price Algolia, Meilisearch Cloud, Typesense Cloud, Elastic Cloud and a self-hosted engine side by side
 at the records you index and the searches you serve each month, see the 12-month spend under your
 growth rate, and find the query volume where the cheapest option changes — before you build on one.

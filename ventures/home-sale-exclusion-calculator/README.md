@@ -1,5 +1,7 @@
 # Home Sale Exclusion Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/home-sale-exclusion-calculator/>
+
 A free browser tool for people selling their main home: **enter the sale, purchase and ownership details and
 see how much of the gain the $250,000 / $500,000 section 121 exclusion covers, the federal tax on the rest, and
 what waiting a few months to reach two years would save.** Nothing is uploaded.

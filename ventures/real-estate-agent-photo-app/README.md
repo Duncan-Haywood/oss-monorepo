@@ -1,5 +1,7 @@
 # Listing Lens — Real Estate Agent Photo App
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/real-estate-agent-photo-app/>
+
 Listing Lens is an AI-first iPhone real estate photography concept: pro-level listing media in 30 minutes, directly from an agent's phone. Its free MLS listing photo preflight check lets agents download a dated, portable findings report before delivery, without uploading photos or using an account.
 
 The free **MLS listing photo preflight checker** is the first usable product

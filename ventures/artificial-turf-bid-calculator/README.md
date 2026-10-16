@@ -1,5 +1,7 @@
 # Artificial Turf Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/artificial-turf-bid-calculator/>
+
 A free browser calculator for turf and landscape contractors. It prices an
 artificial turf install the way the trade actually loses money — landscape
 versus pet versus putting-green, turf you have to buy after 15-foot-roll

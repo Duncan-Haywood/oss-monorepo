@@ -1,5 +1,7 @@
 # pg_stat_statements Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pg-stat-statements-analyzer/>
+
 A free browser tool (and small Node CLI) for anyone running Postgres: **run one
 read-only query against `pg_stat_statements`, paste the output, and see which
 query shapes use the most database time, which look like N+1 loops, which miss

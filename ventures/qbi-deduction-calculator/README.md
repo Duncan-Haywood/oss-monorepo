@@ -1,5 +1,7 @@
 # QBI Deduction Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/qbi-deduction-calculator/>
+
 A free browser calculator for the Section 199A qualified business income
 (QBI) deduction: the 20% deduction, the taxable-income threshold and
 phase-in range for 2025 and 2026 (including the OBBBA-widened 2026 range and

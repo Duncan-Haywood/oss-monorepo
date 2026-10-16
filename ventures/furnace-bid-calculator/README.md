@@ -1,5 +1,7 @@
 # Furnace / Heat Pump Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/furnace-bid-calculator/>
+
 A free browser calculator for HVAC shops. It prices a furnace or heat-pump
 replacement the way the trade actually loses money — extra duct past the
 included run, attic versus basement, a matching coil, a gas upsize,

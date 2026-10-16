@@ -1,5 +1,7 @@
 # Whatnot Sales Report Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/whatnot-sales-report-analyzer/>
+
 A free browser tool for Whatnot sellers: **load your seller orders CSV and see which shows
 and categories actually make money.** The file is read in the browser; nothing is uploaded
 and no Whatnot account access is needed.

@@ -1,5 +1,7 @@
 # Window Cleaning Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/window-cleaning-bid-calculator/>
+
 A free browser calculator for independent window-cleaning operators. It prices
 a visit the way the jobs that lose money actually fail — each glass type timed
 per pane and per side, plus the travel-and-setup block that does not shrink

@@ -1,5 +1,7 @@
 # Fair Workweek Schedule Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fair-workweek-schedule-checker/>
+
 Free, browser-only predictive scheduling ("fair workweek") checker for
 restaurant, retail and hospitality managers. Paste the posted schedule, the time
 it was posted, and every change made afterwards with the time the worker was

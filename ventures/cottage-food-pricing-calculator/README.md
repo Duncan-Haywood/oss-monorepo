@@ -1,5 +1,7 @@
 # Cottage Food Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cottage-food-pricing-calculator/>
+
 Free, browser-only tool for home bakers and small food makers. Paste one row per
 product (ingredients per batch, units, minutes, packaging, current price). It
 computes the full cost per sellable unit including your time, overhead and unsold

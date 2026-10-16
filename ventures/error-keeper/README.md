@@ -1,5 +1,7 @@
 # Error Keeper
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/error-keeper/>
+
 Error tracking for small teams, on your own server. A 1 KB browser snippet and a
 Node client send crashes to it; it groups the same bug together, alerts you when
 a bug is **new**, when one you fixed **comes back**, and when one **spikes**, and

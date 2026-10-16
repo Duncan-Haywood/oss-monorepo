@@ -1,5 +1,7 @@
 # Epoxy Garage Floor Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/epoxy-garage-floor-bid-calculator/>
+
 A free browser calculator for garage-floor coating contractors. It prices an
 epoxy, flake, metallic, or 1-day polyaspartic job the way the trade actually
 bids one — grind hours, flake load, waste, cracks, and the drive — and shows

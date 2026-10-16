@@ -1,5 +1,7 @@
 # Pickleball Facility Pro Forma
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pickleball-facility-pro-forma/>
+
 Free, browser-only pro-forma for anyone opening or running an indoor pickleball
 (or padel) facility. Enter courts, build-out cost, hours open, hourly rates and
 utilization by daypart, memberships, league/lesson/event revenue, pro-shop and

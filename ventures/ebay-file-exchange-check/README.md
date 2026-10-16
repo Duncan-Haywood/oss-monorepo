@@ -1,5 +1,7 @@
 # Ebay File Exchange Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ebay-file-exchange-check/>
+
 Free browser tool that checks an eBay File Exchange or bulk listing CSV before it is uploaded:
 semicolon or UTF-16 files where comma-separated UTF-8 is expected, titles over 80 characters,
 missing or misspelled Action and site header, ItemIDs and SKUs that Excel turned into scientific

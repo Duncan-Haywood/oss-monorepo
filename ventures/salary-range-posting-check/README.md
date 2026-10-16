@@ -1,5 +1,7 @@
 # Salary Range Posting Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/salary-range-posting-check/>
+
 A free tool that scans pasted job-posting text for a stated **dollar range**,
 and cross-references a chosen set of US states against a fixed table of
 which ones currently require a posted pay range — citing the law, effective

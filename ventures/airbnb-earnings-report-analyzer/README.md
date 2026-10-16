@@ -1,5 +1,7 @@
 # Airbnb Earnings Report Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/airbnb-earnings-report-analyzer/>
+
 A free browser tool for short-term-rental hosts: **drop in the Transaction history
 CSV you downloaded from Airbnb and see which listings, months and stay lengths
 actually make money.** The file is read in the browser; nothing is uploaded and no

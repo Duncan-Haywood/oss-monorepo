@@ -1,5 +1,7 @@
 # Marketplace fee comparison
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/marketplace-fee-compare/>
+
 **Which channel nets the most on this item?** Type one item once — price,
 landed cost, category, monthly order volume — and see net profit side by side
 on eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Poshmark, and your own Shopify store.

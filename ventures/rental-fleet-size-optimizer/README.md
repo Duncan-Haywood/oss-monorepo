@@ -1,5 +1,7 @@
 # Rental Fleet Size Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rental-fleet-size-optimizer/>
+
 Free, browser-only tool for businesses that rent out identical units: party
 tents, kayaks, scaffold sets, camera bodies, tool kits. Enter your seasons of
 demand, how long rentals last, what you charge and what a unit costs to own. It

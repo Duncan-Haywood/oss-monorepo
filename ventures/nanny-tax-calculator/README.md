@@ -1,5 +1,7 @@
 # Nanny Tax Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/nanny-tax-calculator/>
+
 A free browser tool: **type a nanny's rate and hours and see what employing them really costs, what they
 take home, and the gross rate behind a take-home number.** Nothing is uploaded.
 

@@ -1,5 +1,7 @@
 # Claude Code Settings Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/claude-code-settings-check/>
+
 A free tool that checks a pasted Claude Code `settings.json` — and,
 optionally, its sibling `settings.local.json` — for the structural mistakes
 that fail silently: a hook whose matcher regex can't compile, a hook entry

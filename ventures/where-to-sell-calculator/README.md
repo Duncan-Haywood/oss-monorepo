@@ -1,5 +1,7 @@
 # Where to Sell Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/>
+
 One item, every channel. Enter what an item cost you and what you would sell it
 for, and see what **eBay, Etsy, Amazon, Mercari, your own store and a direct sale** each
 leave you after fees — and after that channel's return rate — plus the price

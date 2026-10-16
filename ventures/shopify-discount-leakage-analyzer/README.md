@@ -1,5 +1,7 @@
 # Shopify Discount Leakage Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shopify-discount-leakage-analyzer/>
+
 A free browser tool for small Shopify merchants: **drop in your orders export and
 see, for every discount code, how much it gave away and what share of its orders
 had to be new sales for the discount to pay for itself.** The file is read in the

@@ -1,5 +1,7 @@
 # Tip Credit Calculator: Employer FICA Credit (Form 8846 / Section 45B)
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tip-fica-credit-calculator/>
+
 A free browser tool for restaurants, bars, delivery businesses and beauty salons. Paste one
 line per employee (cash wage per hour, hours, tips reported) and it returns the employer FICA
 tip credit per person and in total, the tips that earn nothing because they only top the wage

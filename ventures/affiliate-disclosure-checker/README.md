@@ -1,5 +1,7 @@
 # Affiliate Disclosure Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/affiliate-disclosure-checker/>
+
 A free, zero-network, zero-dependency CLI + browser tool that scans a blog
 post or page's HTML for recognised affiliate-link signals — Amazon
 Associates `tag=` links, `amzn.to` short links, `rel="sponsored"`, and

@@ -1,5 +1,7 @@
 # AWS Commitment Break-Even Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/aws-commitment-breakeven-calculator/>
+
 A free browser tool for engineers, FinOps practitioners and founders who pay an AWS bill: **paste hourly or daily
 usage, enter the discount of each Savings Plan or Reserved Instance option from your own quote, and see how much
 to commit, not just whether to.** Every committed hour is paid whether used or not, so the answer depends on the

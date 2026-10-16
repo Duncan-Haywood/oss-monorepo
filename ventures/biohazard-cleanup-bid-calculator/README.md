@@ -1,5 +1,7 @@
 # Biohazard Cleanup Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/biohazard-cleanup-bid-calculator/>
+
 Biohazard and trauma-scene remediation technicians (unattended death, crime
 scene, industrial accident, or hoarding-biohazard cleanup) can use this free
 browser-local calculator to price one job — from crew labor and PPE that

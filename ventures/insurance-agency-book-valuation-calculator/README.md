@@ -1,5 +1,7 @@
 # Insurance Agency Book Valuation Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/insurance-agency-book-valuation-calculator/>
+
 A free browser tool for independent insurance agents and agency buyers: **enter a book's revenue, retention,
 servicing cost and required return, and see what keeping it is worth, how a purchase offer with an upfront
 share and a retention-tested holdback compares, the break-even price, and what one point of retention adds.**

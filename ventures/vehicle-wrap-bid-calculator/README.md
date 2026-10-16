@@ -1,5 +1,7 @@
 # Vehicle Wrap Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/vehicle-wrap-bid-calculator/>
+
 Independent vehicle wrap and graphics shops (one or a few install bays, not a
 large fleet-branding contractor) can use this free browser-local calculator
 to price a full or partial vehicle wrap — from waste-inclusive material

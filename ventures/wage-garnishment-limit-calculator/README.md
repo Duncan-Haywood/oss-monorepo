@@ -1,5 +1,7 @@
 # Wage Garnishment Limit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/wage-garnishment-limit-calculator/>
+
 A free browser tool for workers with a garnished paycheck: **enter your pay stub and the kind of
 garnishment, and see the most that federal law lets an order take**, how much of your pay is
 protected, what you would keep from extra hours, and a draft request for payroll's calculation.

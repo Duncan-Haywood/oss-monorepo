@@ -1,5 +1,7 @@
 # Toilet Replacement Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/toilet-replacement-bid-calculator/>
+
 A free browser calculator for plumbers. It prices a toilet replacement
 the way the trade actually loses money — swap-only on a good 12-inch
 flange versus a new shutoff versus flange-repair versus a full reset,

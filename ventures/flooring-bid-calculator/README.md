@@ -1,5 +1,7 @@
 # Flooring Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/flooring-bid-calculator/>
+
 A free browser calculator for flooring installers and small shops. It prices a
 residential install the way the job actually costs — purchased material after
 waste, tear-out hours that are not the same as install hours, and stairs by

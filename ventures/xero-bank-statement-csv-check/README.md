@@ -1,5 +1,7 @@
 # Xero Bank Statement Csv Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/xero-bank-statement-csv-check/>
+
 Free browser tool that checks a bank statement CSV before it is imported into Xero and says why the
 import fails or posts wrong: account details or a title above the header, separate Debit and Credit
 columns instead of one signed Amount, amounts written 1.234,56, (18.00) or $12.50, dates whose

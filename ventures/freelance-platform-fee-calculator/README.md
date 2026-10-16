@@ -1,5 +1,7 @@
 # Upwork vs. Fiverr Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/freelance-platform-fee-calculator/>
+
 A free browser calculator that runs the same job price through Upwork's and
 Fiverr's payout math side by side, so a freelancer deciding where to post a
 job — or how to price one already posted — sees **what actually lands in the

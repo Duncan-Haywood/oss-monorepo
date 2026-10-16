@@ -1,5 +1,7 @@
 # license-keeper
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/license-keeper/>
+
 After using this, you can now **sell a desktop app, plugin or CLI tool through
 Stripe and have license keys issued, limited per machine, renewed with the
 subscription and revoked on refund, on your own server**, which used to mean

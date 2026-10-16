@@ -1,5 +1,7 @@
 # Business Loan Offer Comparator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/business-loan-offer-comparator/>
+
 A free browser tool for small-business owners holding several financing offers quoted in different ways: **type in each
 term loan, SBA-style loan or merchant cash advance and get the true APR after fees, the cash actually received, total
 repaid, cost per dollar and the cost of repaying early, side by side**. Nothing is uploaded.

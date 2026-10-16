@@ -1,5 +1,7 @@
 # Trump Account Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/trump-account-calculator/>
+
 A free browser calculator for the federal "Trump Account" child savings
 account, created by the One Big Beautiful Bill Act (26 U.S.C. 530A).
 Entirely client-side; nothing is uploaded.

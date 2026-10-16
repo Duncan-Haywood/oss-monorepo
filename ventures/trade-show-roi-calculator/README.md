@@ -1,5 +1,7 @@
 # Trade Show ROI Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/trade-show-roi-calculator/>
+
 A booth fee is the small part of the bill. Paste the trade shows and conferences you could exhibit at, with
 booth, travel, staff and swag costs and the leads you expect, set your funnel (lead to qualified, qualified to
 deal, deal value, margin) and see cost per lead, cost per qualified lead, expected deals, gross profit, ROI and

@@ -1,5 +1,7 @@
 # eBay Transaction Report Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ebay-transaction-report-analyzer/>
+
 A free browser tool for eBay sellers: **drop in your Seller Hub Transaction
 report and see where every sale went, and which items make money.** The file is
 read in the browser; nothing is uploaded. Independent of eBay and not

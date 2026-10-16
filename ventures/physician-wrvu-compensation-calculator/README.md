@@ -1,5 +1,7 @@
 # Physician wRVU Compensation Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/physician-wrvu-compensation-calculator/>
+
 A free browser tool for employed physicians and advanced practice providers weighing an offer: **type the terms
 from the contract and see annual pay under base-then-productivity, pure productivity and fixed salary, the
 break-even wRVUs, effective dollars per wRVU, pay per hour worked, shortfall and clawback exposure, an 80% to 120%

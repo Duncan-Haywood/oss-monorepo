@@ -1,5 +1,7 @@
 # HELOC vs Cash-Out Refinance Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/heloc-vs-cash-out-refinance-calculator/>
+
 A free browser tool for homeowners who need cash and have two ways to get it: keep the mortgage they
 have and add a HELOC, or refinance everything into one bigger loan. Type the cash, the current balance,
 rate and years left, the HELOC's average rate, costs and interest-only period, the new mortgage's rate,

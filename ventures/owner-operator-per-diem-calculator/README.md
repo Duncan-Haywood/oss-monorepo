@@ -1,5 +1,7 @@
 # owner-operator-per-diem-calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/owner-operator-per-diem-calculator/>
+
 A private, in-browser calculator for self-employed (owner-operator) over-the-road truck drivers.
 Enter full days and travel days away from home and the M&IE per diem rate; the page applies the
 travel-day percentage and the 80 percent DOT hours-of-service limit, compares the per diem

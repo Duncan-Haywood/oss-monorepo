@@ -1,5 +1,7 @@
 # Time-Off Request Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/time-off-request-planner/>
+
 A free browser tool for small teams (cafés, restaurants, clinics, shops, salons, small offices): **paste your people with
 roles and the vacation requests you have, set the minimum on duty per role, and get the set of requests to approve that
 never drops a role below its minimum, with the reason and the nearest alternative dates for every request it cannot

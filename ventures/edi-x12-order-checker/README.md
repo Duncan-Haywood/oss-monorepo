@@ -1,5 +1,7 @@
 # EDI X12 Order Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/edi-x12-order-checker/>
+
 A free browser tool for small suppliers who sell to large retailers over EDI. Paste an X12 file —
 850 purchase order, 810 invoice, 856 advance ship notice, or a 997 the retailer sent back — and get
 every structural fault with its segment number, plus the documents as tables and a CSV of the lines.

@@ -1,5 +1,7 @@
 # Waterfront Rental Season Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/waterfront-rental-season-planner/>
+
 A free browser tool for kayak, paddleboard, pontoon and other boat rental
 operators. Enter your fleets, rental lengths, prices, what people would book on a
 weekday and a weekend, and your season costs; it shows the season's profit, how

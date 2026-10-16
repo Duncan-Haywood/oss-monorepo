@@ -1,5 +1,7 @@
 # CSV to SQL Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/csv-to-sql-generator/>
+
 Paste a CSV, get a **CREATE TABLE and batched INSERT statements** for PostgreSQL, MySQL,
 SQLite, SQL Server or BigQuery. Column types come from reading every row: integers and
 bigints, decimals sized to the longest value, booleans, dates, timestamps and UUIDs are

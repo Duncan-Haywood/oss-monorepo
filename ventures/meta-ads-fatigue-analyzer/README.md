@@ -1,5 +1,7 @@
 # Meta Ads Fatigue Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/meta-ads-fatigue-analyzer/>
+
 A free browser tool for small advertisers and freelance paid-social managers:
 **drop in a Meta (Facebook / Instagram) Ads Manager ad-level CSV and see cost per
 result, ROAS and CTR for every ad, which creatives show fatigue signals, how much

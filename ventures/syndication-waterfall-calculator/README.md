@@ -1,5 +1,7 @@
 # Syndication Waterfall Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/syndication-waterfall-calculator/>
+
 A free browser calculator for a real estate syndication distribution waterfall.
 Nothing is uploaded.
 

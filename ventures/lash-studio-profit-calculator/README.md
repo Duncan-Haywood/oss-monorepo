@@ -1,5 +1,7 @@
 # Lash Studio Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/lash-studio-profit-calculator/>
+
 Free, browser-only calculator for lash technicians and studio owners. Enter a price
 list, supplies, card fees, no-show rate, studio overhead and the hourly you want to take
 home. It shows profit per chair hour for every full set and fill, the **price that hits

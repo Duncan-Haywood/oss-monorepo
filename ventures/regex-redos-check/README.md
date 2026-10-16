@@ -1,5 +1,7 @@
 # Regex ReDoS Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/regex-redos-check/>
+
 Find the regular expressions in your JavaScript, TypeScript and Python that can
 hang a server on one crafted string (ReDoS) — before an attacker does.
 

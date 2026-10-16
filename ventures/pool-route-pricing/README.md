@@ -1,5 +1,7 @@
 # Pool Route Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pool-route-pricing/>
+
 Independent pool service operators can use this free browser-local calculator to price recurring accounts after service labor, drive time, chemicals, and monthly route overhead. **After using this, you can set a minimum monthly account price, which used to take a spreadsheet and a guess about windshield time.**
 
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.

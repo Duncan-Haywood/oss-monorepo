@@ -1,5 +1,7 @@
 # Freelancer Tax Pack
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/freelancer-tax-pack/>
+
 After using this, you know your 2026 net profit, what self-employment and federal
 tax that implies, what you still owe in quarterly estimates, and which clients
 should send you a 1099-NEC, without retyping a number.

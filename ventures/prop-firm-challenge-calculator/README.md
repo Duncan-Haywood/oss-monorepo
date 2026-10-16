@@ -1,5 +1,7 @@
 # Prop Firm Challenge Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/prop-firm-challenge-calculator/>
+
 **Will your strategy pass a funded-trader challenge, and is the fee worth paying?** Enter the rules (profit target, daily loss limit, static or trailing max drawdown, time limit, minimum trading days), your win rate, average reward:risk, risk per trade and trades per day, and the fee and profit split. The simulator plays the evaluation thousands of times and reports pass probability, how failed attempts ended (drawdown, daily limit, time), expected attempts and fees to pass, a funded-phase payout estimate, the break-even win rate, and a table of pass rate by risk per trade.
 
 Open `index.html` in a browser. It needs no account, network request or API key. Same seed gives the same answer. Export the risk table as CSV, copy a summary, or copy a shareable link (the inputs live in the link itself).

@@ -1,5 +1,7 @@
 # deploy-concurrency-check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/>
+
 Find the ways a GitHub Actions deploy workflow is permitted to apply an **older**
 revision over a newer one.
 

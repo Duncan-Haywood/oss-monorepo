@@ -1,5 +1,7 @@
 # Demand Charge Interval Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/demand-charge-interval-analyzer/>
+
 A free browser tool for businesses billed a demand charge: **paste your utility's 15-minute interval data and see what your worst 15 minutes cost each month**, whether a ratchet is carrying an old peak forward, and what holding demand to a lower cap would save and require.
 
 After using this, you can **tell whether your bill is set by a short spike you can shave or by a sustained load you cannot**, and size a peak-shaving battery or a load-staggering fix against real numbers instead of a vendor's estimate.

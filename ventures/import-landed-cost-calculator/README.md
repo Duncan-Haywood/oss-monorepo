@@ -1,5 +1,7 @@
 # Import Landed Cost Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/>
+
 The free import landed cost calculator shows what an import shipment actually
 costs once it clears customs — item cost, freight, duty, any supplemental or
 Section 301 tariff, the Merchandise Processing Fee, the Harbor Maintenance

@@ -1,5 +1,7 @@
 # Freight Broker Load Margin Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/freight-broker-load-margin-calculator/>
+
 A free browser tool for freight brokers and small agencies: **type in your loads and get net margin after the cost of
 fronting the carrier, factoring, claims reserve, overhead and commission, plus the shipper rate to quote and the highest
 carrier rate to pay to hit a target margin**. Nothing is uploaded.

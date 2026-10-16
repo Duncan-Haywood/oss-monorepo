@@ -1,5 +1,7 @@
 # ACA Subsidy Cliff Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/aca-subsidy-cliff-calculator/>
+
 A free browser calculator for the 2026 ACA premium tax credit and its **400%-of-poverty cliff**.
 Nothing is uploaded.
 

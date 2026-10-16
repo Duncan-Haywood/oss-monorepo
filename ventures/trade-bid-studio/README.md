@@ -1,5 +1,7 @@
 # Trade Bid Studio
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/trade-bid-studio/>
+
 A free, private browser tool for contractors in any trade. Enter labor hours,
 burden, materials, subs and overhead; get the price that keeps your target
 margin, the **walk-away price** below which the job loses money, the labor

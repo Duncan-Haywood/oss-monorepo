@@ -1,5 +1,7 @@
 # Appointment No-Show Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-analyzer/>
+
 A free browser tool for appointment-based businesses (salons, barbers, dentists and chiropractors,
 tutors, personal trainers, mobile detailers): **drop in your booking export and see how many
 appointments you lose to no-shows and late cancellations, what it costs, and who and when.** The

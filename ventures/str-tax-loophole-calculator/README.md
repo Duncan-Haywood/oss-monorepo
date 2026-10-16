@@ -1,5 +1,7 @@
 # STR Tax Loophole Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/str-tax-loophole-calculator/>
+
 A free browser calculator for short-term-rental owners. Entirely
 client-side; nothing is uploaded.
 

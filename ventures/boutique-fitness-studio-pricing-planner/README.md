@@ -1,5 +1,7 @@
 # Boutique Fitness Studio Pricing Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/boutique-fitness-studio-pricing-planner/>
+
 A free browser tool for yoga, pilates, barre, cycling and dance studio owners. Enter your
 timetable, costs, unlimited members, class packs and drop-ins; it shows monthly profit, what a
 visit earns under each plan (counting pack classes that are never taken), the class size that

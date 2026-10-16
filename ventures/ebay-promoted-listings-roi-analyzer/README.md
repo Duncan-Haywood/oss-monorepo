@@ -1,5 +1,7 @@
 # eBay Promoted Listings ROI Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ebay-promoted-listings-roi-analyzer/>
+
 A free browser tool for eBay sellers: **drop in the Promoted Listings report
 from Seller Hub and see which listings lose money after the ad fee.** The file
 is read in the browser; nothing is uploaded.

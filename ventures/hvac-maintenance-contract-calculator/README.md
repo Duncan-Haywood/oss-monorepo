@@ -1,5 +1,7 @@
 # HVAC Maintenance Contract Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hvac-maintenance-contract-calculator/>
+
 A free, local-first browser calculator for independent HVAC contractors who
 need to price a preventive-maintenance agreement without losing money on
 scheduled visits, callbacks, parts reserve, travel, or overhead.

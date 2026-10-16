@@ -1,5 +1,7 @@
 # Sod Installation Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sod-install-bid-calculator/>
+
 A free browser calculator for landscapers. It prices a sod install the way
 the trade actually loses money — whole pallets after waste, then soil prep,
 delivery, slope, and watering — and shows the margin before the price goes

@@ -1,5 +1,7 @@
 # Auto detailing service menu picker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/auto-detailing-service-menu-picker/>
+
 After using this, you can now see which detailing services to keep selling when you cannot fit them all into your bay hours,
 with every combination checked exactly, which used to mean guessing from the biggest ticket or the busiest service.
 

@@ -1,5 +1,7 @@
 # Freelance Writer Rate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/freelance-writer-rate-calculator/>
+
 A free browser calculator for freelance writers, copywriters, and
 ghostwriters comparing a per-word rate against a flat project fee for the
 same job. Entirely client-side; nothing is uploaded.

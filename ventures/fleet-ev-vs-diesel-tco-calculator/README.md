@@ -1,5 +1,7 @@
 # Fleet EV vs Diesel TCO Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fleet-ev-vs-diesel-tco-calculator/>
+
 A free browser tool for owners of small fleets (vans, box trucks, service trucks)
 weighing electric against gas or diesel. Enter vehicle and charger cost, fuel
 and electricity prices, demand charges, maintenance, insurance and resale; it

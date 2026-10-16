@@ -1,5 +1,7 @@
 # Septic Pumping Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/septic-pumping-bid-calculator/>
+
 A free browser calculator for licensed septic pumpers. It prices a tank
 pump the way the trade actually loses money — the included gallons, then
 the buried lid, the hose beyond the truck, extra tanks and pump

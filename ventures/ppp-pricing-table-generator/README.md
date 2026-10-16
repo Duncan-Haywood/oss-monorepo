@@ -1,5 +1,7 @@
 # PPP Pricing Table Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ppp-pricing-table-generator/>
+
 Turn one base price into a **purchasing-power (PPP) price table** for about 50 countries, for an
 app or SaaS sold worldwide. Set how strongly prices follow local price levels, a floor, a cap,
 rounding (.99, whole, ends-in-9), optionally collapse the table into a few price tiers, and get the

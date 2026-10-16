@@ -1,5 +1,7 @@
 # Veterinarian Associate Pay Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/veterinarian-associate-pay-calculator/>
+
 A free browser tool for veterinarians comparing associate offers: **enter two offers (salary, a percentage of
 production with a guaranteed minimum, or a base plus a percentage above a threshold) and the production you
 expect to generate, and see each offer's yearly value, the real percentage after excluded production, the

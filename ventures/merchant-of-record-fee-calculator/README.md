@@ -1,5 +1,7 @@
 # Merchant of Record Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/merchant-of-record-fee-calculator/>
+
 Price Stripe, Stripe + Stripe Tax, Paddle, Lemon Squeezy and Polar side by side at your monthly revenue,
 average sale and international share. The cost of filing sales tax and VAT yourself is counted where the
 platform is not the seller, so you can see **what you keep** and the monthly revenue where the cheapest

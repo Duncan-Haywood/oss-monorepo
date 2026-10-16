@@ -1,5 +1,7 @@
 # Mobile Welding Job Price Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mobile-welding-job-price-calculator/>
+
 A free browser tool for owner-operator mobile welders and small welding shops.
 Enter the hours on site, the drive, your pay, rig and consumables, materials and
 fixed costs; it shows the price that earns your target margin, what the job

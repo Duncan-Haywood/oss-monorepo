@@ -1,5 +1,7 @@
 # Subpath Robots Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/>
+
 **Does the site at this URL actually govern its own `robots.txt`?**
 
 A crawler fetches `robots.txt` from exactly one place — the origin root

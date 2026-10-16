@@ -1,5 +1,7 @@
 # shopify-customer-csv-check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shopify-customer-csv-check/>
+
 Checks a Shopify customer import CSV in the browser before it is imported: emails and duplicates,
 phone format, Excel damage to zips and phones, country and province codes, marketing and
 tax-exempt values, tag limits and rows with no contact, each with its line number, plus a

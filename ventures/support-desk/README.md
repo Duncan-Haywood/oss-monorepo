@@ -1,5 +1,7 @@
 # Support Desk
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/support-desk/>
+
 After using this, you can now **answer customer email from a shared inbox you host yourself**, with status, notes, reply targets and saved replies, instead of paying a help desk per agent per month or sharing a Gmail login.
 
 Two parts, both free and MIT:

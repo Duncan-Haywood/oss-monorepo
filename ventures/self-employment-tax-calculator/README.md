@@ -1,5 +1,7 @@
 # Self-Employment Tax Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/self-employment-tax-calculator/>
+
 A free browser calculator for 2026 **self-employment tax** (Schedule SE) for
 freelancers, sole proprietors and gig workers. Entirely client-side; nothing
 is uploaded.

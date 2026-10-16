@@ -1,5 +1,7 @@
 # Scope Creep Change Order Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/scope-creep-change-order-calculator/>
+
 Price a client's "one more thing" on a fixed-price project. Enter the quoted price and hours plus the
 extra requests; get a change order at the rate your quote implies (optionally with a rush premium and a
 free allowance), the schedule impact, and what absorbing the work would cost your effective hourly rate.

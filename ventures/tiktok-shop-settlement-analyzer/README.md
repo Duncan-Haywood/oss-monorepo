@@ -1,5 +1,7 @@
 # TikTok Shop Settlement Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-settlement-analyzer/>
+
 A free browser tool for TikTok Shop sellers: **drop in your sales CSV and see
 what you actually take home.** The file is read in the browser; nothing is uploaded and
 no TikTok Shop account access is needed.

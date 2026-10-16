@@ -1,5 +1,7 @@
 # Actions Permissions Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/actions-permissions-check/>
+
 A free tool that scans GitHub Actions workflow files and flags every
 workflow or job with no explicit `permissions:` block (it runs with the
 repository or organization's *ambient default* `GITHUB_TOKEN` permissions,

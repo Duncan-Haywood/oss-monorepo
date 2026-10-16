@@ -1,5 +1,7 @@
 # Brand Deal Rate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/brand-deal-rate-calculator/>
+
 A free calculator that turns a creator's own follower count, average
 engagement rate, and platform into a sponsorship price range for each common
 brand-deal deliverable — a feed post, a Story, a Reel or short-form video, and

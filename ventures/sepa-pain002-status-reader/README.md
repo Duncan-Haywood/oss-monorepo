@@ -1,5 +1,7 @@
 # SEPA pain.002 Status Reader
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sepa-pain002-status-reader/>
+
 A free browser tool for anyone who uploads SEPA payment files to a bank: **paste or drop the
 pain.002 status report the bank sends back and see which payments were accepted or rejected,
 what each reason code means and what to do about it, the rejected total, and a list of the

@@ -1,5 +1,7 @@
 # Container Demurrage & Detention Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/container-demurrage-detention-calculator/>
+
 A free browser tool for importers, freight forwarders and customs brokers. Enter
 the number of containers, the discharge, pickup and empty-return dates, the free
 days and the carrier's tiered per-day rates. It prices demurrage (container

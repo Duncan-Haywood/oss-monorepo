@@ -1,5 +1,7 @@
 # Bail Bond Agency Exposure Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bail-bond-agency-exposure-calculator/>
+
 A free browser tool for bail bond agents and small agencies. Type the open bonds, the collateral held and your surety's terms; it shows what the
 book nets after the surety's share and the build-up fund, what it owes if bonds are forfeited, whether cash covers the largest ones, and a
 court-date call list. Entirely client-side; nothing is uploaded.

@@ -1,5 +1,7 @@
 # Water Well Drilling Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/water-well-drilling-bid-calculator/>
+
 A free browser tool for small water-well drillers: **type the depth and formation, drilling and rig costs, casing, seal, pump system, trench, the move and the chance of a dry hole, and get the bid that earns your margin.** It shows break-even, the effective price per foot, what one dry hole costs and how many good wells pay for it, and how the bid moves with depth and dry-hole chance. Nothing is uploaded.
 
 After using this, you can **bid from your own costs** instead of a flat per-foot rate that loses money on shallow wells and ignores the hole that comes up dry.

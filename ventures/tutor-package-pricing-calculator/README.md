@@ -1,5 +1,7 @@
 # Tutor Package Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/>
+
 A free browser calculator for independent tutors, test-prep coaches, and
 similar 1:1 instructors: compares a discounted prepaid session package
 against pay-per-session pricing, on both revenue and effective hourly pay.

@@ -1,5 +1,7 @@
 # Poshmark Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/poshmark-fee-calculator/>
+
 A free browser tool that prices one Poshmark sale the way a payout statement
 actually lands: the flat $2.95 fee under $15.00, 20% at $15.00 or more, the
 $14.75 break-even price where the two cost the same, profit after your item

@@ -1,5 +1,7 @@
 # License Compatibility Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/license-compat-check/>
+
 A free tool that checks your dependencies' declared licenses against **how you
 ship** and lists exactly which ones conflict, which need a human, and the usual
 way out of each.

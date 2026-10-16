@@ -1,5 +1,7 @@
 # Early pay discount picker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/early-pay-discount-picker/>
+
 After using this, you can now see which supplier invoices to pay early when several offer 2/10 net 30 style discounts and
 there is not enough cash to take them all, with every combination checked exactly, which used to mean paying whoever called
 first or ranking by gut feel.

@@ -1,5 +1,7 @@
 # Basement Waterproofing Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/basement-waterproofing-bid-calculator/>
+
 A free browser calculator for waterproofing contractors. It prices an interior
 French drain, exterior excavation, or crawl-space encapsulation the way the
 trade actually loses money — wall membrane from height, window wells, crack

@@ -1,5 +1,7 @@
 # Powder Coating Job Price Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/powder-coating-job-price-calculator/>
+
 A free browser tool for powder coating job shops and small finishers: **enter the parts, the powder and how your shop runs, and get a price per piece and per square foot**. Nothing is uploaded.
 
 After using this, you can now **quote a coating job from the powder it really uses, the oven batches it fills and the colour setup it costs**, which used to take a spreadsheet, a rule of thumb per square foot and a guess about overspray.

@@ -1,5 +1,7 @@
 # Stump Grinding Price Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/stump-grinding-price-calculator/>
+
 A free browser tool for stump grinding contractors. List the stump diameters on
 a site; it estimates the wood to remove, cutting time at your grinder's real
 speed, setup and drive, then prices the job for your overhead and target margin,

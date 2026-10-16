@@ -1,5 +1,7 @@
 # Backyard Honey Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/backyard-honey-profit-calculator/>
+
 **Find what a pound of honey costs you in cash and hours, your profit per pound and per hour, the price per pound you need to pay yourself a wage, and how a poor honey year and winter hive losses move it.** Browser page, no install.
 
 After using this, you know whether your honey money beats the cost of keeping bees, the price you need for the wage you want, and how much a bad year or a bad winter costs you.

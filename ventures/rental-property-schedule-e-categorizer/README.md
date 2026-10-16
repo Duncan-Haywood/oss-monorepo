@@ -1,5 +1,7 @@
 # Rental Property Schedule E Categorizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rental-property-schedule-e-categorizer/>
+
 A free browser tool for small landlords: **drop in your bank or card CSV and get every
 transaction sorted into an IRS Schedule E, Part I line, per rental property.** The file is read
 in the browser; nothing is uploaded and no bank login is needed.

@@ -1,5 +1,7 @@
 # Bid Leveling Worksheet
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bid-leveling-worksheet/>
+
 A free browser tool (and small Node CLI) for general contractors, owners' reps and
 procurement teams: **paste a subcontractor bid comparison, price the excluded and
 unaddressed scope at your own estimate, and see whether the low bid is still the low

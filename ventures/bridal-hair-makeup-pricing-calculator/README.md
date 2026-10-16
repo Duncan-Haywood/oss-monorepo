@@ -1,5 +1,7 @@
 # Bridal Hair & Makeup Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bridal-hair-makeup-pricing-calculator/>
+
 Mobile bridal hair and makeup artists can use this free browser-local calculator to price one wedding-day booking — the bride, the bridal party, hair-only, makeup-only, and kids' services, an early-start fee, mileage, a top-up to your service minimum, and a trial-fee credit — and to check whether the artists already booked can actually finish the group before the ceremony. **After using this, you can quote a booking with the total, the balance due, and the staffing it needs in one pass, instead of pricing each person by hand and discovering the schedule doesn't work on the morning of.**
 
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.

@@ -1,5 +1,7 @@
 # Walk-In Shower Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/walk-in-shower-bid-calculator/>
+
 A free browser calculator for tile and bathroom contractors. It prices a
 tiled walk-in shower or tub-to-shower conversion the way the trade actually
 loses money — wall and floor tile, then the drain, the slope, the niches,

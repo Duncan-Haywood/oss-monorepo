@@ -1,5 +1,7 @@
 # Medicare IRMAA Cliff Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/medicare-irmaa-cliff-calculator/>
+
 A free browser calculator for the 2026 Medicare **IRMAA** (income-related monthly adjustment amount)
 tiers on Part B and Part D. Nothing is uploaded.
 

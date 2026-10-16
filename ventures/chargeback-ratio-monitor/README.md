@@ -1,5 +1,7 @@
 # Chargeback Ratio Monitor
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/chargeback-ratio-monitor/>
+
 A free browser tool for online sellers and subscription businesses: **drop in a
 Stripe payments CSV export and see your dispute ratio for every month, how many
 more disputes you can take before each warning line, where the trend is

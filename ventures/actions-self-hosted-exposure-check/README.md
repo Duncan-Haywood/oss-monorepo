@@ -1,5 +1,7 @@
 # Actions Self-Hosted Exposure Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/actions-self-hosted-exposure-check/>
+
 A free tool that scans GitHub Actions workflow files and flags every job
 running on a `self-hosted` runner label inside a workflow triggered by
 `pull_request`, `pull_request_target`, `workflow_run`, or `issue_comment` —

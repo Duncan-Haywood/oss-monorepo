@@ -1,5 +1,7 @@
 # Quick pick
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/quick-pick-survey/>
+
 A pairwise-comparison preference engine. You're shown two options and pick one;
 after enough picks it knows your preference ordering — including trade-offs you
 couldn't state directly if asked.

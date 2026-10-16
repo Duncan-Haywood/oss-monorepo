@@ -1,5 +1,7 @@
 # Catering Quote Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/catering-quote-calculator/>
+
 What should this catering job cost per guest, and how few guests can you take before it loses money? Paste a cost
 sheet (name, basis, quantity, unit cost) and see the per-guest price that delivers your margin, food and labor as
 a share of the quote, the deposit, a price-by-headcount table and the break-even guest count for a price you name.

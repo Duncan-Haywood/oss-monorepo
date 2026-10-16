@@ -1,5 +1,7 @@
 # Structured Settlement Buyout Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/structured-settlement-buyout-calculator/>
+
 A free browser tool for anyone offered cash for structured settlement or annuity payments. Type the
 monthly payment and how many are left, up to two lump sums and when they are due, the cash offered and
 the fees. It returns the yearly discount rate the buyer earns, cents on the dollar, what the payments are

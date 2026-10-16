@@ -1,5 +1,7 @@
 # Freelance Rate Increase Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/freelance-rate-increase-calculator/>
+
 Free, browser-only tool for freelancers and consultants. List your clients with monthly
 hours, current rate and your honest chance that each leaves if you raise the rate. It shows
 the income change, the hours freed, the share of hours you can lose and still earn the same,

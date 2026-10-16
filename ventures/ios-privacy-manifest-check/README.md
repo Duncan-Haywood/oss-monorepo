@@ -1,5 +1,7 @@
 # iOS Privacy Manifest Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ios-privacy-manifest-check/>
+
 A free tool for iOS/macOS developers: scans your Swift and Objective-C source
 for Apple's **Required Reason API** usage and cross-checks it against your
 `PrivacyInfo.xcprivacy` manifest. It names the exact category, file, and line

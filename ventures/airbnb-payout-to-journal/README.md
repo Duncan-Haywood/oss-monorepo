@@ -1,5 +1,7 @@
 # Airbnb Payout To Journal
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/airbnb-payout-to-journal/>
+
 Free browser tool that turns an Airbnb host Transaction history CSV into balanced accounting
 journals for Xero, QuickBooks Online and QuickBooks Desktop (IIF). It splits every reservation into
 rental income, cleaning-fee income and Airbnb's host service fee, books cancellations, resolution

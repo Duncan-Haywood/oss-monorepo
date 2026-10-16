@@ -1,5 +1,7 @@
 # Actions Injection Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/>
+
 A free tool that scans GitHub Actions workflow files for two documented
 injection patterns:
 

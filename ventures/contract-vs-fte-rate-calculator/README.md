@@ -1,5 +1,7 @@
 # Contract vs. Salary Rate Calculator (W-2 to 1099)
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/contract-vs-fte-rate-calculator/>
+
 A free browser tool for people weighing a salaried offer against contract work. Enter the
 salary, bonus, 401(k) match, employer-paid health cover, paid time off and the contractor's
 costs, and it returns the hourly rate a contract must pay to leave the same cash, a step-by-step

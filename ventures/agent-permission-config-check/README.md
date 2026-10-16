@@ -1,5 +1,7 @@
 # Agent Permission Config Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/agent-permission-config-check/>
+
 A free tool that statically lints an AI-coding-agent's permission and
 MCP-server configuration — Claude Code's `.claude/settings.json`
 (`permissions.allow` / `.deny` / `.ask`) and the `mcpServers` block shared,

@@ -1,5 +1,7 @@
 # npm Deployment Evidence
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/npm-deployment-evidence/>
+
 If a JavaScript vulnerability scanner lists packages your deployed app never loads, this free, local-first tool shows the lockfile evidence behind that distinction. It reads `package-lock.json` v2/v3, separates production-path dependencies from npm-marked dev-only dependencies, and exports a portable Markdown or JSON report.
 
 After using this, you can now review which dependencies reach your production path, which used to require manually tracing a lockfile.

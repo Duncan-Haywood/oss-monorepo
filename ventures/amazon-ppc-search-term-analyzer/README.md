@@ -1,5 +1,7 @@
 # Amazon PPC Search Term Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/amazon-ppc-search-term-analyzer/>
+
 A free browser tool for Amazon sellers and PPC freelancers: **drop in a Sponsored
 Products search term report and see which search terms spent money with no orders,
 which are worth harvesting into an exact-match campaign at what bid, and how much

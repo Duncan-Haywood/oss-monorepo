@@ -1,5 +1,7 @@
 # Coast FIRE Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/coast-fire-calculator/>
+
 A free browser tool: **enter your age, savings and the retirement you want, and see your Coast FIRE number today, whether
 you have reached it, the age you will if you keep saving, and the part-time income needed while you coast (Barista FIRE).**
 Nothing is uploaded.

@@ -1,5 +1,7 @@
 # TikTok Shop Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/>
+
 A free browser calculator for TikTok Shop sellers. It prices one SKU after
 the referral fee, the creator commission you set, fulfillment, ads, and
 returns — including the usual case where **affiliate commission is not

@@ -1,5 +1,7 @@
 # Cloud Egress Cost Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/>
+
 If you are comparing S3-compatible storage providers, this browser-local calculator shows the monthly cost of your actual workload: stored GB, API requests, and outbound data transfer. After using this, you can identify the egress volume at which a cheaper storage rate stops being cheaper, which used to take a spreadsheet and a provider pricing page.
 
 Open `index.html` directly, or serve this directory with any static HTTP server. Enter the rates from each provider's current price sheet; the calculator intentionally does not fetch or endorse prices.

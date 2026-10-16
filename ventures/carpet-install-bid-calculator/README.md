@@ -1,5 +1,7 @@
 # Carpet Installation Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/carpet-install-bid-calculator/>
+
 A free browser calculator for carpet installers. It prices a carpet
 install the way the trade actually loses money — stretch-in over pad
 versus glue-down versus double-stick versus carpet tile, solid versus

@@ -1,5 +1,7 @@
 # World Traveler — a Garmin Connect IQ watch face
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/garmin-world-traveler-watchface/>
+
 A worldtimer-bezel watch face, in the style of classic GMT/world-time
 travel watches: a fixed 24-hour ring runs around the rim, and 42
 recognizable major cities of the world sit at whatever position on that

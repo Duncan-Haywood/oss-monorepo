@@ -1,5 +1,7 @@
 # Supabase RLS Exposure Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/>
+
 A free tool for anyone running a Supabase project: reads the project's own public schema
 listing, then sends **one real, read-only GET request per table** using the anon (public) key
 you provide, and names which tables return **real rows to that unauthenticated request** — the

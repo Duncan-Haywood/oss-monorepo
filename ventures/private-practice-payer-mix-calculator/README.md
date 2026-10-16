@@ -1,5 +1,7 @@
 # Private Practice Payer Mix Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/private-practice-payer-mix-calculator/>
+
 Free, browser-only tool for therapists and counselors in private practice. Paste
 one row per payer (allowed amount, sessions a month, share of claims paid, days to
 payment, billing minutes). It computes net per session and per clinical hour for

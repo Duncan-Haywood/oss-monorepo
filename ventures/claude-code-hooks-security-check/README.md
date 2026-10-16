@@ -1,5 +1,7 @@
 # Claude Code Hooks Security Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/claude-code-hooks-security-check/>
+
 A free tool that scans the command strings inside a pasted Claude Code
 hooks configuration — the `hooks` section of `settings.json`, or a
 standalone hooks object — for known-dangerous shapes: a remote download

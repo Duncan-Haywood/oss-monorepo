@@ -1,5 +1,7 @@
 # Grape Grower Sell vs Bottle Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/grape-grower-sell-vs-bottle-calculator/>
+
 A free browser tool for vineyard owners: **type what a buyer pays per ton and what it costs you to make and sell wine, and see what the same acres net each way.** It shows the yearly net of selling the fruit and of bottling it, the sell-through, direct bottle price, grape price and acreage at which the two tie, and how the answer moves with sell-through, direct sales, grape price and yield. Nothing is uploaded.
 
 After using this, you can **decide whether to sign the fruit contract or keep the crop**, from your own numbers instead of from the price of a bottle on a shelf.

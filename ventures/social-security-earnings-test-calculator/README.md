@@ -1,5 +1,7 @@
 # Social Security Earnings Test Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/social-security-earnings-test-calculator/>
+
 Free, private browser tool for people who claim Social Security before full retirement age and keep working: see how many months of benefits are withheld each year, the net dollars held back, the higher benefit credited at full retirement age, and when it repays what was withheld.
 
 After using this, you can see what working while claiming early really costs, which used to mean reading SSA publications and doing the whole-month withholding arithmetic by hand.

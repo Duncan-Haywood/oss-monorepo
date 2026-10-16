@@ -1,5 +1,7 @@
 # Senior Deduction Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/senior-deduction-calculator/>
+
 A free browser calculator for the new federal "senior bonus" deduction,
 enacted by the One Big Beautiful Bill Act for tax years 2025 through 2028.
 Entirely client-side; nothing is uploaded.

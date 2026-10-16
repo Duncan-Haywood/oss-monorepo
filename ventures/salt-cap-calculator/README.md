@@ -1,5 +1,7 @@
 # SALT Deduction Cap Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/salt-cap-calculator/>
+
 A free browser calculator for the SALT (state and local tax) itemized
 deduction cap under the One Big Beautiful Bill Act. Entirely client-side;
 nothing is uploaded.

@@ -1,5 +1,7 @@
 # Dental Associate Pay Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/dental-associate-pay-calculator/>
+
 A free browser tool for associate dentists comparing job offers: **enter two offers (percentage of production or
 collections, daily guarantee, share of lab fees, sign-on, other pay) and the net production you expect, and see each
 offer's yearly value, your effective percentage after lab fees and collections, the production where the guarantee

@@ -1,5 +1,7 @@
 # DJ Gig Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/dj-gig-profit-calculator/>
+
 Free, browser-only tool for mobile DJs and event entertainers. List your
 packages with price, event hours, gig costs and gigs per month, plus your
 overhead. It shows profit per hour worked once setup, travel and planning are

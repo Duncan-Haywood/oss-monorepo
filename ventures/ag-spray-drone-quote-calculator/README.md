@@ -1,5 +1,7 @@
 # Ag Spray Drone Quote Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ag-spray-drone-quote-calculator/>
+
 Free, browser-only quote calculator for custom applicators who spray with agricultural
 drones. Enter your drone (swath, speed, pump, tank), batteries and costs, then a list
 of fields; it works out the real time on each field, the cost per acre, a recommended

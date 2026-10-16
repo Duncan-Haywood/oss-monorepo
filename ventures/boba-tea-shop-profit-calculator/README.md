@@ -1,5 +1,7 @@
 # Boba Tea Shop Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/boba-tea-shop-profit-calculator/>
+
 A free browser tool for bubble tea, tea bar and specialty drink shops: **enter your price, cup costs, staff, rent and loan,
 and see profit per cup, monthly profit, break-even cups a day (with and without the loan), the drink price that reaches your
 target margin, volume and ingredient-cost sensitivity, and a sixty-month ramp-up with the working-capital reserve and payback.**

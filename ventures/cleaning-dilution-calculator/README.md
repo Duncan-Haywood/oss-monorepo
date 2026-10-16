@@ -1,5 +1,7 @@
 # Cleaning Dilution Cost Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cleaning-dilution-calculator/>
+
 Calculate commercial cleaning chemical cost per ready-to-use gallon, bucket,
 or job from the concentrate label and supplier price. The calculator includes
 optional mixing labor and waste allowance, so an operator can use the result in

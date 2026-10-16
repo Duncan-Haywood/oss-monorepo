@@ -1,5 +1,7 @@
 # trial-converter
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/trial-converter/>
+
 After using this, you can now **turn more Stripe free trials into paying
 customers, on your own server and with your own emails**: trials with a card
 get an honest price-and-date heads-up, trials without one get a scheduled

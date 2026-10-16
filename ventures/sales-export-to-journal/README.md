@@ -1,5 +1,7 @@
 # Sales Export To Journal
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sales-export-to-journal/>
+
 Free browser tool: drop any Airbnb, Amazon, eBay, Etsy, Gumroad, PayPal, Shopify, Square or Stripe
 sales or payout export and it works out which platform wrote the file, proves the rows add up to the
 payout, splits sales, shipping, tax, fees and refunds, and downloads balanced month-split journals

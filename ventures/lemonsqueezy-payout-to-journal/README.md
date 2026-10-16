@@ -1,5 +1,7 @@
 # Lemonsqueezy Payout To Journal
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/lemonsqueezy-payout-to-journal/>
+
 Free browser tool that turns a Lemon Squeezy earnings export into balanced accounting journals for
 Xero, QuickBooks Online and QuickBooks Desktop (IIF). It splits every order into product sales
 income, shipping income, tax collected and Lemon Squeezy's fee, books refunds separately instead of

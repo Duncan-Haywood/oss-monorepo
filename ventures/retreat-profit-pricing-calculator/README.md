@@ -1,5 +1,7 @@
 # Retreat & Workshop Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/retreat-profit-pricing-calculator/>
+
 A free browser tool for yoga teachers, coaches and trip organizers who book a venue months ahead: **type your costs, prices and expected guests and see profit, the break-even number of paying guests, what a venue guaranteed minimum costs you, what an early-bird tier gives up, and the regular price that hits a profit target.**
 
 After using this, you can **know how many guests a retreat needs and what to charge before you sign the venue**, which used to be a spreadsheet and a guess.

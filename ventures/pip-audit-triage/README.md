@@ -1,5 +1,7 @@
 # pip-audit Triage
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pip-audit-triage/>
+
 `pip-audit` lists every vulnerable package in an environment, with no severity
 and no way to tell whether your code imports it. This tool takes
 `pip-audit -f json` plus your Python source and ranks the findings by

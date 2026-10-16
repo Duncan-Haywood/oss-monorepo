@@ -1,5 +1,7 @@
 # Well Pump Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/well-pump-bid-calculator/>
+
 A free browser calculator for well-service and plumbing shops. It prices
 a well-pump replacement the way the trade actually loses money — extra
 drop-pipe footage past the included run, a seized pitless versus one

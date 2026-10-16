@@ -1,5 +1,7 @@
 # LLM Usage Log Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/llm-usage-log-analyzer/>
+
 Paste the per-request usage log your app already writes (JSONL, JSON array or
 CSV). It prices every request at the rates you enter and shows spend by model,
 feature label and day, the real cache-read share, a 30-day run rate, and three

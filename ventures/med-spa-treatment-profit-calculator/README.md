@@ -1,5 +1,7 @@
 # Med Spa Treatment Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/med-spa-treatment-profit-calculator/>
+
 A free browser calculator for med spas and aesthetics clinics. Nothing is
 uploaded.
 

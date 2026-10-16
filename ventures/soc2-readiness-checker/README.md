@@ -1,5 +1,7 @@
 # SOC 2 Readiness Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/soc2-readiness-checker/>
+
 A free browser tool (and small Node CLI) for startup founders and security leads:
 **answer one line per control the way auditors test them, and get a readiness score, your gaps
 ranked by value per day of effort, the evidence to collect, and a rough timeline to a Type I

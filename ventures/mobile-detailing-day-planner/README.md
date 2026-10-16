@@ -1,5 +1,7 @@
 # Mobile Detailing Day Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mobile-detailing-day-planner/>
+
 A free browser tool for mobile car detailers. List the jobs people want booked
 (price, hours on site, drive minutes from the shop, supplies); it picks the
 most profitable set that fits your hours, shows take-home per hour including

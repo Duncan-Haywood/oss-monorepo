@@ -1,5 +1,7 @@
 # No-Show & Cancellation Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/>
+
 A free, static calculator for appointment-based service businesses — personal
 trainers, salons, tutors, therapists, and similar solo/small operators —
 that turns your own price, booking volume, and no-show rate into a specific

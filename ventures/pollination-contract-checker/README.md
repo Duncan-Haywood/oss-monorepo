@@ -1,5 +1,7 @@
 # Pollination Contract Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pollination-contract-checker/>
+
 A free browser tool (and small Node CLI) for beekeepers: **enter the fee per hive and what it
 costs to deliver the bees, and see net per hive and the break-even fee.** Costs counted: trucking,
 labour, feed, hive losses, hives that fail inspection (unpaid but still hauled), broker share, and

@@ -1,5 +1,7 @@
 # Mobile Mechanic Visit Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mobile-mechanic-visit-pricing-calculator/>
+
 Free, private browser tool for mobile mechanics: drive time, minutes per job, materials, yearly fixed costs and the income you want become a trip charge plus a per-job rate, the price for each stop size, and a check on the flat per-job rate you charge today.
 
 After using this, you can quote a one-job callout and a four-job visit so both pay, which used to mean one flat labor rate that only paid on the big visits.

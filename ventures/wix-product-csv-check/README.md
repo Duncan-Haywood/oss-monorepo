@@ -1,5 +1,7 @@
 # wix-product-csv-check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/wix-product-csv-check/>
+
 Checks a Wix Stores product CSV in the browser before it is imported: Product and Variant row
 structure, option choices, name length, price, inventory, discounts, image links, SKUs and Excel
 damage, each with its line number, plus a safe-fixes pass that only touches formatting.

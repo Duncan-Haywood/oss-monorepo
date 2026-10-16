@@ -1,5 +1,7 @@
 # App Subscription Proceeds Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/app-subscription-proceeds-calculator/>
+
 **Find what a subscription charge really leaves after store fees, tax and refunds, what a subscriber is worth at your churn, how long payback takes, and what a web checkout would change.** Enter price, store fee (first year and after), refunds, monthly churn and cost to acquire a subscriber. Browser page, no install.
 
 After using this, you know whether your acquisition cost pays back, how much of the answer is the fee tier versus retention, and what the most you can spend per subscriber is for a 12-month payback.

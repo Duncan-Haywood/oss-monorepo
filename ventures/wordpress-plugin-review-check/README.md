@@ -1,5 +1,7 @@
 # WordPress Plugin Review Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/wordpress-plugin-review-check/>
+
 A free tool for WordPress plugin developers: scans your **`readme.txt`** and
 **PHP source** for the patterns behind common wordpress.org Plugin Directory
 review rejections and notes, before a reviewer -- or the automated

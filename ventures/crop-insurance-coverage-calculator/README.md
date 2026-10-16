@@ -1,5 +1,7 @@
 # Crop Insurance Coverage Level Calculator (RP, RP-HPE, YP)
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/crop-insurance-coverage-calculator/>
+
 A free browser tool for row-crop farmers and the people who advise them. Type the APH yield,
 projected price and the farmer-paid premium your agent quoted at each coverage level, plus a few
 yield-and-price years you want to test. It returns what each level guarantees, the break-even

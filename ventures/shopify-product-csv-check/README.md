@@ -1,5 +1,7 @@
 # Shopify Product CSV Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shopify-product-csv-check/>
+
 A free browser tool for Shopify merchants, agencies and catalogue editors who import
 products by CSV: **paste or drop the file and see every problem with its line number before
 the import fails or quietly creates the wrong products, then download a cleaned copy.** The

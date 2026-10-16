@@ -1,5 +1,7 @@
 # Daycare Tuition Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/childcare-tuition-calculator/>
+
 Childcare center directors and family child care providers can use this free browser calculator to price a classroom from their own child:staff ratio, staffing cost, and overhead, and to see what an empty seat is actually costing them at every occupancy level. After using it, you can state the tuition a classroom needs to reach a target margin and the dollar amount left on the table at its current occupancy, which used to take a spreadsheet or a guess.
 
 Serve this directory with `python3 -m http.server` before opening the page (ES module imports are blocked from `file://`). Run `node --test` for the pricing tests. The default example models a 10:1 ratio, two staff at $18/hour, a room licensed for 20, 85% occupancy, 12% payroll burden, and $1,500 in monthly overhead: that classroom costs $10,236/month to staff, needs $669.02 per child to clear a 10% margin, and is already earning about a 33% margin at its current $900 tuition rate -- while its three empty seats leave $2,700/month ($32,400/year) unbilled. Submitted assumptions are saved locally so a director can revisit a recurring pricing decision; use **Reset saved inputs** to remove them.

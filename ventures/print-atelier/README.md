@@ -1,5 +1,7 @@
 # Print Atelier (Business Plan)
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/print-atelier/>
+
 Interactive business plan and platform demo for **Print Atelier** — an AI-first, software-driven marketplace that digitizes physical art, sells prints via POD, and pays artists 30% of net profit.
 
 Artists preparing a print master can run a private, no-upload [print-file preflight](/print-file-preflight), compare up to five exports at a chosen print size, and download a dated technical record before ordering a paid proof.

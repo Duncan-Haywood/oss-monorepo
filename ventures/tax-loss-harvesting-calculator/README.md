@@ -1,5 +1,7 @@
 # Tax-Loss Harvesting Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tax-loss-harvesting-calculator/>
+
 A free browser tool for investors with taxable accounts: **enter the gains you have realized this year, any
 loss carried from last year, and the positions sitting at a loss, and see the tax saved this year, the
 $3,000 ordinary-income deduction, the carryforward and which losses a wash sale would disallow.** Nothing is

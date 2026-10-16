@@ -1,5 +1,7 @@
 # Online Business Valuation Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/online-business-valuation-calculator/>
+
 A free browser tool for owners selling (and buyers pricing) a small SaaS, e-commerce, content or agency
 business: **enter trailing-12-month revenue and SDE and get a price range, the net after selling fees, the
 buyer's payback, and a ranked list of what is costing you multiple.** Nothing is uploaded.

@@ -1,5 +1,7 @@
 # Solar Land Lease Offer Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/solar-land-lease-offer-calculator/>
+
 A free browser tool (and small Node CLI) for landowners with a solar developer's lease offer in hand:
 **enter the acres, offered rent, escalator, option payments and what the land earns now, and see the
 present value of the lease against keeping the land as it is, the year-1 rent and the escalator that

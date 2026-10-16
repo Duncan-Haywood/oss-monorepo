@@ -1,5 +1,7 @@
 # Independent Pharmacy Prescription Margin Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/independent-pharmacy-rx-margin-calculator/>
+
 A free browser tool for independent pharmacies: **type your prescription types and costs and see what each kind of fill really earns** after drug acquisition cost, vials and supplies, PBM claim fees, DIR and post-sale fees, a rework allowance for rejected claims, copay card fees, delivery cost and the pharmacy staff's time, which fills use a staff hour best, the copay that hits your target margin, how insured fills compare with cash fills, and how many prescriptions a month cover fixed costs.
 
 After using this, you can **see which generics, brands and specialty fills earn less than they cost to dispense once fees and staff time are counted**, which used to be a spreadsheet nobody kept current.

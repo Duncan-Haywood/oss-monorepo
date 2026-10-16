@@ -1,5 +1,7 @@
 # Locum Tenens vs Employed Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/locum-tenens-vs-employed-calculator/>
+
 A free browser tool for physicians, NPs, PAs and CRNAs weighing a locum tenens (1099) contract against an employed (W-2) offer:
 **enter both offers and see annual take-home after federal tax for each, the break-even locum hourly rate, and a sensitivity table on
 weeks worked.** Nothing is uploaded.

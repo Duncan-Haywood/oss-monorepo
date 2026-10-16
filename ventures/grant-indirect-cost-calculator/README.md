@@ -1,5 +1,7 @@
 # Grant Indirect Cost Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/grant-indirect-cost-calculator/>
+
 **Find your modified total direct costs (MTDC), the indirect cost you can charge, and the direct budget that fits under a funder's cap.** Enter salaries, fringe, supplies, travel, services, equipment and subawards. The tool applies the U.S. federal Uniform Guidance exclusions (equipment of $10,000 or more per unit, tuition remission, participant support, rental, patient care, and each subaward above its first $50,000), then charges 15% de minimis or your own rate on MTDC or total direct costs. Browser page, no install.
 
 After using this, you can state your effective indirect rate on direct costs and trim a budget to a funder's total cap without guessing, which used to take a spreadsheet and a re-read of 2 CFR 200.

@@ -1,5 +1,7 @@
 # Sign Shop Job Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sign-shop-job-pricing-calculator/>
+
 A free browser tool for sign and banner shops: **type the size, quantity, material costs, shop and install time and the margin you want, and get the price that earns it.** It shows break-even, dollars left per shop hour, what the job earns if you match the market price per square foot, and how the price per piece falls with quantity. Nothing is uploaded.
 
 After using this, you can **quote from your own costs** instead of a flat per-square-foot rule that loses money on small, design-heavy or install jobs.

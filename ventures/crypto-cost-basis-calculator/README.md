@@ -1,5 +1,7 @@
 # Crypto Cost Basis Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/crypto-cost-basis-calculator/>
+
 Free, browser-only tool for anyone who bought, sold or earned crypto at more than
 one price. Paste or open a CSV of your own transactions and it matches every sale
 to your purchase lots under FIFO, LIFO, HIFO, LOFO or a tax-aware greedy rule,

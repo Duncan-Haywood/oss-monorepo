@@ -1,5 +1,7 @@
 # QSBS Exclusion Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/qsbs-exclusion-calculator/>
+
 A free browser calculator for the Section 1202 Qualified Small Business
 Stock (QSBS) gain exclusion, expanded by the One Big Beautiful Bill Act.
 Entirely client-side; nothing is uploaded.

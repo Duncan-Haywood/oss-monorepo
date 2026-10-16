@@ -1,5 +1,7 @@
 # Bai2 To Ofx Converter
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bai2-to-ofx-converter/>
+
 Free browser tool that converts a BAI2 bank file (the cash-management format US business banks
 export) into the import files accounting software accepts: OFX/QBO for QuickBooks and Quicken, QIF,
 and Xero's statement CSV. It checks the file first (49/98/99 control totals and record counts,

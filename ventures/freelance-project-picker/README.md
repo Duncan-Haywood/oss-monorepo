@@ -1,5 +1,7 @@
 # Freelance Project Picker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/freelance-project-picker/>
+
 Three clients want you this month and you can only deliver two. Paste your weekly billable hours and the
 project offers on the table (fee, hours, deadline week) and see the exact set to accept for the most income,
 why each other offer loses, and the fee a declined project would need to earn its place — your counter-offer

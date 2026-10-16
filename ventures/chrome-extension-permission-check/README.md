@@ -1,5 +1,7 @@
 # Chrome Extension Permission Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/chrome-extension-permission-check/>
+
 A free tool for Chrome/Edge extension developers: scans your JavaScript/TypeScript
 source for **`chrome.*` API usage** and cross-checks it against your
 `manifest.json`'s declared `permissions`, `optional_permissions`, and

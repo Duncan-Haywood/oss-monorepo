@@ -1,5 +1,7 @@
 # Trial Conversion Timing Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/trial-conversion-timing-analyzer/>
+
 Free, browser-only tool for SaaS and app founders. Paste the date each free
 trial started and the date that user first paid (blank if they did not). It
 shows on which day of the trial people convert, flags a last-two-days deadline

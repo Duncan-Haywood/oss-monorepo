@@ -1,5 +1,7 @@
 # Asphalt Driveway Paving Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/asphalt-driveway-pave-bid-calculator/>
+
 A free browser calculator for paving contractors. It prices an asphalt
 driveway the way the trade actually loses money — overlay versus
 mill-and-overlay versus full-depth, mix tons from thickness, the street

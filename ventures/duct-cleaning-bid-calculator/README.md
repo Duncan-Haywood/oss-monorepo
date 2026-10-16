@@ -1,5 +1,7 @@
 # Duct Cleaning Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/duct-cleaning-bid-calculator/>
+
 A free browser calculator for HVAC and air-duct-cleaning contractors. It
 prices a whole-house cleaning the way the trade actually loses money —
 the included one-system ranch, then extra air handlers, extra vents,

@@ -1,5 +1,7 @@
 # Ics Calendar Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ics-calendar-check/>
+
 Free browser tool that checks an iCalendar (.ics) file for what makes Google Calendar, Outlook and
 Apple Calendar reject or mis-import it: missing UID, DTSTAMP, VERSION and PRODID, events that end
 before they start, zero-length all-day events, recurrence rules with COUNT and UNTIL together or a

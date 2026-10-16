@@ -1,5 +1,7 @@
 # Land Survey Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/land-survey-bid-calculator/>
+
 Free browser-local bid calculator for independent licensed land surveyors
 (one-to-three-person crews, not large multi-office firms) quoting a boundary
 retracement, topographic, or ALTA/NSPS land title survey. After using this,

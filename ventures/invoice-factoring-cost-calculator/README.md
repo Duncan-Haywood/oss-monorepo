@@ -1,5 +1,7 @@
 # Invoice Factoring Cost Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/invoice-factoring-cost-calculator/>
+
 A free browser tool for freelancers, small contractors, staffing agencies and truckers: **enter an invoice, the days your customer takes to pay and
 one or more factoring offers, and see the real cost in dollars, as a share of the invoice and as an annual rate**, plus the rebate and the yearly
 cost at your volume. Nothing is uploaded.

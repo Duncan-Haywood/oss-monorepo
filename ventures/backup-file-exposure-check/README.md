@@ -1,5 +1,7 @@
 # Backup File Exposure Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/backup-file-exposure-check/>
+
 A free tool for anyone shipping a web deployment: sends one plain GET request to each of eight
 well-known backup filenames (`backup.zip`, `backup.tar.gz`, `backup.sql`, `backup.sql.gz`,
 `db.sql`, `database.sql`, `dump.sql`, `site.zip`) and names which ones are **publicly readable** —

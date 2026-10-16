@@ -1,5 +1,7 @@
 # Dog Grooming Day Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/dog-grooming-day-planner/>
+
 Two questions every groomer answers by gut: *what do I charge for this dog?* and *which of the requests on my
 list do I take for Saturday?* Enter what a groom really costs you in table time and supplies and it quotes the
 price that hits your target net per table hour, then picks the exact set of dogs that earns the most in a day

@@ -1,5 +1,7 @@
 # Lot Split Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/lot-split-calculator/>
+
 A buyer offers one price for the whole estate, storage unit or liquidation pallet. Listing the items one by
 one looks like more money until fees, shipping and your own hours come out. Paste the lines and the offer
 and see what splitting really nets, which lines are worth listing and which should be sold on in bulk, a

@@ -1,5 +1,7 @@
 # Merchant Cash Advance True Cost Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/merchant-cash-advance-true-cost-calculator/>
+
 A free browser tool for small-business owners offered a merchant cash advance or an invoice-factoring deal:
 **enter the quote and see the annualised cost of the money you actually receive, what paying it off early does
 to that cost, how the same payback behaves over a different term, and how it compares with a bank loan.**

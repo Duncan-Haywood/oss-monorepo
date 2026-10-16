@@ -1,5 +1,7 @@
 # Startup Exit Waterfall Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/startup-exit-waterfall-calculator/>
+
 A free browser tool for founders, employees and angels: **enter the sale price and your cap table (common, options,
 preferred series with liquidation preference, participation caps, seniority and dividends) and see what each class
 is paid, the sale price at which each series is better off converting, and a sweep across sale prices.** Nothing is

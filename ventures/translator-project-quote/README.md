@@ -1,5 +1,7 @@
 # Translator Project Quote Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/translator-project-quote/>
+
 Freelance translators often quote from a raw word count even when new words,
 fuzzy matches, QA, rush work, and desktop publishing take different amounts of
 time. This free browser calculator turns those assumptions into a transparent

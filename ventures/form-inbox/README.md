@@ -1,5 +1,7 @@
 # Form Inbox
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/form-inbox/>
+
 After using this, you can now **point any HTML form at your own server and get an inbox, spam filtering and notifications**, instead of paying a form service a monthly fee that grows with your submissions and sending your visitors' messages through it.
 
 Two parts, both free and MIT:

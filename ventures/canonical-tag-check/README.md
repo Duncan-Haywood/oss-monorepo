@@ -1,5 +1,7 @@
 # Canonical Tag Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/canonical-tag-check/>
+
 A free tool for developers and SEO practitioners: fetches a URL you choose **for real**,
 reads its `<link rel="canonical">` tag(s), and — when there is exactly one — fetches that
 URL too, then classifies the evidence into the canonicalization mistakes that quietly tell

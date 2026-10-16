@@ -1,5 +1,7 @@
 # Mobile Bartender Event Quote
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mobile-bartender-event-quote/>
+
 Price a mobile bar / bartending event from guests, hours, bartenders, drinks, supplies, travel and
 insurance: get the staffing, the drinks to stock, a walk-away floor, the price per guest at your
 target margin, a three-way comparison of full bar / beer and wine / service only, and a check of

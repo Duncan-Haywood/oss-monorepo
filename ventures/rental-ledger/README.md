@@ -1,5 +1,7 @@
 # Rental Ledger
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rental-ledger/>
+
 After using this, you have a Schedule E for each rental, with depreciation worked out, the rental-loss allowance applied, and the contractors who need a 1099-NEC listed, from a year of rent and expense rows that used to sit in a spreadsheet.
 
 Free, no account, no watermark, works offline. Everything runs in your browser; your data is stored in `localStorage` on your device and never uploaded.

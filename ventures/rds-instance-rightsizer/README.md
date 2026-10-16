@@ -1,5 +1,7 @@
 # RDS Instance Rightsizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rds-instance-rightsizer/>
+
 Find the RDS and Aurora instances that are bigger (or smaller) than their CloudWatch numbers justify,
 get the next class in the same family, a Graviton saving for x86 classes, the monthly difference
 (Multi-AZ doubles the instance price) and the `aws rds modify-db-instance` command. Browser page or

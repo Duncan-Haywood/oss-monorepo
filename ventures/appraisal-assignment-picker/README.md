@@ -1,5 +1,7 @@
 # Appraisal Assignment Picker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/appraisal-assignment-picker/>
+
 Accepting requests as they arrive, or the biggest fee first, fills a solo appraiser's calendar with the wrong files.
 Paste the queue on offer (fee, hours of work, the business day each is due, direct cost) and get the exact set of
 files with the highest total net that can still be delivered on time, the order to work them, the fee at which each

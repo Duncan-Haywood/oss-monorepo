@@ -1,5 +1,7 @@
 # ai-coding-plan-cost-calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ai-coding-plan-cost-calculator/>
+
 **Is your AI coding subscription actually cheaper than the API — or the
 other way round?**
 

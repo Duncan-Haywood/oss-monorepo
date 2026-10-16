@@ -1,5 +1,7 @@
 # Chimney Sweep Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/chimney-sweep-bid-calculator/>
+
 A free browser calculator for chimney sweeps and fireplace shops. It prices a
 stop the way the trade actually loses money when they skip it — each flue
 times the height and roof access, then creosote, inspection, travel, and

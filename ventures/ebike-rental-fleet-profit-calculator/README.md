@@ -1,5 +1,7 @@
 # E-Bike Rental Fleet Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ebike-rental-fleet-profit-calculator/>
+
 Free, browser-only calculator for a bike shop, hotel, campground or tour desk running or adding an
 e-bike rental counter. Enter bikes, busy and quiet days and how full the fleet gets, half-day and
 full-day prices, add-ons, staff, rent, batteries, replacement and any loan. It shows **season profit

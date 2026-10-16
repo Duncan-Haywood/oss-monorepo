@@ -1,5 +1,7 @@
 # Bid Win-Rate Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bid-win-rate-optimizer/>
+
 A free browser tool for contractors, agencies, freelancers and anyone who sends quotes: **paste or upload a CSV of
 quote price, won or lost, and your cost for the job, and get a win-probability curve, the markup with the highest
 expected profit inside the range you have actually quoted, and a back-test that says whether price explains your

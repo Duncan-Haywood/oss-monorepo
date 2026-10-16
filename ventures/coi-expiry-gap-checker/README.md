@@ -1,5 +1,7 @@
 # Coi Expiry Gap Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/coi-expiry-gap-checker/>
+
 Free browser tool for general contractors, property managers and anyone who hires subcontractors:
 paste a list of vendor insurance policies (one row per policy, as read off the certificates) and set
 what your contract requires. It reports who is expired, who expires inside your lead time, whose

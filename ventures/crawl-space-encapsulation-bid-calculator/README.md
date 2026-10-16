@@ -1,5 +1,7 @@
 # Crawl Space Encapsulation Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/crawl-space-encapsulation-bid-calculator/>
+
 A free browser calculator for waterproofing contractors. It prices
 encapsulation the way the trade actually loses money — liner-only versus
 a sealed encapsulate, hatch versus belly-crawl versus standing water,

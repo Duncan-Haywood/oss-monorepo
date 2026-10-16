@@ -1,5 +1,7 @@
 # Form 2290 HVUT Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/form-2290-hvut-calculator/>
+
 A free browser tool for owner-operators and small fleets: **list your trucks with taxable gross weight and first-use month, and see the
 Form 2290 heavy highway vehicle use tax for each, prorated for the July–June period, the filing deadline, which trucks qualify for the
 5,000-mile suspension, and what the next weight bracket costs.** Nothing is uploaded.

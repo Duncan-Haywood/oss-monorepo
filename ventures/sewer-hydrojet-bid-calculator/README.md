@@ -1,5 +1,7 @@
 # Hydro-Jet and Sewer Camera Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sewer-hydrojet-bid-calculator/>
+
 A free browser calculator for drain-cleaning and plumbing shops. It prices
 a sewer camera inspection or hydro-jet the way the trade actually loses
 money — extra footage past the included run, cleanout versus toilet pull

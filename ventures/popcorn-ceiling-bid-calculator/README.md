@@ -1,5 +1,7 @@
 # Popcorn Ceiling Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/popcorn-ceiling-bid-calculator/>
+
 A free browser calculator for painting and drywall contractors. It prices
 popcorn / acoustic-ceiling removal the way the trade actually loses
 money — scrape-and-prime versus a Level 4 skim versus Level 5 plus two

@@ -1,5 +1,7 @@
 # Gtin List Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/gtin-list-check/>
+
 Free browser tool that checks a product list's UPC, EAN, GTIN and ISBN column before it is uploaded
 to a marketplace or retailer: wrong check digits (with an adjacent-swap suggestion), leading zeros
 lost to Excel (restored only when the check digit proves it), scientific notation like 3.60003E+11

@@ -1,5 +1,7 @@
 # bounce-house-rental-calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bounce-house-rental-calculator/>
+
 A browser calculator for independent bounce house / inflatable party rental
 companies. It prices a booking the way the flat "per unit per day" rate sheet
 in this trade never does — from the truck's two round trips, the crew's

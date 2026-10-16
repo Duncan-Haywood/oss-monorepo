@@ -1,5 +1,7 @@
 # Hard Money Loan Cost Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hard-money-loan-cost-calculator/>
+
 A free browser tool: **type a fix-and-flip deal and two hard money term sheets and see what each loan really costs** — interest on money actually drawn, points on the whole commitment, flat fees, a fee per draw, minimum-interest clauses and extension fees — as an effective annual rate, a profit figure and a return on your cash. It also shows what a late flip costs and the hold length at which the cheaper lender changes. Nothing is uploaded.
 
 After using this, you can **pick the lender whose total cost is lowest for your expected hold**, which used to mean comparing a headline rate against points in your head.

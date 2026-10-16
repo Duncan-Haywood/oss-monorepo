@@ -1,5 +1,7 @@
 # Volunteer Shift Scheduler
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/volunteer-shift-scheduler/>
+
 Free, browser-only volunteer schedule maker for church, school PTA, food bank,
 youth sports and event coordinators. Paste the volunteers (days they can do,
 maximum shifts, roles they cannot do), list the shifts (date, slot, role, how

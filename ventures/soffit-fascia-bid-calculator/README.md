@@ -1,5 +1,7 @@
 # Soffit and Fascia Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/soffit-fascia-bid-calculator/>
+
 A free browser calculator for roofing and siding contractors. It prices
 soffit and fascia the way the trade actually loses money — aluminum wrap
 over existing versus a vinyl tear-off versus new wood, 1-story versus

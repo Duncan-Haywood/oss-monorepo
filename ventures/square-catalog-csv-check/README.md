@@ -1,5 +1,7 @@
 # Square Catalog CSV Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/square-catalog-csv-check/>
+
 A free browser tool for Square sellers, bookkeepers and agencies who load an item library by CSV:
 **paste or drop the file and see every problem with its line number before the import fails or
 quietly creates duplicate items, then download a cleaned copy.** The file is read in the browser;

@@ -1,5 +1,7 @@
 # amazon-inventory-loader-check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/amazon-inventory-loader-check/>
+
 Checks an Amazon Seller Central inventory file in the browser before it is uploaded: tab-delimited
 format, SKUs, product ids with UPC/EAN/ISBN check digits, prices, quantities, add-delete codes,
 conditions and notes, each with its line number, plus a safe-fixes pass that only touches

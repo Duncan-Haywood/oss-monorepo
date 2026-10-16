@@ -1,5 +1,7 @@
 # CAT Adjuster Fee Schedule & Deployment Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cat-adjuster-fee-calculator/>
+
 Independent catastrophe (CAT) claims adjusters can use this free browser-local calculator to find real net profit for a storm deployment — after estimating-software, lodging, per diem, vehicle, and mileage cost, including the unpaid travel days spent driving to and from the disaster zone before the first claim closes — then compare two or three IA (independent-adjusting) firms' fee-schedule offers by what they actually pay per hour, not just their headline per-claim rate. **After using this, you can tell which of two offers with different per-claim rates and different claim pace is actually the better trip, which used to mean a spreadsheet or a guess about how much travel days and daily costs were quietly eating into a "good" fee.**
 
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.

@@ -1,5 +1,7 @@
 # Home Elevator Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/home-elevator-bid-calculator/>
+
 A free browser calculator for accessibility and elevator contractors. It
 prices a residential home elevator the way the trade actually loses
 money — two-stop pneumatic through-floor versus winding drum versus

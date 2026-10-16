@@ -1,5 +1,7 @@
 # Wholesale Real Estate Offer Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/wholesale-real-estate-offer-calculator/>
+
 A free browser tool for real estate wholesalers: **enter the after-repair value (or paste sold comps), repairs and your end buyer's terms, and get the most you can offer the seller, whether their asking price works, and what your fee nets by assignment versus double close.**
 
 After using this, you can **put a number on a seller's offer in a minute and know your fee survives the closing route you pick**, which used to be a 70%-rule scribble and a spreadsheet.

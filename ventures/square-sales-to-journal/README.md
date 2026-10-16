@@ -1,5 +1,7 @@
 # Square Sales To Journal
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/square-sales-to-journal/>
+
 Free browser tool that turns a Square Transactions CSV into balanced monthly accounting journals for
 Xero, QuickBooks Online and QuickBooks Desktop (IIF). It checks every payment (Total Collected plus
 Fees equals Net Total), books gross sales, discounts, sales tax and tips (as liabilities, not

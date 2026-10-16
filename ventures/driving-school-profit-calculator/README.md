@@ -1,5 +1,7 @@
 # Driving School Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/driving-school-profit-calculator/>
+
 A free browser tool for independent driving-school owners: **enter your lesson, block-lesson and road-test prices, car minutes, fuel and wear, cancellation rate, office rent, the car's cost and insurance, and road-test car hire, and get profit per lesson and per car hour, the price each offer needs for your target margin, break-even lessons per week, what late cancellations cost, and what the same car nets you instructing it yourself, employing an instructor on a share of each lesson, or leasing it to an independent instructor by the week**. Nothing is uploaded.
 
 After using this, you can now **decide whether to instruct, employ or lease out a driving-school car, and what a lesson has to cost to clear your target margin once insurance, the car and empty hours are counted**, which used to take a spreadsheet and a guess.

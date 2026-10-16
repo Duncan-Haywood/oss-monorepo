@@ -1,5 +1,7 @@
 # Event Seating Chart Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/event-seating-chart-optimizer/>
+
 Free, browser-only seating chart optimizer for weddings, banquets and events.
 Paste a guest list (with optional family or party), write who should sit
 together, who to keep apart and who is pinned to a table, and it assigns every

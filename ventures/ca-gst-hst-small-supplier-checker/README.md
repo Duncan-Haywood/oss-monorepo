@@ -1,5 +1,7 @@
 # Canada GST/HST Small Supplier Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ca-gst-hst-small-supplier-checker/>
+
 Free, private browser tool: enter your taxable sales for your last eight calendar quarters and see whether you passed the CAD 30,000 small-supplier line in a single quarter or across four, the date you must start charging GST/HST, and your 29-day registration deadline. Taxi and ride-share operators are flagged as registrants from day one.
 
 After using this, you know whether and when you must register with the CRA, which used to mean reading the CRA guide and counting quarters by hand.

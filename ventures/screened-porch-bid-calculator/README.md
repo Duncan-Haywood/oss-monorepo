@@ -1,5 +1,7 @@
 # Screened Porch Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/screened-porch-bid-calculator/>
+
 A free browser calculator for porch, lanai, and screen-enclosure crews. It
 prices a residential screened porch from the wall-screen square feet a
 floor-square-foot special cannot see, the knee wall, the roof, the ceiling,

@@ -1,5 +1,7 @@
 # AI Crawler Access Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ai-crawler-access-check/>
+
 A free tool that checks a `robots.txt` against 20 named AI-crawler
 user-agent tokens — GPTBot, ChatGPT-User, OAI-SearchBot (OpenAI); ClaudeBot,
 Claude-User, Claude-SearchBot (Anthropic); Google-Extended (Google);

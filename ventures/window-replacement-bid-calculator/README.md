@@ -1,5 +1,7 @@
 # Window Replacement Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/window-replacement-bid-calculator/>
+
 A free browser calculator for window replacement contractors. It prices a
 residential replacement job the way the trade actually loses money when they
 skip it — each opening by United Inches, story, and tear-out — and shows the

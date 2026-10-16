@@ -1,5 +1,7 @@
 # 3D Print Price Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/>
+
 Makers selling 3D-printed parts on Etsy, Shopify, or at a craft table can use
 this free browser-local calculator to price one print — from filament,
 electricity, printer depreciation, and a realistic failed-print rate, through

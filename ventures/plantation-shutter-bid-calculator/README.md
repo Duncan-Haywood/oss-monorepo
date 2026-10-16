@@ -1,5 +1,7 @@
 # Plantation Shutter Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/plantation-shutter-bid-calculator/>
+
 A free browser calculator for window-treatment shops. It prices a
 residential plantation-shutter install the way the trade actually
 loses money — product-on-site hang versus measure-and-install versus

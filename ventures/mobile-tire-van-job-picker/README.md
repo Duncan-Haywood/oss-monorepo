@@ -1,5 +1,7 @@
 # Mobile Tire Van Job Picker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mobile-tire-van-job-picker/>
+
 Taking calls in the order they ring, or the biggest ticket first, fills a one-van day with the wrong work. Paste
 the day's requested jobs (price, materials, minutes on site, the window the customer gives, where they are) and get
 the exact set and order of jobs with the highest profit for the day, the drive and idle time it implies, what each

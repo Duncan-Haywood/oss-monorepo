@@ -1,5 +1,7 @@
 # Card Surcharge vs Cash Discount Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/card-surcharge-vs-cash-discount-calculator/>
+
 A free browser calculator for small merchants: **should you add a card
 surcharge, offer a cash discount, or absorb the processing fee?** Entirely
 client-side; nothing is uploaded.

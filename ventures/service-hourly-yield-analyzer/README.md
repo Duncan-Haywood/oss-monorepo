@@ -1,5 +1,7 @@
 # Service Hourly Yield Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/service-hourly-yield-analyzer/>
+
 A free browser tool for businesses that sell hours (salons, barbers, spas, personal trainers,
 tutors, mobile detailers): **drop in your booking or sales export and see which services earn the
 most and the least per booked hour.** The file is read in the browser. Nothing is uploaded and no

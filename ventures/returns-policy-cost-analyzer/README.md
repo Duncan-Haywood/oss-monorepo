@@ -1,5 +1,7 @@
 # Returns Policy Cost Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/returns-policy-cost-analyzer/>
+
 What do returns really cost your store? Paste orders with refunds (category, subtotal, amount refunded,
 optional return label) and see what each return costs you, which product categories lose money once
 returns are counted, and whether a return fee or restocking fee would pay against free returns. Browser

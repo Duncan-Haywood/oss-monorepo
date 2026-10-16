@@ -1,5 +1,7 @@
 # .env.example Drift Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/>
+
 A free tool that diffs an `.env.example` (or `.env.sample`) file's declared
 variable names against the environment variables **actually read by a
 repo's own source code** (`process.env.X` in JS/TS, `os.getenv`/

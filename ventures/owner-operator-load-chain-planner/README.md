@@ -1,5 +1,7 @@
 # Owner Operator Load Chain Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/owner-operator-load-chain-planner/>
+
 The load with the best posted rate per mile is often the wrong next load: the empty run to its pickup, the hours spent
 waiting for its window to open and the rest you are forced to take before it all come out of the same week. Paste a
 shortlist from the load board (pickup, drop, rate, pickup window, delivery deadline) with your own costs, say where you are

@@ -1,5 +1,7 @@
 # Bundle Discount Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bundle-discount-optimizer/>
+
 A free browser tool for Shopify, Etsy, Amazon and other small online sellers: **paste your order history and product
 costs, and see which pairs of products customers already buy together, the bundle discount that earns the most, and
 the break-even** &mdash; how much more often shoppers must add the second item before the discount stops losing money.

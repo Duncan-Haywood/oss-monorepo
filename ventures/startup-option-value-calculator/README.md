@@ -1,5 +1,7 @@
 # Startup Stock Option Value Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/startup-option-value-calculator/>
+
 A free browser tool for anyone weighing a startup offer with stock options: **enter the grant, the
 company's fully diluted share count, its liquidation preferences and how likely you think each kind of
 exit is, and see what the options are worth after dilution, preferences, vesting, exercise cost and

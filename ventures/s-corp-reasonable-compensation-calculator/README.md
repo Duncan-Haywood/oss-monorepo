@@ -1,5 +1,7 @@
 # S-Corp Reasonable Compensation Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/s-corp-reasonable-compensation-calculator/>
+
 A free browser calculator for single-shareholder S-corp owners: enter your
 planned or current W-2 salary, your business's compensation pool, and a
 comparable full-time wage for your role, and see whether your salary is

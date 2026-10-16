@@ -1,5 +1,7 @@
 # Shopify Payout To Journal
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shopify-payout-to-journal/>
+
 Free browser tool that turns a Shopify Payments payout transactions export into balanced accounting
 journals for Xero, QuickBooks Online and QuickBooks Desktop (IIF). It proves the transactions add up
 to the payout (from a payout row, or a deposit typed in from the bank), books gross order payments,

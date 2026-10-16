@@ -1,5 +1,7 @@
 # Docker Base Image Pin Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/docker-base-image-pin-check/>
+
 A free tool that scans Dockerfiles and flags every `FROM` line whose base
 image is referenced by a mutable tag (`node:18`, `python:3.11-slim`, or bare
 `latest`) instead of a pinned content digest (`@sha256:...`) — a documented

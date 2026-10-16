@@ -1,5 +1,7 @@
 # Sewer Line Replacement Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sewer-line-replace-bid-calculator/>
+
 A free browser calculator for plumbing and sewer-repair shops. It prices
 replacing a sewer line the way the trade actually loses money — open-cut
 versus pipe bursting versus CIPP lining, bury depth, laterals, and the

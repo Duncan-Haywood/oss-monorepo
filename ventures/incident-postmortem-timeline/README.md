@@ -1,5 +1,7 @@
 # Incident Postmortem Timeline
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/incident-postmortem-timeline/>
+
 Paste a timestamped incident log (chat export, pager notes, terminal history) and
 get the numbers every postmortem needs: time to detect, acknowledge, mitigate and
 resolve, the longest silent gaps in the record, and a blameless postmortem draft in

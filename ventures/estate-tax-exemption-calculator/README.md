@@ -1,5 +1,7 @@
 # Estate Tax Exemption Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/estate-tax-exemption-calculator/>
+
 A free browser calculator for the One Big Beautiful Bill Act's permanent
 2026 federal estate, gift, and generation-skipping transfer (GST) tax basic
 exclusion amount — $15,000,000 per person, up to $30,000,000 for a married

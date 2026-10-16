@@ -1,5 +1,7 @@
 # Turo Host Payout Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/turo-host-payout-calculator/>
+
 A free calculator that turns one Turo trip's price into a host's actual
 payout under Turo's 2026 earnings-plan structure — a **plan x booking-window
 matrix**, not a single flat percentage. Compares the same trip across all

@@ -1,5 +1,7 @@
 # EPK Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/epk-generator/>
+
 A free, no-signup tool that builds an electronic press kit (EPK) — the
 one-page summary independent musicians and bands send to venues, festivals,
 blogs, and playlisters — from a short form. Runs entirely in your browser.

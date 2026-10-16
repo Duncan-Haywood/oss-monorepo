@@ -1,5 +1,7 @@
 # SaaS Annual Plan Discount Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/saas-annual-plan-discount-calculator/>
+
 A free browser calculator for SaaS and subscription founders: **what annual-prepay
 discount is worth offering.** Entirely client-side; nothing is uploaded.
 

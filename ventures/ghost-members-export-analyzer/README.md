@@ -1,5 +1,7 @@
 # Ghost Members Export Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ghost-members-export-analyzer/>
+
 A free browser tool for Ghost publishers: **drop in your members export CSV and see who
 pays, who never opens your email and what a cleaner list saves.** The file is read in the
 browser; nothing is uploaded and no Ghost login or API key is needed.

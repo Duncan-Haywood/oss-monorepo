@@ -1,5 +1,7 @@
 # Investor Update Builder
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/investor-update-builder/>
+
 Free, browser-only monthly investor update for startup founders. Enter MRR, customers and
 cash for a few months; it works out growth, net burn, runway, burn multiple and a
 default-alive check, then writes the update email with your highlights, lowlights, asks

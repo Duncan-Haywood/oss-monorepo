@@ -1,5 +1,7 @@
 # Menu engineering calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/menu-engineering-calculator/>
+
 A free, browser-only calculator that sorts an independent restaurant's menu into
 stars, plowhorses, puzzles and dogs — the Kasavana & Smith matrix (Michigan
 State, 1982) — from three numbers per dish the operator already has: plate food

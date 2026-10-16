@@ -1,5 +1,7 @@
 # Card Grading Submission Picker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/card-grading-submission-picker/>
+
 Grading fees, shipping and weeks of waiting eat the premium on most cards. Paste your cards (what each would sell for raw
 and at each grade, and your own chance of each grade) and get which to send to a grader and at which fee tier, which to
 sell raw, the exact chance of a 10 each card needs to be worth sending, the downside, and, under a grading budget or a

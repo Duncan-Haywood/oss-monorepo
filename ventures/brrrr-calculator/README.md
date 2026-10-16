@@ -1,5 +1,7 @@
 # BRRRR Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/brrrr-calculator/>
+
 A free browser tool for real estate investors: **enter price, rehab, hard-money terms, after-repair value and refinance terms, and see
 the cash you actually put in, the cash the refinance pays back, the cash left in the deal, cash flow and DSCR after the refinance, and
 the highest purchase price that pulls every dollar out.** Stress tables show a low appraisal, a rehab overrun and a higher refinance

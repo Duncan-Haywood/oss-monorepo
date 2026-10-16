@@ -1,5 +1,7 @@
 # Fuel Surcharge Schedule Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fuel-surcharge-schedule-calculator/>
+
 A free browser tool for owner-operators, small carriers, dispatchers and freight brokers: **enter a trip, the published diesel price and one or
 more fuel surcharge programs, and see the surcharge each pays, the extra fuel your truck actually burned above the peg, and the gap that comes
 out of linehaul**. Nothing is uploaded.

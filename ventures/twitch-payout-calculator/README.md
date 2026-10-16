@@ -1,5 +1,7 @@
 # Twitch Payout Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/>
+
 Twitch streamers can use this free browser-local calculator to find real monthly take-home from Tier 1/2/3 subscriptions and Bits — after their revenue split (50% default, or 60%/70% under the Plus Program) — plus any other income they supply, then check it against a monthly payout goal. **After using this, you can tell how many more Tier 1 subs close an income gap, instead of guessing from a dashboard total that doesn't show the split.**
 
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.

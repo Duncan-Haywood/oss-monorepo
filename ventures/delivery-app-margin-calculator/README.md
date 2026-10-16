@@ -1,5 +1,7 @@
 # Delivery App Margin Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/delivery-app-margin-calculator/>
+
 One ticket, every path. Enter a typical check and see what **dine-in, pickup,
 DoorDash, Uber Eats, Grubhub, and your own driver** each leave after
 commission, card processing, packaging, and extra bagging time — plus the

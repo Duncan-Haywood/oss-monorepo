@@ -1,5 +1,7 @@
 # Employee vs. Contractor Cost Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/employee-cost-calculator/>
+
 A free browser tool that compares the fully-loaded cost of a W-2 employee
 against a 1099 independent contractor for the same role — wages plus
 employer FICA, FUTA and SUTA (charged against their wage bases, not as flat

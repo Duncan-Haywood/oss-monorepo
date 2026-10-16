@@ -1,5 +1,7 @@
 # Ad Spend Saturation Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ad-spend-saturation-optimizer/>
+
 A free browser tool for online sellers and marketers who run several ad channels:
 **drop in weekly (or daily) spend and revenue per channel and see where the next dollar still pays and where it
 does not.** It fits a diminishing-returns curve to each channel's own history, reads the marginal return at today's

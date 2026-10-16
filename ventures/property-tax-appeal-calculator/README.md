@@ -1,5 +1,7 @@
 # Property Tax Appeal Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/property-tax-appeal-calculator/>
+
 A free browser tool for homeowners and small landlords: **enter your assessed value and a few
 recent comparable sales, and see whether your property tax assessment looks too high and
 whether an appeal would pay.** Nothing typed is uploaded.

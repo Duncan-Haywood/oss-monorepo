@@ -1,5 +1,7 @@
 # Upstash Redis Bill Estimator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/upstash-redis-bill-estimator/>
+
 Estimate a monthly Upstash Redis bill from the usage numbers in your console, compare
 pay-as-you-go with the fixed plans (with the crossover command volume), and see which changes cut it most, each with a dollar figure — before the invoice.
 

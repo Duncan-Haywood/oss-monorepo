@@ -1,5 +1,7 @@
 # Roofing Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/roofing-bid-calculator/>
+
 A free browser calculator for residential roofing contractors. It prices a
 reroof the way the trade actually bids one — footprint converted to roof
 squares by pitch, plus waste, tear-off layers, dump, and loaded labor — and

@@ -1,5 +1,7 @@
 # Webhook Signature Debugger
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/webhook-signature-debugger/>
+
 Paste a webhook request's headers, raw body and signing secret and find out whether
 the signature verifies, and if not, **why**. Supports Stripe, GitHub, Shopify, Slack
 and Standard Webhooks (Svix, Clerk, Resend). When the signature fails it tries the

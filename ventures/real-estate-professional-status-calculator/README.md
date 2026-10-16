@@ -1,5 +1,7 @@
 # Real Estate Professional Status Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/real-estate-professional-status-calculator/>
+
 A free browser tool for rental investors. Enter your real estate hours, your other
 work hours, the hours you spend on the rentals, your income and your expected rental
 loss. It checks the 750-hour and more-than-half tests, the material participation gate

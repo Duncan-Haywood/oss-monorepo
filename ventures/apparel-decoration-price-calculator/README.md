@@ -1,5 +1,7 @@
 # Screen Printing and Embroidery Price Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/apparel-decoration-price-calculator/>
+
 Custom apparel shops — screen printers, embroiderers and DTF printers — can use
 this free, browser-local calculator to find what a decorated piece actually
 costs them, and what the same job costs at every standard quantity tier.

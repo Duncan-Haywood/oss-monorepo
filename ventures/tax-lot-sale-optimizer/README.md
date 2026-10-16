@@ -1,5 +1,7 @@
 # Tax Lot Sale Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tax-lot-sale-optimizer/>
+
 A free browser tool for investors who need cash from a taxable account: **paste your purchase lots, say how
 much cash (or how many shares) you need, and see exactly which shares to sell from each lot to pay the least
 tax**, next to what FIFO, LIFO and highest-cost-first would cost. Nothing is uploaded.

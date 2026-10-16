@@ -1,5 +1,7 @@
 # State Residency Day Counter
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/state-residency-day-counter/>
+
 Free, browser-only multi-state day counter for remote workers, snowbirds and
 digital nomads. List where you were and when; it totals the days per state,
 checks them against the commonly published statutory residency tests (more than

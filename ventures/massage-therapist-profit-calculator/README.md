@@ -1,5 +1,7 @@
 # Massage Therapist Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/massage-therapist-profit-calculator/>
+
 Free, browser-only tool for massage therapists and small practice owners. List
 your session types with price, minutes, supplies and sessions per week, plus your
 overhead and no-show rate. It shows profit per hour for each session after card

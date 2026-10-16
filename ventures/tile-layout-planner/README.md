@@ -1,5 +1,7 @@
 # Tile Layout Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tile-layout-planner/>
+
 Free, browser-only tile layout planner for installers and DIY. Enter a room,
 any cut-outs (tub, island, cabinet) and a tile; pick straight, running bond or
 diagonal. It lays out the real tiles, searches starting positions and tile

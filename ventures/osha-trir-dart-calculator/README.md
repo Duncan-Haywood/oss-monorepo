@@ -1,5 +1,7 @@
 # OSHA TRIR & DART Rate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/osha-trir-dart-calculator/>
+
 A free browser tool that turns a company's own OSHA 300 log counts —
 recordable cases, DART cases, and total hours worked — into its Total
 Recordable Incident Rate (TRIR) and DART rate, the two numbers a general

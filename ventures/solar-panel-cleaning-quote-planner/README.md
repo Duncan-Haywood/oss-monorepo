@@ -1,5 +1,7 @@
 # Solar Panel Cleaning Quote Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/solar-panel-cleaning-quote-planner/>
+
 A free browser tool for solar panel cleaning businesses. Enter your hourly rate,
 how many minutes a panel takes, your set-up time, travel and costs. It returns
 a quote per job that hits your target margin, a price-per-panel curve showing

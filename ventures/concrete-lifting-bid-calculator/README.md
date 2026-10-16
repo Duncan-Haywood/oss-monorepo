@@ -1,5 +1,7 @@
 # Concrete Lifting Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/concrete-lifting-bid-calculator/>
+
 A free browser calculator for concrete-lifting contractors. It prices a
 mudjacking or polyjacking job the way the trade actually loses money —
 void cubic feet, backyard hose runs, extra holes, joint seal, and

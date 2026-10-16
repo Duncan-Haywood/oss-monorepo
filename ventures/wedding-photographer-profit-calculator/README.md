@@ -1,5 +1,7 @@
 # Wedding Photographer Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/wedding-photographer-profit-calculator/>
+
 Free, browser-only tool for wedding and event photographers. List your packages
 with price, coverage hours and job costs, plus your overhead. It counts travel,
 client time and culling and editing on every job, then shows profit per hour

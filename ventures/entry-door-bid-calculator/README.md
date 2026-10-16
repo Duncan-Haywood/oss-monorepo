@@ -1,5 +1,7 @@
 # Entry Door Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/entry-door-bid-calculator/>
+
 A free browser calculator for door and carpentry shops. It prices an
 entry-door replacement the way the trade actually loses money —
 sidelights, a transom, an out-of-square rough opening, jamb and sill

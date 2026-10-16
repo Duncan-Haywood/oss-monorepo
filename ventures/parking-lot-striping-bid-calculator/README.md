@@ -1,5 +1,7 @@
 # Parking Lot Striping Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/parking-lot-striping-bid-calculator/>
+
 A free browser calculator for parking-lot striping and pavement-marking
 contractors. It prices a lot the way the trade actually loses money — stall
 lines, ADA hash aisles, arrows, coats, and new-layout hours — and shows the

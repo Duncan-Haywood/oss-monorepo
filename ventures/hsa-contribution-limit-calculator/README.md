@@ -1,5 +1,7 @@
 # HSA Contribution Limit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hsa-contribution-limit-calculator/>
+
 A free browser calculator for the 2026 HSA (Health Savings Account)
 contribution limit. Entirely client-side; nothing is uploaded.
 

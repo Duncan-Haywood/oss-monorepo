@@ -1,5 +1,7 @@
 # Media Kit Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/influencer-media-kit-generator/>
+
 A free, no-signup tool that builds a creator sponsorship media kit — the
 one-page summary content creators send to brands considering a partnership —
 from a short form. Runs entirely in your browser.

@@ -1,5 +1,7 @@
 # Apiary Profit Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/apiary-profit-planner/>
+
 A free browser tool for beekeepers who sell. Enter your colonies, winter loss,
 honey yield, prices and costs. It projects colonies, honey, nuc sales and
 pollination income year by year, re-runs your plan at 10-60% winter loss,

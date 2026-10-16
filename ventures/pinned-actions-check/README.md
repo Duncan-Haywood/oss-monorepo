@@ -1,5 +1,7 @@
 # Pinned Actions Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/>
+
 A free tool that scans GitHub Actions workflow files and flags every
 third-party action referenced by a mutable tag or branch (`@v4`, `@main`)
 instead of a pinned 40-character commit SHA — a documented GitHub Actions

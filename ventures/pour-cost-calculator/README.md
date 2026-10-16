@@ -1,5 +1,7 @@
 # Pour Cost Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pour-cost-calculator/>
+
 A free browser tool that prices a cocktail recipe from its own bottle costs
 and pour sizes, reports the pour cost (liquor cost) percentage against a
 target the operator sets, and shows what a stated over-pour is really costing

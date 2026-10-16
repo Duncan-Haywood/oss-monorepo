@@ -1,5 +1,7 @@
 # Property Management Company Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/property-management-profit-calculator/>
+
 A free browser tool for owners of small property management companies (and people
 thinking of starting one). Enter doors, management fee, leasing, renewal and
 maintenance income, and your team and overhead; it shows monthly profit, the door

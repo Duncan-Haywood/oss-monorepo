@@ -1,5 +1,7 @@
 # Invoice Maker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/invoice-maker/>
+
 After using this, you can send a complete, professional invoice in two minutes,
 which used to mean a paid invoicing app or a spreadsheet template, and see which
 of your invoices are overdue and how old the unpaid balance is.

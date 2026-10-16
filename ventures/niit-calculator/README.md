@@ -1,5 +1,7 @@
 # NIIT Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/niit-calculator/>
+
 A free browser tool: **type your income and investment income and see whether the 3.8% net investment income
 tax applies, how far over the threshold you are, what an extra gain costs, and whether splitting it across two
 years saves tax.** Nothing is uploaded.

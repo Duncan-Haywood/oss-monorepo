@@ -1,5 +1,7 @@
 # Hardwood Refinishing Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hardwood-refinishing-bid-calculator/>
+
 A free browser calculator for hardwood floor refinishers. It prices a
 sand-and-finish or screen-and-recoat job from the parts a published
 per-square-foot number cannot see — stair treads, closets, stain, and an extra

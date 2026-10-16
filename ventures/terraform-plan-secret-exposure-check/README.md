@@ -1,5 +1,7 @@
 # Terraform Plan Secret Exposure Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/terraform-plan-secret-exposure-check/>
+
 A free tool that reads a Terraform *structured* plan (`terraform show -json`)
 and reports every attribute value that looks like a real secret — an AWS
 access key, a PEM private key, a JWT, or a URL with embedded credentials —

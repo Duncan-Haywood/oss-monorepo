@@ -1,5 +1,7 @@
 # Help Keeper
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/help-keeper/>
+
 After using this, you can now **give customers a help center you host yourself, with search that forgives typos and a weekly list of what they looked for and did not find**, instead of paying a documentation platform per author per month or leaving answers in a shared doc.
 
 Two parts, both free and MIT:

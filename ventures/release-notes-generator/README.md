@@ -1,5 +1,7 @@
 # Release Notes Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/release-notes-generator/>
+
 Turn `git log` into release notes. Commits are grouped by Conventional Commit type,
 **breaking changes come first**, pull requests and commits are linked, and the next
 semantic version is suggested. Histories that do not follow any convention still work:

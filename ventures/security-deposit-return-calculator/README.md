@@ -1,5 +1,7 @@
 # Security Deposit Refund & Prorated Rent Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/security-deposit-return-calculator/>
+
 Two free calculators for the arithmetic every residential move-in or move-out
 raises: itemize a security deposit's deductions to see the refund or balance
 due, and calculate prorated rent for a partial first or last month. Entirely

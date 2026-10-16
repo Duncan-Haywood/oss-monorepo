@@ -1,5 +1,7 @@
 # Wholesale vs Retail Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/wholesale-vs-retail-pricing-calculator/>
+
 A free browser tool for makers and small brands: enter your unit cost and retail
 price and see **what you keep per unit and per order selling direct, wholesale or
 on consignment**, after fees, shipping, your time, payment terms and sell-through.

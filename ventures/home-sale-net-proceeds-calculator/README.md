@@ -1,5 +1,7 @@
 # Home Sale Net Proceeds Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/home-sale-net-proceeds-calculator/>
+
 Free, browser-only seller net sheet. It shows the cash you receive at closing, estimates
 the capital gains tax on the sale, finds the list price that nets a target, and compares
 offers that differ in price and seller concessions.

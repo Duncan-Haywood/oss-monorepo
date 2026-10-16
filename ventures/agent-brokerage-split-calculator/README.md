@@ -1,5 +1,7 @@
 # Real Estate Brokerage Split Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/agent-brokerage-split-calculator/>
+
 A free browser tool for real estate agents choosing a brokerage: **enter your average sale, your commission and
 how many deals you close, then up to three brokerages, and see what you net after each split, cap and fee, the
 deal count where one plan overtakes another, and the split you would need to ask for to match the best one.**

@@ -1,5 +1,7 @@
 # Retirement Withdrawal Sequencer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/retirement-withdrawal-sequencer/>
+
 A free browser tool for people close to or in retirement: **enter taxable, traditional and Roth balances, yearly
 spending and Social Security, and it runs the plan year by year to your end age under 2026 US tax rules, compares the
 usual withdrawal orders with bracket-filling and Roth-conversion strategies, and shows which leaves you the most after

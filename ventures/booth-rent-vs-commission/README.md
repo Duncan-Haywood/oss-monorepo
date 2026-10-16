@@ -1,5 +1,7 @@
 # Booth Rent vs Commission Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/booth-rent-vs-commission/>
+
 A free browser calculator for hair stylists, barbers, nail techs, and other
 chair-rental trades. It compares a salon commission split to a booth-rent
 lease on the **same client book**, and it shows both take-home and take-home

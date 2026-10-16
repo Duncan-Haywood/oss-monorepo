@@ -1,5 +1,7 @@
 # FLSA Regular-Rate Overtime Audit
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/flsa-regular-rate-overtime-audit/>
+
 Free, browser-only audit of overtime paid on the wrong rate. Paste payroll rows
 (name, week, hours, hourly rate, nondiscretionary bonus, shift differential or
 commission, excluded pay, overtime premium actually paid). It reports:

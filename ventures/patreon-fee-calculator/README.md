@@ -1,5 +1,7 @@
 # Patreon Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/patreon-fee-calculator/>
+
 Patreon creators can use this free browser-local calculator to find real monthly payout from three pledge tiers — after their plan's platform fee (10% Standard, or 5%/8%/12% on a legacy Lite/Pro/Premium page) and per-charge payment processing fees — plus any other income they supply, then check it against a monthly payout goal. **After using this, you can tell whether billing patrons "per creation" instead of monthly is quietly costing you more in fees for the exact same pledge.**
 
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.

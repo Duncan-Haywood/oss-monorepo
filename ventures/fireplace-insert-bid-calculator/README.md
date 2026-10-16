@@ -1,5 +1,7 @@
 # Fireplace Insert Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fireplace-insert-bid-calculator/>
+
 A free browser calculator for hearth and chimney shops. It prices a
 fireplace-insert install the way the trade actually loses money —
 liner footage, a new hearth, a gas run, a dedicated circuit, a

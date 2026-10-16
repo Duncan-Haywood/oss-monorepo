@@ -1,5 +1,7 @@
 # Booking Request Chooser
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/booking-request-chooser/>
+
 Two requests want the same week and one pays more. Or a 2-night request would leave a 1-night hole nobody
 can book. Paste your confirmed bookings and pending requests and see the exact set of requests to accept
 for the most income, counting turnover cost and the dead gap nights each choice leaves, with the reason for

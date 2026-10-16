@@ -1,5 +1,7 @@
 # ESPP Tax Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/espp-tax-calculator/>
+
 A free browser tool for employees in an employee stock purchase plan: **enter your offering and purchase
 prices, discount and lookback and see the after-tax result of selling at purchase, holding a year, or
 holding to a qualifying sale, plus the price below which waiting loses.** Nothing is uploaded.

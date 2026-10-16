@@ -1,5 +1,7 @@
 # Irrigation Winterization Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/irrigation-winterization-bid-calculator/>
+
 A free browser calculator for irrigation contractors. It prices a sprinkler
 blowout / winterization stop the way the trade actually loses money when they
 skip it — spray, rotor, and drip zones at their own minutes, then the backflow

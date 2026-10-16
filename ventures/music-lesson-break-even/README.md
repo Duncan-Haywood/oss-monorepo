@@ -1,5 +1,7 @@
 # Music Lesson Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/music-lesson-break-even/>
+
 Independent music teachers can use this free browser calculator to find a sustainable lesson price after cancellations, preparation, travel, and monthly teaching costs. After using it, you can state the lesson price that reaches your annual pay target, which used to take a spreadsheet and guesswork.
 
 Serve this directory with `python3 -m http.server` before opening the page (ES module imports are blocked from `file://`). Run `node --test` for the pricing tests. The default example models 20 weekly lessons, 10% cancellations, 48 teaching weeks, 10 minutes of preparation, and $200 monthly costs. That week reaches a $40,000 target at $49.07 per paid lesson; two more weekly lessons keep $5,184 more after costs and drop the required price to $44.61. Travel time does not change cash — it only changes the effective hourly rate. Submitted assumptions are saved locally so a teacher can revisit a recurring pricing decision; use **Reset saved inputs** to remove them.

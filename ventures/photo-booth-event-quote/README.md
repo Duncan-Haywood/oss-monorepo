@@ -1,5 +1,7 @@
 # Photo Booth Event Quote Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/photo-booth-event-quote/>
+
 Independent mobile photo booth operators can use this free browser-local calculator to find the real price for one event booking — after setup and teardown time, travel, attendant labor, an equipment cost, a weekend/holiday premium, and the print cost an unlimited-print package depends on — then check a price already on the table against the breakeven, and see the recommended rate for running long. **After using this, you can quote a booking on the time and cost it actually takes, which used to take a flat package price that hid the setup hour, the drive, and how much of the margin an unlimited-print package's paper and ink were quietly eating.**
 
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.

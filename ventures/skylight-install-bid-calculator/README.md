@@ -1,5 +1,7 @@
 # Skylight Install Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/skylight-install-bid-calculator/>
+
 A free browser calculator for roofers and window crews. It prices a
 skylight install the way the trade actually loses money — one tubular
 sun tunnel in an existing chase versus a solar-venting glass unit with

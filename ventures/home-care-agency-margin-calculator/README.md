@@ -1,5 +1,7 @@
 # Home Care Agency Margin Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/home-care-agency-margin-calculator/>
+
 Free, browser-only tool for non-medical home care agencies. Paste one row per payer
 (bill rate, billed hours a month, caregiver wage, share paid, days to payment, visit
 length, unpaid travel). It loads each wage with payroll tax, workers' comp, overtime

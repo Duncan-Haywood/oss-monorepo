@@ -1,5 +1,7 @@
 # SaaS CAC Payback Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/saas-cac-payback-calculator/>
+
 A free browser calculator for SaaS and subscription founders: **how long a customer
 takes to pay back what you spent to win them, once churn is counted.** Entirely
 client-side; nothing is uploaded.

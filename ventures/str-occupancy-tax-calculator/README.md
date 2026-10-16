@@ -1,5 +1,7 @@
 # str-occupancy-tax-calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/str-occupancy-tax-calculator/>
+
 A browser calculator for short-term rental hosts that splits one stay's
 **occupancy tax** into what a platform (Airbnb, Vrbo) already collects and
 what is left for the host to remit directly, layer by layer.

@@ -1,5 +1,7 @@
 # Service Van Stock Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/service-van-stock-optimizer/>
+
 A free browser tool for HVAC, plumbing, electrical and appliance technicians and the small shops that stock their vans:
 **paste your parts list and what your past jobs used, and get the stock list that finishes the most jobs on the first
 visit** for the money and shelf space you have. Nothing is uploaded.

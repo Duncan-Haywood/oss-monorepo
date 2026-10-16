@@ -1,5 +1,7 @@
 # Mileage Deduction Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mileage-deduction-calculator/>
+
 A free browser calculator for a self-employed filer's 2026 business vehicle
 deduction: standard mileage rate versus actual expenses. Entirely
 client-side; nothing is uploaded.

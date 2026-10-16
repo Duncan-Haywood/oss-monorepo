@@ -1,5 +1,7 @@
 # Mortgage Points Break-Even Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mortgage-points-break-even-calculator/>
+
 A free browser tool for anyone choosing between a mortgage rate with discount points and one without.
 Type the loan, term, the rate with no points, the lower rate with points and their cost, how many years
 you expect to keep the loan, the return on cash you would otherwise keep, your tax rate on mortgage

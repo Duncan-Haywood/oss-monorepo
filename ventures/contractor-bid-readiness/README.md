@@ -1,5 +1,7 @@
 # Contractor Bid Readiness
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/contractor-bid-readiness/>
+
 Contractors can now turn a scattered RFP into an owner-by-owner checklist,
 copy a shareable link to it, or download a private Markdown handoff before the
 submission deadline. That used to mean searching email, a shared drive, and a

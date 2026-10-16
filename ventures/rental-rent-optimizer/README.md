@@ -1,5 +1,7 @@
 # Rental Rent Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rental-rent-optimizer/>
+
 A free browser tool for small landlords (1-50 units): **paste or upload your past listings as asking rent, days on
 market and leased or still vacant, add today's market rent and your costs, and get the asking rent with the highest
 expected net income after vacancy and turnover.** Nothing is uploaded.

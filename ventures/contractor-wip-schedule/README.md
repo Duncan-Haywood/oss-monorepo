@@ -1,5 +1,7 @@
 # Contractor WIP Schedule
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/contractor-wip-schedule/>
+
 A free browser tool for small and mid-size contractors: **paste or upload your open jobs (contract, estimated total
 cost, cost to date, billed to date) and get the work-in-progress schedule your bank and surety ask for** — percent
 complete, earned revenue, over- and underbilling, the whole loss on any job that will lose money, cash still to come

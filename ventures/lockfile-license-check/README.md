@@ -1,5 +1,7 @@
 # Lockfile License Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/lockfile-license-check/>
+
 A free tool that reads an npm `package-lock.json` and lists every dependency
 licence, worst first: strong-copyleft (GPL, AGPL, SSPL), unlicensed, weak-copyleft
 (LGPL, MPL, EPL), unknown, then permissive. SPDX `OR` expressions score the most

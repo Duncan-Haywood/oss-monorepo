@@ -1,5 +1,7 @@
 # Coverage Drop Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/coverage-drop-check/>
+
 A free tool that compares two **Cobertura** or **JaCoCo** coverage XML
 reports — baseline vs this pull request — and tells you whether line
 coverage dropped, and which files moved.

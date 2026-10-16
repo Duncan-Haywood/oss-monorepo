@@ -1,5 +1,7 @@
 # Subresource Integrity (SRI) Checker & Hash Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sri-check/>
+
 Two free tools sharing one classification engine (`sri.mjs`):
 
 - **Hash generator** — paste a script or stylesheet's exact contents and get

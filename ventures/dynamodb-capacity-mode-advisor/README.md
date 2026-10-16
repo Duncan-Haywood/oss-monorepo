@@ -1,5 +1,7 @@
 # DynamoDB Capacity Mode Advisor
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/dynamodb-capacity-mode-advisor/>
+
 Is your DynamoDB table on the wrong capacity mode? Paste the consumed read/write capacity
 from CloudWatch and see the monthly cost on-demand, provisioned with autoscaling and
 provisioned at a fixed peak. Browser page or zero-dependency CLI.

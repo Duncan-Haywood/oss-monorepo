@@ -1,5 +1,7 @@
 # Mobile Signing Agent Day Picker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/mobile-signing-agent-day-picker/>
+
 Saying yes in the order the offers arrive, or taking the biggest fee first, fills a notary's day with the wrong signings. Paste
 the day's requested signings (price, materials, minutes on site, the window the customer gives, where they are) and get
 the exact set and order of signings with the highest profit for the day, the drive and idle time it implies, what each

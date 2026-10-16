@@ -1,5 +1,7 @@
 # Actions Artifact Poisoning Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/actions-artifact-poisoning-check/>
+
 A free tool that scans GitHub Actions workflow files for two documented
 "artifact poisoning" patterns in `workflow_run`-triggered jobs:
 

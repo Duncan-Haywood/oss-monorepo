@@ -1,5 +1,7 @@
 # npm Lifecycle Script Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/npm-lifecycle-script-check/>
+
 A free tool that lists every package in a `package-lock.json` that runs a
 `preinstall`, `install`, `postinstall`, or `prepare` script at install time —
 and, given an older lockfile, tells you exactly which packages **gained**

@@ -1,5 +1,7 @@
 # Grain Store or Sell Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/grain-store-or-sell-calculator/>
+
 Free, browser-only calculator for farmers deciding whether to sell corn, soybeans,
 wheat or sorghum at harvest or store it for a later price. It takes out water
 shrink, drying, handling shrink, storage, interest on the money not received and

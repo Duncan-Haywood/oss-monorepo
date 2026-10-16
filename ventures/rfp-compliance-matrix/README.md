@@ -1,5 +1,7 @@
 # RFP Compliance Matrix Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rfp-compliance-matrix/>
+
 **Paste an RFP, get a compliance matrix.** One row for every *shall*, *must* and *required* obligation, with the section number, a category, a strength (mandatory, prohibition, desirable), and blank Owner / Status columns for your team. Page limits, due dates, copies, mandatory meetings and required forms are listed separately because they are checked once for the whole proposal.
 
 It is the step after [`tender-bid-readiness`](../tender-bid-readiness/) (should we bid?) and [`tender-radar`](../tender-radar/) (which tenders?): you have decided to bid and now need to be sure nothing goes unanswered.

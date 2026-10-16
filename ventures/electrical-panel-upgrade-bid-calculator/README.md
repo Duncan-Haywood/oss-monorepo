@@ -1,5 +1,7 @@
 # Electrical Panel Upgrade Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/electrical-panel-upgrade-bid-calculator/>
+
 A free browser calculator for licensed electricians. It prices a panel
 replacement or 100A-to-200A service upgrade the way the trade actually
 loses money — the can, then the feeder, the circuit landing, AFCI/GFCI,

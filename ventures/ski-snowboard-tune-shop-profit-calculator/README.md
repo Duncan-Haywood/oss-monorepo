@@ -1,5 +1,7 @@
 # Ski and Snowboard Tune Shop Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ski-snowboard-tune-shop-profit-calculator/>
+
 A free browser tool for ski and snowboard tune shops: **enter your tune prices, bench minutes, materials, technician pay, grinder and rent, and get profit per tune and per bench hour, the price each tune needs for your target margin, what a season wax pass really earns, the break-even volume, and the season at 50 to 150 percent of the volume you expect**. Nothing is uploaded.
 
 After using this, you can now **tell which tune to push when the bench is full and how many tunes cover the grinder and the rent**, which used to take a spreadsheet and a guess.

@@ -1,5 +1,7 @@
 # House Hack Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/house-hack-calculator/>
+
 A free browser tool: **enter a duplex, triplex or fourplex and its rents, and see what living in one unit really costs after
 the others pay, the rent you need to live free, whether a 3-4 unit FHA loan passes the self-sufficiency test, the highest
 price at which you live free, and the 10-year return versus renting** (including the year you move out and rent your own

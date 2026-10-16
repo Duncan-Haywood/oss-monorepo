@@ -1,5 +1,7 @@
 # Forestry Mulching Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/forestry-mulching-bid-calculator/>
+
 A browser worksheet for owner-operators bidding forestry mulching and land
 clearing work. Static ES modules, no build step, no dependencies, no network
 requests.

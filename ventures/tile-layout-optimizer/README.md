@@ -1,5 +1,7 @@
 # Tile Layout Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tile-layout-optimizer/>
+
 Free, browser-only tile layout optimizer for tilers, flooring installers and
 DIYers. Enter a room, any cut-outs (tub, island, the corner of an L-shaped room)
 and one or more tile sizes with box size and price. It searches where the grid

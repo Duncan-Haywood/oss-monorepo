@@ -1,5 +1,7 @@
 # STR Nightly Rate Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/str-nightly-rate-optimizer/>
+
 A free browser tool for short-term rental hosts: **paste or upload a CSV of listed nights (the nightly price you
 listed and whether it booked), say what the platform fee and each turnover cost you, and get a booking-chance
 curve, the nightly price with the highest expected profit per listed night inside the range you have actually

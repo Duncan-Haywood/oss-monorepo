@@ -1,5 +1,7 @@
 # Shop Rate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shop-rate-calculator/>
+
 A free browser tool that works out what one crew hour actually costs a trade
 contractor, and what it has to be sold at. Nothing is uploaded; the arithmetic
 runs on the visitor's own device.

@@ -1,5 +1,7 @@
 # SBIR / STTR Budget Builder
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sbir-budget-builder/>
+
 A free browser tool: **type your people, subawards and rates and get the SF424 R&R-style budget lines, plus checks on
 the share of work your company keeps, the STTR research-institution share, the fee ceiling and the solicitation
 maximum.** Nothing is uploaded.

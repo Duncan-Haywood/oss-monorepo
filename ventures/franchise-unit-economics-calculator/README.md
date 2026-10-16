@@ -1,5 +1,7 @@
 # Franchise Unit Economics Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/franchise-unit-economics-calculator/>
+
 A free browser tool for people deciding whether to buy a franchise unit. Enter the
 franchise fee, build-out, equipment and cash cushion, the loan, the sales ramp,
 running costs and what the franchisor takes (royalty, minimum royalty, ad fund,

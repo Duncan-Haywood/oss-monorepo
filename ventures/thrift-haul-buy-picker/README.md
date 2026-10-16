@@ -1,5 +1,7 @@
 # Thrift Haul Buy Picker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/thrift-haul-buy-picker/>
+
 A $15 price tag is a bargain or a loser depending on marketplace fees, shipping, how likely the item is to sell, how long
 your cash sits and the hour you spend listing it. Paste what you found at a thrift store, estate sale, auction or
 liquidation (the asking price, what you expect it to resell for and your own chance it sells) and get the expected profit

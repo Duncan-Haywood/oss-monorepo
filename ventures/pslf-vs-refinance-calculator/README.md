@@ -1,5 +1,7 @@
 # PSLF vs Refinance Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pslf-vs-refinance-calculator/>
+
 A free browser tool for borrowers with federal student loans working in public service: **enter your loan,
 your income and a private refinance offer, and see the total paid under Public Service Loan Forgiveness,
 the balance forgiven, the income at which refinancing starts to win, and what leaving public service early

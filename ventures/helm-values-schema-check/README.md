@@ -1,5 +1,7 @@
 # Helm Values Schema Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/helm-values-schema-check/>
+
 A free tool that validates a Helm chart's `values.yaml` against its own
 `values.schema.json` (the JSON Schema format Helm itself has supported since
 3.5) without running Helm at all.

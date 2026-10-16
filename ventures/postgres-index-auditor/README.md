@@ -1,5 +1,7 @@
 # Postgres Index Auditor
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/postgres-index-auditor/>
+
 A free browser tool (and small Node CLI) for anyone running Postgres: **run one
 read-only query, paste the output, and see which indexes are unused, duplicate,
 redundant or invalid, how much disk dropping them frees, and

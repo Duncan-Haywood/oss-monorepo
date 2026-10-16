@@ -1,5 +1,7 @@
 # Certified Payroll Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/certified-payroll-calculator/>
+
 A free browser calculator for Davis-Bacon and prevailing-wage government
 contractors. For one worker classification, one week, it checks whether cash
 wages plus fringe meet the project's wage determination, computes overtime

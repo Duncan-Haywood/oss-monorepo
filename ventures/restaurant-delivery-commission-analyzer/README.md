@@ -1,5 +1,7 @@
 # Restaurant Delivery Commission Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/restaurant-delivery-commission-analyzer/>
+
 A free browser tool for independent restaurants: **drop in a DoorDash, Uber Eats or
 Grubhub merchant payout or order-level financial report CSV and see what the platform
 really costs you.** The file is read in the browser; nothing is uploaded and no platform

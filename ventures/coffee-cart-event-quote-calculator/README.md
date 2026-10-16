@@ -1,5 +1,7 @@
 # Coffee Cart Event Quote Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/coffee-cart-event-quote-calculator/>
+
 A free browser tool (and small Node CLI) for mobile coffee cart and espresso trailer owners: **enter your
 cart's pace, prices and costs, the crowd you expect and what the host is offering, and see net profit and
 break-even drinks for a booking fee, a share of sales and a prepaid drink guarantee.** Net per hour counts

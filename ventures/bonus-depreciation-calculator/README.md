@@ -1,5 +1,7 @@
 # Bonus Depreciation vs. Section 179 Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/bonus-depreciation-calculator/>
+
 A free browser calculator comparing three ways to write off a new equipment
 or asset purchase: 100% bonus depreciation, a Section 179 election, and plain
 MACRS depreciation with no election. Entirely client-side; nothing is

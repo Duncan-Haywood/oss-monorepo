@@ -1,5 +1,7 @@
 # RSU Withholding Gap Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rsu-withholding-gap-calculator/>
+
 A free browser calculator for 2026 **RSU vests**. Employers withhold federal
 income tax on a vest at a flat 22% (37% above $1,000,000); your real tax is set
 by your bracket. Enter your salary and the vest and it returns the tax the vest

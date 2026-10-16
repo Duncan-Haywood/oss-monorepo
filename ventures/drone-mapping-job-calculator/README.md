@@ -1,5 +1,7 @@
 # Drone Mapping Job Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/drone-mapping-job-calculator/>
+
 A browser worksheet for Part 107 pilots quoting aerial mapping and
 photogrammetry survey work. Static ES modules, no build step, no dependencies,
 no network requests.

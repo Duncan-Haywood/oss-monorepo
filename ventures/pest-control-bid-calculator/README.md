@@ -1,5 +1,7 @@
 # Pest Control Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pest-control-bid-calculator/>
+
 A free browser calculator for independent pest control operators. It prices a
 route stop the way the route actually pays — on-site minutes, bait stations,
 and the drive — and shows the margin before the price goes out.

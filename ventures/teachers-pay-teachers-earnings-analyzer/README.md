@@ -1,5 +1,7 @@
 # Teachers Pay Teachers Earnings Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/teachers-pay-teachers-earnings-analyzer/>
+
 A free browser tool for Teachers Pay Teachers sellers: **drop in your sales CSV and see
 what you actually take home.** The file is read in the browser; nothing is uploaded and
 no Teachers Pay Teachers account access is needed.

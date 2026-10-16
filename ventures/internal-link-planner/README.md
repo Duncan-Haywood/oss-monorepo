@@ -1,5 +1,7 @@
 # Internal Link Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/internal-link-planner/>
+
 After using this, you can **see which pages of your site nobody links to, which sentence on which existing page should link to each of them, and how much internal link equity the plan moves**, without a $77/year plugin or a desktop crawler licence.
 
 Open `index.html`, pick your site's build folder (or a handful of `.html` files) and press Analyze. The page reads the files locally and makes no network requests. The same engine runs as a command line tool for CI and for live sites.

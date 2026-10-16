@@ -1,5 +1,7 @@
 # Cookie Security Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/>
+
 A free tool for web developers and security researchers: sends **one real HTTP
 GET request** to a URL you choose and classifies the response's `Set-Cookie`
 headers into the misconfiguration patterns that actually break things:

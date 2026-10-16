@@ -1,5 +1,7 @@
 # KDP Royalty Report Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-report-analyzer/>
+
 A free browser tool for self-published authors: **drop in your KDP royalty report CSV and
 see what each book, store and royalty option actually paid.** The file is read in the
 browser; nothing is uploaded and no Amazon account access is needed.

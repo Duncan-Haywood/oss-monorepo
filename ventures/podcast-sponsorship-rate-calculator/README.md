@@ -1,5 +1,7 @@
 # Podcast Sponsorship Rate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/podcast-sponsorship-rate-calculator/>
+
 A free calculator that turns a podcast's own average downloads per episode,
 niche, and ad read type (host-read or produced) into a sponsorship price
 range for each common ad placement — a pre-roll, a mid-roll, and a

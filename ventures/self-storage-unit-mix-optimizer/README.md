@@ -1,5 +1,7 @@
 # Self-Storage Unit Mix Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/self-storage-unit-mix-optimizer/>
+
 A free browser tool for self-storage owners and developers: **type the rentable area and, for each unit size, its rate, occupancy and how many units the market will rent, and get the exact mix of sizes that earns the most net operating income.** It compares the result with your current plan and shows what 1,000 more or fewer square feet is worth. Nothing is uploaded.
 
 After using this, you can **walk into a feasibility or lender conversation with the unit mix that maximises income under your own demand limits**, which used to take a spreadsheet and trial and error.

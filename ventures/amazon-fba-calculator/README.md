@@ -1,5 +1,7 @@
 # Amazon FBA vs FBM Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/>
+
 A free Amazon FBA calculator for sellers. It compares **Fulfillment by
 Amazon** against **merchant fulfilled (FBM)** on the same listing — referral
 fee, size-tier fulfillment, monthly storage, inbound, and the shipping label

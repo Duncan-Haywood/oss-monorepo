@@ -1,5 +1,7 @@
 # Interior Door Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/interior-door-bid-calculator/>
+
 A free browser calculator for carpenters. It prices an interior door
 replacement the way the trade actually loses money — hang-only on an
 existing jamb versus a prehung swap versus framing a new opening versus

@@ -1,5 +1,7 @@
 # OpenAPI Breaking Change Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/>
+
 A free tool that compares two OpenAPI 3.0/3.1 JSON documents and classifies
 every difference as a **breaking change** or not: a removed operation, a
 parameter that is new or became required, a narrowed parameter type, a

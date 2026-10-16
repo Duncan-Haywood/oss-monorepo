@@ -1,5 +1,7 @@
 # Referral Keeper
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/referral-keeper/>
+
 After using this, you can now **run an affiliate or referral program on your own Stripe account**: affiliates share a link, the customers they bring earn them recurring commission, refunds and disputes claw it back, and you pay them from a CSV, with no monthly fee and no revenue share.
 
 Two parts, both free and MIT:

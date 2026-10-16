@@ -1,5 +1,7 @@
 # Security Headers Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/security-headers-check/>
+
 A free tool for web developers and security researchers: sends **one real HTTP
 GET request** to a URL you choose and classifies the response's frame-
 protection and Content-Security-Policy headers into the misconfiguration

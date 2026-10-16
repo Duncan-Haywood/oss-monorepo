@@ -1,5 +1,7 @@
 # Laundromat Machine Payback Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/laundromat-machine-payback-calculator/>
+
 Free, browser-only tool for laundromat owners and people thinking of buying or
 re-equipping one. List your machine lines with count, price per cycle, turns per
 day, utility cost per cycle and installed cost, plus overhead. It shows payback

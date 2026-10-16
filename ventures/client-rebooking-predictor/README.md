@@ -1,5 +1,7 @@
 # Client Rebooking Predictor
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/client-rebooking-predictor/>
+
 A free browser tool for salons, barbers, groomers, massage and physio practices, dentists, cleaners, lawn-care and any
 business whose customers are meant to come back: **paste or upload a CSV of client, visit date and (optionally) amount
 spent, and get who is due, who is overdue but still recoverable, and who has probably gone, each judged against that

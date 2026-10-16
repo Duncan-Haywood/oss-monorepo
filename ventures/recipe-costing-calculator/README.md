@@ -1,5 +1,7 @@
 # Recipe Costing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/recipe-costing-calculator/>
+
 A free browser tool for bakers, cafes, caterers, food trucks and cottage-food sellers. Paste
 your pantry (pack size, pack price, usable yield) and your recipes. It shows cost per portion
 and per batch, food cost percentage, and the menu price that hits your target. Entirely

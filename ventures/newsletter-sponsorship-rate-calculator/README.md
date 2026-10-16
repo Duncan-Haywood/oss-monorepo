@@ -1,5 +1,7 @@
 # Newsletter Sponsorship Rate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/newsletter-sponsorship-rate-calculator/>
+
 A free calculator that turns a newsletter's own subscriber count, average
 open rate, and niche into a sponsorship price range for each common ad
 placement — a dedicated send, a primary in-issue slot, a secondary slot, and

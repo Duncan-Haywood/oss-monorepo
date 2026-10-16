@@ -1,5 +1,7 @@
 # Etsy Ads ROI Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/etsy-ads-roi-analyzer/>
+
 A free browser tool for Etsy sellers: **drop in the Etsy Ads report
 from Shop Manager and see which listings lose money after the ad fee.** The file
 is read in the browser; nothing is uploaded.

@@ -1,5 +1,7 @@
 # Worker Classification Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/worker-classification-checker/>
+
 A free browser tool for small business owners who pay people on a 1099. Answer
 sixteen yes/no questions about how the work really happens; it reads them
 against the IRS common-law test, the DOL economic reality test and the state

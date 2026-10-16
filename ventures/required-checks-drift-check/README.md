@@ -1,5 +1,7 @@
 # Required Checks Drift Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/>
+
 A free tool that compares your branch-protection required status check
 names against the job names your GitHub Actions workflows would currently
 report, and flags every required check nothing can ever satisfy again —

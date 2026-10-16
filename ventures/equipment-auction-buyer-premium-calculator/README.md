@@ -1,5 +1,7 @@
 # Equipment Auction Buyer's Premium Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/equipment-auction-buyer-premium-calculator/>
+
 A free calculator for a farm, construction, or heavy-equipment auction
 bidder. It turns a hammer price into the true out-the-door total — a
 **buyer's premium** (capped per lot if the auction caps it), an

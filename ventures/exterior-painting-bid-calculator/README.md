@@ -1,5 +1,7 @@
 # Exterior Painting Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/exterior-painting-bid-calculator/>
+
 A free browser calculator for exterior painting contractors. It prices a
 two-coat repaint, scrape-and-prime, bare-wood, or elastomeric masonry
 job the way the trade actually loses money — the included one-story

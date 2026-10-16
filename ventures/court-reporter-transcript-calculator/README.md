@@ -1,5 +1,7 @@
 # Court Reporter Transcript Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/court-reporter-transcript-calculator/>
+
 Two free calculators for the arithmetic every freelance court reporter and
 deposition stenographer does before sending an invoice or accepting an
 assignment: turn a deposition's page count, turnaround speed, travel, copies,

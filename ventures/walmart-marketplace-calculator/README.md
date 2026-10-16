@@ -1,5 +1,7 @@
 # Walmart Marketplace Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/walmart-marketplace-calculator/>
+
 A free Walmart Marketplace calculator for sellers. It compares **Walmart
 Fulfillment Services (WFS)** against **seller fulfilled** on the same
 listing — referral fee (including the per-item floor that bites cheap

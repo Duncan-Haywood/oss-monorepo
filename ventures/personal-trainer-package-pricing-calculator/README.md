@@ -1,5 +1,7 @@
 # Personal Trainer Package Pricing Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/personal-trainer-package-pricing-calculator/>
+
 A free browser calculator for independent personal trainers: compares a
 discounted prepaid session package against pay-per-session pricing on net
 take-home pay per hour, after your gym or studio's percentage revenue-share

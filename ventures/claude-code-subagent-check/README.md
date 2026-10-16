@@ -1,5 +1,7 @@
 # Claude Code Subagent Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/claude-code-subagent-check/>
+
 A free tool that checks a pasted Claude Code subagent definition
 (`.claude/agents/*.md`) for the structural mistakes that stop the orchestrator
 from delegating to it — a name that isn't kebab-case or doesn't match the

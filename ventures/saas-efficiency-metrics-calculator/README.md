@@ -1,5 +1,7 @@
 # SaaS Efficiency Metrics Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/saas-efficiency-metrics-calculator/>
+
 A free browser calculator for SaaS founders and finance leads: **burn multiple, magic
 number, Rule of 40 and runway from one quarter of numbers.** Entirely client-side;
 nothing is uploaded.

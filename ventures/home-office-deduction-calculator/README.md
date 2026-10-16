@@ -1,5 +1,7 @@
 # Home Office Deduction Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/home-office-deduction-calculator/>
+
 A free browser calculator comparing the IRS **simplified** home office
 deduction with the **regular (Form 8829)** method for a self-employed
 filer. Entirely client-side; nothing is uploaded.

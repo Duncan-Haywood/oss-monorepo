@@ -1,5 +1,7 @@
 # Ofx File Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ofx-file-check/>
+
 Free browser tool that checks an OFX or QFX bank or credit-card export (the "Web Connect" file
 imported into QuickBooks, Quicken, YNAB and Xero) for what makes the import fail: header lines,
 unclosed tags, missing TRNTYPE, DTPOSTED, TRNAMT or FITID, invalid dates and amounts, duplicate

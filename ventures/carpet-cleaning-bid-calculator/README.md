@@ -1,5 +1,7 @@
 # Carpet Cleaning Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/carpet-cleaning-bid-calculator/>
+
 A free browser calculator for independent carpet-cleaning technicians. It
 prices a stop the way the job actually takes time — each room divided by a
 soil-specific extraction rate, then stairs, pet-urine extra passes,

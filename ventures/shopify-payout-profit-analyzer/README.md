@@ -1,5 +1,7 @@
 # Shopify Payout Profit Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shopify-payout-profit-analyzer/>
+
 A free browser tool for Shopify merchants: **drop in your Shopify Payments
 Transactions export (and the Orders export) and see where every payout went,
 and which products make money.** The files are read in the browser; nothing is

@@ -1,5 +1,7 @@
 # FBAR and Form 8938 Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fbar-8938-checker/>
+
 A free browser tool: **list your foreign accounts with their highest and year-end balances and see whether the
 FBAR (FinCEN 114) and the Form 8938 are required, and why.** Nothing is uploaded.
 

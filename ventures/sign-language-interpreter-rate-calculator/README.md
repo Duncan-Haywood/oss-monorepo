@@ -1,5 +1,7 @@
 # Sign Language Interpreter Rate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sign-language-interpreter-rate-calculator/>
+
 A free calculator that turns a freelance or contract sign language (ASL)
 interpreter's assignment request into a defensible fee — hours requested
 against a booking minimum, portal-to-portal travel time and mileage, an

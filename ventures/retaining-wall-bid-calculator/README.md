@@ -1,5 +1,7 @@
 # Retaining Wall Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/retaining-wall-bid-calculator/>
+
 A free browser calculator for hardscape and landscape contractors. It prices
 a retaining wall the way the trade actually loses money — face area, then a
 wall-type and height factor, then drain stone, geogrid, corners, and the

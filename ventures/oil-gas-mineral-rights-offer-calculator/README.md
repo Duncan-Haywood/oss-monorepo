@@ -1,5 +1,7 @@
 # Mineral Rights Offer Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/oil-gas-mineral-rights-offer-calculator/>
+
 A free browser tool for oil and gas mineral and royalty owners who have received an unsolicited
 lump-sum offer for their future checks. Type the current monthly check, how fast it is declining, any
 planned wells and the offer. It returns what the remaining checks are worth at your own discount rate,

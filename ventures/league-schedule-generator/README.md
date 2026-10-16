@@ -1,5 +1,7 @@
 # League Schedule Generator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/>
+
 Free, browser-only round-robin schedule maker for rec leagues, youth sports,
 pickleball, darts and chess clubs and office leagues. Paste the team names and
 pick a start date and weekday; it builds a single or double round robin with real

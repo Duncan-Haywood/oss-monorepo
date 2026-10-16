@@ -1,5 +1,7 @@
 # Insurance Denial Appeal Builder
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/insurance-denial-appeal-builder/>
+
 A free browser tool for patients: **paste a health insurance denial letter and get the likely
 denial reason, your appeal deadline, a draft appeal letter, a checklist of what to gather and a
 calendar file with reminders.** The text is read in the browser. Nothing is uploaded and no

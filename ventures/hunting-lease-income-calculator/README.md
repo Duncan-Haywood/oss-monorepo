@@ -1,5 +1,7 @@
 # Hunting Lease Income Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hunting-lease-income-calculator/>
+
 A free browser tool (and small Node CLI) for landowners: **enter your acres, the prices you are offered and your own
 costs, and see what a flat club lease, per-hunter seasonal leases and paid day hunts would each net.** It also gives
 the break-even rate per acre and shows how net moves if only some hunter seats fill. Nothing is uploaded.

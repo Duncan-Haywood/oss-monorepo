@@ -1,5 +1,7 @@
 # No Surprises Act IDR Offer Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/nsa-idr-offer-calculator/>
+
 Free, browser-only tool for out-of-network providers and billing teams disputing
 payments under the No Surprises Act. List each claim with its billed charge, the
 payer's QPA and the amount already paid, enter the current fees and your own

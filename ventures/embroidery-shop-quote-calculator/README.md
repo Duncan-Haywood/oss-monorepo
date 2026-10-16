@@ -1,5 +1,7 @@
 # Embroidery Shop Quote Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/embroidery-shop-quote-calculator/>
+
 A flat price per 1000 stitches ignores digitizing, setup, color changes and hooping, so it quietly loses money on
 small runs. Enter an embroidery job and your machine, and see the per-piece price that hits your target margin,
 the true cost and clock time, a quantity-break table (12, 24, 48, 100, 250), how price moves with stitch count,

@@ -1,5 +1,7 @@
 # ADU Payback Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/adu-payback-calculator/>
+
 Free, browser-only calculator for homeowners and small builders weighing an
 accessory dwelling unit (ADU, granny flat, backyard cottage). Enter the build
 cost lines, financing, rent and operating costs. It shows year-1 cash flow, yield

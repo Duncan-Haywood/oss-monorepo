@@ -1,5 +1,7 @@
 # Custom Farm Rate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/custom-farm-rate-calculator/>
+
 Custom farm operators — anyone who owns field equipment (a combine, planter,
 sprayer, baler, or tillage tool) and does field work for other farmers for pay
 — can use this free browser-local calculator to find the rate to charge for

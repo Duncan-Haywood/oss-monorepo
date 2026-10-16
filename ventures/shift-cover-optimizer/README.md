@@ -1,5 +1,7 @@
 # Shift-Cover Optimizer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/shift-cover-optimizer/>
+
 A free browser tool for restaurants, cafés, salons, shops and any small business that schedules by the hour: **paste how
 many people (or how much demand) you expect in each open hour, and get the cheapest set of shifts that keeps every hour
 covered**, what it saves against a fixed 8-hour template, and what your own scheduling rules cost. Nothing is uploaded.

@@ -1,5 +1,7 @@
 # Pet Boarding and Daycare Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pet-boarding-daycare-profit-calculator/>
+
 Free, private browser tool for people planning or running a dog boarding and daycare business: runs and daycare spots, prices, expected occupancy and the dogs-per-attendant ratio become monthly profit with staffing that steps up as dogs are added, break-even occupancy, the price change that reaches a target margin, how wage changes move profit, a sixty-month ramp-up with the cash reserve and payback, and loan coverage.
 
 After using this, you know what share of capacity the facility has to fill to pay its attendants, rent and loan, and how much cash to hold while bookings build.

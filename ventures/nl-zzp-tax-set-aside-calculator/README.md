@@ -1,5 +1,7 @@
 # Netherlands ZZP Tax Set-Aside Calculator (2026)
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/nl-zzp-tax-set-aside-calculator/>
+
 Free, private browser tool: enter turnover and expenses and get Box 1 income tax after the zelfstandigenaftrek, startersaftrek, MKB-winstvrijstelling, algemene heffingskorting and arbeidskorting, the Zvw contribution, and the share of every invoice to set aside. Flags the voorlopige aanslag and BTW/KOR.
 
 After using this, a Dutch freelancer (ZZP'er) knows how much to move out of each payment instead of finding a tax bill after the assessment.

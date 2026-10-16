@@ -1,5 +1,7 @@
 # Pension Lump Sum vs Monthly Pension Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pension-lump-sum-vs-annuity-calculator/>
+
 A free browser tool for anyone offered a pension buyout. Type the monthly pension, its start age and
 cost-of-living increase, the lump sum, your age, the age you have a 50/50 chance of reaching, and the
 return you expect on invested money. It returns what the pension is worth today counting your

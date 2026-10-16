@@ -1,5 +1,7 @@
 # IRS IRIS 1099 CSV Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/irs-iris-1099-csv-check/>
+
 A free browser tool for bookkeepers, tax preparers and small filers moving from FIRE to IRIS:
 **paste or drop the 1099-NEC / 1099-MISC bulk-upload CSV and see every problem with its line
 number before you upload, then download a cleaned copy.** The file is read in the browser;

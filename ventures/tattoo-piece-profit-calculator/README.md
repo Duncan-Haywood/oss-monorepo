@@ -1,5 +1,7 @@
 # Tattoo Piece Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/tattoo-piece-profit-calculator/>
+
 Free, browser-only tool for tattoo artists. Enter the hourly take-home you want, your
 shop commission or booth rent, setup minutes per session, supplies and free touch-up
 time. List the pieces you quote. It shows the lowest price for each, the profit over your

@@ -1,5 +1,7 @@
 # Medical Bill Error Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/medical-bill-error-checker/>
+
 A free browser tool for patients: **drop in your itemized medical bill and see the lines worth
 questioning**, then copy a draft request to the billing office. The file is read in the browser.
 Nothing is uploaded, and no portal login is needed.

@@ -1,5 +1,7 @@
 # Pilot Car Escort Run Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pilot-car-escort-run-profit-calculator/>
+
 Free, browser-only calculator for pilot car, oversize-load escort and route survey operators.
 Enter your quote (price per loaded mile, or a flat or day price), the minimum charge, loaded and
 deadhead miles, driver hours, days away, fuel, meals, hotel, tolls, card fees, the vehicle's cost

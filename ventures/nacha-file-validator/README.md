@@ -1,5 +1,7 @@
 # NACHA File Validator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/nacha-file-validator/>
+
 A free browser tool for anyone who sends payroll, vendor payments or collections through
 their bank by ACH file: **paste or drop the file and see every structural error with its
 line number before the bank rejects it, then rebuild the control records after a hand

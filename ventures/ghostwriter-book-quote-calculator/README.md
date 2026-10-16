@@ -1,5 +1,7 @@
 # Ghostwriter Book Quote Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ghostwriter-book-quote-calculator/>
+
 A free browser tool: **type a book's word count and how long each part of the job takes, and get a flat fee that
 holds your target hourly rate.** It shows the per-word and per-page rate that results, a deposit and milestone
 schedule, the price of one extra revision round, your real hourly if the job runs over, and what a client's lower

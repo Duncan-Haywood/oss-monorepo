@@ -1,5 +1,7 @@
 # CODEOWNERS Shadow Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/codeowners-shadow-check/>
+
 A free tool for developers and repo maintainers: resolves a `CODEOWNERS` file the way
 **GitHub actually resolves it** — the last matching pattern wins, the same rule
 `.gitignore` uses — against a real list of file paths, and names exactly which rules

@@ -1,5 +1,7 @@
 # Redirect Chain Checker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/redirect-chain-check/>
+
 A free tool that checks a URL's real HTTP redirect chain for the
 misconfigurations that quietly cost ranking signal and page-load latency:
 

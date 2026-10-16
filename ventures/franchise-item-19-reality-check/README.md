@@ -1,5 +1,7 @@
 # Franchise Item 19 Reality Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/franchise-item-19-reality-check/>
+
 Free, browser-only reader for the earnings claim in a franchise disclosure
 document (Item 19). Type the tiers (label, units, average revenue). It reports:
 

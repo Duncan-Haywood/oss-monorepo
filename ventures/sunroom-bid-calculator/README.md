@@ -1,5 +1,7 @@
 # Sunroom Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/sunroom-bid-calculator/>
+
 A free browser calculator for sunroom, three-season, and four-season crews. It
 prices a residential sunroom from the glazed-wall square feet a
 floor-square-foot special cannot see, the thermal floor, the insulated roof,

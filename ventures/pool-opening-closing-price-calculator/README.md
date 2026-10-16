@@ -1,5 +1,7 @@
 # Pool Opening and Closing Price Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/pool-opening-closing-price-calculator/>
+
 A free browser tool for pool service owners: **enter the pool and your costs, and get a closing price, an opening price, a season bundle, the cost of a green pool, and how many stops fill a crew day**. Nothing is uploaded.
 
 After using this, you can now **quote spring opening and fall closing from gallons, cover and water condition**, which used to take a flat per-visit price and a bad surprise at the first green pool.

@@ -1,5 +1,7 @@
 # Postgres EXPLAIN Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/postgres-explain-analyzer/>
+
 Find out why a PostgreSQL query is slow — from one `EXPLAIN (ANALYZE, BUFFERS)`
 plan, text or JSON, before you start guessing at indexes.
 

@@ -1,5 +1,7 @@
 # YouTube Revenue and RPM Analyzer
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/youtube-revenue-rpm-analyzer/>
+
 A free browser tool for YouTube creators: **drop in a YouTube Studio analytics export and see
 which videos actually pay.** The file is read in the browser; nothing is uploaded and no
 channel access is needed.

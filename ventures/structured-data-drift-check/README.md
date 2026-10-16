@@ -1,5 +1,7 @@
 # Structured Data Drift Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/structured-data-drift-check/>
+
 A free tool that checks whether a page's JSON-LD structured data
 (`FAQPage`, `HowTo`, `Article`/`BlogPosting`/`NewsArticle`, `Product`,
 `LocalBusiness`/`Organization`, `Review`) actually appears, **word for

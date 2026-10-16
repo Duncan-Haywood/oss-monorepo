@@ -1,5 +1,7 @@
 # Gutter Install Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/gutter-install-bid-calculator/>
+
 A free browser calculator for gutter shops. It prices a new gutter hang the
 way the trade actually loses money — inside and outside miters, extra
 downspouts past the included first two, extra downspout footage past ten

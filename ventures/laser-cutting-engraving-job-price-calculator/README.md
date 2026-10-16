@@ -1,5 +1,7 @@
 # Laser Cutting & Engraving Job Price Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/laser-cutting-engraving-job-price-calculator/>
+
 A free browser tool for laser cutting and engraving shops, Etsy makers and sign makers: **enter the piece, the sheet stock and how your shop runs, and get a price per piece**. Nothing is uploaded.
 
 After using this, you can now **quote a laser job from how many pieces nest on a sheet, the cut and engrave minutes and the setup it costs**, which used to take a spreadsheet and a guess per piece.

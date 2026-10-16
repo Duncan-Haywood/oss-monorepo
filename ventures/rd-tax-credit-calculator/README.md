@@ -1,5 +1,7 @@
 # R&D Tax Credit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/rd-tax-credit-calculator/>
+
 A free browser tool for software and engineering startups and small companies: **paste who worked on qualified
 research and for how much of their time, add supplies and contractors, and estimate the federal research credit
 (Section 41) under both the regular and simplified methods, what Section 280C takes back, and how much could

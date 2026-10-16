@@ -1,5 +1,7 @@
 # Landlord Repair-or-Replace Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/landlord-repair-or-replace-planner/>
+
 A free browser tool for landlords and homeowners: **paste or upload a CSV of your equipment (water heaters, furnaces,
 AC, roofs, appliances) with age, repair quote and replacement cost, and see whether repairing or replacing costs less
 over the years you will own the property, the most a repair can cost before replacing wins, and which replacements to

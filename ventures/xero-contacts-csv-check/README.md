@@ -1,5 +1,7 @@
 # Xero Contacts CSV Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/xero-contacts-csv-check/>
+
 A free browser tool for bookkeepers and small businesses moving customers and suppliers into Xero
 from a spreadsheet, a CRM or another accounting package: **paste or drop the contacts file and see
 every problem with its line number before the import fails or creates the wrong records, then

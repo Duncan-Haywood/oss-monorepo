@@ -1,5 +1,7 @@
 # Vinyl Liner Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/vinyl-liner-bid-calculator/>
+
 A free browser calculator for vinyl-liner pool crews. It prices a residential
 liner replacement from the liner square feet a water-surface special cannot
 see, the hopper, the stairs, the bead, and the track — and shows the margin

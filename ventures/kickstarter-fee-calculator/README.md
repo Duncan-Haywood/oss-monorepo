@@ -1,5 +1,7 @@
 # Kickstarter Fee Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/kickstarter-fee-calculator/>
+
 A free browser calculator for Kickstarter creators: what a funded campaign
 actually keeps after Kickstarter's 5% platform fee and its per-pledge payment
 processing fee, and why two campaigns raising the identical total can keep

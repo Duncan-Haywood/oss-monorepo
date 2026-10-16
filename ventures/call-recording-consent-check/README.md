@@ -1,5 +1,7 @@
 # Call Recording Consent Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/call-recording-consent-check/>
+
 A free tool that looks up whether a US state requires **all-party** consent
 to record a phone call or follows the federal **one-party-consent**
 baseline, checks a call between two (possibly different) states, cites the

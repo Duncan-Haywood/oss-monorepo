@@ -1,5 +1,7 @@
 # testimonial-keeper
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/testimonial-keeper/>
+
 After using this, you can now **collect customer testimonials with a link, approve the ones you want, and show them as a wall on your own site**, on a server you own. That used to mean a monthly subscription to a testimonial service that keeps your customers' words behind its own login.
 
 Two parts, both free and MIT:

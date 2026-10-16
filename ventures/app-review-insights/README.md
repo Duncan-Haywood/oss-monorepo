@@ -1,5 +1,7 @@
 # App Review Insights
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/app-review-insights/>
+
 A free browser tool for indie app developers: **drop in the review export from
 Google Play Console or App Store Connect and see which release dropped your
 rating, which complaint themes cost the most stars, the phrases only unhappy

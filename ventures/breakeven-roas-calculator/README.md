@@ -1,5 +1,7 @@
 # Break-Even ROAS Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/breakeven-roas-calculator/>
+
 A free browser calculator for ecommerce and direct-to-consumer sellers: **enter your price, costs, fees, returns and (optionally)
 repeat purchases, and get your break-even ROAS, the most you can pay per customer (max CPA), and the ROAS you need for the
 profit margin you want**, with a campaign checker that tells you whether real spend and revenue clear it. Nothing is uploaded.

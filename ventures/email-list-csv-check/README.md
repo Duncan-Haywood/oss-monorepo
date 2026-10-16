@@ -1,5 +1,7 @@
 # Email List CSV Check
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/email-list-csv-check/>
+
 A free browser tool for small-business owners, shop owners, nonprofits and marketers who move a
 contact list into Mailchimp, HubSpot, Klaviyo, Brevo or Constant Contact: **paste or drop the CSV
 and see every problem with its line number before the import skips rows or the first campaign

@@ -1,5 +1,7 @@
 # Grazing Lease Rate Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/grazing-lease-rate-calculator/>
+
 A free browser tool (and small Node CLI) for ranchers and landowners: **enter acres, forage and a lease
 rent, and see the AUMs and head the pasture carries, rent per AUM, per head-month and per acre, what the
 same month costs as hay, and the rent range where the landowner beats the alternative and the rancher

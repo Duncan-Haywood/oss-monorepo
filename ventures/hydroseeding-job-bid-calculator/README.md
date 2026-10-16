@@ -1,5 +1,7 @@
 # Hydroseeding Job Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/hydroseeding-job-bid-calculator/>
+
 A free browser tool for hydroseeding contractors: **enter the job's size, seed, mulch and water per 1,000 sq ft, your tank, crew, travel and hydroseeder, and get the cost and profit of the job, the tank loads and crew hours it needs, the price per 1,000 sq ft that earns your target margin, a table of job sizes that shows where small jobs lose money, and the season against the jobs you expect**. Nothing is uploaded.
 
 After using this, you can now **bid a hydroseeding job knowing what it costs and where your minimum charge has to sit**, which used to take a spreadsheet and a guess.

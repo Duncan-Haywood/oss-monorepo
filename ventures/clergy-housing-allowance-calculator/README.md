@@ -1,5 +1,7 @@
 # Clergy Housing Allowance Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/clergy-housing-allowance-calculator/>
+
 A free browser tool for ministers, pastors and church treasurers: **enter your salary, the housing allowance your church designated and your housing costs,
 and see the income-tax exclusion, the tax it saves, the self-employment tax it does not, and what to designate next year.** Nothing is uploaded.
 

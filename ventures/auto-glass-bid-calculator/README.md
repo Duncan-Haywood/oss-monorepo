@@ -1,5 +1,7 @@
 # Auto Glass Bid Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/auto-glass-bid-calculator/>
+
 A free browser calculator for independent auto-glass shops and mobile
 technicians. It prices a windshield, door-glass, or back-glass replacement
 the way the job actually costs — glass source, ADAS camera/sensor

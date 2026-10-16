@@ -1,5 +1,7 @@
 # Construction Delay Claim Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/construction-delay-claim-calculator/>
+
 A free browser tool for subcontractors, general contractors and owners' reps: **list the delay events and who caused them, and see the time extension earned, the compensable days, a field plus Eichleay home-office overhead claim, and the liquidated damages left**, netted into one position. Nothing is uploaded.
 
 After using this, you can now **size a delay claim against the liquidated damages it offsets and see which days are worth proving**, which used to be a spreadsheet built from scratch the week the owner's withholding letter arrived.

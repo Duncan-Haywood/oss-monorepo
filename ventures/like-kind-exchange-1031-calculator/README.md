@@ -1,5 +1,7 @@
 # 1031 Exchange Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/like-kind-exchange-1031-calculator/>
+
 A free browser calculator for Section 1031 like-kind exchanges of real
 property held for investment or business use. Nothing is uploaded.
 

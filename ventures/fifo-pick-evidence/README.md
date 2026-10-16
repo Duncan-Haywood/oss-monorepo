@@ -1,5 +1,7 @@
 # FIFO Pick Evidence
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/fifo-pick-evidence/>
+
 Small 3PL warehouses can turn a pick-log CSV into a portable FIFO exception
 report before a customer audit. This tool checks whether older inventory was
 still waiting when a newer lot was picked, and calls out missing or

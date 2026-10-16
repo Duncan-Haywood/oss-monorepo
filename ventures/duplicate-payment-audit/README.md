@@ -1,5 +1,7 @@
 # Duplicate Payment Audit
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/>
+
 Duplicate-payment recovery-audit firms exist because businesses routinely pay a vendor twice: the same invoice re-entered under a new number, a data-entry typo that slips past a "have we paid this before" check, or the same amount paid twice a few days apart. Those firms typically work large enterprise ledgers on a contingency fee. This free, local-first browser tool runs the same kind of check on a CSV export a small business already has, with nothing to sign up for and nothing uploaded.
 
 **After using this, you can now** get a short, explained list of likely duplicate vendor payments from a CSV export in seconds, **which used to take** manually scanning a spreadsheet for repeated vendor names and amounts, or paying a contingency fee to a recovery-audit firm to find them for you.

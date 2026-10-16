@@ -1,5 +1,7 @@
 # Subcontractor Cash Flow Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/subcontractor-cashflow-planner/>
+
 A free, private browser calculator for independent subcontractors who need to
 know whether a project will create a working-capital gap before the invoice is
 paid. Enter the invoice, materials, weekly business burn, payment terms,

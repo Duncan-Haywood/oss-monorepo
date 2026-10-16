@@ -1,5 +1,7 @@
 # Thumbtack Lead ROI Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/thumbtack-lead-roi-calculator/>
+
 **Find what a job really costs you in lead fees and quoting time, the close rate you need to break even, and the most one lead can cost before it loses money.** Enter paid leads per month, price per lead and credits for bad leads, minutes per quote and what your time is worth, your close rate, and the job you usually win. Browser page, no install.
 
 After using this, you know whether to answer fewer, better-matched leads or more of them, and whether a pricier lead can plausibly pay at your close rate.

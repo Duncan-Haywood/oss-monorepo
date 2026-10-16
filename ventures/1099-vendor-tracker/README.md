@@ -1,5 +1,7 @@
 # 1099-NEC Vendor Tracker
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/1099-vendor-tracker/>
+
 **Track which contractors need a 1099-NEC under the 2026 reporting threshold, without a paid e-filing subscription.** Add each vendor's entity type, payment category, and year-to-date total, and get a sorted review queue: who crosses the threshold, who is exempt as a corporation, and whose W-9 is still missing. The app runs entirely in the browser; vendor data never leaves your device.
 
 After using this, you can now see exactly which vendors need a 1099-NEC and which W-9s are still missing, which used to take re-deriving the threshold rule by hand every January.

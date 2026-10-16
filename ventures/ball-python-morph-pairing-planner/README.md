@@ -1,5 +1,7 @@
 # Ball Python Morph Pairing Planner
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/ball-python-morph-pairing-planner/>
+
 Free, browser-only pairing planner for ball python breeders. List your females and
 males with their morphs and hets, add what each morph sells for, and it works out the
 Mendelian odds for every pairing, expected hatchlings, revenue after fees and raising

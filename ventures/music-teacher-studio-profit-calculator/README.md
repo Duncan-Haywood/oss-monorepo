@@ -1,5 +1,7 @@
 # Music Teacher Studio Profit Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/music-teacher-studio-profit-calculator/>
+
 A free browser tool for independent private music teachers (piano, guitar, voice, strings): **enter your lesson prices, lesson and prep minutes, cancellation policy, weeks taught and weeks billed, rent, instruments, recital costs and in-home travel, and get your effective hourly rate, the price each kind of lesson needs for your target hourly, break-even students, what cancellations cost a year, and what the same teaching nets privately, for a music school at a percentage split, or in a room rented by the hour**. Nothing is uploaded.
 
 After using this, you can now **see what a lesson really pays per hour once prep, admin, travel, cancellations and unbilled holiday weeks are counted, and whether teaching for a school or renting a room would pay better**, which used to take a spreadsheet and a guess.

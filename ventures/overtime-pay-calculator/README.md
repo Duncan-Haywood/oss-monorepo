@@ -1,5 +1,7 @@
 # Overtime Pay Calculator
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/overtime-pay-calculator/>
+
 A free browser calculator for hourly overtime pay: standard time-and-a-half
 for one hourly rate, plus the FLSA weighted-average ("blended rate")
 calculator for a workweek where an employee worked at two or more different

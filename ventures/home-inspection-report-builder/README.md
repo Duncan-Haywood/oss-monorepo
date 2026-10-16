@@ -1,5 +1,7 @@
 # Home Inspection Report Builder
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/home-inspection-report-builder/>
+
 A free browser tool for working home inspectors. Pick findings from a library of
 plain-language comments grouped by system (roof, exterior, structure, electrical,
 plumbing, heating, cooling, interior, attic, garage), edit the wording, set

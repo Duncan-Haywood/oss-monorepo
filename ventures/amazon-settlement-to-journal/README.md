@@ -1,5 +1,7 @@
 # Amazon Settlement To Journal
 
+**Live tool:** <https://duncan-haywood.github.io/monorepo-projects/amazon-settlement-to-journal/>
+
 Free browser tool that turns an Amazon seller settlement report (Flat File V2) into balanced
 accounting journals for Xero, QuickBooks Online and QuickBooks Desktop (IIF). It proves the rows add
 up to the deposit Amazon states (naming the amount it is off by), groups rows into sales, shipping,
