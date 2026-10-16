@@ -57,3 +57,7 @@ test("the deploy files do not ship secrets and every runtime file is copied into
   for (const f of ["render.yaml", "docker-compose.yml", "fly.toml"]) assert.doesNotMatch(page(f), /(sk_live|whsec_|ghp_)/);
   assert.match(page("render.yaml"), /generateValue: true/);
 });
+
+test("links to ICP Lens, its sibling", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/icp-lens\/"/);
+});
