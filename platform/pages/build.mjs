@@ -28,6 +28,7 @@ import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
 
 import { decodeEntities } from './entities.mjs';
+import { buildEngineeringPage, ENGINEERING_PATH } from './engineering.mjs';
 import {
   FEED_MAX_ENTRIES,
   feedUpdatedAt,
@@ -7009,6 +7010,7 @@ ${disclaimerHtml('', surfaces)}
         <a href="${GUIDES_PATH}">Guides</a> ·
         <a href="${COMPARE_PATH}">Comparisons</a> ·
         <a href="${RESEARCH_PATH}">Research</a> ·
+        <a href="${ENGINEERING_PATH}">Engineering status</a> ·
         <a href="deploy/">Deploy your own copy</a> ·
         <a href="catalog.json">Machine-readable catalog</a> ·
         <a href="llms.txt">llms.txt</a> ·
@@ -9577,6 +9579,11 @@ export async function buildSite({
     }
   }
   researchSlugs.sort();
+
+  // The engineering status page: what the agent fleet shipped, is working on,
+  // spent and is blocked on, read from the committed run records and history.
+  // `noindex` and in no sitemap; see `engineering.mjs`.
+  await buildEngineeringPage(outDir, base);
 
   // The comparison index. After the categories because it links every one of
   // them, and before the sitemaps for the same reason they are.
