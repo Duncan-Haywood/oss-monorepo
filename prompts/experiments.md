@@ -467,3 +467,20 @@ field will.
 - Drift: no new owner words since 2026-10-16b. `CLAUDE.md` 467/500 (down from
   475). See `prompts/drift/2026-10-16c.md`.
 - Result: (next review)
+
+## E22: review 2026-10-16 (fourth of the day)
+
+- Change: `.github/prompts/land-your-work.md` adopted-drafts bullet condensed
+  (163 -> 159 lines, under its 160 budget). No prompt changes.
+- Why: only file over its instruction-line budget; `CLAUDE.md` already fell
+  467 -> 391.
+- Measure: friction reports naming `land-your-work.md` per run after this window.
+- Candidates: ventures/2 (20 runs, 90%) vs ventures/1 (63, 94%): intervals
+  overlap, keep collecting. research/1 (12, 100%) vs research/0 (331, 98%):
+  overlap, keep collecting. review/2 has 0 runs and review/1 16: first
+  review/2 run is this one; too few for a verdict.
+- Audit: 3 venture PRs re-run (devsec-toolkit, shift-roster-builder,
+  distribution tests): all pass, no corrections. `derive.py fetch` got 19 of
+  21 PRs.
+- Drift: no new owner words. See `prompts/drift/2026-10-16d.md`.
+- Result: (next review)
