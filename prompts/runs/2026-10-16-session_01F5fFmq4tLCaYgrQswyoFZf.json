@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01F5fFmq4tLCaYgrQswyoFZf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T18:12:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "Route drew the process track; the brief was product work, so recorded as ventures."
+    }
+  ],
+  "goal": null,
+  "notes": "Republished the stale gh-pages snapshot (script ran clean; IndexNow unreachable from this host). Added a search-targeted guide to shift-roster-builder whose every figure is asserted against the engine in a test. Router's top 'Consolidate: reverb-fee-calculator' was skipped: reverb is already the deep member and a 29-way merge was not shippable in one run.",
+  "corrections": [],
+  "redteam": null
+}
