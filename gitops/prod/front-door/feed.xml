@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1270 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1271 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -78,6 +78,14 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free internal link audit and planner. Drop in your site&#39;s HTML files: it finds orphan pages and pages linked only from menus, then suggests the exact sentences in your other pages that should link to them, with the link-equity gain. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>LLM Spend Guard — Hard Budget Caps and Runaway-Loop Breakers for OpenAI and Claude API Calls</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/llm-spend-guard/"/>
+    <id>tag:marisstella.dev,2026:tool/llm-spend-guard</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Stop a runaway OpenAI or Anthropic bill before it happens: hard per-user, per-feature and per-run dollar caps, an output-token ceiling, and circuit breakers that trip on agent loops. Free, open source, self-hosted proxy or a zero-dependency library. Replay your own usage log here to see what a policy would have stopped.</summary>
   </entry>
   <entry>
     <title>PQL Radar — Free Self-Hosted Lead Scoring for Product-Led SaaS</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">Recover failed Stripe subscription payments with decline-code-aware retries and emails you control. Preview the recovery schedule for any decline code, then run the open-source server in your own account. Free, MIT, no per-recovery fee.</summary>
-  </entry>
-  <entry>
-    <title>Feedback Board — Free Self-Hosted Feature Requests, Roadmap and Changelog</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/feedback-board/"/>
-    <id>tag:marisstella.dev,2026:tool/feedback-board</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="Self-hosted business apps"/>
-    <summary type="text">Collect feature requests, let customers vote, catch duplicates as they type, publish a roadmap and a changelog with RSS. One small open-source server you run yourself. Free, MIT, no per-user fee. Try the duplicate finder in your browser.</summary>
   </entry>
 </feed>
