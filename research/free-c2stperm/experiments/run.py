@@ -25,7 +25,7 @@ SCENARIOS = [
 
 def main():
     out, lines = [], [
-        f"One-sided rejection rate at alpha={ALPHA}: share of replicates with p<alpha (Wilson 95% interval). Real system {perm.REAL}.",
+        f"One-sided rejection rate at alpha={ALPHA}: share of replicates with p<=alpha (Wilson 95% interval). Real system {perm.REAL}.",
         f"cv_perm: 5-fold CV pooled AUROC, p-value from {B} label permutations (exact size {ALPHA}); cv_naive and holdout as in free-c2stexact, same data.",
         "Each replicate draws fresh n real + n twin trajectories; HistGradientBoosting (60 iterations). Under the null the rate should be about 0.05.",
         "",
@@ -37,12 +37,12 @@ def main():
             ps = Parallel(n_jobs=4)(delayed(perm.replicate)(1000 + i, n, params, feat, B) for i in range(reps))
             row, cells = {}, []
             for r in RULES:
-                k = sum(p[r] < ALPHA for p in ps)
+                k = sum(p[r] <= ALPHA for p in ps)  # <=: the permutation p-value lives on the grid k/(B+1), and 2/40 = 0.05 is the exact-size rejection
                 lo, hi = exact.wilson(k, reps)
                 row[r] = dict(k=k, reps=reps, rate=k / reps, lo=lo, hi=hi)
                 cells.append(f"{k / reps:5.3f} [{lo:4.2f},{hi:4.2f}]".rjust(22))
             lines.append(f"{n:>5}  " + "  ".join(cells))
-            out.append(dict(scenario=label, n=n, results=row))
+            out.append(dict(scenario=label, n=n, results=row, pvalues=ps))
             print(lines[-1], flush=True)
         lines.append("")
     (HERE / "results.txt").write_text("\n".join(lines) + "\n")
