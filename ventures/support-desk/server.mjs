@@ -2,11 +2,14 @@
 // Self-hosted shared support inbox. Zero dependencies, state in one JSON file.
 //   ADMIN_KEY=... COMPANY_NAME=Acme node server.mjs
 // Inbound mail: point Postmark, Mailgun, Resend or any forwarder's inbound webhook at /in/<mailbox token>.
+// Optional AI reply drafts on your own key: ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY or LLM_PROVIDER/LLM_MODEL/LLM_BASE_URL/LLM_API_KEY.
 // Outbound: RESEND_API_KEY + MAIL_FROM (DRY_RUN=false turns real email on). ALERT_WEBHOOK_URL (Slack/Discord, https) pings on new tickets.
 import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { newState, createMailbox, normalizeInbound, ingest, addReply, addNote, updateTicket, addMacro, removeMacro, rateTicket, autoClose, purgeOlderThan, toCsv, refOf, isEmail } from "./desk.mjs";
+import { configFromEnv } from "./byok.mjs";
+import { draftReply } from "./ai.mjs";
 import { adminPage, ticketPage, macrosPage, customerPage, thanksPage } from "./render.mjs";
 
 const env = process.env;
@@ -189,8 +192,10 @@ export function handler(cfg) {
         if (path === "/admin/mailboxes") { createMailbox(state, f, now()); cfg.save(); return redirect("/admin"); }
         if (path === "/admin/macros") { addMacro(state, f); cfg.save(); return redirect("/admin/macros"); }
         if ((m = path.match(/^\/admin\/macros\/(r\d+)\/delete$/))) { if (!removeMacro(state, m[1])) return send(404, "not found\n", "text/plain"); cfg.save(); return redirect("/admin/macros"); }
-        if ((m = path.match(/^\/admin\/t\/(\d+)\/(reply|note|update|delete)$/))) {
+        if ((m = path.match(/^\/admin\/t\/(\d+)\/(reply|note|update|delete|draft)$/))) {
           const t = ticket(m[1]); if (!t) return send(404, "not found\n", "text/plain");
+          // Drafting only fills the reply box for a human to edit; nothing is saved or emailed.
+          if (m[2] === "draft") { const ai = await draftReply(cfg.llm || {}, cfg, state, t, cfg.fetch); return send(200, ticketPage(cfg, state, t, base, now(), { ai })); }
           if (m[2] === "delete") { delete state.tickets[t.id]; cfg.save(); return redirect("/admin"); }
           if (m[2] === "update") updateTicket(t, f, now());
           else {
@@ -244,7 +249,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const cfg = {
     state, save, adminKey: env.ADMIN_KEY, agents, company: env.COMPANY_NAME || "Support", sponsor: env.HIDE_SPONSOR_LINK !== "true",
     baseUrl: env.PUBLIC_URL, trustProxy: env.TRUST_PROXY === "true",
-    notify: env.ALERT_WEBHOOK_URL ? webhook(env.ALERT_WEBHOOK_URL) : null, sendEmail: sendResend, dryRun,
+    llm: configFromEnv(env), notify: env.ALERT_WEBHOOK_URL ? webhook(env.ALERT_WEBHOOK_URL) : null, sendEmail: sendResend, dryRun,
   };
   http.createServer(handler(cfg)).listen(Number(env.PORT || 8080), () => console.log(`support-desk on :${env.PORT || 8080} (${Object.keys(state.tickets).length} tickets)`));
 }
