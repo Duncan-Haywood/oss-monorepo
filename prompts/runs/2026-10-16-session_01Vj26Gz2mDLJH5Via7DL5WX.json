@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01Vj26Gz2mDLJH5Via7DL5WX",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T00:10:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "support-desk CSAT rating",
+  "projects": [
+    "support-desk"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7225",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Checklist is long; only regen --verify and the venture node tests were relevant. venture-preflight (5 min) skipped."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Skipped venture-preflight.mjs: small feature on an existing venture, no new page markup users type into beyond one form; venture tests and regen verified."
+    }
+  ],
+  "goal": null,
+  "notes": "Session gate's top item (stale gh-pages snapshot) not done this run.",
+  "corrections": [],
+  "redteam": null
+}
