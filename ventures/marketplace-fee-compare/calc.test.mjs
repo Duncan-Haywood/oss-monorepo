@@ -229,3 +229,19 @@ test("category presets carry a rate for every category-driven channel", () => {
     }
   }
 });
+
+test("Depop (US) charges 3.3% plus $0.45 on item and buyer-paid shipping, nothing else", () => {
+  const item = loadItem({ price: 40, shippingCharged: 6, itemCost: 10 });
+  const row = compareChannels(item).find((r) => r.id === "depop");
+  assert.ok(row);
+  assert.ok(Math.abs(row.channelFees - (46 * 0.033 + 0.45)) < 1e-9);
+});
+
+test("Facebook Marketplace shipped fee is 10% but never below $0.80", () => {
+  const find = (price) =>
+    compareChannels(loadItem({ price, shippingCharged: 0, itemCost: 1 })).find((r) => r.id === "facebook");
+  assert.ok(Math.abs(find(50).channelFees - 5) < 1e-9);
+  assert.equal(find(5).channelFees, 0.8);
+  // Break-even sits on the floor branch for a cheap item: price = 0.80 + cost.
+  assert.ok(Math.abs(find(5).breakEvenPrice - 1.8) < 1e-9);
+});
