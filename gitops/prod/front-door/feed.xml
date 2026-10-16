@@ -52,7 +52,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/internal-link-planner/"/>
     <id>tag:marisstella.dev,2026:tool/internal-link-planner</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free internal link audit and planner. Drop in your site&#39;s HTML files: it finds orphan pages and pages linked only from menus, then suggests the exact sentences in your other pages that should link to them, with the link-equity gain. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
