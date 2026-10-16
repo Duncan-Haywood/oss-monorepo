@@ -686,6 +686,7 @@ export const WHY_CATEGORY_WORD = {
   ci: 'ci',
   'solo-earner': 'solo-earner',
   'food-service': 'food-service',
+  'self-hosted': 'self-hosted',
   more: 'more',
 };
 

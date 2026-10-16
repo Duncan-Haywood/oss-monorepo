@@ -1,0 +1,179 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01Y8czsXRcUNc9LfDmxEL4zR",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T05:07:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "campaign takes ~20 min on ventures with server tests: 4 caught mutants hit the 300s timeout (counted as caught); no guidance to use run_in_background or a lower --timeout"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "git reset --hard origin/main is blocked by the harness classifier; ff-only merge is the working way to sync a clean branch"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": " Four caught mutants were 300s timeouts, not assertion failures. Guard for the class: ID now rejects Object.prototype names.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/meter-keeper/engine.mjs",
+        "test": "node --test ventures/meter-keeper/**/*.test.mjs  (in .)",
+        "seed": 591862148,
+        "commit": "faee8ba8cf",
+        "sites": 260,
+        "baseline_seconds": 0.7,
+        "mutants": [
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 32,
+            "col": 50,
+            "operator": "const-plus-one",
+            "before": "if (line.model === \"flat\" && !(line.unit >= 0)) errors.push(`${at}: flat needs unit >= 0`);",
+            "after": "if (line.model === \"flat\" && !(line.unit >= 1)) errors.push(`${at}: flat needs unit >= 0`);",
+            "line_text": "      if (line.model === \"flat\" && !(line.unit >= 0)) errors.push(`${at}: flat needs unit >= 0`);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test pinned this boundary; test added in engine.test.mjs"
+          },
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 173,
+            "col": 100,
+            "operator": "max-to-min",
+            "before": "return { allowed: limit == null || after <= limit, used, limit, remaining: limit == null ? null : Math.max(0, limit - used), resetsAt: new Date(p.to).toISOString() };",
+            "after": "return { allowed: limit == null || after <= limit, used, limit, remaining: limit == null ? null : Math.min(0, limit - used), resetsAt: new Date(p.to).toISOString() };",
+            "line_text": "  return { allowed: limit == null || after <= limit, used, limit, remaining: limit == null ? null : Math.max(0, limit - used), resetsAt: new Date(p.to).toISOString() };",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 173,
+            "col": 109,
+            "operator": "const-plus-one",
+            "before": "return { allowed: limit == null || after <= limit, used, limit, remaining: limit == null ? null : Math.max(0, limit - used), resetsAt: new Date(p.to).toISOString() };",
+            "after": "return { allowed: limit == null || after <= limit, used, limit, remaining: limit == null ? null : Math.max(1, limit - used), resetsAt: new Date(p.to).toISOString() };",
+            "line_text": "  return { allowed: limit == null || after <= limit, used, limit, remaining: limit == null ? null : Math.max(0, limit - used), resetsAt: new Date(p.to).toISOString() };",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test pinned this boundary; test added in engine.test.mjs"
+          },
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 188,
+            "col": 34,
+            "operator": "or-to-and",
+            "before": "for (const at of cfg.alerts?.at || DEFAULT_ALERT_AT) {",
+            "after": "for (const at of cfg.alerts?.at && DEFAULT_ALERT_AT) {",
+            "line_text": "  for (const at of cfg.alerts?.at || DEFAULT_ALERT_AT) {",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 203,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "if (a.next > now || budget <= 0) { keep.push(a); continue; }",
+            "after": "if (a.next > now || budget <= 1) { keep.push(a); continue; }",
+            "line_text": "    if (a.next > now || budget <= 0) { keep.push(a); continue; }",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test pinned this boundary; test added in engine.test.mjs"
+          },
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 218,
+            "col": 58,
+            "operator": "lt-to-le",
+            "before": "for (const [id, t] of Object.entries(state.seen)) if (t < cutoff) delete state.seen[id];",
+            "after": "for (const [id, t] of Object.entries(state.seen)) if (t <= cutoff) delete state.seen[id];",
+            "line_text": "  for (const [id, t] of Object.entries(state.seen)) if (t < cutoff) delete state.seen[id];",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test pinned this boundary; test added in engine.test.mjs"
+          },
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 228,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "let sent = 0, retried = 0, dead = 0;",
+            "after": "let sent = 1, retried = 0, dead = 0;",
+            "line_text": "  let sent = 0, retried = 0, dead = 0;",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/meter-keeper/engine.mjs",
+            "line": 251,
+            "col": 118,
+            "operator": "const-plus-one",
+            "before": "if (cfg.meters[meter]) rows.push([customer, meter, cfg.meters[meter].agg, new Date(p.from).toISOString().slice(0, 10), usage(state, cfg, customer, meter, p.from, p.to)]);",
+            "after": "if (cfg.meters[meter]) rows.push([customer, meter, cfg.meters[meter].agg, new Date(p.from).toISOString().slice(0, 11), usage(state, cfg, customer, meter, p.from, p.to)]);",
+            "line_text": "    if (cfg.meters[meter]) rows.push([customer, meter, cfg.meters[meter].agg, new Date(p.from).toISOString().slice(0, 10), usage(state, cfg, customer, meter, p.from, p.to)]);",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/meter-keeper/engine.mjs",
+        "issue": "ingest accepted ids/customers named __proto__/constructor: event id __proto__ was reported as duplicate and dropped; customer __proto__ polluted Object.prototype with the meter bucket; meter 'constructor' resolved to Object",
+        "patched": true
+      }
+    ]
+  }
+}

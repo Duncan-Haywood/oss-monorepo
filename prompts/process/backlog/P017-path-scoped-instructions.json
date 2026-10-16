@@ -28,5 +28,26 @@
   "source": "Owner review of repo standards in a Claude Code session, 2026-10-16 (cost share is an estimate from 8 runs with usage recorded; see problem)",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-10-16",
+      "note": "Step 1 partial: CLAUDE.md and AGENTS.md no longer say to read all of DIRECTION.md first (~15k tokens); read by section heading. Steps 2-4 remain open: CLAUDE.md is parsed by checklist_coverage.py, validate_workflows.py, sync_tree_counts.py and ~15 other tools, so moving the checklist needs those repointed first."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Merged CLAUDE.md 'Fork PRs and outside text' into 'Public repository' (duplicate rule). Measured blocker for step 2: ~40 files (platform/ci/*, gitops/tests) reference CLAUDE.md by path or heading; repoint them with checklist_coverage.py before moving the checklist."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Step 3 partial: moved two Hosting bullets from CLAUDE.md to portfolio/hosting/README.md (CLAUDE.md -9 lines, nothing else referenced them). Small by design: checklist_coverage.py and ~40 files still pin CLAUDE.md's checklist, so steps 2 and 4 remain open."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Step 2 partial: moved the checklist's explanatory traps, browser checks and post-merge gh-pages refresh (~85 lines) from CLAUDE.md to .github/prompts/verify-and-merge.md. The checklist code block and the 'Ship without review ceremony' heading stay in CLAUDE.md because checklist_coverage.py, test_manifests.py and the queue prompts pin them. Remaining: move the block itself after repointing those, and steps 3-4."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Step 1 partial: moved DIRECTION.md's 92-line 'fleet-parity trap' section (2026-09-06 measurements, partly superseded) to docs/history/direction-fleet-parity-trap-2026-09-06.md, leaving a 12-line rule. DIRECTION.md 1,015 -> 922 lines. Steps 2-4 still open."
+    }
+  ]
 }

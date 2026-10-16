@@ -12,6 +12,7 @@ const templates = {
   aws: { 'deploy.yml': 'a', 'destroy.yml': 'b', 'tofu/main.tf': 'c', 'tofu/encryption.hcl.tmpl': 'd' },
   gcp: { 'deploy.yml': 'a', 'destroy.yml': 'b', 'tofu/main.tf': 'c', 'tofu/encryption.hcl.tmpl': 'd' },
   azure: { 'deploy.yml': 'a', 'destroy.yml': 'b', 'tofu/main.tf': 'c', 'tofu/encryption.hcl.tmpl': 'd' },
+  cloudflare: { 'deploy.yml': 'a' },
   _license: 'MIT',
 };
 const appFiles = {
@@ -44,6 +45,15 @@ test('aws repo carries tofu/ and both workflows', () => {
   assert.ok(r['.github/workflows/deploy.yml'] && r['.github/workflows/destroy.yml']);
   assert.ok(r['tofu/main.tf'] && r['tofu/encryption.hcl.tmpl']);
   assert.match(r['README.md'], /TOFU_STATE_PASSPHRASE/);
+});
+
+test('cloudflare repo is private, carries one workflow, and tears down in the dashboard', () => {
+  const r = composeRepo({ slug: 's', title: 'T', provider: 'cloudflare', appFiles, templates });
+  assert.equal(PROVIDERS.cloudflare.repoPrivate, true);
+  assert.deepEqual(PROVIDERS.cloudflare.needs, ['github', 'cloudflare']);
+  assert.ok(r['.github/workflows/deploy.yml']);
+  assert.match(r['README.md'], /Workers & Pages/);
+  assert.match(r['app/index.html'], /buymeacoffee/);
 });
 
 test('gcp repo carries tofu/ and both workflows, and says what Destroy removes', () => {

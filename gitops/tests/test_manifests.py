@@ -3082,7 +3082,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `help-keeper` graduated (self-hosted help center: Markdown articles, typo-tolerant ranked search, helpful votes, content-gap report).
     # +1: `deal-keeper` graduated (self-hosted pipeline forecaster: learned stage win rates, backtested forecast band, stale/slipped deal hygiene list, signed alert webhook).
     # +1: `internal-link-planner` graduated (browser and CLI internal link audit: orphans, menu-only pages, suggested links with the PageRank effect).
-    total = 1263  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1263 tools" wording.
+    # +1: `trade-bid-studio` graduated (browser trade-agnostic bid engine: price at a target margin, walk-away price, competitor-quote check, markup/margin converter, directory of the 121 bid calculators).
+    # +1: `devsec-toolkit` graduated (one zero-dependency command running 22 devsec checks, SARIF/JSON/Markdown, baselines, local report viewer page).
+    total = 1267  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1267 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).

@@ -139,3 +139,73 @@ channels:
       - agents did not read live terms on build day, and the generated formulas were not run through `brew audit` (no Homebrew in the build session)
     owner_ask: create an empty homebrew-<name> repository, store HOMEBREW_TAP_TOKEN, set HOMEBREW_TAP_REPO and DISTRIBUTE_HOMEBREW=true (after DISTRIBUTE_NPM has published packages)
     dry_run: node platform/distribution/homebrew.mjs
+  - id: ghcr-container-images
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/ghcr.mjs
+    workflow: .github/workflows/distribute-ghcr.yml
+    enabled_by: repository variable DISTRIBUTE_GHCR=true (no secret, the job logs in to ghcr.io with its own GITHUB_TOKEN, packages:write)
+    what_it_posts: one image `ghcr.io/<owner>/<slug>:0.1.0` per venture CLI that npm-cli-packages can package (FROM node:22-alpine, non-root, OCI source/licence labels linking to this repository). At most 5 new images per run.
+    dedupe: stateless; a tag that `docker manifest inspect` finds is never rebuilt
+    depends_on: nothing (does not need npm to be live)
+    terms_to_confirm_by_owner_when_enabling:
+      - GitHub Terms and the Container registry terms; agents did not read live terms on build day
+      - new GHCR packages are private by default: after the first push, set each package (or the org default) to public in package settings, which only the owner can do
+      - the Dockerfile and workflow were not built here (no Docker daemon in the build session); the build context was checked by running its bin.mjs with node
+    owner_ask: set DISTRIBUTE_GHCR=true, then make the first pushed packages public
+    dry_run: node platform/distribution/ghcr.mjs
+  - id: zenodo-citation
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/citation.mjs
+    workflow: none (a one-time owner switch, then releases.mjs's weekly GitHub release is archived automatically)
+    enabled_by: the owner switches this repository on in Zenodo's GitHub integration; nothing in the tree is gated
+    what_it_posts: root CITATION.cff (GitHub's "Cite this repository" box, read by Zenodo for the archive's metadata) and research/CITATIONS.bib (one BibTeX entry per research project, 463 at build). Authors are the project ("oss-monorepo contributors"), never a named person.
+    dedupe: files are regenerated deterministically; `node platform/distribution/citation.mjs --check` exits 1 when stale
+    depends_on: DISTRIBUTE_RELEASES=true (github-release-digest) for a DOI per release; CITATION.cff works without it
+    terms_to_confirm_by_owner_when_enabling:
+      - Zenodo terms of use and GitHub integration docs; agents did not read them live on build day
+      - a DOI is minted under the owner's Zenodo account and is permanent: review the metadata before the first release is archived
+    owner_ask: log in to zenodo.org with GitHub and flip this repository on
+    dry_run: node platform/distribution/citation.mjs
+  - id: browser-extension
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/webext.mjs
+    workflow: none (artifact only; the owner uploads a zip to each store by hand, once per tool)
+    enabled_by: nothing in the tree is gated; building a package is always allowed. Uploading is the owner's step
+    what_it_posts: 'nothing automatically. `webext.mjs --build <slug> <dir>` writes a Manifest V3 extension (and a deterministic .zip) for any static venture page (1184 of 1251 today): a toolbar click opens the tool offline in a tab, no permissions requested, no remote code, inline scripts moved to files, MIT LICENSE and a README bundled. Loaded unpacked in Chromium and exercised end to end on shift-roster-builder on 2026-10-16'
+    dedupe: not applicable (no automated posting)
+    terms_to_confirm_by_owner_when_enabling:
+      - Chrome Web Store developer agreement (one-time registration fee) and its spam and repetitive-content policy: do not upload hundreds of near-identical listings; start with the few tools people return to weekly (shift-roster-builder, league-schedule-generator)
+      - Edge Add-ons and Firefox AMO accept the same package; Firefox may want browser_specific_settings.gecko.id added before the first upload
+      - store descriptions and privacy answers: the package collects nothing (say so)
+    owner_ask: create a Chrome Web Store developer account, then upload the zip for one tool at a time
+    dry_run: node platform/distribution/webext.mjs
+  - id: github-actions
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/ghaction.mjs
+    workflow: none (the actions are committed files; `ghaction.mjs --check` fails when one is stale)
+    enabled_by: 'nothing in the tree is gated and no account or secret is needed. Anyone can already write `uses: duncan-haywood/oss-monorepo/platform/distribution/actions/<slug>@main`'
+    what_it_posts: nothing automatically. 18 stdlib-only `*-check` venture linters (Actions, Docker, Kubernetes, JWT, dependency-confusion checks) become reusable composite actions with `path`, `fail-on-risk` and `format` inputs; each runs the venture's own check.py from the action checkout, with no network calls
+    dedupe: not applicable (deterministic files)
+    terms_to_confirm_by_owner_when_enabling:
+      - optional: GitHub Marketplace listing needs a dedicated repository with action.yml at its root and the Marketplace developer agreement; not required for `uses:` to work
+    owner_ask: none to use them; optionally mirror one action per repository for a Marketplace listing
+    dry_run: node platform/distribution/ghaction.mjs
+  - id: android-play-store
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/android.mjs
+    workflow: none (artifact only; the owner builds, signs and uploads once per tool)
+    enabled_by: nothing in the tree is gated; building the inputs is always allowed. Signing and uploading are the owner's steps
+    what_it_posts: nothing automatically. `android.mjs --build <slug> <dir>` writes a Bubblewrap Trusted Web Activity project input for any published venture page (1196 of 1251 today) - twa-manifest.json, a 512 px icon, an assetlinks template, a Play store listing with the data-safety answers (collects nothing) and BUILD.md. iOS has no offline equivalent; the Home Screen install of the PWA covers it.
+    dedupe: not applicable (no automated posting)
+    terms_to_confirm_by_owner_when_enabling:
+      - Google Play Developer Program Policies and distribution agreement (one-time registration fee, identity verification, a closed test for new personal accounts); agents did not read them live on build day
+      - Play's minimum-functionality and spam rules: list a few tools people return to weekly, not hundreds of near-identical apps
+      - assetlinks.json must be served at the origin root, so full-screen mode needs a user site (<owner>.github.io) or the custom domain; on the current project-page subpath the app shows a browser address bar
+      - the signing keystore is created on first build and cannot be recovered if lost
+    owner_ask: create a Play Console account, then build and upload one tool at a time following the generated BUILD.md
+    dry_run: node platform/distribution/android.mjs

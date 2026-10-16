@@ -52,3 +52,13 @@ test("index wires up the job-posting keyword match", () => {
 test("index links one hop to the job-application-tracker sibling", () => {
   assert.match(html, /href="\.\.\/job-application-tracker\/"/);
 });
+
+test("the wording-changes box discloses the one request it can make and keeps the key out of storage", () => {
+  assert.match(html, /import \{ tailor \} from "\.\/tailor\.mjs"/);
+  assert.match(html, /sent from this browser to the provider you choose, and nowhere else/);
+  assert.match(html, /<code>tailor_run<\/code>/, "the new usage event must be disclosed in the footer");
+  assert.match(html, /id="key" type="password"/);
+  const script = html.slice(html.indexOf('<script type="module">'));
+  const keyUse = script.match(/[^\n]*#key[^\n]*/g) || [];
+  for (const l of keyUse) assert.ok(!/localStorage|sessionStorage/.test(l), "the API key must not be stored");
+});

@@ -1017,7 +1017,7 @@ ${optional}`;
  * front door that introduced a second name for it — a project codename, or
  * the bare domain — would be the first place a visitor met the discrepancy.
  */
-export const SITE_NAME = 'Free small-business calculators';
+export const SITE_NAME = 'Open Tools and Research';
 
 /**
  * What the share card actually shows, for a reader whose client announces the

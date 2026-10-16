@@ -1,4 +1,4 @@
-// Compares what one item nets across six selling channels at once.
+// Compares what one item nets across seven selling channels at once.
 //
 // Why this exists
 // ---------------
@@ -52,7 +52,7 @@ export const CATEGORY_IDS = Object.freeze(Object.keys(CATEGORY_PRESETS));
  * The channels, in the order they are offered.
  *
  * `percentRate` is charged on the whole order the buyer pays (item price plus
- * whatever shipping they were charged). That is how all six of these actually
+ * whatever shipping they were charged). That is how all seven of these actually
  * bill — a seller who "gives free shipping" by folding postage into the price
  * still pays the percentage on it, which is the single most common way a
  * per-item margin quietly goes negative.
@@ -133,6 +133,19 @@ export const CHANNELS = [
       "Creator/affiliate commission, and the announced 1 Oct 2026 move to 8% plus 1.5% facilitation.",
   },
   {
+    id: "mercari",
+    label: "Mercari",
+    percentRate: 10, // current (6 Jan 2025 onward) schedule: one selling fee on item + buyer-paid shipping
+    fixedFee: 0,
+    monthlyFee: 0,
+    demandIncluded: true,
+    rateLabel: "Selling fee",
+    deepTool: "mercari-fee-calculator",
+    deepToolLabel: "Mercari fee calculator",
+    notCovered:
+      "The legacy pre-2025 schedule (10% plus 2.9% and $0.50 processing) that older listings keep until edited, and Mercari's buyer-side protection fee.",
+  },
+  {
     id: "shopify",
     label: "Your own Shopify store",
     percentRate: 2.9,
@@ -162,7 +175,7 @@ export const CHANNEL_IDS = Object.freeze(CHANNELS.map((channel) => channel.id));
  * Whatnot is a livestream auction: commission sits on the hammer and payment
  * processing sits on the checkout total (item plus buyer-paid shipping and
  * tax), with published category caps a flat retail referral rate cannot
- * express. Ranking it beside six fixed-fee retail channels would produce a
+ * express. Ranking it beside seven fixed-fee retail channels would produce a
  * number that looks comparable and is not.
  *
  * Reverb is different from the other two: its fee shape (a marketplace
@@ -170,7 +183,7 @@ export const CHANNEL_IDS = Object.freeze(CHANNELS.map((channel) => channel.id));
  * Etsy's. It is excluded anyway because it is category-restricted rather than
  * general retail — it only accepts musical instruments and gear, where the six
  * channels above sell almost anything. A general "which marketplace" table
- * that seats a single-category channel beside six general ones would read as a
+ * that seats a single-category channel beside seven general ones would read as a
  * recommendation to list *any* item there, which is not true for the vast
  * majority of what this page's other sellers carry.
  *
@@ -196,7 +209,7 @@ export const EXCLUDED_CHANNELS = [
     deepTool: "reverb-fee-calculator",
     deepToolLabel: "Reverb fee calculator",
     why:
-      "Reverb only accepts musical instruments and gear, where the six channels above sell almost anything — so seating it in a general-purpose ranking would read as a recommendation to list any item there, which is true for none of the other rows' inventory. Its fee shape (marketplace percentage plus payment processing) is genuinely close to eBay's, which the deep tool compares directly on the same guitar or pedal.",
+      "Reverb only accepts musical instruments and gear, where the seven channels above sell almost anything — so seating it in a general-purpose ranking would read as a recommendation to list any item there, which is true for none of the other rows' inventory. Its fee shape (marketplace percentage plus payment processing) is genuinely close to eBay's, which the deep tool compares directly on the same guitar or pedal.",
   },
 ];
 

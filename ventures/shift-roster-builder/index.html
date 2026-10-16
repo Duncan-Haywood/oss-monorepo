@@ -88,6 +88,9 @@
     <button type="button" id="analyze">Build the roster</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
+    <button type="button" class="secondary" id="save-setup">Save setup file</button>
+    <label for="setup-file">Load setup file</label> <input id="setup-file" type="file" accept=".json,application/json">
+    <p class="note">Your people, shifts and settings are remembered on this device only (browser local storage), so next week you can open the page and click the button. <button type="button" class="secondary" id="forget">Forget saved data</button></p>
     <p id="form-status" role="status" class="note">Enter your people and shifts, then click the button.</p>
   </section>
 
@@ -98,11 +101,16 @@
     <h3>The roster</h3>
     <div class="scroll"><table class="sched" id="grid"><thead></thead><tbody></tbody></table></div>
     <div id="unfilled-box"></div>
+    <div id="hire-box"></div>
     <h3>Hours and pay by person</h3>
     <div class="scroll"><table id="people"><thead><tr><th>Person</th><th class="n">Shifts</th><th class="n">Hours</th><th class="n">Overtime</th><th class="n">Payroll</th><th>Against their limits</th></tr></thead><tbody></tbody></table></div>
     <h3>Who this week depends on</h3>
     <p class="note">Re-builds the week without each person. If shifts then go uncovered, that person is a single point of failure.</p>
     <div id="critical"></div>
+    <h3>Someone called in sick? Who can take the shift</h3>
+    <p class="note">Pick a shift. It lists everyone who could take it without touching anyone else's week, cheapest first, and why the rest cannot.</p>
+    <label for="cover-shift">Shift to cover</label> <select id="cover-shift"></select>
+    <div id="cover-out" aria-live="polite"></div>
     <h3>Against filling shifts in listed order</h3>
     <p class="note">What you get by going through the shifts in time order and giving each to the first person in your list who is free and within the rules.</p>
     <div class="scroll"><table id="cmp"><thead><tr><th>Plan</th><th class="n">Shifts left open</th><th class="n">Overtime hours</th><th class="n">Payroll</th></tr></thead><tbody></tbody></table></div>
@@ -111,12 +119,14 @@
     <div style="margin-top:12px"><label for="weekstart">Week starting (a Monday), for calendar files</label>
       <input id="weekstart" type="date"> <select id="icsperson" aria-label="Whose shifts"></select>
       <button type="button" class="secondary" id="download-ics">Download calendar (.ics)</button></div>
+    <div style="margin-top:12px"><button type="button" class="secondary" id="make-messages">Write a text for each person</button>
+      <div id="messages" aria-live="polite"></div></div>
   </section>
 
   <section class="card">
     <h2>How it is calculated</h2>
     <p><strong>Hard rules</strong> (never broken): a person is only given a shift that falls inside one of their availability windows for the whole shift; shifts for one person never overlap and leave at least your rest gap between them; weekly hours stay at or under their maximum; days in a row stay at or under your limit. <strong>Objective:</strong> first cover as many shift-hours as possible, then minimise real payroll (wage × (1 + extras), overtime hours above your threshold at the multiplier), plus a small penalty for each hour a person is under their minimum and a quadratic penalty for hours drifting from a fair share (the balance slider). <strong>Search:</strong> a greedy build that fills the most constrained shifts first, then seeded simulated annealing with reassign and swap moves over several restarts; a fixed seed makes it repeatable. On small problems the tests compare it with an exhaustive search of every roster and it finds the same optimum; on large ones it is a strong heuristic, not a proof.</p>
-    <p><strong>Not modelled:</strong> predictive-scheduling and fair-workweek notice rules, meal and rest breaks, minor-labor limits, split-shift premiums, skills or roles, tips, union rules, seniority, preferences beyond availability, time off requests across weeks, and the rest rule across the week boundary. <strong>Unverified:</strong> checked against exhaustive search and invented data in unit tests, not against a real operator's payroll or a scheduling law.</p>
+    <p><strong>Not modelled:</strong> predictive-scheduling and fair-workweek notice rules, meal and rest breaks, minor-labor limits, split-shift premiums, skills or roles, tips, union rules, seniority, preferences beyond availability, time off requests across weeks. The rest rule does carry over from last week if you add <code>prev: Sun 10pm</code> to a person (when their last shift ended). <strong>Unverified:</strong> checked against exhaustive search and invented data in unit tests, not against a real operator's payroll or a scheduling law.</p>
   </section>
 
   <section class="card">
@@ -152,14 +162,26 @@
   </footer>
 
   <script type="module">
-    import { parseStaff, parseShifts, buildRoster, rosterCsv, hoursCsv, rosterIcs, sampleStaff, sampleShifts, fmtClock, money, num, DAYS } from "./calc.mjs";
+    import { parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const val = (id, d) => { const t = $("#" + id).value.trim(); return t === "" ? d : Number(t); };
-    let last = null;
+    let last = null, lastIn = null;
+
+    function showCover() {
+      if (!last) return;
+      const c = coverOptions(lastIn.staff, lastIn.slots, last, Number($("#cover-shift").value));
+      if (c.error) { $("#cover-out").innerHTML = ""; return; }
+      const fit = c.fits.length
+        ? `<div class="scroll"><table><thead><tr><th>Could take it</th><th class="n">Payroll change</th><th class="n">Their hours then</th></tr></thead><tbody>${c.fits.map((f) => `<tr><td>${esc(f.name)}${f.overtimeAfter > 0.01 ? ' <span class="pill medium">overtime</span>' : ""}</td><td class="n">${f.extraCost >= 0 ? "+" : ""}${money2(f.extraCost)}</td><td class="n">${num(f.hoursAfter)}</td></tr>`).join("")}</tbody></table></div>`
+        : '<div class="warn">Nobody can take this shift without changing someone else\'s week.</div>';
+      const blk = c.blocked.length ? `<p class="note">Free then but blocked: ${c.blocked.map((b) => esc(b.name) + " (" + esc(b.reason) + ")").join("; ")}.</p>` : "";
+      $("#cover-out").innerHTML = fit + blk;
+    }
+    $("#cover-shift").addEventListener("change", showCover);
 
     function run() {
       const st = parseStaff($("#staff").value), sh = parseShifts($("#shifts").value);
@@ -171,7 +193,9 @@
         burdenPct: val("burden", 0), balance: Math.min(100, Math.max(0, val("balance", 25))),
       });
       if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
-      last = r;
+      last = r; lastIn = { staff: st.staff, slots: sh.slots };
+      $("#cover-shift").innerHTML = sh.slots.map((x, i) => `<option value="${i}">${DAYS[x.day]} ${fmtClock(x.startMin)}–${fmtClock(x.endMin)}${x.label ? " " + esc(x.label) : ""}${r.owner[i] >= 0 ? " (" + esc(st.staff[r.owner[i]].name) + ")" : " (open)"}</option>`).join("");
+      showCover();
       $("#notices").innerHTML = r.warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
       const big = [
         [r.filledAll ? "All filled" : `${r.unfilledSlots} open`, r.filledAll ? `Every one of the ${r.slots} shifts has a person` : `shift${r.unfilledSlots === 1 ? "" : "s"} could not be filled (${num(r.unfilledHours)} hours)`],
@@ -189,6 +213,9 @@
         const note = p.short > 0.01 ? `<span class="pill medium">${num(p.short)} h under minimum</span>` : (p.hours === 0 ? '<span class="pill info">no shifts</span>' : `<span class="pill good">within ${num(p.maxHours, 0)} h limit</span>`);
         return `<tr><td>${esc(p.name)}</td><td class="n">${p.shifts}</td><td class="n">${num(p.hours)}</td><td class="n">${num(p.otHours)}</td><td class="n">${money(p.cost)}</td><td>${note}</td></tr>`;
       }).join("");
+      $("#hire-box").innerHTML = r.hireTest
+        ? `<p class="note"><strong>Would one more person fix it?</strong> Adding someone free at any time (${num(r.hireTest.maxHours)} h a week, at the average wage of ${money2(r.hireTest.wage)}) would cover ${num(r.hireTest.coveredHours)} of the uncovered hours${r.hireTest.stillUnfilledHours > 0.01 ? ` and leave ${num(r.hireTest.stillUnfilledHours)} still open` : ""}, adding about ${money(r.hireTest.extraCost)} of payroll. A what-if only; it is not added to your list.</p>`
+        : "";
       $("#critical").innerHTML = r.critical.length
         ? `<div class="scroll"><table><thead><tr><th>Person</th><th class="n">Hours left uncovered without them</th></tr></thead><tbody>${r.critical.map((c) => `<tr><td>${esc(c.name)}</td><td class="n">${num(c.extraUnfilledHours)}</td></tr>`).join("")}</tbody></table></div>`
         : '<p class="ok">Nobody on this roster is a single point of failure: every shift can still be covered if any one person drops out.</p>';
@@ -211,22 +238,55 @@
     }
     $("#analyze").addEventListener("click", () => { if (run()) record("roster_built"); });
     $("#load-example").addEventListener("click", () => {
-      $("#staff").value = sampleStaff(); $("#shifts").value = sampleShifts();
+      $("#staff").value = sampleStaff(); $("#shifts").value = sampleShifts(); persist();
       if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented café with seven people."; }
     });
     $("#file").addEventListener("change", (e) => {
       const f = e.target.files[0]; if (!f) return;
       const rd = new FileReader();
-      rd.onload = () => { $("#staff").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name} into the people box. Add your shifts and click the button.`; };
+      rd.onload = () => { $("#staff").value = String(rd.result); persist(); record("file_loaded"); status.textContent = `Loaded ${f.name} into the people box. Add your shifts and click the button.`; };
       rd.readAsText(f);
     });
-    $("#clear-all").addEventListener("click", () => { $("#staff").value = ""; $("#shifts").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Enter your people and shifts, then click the button."; });
+    $("#clear-all").addEventListener("click", () => { $("#staff").value = ""; $("#shifts").value = ""; persist(); $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Enter your people and shifts, then click the button."; });
     $("#download").addEventListener("click", () => { if (last) download("roster.csv", rosterCsv(last)); });
     $("#download-hours").addEventListener("click", () => { if (last) download("roster-hours.csv", hoursCsv(last)); });
     $("#download-ics").addEventListener("click", () => {
       if (!last) return;
       try { const who = $("#icsperson").value || null; download(who ? `roster-${who}.ics` : "roster.ics", rosterIcs(last, $("#weekstart").value, who), "text/calendar"); }
       catch (e) { status.textContent = e.message === "weekStart must be a Monday" ? "Pick a date that is a Monday." : "Pick the Monday the week starts on."; }
+    });
+
+    $("#make-messages").addEventListener("click", () => {
+      if (!last) return;
+      let msgs;
+      try { msgs = rosterMessages(last, $("#weekstart").value || null); } catch (e) { msgs = rosterMessages(last); }
+      const box = $("#messages"); box.textContent = "";
+      for (const m of msgs) {
+        const row = document.createElement("div"); row.style.marginTop = "8px";
+        const ta = document.createElement("textarea"); ta.readOnly = true; ta.rows = Math.min(8, m.text.split("\n").length + 1);
+        ta.value = m.text; ta.setAttribute("aria-label", "Message for " + m.person); ta.style.width = "100%";
+        const b = document.createElement("button"); b.type = "button"; b.className = "secondary"; b.textContent = "Copy for " + m.person;
+        b.addEventListener("click", () => { ta.select(); try { navigator.clipboard.writeText(m.text); } catch (e) { document.execCommand("copy"); } record("messages_copied"); });
+        row.append(ta, b); box.append(row);
+      }
+      record("messages_made");
+    });
+
+    // Remember the team on this device only; nothing is sent anywhere.
+    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "burden", "balance"];
+    const KEY = "shift-roster-builder:setup:v1";
+    const snapshot = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]));
+    const apply = (o) => { for (const f of FIELDS) if (o && typeof o[f] === "string") $("#" + f).value = o[f]; };
+    function persist() { try { localStorage.setItem(KEY, JSON.stringify(snapshot())); } catch (e) {} }
+    try { const saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved) { apply(saved); status.textContent = "Restored your last setup from this device. Click the button to rebuild."; } } catch (e) {}
+    for (const f of FIELDS) $("#" + f).addEventListener("input", persist);
+    $("#forget").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} status.textContent = "Saved data removed from this device."; });
+    $("#save-setup").addEventListener("click", () => download("roster-setup.json", JSON.stringify(snapshot(), null, 2), "application/json"));
+    $("#setup-file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { try { apply(JSON.parse(String(rd.result))); persist(); status.textContent = `Loaded ${f.name}. Click the button to build the roster.`; } catch (err) { status.textContent = "That file is not a setup file saved by this tool."; } };
+      rd.readAsText(f);
     });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }

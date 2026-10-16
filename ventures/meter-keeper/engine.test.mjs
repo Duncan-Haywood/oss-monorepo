@@ -148,3 +148,57 @@ test("limit alerts fire once per threshold per month and retry on failure", asyn
   assert.equal(s.alertOutbox[0].tries, 1);
   assert.match(E.validateConfig({ ...cfg, alerts: { at: [2] } }).join(), /alerts\.at/);
 });
+
+test("object-prototype names are rejected as ids and never pollute or drop events", () => {
+  const s = mk();
+  for (const bad of ["__proto__", "constructor", "toString"]) {
+    assert.throws(() => E.ingest(s, cfg, ev("x", { customer: bad }), NOW), /customer is required/);
+    assert.throws(() => E.ingest(s, cfg, ev(bad), NOW), /id is required/);
+    assert.throws(() => E.ingest(s, cfg, ev("y", { meter: bad }), NOW), /unknown meter/);
+    assert.throws(() => E.setCustomer(s, bad, { plan: "pro" }), /customer id/);
+  }
+  assert.equal(({}).api, undefined);
+  assert.equal(E.ingest(s, { ...cfg }, ev("fine"), NOW).status, "accepted");
+});
+
+test("a flat meter may be free (unit 0) and is still valid config", () => {
+  const free = { meters: { m: { agg: "sum" } }, plans: { p: { lines: [{ meter: "m", model: "flat", unit: 0 }] } } };
+  assert.deepEqual(E.validateConfig(free), []);
+});
+
+test("check reports remaining 0, not a positive number, once over the limit", () => {
+  const s = mk();
+  E.ingest(s, cfg, ev("a", { value: 60_000 }), NOW);
+  const r = E.check(s, cfg, "acme", "api", 1, NOW);
+  assert.equal(r.remaining, 0); assert.equal(r.allowed, false);
+});
+
+test("flushAlerts honours max exactly", async () => {
+  const s = mk();
+  s.alertOutbox = [1, 2].map((i) => ({ id: `a${i}`, next: 0, tries: 0 }));
+  const r = await E.flushAlerts(s, async () => {}, NOW, { max: 1 });
+  assert.deepEqual([r.sent, r.pending], [1, 1]);
+});
+
+test("prune keeps records at the retention edge and drops older alert, unique and day records", () => {
+  const s = mk(), DAY = 86_400_000;
+  s.seen.edge = NOW - E.IDEMPOTENCY_DAYS * DAY; // exactly at the cutoff: kept
+  s.alertsSent = {}; s.buckets.acme = {};
+  s.alertsSent["acme|api|2026-07|0.8"] = 1; s.alertsSent["acme|api|2026-09|0.8"] = 1;
+  s.uniqueMonths["acme|seats|2025-01"] = { a: 1 }; s.uniqueMonths["acme|seats|2026-10"] = { a: 1 }; s.uniqueMonths["acme|seats|2026-03"] = { a: 1 };
+  s.buckets.acme.api = { "2020-01-01": { sum: 1, count: 1, max: 1, keys: {} }, "2026-10-01": { sum: 1, count: 1, max: 1, keys: {} } };
+  E.prune(s, NOW);
+  assert.ok(s.seen.edge);
+  assert.deepEqual(Object.keys(s.alertsSent), ["acme|api|2026-09|0.8"]);
+  assert.deepEqual(Object.keys(s.uniqueMonths).sort(), ["acme|seats|2026-10", "acme|seats|2026-03"].sort());
+  assert.deepEqual(Object.keys(s.buckets.acme.api), ["2026-10-01"]);
+});
+
+test("flush dead-letters an event after the eighth failed try, not before", async () => {
+  const s = mk(); E.ingest(s, cfg, ev("x"), NOW);
+  s.outbox[0].tries = 6;
+  const send = async () => { throw new Error("stripe 503"); };
+  assert.equal((await E.flush(s, send, NOW)).dead, 0); // seventh failure: retry
+  s.outbox[0].next = 0;
+  assert.equal((await E.flush(s, send, NOW)).dead, 1); // eighth failure: dead
+});

@@ -1,0 +1,12 @@
+services:
+  app:
+    image: demo/app:latest
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  db:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: demo-not-a-real-password

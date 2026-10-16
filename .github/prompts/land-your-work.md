@@ -73,6 +73,11 @@ your PR merges, open a **new** PR for the follow-up. Reusing the same branch
 is fine, and `unlanded_work.py` names the old PR and tells you to. Never end a
 session on a push to a merged PR's branch.
 
+**Never push a branch that holds nothing beyond `main`.** Resetting to
+`origin/main` after the merge is fine locally, but pushing it recreates the
+branch cleanup just deleted (872 of 875 surviving merged-PR branches on
+2026-10-16). Push again only once it has a new commit, and open a new PR for it.
+
 ## Not shipping something? Leave nothing to push
 
 Cloud sessions push their branch before stopping, so "leave `main` alone"
@@ -140,15 +145,11 @@ Merging is every agent's job, not only the author's:
     `git checkout FETCH_HEAD -- ventures/<slug>`), regenerate and re-verify
     against today's `main`, credit the source branch in the PR body, and
     merge.
-  - You will usually meet these as **adopted drafts** first: every six hours
-    `adopt-stranded-branches.yml` runs `platform/ci/adopt_stranded.py`,
-    which opens a draft PR titled "Adopt stranded branch ..." for each
-    branch with work `main` lacks. Its body lists the commits and the files
-    only that branch changed. Treat it as an orphan draft (above): merge
-    `main` in (that push also starts its CI, which an Actions-opened PR
-    does not get), verify, and merge, or close it with the reason. Run the
-    script without `--apply` to see what it would adopt and why it skipped
-    the rest.
+  - You will usually meet these as **adopted drafts** ("Adopt stranded
+    branch ...", opened by `adopt-stranded-branches.yml`). Treat one as an
+    orphan draft (above): merge `main` in (that push also starts its CI),
+    verify, and merge, or close it with the reason. Run
+    `platform/ci/adopt_stranded.py` without `--apply` to see what it would adopt.
 
 ## End every session's reply with
 

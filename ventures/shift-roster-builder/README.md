@@ -11,7 +11,7 @@ shuffling on Sunday night.
 
 ## Model
 
-- People: `name, wage, max hours, min hours, availability, roles: cook|server` (`Mon-Fri 9-17; Sat 10am-2pm; Sun off`; blank = any time; roles optional).
+- People: `name, wage, max hours, min hours, availability, roles: cook|server, prev: Sun 10pm` (`prev:` is when their last shift last week ended, so the rest rule holds across the week boundary; `Mon-Fri 9-17; Sat 10am-2pm; Sun off`; blank = any time; roles optional).
 - Shifts: `day(s), start, end, people needed, label, role: cook` (the role is optional; a shift with a role goes only to people who list it). An end at or before the start runs overnight.
 - Hard rules, never broken: availability covers the whole shift, no double-booking, minimum rest between shifts, max
   hours per week, max days in a row.
@@ -22,12 +22,16 @@ shuffling on Sunday night.
   several restarts. Deterministic. Tests check every roster against the hard rules and compare with an exhaustive search of
   all rosters on small problems.
 - Reports: who is on each shift, shifts nobody could take and the reason, hours and pay per person, who the week depends on
-  (rebuild without each person), and a comparison with filling shifts in listed order. CSV exports, and a `.ics` calendar file for the week (everyone, or one person to hand them their own shifts).
+  (rebuild without each person), and a comparison with filling shifts in listed order. CSV exports, and a `.ics` calendar file for the week (everyone, or one person to hand them their own shifts), and a ready-to-paste text message per person ("Hi Sam, your shifts this week: ..."), dated when you give the Monday.
+
+- What-if: when shifts stay open, rebuilds with one extra person free at any time (average wage, 40 h) and reports the hours it would cover and the payroll it adds.
+
+- Returning each week: people, shifts and settings are remembered in this browser's local storage only ("Forget saved data" removes them), and can be saved to or loaded from a `roster-setup.json` file to move between devices.
 
 ## Limits
 
 Not modelled: predictive-scheduling and fair-workweek notice rules, meal and rest breaks, minor-labor limits, split-shift
-premiums, tips, union rules, seniority, time-off across weeks, the rest rule across the week boundary. A
+premiums, tips, union rules, seniority, time-off across weeks. A
 heuristic search, not a proof of optimality on large problems. Verified only against exhaustive search and invented data.
 Not legal, tax, or financial advice.
 
@@ -38,3 +42,5 @@ Open `index.html`, or `node --test` to run the tests. No build step, no dependen
 ## No warranty
 
 Provided free and as-is, without warranty of any kind. Not legal, tax, or financial advice. MIT licensed.
+
+**Sick-call finder.** After a roster is built, pick any shift (or an open one) to see who could take it without changing anyone else's week, cheapest first with overtime flagged, and which rule blocks everyone else (`coverOptions` in `calc.mjs`).

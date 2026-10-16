@@ -115,6 +115,30 @@ class TestCheckBranch(Fixture):
         self.assertIn("#41", report.notes[0])
         self.assertIn("cannot see whether it is merged", report.notes[0])
 
+    def test_branch_deleted_after_its_pr_took_the_tip_is_not_stranded(self):
+        # GitHub's auto-delete removes the head branch when the PR merges; the
+        # session's local branch then has no remote, but nothing is stranded.
+        self.branch("claude/merged-and-deleted")
+        sha = self.commit("ventures/x/index.html", "x\n", "x: new venture")
+        self.push("claude/merged-and-deleted")
+        self.open_pr(43, sha)
+        run(self.origin, "update-ref", "-d", "refs/heads/claude/merged-and-deleted")
+        report = self.check()
+        self.assertEqual(report.exit_code, 0, report.problems)
+        self.assertIn("#43", report.notes[0])
+        self.assertIn("cannot see whether it is merged", report.notes[0])
+
+    def test_branch_deleted_with_a_tip_no_pr_carries_is_still_flagged(self):
+        self.branch("claude/deleted-after-more-work")
+        sha = self.commit("ventures/x/index.html", "x\n", "x: new venture")
+        self.push("claude/deleted-after-more-work")
+        self.open_pr(44, sha)
+        run(self.origin, "update-ref", "-d", "refs/heads/claude/deleted-after-more-work")
+        self.commit("ventures/x/more.html", "y\n", "x: more after the merge")
+        report = self.check()
+        self.assertEqual(report.exit_code, 1)
+        self.assertIn("is not on origin", report.problems[0])
+
     def test_unpushed_commit_on_top_of_a_pushed_branch_is_flagged(self):
         self.branch("claude/ahead")
         sha = self.commit("a.txt", "a\n", "a")
@@ -138,6 +162,20 @@ class TestCheckBranch(Fixture):
         self.assertEqual([c.sha for c in report.stranded], [follow_up])
         self.assertIn("already had PR #7", report.problems[0])
         self.assertIn("Open a NEW pull request", report.problems[0])
+
+    def test_re_pushing_a_spent_branch_at_main_is_noted(self):
+        # The 2026-10-16 leak: reset to origin/main after the merge, push
+        # again, and the deleted branch is back with nothing on it.
+        self.branch("claude/spent")
+        first = self.commit("a.txt", "a\n", "a")
+        self.push("claude/spent")
+        self.open_pr(11, first)
+        self.squash_merge("a.txt", "a\n", "a (#11)")
+        run(self.clone, "reset", "-q", "--hard", "origin/main")
+        run(self.clone, "push", "-q", "-f", "origin", "claude/spent")
+        report = self.check()
+        self.assertEqual(report.exit_code, 0)
+        self.assertIn("holds nothing beyond main", " ".join(report.notes))
 
     def test_merging_main_into_a_landed_branch_strands_nothing(self):
         # "Merge origin/main into my branch" carries nothing of its own.

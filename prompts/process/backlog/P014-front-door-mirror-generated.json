@@ -8,9 +8,11 @@
   "problem": "About 5,840 of gitops/'s 6,005 files are gitops/prod/front-door-tools, which platform/marketing/regen.mjs rewrites. Because it is committed, every venture change needs a manual 'regen.mjs --verify' step, and CLAUDE.md calls skipping it 'the most common way a venture fix ships to the venture page but not to the apex copy users see'. CAVEAT: filed from a one-pass repo-organization review (2026-10-16), not a measured study. The change is a first guess and may be oversimplified; check the evidence and the dependents before acting on it, and drop the item with a reason if it does not hold up.",
   "evidence": [
     "git ls-files gitops | cut -d/ -f1-3 on origin/main 2029d18f86: 5,839 files under gitops/prod/front-door-tools",
-    "CLAUDE.md pre-merge checklist: regen.mjs --verify / regen.mjs lines and their note"
+    "CLAUDE.md pre-merge checklist: regen.mjs --verify / regen.mjs lines and their note",
+    "2026-10-16 reader survey (grep -rIl front-door-tools, excluding the mirror and prompts/runs): platform/pages/build.mjs and embed.mjs only mention it in comments (they import nothing from gitops/prod), so the Pages site the owner actually serves does not read the committed mirror. Real readers: platform/marketing/{front-door-tools,front-door,regen,resolve-mirror-merge}*.mjs/.sh and their tests, gitops/tests/test_manifests.py and test_front_door_serving.py, gitops/prod/{kustomization,portfolio-front}.yaml (the retired k3s origin), .github/workflows/{portfolio-validate,hetzner-gitops-ci}.yml (--headroom), portfolio/ledger/supersede_check.py, gitops/prod/usage/aggregate.py.",
+    "git log --since=2026-10-01 -- gitops/prod/front-door-tools: 49 commits, 11 with 'regen' in the subject (git log --format=%s | grep -ci regen), i.e. about a fifth of the commits touching the mirror are regen-only fix-ups."
   ],
-  "change": "Find every reader of the committed mirror first (platform/marketing/*.mjs and tests, portfolio-validate.yml, publish-branch.sh, the gh-pages publish). If they can all build it on demand, generate it in publish-branch.sh / CI and gitignore it. If some reader needs it committed (e.g. a diffable record of what was served), keep it and drop this item.",
+  "change": "Refined after the reader survey: the mirror feeds only the retired Hetzner/k3s front door (CLAUDE.md, Hosting), not Pages, so it is a committed artifact for a dead origin. Step 1: make front-door-tools.mjs/regen.mjs write to a gitignored path (or --out dir) and point test_manifests.py/test_front_door_serving.py at a temp build instead of the committed tree. Step 2: drop the regen --verify/regen lines from the CLAUDE.md checklist and from checklist_coverage.py in the same PR. Step 3: git rm the 5.8k files. Keep the generators and --headroom guards (they protect the byte ceilings). If the owner wants the k3s route back, regen on demand reproduces it. Do not start before P013/P016 PRs touching gitops/ and .github/workflows land, to avoid conflicts.",
   "touches": [
     "gitops/prod/front-door-tools/",
     "platform/marketing/",
@@ -23,5 +25,10 @@
   "source": "Repo-organization review in a Claude Code session, 2026-10-16 (unmeasured; see CAVEAT in problem)",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-10-16",
+      "note": "Feasibility check (process run): platform/pages does not consume the mirror (build.mjs/embed.mjs only mention front-door-tools.mjs in comments), so the 'dead origin only' premise holds. But 3 test files in platform/marketing (front-door-tools.test.mjs ~1.5k lines, front-door.test.mjs, regen.test.mjs), 2 in gitops/tests (test_manifests.py, test_front_door_serving.py), both portfolio-validate.yml and hetzner-gitops-ci.yml read the committed tree or its kustomization.yaml; git ls-files shows 5,895 tracked files under it. Cost is at the top of the 1-3 scale; do it as its own multi-PR effort after P013/P016, starting with the tests building into a temp dir. Not started."
+    }
+  ]
 }

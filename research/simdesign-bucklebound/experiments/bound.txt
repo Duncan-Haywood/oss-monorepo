@@ -1,0 +1,13 @@
+laser cutting, steel sheet, mesh h=1.5 mm, peak von Mises, DE seeds (0, 1, 2): best (lightest) feasible design over seeds
+b=1.0 w/b<=8    : no feasible design in any seed
+b=1.0 factor>=1 : no feasible design in any seed
+b=1.0 factor>=3 : no feasible design in any seed
+b=1.5 w/b<=8    : no feasible design in any seed
+b=1.5 factor>=1 : w=18.31 r=13.20 mass= 31.00 g peak=100.0 MPa tip=0.26 mm buckling factor= 3.45 (3/3 seeds feasible)
+b=1.5 factor>=3 : w=18.48 r=10.33 mass= 31.06 g peak= 99.8 MPa tip=0.26 mm buckling factor= 3.48 (3/3 seeds feasible)
+b=2.0 w/b<=8    : w=15.54 r=12.70 mass= 35.79 g peak= 99.9 MPa tip=0.34 mm buckling factor= 6.70 (3/3 seeds feasible)
+b=2.0 factor>=1 : w=15.53 r=12.78 mass= 35.78 g peak= 99.8 MPa tip=0.34 mm buckling factor= 6.69 (3/3 seeds feasible)
+b=2.0 factor>=3 : w=15.59 r=11.82 mass= 35.82 g peak=100.0 MPa tip=0.34 mm buckling factor= 6.72 (3/3 seeds feasible)
+b=3.0 w/b<=8    : w=12.56 r=10.82 mass= 44.21 g peak= 99.8 MPa tip=0.47 mm buckling factor=17.21 (3/3 seeds feasible)
+b=3.0 factor>=1 : w=12.56 r=10.82 mass= 44.21 g peak= 99.8 MPa tip=0.47 mm buckling factor=17.21 (3/3 seeds feasible)
+b=3.0 factor>=3 : w=12.56 r=10.82 mass= 44.21 g peak= 99.8 MPa tip=0.47 mm buckling factor=17.21 (3/3 seeds feasible)

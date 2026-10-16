@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01FUgH4b4kGUM8w6tPjRLWDj",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-16T06:39:22Z",
+  "ended": "2026-10-16T06:54:49Z",
+  "wall_minutes": 15.6,
+  "tokens_in": 2938993,
+  "tokens_out": 15367,
+  "cost_usd": 1.1007,
+  "tool_calls": 30,
+  "task": "free-choice",
+  "projects": [
+    "free-c2stexact"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7328",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/mimic-twinc2st/README.md",
+      "issue": "Next steps still list the sample-size sweep, which free-c2stpower already landed; I nearly rebuilt it."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "First idea (sample-size sweep) already on main as free-c2stpower; switched to its open caveat (null size). Results mildly favour holdout rule; permutation test untried.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9abe8b1c-86b6-5082-ae56-c7c3037d115f",
+    "transcripts": 1,
+    "first": "2026-10-16T06:39:22Z",
+    "last": "2026-10-16T06:54:58Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 29,
+        "input": 62,
+        "output": 15367,
+        "thinking": 2705,
+        "cache_read": 2844437,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94494,
+        "api_equivalent_usd": 1.1007,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 29,
+      "input": 62,
+      "output": 15367,
+      "thinking": 2705,
+      "cache_read": 2844437,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94494,
+      "api_equivalent_usd": 1.1007,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 20,
+      "Read": 4,
+      "Monitor": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.6,
+      "active_minutes": 4.08,
+      "model_minutes": 2.72,
+      "tool_minutes": 1.36,
+      "waiting_on_human_minutes": 11.52,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, code, 20-min experiment, write-up of a small simulation study",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 545.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

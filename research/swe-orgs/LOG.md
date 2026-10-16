@@ -2,6 +2,31 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-16 · Batch 7: three early-stage sources on doing less
+
+- Added 3 sources and 3 practices (31 practices, 30 sources), all from small teams, the side batch 6 and the README's next steps called thin: McKinley's *Choose Boring Technology* (P29), Fried and Hansson's *Getting Real* from 37signals (P30) and the Instagram team's "do the simple thing first" (P31).
+- **All three say do less, and the loop already mostly does.** P30 (cut features, never quality) is `adopted`: `prompt.md` puts quality before volume and keeps a project small enough to merge in one run. P29 is `partly` adopted (research projects are standard-library Python). P31 is `partly` adopted; nothing tells a run to start with the simplest version, and a session has no memory, so a simple first version needs a README that says what it left out.
+- **Still no proposal.** The ledger has 499 rows (it had 495). The highest unadopted `yes` row is still P23 at 3.8%, below the 5% bar. P29 targets tooling (3.8%) at half weight, a 1.9% priority.
+- Verification was by web search only, from secondary summaries. McKinley's essay was not located, so the row uses no figure from it. *Getting Real* was not read and its 2006 year was not confirmed in the results. The Instagram row rests on one summary of their five-year retrospective; the original post was not found.
+
+## 2026-10-16 · Batch 6: a testing post, Google's large-scale changes and Toyota's stop-the-line rule
+
+- Added 3 sources and 3 practices (28 practices, 27 sources): Wacker's *Just Say No to More End-to-End Tests* (Google, 2015; P26), Winters, Manshreck and Wright's *Software Engineering at Google* (2020; P27) and Ohno's *Toyota Production System* (1988 English edition; P28). The catalogue's first manufacturing source, which is the track's own field.
+- **P28 (anyone may stop the line) is already how this loop works**: a red CI check blocks the merge and a failing test is never skipped. Marked `adopted`. The difference that matters: a stopped line idles people, a stopped session only spends budget.
+- **P27 is partly adopted.** The venture side has `regen.mjs` and `sync_tree_counts.py`, which rewrite shared files after a merge. `research/` has only `_homepage/build.py`, which fails on a mismatch and does not fix it, so every research run still hand-edits `README.md` and `projects.json`. Coordination is 2.2% of 495 runs (Wilson 1.2 to 3.9%), so the ceiling is small.
+- **P26 transfers in part** and targets the tooling class (3.8%), alongside P19 (a runtime budget per suite). Neither clears the 5% bar.
+- **Still no proposal.** The ledger has 495 rows (it had 480); the highest unadopted `yes` row is still P23 at 3.8%.
+- Verification was by web search only; none of the three pages was fetched. Wacker's post is often quoted with a 70/20/10 split, which no search result attributed to him, so the catalogue does not use it. The Winters chapter on large-scale changes was not located, so P27 is stated in general terms. Ohno's andon and jidoka rest on a vendor's secondary page, with no page numbers used.
+
+## 2026-10-16 · Batch 5: reversible migrations, a boundary checker's retrospective and a no-backlog rule
+
+- Added 2 sources and 3 practices (25 practices, 24 sources): Xu's *Online migrations at scale* (Stripe, 2017; P23), McGibbon and Salzberg's *A Packwerk Retrospective* (Shopify, 2024; P24), and a third practice from Basecamp's *Shape Up* that the catalogue had not yet taken, no backlog (P25, source S8).
+- **P23 is the highest-ranked new row and the first to top the old leaders**: migrate in stages (write both, backfill, switch reads, switch writes, delete the old data last). It targets the tooling class (4.0% of 480 runs, Wilson 2.5 to 6.1%), and it describes what went wrong when the run ledger moved from `prompts/runs.jsonl` to `prompts/runs/` and `swe-orgs/run.py` crashed (batch 4). It transfers as `yes`, with priority 4.0%, still below the 5% bar for a proposal. The tooling class is a keyword match including `bug` and `missing`, so the ceiling probably overstates it.
+- **P24 is partly adopted.** `_homepage/build.py` fails when a project is missing from `README.md` or `projects.json`, a boundary check of a kind. Shopify's point that boundaries kept by agreement alone get broken fits, but the collision point here is the shared index files, which a directory check does not touch.
+- **P25 is partly adopted** (CLAUDE.md tells runs not to maintain admin queues), but `PROJECTS.md` milestones are a standing list that sessions, which have no memory, need.
+- **Still no proposal.** The ledger has 480 rows (it had 474); every failure class moved by under 0.2 points.
+- Verification was by web search only, from excerpts and secondary write-ups. Neither new page was fetched. The Packwerk retrospective's claim that its privacy checks caused problems appeared in a single search summary, so the catalogue does not use it. Slack's 2022 incident postmortem was considered and left out because only its listing could be confirmed.
+
 ## 2026-10-16 · Batch 4: a CPU-budget postmortem, blameless review and two Amazon ideas; the ledger moved
 
 - Added 4 sources and 4 practices (22 of each): Cloudflare's 2019 outage postmortem (P19), Allspaw's *Blameless PostMortems and a Just Culture* at Etsy (P20), Bryar and Carr's *Working Backwards* (P21) and Vogels's 2006 ACM Queue interview behind "you build it, you run it" (P22). Large-company sources this time, as batch 3 left the early-stage side alone.

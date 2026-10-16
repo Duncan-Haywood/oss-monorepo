@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>devsec-toolkit — Every DevSecOps Check in One Free, Open-Source Command</title>
+  <meta name="description" content="One zero-dependency command that runs your repository through 22 open-source DevSecOps checks: GitHub Actions injection and poisoning, Docker and Compose, Kubernetes, dependency confusion, JWT misuse, ReDoS, AI-agent permissions. One report, SARIF for code scanning, baselines. MIT licensed, nothing uploaded.">
+  <meta property="og:title" content="devsec-toolkit: every DevSecOps check in one free command">
+  <meta property="og:description" content="22 checks across CI/CD, containers, Kubernetes, supply chain, code and AI-agent configs. One report, one severity scale, SARIF for GitHub code scanning, baselines so CI fails only on new findings. Free and open source.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"devsec-toolkit","applicationCategory":"DeveloperApplication","operatingSystem":"Linux, macOS, Windows; Python 3.9+, Node.js 18+ for some checks","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","description":"An open-source DevSecOps toolkit: one zero-dependency command that runs a repository through 22 static security checks (GitHub Actions, Docker, Compose, Kubernetes, dependency manifests, application code, AI coding-agent configuration) and reports every finding on one severity scale as text, JSON, Markdown or SARIF. Runs locally or in CI; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a clean scan mean my repository is secure?","acceptedAnswer":{"@type":"Answer","text":"No. A clean report means these 22 checks found nothing. It is not a security audit, a penetration test or a compliance attestation, and it does not look for vulnerable dependency versions, leaked credentials in git history, or flaws in your application logic."}},{"@type":"Question","name":"Does anything leave my machine?","acceptedAnswer":{"@type":"Answer","text":"No. Every check reads files already on disk and none makes a network call. The report viewer on this page reads the file you open in your browser and never uploads it."}},{"@type":"Question","name":"Why not just run zizmor, Trivy, Checkov or Semgrep?","acceptedAnswer":{"@type":"Answer","text":"Run them: they are excellent and free. devsec-toolkit covers checks they do not (Actions cache and artifact poisoning, secrets: inherit, secret re-encoding past log masking, AI-agent permission configs, ReDoS, JWT misuse) in one zero-dependency command with one report and one baseline. Adapters that run those tools and merge their findings into the same report are on the roadmap."}},{"@type":"Question","name":"How do I adopt it on a repository that already has hundreds of findings?","acceptedAnswer":{"@type":"Answer","text":"Write a baseline once with --write-baseline, commit it, and point .devsec.json at it. CI then fails only on findings that are new, and known ones stay suppressed even when their line numbers move."}},{"@type":"Question","name":"Do I need Docker or a package install?","acceptedAnswer":{"@type":"Answer","text":"No. It needs Python 3.9 or later and, for the five checks written in JavaScript, Node.js 18 or later. Without Node those five are reported as skipped, never as passing."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1040px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.2rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 110px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=search], select { padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    pre { background: #0f1b2a; color: #e6edf5; padding: 14px; border-radius: 10px; font-size: .86rem; line-height: 1.55; overflow-x: auto; }
+    code { overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tableWrap { overflow-x: auto; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.high { background: #fde8e8; color: #9a1c1c; }
+    .pill.medium { background: #fdf0dc; color: #8a4b08; }
+    .pill.low { background: #e6edf5; color: #2b4560; }
+    .stats { display: flex; gap: 12px; flex-wrap: wrap; margin: 10px 0 14px; }
+    .stat { background: #f7f9fb; border: 1px solid #e6eaf0; border-radius: 10px; padding: 10px 14px; min-width: 90px; }
+    .stat b { display: block; font-size: 1.5rem; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+    .fix { color: #3a4656; font-size: .82rem; margin-top: 4px; white-space: pre-wrap; }
+    .error { color: #9a1c1c; font-weight: 600; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DEVSEC-TOOLKIT · FREE AND OPEN SOURCE · MIT</p>
+    <h1>Every DevSecOps check, one command</h1>
+    <p>Supply-chain and CI security tooling is mostly paid, or scattered across a dozen single-purpose scanners with a dozen output formats. <strong>devsec-toolkit</strong> runs your repository through 22 open-source checks (GitHub Actions, Docker, Compose, Kubernetes, dependency manifests, application code and AI coding-agent configs) and gives you <em>one</em> report: one severity scale, one baseline, SARIF for GitHub code scanning.</p>
+    <p class="note">Zero dependencies: Python 3.9+ (and Node.js 18+ for five of the checks). Nothing is uploaded and no check makes a network call. The report viewer below reads your file in this browser only.</p>
+  </header>
+
+  <section class="card">
+    <h2>Run it</h2>
+<pre><code>git clone --depth 1 --filter=blob:none --sparse https://github.com/Duncan-Haywood/oss-monorepo.git devsec-src
+cd devsec-src &amp;&amp; git sparse-checkout set ventures/devsec-toolkit \
+  $(python3 ventures/devsec-toolkit/devsec.py list --paths) &amp;&amp; cd ..
+
+python3 devsec-src/ventures/devsec-toolkit/devsec.py scan .                       # text report
+python3 devsec-src/ventures/devsec-toolkit/devsec.py scan . --format json -o devsec.json
+python3 devsec-src/ventures/devsec-toolkit/devsec.py scan . --fail-on high         # CI gate: exit 2</code></pre>
+    <p>For GitHub Actions, copy <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/devsec-toolkit/github-workflow.yml">github-workflow.yml</a> to <code>.github/workflows/devsec.yml</code>: it fetches about 3&nbsp;MB, writes a summary to the job page, uploads SARIF to code scanning and fails on new high findings. Every action in it is pinned to a commit SHA.</p>
+    <p class="note">Already have hundreds of findings? <code>devsec.py scan . --write-baseline .devsec-baseline.json</code> once, then CI fails only on findings that are new. See the <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/devsec-toolkit/README.md">README</a> for <code>.devsec.json</code> (skip checks, ignore paths, override severities).</p>
+  </section>
+
+  <section class="card" id="viewer">
+    <h2>Open a report</h2>
+    <p class="note">Open the <code>devsec.json</code> or <code>devsec.sarif</code> that a scan wrote, or paste it below, to sort and filter the findings. The file is read in this browser and never uploaded.</p>
+    <p>
+      <input type="file" id="report-file" accept=".json,.sarif,application/json">
+    </p>
+    <textarea id="report-text" placeholder="…or paste devsec JSON / SARIF here"></textarea>
+    <p>
+      <button type="button" id="open-report">Show findings</button>
+      <button type="button" class="secondary" id="load-example">Load example report</button>
+    </p>
+    <p id="status" class="note">The example is a real scan of the toolkit's own deliberately vulnerable test repository.</p>
+    <div id="results" hidden>
+      <div class="stats" id="stats"></div>
+      <div id="hotspots" class="note"></div>
+      <div class="controls">
+        <label>Severity <select id="min-severity"><option value="low">all</option><option value="medium">medium and up</option><option value="high">high only</option></select></label>
+        <label>Check <select id="check-filter"><option value="">all checks</option></select></label>
+        <input type="search" id="text-filter" placeholder="filter by file or text" aria-label="Filter by file or text">
+      </div>
+      <div class="tableWrap">
+        <table>
+          <thead><tr><th>Severity</th><th>Location</th><th>Finding</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What it checks</h2>
+    <p class="note">Each check is its own open-source tool in the same repository, with its own tests and its own page. devsec-toolkit runs the ones that apply to your repository and says which did not apply, so a repository with no Dockerfile never reads as a clean Docker scan.</p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>Check</th><th>Area</th><th>Looks for</th></tr></thead>
+        <tbody>
+          <tr><td><a href="../actions-injection-check/">actions-injection</a></td><td>GitHub Actions workflows</td><td>Pwn-request checkouts and script injection</td></tr>
+          <tr><td><a href="../actions-artifact-poisoning-check/">actions-artifact-poisoning</a></td><td>GitHub Actions workflows</td><td>Artifacts from untrusted runs executed in privileged jobs</td></tr>
+          <tr><td><a href="../actions-cache-poisoning-check/">actions-cache-poisoning</a></td><td>GitHub Actions workflows</td><td>Cache writes reachable from untrusted triggers</td></tr>
+          <tr><td><a href="../actions-secret-leak-check/">actions-secret-leak</a></td><td>GitHub Actions workflows</td><td>Secrets transformed past log masking</td></tr>
+          <tr><td><a href="../actions-secrets-inherit-check/">actions-secrets-inherit</a></td><td>GitHub Actions workflows</td><td>secrets: inherit to external or untrusted workflows</td></tr>
+          <tr><td><a href="../actions-self-hosted-exposure-check/">actions-self-hosted-exposure</a></td><td>GitHub Actions workflows</td><td>Self-hosted runners reachable from forks</td></tr>
+          <tr><td><a href="../actions-permissions-check/">actions-permissions</a></td><td>GitHub Actions workflows</td><td>GITHUB_TOKEN permissions left at write-all or unset</td></tr>
+          <tr><td><a href="../actions-checkout-credentials-check/">actions-checkout-credentials</a></td><td>GitHub Actions workflows</td><td>actions/checkout leaving the token in .git/config</td></tr>
+          <tr><td><a href="../pinned-actions-check/">pinned-actions</a></td><td>GitHub Actions workflows</td><td>Third-party actions referenced by a mutable tag</td></tr>
+          <tr><td><a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/actions-runtime-deprecation-check">actions-runtime-deprecation</a></td><td>GitHub Actions workflows</td><td>Actions on deprecated or shut-down runtimes</td></tr>
+          <tr><td><a href="../actions-timeout-check/">actions-timeout</a></td><td>GitHub Actions workflows</td><td>Jobs with no timeout (6-hour default)</td></tr>
+          <tr><td><a href="../docker-build-secrets-check/">docker-build-secrets</a></td><td>Dockerfiles and Compose</td><td>Secrets baked into image layers</td></tr>
+          <tr><td><a href="../docker-compose-security-check/">docker-compose-security</a></td><td>Dockerfiles and Compose</td><td>Privileged, socket-mounting and exposed Compose services</td></tr>
+          <tr><td><a href="../docker-base-image-eol-check/">docker-base-image-eol</a></td><td>Dockerfiles and Compose</td><td>Base images past end of life</td></tr>
+          <tr><td><a href="../docker-base-image-pin-check/">docker-base-image-pin</a></td><td>Dockerfiles and Compose</td><td>Base images referenced by a mutable tag</td></tr>
+          <tr><td><a href="../k8s-pod-security-check/">k8s-pod-security</a></td><td>Kubernetes manifests</td><td>Privileged pods, host namespaces, root containers</td></tr>
+          <tr><td><a href="../dependency-confusion-check/">dependency-confusion</a></td><td>Dependencies, registries and runtimes</td><td>Dependency-confusion exposure (extra index URLs, unscoped private names)</td></tr>
+          <tr><td><a href="../node-version-drift-check/">node-version-drift</a></td><td>Dependencies, registries and runtimes</td><td>End-of-life or disagreeing Node.js versions</td></tr>
+          <tr><td><a href="../dependabot-config-check/">dependabot-config</a></td><td>Dependencies, registries and runtimes</td><td>Dependabot missing or not covering every ecosystem</td></tr>
+          <tr><td><a href="../jwt-verification-misuse-check/">jwt-verification-misuse</a></td><td>Application source</td><td>JWT signature or claim verification switched off</td></tr>
+          <tr><td><a href="../regex-redos-check/">regex-redos</a></td><td>Application source</td><td>Regular expressions open to catastrophic backtracking (ReDoS)</td></tr>
+          <tr><td><a href="../agent-permission-config-check/">agent-permission-config</a></td><td>AI coding-agent configuration</td><td>Over-broad AI agent permissions and MCP servers</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>How it compares</h2>
+    <div class="grid">
+      <div>
+        <h3>Paid platforms</h3>
+        <p>Snyk, GitGuardian, Socket, Aikido and Wiz bundle scanning with dashboards, triage and support, priced per developer or per repository. If you need those, buy them. devsec-toolkit is the free, local layer: no account, no upload, and output you own.</p>
+      </div>
+      <div>
+        <h3>Free single-purpose scanners</h3>
+        <p>zizmor (Actions), Trivy, Checkov, Semgrep, gitleaks and OSV-Scanner are excellent; keep running them. Each has its own install, output format and suppression scheme. devsec-toolkit covers ground they leave open, such as Actions cache and artifact poisoning, <code>secrets: inherit</code>, secrets re-encoded past log masking, AI-agent permissions, ReDoS and JWT misuse, behind one report and one baseline.</p>
+      </div>
+      <div>
+        <h3>Linter aggregators</h3>
+        <p>MegaLinter and Super-Linter run many tools from a large Docker image. devsec-toolkit is security-only, needs no Docker, fetches about 3&nbsp;MB, and normalises every finding onto one schema rather than concatenating each tool's log.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Does a clean scan mean my repository is secure?</h3>
+    <p>No. A clean report means these 22 checks found nothing. It is not a security audit, a penetration test or a compliance attestation, and it does not look for vulnerable dependency versions, leaked credentials in git history, or flaws in your application logic.</p>
+    <h3>Does anything leave my machine?</h3>
+    <p>No. Every check reads files already on disk and none makes a network call. The report viewer on this page reads the file you open in your browser and never uploads it.</p>
+    <h3>Why not just run zizmor, Trivy, Checkov or Semgrep?</h3>
+    <p>Run them: they are excellent and free. devsec-toolkit covers checks they do not (Actions cache and artifact poisoning, secrets: inherit, secret re-encoding past log masking, AI-agent permission configs, ReDoS, JWT misuse) in one zero-dependency command with one report and one baseline. Adapters that run those tools and merge their findings into the same report are on the roadmap.</p>
+    <h3>How do I adopt it on a repository that already has hundreds of findings?</h3>
+    <p>Write a baseline once with --write-baseline, commit it, and point .devsec.json at it. CI then fails only on findings that are new, and known ones stay suppressed even when their line numbers move.</p>
+    <h3>Do I need Docker or a package install?</h3>
+    <p>No. It needs Python 3.9 or later and, for the five checks written in JavaScript, Node.js 18 or later. Without Node those five are reported as skipped, never as passing.</p>
+    <p class="note">Where this is going: <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/devsec-toolkit/ROADMAP.md">ROADMAP.md</a>. Source: <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/devsec-toolkit">ventures/devsec-toolkit</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a penetration test, a compliance attestation or security advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for deciding what to change in your own systems. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/devsec-toolkit" rel="noopener">devsec-toolkit from the repo</a> and run it yourself.</p>
+    <p>The report you open is read in your browser and never uploaded; there are no accounts, cookies, or analytics vendors, and this page makes no network calls of its own. Anonymous feature events (<code>report_opened</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseReport, filterFindings, hotspots, location } from "./viewer.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (id) => document.getElementById(id);
+    let current = null;
+
+    function cell(text, cls) {
+      const td = document.createElement("td");
+      if (cls) td.className = cls;
+      td.textContent = text;
+      return td;
+    }
+
+    function render() {
+      if (!current) return;
+      const shown = filterFindings(current.findings, {
+        minSeverity: $("min-severity").value,
+        check: $("check-filter").value,
+        text: $("text-filter").value,
+      });
+      const rows = $("rows");
+      rows.replaceChildren();
+      for (const f of shown) {
+        const tr = document.createElement("tr");
+        const sev = document.createElement("td");
+        const pill = document.createElement("span");
+        pill.className = `pill ${f.severity}`;
+        pill.textContent = f.severity;
+        sev.append(pill);
+        const what = cell(f.message);
+        const meta = document.createElement("div");
+        meta.className = "note";
+        meta.textContent = `${f.check}/${f.rule}`;
+        what.prepend(meta);
+        if (f.fix) {
+          const fix = document.createElement("div");
+          fix.className = "fix";
+          fix.textContent = `Fix: ${f.fix}`;
+          what.append(fix);
+        }
+        const loc = cell("");
+        const code = document.createElement("code");
+        code.textContent = location(f);
+        loc.append(code);
+        tr.append(sev, loc, what);
+        rows.append(tr);
+      }
+      $("status").textContent = `Showing ${shown.length} of ${current.findings.length} finding(s).`;
+    }
+
+    function show(report) {
+      current = report;
+      const c = report.counts;
+      const stats = $("stats");
+      stats.replaceChildren();
+      for (const [label, value] of [["high", c.high], ["medium", c.medium], ["low", c.low], ["total", report.findings.length]]) {
+        const div = document.createElement("div");
+        div.className = "stat";
+        const b = document.createElement("b");
+        b.textContent = String(value);
+        div.append(b, document.createTextNode(label));
+        stats.append(div);
+      }
+      const spots = hotspots(report.findings, 3).map((h) => `${h.file || "(repository)"} (${h.total}${h.high ? `, ${h.high} high` : ""})`);
+      $("hotspots").textContent = spots.length ? `Start with: ${spots.join(" · ")}` : "No findings in this report.";
+      const select = $("check-filter");
+      select.replaceChildren(new Option("all checks", ""));
+      for (const id of [...new Set(report.findings.map((f) => f.check))].sort()) select.append(new Option(id, id));
+      $("results").hidden = false;
+      render();
+    }
+
+    function openText(text, event) {
+      try {
+        show(parseReport(text));
+        record(event);
+      } catch (e) {
+        $("results").hidden = true;
+        $("status").innerHTML = "";
+        const span = document.createElement("span");
+        span.className = "error";
+        span.textContent = e.message;
+        $("status").append(span);
+      }
+    }
+
+    $("open-report").addEventListener("click", () => openText($("report-text").value, "report_opened"));
+    $("report-file").addEventListener("change", async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) openText(await file.text(), "report_opened");
+    });
+    $("load-example").addEventListener("click", async () => {
+      const { default: example } = await import("./example-report.mjs");
+      const text = JSON.stringify(example, null, 1);
+      $("report-text").value = text;
+      openText(text, "example_loaded");
+    });
+    for (const id of ["min-severity", "check-filter"]) $(id).addEventListener("change", render);
+    $("text-filter").addEventListener("input", render);
+
+    const optout = $("optout");
+    function markOff() {
+      optout.textContent = "Usage counting is off";
+      optout.disabled = true;
+    }
+    if (usageOptedOut()) markOff();
+    optout.addEventListener("click", () => {
+      setUsageOptOut(true);
+      markOff();
+    });
+  </script>
+</body>
+</html>
