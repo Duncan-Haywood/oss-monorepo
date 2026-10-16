@@ -9,4 +9,8 @@ cd research/private-markets
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 6 tests
 PYTHONPATH=src python3 experiments/run.py
 ```
+![Final logit error vs per-trade budget b, by epsilon](experiments/accuracy.svg)
+
+The figure is parsed from `experiments/results.txt` by `python3 experiments/figure.py` (stdlib only), so it cannot drift from the committed run.
+
 Stylised simulations; limitations in the paper. MIT.
