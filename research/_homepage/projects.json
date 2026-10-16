@@ -2481,6 +2481,11 @@
      "slug": "eda-equivinterval",
      "title": "How sure is the 93% nearest-line equivalence predictor?",
      "summary": "Uncertainty for <em>eda-equivpredict</em>, replayed from the same <em>eda-verify</em> log. The 27 survivors sit on only 11 distinct source lines, so a line-cluster bootstrap gives a 95% interval of 76.5&ndash;100% around the observed 25 of 27 (92.6%), against a 59.3% majority-class baseline, and a permutation test that shuffles line groups gives p&nbsp;=&nbsp;0.012. One design, one solver, predictors chosen with the log in view. Stylised."
+    },
+    {
+     "slug": "eda-conefeat",
+     "title": "Do synthesized-netlist features predict which simulation survivors Yosys can prove equivalent?",
+     "summary": "Follow-up to <em>eda-equivpredict</em> on the same 27 survivors, now with Yosys installed. Position-free features (cell-count change after synthesis, miter size, identical cell histogram) are scored under leave-one-line-out. None beats guessing the majority class (16 of 27, 59.3%); the source-line rule gets 25 of 27. The nine solver timeouts barely change the netlist (|&Delta;cells| 0 for six), but equivalent mutants span 0 to 178, and miter size is nearly constant (1,188&ndash;1,199). A negative result on one design; cone depth and fan-in were not tried."
     }
    ]
   },
