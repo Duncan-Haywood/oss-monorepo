@@ -100,6 +100,13 @@ class RouteTest(PromptTestCase):
         self.assertEqual(promptctl.runs_since_review(promptctl.load_runs(self.fx.root)), 0)
         self.assertNotEqual(promptctl.route(self.fx.root, rng=random.Random(0))["track"], "review")
 
+    def test_mirrored_upstream_records_do_not_make_a_review_due(self):
+        self.fx.run("2026-10-01-a.json", _record(day="2026-10-01"))
+        mirrored = _record(day="2026-10-02")
+        mirrored["source"] = "oss-research-monorepo prompts/runs.jsonl"
+        self.fx.run("2026-10-02-b.json", mirrored)
+        self.assertEqual(promptctl.runs_since_review(promptctl.load_runs(self.fx.root)), 1)
+
     def test_same_day_records_count_in_landing_order(self):
         import subprocess
         git = lambda *a: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a],
