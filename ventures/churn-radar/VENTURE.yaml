@@ -1,0 +1,68 @@
+name: churn-radar
+description: >-
+  Self-hosted churn prediction for small SaaS teams: product-usage events and
+  cancellations in, a ranked at-risk account list out, with a reason per
+  account. Logistic regression trained on your own history and validated
+  out-of-time (AUC and top-decile capture are reported, and it says so when
+  there is too little data). Stripe cancellation webhook, signed alert webhook,
+  browser simulator running the real engine, zero-dependency Node server,
+  one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-16. Paid market is real and proven: ChurnZero, Gainsight,
+# Vitally, Totango, Planhat and Custify sell customer-health and churn-risk
+# scoring to subscription businesses, typically from a few hundred to several
+# thousand dollars a month; ProfitWell and Baremetrics report churn after the
+# fact from billing data. The gap: a small SaaS team with an events stream but
+# no customer-success team that wants "which five accounts should I email
+# today" learned from its own cancellations, with the accuracy shown honestly,
+# and that will not send usage data to a third party. Eighth product for the
+# buyer of dunning-engine, cancel-flow, drip-keeper, meter-keeper, mrr-pulse,
+# license-keeper and waitlist-keeper: those retain at the moment of failure or
+# cancel; this one finds the account before either. duplicate_check:
+# stripe-churn-cohort-analyzer and customer-lifetime-value-predictor read past
+# data from a CSV; none scores live accounts.
+#
+# First visitor: indie SaaS founders on Hacker News, r/SaaS, Indie Hackers
+# searching "predict churn open source", "churnzero alternative", "customer
+# health score without a CS team". Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup (instrumenting events, reading the first model), a hosted
+# copy under the deployer's own name, or GitHub Sponsors are the paid steps;
+# hosting under the public name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      Founders will paste a real event export into the browser page, see an
+      out-of-time AUC on their own data, and deploy the server to get the weekly
+      at-risk list, because a ranked list with reasons is something they act on.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Six simple usage features separate churners from retained accounts better
+      than a coin flip on a typical small-SaaS event stream (out-of-time AUC
+      above 0.65). Shown on synthetic data only so far.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a score or AUC that is wrong given their data (look-ahead leakage, a mislabelled snapshot); the training and validation path comes before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/churn-radar/
+  analytics: null

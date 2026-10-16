@@ -476,6 +476,9 @@ workflows:
 - workflow: chrome-extension-permission-check-ci.yml
   classification: none
   publishes: []
+- workflow: churn-radar-ci.yml
+  classification: none
+  publishes: []
 - workflow: ci-minutes-pricing-calculator-ci.yml
   classification: none
   publishes: []

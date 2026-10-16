@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 1257 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1258 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-16T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Churn Radar — Free Self-Hosted Churn Prediction for SaaS</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/churn-radar/"/>
+    <id>tag:marisstella.dev,2026:tool/churn-radar</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">A free, open-source alternative to ChurnZero and Gainsight for small SaaS: learn from your own usage events which accounts are about to cancel, with an honest out-of-time accuracy check. Paste an export and try it in your browser first.</summary>
+  </entry>
   <entry>
     <title>Help Keeper — Self-Hosted Help Center, a Help Scout Docs Alternative</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/help-keeper/"/>
@@ -158,13 +166,5 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Open-source, privacy-first retail analytics concept for small-format pilot stores: SKU gaps, experiments and ROI reporting, built as a TypeScript monorepo.</summary>
-  </entry>
-  <entry>
-    <title>Rev Rec — Free Stripe Deferred Revenue &amp; Revenue Recognition Schedule</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/rev-rec/"/>
-    <id>tag:marisstella.dev,2026:tool/rev-rec</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Turn Stripe invoices into a monthly revenue recognition schedule: billings, revenue recognised, deferred revenue and journal entries for your bookkeeper. Paste an invoice export to try it in the browser, then run the open-source read-only server in your own account. Free, MIT.</summary>
   </entry>
 </feed>
