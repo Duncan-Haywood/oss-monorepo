@@ -1,0 +1,30 @@
+# Publishes the MCP server bundle (all eligible venture CLIs behind one stdio server) to npm.
+# Off by default: with vars.DISTRIBUTE_MCP unset this only prints a dry run.
+# Free registry, no paid spend, no commits pushed. Spec: portfolio/distribution/README.md
+name: distribute-mcp
+on:
+  schedule:
+    - cron: '17 17 * * 3'
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  publish:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+      - run: node platform/distribution/mcp.mjs
+        env:
+          DISTRIBUTE_MCP: ${{ vars.DISTRIBUTE_MCP }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

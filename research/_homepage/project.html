@@ -37,6 +37,12 @@ figcaption{font-size:13px;color:var(--muted);margin-top:.5rem}
 .links{display:flex;gap:.6rem;flex-wrap:wrap;padding:0;list-style:none;margin:0}
 .links a{display:inline-block;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);border-radius:8px;padding:.45rem .9rem;font-size:14px;font-weight:500}
 .links a.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.log-intro{font-size:14px;color:var(--muted);margin:0 0 1rem}
+.log-entry{border-left:3px solid var(--c,var(--accent));padding:.1rem 0 .1rem 1rem;margin:0 0 1.4rem}
+.log-entry h3{font:600 17px/1.35 var(--serif);margin:0 0 .4rem}
+.log-entry ul{margin:.3rem 0;padding-left:1.2rem}
+.log-entry li{margin:.25rem 0}
+.log-entry p{margin:.3rem 0}
 .note{font-size:14px;color:var(--muted);border-left:3px solid var(--border-strong);padding-left:1rem;margin-top:2.2rem}
 footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;font-size:13px;color:var(--faint)}
 {{THEME_VARS}}
@@ -53,6 +59,7 @@ footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;
   <h2>What it found</h2>
   <p>{{SUMMARY}}</p>
 {{FIGURE}}
+{{LOG}}
   <h2>Paper, code and results</h2>
   <ul class="links">
 {{LINKS}}

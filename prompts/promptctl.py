@@ -160,7 +160,10 @@ def _landing_order(runs: list[tuple[Path, dict[str, Any]]]) -> dict[str, int]:
 
 
 def runs_since_review(runs: list[tuple[Path, dict[str, Any]]]) -> int:
-    """Non-review runs recorded after the most recent review run."""
+    """Non-review runs recorded after the most recent review run.
+
+    Records mirrored from the upstream research repo (they carry `source`) are
+    not runs of this repository and do not make a review due."""
     rank = _landing_order(runs)
     ordered = sorted(
         enumerate(runs),
@@ -170,7 +173,7 @@ def runs_since_review(runs: list[tuple[Path, dict[str, Any]]]) -> int:
     for _, (_, rec) in ordered:
         if rec.get("track") == REVIEW:
             count = 0
-        else:
+        elif not rec.get("source"):
             count += 1
     return count
 
@@ -325,6 +328,30 @@ def validate_record(root: Path, path: Path, rec: Any, tracks: dict[str, Any]) ->
     rt = rec.get("redteam")
     if rt is not None:
         errors.extend(validate_redteam(where, rt))
+    usage = rec.get("usage")
+    if usage is not None:
+        errors.extend(validate_usage(where, usage))
+    return errors
+
+
+def validate_usage(where: str, usage: Any) -> list[str]:
+    """The block prompts/runcost.py writes. A block without `measured_by` predates
+    the tool (one record, 2026-10-14): it is left alone and runcost.py report skips it."""
+    if not isinstance(usage, dict):
+        return [f"{where}: usage must be the object `prompts/runcost.py attach` writes"]
+    by = usage.get("measured_by")
+    if by is None:
+        return []
+    if not (isinstance(by, str) and by.startswith("prompts/runcost.py")):
+        return [f"{where}: usage.measured_by must name prompts/runcost.py; do not type usage by hand"]
+    errors = []
+    for key in ("models", "totals", "time", "certainty"):
+        if not isinstance(usage.get(key), dict):
+            errors.append(f"{where}: usage.{key} must be an object")
+    human = usage.get("human_equivalent")
+    if human is not None and not (isinstance(human, dict) and isinstance(human.get("basis"), str)
+                                  and human["basis"].strip()):
+        errors.append(f"{where}: usage.human_equivalent needs the basis of the estimate")
     return errors
 
 
@@ -540,6 +567,9 @@ def summarise(recs: list[dict[str, Any]]) -> dict[str, Any]:
     ci = [r["ci_failures_before_green"] for r in recs
           if isinstance(r.get("ci_failures_before_green"), (int, float))]
     minutes = [r["wall_minutes"] for r in recs if isinstance(r.get("wall_minutes"), (int, float))]
+    # API-equivalent dollars, measured by prompts/runcost.py where a record has
+    # a `usage` block; the free-typed cost_usd otherwise.
+    usd = [r["cost_usd"] for r in recs if isinstance(r.get("cost_usd"), (int, float))]
     return {
         "runs": n,
         "success": ok,
@@ -552,6 +582,8 @@ def summarise(recs: list[dict[str, Any]]) -> dict[str, Any]:
         "ci_failures_mean": round(statistics.mean(ci), 2) if ci else None,
         "wall_minutes_median": statistics.median(minutes) if minutes else None,
         "doc_friction": sum(len(r.get("doc_friction") or []) for r in recs),
+        "cost_usd_median": round(statistics.median(usd), 2) if usd else None,
+        "cost_measured": sum(1 for r in recs if isinstance(r.get("usage"), dict)),
     }
 
 
@@ -648,14 +680,15 @@ def print_measure(m: dict[str, Any]) -> None:
 
     def table(title: str, rows: dict[str, dict[str, Any]]) -> None:
         print(f"## {title}\n")
-        print("| | runs | success | 95% CI | integrity | leaked | merged? | errors/run | CI fails | minutes | friction |")
-        print("|---|---|---|---|---|---|---|---|---|---|---|")
+        print("| | runs | success | 95% CI | integrity | leaked | merged? | errors/run | CI fails | minutes | friction | API $ (median) |")
+        print("|---|---|---|---|---|---|---|---|---|---|---|---|")
         for key, s in rows.items():
             rate = "-" if s["success_rate"] is None else f"{s['success_rate']:.0%}"
             lo, hi = s["success_ci95"]
             print(f"| {key} | {s['runs']} | {rate} | {lo:.0%}-{hi:.0%} | {s['integrity_issues']} | "
                   f"{s['leaked']} | {s['merged_unknown']} unknown | {s['errors_per_run']} | "
-                  f"{s['ci_failures_mean']} | {s['wall_minutes_median']} | {s['doc_friction']} |")
+                  f"{s['ci_failures_mean']} | {s['wall_minutes_median']} | {s['doc_friction']} | "
+                  f"{s['cost_usd_median']} ({s['cost_measured']} measured) |")
         print()
 
     table("By track and prompt version", m["by_version"])

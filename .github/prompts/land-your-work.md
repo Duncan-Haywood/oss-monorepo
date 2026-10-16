@@ -16,20 +16,12 @@ pull request unless the user explicitly asks" or "push to your branch". That
 default does not apply here. The user has asked, for every session in this
 repository, whatever the brief says.
 
-## Why this has its own prompt (measured 2026-10-05)
+## Why this has its own prompt
 
-- **PRs that get opened land.** In the two weeks to 2026-10-05, 1,251 PRs
-  merged, 23 closed unmerged, and 3 were open.
-- **Branches without a PR do not.** Over branch tips dated 2026-09-21 onward,
-  102 branches held 186 commits that were in no pull request and not on
-  `main`, and 100 of those branches never had a PR at all. Four of them are
-  complete, tested ventures that `main` still lacks:
-  `sep-ira-contribution-calculator`, `recipe-costing-calculator`,
-  `s3-bucket-exposure-check` and `agent-permission-config-check`.
-
-So the work gets done and then dropped at the last step, between `git push`
-and opening the PR. Nothing reports it, because every guard here runs on a PR
-or on `main`.
+Measured 2026-10-05: PRs that get opened land (1,251 merged, 23 closed in two
+weeks), but 100 branches with 186 commits never got a PR, including four
+finished ventures. Work was dropped between `git push` and opening the PR, and
+every guard here runs on a PR or on `main`.
 
 ## The finish line: do all of it, in this order
 
@@ -83,12 +75,9 @@ session on a push to a merged PR's branch.
 
 ## Not shipping something? Leave nothing to push
 
-Claude Code cloud sessions are told to commit and push their branch before
-they stop, and a stop hook asks again while the working tree is dirty. So
-"leave `main` alone" becomes a branch with no PR unless you also leave nothing
-to push. Of the 248 branches with no PR at all (tips from 2026-08 to
-2026-10-05), 43 held nothing but ledger entries, `infra_state.yaml` readings or
-other records.
+Cloud sessions push their branch before stopping, so "leave `main` alone"
+becomes a branch with no PR unless you also leave nothing to push (43 of 248
+PR-less branches held only ledger entries or readings).
 
 When you decide a change will not ship, take it off your branch before you
 stop and say in your reply what you dropped. Examples: ledger prose that

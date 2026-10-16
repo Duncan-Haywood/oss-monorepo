@@ -374,3 +374,18 @@ field will.
   keep collecting. research/1 (7) under 10. Audit skipped: records mirrored or
   doc-only. `validate` green on 386 records. No drift report: six already today.
 - Result: (next review)
+
+## E17: twelfth review (2026-10-16)
+
+- Change: `promptctl.runs_since_review` no longer counts records mirrored from
+  the upstream research repo (they carry `source`); test added. Acts on E15's
+  proposal. `land-your-work.md` 169 -> 158 lines (measured-history prose cut;
+  budget 160).
+- Why: reviews fired on mirrored records no run of this repo produced.
+- Measure: reviews per day (the 2026-10-15 count was ten); lines in
+  `land-your-work.md`.
+- Follow-up on E16: ventures/2 (14 runs, 93%) vs ventures/1 (42, 93%): intervals
+  overlap, no verdict. research/1 has 7 runs, under 10. review/1 is 73% over 11
+  runs, 0 integrity issues. Audit and `merged` backfill skipped: remaining
+  unknown records are mirrored or doc-only.
+- Result: (next review)
