@@ -6,5 +6,6 @@ Stdlib-only Python. In a sequential LMSR verification market where Bayesian veri
 cd research/position-rent
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, ~1 s
 PYTHONPATH=src python3 experiments/run.py                  # output in experiments/results.txt
+python3 experiments/figure.py                           # redraws experiments/entry_subsidy.svg from results.txt
 ```
 Binary state, symmetric signals, one trade each, myopic-Bayesian traders (no strategic delay); MIT.

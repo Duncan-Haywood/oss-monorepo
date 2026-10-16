@@ -6,5 +6,6 @@ Stdlib-only Python. Verifiers often report a distribution over *ordered* fault s
 cd research/ordinal-scores
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 7 tests, <1 s
 PYTHONPATH=src python3 experiments/run.py                  # output in experiments/results.txt
+python3 experiments/figure.py                           # redraws experiments/ordinal_range.svg from results.txt
 ```
 Risk-neutral verifiers, one report per task; MIT.
