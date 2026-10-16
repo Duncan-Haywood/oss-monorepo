@@ -28,6 +28,7 @@ export const RULES = {
   PA: { limit: 183, requiresAbode: true, kind: "statutory", note: "Statutory resident: a permanent place of abode plus more than 183 days." },
   MN: { limit: 183, requiresAbode: true, kind: "statutory", note: "Statutory resident: a permanent place of abode plus more than 183 days." },
   VA: { limit: 183, requiresAbode: true, kind: "statutory", note: "Resident for tax if you keep a place of abode and spend more than 183 days." },
+  RI: { limit: 183, requiresAbode: true, kind: "statutory", note: "Resident for tax if you are not domiciled there but keep a permanent place of abode and spend more than 183 days (R.I. Gen. Laws 44-30-5)." },
   OR: { limit: 200, requiresAbode: true, kind: "statutory", note: "Resident for tax if you keep a permanent place of abode and spend more than 200 days." },
   CA: { limit: 270, requiresAbode: false, kind: "presumption", note: "Residency turns on domicile and where your ties are strongest. Time in the state beyond about nine months is commonly treated as a presumption of residency that you would have to rebut." },
 };
