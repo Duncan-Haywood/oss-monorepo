@@ -1,0 +1,26 @@
+{
+  "id": "P015",
+  "title": "Find near-duplicate ventures and consider grouping ventures/ by niche",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 3,
+  "problem": "ventures/ holds 1,261 flat directories. Name prefixes act as an informal hierarchy (uk-* 54, eu-* 18, actions-* 13, shopify-* 12), and some neighbours look like the same product several times (1099-k-threshold-checker, 1099-vendor-csv-checker, 1099-vendor-tracker, 1099k-reconciliation-worksheet). CAVEAT: filed from a one-pass repo-organization review (2026-10-16), not a measured study. The change is a first guess and may be oversimplified; check the evidence and the dependents before acting on it, and drop the item with a reason if it does not hold up.",
+  "evidence": [
+    "ls ventures | wc -l on origin/main 2029d18f86: 1,261; 1,260 have VENTURE.yaml",
+    "ls ventures | sed 's/-.*//' | sort | uniq -c: uk 54, eu 18, actions 13, shopify 12, freelance 12"
+  ],
+  "change": "Do the cheap, valuable half first: list clusters of likely duplicates and check by reading them whether they really overlap before merging any (similar names can be distinct products with their own pages and users). Regrouping into ventures/<niche>/<slug> is likely NOT worth it: ventures/<slug> is assumed by build.mjs, the per-venture workflows, VENTURE.yaml routing, published URLs and checklist_coverage.py, and moving 1,261 dirs breaks links. Only do it with redirects and if the duplicate review shows the flat list is actually hurting.",
+  "touches": [
+    "ventures/",
+    "platform/pages/build.mjs",
+    "portfolio/router/"
+  ],
+  "metric": "Venture directories; confirmed duplicate clusters merged",
+  "baseline": "1,261 directories; duplicate clusters not yet counted",
+  "opened": "2026-10-16",
+  "source": "Repo-organization review in a Claude Code session, 2026-10-16 (unmeasured; see CAVEAT in problem)",
+  "pr": null,
+  "result": null,
+  "history": []
+}
