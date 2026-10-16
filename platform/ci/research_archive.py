@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Keep everything in oss-research-monorepo that git history alone does not carry.
 
-    python3 research/_mirror/archive.py branches [--push]   # copy every upstream branch here
-    python3 research/_mirror/archive.py export <dir>        # pull requests, reviews, issues as JSON
-    python3 research/_mirror/archive.py ready [--meta <dir>] [--record <dir>]
-    python3 research/_mirror/archive.py status              # the last recorded verdict, no API
+    python3 platform/ci/research_archive.py branches [--push]   # copy every upstream branch here
+    python3 platform/ci/research_archive.py export <dir>        # pull requests, reviews, issues as JSON
+    python3 platform/ci/research_archive.py ready [--meta <dir>] [--record <dir>]
+    python3 platform/ci/research_archive.py status              # the last recorded verdict, no API
 
-`mirror.py` keeps upstream `main` here with its history. Deleting the upstream
+Upstream `main` was merged into this repository with its full history
+(research/, #6832 and the mirror syncs after it). Deleting the upstream
 repository would still lose three things, and this tool keeps each one here:
 
 - **Branches.** Every upstream branch `<name>` becomes the branch
@@ -21,7 +22,7 @@ repository would still lose three things, and this tool keeps each one here:
   (`.github/workflows/research-archive.yml`) commits that directory to the
   branch `archive/research-meta`.
 - **Proof.** `ready` exits 0 only when deleting upstream would lose nothing
-  this tool can keep: `main` mirrored exactly (`mirror.py check`), every
+  this tool can keep: upstream `main` in this repository's history, every
   branch archived at its current tip, every pull request and issue exported
   at its latest update, and none still open. `--record` writes the verdict as
   `READY.json` and `READY.md`; `status` reads it back from the meta branch.
@@ -43,9 +44,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-import mirror
 
 OWNER, NAME = "Duncan-Haywood", "oss-research-monorepo"
+UPSTREAM_URL = f"https://github.com/{OWNER}/{NAME}"
 BRANCH_PREFIX = "archive/research/"
 PULL_PREFIX = "archive/research-pull/"
 META_BRANCH = "archive/research-meta"
@@ -292,7 +293,7 @@ def write_export(out: Path, repo: dict[str, Any], pulls: list[dict[str, Any]],
     lines = [f"# {OWNER}/{NAME}, archived", "",
              f"Every pull request and issue from <https://github.com/{OWNER}/{NAME}>, with "
              "comments, reviews and review threads, as JSON. Written by "
-             "`research/_mirror/archive.py export` on `main`; `READY.md` says whether the "
+             "`platform/ci/research_archive.py export` on `main`; `READY.md` says whether the "
              "upstream repository can be deleted without losing anything here.", "",
              f"Upstream branch `<name>` is the branch `{BRANCH_PREFIX}<name>` in this repository. "
              f"A pull request head no branch contains is `{PULL_PREFIX}<number>`.", "",
@@ -352,37 +353,34 @@ def check_export(listing: dict[int, dict[str, str]], have: dict[int, str], label
     return problems
 
 
-def main_check(root: Path, up_main: str, synced: str) -> dict[str, Any]:
-    """Upstream main is the commit last synced, and it is in this repository's history.
+def is_ancestor(root: Path, a: str, b: str) -> bool:
+    return subprocess.run(["git", "merge-base", "--is-ancestor", a, b], cwd=root,
+                          capture_output=True).returncode == 0
 
-    Not `mirror.py check`: that also demands research/ match upstream byte for
-    byte, which stops being true the day work starts landing here. The content
-    was proven when the sync landed (research-ci.yml runs the check on it).
+
+def main_check(root: Path, up_main: str) -> dict[str, Any]:
+    """Upstream main, and so all of its history, is part of this repository's history.
+
+    Content is not compared: research/ was proven a byte-exact copy at each
+    mirror sync, and after the cut-over work lands here and the two diverge.
     """
-    if synced != up_main:
-        detail = (f"upstream main is {up_main[:12]} but research/ was last synced from "
-                  f"{synced[:12]}: run `mirror.py sync`")
-    elif not mirror.is_ancestor(root, up_main, "HEAD"):
-        detail = f"upstream main {up_main[:12]} is not in this repository's history: land the sync with a merge commit"
-    else:
-        detail = ""
-    return {"name": "main history and content", "ok": not detail,
-            "detail": detail or f"upstream main {up_main[:12]} is synced and in this repository's history"}
+    ok = is_ancestor(root, up_main, "HEAD")
+    return {"name": "main history", "ok": ok,
+            "detail": f"upstream main {up_main[:12]} is in this repository's history" if ok else
+            f"upstream main {up_main[:12]} is not in this repository's history: merge it "
+            "(with a merge commit, never a squash) before deleting upstream"}
 
 
 def ready(root: Path, upstream: str, origin: str, query: Query | None, meta: Path | None) -> list[dict[str, Any]]:
     """Each check as {name, ok, detail}. Ready means every one is ok."""
     checks = []
 
-    git(root, "fetch", "-q", upstream, f"+refs/heads/main:{mirror.UPSTREAM_REF}")
-    up_main = git(root, "rev-parse", mirror.UPSTREAM_REF).strip()
-    checks.append(main_check(root, up_main, mirror.load_state(root)["upstream_commit"]))
-
     todo = archive_branches(root, upstream, origin, do_push=False)
-    heads, pulls = upstream_refs(root, upstream)
+    heads, _ = upstream_refs(root, upstream)
+    checks.append(main_check(root, heads["main"]))
     checks.append({"name": "branches", "ok": not todo,
                    "detail": (f"{len(todo)} not archived at their upstream tip, e.g. "
-                              f"{', '.join(sorted(todo)[:5])}: run `archive.py branches --push`") if todo
+                              f"{', '.join(sorted(todo)[:5])}: run `research_archive.py branches --push`") if todo
                    else f"all {len(heads)} upstream branches and the pull request heads no branch "
                         "contains are archived at their current tips"})
 
@@ -405,7 +403,7 @@ def record(out: Path, checks: list[dict[str, Any]], now: str) -> bool:
     dump(out / "READY.json", {"checked_at": now, "ready": ok, "checks": checks,
                               "not_carried": list(NOT_CARRIED)})
     lines = [f"# Can {NAME} be deleted?", "",
-             f"**{'Yes' if ok else 'Not yet'}** (checked {now} by `research/_mirror/archive.py ready`).", ""]
+             f"**{'Yes' if ok else 'Not yet'}** (checked {now} by `platform/ci/research_archive.py ready`).", ""]
     lines += [f"- {'✅' if c['ok'] else '❌'} **{c['name']}**: {c['detail']}" for c in checks]
     lines += ["", "Lost on deletion whatever this says, because nothing can copy them:", ""]
     lines += [f"- {item}" for item in NOT_CARRIED]
@@ -432,7 +430,7 @@ def token_query() -> Query | None:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--upstream", default=mirror.UPSTREAM_URL)
+    parser.add_argument("--upstream", default=UPSTREAM_URL)
     parser.add_argument("--origin", default="origin")
     sub = parser.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("branches", help="archive every upstream branch here")
@@ -444,7 +442,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--record", type=Path, help="write READY.json and READY.md here")
     sub.add_parser("status", help="print the verdict last recorded on the meta branch")
     args = parser.parse_args(argv)
-    root = mirror.repo_root()
+    root = Path(git(Path.cwd(), "rev-parse", "--show-toplevel").strip())
     try:
         if args.cmd == "branches":
             todo = archive_branches(root, args.upstream, args.origin, args.push)
@@ -463,7 +461,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.cmd == "status":
             return status(root, args.origin)
         checks = ready(root, args.upstream, args.origin, token_query(), args.meta)
-    except (ArchiveError, mirror.MirrorError) as exc:
+    except ArchiveError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")

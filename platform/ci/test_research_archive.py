@@ -1,4 +1,4 @@
-"""Tests for archive.py against throwaway git repositories and a fake GraphQL API."""
+"""Tests for research_archive.py against throwaway git repositories and a fake GraphQL API."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import archive
+import research_archive as archive
 
 ENV = {**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t",
        "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t"}
@@ -79,16 +79,15 @@ class Branches(unittest.TestCase):
         self.assertEqual(self.archive(), {})
         self.assertIn("archive/research/doomed", archive.archived_refs(self.here, "origin"))
 
-    def test_main_check_needs_the_sync_and_the_history(self):
+    def test_main_check_needs_upstream_main_in_our_history(self):
         tip = sh(self.here, "rev-parse", "HEAD")
-        self.assertTrue(archive.main_check(self.here, tip, tip)["ok"])
-        self.assertIn("mirror.py sync", archive.main_check(self.here, tip, "0" * 40)["detail"])
+        self.assertTrue(archive.main_check(self.here, tip)["ok"])
         sh(self.work, "checkout", "-qb", "elsewhere")
         later = self.commit("later")
         self.push_up("elsewhere", "refs/heads/elsewhere")
         sh(self.here, "fetch", "-q", str(self.upstream), "elsewhere")
         self.assertIn("not in this repository's history",
-                      archive.main_check(self.here, later, later)["detail"])
+                      archive.main_check(self.here, later)["detail"])
 
     def test_a_moved_branch_is_moved_here(self):
         sh(self.work, "checkout", "-qb", "moving")

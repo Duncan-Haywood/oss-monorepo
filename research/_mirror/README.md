@@ -68,46 +68,18 @@ by the next sync. The action list is "Repository merge" in upstream's
    request, and merge it with a merge commit, never a squash. A squash would
    drop upstream history from `main`.
 
-## Keeping upstream ready to delete
-
-`mirror.py` carries `main` and its history. Everything else that lives only
-upstream is kept by `archive.py`, which
-[`research-archive.yml`](../../.github/workflows/research-archive.yml) runs
-every day:
-
-| Upstream | Here |
-|---|---|
-| branch `<name>` | branch `archive/research/<name>`, same commit |
-| a pull request head no branch contains | branch `archive/research-pull/<number>` |
-| pull requests, reviews, review threads, issues | JSON on the branch `archive/research-meta`, browsable from its `INDEX.md` |
-
-Archive branches are created or moved, never deleted, and `branch_cleanup.py`,
-`unlanded_work.py` and `slug_dupe.py` ignore `archive/*`.
-
-```
-python3 research/_mirror/archive.py status    # the last verdict, from the meta branch
-python3 research/_mirror/archive.py branches  # what is not archived yet (--push to push it)
-GITHUB_TOKEN=... python3 research/_mirror/archive.py ready --meta <export dir>
-```
-
-`ready` exits 0, and `READY.md` on the meta branch says **Yes**, only when
-upstream's current `main` is the commit last synced and is in this
-repository's history, every upstream
-branch is archived at its current tip, every pull request and issue is
-exported at its latest update, and none is still open. Deleting upstream
-then loses only what no tool can copy: stars, watchers and forks, the old
-Pages URL, and links to upstream pull requests from elsewhere on the web.
-
-## Cutting over
+## Cutting over, then archiving the upstream repository
 
 1. Point the scheduled routines at this repository instead of
-   `oss-research-monorepo` (done by the owner on 2026-10-16).
-2. Merge, close or move upstream's open pull requests, then run a final
-   `mirror.py sync` and land it with a merge commit.
-3. Run the Research archive workflow (or wait a day) and confirm
-   `archive.py status` says READY.
-4. Archive or delete `oss-research-monorepo`; that is the owner's call.
-   Archiving costs nothing and keeps old links working.
-5. A run removes `mirror.py` and `state.json`, keeps `archive.py`'s
-   README section as the record of where the old branches went, and from then
-   on work lands in `research/`.
+   `oss-research-monorepo`. Their `read ./prompt.md` reaches the master
+   prompt, which routes research runs to `prompts/research/`.
+2. Once upstream has stopped moving, run a final sync, land it, and confirm
+   `mirror.py check` exits 0 on `main`.
+3. Archive `oss-research-monorepo`, and never delete it. Its pull requests,
+   review threads, issues, unmerged branches and the links to them live only
+   there, and no sync carries them over.
+4. Delete `research/_mirror/` in a pull request. From then on, `research/` is
+   simply the research portfolio and is edited here.
+
+Do not edit mirrored files here before step 2. The next sync would overwrite
+the edit, and `check` reports it as drift until then.

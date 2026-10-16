@@ -2,14 +2,14 @@ name: Research archive
 
 # Keep oss-research-monorepo deletable at any moment, and say whether it is.
 #
-# mirror.py carries upstream `main` and its history into research/. Deleting
+# Upstream `main` and its history are already merged into research/. Deleting
 # the upstream repository would still lose its branches (623 on 2026-10-16, 64
 # with commits not on main) and its 618 pull requests with their reviews. This
 # job copies each upstream branch here as `archive/research/<name>`, exports
 # every pull request and issue as JSON to the branch `archive/research-meta`,
-# and records the verdict there as READY.md / READY.json. `archive.py status`
+# and records the verdict there as READY.md / READY.json. `research_archive.py status`
 # reads it back; the run summary shows it too. Details and tests:
-# research/_mirror/archive.py.
+# platform/ci/research_archive.py.
 #
 # On CLAUDE.md's "Automation" rule: the owner asked on 2026-10-16 for a way to
 # keep the upstream repository ready to delete whenever they choose, and chose
@@ -41,12 +41,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # mirror.py check proves upstream main is an ancestor of HEAD
+          fetch-depth: 0 # `ready` proves upstream main is an ancestor of HEAD
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Archive upstream branches
-        run: python3 research/_mirror/archive.py branches --push
+        run: python3 platform/ci/research_archive.py branches --push
       - name: Export pull requests and issues
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -62,14 +62,14 @@ jobs:
             git -C "$meta" checkout -q --orphan archive/research-meta
             git -C "$meta" rm -rqf .
           fi
-          python3 research/_mirror/archive.py export "$meta"
+          python3 platform/ci/research_archive.py export "$meta"
       - name: Check whether upstream can be deleted
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           meta="$RUNNER_TEMP/meta"
           rc=0
-          python3 research/_mirror/archive.py ready --meta "$meta" --record "$meta" || rc=$?
+          python3 platform/ci/research_archive.py ready --meta "$meta" --record "$meta" || rc=$?
           cat "$meta/READY.md" >> "$GITHUB_STEP_SUMMARY"
           # 1 is the answer "not yet", recorded above; 2 means it could not check.
           [ "$rc" -le 1 ]
