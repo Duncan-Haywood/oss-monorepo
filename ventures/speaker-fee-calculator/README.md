@@ -4,6 +4,8 @@ A free browser tool: **type the income you want from speaking, your overhead and
 keynote fee the year needs, a stacked quote with add-ons, a virtual price, and what each booking nets per hour.**
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/speaker-fee-calculator/
+
 After using this, you can **set a keynote or workshop fee you can defend** instead of guessing from what
 a peer once mentioned, and see whether raising the fee or booking more events gets you to the goal.
 

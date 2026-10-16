@@ -5,6 +5,8 @@ residential foam job from the board feet an attic-square-foot special cannot
 see, the cell (open, closed, or hybrid), the rim joists, and the ignition
 coating — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/spray-foam-bid-calculator/
+
 **After using this, you can now send a spray-foam price that includes board
 feet, the rim, and the coating**, which used to take a spreadsheet that still
 started from the coupon’s attic square feet.

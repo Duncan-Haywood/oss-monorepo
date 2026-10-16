@@ -5,6 +5,8 @@ shifts you need covered and your staff with availability, weekly hour limits and
 many shifts as possible, avoids overtime, respects rest gaps, and tells you which shifts it could not fill and why**.
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/
+
 After using this, you can now **build a week's schedule that nobody has to be moved around in, see which shifts are
 unfillable before the week starts, and find the people the week depends on**, which used to be an hour of spreadsheet
 shuffling on Sunday night.

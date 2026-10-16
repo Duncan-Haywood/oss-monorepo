@@ -23,6 +23,8 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+      BUDGET_EMAIL: ${{ vars.BUDGET_EMAIL }}
+      BUDGET_AMOUNT: ${{ vars.BUDGET_AMOUNT || '10' }}
       PASSPHRASE: ${{ secrets.TOFU_STATE_PASSPHRASE }}
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +38,7 @@ jobs:
           mkdir -p ../state
           tofu init -input=false
           tofu apply -input=false -auto-approve -state=../state/terraform.tfstate \
-            -var "name=${{ github.event.repository.name }}"
+            -var "name=${{ github.event.repository.name }}" -var "budget_email=${BUDGET_EMAIL}" -var "budget_amount=${BUDGET_AMOUNT}"
           echo "Live at $(tofu output -raw url)" >> "$GITHUB_STEP_SUMMARY"
       - name: Commit encrypted state
         run: |

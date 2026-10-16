@@ -2,6 +2,8 @@
 
 After using this, you can now **answer customer email from a shared inbox you host yourself**, with status, notes, reply targets and saved replies, instead of paying a help desk per agent per month or sharing a Gmail login.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/support-desk/
+
 Two parts, both free and MIT:
 
 - **`index.html`**: paste a customer email and see its priority guess, the reasons, your first-reply target and which saved replies match. Runs in the browser; nothing is uploaded.

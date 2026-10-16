@@ -9,6 +9,8 @@ for holidays, and an optional single-elimination play-off bracket seeded from th
 standings you type. Exports a CSV, calendar (.ics) files for the league or one
 team, a plain-text version to paste into a group chat, and a share link that carries the whole setup in the URL fragment (never sent to any server) so a co-organiser opens the same league in one click. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - circle-method rounds with byes for odd leagues and home/away built
@@ -41,5 +43,7 @@ MIT licence, see `LICENSE`.
 **Pool play.** For a tournament, "Build pool play" splits the teams (listed best seed first) into 2 or more pools by snake draft, builds a validated round robin for each pool on your dates, courts, blackouts and time slots, and, when you type results, ranks each pool and seeds the play-off winners first, then runners-up (`splitPools`, `buildPoolPlay`, `poolAdvancers` in `calc.mjs`). Each pool uses its own courts, so pools never compete for a court.
 
 **Play-off race.** With results typed and a play-off size set, the page lists who has clinched a place, who is out, and how many more points clinch it for everyone still alive. With 12 or fewer games left it works through every win/draw/loss outcome (`playoffRace` in `calc.mjs`, cross-checked against brute force in the tests); with more it uses safe bounds that never call a team clinched or out wrongly. Ranked on points only, with ties on points counted against the team, so goal difference can only help a team shown as alive.
+
+**Swiss system.** For chess clubs, darts, board games and esports, "Pair next round" takes the players (best seed first) and the finished games (`Ana 1 - 0 Ben`, equal numbers are a draw, `Cy bye`) and pairs the next round Dutch style: same-score players meet top half against bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours alternate. The table ranks by score then Buchholz, and the page suggests ceil(log2 n) rounds (`swissPairings`, `swissStandings`, `validateSwiss` in `calc.mjs`; checked for no rematches and one bye each from 4 to 16 players). Not FIDE-certified pairing: it does not implement every FIDE floater or colour rule, so use an arbiter-approved program for rated events.
 
 **Referees and officials.** List your referees, umpires or scorekeepers (one per line, with an optional team in brackets, weekdays and `max N`) and every match gets one, shared out evenly. An official never works a match involving their own team, is never on two matches at the same time, keeps to their weekdays and cap, and any match nobody can take is listed with the reason. The CSV, text and league web page gain an Official column (`parseOfficials`, `assignOfficials`, `validateOfficials` in `calc.mjs`).

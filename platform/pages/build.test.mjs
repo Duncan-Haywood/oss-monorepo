@@ -340,7 +340,8 @@ test('every hub link resolves to a file that exists', async () => {
   for (const href of hrefs) {
     // platform/deploy/build.mjs writes deploy/ after the site build (publish-branch.sh).
     if (href === 'deploy/' || href.startsWith('deploy/?app=') || href === 'dev/') continue;
-    await fs.access(hrefTarget(href, hub_, outDir));
+    // A fragment names a section of the target page, not a file.
+    await fs.access(hrefTarget(href.split('#')[0], hub_, outDir));
   }
 
   // The contents index is in-page anchors, which resolve to an element rather
@@ -5424,10 +5425,17 @@ test('the hub is a home for everything: apps, CLIs, research and self-deploy hav
     { slug: 'pinned-actions-check', title: 'Pinned actions check', description: 'CI check.', kind: 'cli' },
   ];
   const hub = renderHub(surfaces, 'https://example.test/', { researchCount: 461 });
-  assert.match(hub, /<nav class="overview"/);
-  assert.match(hub, /<strong>1<\/strong> browser tools/);
-  assert.match(hub, /<strong>461<\/strong> research projects/);
+  assert.match(hub, /<dl class="stats" id="overview">/);
+  assert.match(hub, /<dt>Browser tools<\/dt><dd><a href="#tools">1<\/a>/);
+  assert.match(hub, /<dt>Research projects<\/dt><dd><a href="#research">461<\/a>/);
   assert.match(hub, /href="research\/"/);
+  // The page opens on what the project is, then apps and research, and only
+  // then the browser-tool catalogue.
+  const at = (re) => hub.search(re);
+  assert.ok(at(/class="pillars"/) < at(/id="apps"/), 'the "what we do" section comes before the apps');
+  assert.ok(at(/id="apps"/) < at(/id="research"/), 'apps come before research');
+  assert.ok(at(/id="research"/) < at(/id="tools"/), 'research comes before the browser tools');
+  assert.ok(at(/id="tools"/) < at(/data-tool="ebay-fee-calculator"/), 'the calculators sit in the catalogue, not above it');
   assert.match(hub, /id="apps"[\s\S]*Dunning engine[\s\S]*deploy\/\?app=dunning-engine/);
   assert.match(hub, /id="clis"[\s\S]*Pinned actions check/);
   assert.ok(!/<h1>[^<]*Calculators/.test(hub), 'the headline names more than calculators');

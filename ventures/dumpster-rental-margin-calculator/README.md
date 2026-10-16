@@ -11,6 +11,8 @@ costs to cover and know before you send the quote whether your overage fee
 protects your margin or quietly erodes it, which used to take a guess at the
 scale house.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dumpster-rental-margin-calculator/
+
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. The deterministic calculation works with no
 account, API key, upload, or paid dependency.

@@ -8,6 +8,8 @@ deposit, splits a payout that straddles a month end into one journal per month, 
 a Shopify clearing account. Rows no rule recognises are journalled to an uncategorised account
 rather than dropped. The export is read locally and never uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shopify-payout-to-journal/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

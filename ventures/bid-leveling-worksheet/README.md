@@ -5,6 +5,8 @@ procurement teams: **paste a subcontractor bid comparison, price the excluded an
 unaddressed scope at your own estimate, and see whether the low bid is still the low
 bid.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bid-leveling-worksheet/
+
 After using this, you can now **compare bids on the same scope and catch the cheap bid
 that left out controls, permits or rigging**, which used to mean an afternoon of
 spreadsheet formulas per trade.

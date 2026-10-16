@@ -1,0 +1,32 @@
+{
+  "slug": "locksmith-bid-calculator",
+  "name": "Locksmith service call",
+  "group": "Specialty & remediation",
+  "summary": "Lockouts, rekeys and lock installs priced from on-site and drive minutes, parts and trip fee.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 90,
+  "burdenRate": 0,
+  "overheadRate": 15,
+  "targetMargin": 30,
+  "tripFee": 35,
+  "items": [
+    {
+      "label": "On-site labor (rekey / install)",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.5,
+      "materialPerUnit": 56,
+      "source": "laborMinutes 30; parts $40 x (1 + 40% markup) = $56 (DEFAULTS in calc.mjs, index.html). Hourly rate $90 is the specialist's billing rate applied to time, with no payroll burden"
+    },
+    {
+      "label": "Round-trip drive",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.3333,
+      "materialPerUnit": 0,
+      "source": "travelMinutes 20 round trip billed at the hourly rate (DEFAULTS in calc.mjs); the specialist uses minutes, not miles"
+    }
+  ],
+  "specialistModels": "After-hours emergency premium on billed time, a 4% callback reserve, an $89 minimum service charge floor, and a daily income gap check."
+}

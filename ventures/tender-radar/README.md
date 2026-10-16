@@ -5,6 +5,8 @@ need to review public tender listings without spending an afternoon in a
 portal. Paste a CSV exported from a tender portal, filter by your trade and
 minimum value, and download a shortlist ordered by deadline.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/tender-radar/
+
 The v0 does not fetch portals, submit bids, or generate eligibility advice. The
 contractor verifies every source listing, requirement, deadline, and declaration
 before acting.

@@ -7,6 +7,8 @@ Premiere Pro, DaVinci or Audacity marker exports into a description-ready list, 
 chapters.json, ffmpeg chapter metadata or a WebVTT chapters track. The text is read locally and
 never uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/youtube-chapters-check/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

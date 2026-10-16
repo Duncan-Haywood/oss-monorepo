@@ -6,6 +6,8 @@ mile after gas, maintenance, and a prorated share of insurance** — the cost
 the app screen never subtracts — plus an optional self-employment tax
 reserve and a solver for the gross pay needed to hit an hourly take-home goal.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/gig-driver-net-pay-calculator/
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts.

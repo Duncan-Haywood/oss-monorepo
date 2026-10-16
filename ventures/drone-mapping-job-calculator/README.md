@@ -4,6 +4,8 @@ A browser worksheet for Part 107 pilots quoting aerial mapping and
 photogrammetry survey work. Static ES modules, no build step, no dependencies,
 no network requests.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/drone-mapping-job-calculator/
+
 - **[`index.html`](index.html)** — the calculator.
 - **[`how-much-to-charge-for-drone-mapping.html`](how-much-to-charge-for-drone-mapping.html)** —
   a worked 100-acre job, line by line.

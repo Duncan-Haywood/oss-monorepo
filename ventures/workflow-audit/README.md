@@ -5,6 +5,8 @@ checks over `.github/workflows` and merges the findings into one
 severity-ranked report: job summary, JSON, Markdown or SARIF for Code
 Scanning. Nothing is uploaded and it makes no network calls.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/workflow-audit/
+
 ## Why use this instead of what you have today
 
 | Option | Trade-off |

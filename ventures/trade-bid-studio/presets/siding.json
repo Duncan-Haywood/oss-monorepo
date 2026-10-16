@@ -1,0 +1,67 @@
+{
+  "slug": "siding-bid-calculator",
+  "name": "Siding",
+  "group": "Exterior & roofing",
+  "summary": "Re-siding priced by net wall squares, stories, tear-off, housewrap, openings and trim by the linear foot.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 0.75,
+  "minOnSiteHours": 4,
+  "hourlyWage": 32,
+  "burdenRate": 34,
+  "overheadRate": 18,
+  "targetMargin": 28,
+  "milesOneWay": 14,
+  "tripFee": 85,
+  "items": [
+    {
+      "label": "Tear off existing siding",
+      "unit": "square",
+      "qty": 17.24,
+      "hoursPerUnit": 2.2,
+      "materialPerUnit": 0,
+      "source": "Default walls 40x18 + 40x10 + 28x14 + 28x14 = 1,904 sq ft less 180 sq ft openings = 17.24 net squares (index.html); tear-off 2 h/square on squares x 1.10 waste (calc.mjs); no material"
+    },
+    {
+      "label": "Housewrap / weather barrier",
+      "unit": "square",
+      "qty": 17.24,
+      "hoursPerUnit": 0.45,
+      "materialPerUnit": 38,
+      "source": "HOUSEWRAP_HOURS_PER_SQUARE 0.45 (calc.mjs); housewrap $0.38/sq ft x 100 (index.html)"
+    },
+    {
+      "label": "Install vinyl siding, 2 stories",
+      "unit": "square",
+      "qty": 17.24,
+      "hoursPerUnit": 6.683,
+      "materialPerUnit": 203.5,
+      "source": "4.5 h/square x 1.10 waste x 1.35 two-story multiplier (STORY_MULTIPLIERS); $185/square x 1.10 waste (index.html; MATERIAL_PRESETS.vinyl)"
+    },
+    {
+      "label": "Work around openings (windows + doors)",
+      "unit": "opening",
+      "qty": 12,
+      "hoursPerUnit": 0.35,
+      "materialPerUnit": 0,
+      "source": "openingCount 12 (index.html) x HOURS_PER_OPENING 0.35 (calc.mjs)"
+    },
+    {
+      "label": "Trim: starter, corners, J-channel, undersill",
+      "unit": "linear ft",
+      "qty": 496,
+      "hoursPerUnit": 0.004863,
+      "materialPerUnit": 1.973,
+      "source": "136 + 72 + 28 + 220 + 40 lf (index.html) at ACCESSORY_PRESETS rates: 2.412 h and $978.60 total, averaged per lf"
+    },
+    {
+      "label": "Dumpster (tear-off)",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 525,
+      "source": "dumpsterCost default $525 (index.html)"
+    }
+  ],
+  "specialistModels": "Per-elevation wall areas, material presets with their own waste and tear-off rates, story multipliers, travel time at 35 mph, and scaffold and soffit/fascia add-ons."
+}

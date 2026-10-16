@@ -2,6 +2,8 @@
 
 Independent fire-extinguisher and life-safety-equipment inspection route operators can use this free browser-local calculator to find real monthly profit for one customer site — after materials cost for recharge, hydrostatic testing, and replacement units, tag cost, drive time and mileage, and a monthly recordkeeping cost — then roll a list of sites up into monthly route profit and check it against an income goal. **After using this, you can tell which sites on your certified-maintenance route are actually worth keeping, which used to take a spreadsheet and a guess about how much a "typical" recharge or replacement rate was quietly costing you.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fire-extinguisher-inspection-route-margin/
+
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.
 
 ## Why an extinguisher count is the wrong number to judge a site by

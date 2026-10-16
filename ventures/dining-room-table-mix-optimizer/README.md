@@ -2,6 +2,8 @@
 
 A free browser tool for restaurant, café and bar owners: **enter your dining floor, the table types you can buy, and who actually walks in (party sizes and how long each stays), and get the number of 2-tops, 4-tops and 6-tops that seats the most guests.** It reports the extra guests a service with a standard error, the parties no longer turned away, and what that is worth a month. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dining-room-table-mix-optimizer/
+
 After using this, you can **stop buying a room of four-tops by habit**: see what each table type is worth in your room, and know when one more table of a type stops helping.
 
 ## Model

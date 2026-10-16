@@ -8,6 +8,8 @@ total, and rows downloaded twice (QIF has no transaction ID). It gives a line nu
 writes a repaired file, optionally with dates rewritten to a four-digit year in the order you
 confirm. The file is read locally and never uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/qif-file-check/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

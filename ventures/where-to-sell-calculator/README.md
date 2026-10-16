@@ -9,6 +9,8 @@ month. Then it asks the question a fee table cannot: **how often does it
 actually sell there**, and what is one listing worth per month of shelf once
 you count that.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/
+
 **Depop and Facebook Marketplace** (added 2026-10-16, both off by default; each
 opens its dedicated calculator with the item already filled in) join
 **Reverb, TikTok Shop, Whatnot, Poshmark and StockX** as more channels,

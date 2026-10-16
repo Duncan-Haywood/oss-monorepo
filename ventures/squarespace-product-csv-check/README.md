@@ -5,6 +5,8 @@ products by CSV: **paste or drop the file and see every problem with its line nu
 the import fails or quietly creates the wrong products, then download a cleaned copy.** The
 file is read in the browser; nothing is uploaded and no login or API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/squarespace-product-csv-check/
+
 After using this, you can now **find the variant row that Squarespace would read as a new
 product, the SKU used twice, the blank price, the `$24.00` the importer rejects, On Sale with no
 Sale Price, the Yes/No flag spelled `yes`, image addresses separated by commas and the SKU Excel

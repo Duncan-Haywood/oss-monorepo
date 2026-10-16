@@ -6,6 +6,8 @@ and Standard Webhooks (Svix, Clerk, Resend). When the signature fails it tries t
 usual culprits (JSON re-serialised compact or pretty, trailing newline, CRLF/LF, secret
 with whitespace, `whsec_` used in the wrong form) and names the one that matches.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/webhook-signature-debugger/
+
 [`index.html`](index.html) runs in a browser using Web Crypto. Nothing is uploaded and
 the page makes no network calls. [`how-to-verify-webhook-signatures.html`](how-to-verify-webhook-signatures.html)
 is the checklist for writing a correct verifier.

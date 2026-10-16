@@ -4,6 +4,8 @@ A free browser calculator for independent towing and roadside operators: **shoul
 motor-club (Agero, Urgent.ly, Honk, AAA-contractor …) dispatch, or wait for a cash call?**
 Everything is typed by you; nothing is uploaded and nothing about any club's terms is assumed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tow-motor-club-call-calculator/
+
 You get the **cost of the job, profit, profit per truck-hour, break-even payout, minimum
 acceptable payout and an accept/decline verdict** against a margin threshold you type and the
 profit per hour you expect from a cash call, a **deadhead-miles by wait-minutes sensitivity

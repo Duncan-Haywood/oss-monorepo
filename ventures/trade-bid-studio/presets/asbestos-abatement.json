@@ -1,0 +1,55 @@
+{
+  "slug": "asbestos-abatement-bid-calculator",
+  "name": "Asbestos abatement",
+  "group": "Specialty & remediation",
+  "summary": "Asbestos removal priced by containment class, crew production, containment setup, air samples and disposal.",
+  "fit": "partial",
+  "crewSize": 3,
+  "hourlyWage": 38,
+  "burdenRate": 0,
+  "overheadRate": 0,
+  "targetMargin": 30,
+  "items": [
+    {
+      "label": "Class I removal (friable), crew of 3 with supervisor",
+      "unit": "sq ft",
+      "qty": 400,
+      "hoursPerUnit": 0.01852,
+      "materialPerUnit": 1.074,
+      "source": "PRODUCTION_SQFT_PER_HOUR.classI 18 sq ft per worker-hour / crewSize 3 = 1/54 crew-hours per sq ft (calc.mjs); materialPerUnit carries the supervisor: $58/hr (supervisorHourlyRate) over elapsed hours = $58/54 per sq ft; no burden or overhead in the specialist"
+    },
+    {
+      "label": "Containment build and teardown (negative air, poly, 3-stage decon)",
+      "unit": "area",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 950,
+      "source": "CONTAINMENT_SETUP_COST_PER_AREA.classI $950, containmentAreas 1 (calc.mjs DEFAULTS)"
+    },
+    {
+      "label": "Air monitoring samples",
+      "unit": "sample",
+      "qty": 6,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 65,
+      "source": "airMonitoringSamples 6 x airMonitoringCostPerSample $65 (calc.mjs DEFAULTS, index.html)"
+    },
+    {
+      "label": "Asbestos waste disposal",
+      "unit": "cu yd",
+      "qty": 3,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 145,
+      "source": "wasteVolumeCubicYards 3 x disposalFeePerCubicYard $145 (calc.mjs DEFAULTS)"
+    },
+    {
+      "label": "NESHAP / local notification permit",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 275,
+      "source": "requiresPermit true, permitFee $275 (calc.mjs DEFAULTS)"
+    }
+  ],
+  "specialistModels": "Class I/II/III production rates and containment costs, a supervisor billed on elapsed time, a rush surcharge, a $650 minimum job fee, and a comparison against a flat per-square-foot quote."
+}

@@ -4,6 +4,8 @@ A free browser calculator for the legal deadline on a departing employee's
 final paycheck, by US state and separation type. Entirely client-side;
 nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/final-paycheck-deadline-calculator/
+
 After using this, you can now **see the actual calendar date a final
 paycheck is legally due, for the state and separation type that applies**
 — which used to take reading a payroll-compliance blog's state table and

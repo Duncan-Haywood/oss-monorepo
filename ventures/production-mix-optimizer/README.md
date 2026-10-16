@@ -8,6 +8,8 @@ one more unit of each bottleneck is worth and for how long, charges each
 product for the production it crowds out, and compares the plan with two
 rule-of-thumb plans. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/production-mix-optimizer/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, a two-phase simplex (Bland's rule), branch and bound on

@@ -4,6 +4,8 @@ A free tool that scans your own JavaScript/TypeScript, Python, Go and Java
 source for the JWT mistakes that let an attacker forge a token your server will
 trust. Each finding prints `file:line`, the risk and the exact fix.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/jwt-verification-misuse-check/
+
 | Type | What it flags |
 | --- | --- |
 | `jwt-decode-without-verify` | `jwt.decode`, Go `ParseUnverified`, Java `JWT.decode`, python-jose `get_unverified_claims`: claims read, signature never checked |

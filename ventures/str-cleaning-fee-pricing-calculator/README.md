@@ -4,6 +4,8 @@ A free browser calculator for Airbnb and VRBO hosts: **charge a separate
 cleaning fee, or roll it into the nightly rate?** Entirely client-side;
 nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/str-cleaning-fee-pricing-calculator/
+
 After using this, you can now **see your profit on 1 to 14 night stays under
 each structure, the fee that actually covers your cleaner after platform fees,
 and the shortest stay that makes money**, which used to mean a spreadsheet.

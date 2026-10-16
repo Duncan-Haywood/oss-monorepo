@@ -4,6 +4,8 @@ A free browser tool for contractors and small employers: **type the values from 
 your estimated experience mod, the premium it adds or saves, and what each claim costs you per year and over the three years it counts.** Nothing is
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/experience-mod-calculator/
+
 After using this, you can now **see which claim is driving your x-mod and what one more claim would do before you bid work that asks for a mod under
 1.00**, which used to mean waiting for the bureau's worksheet or paying a broker to run it.
 

@@ -4,6 +4,8 @@ A free browser tool for HVAC, plumbing, electrical and appliance technicians and
 **paste your parts list and what your past jobs used, and get the stock list that finishes the most jobs on the first
 visit** for the money and shelf space you have. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/service-van-stock-optimizer/
+
 After using this, you can now **see which parts earn their shelf space, which are dead stock, and what a return trip to the
 supply house really costs you**, which used to be a hunch about what "always" gets used.
 

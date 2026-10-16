@@ -15,6 +15,8 @@ whether **Walmart Connect extra units still cover last-click ACOS**,
 and whether **matching a lower offer still beats holding the list
 after Buy Box take**.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/walmart-marketplace-calculator/
+
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
 an estimate of the fees Walmart will charge: enter the rates from your

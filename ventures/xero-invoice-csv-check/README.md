@@ -6,6 +6,8 @@ problem with its line number before the import fails or posts the wrong thing, t
 cleaned copy or a set of import-sized files.** The file is read in the browser; nothing is
 uploaded and no login or API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/xero-invoice-csv-check/
+
 After using this, you can now **find the date written in two different orders, the invoice whose
 second line has a different due date, the Account Code that is really an account name, the Tax Type
 typed as `20%`, the invoice number Excel turned into `1.00E+12` and the date saved as `46300`,

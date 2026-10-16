@@ -6,6 +6,8 @@ files with the highest total net that can still be delivered on time, the order 
 declined file would earn a place, and what first-come, biggest-fee and best-per-hour acceptance leave behind. Browser
 page or zero-dependency CLI. Works for editors, transcribers and any solo professional paid per job with fixed due dates.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/translation-job-picker/
+
 ```
 node cli.mjs pla jobs.csv --hours-per-day 6 --booked 4 --booked-due 2 --json
 cat jobs.csv | node cli.mjs plan - --hours-per-day 7

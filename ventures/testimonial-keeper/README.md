@@ -2,6 +2,8 @@
 
 After using this, you can now **collect customer testimonials with a link, approve the ones you want, and show them as a wall on your own site**, on a server you own. That used to mean a monthly subscription to a testimonial service that keeps your customers' words behind its own login.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/testimonial-keeper/
+
 Two parts, both free and MIT:
 
 - **`index.html`**: the product page with a live demo of the embeddable wall (clearly labelled sample data). Runs in the browser; nothing is uploaded.

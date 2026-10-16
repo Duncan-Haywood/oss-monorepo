@@ -8,6 +8,8 @@ booking windows (0-2, 3-13, 14-27, 28+ days ahead), and projects a
 monthly/annual estimate from a stated trip frequency. Entirely client-side;
 nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/turo-host-payout-calculator/
+
 After using this, you can now **see the exact dollar payout Turo's plan and
 booking-window choice cost or earned you on a specific trip**, which used to
 mean reading Turo's own host-share tables and doing the percentage math by

@@ -7,6 +7,8 @@ under-sink RO, the brine drain, haul-away of the old unit, and a brine
 receptacle as their own hours — and shows the margin before the price
 goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/water-softener-bid-calculator/
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts. Not yet deployed to a public URL —

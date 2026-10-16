@@ -1,0 +1,79 @@
+{
+  "slug": "french-drain-bid-calculator",
+  "name": "French drains",
+  "group": "Landscaping & outdoor",
+  "summary": "French drains priced per trench foot plus outlet, catch basins, downspout ties, crossings and lawn restore.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 42,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 30,
+  "items": [
+    {
+      "label": "Trench, 4 in perforated pipe, gravel and fabric, 18 in deep",
+      "unit": "linear ft",
+      "qty": 40,
+      "hoursPerUnit": 0.12,
+      "materialPerUnit": 8.15,
+      "source": "(0.12 h/ft + 0 pipe premium) x soil factor 1 (suggestedDepthKit shallow, suggestedPipeKit four, suggestedSoilKit dirt; index.html); pipe $2.80 + gravel $4.50 + fabric $0.85 per ft (index.html); 40 ft default"
+    },
+    {
+      "label": "Daylight outlet to grade",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 1.5,
+      "materialPerUnit": 0,
+      "source": "hoursOutlet 1.5, outlet kit $0 (suggestedOutletKit daylight; index.html)"
+    },
+    {
+      "label": "Catch basin",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 1.2,
+      "materialPerUnit": 165,
+      "source": "hoursCatchBasin 1.2, catch-basin kit $165 (index.html); unchecked by default"
+    },
+    {
+      "label": "Downspout tie-in",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.6,
+      "materialPerUnit": 45,
+      "source": "hoursDownspout 0.6, downspout-tie kit $45 (index.html); unchecked by default"
+    },
+    {
+      "label": "Driveway or walk crossing",
+      "unit": "linear ft",
+      "qty": 0,
+      "hoursPerUnit": 0.35,
+      "materialPerUnit": 28,
+      "source": "hoursDrivewayPerFoot 0.35, driveway patch $28/ft (index.html); unchecked by default"
+    },
+    {
+      "label": "Extra solid pipe to outlet",
+      "unit": "linear ft",
+      "qty": 0,
+      "hoursPerUnit": 0.08,
+      "materialPerUnit": 2.4,
+      "source": "hoursSolidPerFoot 0.08, solid pipe $2.40/ft (index.html); 0 ft default"
+    },
+    {
+      "label": "Lawn restore, seed or sod",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.5,
+      "materialPerUnit": 120,
+      "source": "hoursLawn 1.5, lawn restore $120 (index.html); checked by default"
+    },
+    {
+      "label": "Trip, site, spoils dump and truck",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.5,
+      "materialPerUnit": 180,
+      "source": "trip/setup 1 h + site/travel 0.5 h; dump/spoils $85 + travel, truck, recovery $95; permit $0 (index.html)"
+    }
+  ],
+  "specialistModels": "Depth tiers, 6 in pipe premium, clay and rock soil hour factors with bigger spoils fees, and drywell or storm tie-in outlets."
+}

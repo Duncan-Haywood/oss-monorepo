@@ -73,6 +73,7 @@ INGEST_KEY=$(openssl rand -hex 16) ADMIN_KEY=$(openssl rand -hex 16) \
     <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. It can miss errors, group unrelated ones or drop events under load, and is not a substitute for monitoring you depend on; nothing here is legal, tax, or financial advice. You are the operator of your server: you are responsible for what your app sends it, for securing the keys, for backups, and for the privacy rules where you and your users live. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
     <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
   </footer>
+    <p class="note">Part of the <a href="../self-hosted-saas-stack/">self-hosted SaaS stack</a>: 27 open-source tools you run yourself.</p>
   </main>
   <script type="module">
     import { ingest, newState, list, parseStack, fingerprint } from "./engine.mjs";

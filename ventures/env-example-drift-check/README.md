@@ -8,6 +8,8 @@ naming every variable the code reads that the example file never
 mentions, and every variable the example file declares that no code path
 reads anymore.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/
+
 **What it is not:** a secrets scanner, a `.env`-format linter, or a
 compliance verdict. It never reads or reports a *value* on either side —
 only variable *names* — and it makes no claim about whether your

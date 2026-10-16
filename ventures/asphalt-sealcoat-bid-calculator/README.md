@@ -5,6 +5,8 @@ parking-lot job the way the trade actually loses money when they skip it —
 square feet times coats and coverage, then oil-spot primer, crack fill,
 striping, and the drive — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/asphalt-sealcoat-bid-calculator/
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts. Not yet deployed to a public URL —

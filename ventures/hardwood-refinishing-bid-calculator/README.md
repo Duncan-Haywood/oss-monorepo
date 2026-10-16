@@ -5,6 +5,8 @@ sand-and-finish or screen-and-recoat job from the parts a published
 per-square-foot number cannot see — stair treads, closets, stain, and an extra
 coat for a color change — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hardwood-refinishing-bid-calculator/
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts. Not yet deployed to a public URL —

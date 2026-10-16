@@ -4,6 +4,8 @@ A free browser calculator for homeowners with spare cash: **put the same money t
 and invest, pay the loan down faster, or lump-sum and recast) and see what you hold after tax when the
 original term ends**, plus the investment return at which investing and prepaying tie. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mortgage-extra-payment-vs-invest-calculator/
+
 After using this, you can **see the break-even return behind "pay off the mortgage or invest"** on your own
 loan, which used to mean a hand-built amortisation spreadsheet with an investment column.
 

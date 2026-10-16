@@ -12,6 +12,7 @@ export ARM_CLIENT_ID=... ARM_CLIENT_SECRET=... ARM_TENANT_ID=... ARM_SUBSCRIPTIO
 export TF_ENCRYPTION="$(sed 's/__PASSPHRASE__/choose-a-long-passphrase/' encryption.hcl.tmpl)"
 tofu init
 tofu apply -var name=my-site -state=../state/terraform.tfstate
+# optional: -var budget_email=you@example.com -var budget_amount=10   (a monthly budget alert, see budget.tf)
 tofu destroy -var name=my-site -state=../state/terraform.tfstate   # tear down
 ```
 

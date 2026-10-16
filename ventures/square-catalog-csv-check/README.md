@@ -5,6 +5,8 @@ A free browser tool for Square sellers, bookkeepers and agencies who load an ite
 quietly creates duplicate items, then download a cleaned copy.** The file is read in the browser;
 nothing is uploaded and no login or API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/square-catalog-csv-check/
+
 After using this, you can now **find the Token Excel damaged, the SKU used twice, two variations
 with the same name, the Price written $24,00, the Archived column filled with "yes", the barcode
 with a wrong check digit and the SKU turned into `1.23457E+12`, and get a CSV with the mechanical

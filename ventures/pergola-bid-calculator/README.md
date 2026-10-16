@@ -5,6 +5,8 @@ residential pergola or patio cover from the posts a square-foot special
 cannot see, the shade layer, the height, and the attached ledger — and shows
 the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pergola-bid-calculator/
+
 **After using this, you can now send a pergola price that includes the posts,
 shade, and height**, which used to take a spreadsheet that still started from
 the coupon’s square feet.

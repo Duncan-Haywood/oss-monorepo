@@ -1,0 +1,55 @@
+{
+  "slug": "lawn-care-bid-calculator",
+  "name": "Lawn care (recurring mowing)",
+  "group": "Landscaping & outdoor",
+  "summary": "Recurring mowing stops priced per visit from turf, edging, beds and drive time.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 18,
+  "burdenRate": 25,
+  "overheadRate": 12,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Turf mowing",
+      "unit": "sq ft",
+      "qty": 10000,
+      "hoursPerUnit": 0.00005,
+      "materialPerUnit": 0,
+      "source": "10,000 sq ft at 20,000 sq ft/h (index.html default row; SERVICE_PRESETS in calc.mjs); no per-unit material in the specialist"
+    },
+    {
+      "label": "Edging and blowing",
+      "unit": "visit",
+      "qty": 1,
+      "hoursPerUnit": 0.4167,
+      "materialPerUnit": 0,
+      "source": "25 minutes at 60 minutes/h (index.html default row); no material in the specialist"
+    },
+    {
+      "label": "Bed weeding / detail",
+      "unit": "sq ft",
+      "qty": 350,
+      "hoursPerUnit": 0.0025,
+      "materialPerUnit": 0,
+      "source": "350 sq ft at 400 sq ft/h (index.html default row; SERVICE_PRESETS); no material in the specialist"
+    },
+    {
+      "label": "Drive time and fuel",
+      "unit": "visit",
+      "qty": 1,
+      "hoursPerUnit": 0.6,
+      "materialPerUnit": 8,
+      "source": "18 min one way x 2 = 0.6 h per visit (oneWayMinutes, index.html); fuel $8 per visit (fuelPerVisit). The specialist uses minutes, not miles"
+    },
+    {
+      "label": "Equipment share",
+      "unit": "visit",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 9.231,
+      "source": "Equipment share $40/month / (1 visit/week x 52/12 weeks) = $9.231 per visit (index.html, WEEKS_PER_MONTH in calc.mjs)"
+    }
+  ],
+  "specialistModels": "Prices the route as a monthly in-season contract with annual and 12-month smoothed totals, per-acre and per-visit checks, and a proposed-price margin test."
+}

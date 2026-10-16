@@ -4,6 +4,8 @@ A free browser tool (and small Node CLI) for anyone billing a fixed fee: **enter
 your cost budget, how much is physically done and what you have spent, and see whether the
 job finishes inside the price.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fixed-bid-overrun-forecaster/
+
 After using this, you can now **spot a fixed-price job that will lose money while you can
 still change scope, price or staffing**, which used to mean building an earned-value sheet
 per project.

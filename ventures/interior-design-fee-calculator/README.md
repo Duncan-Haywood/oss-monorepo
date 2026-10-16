@@ -2,6 +2,8 @@
 
 **Compare interior design fee models on one project, with scope creep priced in, and audit which fee model has actually paid you best.** Enter your design hours, site visits, procurement items and meetings, an expected and a stress overrun, your target hourly rate, and your rate for each model (hourly, flat, percent of project cost, per square foot, product margin, flat plus margin). Get each model's effective hourly, the overrun it can absorb before dropping under target, the fee you need and a walk-away fee. Paste past projects with fee model, fee and hours and see effective hourly by model. Browser page or zero-dependency CLI, for independent interior designers and small studios.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/interior-design-fee-calculator/
+
 After using this, you can now pick a fee structure for a new project knowing what it earns per hour if the project runs 25 or 50 percent long, which used to take a spreadsheet and a hope that this client would be different.
 
 ```

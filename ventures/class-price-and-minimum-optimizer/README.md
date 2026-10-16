@@ -2,6 +2,8 @@
 
 A free browser tool for tutoring centers, music schools, studios and workshops: **enter the price and average sign-ups from past terms, plus seats, the minimum to run and what a class costs, and get the per-seat price with the highest expected profit per class offered.** It shows the chance the class runs, the chance it fills, break-even seats and the gain over your current price. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/class-price-and-minimum-optimizer/
+
 ## Model
 
 - Sign-ups at a price are Poisson with mean `a * price^(-e)`. `e` is fitted by least squares on `ln(sign-ups)` against `ln(price)` over the past terms. A term marked `+` filled the room, so its true demand is unknown; it is left out of the fit. You can instead enter `e` yourself.

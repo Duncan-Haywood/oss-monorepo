@@ -6,6 +6,8 @@ scaffold versus swing stage, Type N versus historic lime, then lintels,
 replacement brick, and caulk — and shows the margin before the price
 goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tuckpointing-bid-calculator/
+
 **After using this, you can now** send a walk-away tuckpointing price
 that sees the joints and the access, **which used to take** matching a
 published $8 / sq ft smear special that treats a one-story ranch as the

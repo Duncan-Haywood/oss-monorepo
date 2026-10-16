@@ -5,6 +5,8 @@ amount to invoice at your rate — Markdown, CSV or JSON. After using this, a fr
 can send a client a readable work report in a minute, which used to mean reconstructing the week
 from memory.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/git-timesheet/
+
 ```
 git log --no-merges --since=2026-09-01 --pretty=format:'%H|%an|%aI|%s' | node cli.mjs --rate 90 --client Acme
 node cli.mjs --repo . --since 2026-09-01 --author "Ada" --format csv

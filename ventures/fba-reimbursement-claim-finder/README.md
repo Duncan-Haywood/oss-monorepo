@@ -4,6 +4,8 @@ A free browser tool for Amazon FBA sellers: **load your Inventory Ledger and Rei
 report and see which lost and damaged units look unreimbursed.** Files are read in the browser;
 nothing is uploaded and no Seller Central access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fba-reimbursement-claim-finder/
+
 After using this, you can now **see, per SKU, the lost and damaged units that were neither
 found nor reimbursed, what they are worth, the date each claim window closes, and a draft
 Seller Support case text**, which used to mean a spreadsheet join of two reports or a recovery

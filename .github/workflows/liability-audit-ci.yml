@@ -1,0 +1,47 @@
+name: liability-audit CI
+
+# Zero-dependency scanner + browser page. audit.test.mjs has a positive and a
+# negative fixture for every rule (the negatives are the false positives a
+# sweep of this repository found), cli.test.mjs covers scan/sweep/formats and
+# --fail-on against a real temp tree, page.test.mjs the page wiring.
+on:
+  pull_request:
+    paths:
+      - "ventures/liability-audit/**"
+      - ".github/workflows/liability-audit-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/liability-audit/**"
+      - ".github/workflows/liability-audit-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: liability-audit-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/liability-audit
+
+jobs:
+  test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run rules, CLI and page-wiring tests
+        run: node --test audit.test.mjs cli.test.mjs page.test.mjs
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs liability-audit
+      - name: Sweep every venture (report only, in the job summary)
+        run: node cli.mjs sweep .. --format md >> "$GITHUB_STEP_SUMMARY"

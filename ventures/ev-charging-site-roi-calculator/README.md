@@ -2,6 +2,8 @@
 
 A free browser tool for property owners, fleet managers and charging operators: **type the ports, costs, price and expected utilization of a Level 2 or DC fast charging site and get payback, NPV and IRR, plus the sessions per port per day and the price per kWh that break even.** It shows how much of revenue the utility's demand charge takes and how NPV moves with utilization, price and demand rate. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ev-charging-site-roi-calculator/
+
 After using this, you can **see whether a quote only works at a utilization you will not reach, and what to negotiate (price, demand rate, power cap, incentives) to fix it**, which a vendor's cost-only calculator does not show.
 
 ## Model

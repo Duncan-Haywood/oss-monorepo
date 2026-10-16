@@ -5,6 +5,8 @@ see what each one actually keeps** after tax, health premium, housing and travel
 unpaid weeks between assignments, plus what happens if the hospital cancels shifts and the taxable
 hourly rate a weaker offer would need to match the best one. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/travel-nurse-contract-comparison-calculator/
+
 After using this, you can now **tell whether the offer with the biggest weekly number is really the one
 that pays the most**, and what to ask the recruiter to put in writing (hours guarantee, stipend
 proration), which a recruiter's text message does not show.

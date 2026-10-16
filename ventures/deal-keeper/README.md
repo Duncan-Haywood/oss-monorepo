@@ -6,6 +6,8 @@ against deals that were open in the past**, and ranks the stale, slipping or
 stalled deals by the money at stake, so you know which call to make first.
 MIT, one Node process, no dependencies, state in a JSON file.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/deal-keeper/
+
 Try it on an export first: open `index.html` (nothing is uploaded; the page
 makes no network requests).
 

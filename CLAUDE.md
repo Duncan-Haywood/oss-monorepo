@@ -213,6 +213,7 @@ node --test platform/distribution/*.test.mjs
 node --test platform/llm/*.test.mjs
 node --test platform/devstats/*.test.mjs
 node --test platform/counter/*.test.mjs
+node --test platform/uitest/*.test.mjs        # browser half skips unless PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
 # No pytest/numpy? PY=$(python3 platform/ci/pyenv.py pytest numpy), then "$PY" -m pytest: some images split python3 from what pip/apt install into. gitops/tests has a few failures on clean main that depend on the image (`gh` preinstalled, test_ci_runner.py): run the failing test on origin/main before blaming your change.

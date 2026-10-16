@@ -5,6 +5,8 @@ A free browser tool for small-business owners offered a merchant cash advance or
 to that cost, how the same payback behaves over a different term, and how it compares with a bank loan.**
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/merchant-cash-advance-true-cost-calculator/
+
 After using this, you can now **turn a factor rate or a factoring fee into a comparable yearly cost before you
 sign**, which used to take a spreadsheet and an IRR function most owners do not have.
 

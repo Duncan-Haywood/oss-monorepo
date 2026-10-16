@@ -23,6 +23,8 @@ jobs:
       GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
       GCP_PROJECT: ${{ vars.GCP_PROJECT }}
       GCP_LOCATION: ${{ vars.GCP_LOCATION || 'US' }}
+      GCP_BILLING_ACCOUNT: ${{ vars.GCP_BILLING_ACCOUNT }}
+      BUDGET_AMOUNT: ${{ vars.BUDGET_AMOUNT || '10' }}
       PASSPHRASE: ${{ secrets.TOFU_STATE_PASSPHRASE }}
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +38,8 @@ jobs:
           mkdir -p ../state
           tofu init -input=false
           tofu apply -input=false -auto-approve -state=../state/terraform.tfstate \
-            -var "name=${{ github.event.repository.name }}" -var "project=${GCP_PROJECT}" -var "location=${GCP_LOCATION}"
+            -var "name=${{ github.event.repository.name }}" -var "project=${GCP_PROJECT}" -var "location=${GCP_LOCATION}" \
+            -var "billing_account=${GCP_BILLING_ACCOUNT}" -var "budget_amount=${BUDGET_AMOUNT}"
           echo "Live at $(tofu output -raw url)" >> "$GITHUB_STEP_SUMMARY"
       - name: Commit encrypted state
         run: |

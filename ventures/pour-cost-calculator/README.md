@@ -6,6 +6,8 @@ target the operator sets, and shows what a stated over-pour is really costing
 across a year of shifts. Nothing is uploaded; the arithmetic runs on the
 visitor's own device.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pour-cost-calculator/
+
 ```
 cd ventures/pour-cost-calculator && node --test "*.test.mjs"
 ```

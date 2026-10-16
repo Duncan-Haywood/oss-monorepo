@@ -1,0 +1,39 @@
+{
+  "slug": "stair-lift-bid-calculator",
+  "name": "Stair lift installation",
+  "group": "Specialty & remediation",
+  "summary": "Stair lifts priced per lift from rail type, chair, tread attachment, add-ons like folding rail, and travel.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 42,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Straight one-flight stair lift, perch seat, wood treads",
+      "unit": "lift",
+      "qty": 1,
+      "hoursPerUnit": 8.6,
+      "materialPerUnit": 2630,
+      "source": "Rail 3.5 h + set base 2.5 h, rail $2,200 (suggestedRailKit('straight-one')); chair 1.4 h, $350 (suggestedChairKit('perch'), the first option the page loads with); attach 1.2 h, $80 (suggestedAttachKit('wood')) in calc.mjs"
+    },
+    {
+      "label": "Travel miles",
+      "unit": "mile",
+      "qty": 8,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 3.2,
+      "source": "travelMiles 8 (index.html); 0.035 h/mile and $3.20/mile (suggestedExtraKit)"
+    },
+    {
+      "label": "Trip and site time",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2.6,
+      "materialPerUnit": 95,
+      "source": "hoursTrip 1.6 + siteHours 1.0 (suggestedExtraKit); travel & equipment $95 (index.html)"
+    }
+  ],
+  "specialistModels": "Rail, chair and attachment presets up to curved rails, folding rail, charge point, circuit, removal, permit and weather-kit add-ons, plus customer-supplied lift and expedited-access comparisons."
+}

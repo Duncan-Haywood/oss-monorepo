@@ -7,6 +7,8 @@ a pocket conversion, hollow slab versus hollow prehung versus
 solid-core versus French-or-barn, then paint, haul-away, and a new
 lockset — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/interior-door-bid-calculator/
+
 **After using this, you can now** send a walk-away interior-door price
 that sees the opening and the leaf, **which used to take** matching a
 published $150-a-door installed special that treats a hollow slab hang

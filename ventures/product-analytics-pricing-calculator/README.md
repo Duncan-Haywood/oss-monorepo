@@ -4,6 +4,8 @@ Price PostHog, Mixpanel, Plausible, Fathom and Umami Cloud side by side at your 
 event volume, see the 12-month spend under your growth rate, and find the volumes where the
 cheapest provider changes — before you build on one.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/product-analytics-pricing-calculator/
+
 ```
 node cli.mjs compare --events 30000000 --growth 6
 node cli.mjs compare --events 3000000 --provider mixpanel --budget 200   # CI gate: exit 1 over budget

@@ -6,6 +6,8 @@ does not.** It fits a diminishing-returns curve to each channel's own history, r
 spend, finds the split of the same total budget that earns most, and back-tests itself on your last weeks. Nothing
 is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ad-spend-saturation-optimizer/
+
 After using this, you can now **move budget from saturated channels to ones with headroom, see whether a channel's
 next dollar loses money at your margin, and know how much to trust the advice before you act on it**.
 

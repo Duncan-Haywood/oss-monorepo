@@ -1,0 +1,55 @@
+{
+  "slug": "sewer-hydrojet-bid-calculator",
+  "name": "Sewer hydro-jetting and drain cleaning",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Hydro-jet, cable and camera jobs priced from footage past the included run, access, roots and grease.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 38,
+  "burdenRate": 32,
+  "overheadRate": 18,
+  "targetMargin": 35,
+  "items": [
+    {
+      "label": "Hydro-jet pass, main sewer (first 50 ft)",
+      "unit": "pass",
+      "qty": 1,
+      "hoursPerUnit": 1.25,
+      "materialPerUnit": 45,
+      "source": "hoursJetBase 1.25 and jet water/nozzle/disposal $45 (index.html; suggestedWorkKit('combo') in calc.mjs)"
+    },
+    {
+      "label": "Camera warranty pass",
+      "unit": "pass",
+      "qty": 1,
+      "hoursPerUnit": 0.75,
+      "materialPerUnit": 35,
+      "source": "hoursCameraBase 0.75 and camera wear $35 (index.html; suggestedWorkKit('combo'))"
+    },
+    {
+      "label": "Line footage past the included 50 ft",
+      "unit": "linear ft",
+      "qty": 25,
+      "hoursPerUnit": 0.02,
+      "materialPerUnit": 0,
+      "source": "75 ft line - 50 ft included (index.html) at 0.02 h per extra foot; no material in the specialist for footage"
+    },
+    {
+      "label": "Trip/setup and site/travel time",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.25,
+      "materialPerUnit": 0,
+      "source": "hoursTrip 0.75 + siteHours 0.5 (index.html); 60 ft hose run is within the 80 ft included"
+    },
+    {
+      "label": "Travel, truck, dump fees",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 55,
+      "source": "travelAndEquipment default $55 (index.html)"
+    }
+  ],
+  "specialistModels": "Work-type and access presets (toilet pull, new cleanout, roof vent), root, grease and second-line adders, and hose run past what the truck covers."
+}

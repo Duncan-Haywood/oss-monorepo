@@ -31,7 +31,7 @@
         "name": "Should I offer a partial refund on eBay instead of taking the return?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "A partial refund keeps the item out and usually returns final-value fees only on the amount you send back. Taking the return refunds the whole order, often refunds fees, and still eats the outbound label, packaging, and return postage. On the calculator defaults ($40 item, $6 shipping, 13.25% final value fee, $12 cost, $5 outbound, $5 return label) a $15 partial leaves $8.59 and taking the return leaves -$11.00. That is arithmetic on your inputs, not advice to refuse a required return."
+          "text": "A partial refund keeps the item out and usually returns final-value fees only on the amount you send back. Taking the return refunds the whole order, often refunds fees, and still eats the outbound label, packaging, and return postage. On the calculator defaults ($40 item, $6 shipping, 13.6% final value fee, $12 cost, $5 outbound, $5 return label) a $15 partial leaves $8.38 and taking the return leaves -$11.00. That is arithmetic on your inputs, not advice to refuse a required return."
         }
       },
       {
@@ -39,7 +39,7 @@
         "name": "When does taking the eBay return beat a partial refund?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "When the concession is larger than the gap between completed-sale profit and return profit, after the percentage fees that come back on the refunded amount. On the defaults that ceiling is about $37.59. A $45 'just make it go away' offer loses to taking the return."
+          "text": "When the concession is larger than the gap between completed-sale profit and return profit, after the percentage fees that come back on the refunded amount. On the defaults that ceiling is about $37.44. A $45 'just make it go away' offer loses to taking the return."
         }
       },
       {
@@ -47,7 +47,7 @@
         "name": "Is a full refund without a return cheaper than a real return?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Usually no. Refunding the whole order and letting them keep the item loses the sourcing cost that a return recovers. On the defaults that path leaves -$18.30 — worse than the -$11.00 return — because the $12 item stays gone."
+          "text": "Usually no. Refunding the whole order and letting them keep the item loses the sourcing cost that a return recovers. On the defaults that path leaves -$18.40 — worse than the -$11.00 return — because the $12 item stays gone."
         }
       }
     ]
@@ -118,8 +118,8 @@
         <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
         <label>Partial refund you would offer <input id="partialRefundAmount" type="number" min="0" step="0.01" value="15"></label>
         <label>Buyer cases per month <input id="monthlyCases" type="number" min="0" step="1" value="4"></label>
-        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
-        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.6"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.40"></label>
         <label>Promoted listings (%) <input id="promotedRate" type="number" min="0" step="0.1" value="0"></label>
         <label>International fee (%) <input id="intlFeeRate" type="number" min="0" step="0.01" value="0"></label>
         <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
@@ -170,13 +170,13 @@
       the item back usually costs the outbound postage a second time.
     </p>
     <p>
-      On the defaults — $40 item, $6 shipping charged, 13.25% final value
-      fee, $0.30 fixed, $12 cost, $5 outbound, $1 pack, $5 return label,
-      100% of percentage fees refunded — a $15 partial keeps $8.59, taking
+      On the defaults — $40 item, $6 shipping charged, 13.6% final value
+      fee, $0.40 fixed, $12 cost, $5 outbound, $1 pack, $5 return label,
+      100% of percentage fees refunded — a $15 partial keeps $8.38, taking
       the return keeps −$11.00, and a full refund they keep leaves
-      −$18.30. The partial’s gap versus the return is $19.59 on this case
-      and $78.37 across four cases. The concession can rise to about
-      $37.59 before taking the return wins. Change the rates from your
+      −$18.40. The partial’s gap versus the return is $19.38 on this case
+      and $77.54 across four cases. The concession can rise to about
+      $37.44 before taking the return wins. Change the rates from your
       own statements.
     </p>
     <p>
@@ -194,11 +194,11 @@
   </section>
   <h2>Common questions</h2>
   <h3>Should I offer a partial refund on eBay instead of taking the return?</h3>
-  <p>A partial refund keeps the item out and usually returns final-value fees only on the amount you send back. Taking the return refunds the whole order, often refunds fees, and still eats the outbound label, packaging, and return postage. On the calculator defaults ($40 item, $6 shipping, 13.25% final value fee, $12 cost, $5 outbound, $5 return label) a $15 partial leaves $8.59 and taking the return leaves -$11.00. That is arithmetic on your inputs, not advice to refuse a required return.</p>
+  <p>A partial refund keeps the item out and usually returns final-value fees only on the amount you send back. Taking the return refunds the whole order, often refunds fees, and still eats the outbound label, packaging, and return postage. On the calculator defaults ($40 item, $6 shipping, 13.6% final value fee, $12 cost, $5 outbound, $5 return label) a $15 partial leaves $8.38 and taking the return leaves -$11.00. That is arithmetic on your inputs, not advice to refuse a required return.</p>
   <h3>When does taking the eBay return beat a partial refund?</h3>
-  <p>When the concession is larger than the gap between completed-sale profit and return profit, after the percentage fees that come back on the refunded amount. On the defaults that ceiling is about $37.59. A $45 'just make it go away' offer loses to taking the return.</p>
+  <p>When the concession is larger than the gap between completed-sale profit and return profit, after the percentage fees that come back on the refunded amount. On the defaults that ceiling is about $37.44. A $45 'just make it go away' offer loses to taking the return.</p>
   <h3>Is a full refund without a return cheaper than a real return?</h3>
-  <p>Usually no. Refunding the whole order and letting them keep the item loses the sourcing cost that a return recovers. On the defaults that path leaves -$18.30 — worse than the -$11.00 return — because the $12 item stays gone.</p>
+  <p>Usually no. Refunding the whole order and letting them keep the item loses the sourcing cost that a return recovers. On the defaults that path leaves -$18.40 — worse than the -$11.00 return — because the $12 item stays gone.</p>
 
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>

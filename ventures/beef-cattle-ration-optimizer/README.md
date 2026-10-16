@@ -7,6 +7,8 @@ every requirement at the lowest cost, the herd cost and buying list, what each
 requirement costs, and the price at which an unused feed would start to pay.
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/beef-cattle-ration-optimizer/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, a two-phase simplex (Bland's rule), shadow prices and

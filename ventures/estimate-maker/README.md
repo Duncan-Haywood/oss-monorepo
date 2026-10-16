@@ -4,6 +4,8 @@ After using this, you can send a clear estimate with good, better and best
 options in two minutes, which used to mean a paid field-service app or a Word
 template, and see which of your estimates you actually win.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/estimate-maker/
+
 Free, no account, no watermark, works offline. Everything runs in your browser;
 estimates are stored in `localStorage` on your device and never uploaded.
 

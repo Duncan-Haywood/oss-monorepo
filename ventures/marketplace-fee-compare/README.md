@@ -2,7 +2,9 @@
 
 **Which channel nets the most on this item?** Type one item once — price,
 landed cost, category, monthly order volume — and see net profit side by side
-on eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Poshmark, and your own Shopify store.
+on eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Depop, Facebook Marketplace, Poshmark, and your own Shopify store.
+
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/marketplace-fee-compare/
 
 Free, no signup, and nothing you type leaves the browser.
 
@@ -42,6 +44,8 @@ own-store row out as the yardstick, since it brings no buyers.
 | Walmart Marketplace | referral by category, 8–20% | — | — |
 | TikTok Shop | 6% US referral | — | — |
 | Mercari | 10% selling fee on item + buyer-paid shipping (current schedule) | — | — |
+| Depop (US) | 0% selling fee; 3.3% payment processing on item + buyer-paid shipping | $0.45 | — |
+| Facebook Marketplace (shipped) | 10% selling fee on the buyer-paid total, $0.80 minimum per shipped order (local pickup is free and not modelled) | — | — |
 | Poshmark | flat $2.95 under $15.00, 20% of the sale price from $15.00 (buyer pays the prepaid label, so shipping is ignored on both sides) | — | — |
 | Your own Shopify store | 2.9% payment processing | $0.30 | $39/mo Basic |
 
@@ -52,7 +56,7 @@ schedule; a seller's own statement wins, and the page says so.
 Three modelling decisions worth knowing about:
 
 - **Percentages are charged on the whole order**, item price plus any shipping
-  the buyer paid. That is how all seven actually bill, and it is the most common
+  the buyer paid. That is how every modelled channel actually bills, and it is the most common
   way a "free shipping" margin quietly goes negative.
 - **Subscriptions are spread over the seller's own monthly order count**, not
   ignored. Ignoring them is what makes a $39.99 Amazon plan look free at three
@@ -70,7 +74,7 @@ Shopify plan tiers, Walmart WFS.
 
 **Faire is excluded from the ranking on purpose.** It is wholesale: the buyer is
 a shop paying roughly half retail, and the economics turn on order size and
-reorder rate rather than one retail order. Ranking it beside seven retail
+reorder rate rather than one retail order. Ranking it beside the ten retail
 channels would produce a number that looks comparable and is not. It gets a
 pointer instead of a row.
 

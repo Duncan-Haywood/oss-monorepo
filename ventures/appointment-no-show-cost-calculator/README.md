@@ -8,6 +8,8 @@ the cost after refills and fees, the best overbooking level, the no-show fee tha
 breaks even, the most a reminder service can cost and still pay, and a
 sensitivity grid. Entirely client-side; no patient information is asked for.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-cost-calculator/
+
 After using this, you can **tell what your empty slots really cost and which lever
 (a fee, reminders or a little overbooking) is worth pulling first**.
 

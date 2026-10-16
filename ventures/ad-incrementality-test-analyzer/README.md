@@ -4,6 +4,8 @@ A free browser tool for anyone who runs ads: **paste sales by store or region, n
 start date, and get the incremental lift with an interval, incremental ROAS, profit after ad spend, and the smallest
 lift the test could have detected.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ad-incrementality-test-analyzer/
+
 After using this, you can now **tell how many extra sales a campaign really caused, how sure that is, and whether the
 spend paid back**, which used to take a marketing-science vendor or an analyst with R.
 

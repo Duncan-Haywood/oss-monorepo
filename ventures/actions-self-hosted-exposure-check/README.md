@@ -7,6 +7,8 @@ GitHub's own documented reason not to use self-hosted runners on a public
 repository, and the same category of risk the OpenSSF Scorecard project's
 `Dangerous-Workflow` check flags on public repositories, not a novel claim.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/actions-self-hosted-exposure-check/
+
 After using this, you can now **find every self-hosted job a fork can
 influence across a whole repository in one paste**, which used to take
 **opening each workflow file by hand and reasoning about which trigger

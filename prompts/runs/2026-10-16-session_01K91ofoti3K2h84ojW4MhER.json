@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01K91ofoti3K2h84ojW4MhER",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T23:41:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Consolidate: fee-calculator family (router task)",
+  "projects": [
+    "ebay-fee-calculator"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/ledger/session_gate.py",
+      "issue": "Gate says refresh gh-pages via publish-branch.sh first, but the session brief restricts pushes to the designated branch; I did not force-push gh-pages."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/ledger/session_gate.py",
+      "why": "Skipped gh-pages republish (outward-facing force-push to a branch other than the designated one); left for a session with explicit permission."
+    }
+  ],
+  "goal": null,
+  "notes": "Router's fee-calculator consolidation task was already largely done: marketplace-fee-compare is the shared hub, 7 of 8 channel calculators link it, and Reverb's exclusion is a documented decision. Shipped only a small README cross-link (eBay -> hub). Thin run; no usage data or deeper product work.",
+  "corrections": [],
+  "redteam": null
+}

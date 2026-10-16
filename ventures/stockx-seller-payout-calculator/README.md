@@ -2,6 +2,8 @@
 
 StockX sneaker, streetwear, and card resellers can use this free browser-local calculator to find real net payout and net profit for one sale — after the seller fee (which drops by Seller Level), the Fast Shipping discount, the payment processing fee, and outbound shipping cost — then roll a list of sales up into monthly profit and check it against a profit goal. **After using this, you can tell whether a sale actually paid, which used to take a spreadsheet and a guess about whether your seller-fee rate was still the one you typed in last time your level changed.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/stockx-seller-payout-calculator/
+
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.
 
 ## Why the sale price is the wrong number to judge a flip by
