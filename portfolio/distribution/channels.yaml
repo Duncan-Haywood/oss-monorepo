@@ -174,7 +174,7 @@ channels:
     code: platform/distribution/webext.mjs
     workflow: none (artifact only; the owner uploads a zip to each store by hand, once per tool)
     enabled_by: nothing in the tree is gated; building a package is always allowed. Uploading is the owner's step
-    what_it_posts: nothing automatically. `webext.mjs --build <slug> <dir>` writes a Manifest V3 extension (and a deterministic .zip) for any static venture page (1184 of 1251 today): a toolbar click opens the tool offline in a tab, no permissions requested, no remote code, inline scripts moved to files, MIT LICENSE and a README bundled. Loaded unpacked in Chromium and exercised end to end on shift-roster-builder on 2026-10-16
+    what_it_posts: 'nothing automatically. `webext.mjs --build <slug> <dir>` writes a Manifest V3 extension (and a deterministic .zip) for any static venture page (1184 of 1251 today): a toolbar click opens the tool offline in a tab, no permissions requested, no remote code, inline scripts moved to files, MIT LICENSE and a README bundled. Loaded unpacked in Chromium and exercised end to end on shift-roster-builder on 2026-10-16'
     dedupe: not applicable (no automated posting)
     terms_to_confirm_by_owner_when_enabling:
       - Chrome Web Store developer agreement (one-time registration fee) and its spam and repetitive-content policy: do not upload hundreds of near-identical listings; start with the few tools people return to weekly (shift-roster-builder, league-schedule-generator)
@@ -182,6 +182,18 @@ channels:
       - store descriptions and privacy answers: the package collects nothing (say so)
     owner_ask: create a Chrome Web Store developer account, then upload the zip for one tool at a time
     dry_run: node platform/distribution/webext.mjs
+  - id: github-actions
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/ghaction.mjs
+    workflow: none (the actions are committed files; `ghaction.mjs --check` fails when one is stale)
+    enabled_by: 'nothing in the tree is gated and no account or secret is needed. Anyone can already write `uses: duncan-haywood/oss-monorepo/platform/distribution/actions/<slug>@main`'
+    what_it_posts: nothing automatically. 18 stdlib-only `*-check` venture linters (Actions, Docker, Kubernetes, JWT, dependency-confusion checks) become reusable composite actions with `path`, `fail-on-risk` and `format` inputs; each runs the venture's own check.py from the action checkout, with no network calls
+    dedupe: not applicable (deterministic files)
+    terms_to_confirm_by_owner_when_enabling:
+      - optional: GitHub Marketplace listing needs a dedicated repository with action.yml at its root and the Marketplace developer agreement; not required for `uses:` to work
+    owner_ask: none to use them; optionally mirror one action per repository for a Marketplace listing
+    dry_run: node platform/distribution/ghaction.mjs
   - id: android-play-store
     rung: artifact
     built: 2026-10-16
