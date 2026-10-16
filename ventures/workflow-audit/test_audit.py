@@ -117,6 +117,15 @@ jobs:
         self.assertTrue(res and all(r["locations"][0]["physicalLocation"]["region"]["startLine"] >= 1 for r in res))
         self.assertEqual(audit.main(["/nonexistent-dir-xyz"]), 1)
 
+    def test_deploy_without_concurrency_is_flagged(self):
+        d = repo("on: push\npermissions:\n  contents: read\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n    steps:\n      - run: echo ship\n")
+        findings, errors = audit.audit(Path(d.name))
+        self.assertEqual(errors, [])
+        hits = [f for f in findings if f["check"] == "deploy-concurrency"]
+        self.assertEqual([h["rule"] for h in hits], ["no-concurrency"])
+        self.assertEqual(hits[0]["scope"], "deploy")
+        self.assertTrue(hits[0]["fix"])
+
     def test_markdown_escapes_pipes_and_carries_disclaimer(self):
         md = audit.render_markdown([{"severity": "low", "file": "a", "line": 1, "rule": "r",
                                      "detail": "x|y", "fix": "z", "check": "c", "scope": None}], [])
@@ -127,7 +136,7 @@ jobs:
         # Drift guard: the action must not silently diverge from the venture it vendors.
         root = Path(__file__).resolve().parent.parent
         for name, _, _ in audit.CHECKS:
-            src = root / f"actions-{name}-check" / "check.py"
+            src = root / ("deploy-concurrency-check" if name == "deploy-concurrency" else f"actions-{name}-check") / "check.py"
             if src.exists():
                 self.assertEqual(src.read_text(), (audit.CHECKS_DIR / f"{name}.py").read_text(), name)
 
