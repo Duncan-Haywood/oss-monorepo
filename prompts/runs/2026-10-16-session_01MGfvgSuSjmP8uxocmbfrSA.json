@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01MGfvgSuSjmP8uxocmbfrSA",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T07:09:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Land stranded input-bounds fix (PR 7330); add embeddable /widget.js help button to ventures/help-keeper",
+  "projects": [
+    "help-keeper"
+  ],
+  "pr": "7330",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Venture-wide checklist is long; no single command says which lines a server-only venture change needs."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Scheduled generic brief. Stranded branch claude/input-bounds-fix landed (gitops mirror conflicts: took main, regen produced no diff). help-keeper gained a Shadow-DOM widget; type-ahead requests (live=1) are not logged so the content-gap report stays clean; verified in Chromium against a cross-origin page. Venture-preflight and full CI checklist not run locally; relying on CI.",
+  "corrections": [],
+  "redteam": null
+}

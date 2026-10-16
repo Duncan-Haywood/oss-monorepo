@@ -6,6 +6,7 @@ import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { newState, updateSettings, saveArticle, removeArticle, importMarkdown, bySlug, find, logSearch, logClick, vote, collections, gapsCsv, published, contactHref } from "./kb.mjs";
 import { plain } from "./markdown.mjs";
+import { WIDGET_JS } from "./widget.mjs";
 import { homePage, collectionPage, searchPage, articlePage, notFound, adminPage, editPage, gapsPage, importPage } from "./render.mjs";
 
 const env = process.env;
@@ -35,7 +36,7 @@ export function limiter(max, windowMs) {
 // cfg: {state, save, adminKey, sponsor, now, trustProxy, baseUrl, limits}
 export function handler(cfg) {
   const now = cfg.now || Date.now;
-  const lim = { read: limiter(300, 60_000), search: limiter(60, 60_000), vote: limiter(10, 60_000), view: limiter(3, 60_000), ...cfg.limits };
+  const lim = { read: limiter(300, 60_000), search: limiter(60, 60_000), live: limiter(240, 60_000), vote: limiter(10, 60_000), view: limiter(3, 60_000), ...cfg.limits };
   const { state } = cfg;
   let dirty = false, lastSave = 0;
   const persist = (force = false) => { dirty = true; if (force || now() - lastSave > 5000) { cfg.save(); lastSave = now(); dirty = false; } };
@@ -66,12 +67,14 @@ export function handler(cfg) {
         if (q && logSearch(state, q, results.filter((r) => r.matchedAll).length, now())) persist();
         return send(200, searchPage(rcfg, state, q, results));
       }
+      if (path === "/widget.js" && req.method === "GET") return send(200, WIDGET_JS, "text/javascript; charset=utf-8", { "cache-control": "public, max-age=300", "access-control-allow-origin": "*" });
       if (path === "/api/search" && req.method === "GET") {
-        if (!lim.search(ip, now())) return send(429, { error: "too many searches" }, "application/json");
+        const live = url.searchParams.get("live") === "1"; // type-ahead from the widget: answered, but not counted as a search
+        if (!(live ? lim.live : lim.search)(ip, now())) return send(429, { error: "too many searches" }, "application/json");
         const q = (url.searchParams.get("q") || "").trim().slice(0, 100);
         const results = q ? find(state, q, Math.min(10, Number(url.searchParams.get("limit")) || 5)) : [];
-        if (q && logSearch(state, q, results.filter((r) => r.matchedAll).length, now())) persist();
-        return send(200, { query: q, results: results.map((r) => ({ title: r.article.title, url: `${base}/a/${r.article.slug}?from=${encodeURIComponent(q)}`, collection: r.article.collection, excerpt: plain(r.article.body).slice(0, 200) })) }, "application/json", { "access-control-allow-origin": "*" });
+        if (q && !live && logSearch(state, q, results.filter((r) => r.matchedAll).length, now())) persist();
+        return send(200, { query: q, contact: contactHref(state.settings.contact) || null, results: results.map((r) => ({ title: r.article.title, url: `${base}/a/${r.article.slug}?from=${encodeURIComponent(q)}`, collection: r.article.collection, excerpt: plain(r.article.body).slice(0, 200) })) }, "application/json", { "access-control-allow-origin": "*" });
       }
       if ((m = path.match(/^\/c\/([a-z0-9-]+)$/)) && req.method === "GET") {
         const c = collections(state).find((x) => x.slug === m[1]); if (!c) return send(404, notFound(rcfg, state));
