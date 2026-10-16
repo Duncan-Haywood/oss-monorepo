@@ -7,6 +7,8 @@ overhead. It shows **true profit per job, margin and profit per crew hour**, the
 that earns your target margin**, the **price per 1,000 sq ft**, whether your minimum job fee is what
 is being billed, break-even jobs a season, and compares two jobs side by side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/lawn-aeration-overseeding-bid-calculator/
+
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.
 

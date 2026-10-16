@@ -10,6 +10,8 @@ cover the vehicle and know before you send the estimate whether a
 bare-surface-area quote is quietly eating your margin, which used to take a
 bad month to notice.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/vehicle-wrap-bid-calculator/
+
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. The deterministic calculation works with no
 account, API key, upload, or paid dependency.

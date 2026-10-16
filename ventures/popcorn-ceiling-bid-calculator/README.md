@@ -7,6 +7,8 @@ coats, 8-foot versus vaulted versus two-story scaffolding, then an
 asbestos test, containment, and closet ceilings — and shows the margin
 before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/popcorn-ceiling-bid-calculator/
+
 **After using this, you can now** send a walk-away popcorn-removal price
 that sees the scrape and the skim, **which used to take** matching a
 published $1.50 / sq ft scrape special that treats an 8-foot ranch as

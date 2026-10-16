@@ -7,6 +7,8 @@ guest to a table with the most wishes met within capacity. Shows each table,
 every wish it could not meet, a comparison with seating in list order, and a
 CSV for place cards. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/event-seating-chart-optimizer/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, the pair-weight matrix, simulated annealing with a

@@ -4,6 +4,8 @@ A free browser tool for Fiverr sellers: **drop in your earnings or revenue CSV a
 what you actually take home.** The file is read in the browser; nothing is uploaded and
 no Fiverr account access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fiverr-earnings-fee-analyzer/
+
 After using this, you can now **see the service fee Fiverr actually took (observed, not
 assumed), your take-home per order, net revenue per gig and per buyer, repeat-buyer
 share, refunds and cancellations, withdrawal costs, funds still clearing, and the price

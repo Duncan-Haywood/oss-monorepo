@@ -2,6 +2,8 @@
 
 Free, private browser tool: enter 1099 revenue and expenses and get self-employment tax, federal income tax (standard deduction, 2026 brackets, 20% QBI deduction), a state estimate, the quarterly 1040-ES payment with the safe harbor, and the share of every invoice to set aside, including what to put away from your next $1,000.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/us-freelancer-tax-set-aside-calculator/
+
 After using this, a US freelancer knows how much to move out of each payment instead of finding a tax bill in April, which used to mean a "30%" guess or a spreadsheet.
 
 Open `index.html`. Tests: `node --test 'ventures/us-freelancer-tax-set-aside-calculator/**/*.test.mjs'`.

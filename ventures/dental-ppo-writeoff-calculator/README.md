@@ -4,6 +4,8 @@ What each insurance plan actually pays a dental practice, per carrier, in the
 practice's own dollars — and which of them buy chair time for less than the
 chair costs to keep open.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dental-ppo-writeoff-calculator/
+
 Free, runs entirely in the browser, no account, no upload, no patient data.
 
 ## The problem

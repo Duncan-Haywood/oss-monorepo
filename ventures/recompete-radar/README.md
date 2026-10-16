@@ -2,6 +2,8 @@
 
 Which federal contracts in my niche expire next, who holds them, and how locked-up is the market?
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/recompete-radar/
+
 A free, private browser tool for small US government contractors. Enter a NAICS code (and optionally a state and set-aside). The page asks the public USAspending.gov API for contract awards, or reads a USAspending CSV you paste, and shows:
 
 - a **recompete calendar**: awards whose current end date falls within your window, with incumbent, awarding office, value, approximate annual value, and the date a follow-on notice is likely (end date minus your lead time);

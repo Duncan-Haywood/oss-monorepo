@@ -5,6 +5,8 @@ your accounts (price, visits per month, minutes on site, drive minutes, material
 is worth to you, and get every account ranked by what it earns per route hour, with a keep, reprice or drop
 recommendation that allows for customers who cancel when the price rises.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/route-account-pruner/
+
 After using this, you can now **see which accounts are not worth the drive, what price would fix each, and how
 much of your week is spent driving**, which used to take a spreadsheet and a guess.
 

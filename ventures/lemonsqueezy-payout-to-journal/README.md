@@ -9,6 +9,8 @@ month, and balances each to a Lemon Squeezy clearing account. Differences no rul
 journalled to an uncategorised account rather than dropped. The export is read locally and never
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/lemonsqueezy-payout-to-journal/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

@@ -4,6 +4,8 @@ Free, browser-only tournament runner for chess clubs, pickleball, darts, table
 tennis, esports and school events. Paste the players (ratings optional) and pick
 a format:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tournament-pairing-manager/
+
 - **Swiss**: round-by-round pairings with colour (White / home) balance, a bye
   for an odd field, no rematches, standings ranked by score then Buchholz,
   Buchholz cut 1, Sonneborn-Berger, wins and progressive score; configurable

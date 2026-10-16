@@ -7,6 +7,8 @@ versus built-up, flat versus cathedral versus tray, then corners,
 foyer scaffolding, demo, blocking, and an LED cove — and shows the
 margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/crown-molding-bid-calculator/
+
 **After using this, you can now** send a walk-away crown-molding
 price that sees the run and the extras, **which used to take**
 matching a published $8-a-foot special that treats 80 lf of

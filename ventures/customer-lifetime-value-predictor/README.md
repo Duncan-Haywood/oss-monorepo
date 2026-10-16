@@ -6,6 +6,8 @@ the BG/NBD and Gamma-Gamma models to your own data, reports the probability each
 big spenders who look ready to leave, values a brand-new customer (the ceiling on what to pay to acquire one), and
 back-tests itself against your most recent weeks so you can see how far to trust it. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/customer-lifetime-value-predictor/
+
 After using this, you can now **see which customers are worth winning back, stop spending on ones who have left,
 and know what a new customer is worth before you buy one**.
 

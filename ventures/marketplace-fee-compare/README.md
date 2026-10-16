@@ -4,6 +4,8 @@
 landed cost, category, monthly order volume — and see net profit side by side
 on eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Poshmark, and your own Shopify store.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/marketplace-fee-compare/
+
 Free, no signup, and nothing you type leaves the browser.
 
 - `index.html` — the comparison

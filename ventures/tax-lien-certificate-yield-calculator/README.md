@@ -7,6 +7,8 @@ interest and annualized yield for each redemption month, the expected result wit
 redemption chance, and the parcel value you need to break even if you end up foreclosing.
 Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tax-lien-certificate-yield-calculator/
+
 After using this, you can **see what a certificate actually returns, month by month, and what the
 parcel has to be worth if nobody redeems**, which used to mean a spreadsheet per county.
 

@@ -5,6 +5,8 @@ the farmer a few dollars an hour. List the items in the box with their weeks, re
 and see what a member gets at retail, what the season pays you per hour, the price that pays your target
 wage, the shares needed to break even, and a price sweep. Browser page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/csa-share-pricing-calculator/
+
 ```
 node cli.mjs price box.csv --weeks 20 --shares 60 --price 500
 cat box.csv | node cli.mjs price - --json

@@ -5,6 +5,8 @@ recurring property stop the way a crew actually runs one — turf, beds, and
 edging each at their own production rate, plus windshield time — and shows
 the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/lawn-care-bid-calculator/
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts. Not yet deployed to a public URL —

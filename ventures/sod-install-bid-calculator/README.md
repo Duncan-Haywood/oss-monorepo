@@ -5,6 +5,8 @@ the trade actually loses money — whole pallets after waste, then soil prep,
 delivery, slope, and watering — and shows the margin before the price goes
 out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sod-install-bid-calculator/
+
 **After using this, you can now** send a walk-away sod price that sees
 pallets and dirt work, **which used to take** matching a published
 $0.55-a-foot special that treats fescue pickup on ready soil as the same

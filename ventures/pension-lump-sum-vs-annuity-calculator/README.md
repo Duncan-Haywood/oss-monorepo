@@ -7,6 +7,8 @@ lifespan, the yearly return the lump sum must earn to match it, the break-even a
 reaching it, a spouse survivor benefit, what the lump sum could pay each month until a planning age,
 and a return by lifespan grid. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pension-lump-sum-vs-annuity-calculator/
+
 After using this, you can **see what return you are being asked to give up the pension for**, instead of
 comparing two dollar figures.
 

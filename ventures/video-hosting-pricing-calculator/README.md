@@ -5,6 +5,8 @@ side by side at the minutes of video you store, the minutes viewers watch each m
 monthly uploads, see the 12-month spend under your growth rate, and find the viewing level where
 the cheapest platform changes — before you build a course site or creator tool on one.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/video-hosting-pricing-calculator/
+
 ```
 node cli.mjs compare --stored-min 20000 --watched-min 500000 --uploaded-min 500 --growth 5
 node cli.mjs compare --stored-min 20000 --watched-min 500000 --provider mux --budget 300   # CI gate: exit 1 over budget

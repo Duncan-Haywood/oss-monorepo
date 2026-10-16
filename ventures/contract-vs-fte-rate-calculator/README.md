@@ -6,6 +6,8 @@ costs, and it returns the hourly rate a contract must pay to leave the same cash
 breakdown of where the extra rate comes from, and what a rate you were actually offered leaves
 you. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/contract-vs-fte-rate-calculator/
+
 ## Try it
 
 Open [`index.html`](index.html) and click **Find the break-even rate**.

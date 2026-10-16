@@ -7,6 +7,8 @@ pile-up, and counts what a shorter trial would have lost, with a seeded
 bootstrap range and a hold-out check that says when your conversion timing has
 moved. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/trial-conversion-timing-analyzer/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, finished-trial filter, conversion-by-day, shorter-trial what-if, bootstrap, hold-out.

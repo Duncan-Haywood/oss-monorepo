@@ -1,0 +1,48 @@
+{
+  "slug": "kitchen-tile-backsplash-bid-calculator",
+  "name": "Kitchen tile backsplash",
+  "group": "Interior & finishes",
+  "summary": "Backsplash tile priced from wall square feet, pattern waste, wall prep, outlets, trim and travel.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2,
+  "hourlyWage": 38,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Tile subway running bond on painted drywall",
+      "unit": "sq ft",
+      "qty": 30,
+      "hoursPerUnit": 0.22,
+      "materialPerUnit": 6.75,
+      "source": "0.18 h/sf tile, $4.50/sf at 10% waste (suggestedPatternKit subway-running) + 0.04 h and $0.40/sf wall prep (suggestedWallKit painted-drywall) + $1.40/sf grout (suggestedExtraKit); 30 sf default"
+    },
+    {
+      "label": "Outlet and switch cutouts",
+      "unit": "each",
+      "qty": 2,
+      "hoursPerUnit": 0.35,
+      "materialPerUnit": 18.0,
+      "source": "0.35 h and $18 per outlet (suggestedExtraKit); 2 outlets default"
+    },
+    {
+      "label": "Travel miles",
+      "unit": "mile",
+      "qty": 8,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 2.8,
+      "source": "0.035 h and $2.80 per mile (suggestedExtraKit); 8 miles default"
+    },
+    {
+      "label": "Travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 55.0,
+      "source": "Travel & equipment $55 (index.html default)"
+    }
+  ],
+  "specialistModels": "Compares scopes and patterns (herringbone, mosaic, large-format waste and hours), adds demo, board, cooktop, Schluter and accent work, and tracks leftover tile boxes."
+}

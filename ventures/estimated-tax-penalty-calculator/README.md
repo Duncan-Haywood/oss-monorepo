@@ -4,6 +4,8 @@ A free browser calculator for the IRS **underpayment of estimated tax
 penalty** (Form 2210, regular method). Entirely client-side; nothing is
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/estimated-tax-penalty-calculator/
+
 After using this, you can now **see the dollar penalty for each missed
 installment and how much paying now would stop** — which used to mean working
 through Form 2210's Part III and IV by hand.

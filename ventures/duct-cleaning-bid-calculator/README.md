@@ -6,6 +6,8 @@ the included one-system ranch, then extra air handlers, extra vents,
 extra stories, crawl access, and a coil clean — and shows the margin
 before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/duct-cleaning-bid-calculator/
+
 **After using this, you can now send a priced duct-cleaning bid with a
 walk-away number**, which used to take a napkin estimate against a
 published $99 special.

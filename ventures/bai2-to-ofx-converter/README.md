@@ -8,6 +8,8 @@ stable transaction ID per entry so re-importing does not double-post, and writes
 account. The file is read locally and never uploaded; account numbers are masked in the output
 unless you choose otherwise.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bai2-to-ofx-converter/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

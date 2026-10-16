@@ -7,6 +7,8 @@ running balance, and a gap is reported with its amount, the line where the balan
 the likeliest cause (a missing row, a row on the wrong side, a flipped sign). The PDF is read
 locally and never uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bank-statement-pdf-to-csv/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

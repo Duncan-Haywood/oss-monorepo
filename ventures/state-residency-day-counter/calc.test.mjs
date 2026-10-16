@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, EMPLOYER_RULES } from "./calc.mjs";
+import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, EMPLOYER_RULES, fmtNum, fmtMoney } from "./calc.mjs";
 
 const Y = 2025;
 const spec = (lines, extra = {}) => ({ year: Y, stays: parseStays(lines.join("\n"), Y).stays, abode: {}, overrides: {}, ...extra });
@@ -237,4 +237,12 @@ test("no employer view without an employer state or for a state with no such rul
   const pa = analyze(spec(["2025-06-02 to 2025-06-06 PA", "2025-06-09 to 2025-06-13 OH"], { employerState: "PA" }));
   assert.ok(pa.notices.some((n) => n.includes("same rule")));
   assert.equal(pa.employer.claimableWages, null); // no wages typed
+});
+
+test("fmtNum rounds to whole numbers by default and fmtMoney leaves cents off", () => {
+  assert.equal(fmtNum(1234.5), "1,235");
+  assert.equal(fmtNum(12), "12");
+  assert.equal(fmtNum(2.25, 1), "2.3");
+  assert.equal(fmtMoney(140000.4), "$140,000");
+  assert.equal(fmtMoney(null), "");
 });

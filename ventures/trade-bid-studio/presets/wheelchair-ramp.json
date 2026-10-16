@@ -1,0 +1,49 @@
+{
+  "slug": "wheelchair-ramp-bid-calculator",
+  "name": "Wheelchair ramp",
+  "group": "Exterior & roofing",
+  "summary": "Wheelchair ramps priced from rise, slope, landings, surface material, handrail and footings.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2.4,
+  "hourlyWage": 28,
+  "burdenRate": 32,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "tripFee": 85,
+  "items": [
+    {
+      "label": "Wood ramp and landings, 4 ft wide",
+      "unit": "sq ft",
+      "qty": 146,
+      "hoursPerUnit": 0.032,
+      "materialPerUnit": 10.5,
+      "source": "24 in rise x 12 run/rise = 24 ft x 4 ft = 96 sq ft + 2 landings x 5 x 5 = 50 sq ft (calculateBid on index.html defaults); hoursPer100Sf 3.2 / 100; decking $4.50 + framing $6 per sq ft (suggestedSurfaceKit('wood'))"
+    },
+    {
+      "label": "Handrail, both sides",
+      "unit": "linear ft",
+      "qty": 58,
+      "hoursPerUnit": 0.12,
+      "materialPerUnit": 18,
+      "source": "handrailLf 58, hoursPerHandrailLf 0.12, handrailPerLf $18 (index.html defaults)"
+    },
+    {
+      "label": "Footings",
+      "unit": "each",
+      "qty": 14,
+      "hoursPerUnit": 0.35,
+      "materialPerUnit": 35,
+      "source": "footingCount 14, hoursPerFooting 0.35, footingEach $35 (index.html defaults)"
+    },
+    {
+      "label": "Mobilization",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 150,
+      "source": "mobilizationFee $150 (index.html default; soft cost before overhead)"
+    }
+  ],
+  "specialistModels": "Derives run, rest landings, switchback turns, handrail length and footing count from rise and slope, with composite, aluminum and concrete surfaces, stair demo and permit; setupHours = 1.5 trip + 0.5 grade + 0.4 travel hours."
+}

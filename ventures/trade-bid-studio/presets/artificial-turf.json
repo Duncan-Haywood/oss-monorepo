@@ -1,0 +1,72 @@
+{
+  "slug": "artificial-turf-bid-calculator",
+  "name": "Artificial turf install",
+  "group": "Landscaping & outdoor",
+  "summary": "Synthetic grass priced from lawn area, roll waste, crushed-rock base, sod demo, infill, seams and nails.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2.25,
+  "hourlyWage": 32,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 30,
+  "items": [
+    {
+      "label": "Demo existing sod and dump it",
+      "unit": "sq ft",
+      "qty": 600,
+      "hoursPerUnit": 0.006,
+      "materialPerUnit": 0.1125,
+      "source": "hoursPerSqFtDemo 0.006 (index.html / suggestedTurfKit landscape); dump $18/ton (dumpPerTon) x 2 in sod at SOD_LB_PER_CF 75 = 0.00625 t/sq ft (calc.mjs sodTons, sodDepthIn default 2)"
+    },
+    {
+      "label": "Crushed-rock base, 3 in, with geotextile",
+      "unit": "sq ft",
+      "qty": 600,
+      "hoursPerUnit": 0.007,
+      "materialPerUnit": 0.58,
+      "source": "hoursPerSqFtBase 0.007; 3 in base at CRUSHED_LB_PER_CF 100 = 0.0125 t/sq ft x gravelPerTon $32 = $0.40, plus geotextilePerSqFt $0.18 (index.html defaults, calc.mjs baseTons)"
+    },
+    {
+      "label": "Install landscape turf (10% roll waste)",
+      "unit": "sq ft",
+      "qty": 600,
+      "hoursPerUnit": 0.0121,
+      "materialPerUnit": 2.365,
+      "source": "hoursPerSqFtInstall 0.011 and turfPerSqFt $2.15, both applied to bought turf = lawn x 1.10 (wastePercent 10, calc.mjs turfBuySqFt)"
+    },
+    {
+      "label": "Infill",
+      "unit": "sq ft",
+      "qty": 600,
+      "hoursPerUnit": 0.0035,
+      "materialPerUnit": 0.32,
+      "source": "hoursPerSqFtInfill 0.0035 and infillPerSqFt $0.32 (index.html defaults)"
+    },
+    {
+      "label": "Seams with seam tape",
+      "unit": "linear ft",
+      "qty": 40,
+      "hoursPerUnit": 0.07,
+      "materialPerUnit": 1.75,
+      "source": "seamLf 40, hoursPerLfSeam 0.07, seamPerLf $1.75 (index.html defaults)"
+    },
+    {
+      "label": "Perimeter nails",
+      "unit": "linear ft",
+      "qty": 100,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 0.33,
+      "source": "perimeterLf 100; nailsPerLf 3 x nailEach $0.11 (index.html defaults); the specialist has no separate perimeter labor rate"
+    },
+    {
+      "label": "Travel, plate compactor, dump trailer",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 275,
+      "source": "travelAndEquipment $275 (index.html default), a flat job cost in calculateBid"
+    }
+  ],
+  "specialistModels": "Side-by-side landscape vs pet vs putting-green kits, pet drainage, tree wells, infill bag counts and base tonnage by depth, plus a printable proposal."
+}

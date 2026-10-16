@@ -2,6 +2,8 @@
 
 Independent dog walkers and pet sitters can use this free browser-local calculator to price a walk, drop-in visit, or overnight stay from on-site time, drive time, mileage, extra-pet surcharges, and overhead — then roll a client list up into monthly route revenue and check it against an income goal. **After using this, you can set a defensible per-visit price and know how many more visits it takes to hit your income goal, which used to take a spreadsheet and a guess about drive time and on-call nights.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dog-walking-route-pricing/
+
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.
 
 ## Why this is different from a flat per-walk rate

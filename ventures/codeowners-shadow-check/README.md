@@ -6,6 +6,8 @@ A free tool for developers and repo maintainers: resolves a `CODEOWNERS` file th
 never win ownership of anything because a broader rule listed later always overrides
 them.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/codeowners-shadow-check/
+
 This is the single most common way a `CODEOWNERS` file quietly stops doing what its
 author intended. A specific rule (`/src/payments/*.js @payments-team`) works perfectly
 for months. Someone adds a catch-all further down the file (`*.js @generalists`) for an

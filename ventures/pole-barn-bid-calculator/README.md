@@ -5,6 +5,8 @@ a building the way the trade actually loses money — bays to posts and
 trusses, then extra eave height, overhead doors, a lean-to, and gravel
 versus a slab — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pole-barn-bid-calculator/
+
 **After using this, you can now** send a walk-away pole-barn price that
 sees eave height and the floor, **which used to take** matching a published
 $45-a-foot special that treats a 10-foot gravel ag shell as the same job

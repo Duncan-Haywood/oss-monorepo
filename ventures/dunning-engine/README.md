@@ -5,6 +5,8 @@ with a plan per decline reason, on your own server and with your own
 emails**, which used to mean paying a recovery service a cut of what it
 recovers, or living with Stripe's one-size-fits-all retries.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dunning-engine/
+
 Two parts, both free and MIT:
 
 - **`index.html`** — pick a Stripe `decline_code`, see the exact schedule of

@@ -5,6 +5,8 @@ garnishment, and see the most that federal law lets an order take**, how much of
 protected, what you would keep from extra hours, and a draft request for payroll's calculation.
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/wage-garnishment-limit-calculator/
+
 After using this, you can now **tell whether the amount taken from your paycheck is within the federal
 limit and ask payroll a specific question if it is not**, which used to mean working out disposable
 earnings and the 25%-or-floor rule by hand from a statute.

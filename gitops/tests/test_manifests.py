@@ -3083,7 +3083,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `internal-link-planner` graduated (browser and CLI internal link audit: orphans, menu-only pages, suggested links with the PageRank effect).
     # +1: `trade-bid-studio` graduated (browser trade-agnostic bid engine: price at a target margin, walk-away price, competitor-quote check, markup/margin converter, directory of the 121 bid calculators).
     # +1: `devsec-toolkit` graduated (one zero-dependency command running 22 devsec checks, SARIF/JSON/Markdown, baselines, local report viewer page).
-    total = 1270  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1270 tools" wording.
+    total = 1271  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1271 tools" wording.
     # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
     # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
     # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
@@ -3109,6 +3109,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `ca-meal-rest-break-premium-checker` graduated (browser California meal and rest break premium audit: late, short and missed meals, rest shortfalls, waivers and the Labor Code 226.7 premium per workday from pasted timecards).
     # +1: `prop-firm-challenge-calculator` graduated (browser Monte Carlo of a funded-trader challenge: pass probability, expected fees to pass, funded payouts, break-even win rate).
     # +1: `youtube-sponsorship-rate-calculator` reached the mirror (its page landed after #7000 set 1232; counted by sync_tree_counts.py at the merge).
+    # +1: `self-hosted-saas-stack` graduated (browser directory of the 27 self-hosted small-SaaS tools, grouped by job and named against the paid products they replace).
     # +1: `trial-converter` graduated (self-hosted Stripe trial-to-paid conversion: card and no-card plans, browser simulator plus zero-dependency server).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()

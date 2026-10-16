@@ -5,6 +5,8 @@ and see whether a qualified charitable distribution (QCD) beats giving the same 
 Social Security, the senior deduction, federal and state tax for each route, what the gift really costs after tax,
 and how much of the required minimum distribution the QCD covers. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/qcd-calculator/
+
 After using this, you can **decide how much of this year's giving to send straight from the IRA** before the
 custodian's year-end deadline, instead of finding out at filing time.
 

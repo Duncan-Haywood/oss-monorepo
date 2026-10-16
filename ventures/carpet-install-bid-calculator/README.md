@@ -6,6 +6,8 @@ versus glue-down versus double-stick versus carpet tile, solid versus
 patterned waste, then stairs priced per step, tear-out, furniture
 move, and haul-away — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/carpet-install-bid-calculator/
+
 **After using this, you can now** send a walk-away carpet-install
 price that sees the stairs and the waste, **which used to take**
 matching a published $2-a-yard special that treats a flat living-room

@@ -1,0 +1,39 @@
+{
+  "slug": "forestry-mulching-bid-calculator",
+  "name": "Forestry mulching",
+  "group": "Landscaping & outdoor",
+  "summary": "Land clearing priced per acre from machine hours and machine running cost, plus a mobilization trip.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 45,
+  "burdenRate": 0,
+  "overheadRate": 0,
+  "targetMargin": 35,
+  "items": [
+    {
+      "label": "Mulch medium brush, 6 ft head",
+      "unit": "acre",
+      "qty": 3,
+      "hoursPerUnit": 4.237,
+      "materialPerUnit": 333.4,
+      "source": "acresPerHourFrom: 6 ft head x 42 ft/min x 85% terrain x 60 x 80% cutting / 43,560 / 1 pass = 0.2360 ac/h (DENSITY_CLASSES medium-brush; index.html); machine cost beyond the operator $78.70/h = fuel 5 gal x $3.90 + teeth $1,800/250 h + maintenance $12 + ($2,400 + $4,800/12)/70 h (machineCostPerHour; index.html); 3 acres default"
+    },
+    {
+      "label": "Mobilization trip (float machine in and out)",
+      "unit": "trip",
+      "qty": 1,
+      "hoursPerUnit": 2.5,
+      "materialPerUnit": 94.5,
+      "source": "2.5 operator hours per trip; 70 mi x $1.35/mi truck and trailer; 1 trip (index.html mobilizationHoursEach, mobilizationMilesEach, truckCostPerMile, mobilizationTrips)"
+    },
+    {
+      "label": "Other job costs",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 0,
+      "source": "otherCosts $0 (index.html)"
+    }
+  ],
+  "specialistModels": "Production rate from head width, advance speed, passes, cutting share and terrain, a machine-hour cost build (fuel, teeth, reserve, payment over billable hours), and a density-class comparison."
+}

@@ -6,6 +6,8 @@ your app when a customer is over a limit, and feeds
 [Stripe Billing Meters](https://docs.stripe.com/billing/subscriptions/usage-based)
 with retries. MIT, one Node process, no dependencies, state in a JSON file.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/meter-keeper/
+
 Try your pricing on real usage numbers first: open `index.html` (nothing is
 uploaded; the page makes no network requests).
 

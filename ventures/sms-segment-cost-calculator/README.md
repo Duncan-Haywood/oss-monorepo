@@ -5,6 +5,8 @@ segments instead of one, which character caused it, and what fixing it saves per
 month at your volume — which used to mean reading provider docs and counting
 bytes by hand.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sms-segment-cost-calculator/
+
 Open `index.html` (or the published page): paste a message, set your monthly
 volume and per-segment price, and read the encoding (GSM-7 or UCS-2), segment
 count, the offending characters, and a plain-character rewrite.

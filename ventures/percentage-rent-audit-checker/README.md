@@ -4,6 +4,8 @@ A free browser tool that recomputes a landlord's percentage-rent statement for a
 tenant's own sales, prices each line worth questioning, names the record that would prove it, and drafts an editable review note. Entirely
 client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/percentage-rent-audit-checker/
+
 After using this, you can now **see whether the percentage rent billed follows from your lease and your sales, and which lines to question**,
 which used to mean trusting the statement or paying an accountant to redo it.
 

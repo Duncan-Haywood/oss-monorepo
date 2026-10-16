@@ -5,6 +5,8 @@ contractors. It prices a restaurant hood-cleaning stop the way the trade
 actually loses money by skipping — canopy, filters, duct, and fan as
 separate labor — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hood-cleaning-bid-calculator/
+
 **After using this, you can now send a system price (and know the hood-only
 number that would have lost the job), which used to take a spreadsheet
 rebuild every time a rooftop fan or vertical chase showed up.**

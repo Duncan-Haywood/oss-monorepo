@@ -4,6 +4,8 @@ Are your EBS volumes the wrong type? Paste one row per volume and see the cheape
 covers the observed peak (gp2 → gp3, io1 → gp3), the monthly saving, and the live
 `aws ec2 modify-volume` command to apply it. Browser page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ebs-volume-cost-advisor/
+
 ```
 node cli.mjs analyze volumes.csv
 cat volumes.csv | node cli.mjs analyze -

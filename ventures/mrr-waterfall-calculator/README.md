@@ -2,6 +2,8 @@
 
 The free MRR waterfall calculator answers a concrete question: **of the recurring revenue you started the month with, how much did you actually keep, and how much did upgrades and winbacks add back?** Enter starting MRR and this period's new, expansion, reactivation, contraction, and churned MRR. Get ending MRR, gross revenue retention (capped at 100%, counting only contraction and churn), net revenue retention (uncapped, adding expansion and reactivation back in), and the growth-to-loss quick ratio.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mrr-waterfall-calculator/
+
 Open `index.html` in a browser. It needs no account, network request, API key, or billing-system connection. The math is a planning and reporting aid, not a forecast: reconcile it against your own billing export before reporting the figures externally.
 
 [This calculator vs. tracking MRR in a spreadsheet](vs-tracking-mrr-in-a-spreadsheet.html) explains what a spreadsheet formula gets right and where it's easy to get gross and net retention backwards by hand.

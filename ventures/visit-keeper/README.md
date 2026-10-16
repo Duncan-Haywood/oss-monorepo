@@ -2,6 +2,8 @@
 
 After using this, you can now **see who visits your site, where they came from and which source brings paying customers**, with no cookies, no IP addresses stored and nobody else holding your data, which used to mean a monthly fee that climbs with pageviews (Plausible, Fathom, Simple Analytics) or a consent banner and an ad company (Google Analytics).
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/visit-keeper/
+
 Free and MIT. One Node 22 process, **zero dependencies**, state in one JSON file, about 700 lines to audit.
 
 - **`index.html`**: the setup page. Builds your snippet and estimates disk use. Runs in the browser; nothing is uploaded.

@@ -5,6 +5,8 @@ the way the landfill actually bills one — each pile turned into estimated
 tons — and shows the dump ticket, the loaded labor, and the walk-away number
 before a half-truck special goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/junk-removal-bid-calculator/
+
 **After using this, you can now see whether a quoted job covers the scale
 ticket and the crew, which used to take a spreadsheet plus a guess from the
 driveway photo.**

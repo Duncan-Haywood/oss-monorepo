@@ -6,6 +6,8 @@ which first-week behaviour came before paying, scores every signup that has
 finished its first week, and says which look like your best customers and why.
 MIT, one Node process, no dependencies, state in a JSON file.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pql-radar/
+
 Try it on an export first: open `index.html` (nothing is uploaded; the page
 makes no network requests).
 

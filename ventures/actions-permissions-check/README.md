@@ -8,6 +8,8 @@ explicit grant of every scope's write access) — GitHub's own documented
 token-permissions hardening guidance, and the same check the OpenSSF
 Scorecard project runs against public repositories, not a novel claim.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/actions-permissions-check/
+
 After using this, you can now **find every over-privileged or unspecified
 workflow across a whole repository in one paste**, which used to take
 **opening each workflow file by hand and checking whether `permissions:`

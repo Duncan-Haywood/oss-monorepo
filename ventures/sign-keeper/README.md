@@ -2,6 +2,8 @@
 
 After using this, you can now **send a document link, get a typed-name signature with recorded consent, and keep a certificate anyone can re-verify**, on a server you own. That used to mean a per-user or per-envelope e-signature plan that keeps your agreements in its account.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sign-keeper/
+
 Two parts, both free and MIT:
 
 - **`index.html`**: the product page with an in-browser tamper-check demo (clearly labelled sample data). Nothing is uploaded.

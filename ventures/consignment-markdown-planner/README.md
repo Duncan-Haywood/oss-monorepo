@@ -6,6 +6,8 @@ exact markdown schedule with the highest expected profit for each, which items a
 price or shop share would make them worth it, and what a fixed rule leaves on the table. Browser page or
 zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/consignment-markdown-planner/
+
 ```
 node cli.mjs plan items.csv --weeks 12 --lift 0.35 --levels 0,10,25,40,50 --json
 cat items.csv | node cli.mjs plan - --handling 2

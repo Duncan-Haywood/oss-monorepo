@@ -7,6 +7,8 @@ order to work them, the fee at which each declined client would earn a place, an
 best-per-hour acceptance leave behind. Browser page or zero-dependency CLI. For tax preparers, enrolled agents,
 bookkeepers and other solo practitioners paid per engagement.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tax-season-client-picker/
+
 ```
 node cli.mjs plan clients.csv --hours-per-day 6 --booked 4 --booked-due 2 --json
 cat clients.csv | node cli.mjs plan - --hours-per-day 7

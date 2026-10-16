@@ -6,6 +6,8 @@ on consignment**, after fees, shipping, your time, payment terms and sell-throug
 It also gives the wholesale price that reaches your target margin and a table of
 how profit moves as the wholesale share of retail changes. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/wholesale-vs-retail-pricing-calculator/
+
 ## Model
 
 - Direct = retail − cost − fee % − postage/packaging − handling time.

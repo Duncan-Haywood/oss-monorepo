@@ -8,6 +8,8 @@ returns the total cost of each route at your horizon, the payments before and af
 period, the yearly repricing cost of refinancing the balance you already had, the HELOC rate at which the
 routes tie, and a table showing the result if the HELOC rate rises. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/heloc-vs-cash-out-refinance-calculator/
+
 After using this, you can **see whether a low-rate mortgage is worth protecting and how high the HELOC
 rate can go before the refinance wins**, instead of comparing two rates that apply to different amounts.
 

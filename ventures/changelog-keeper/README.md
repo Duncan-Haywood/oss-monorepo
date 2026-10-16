@@ -2,6 +2,8 @@
 
 After using this, you can now **publish product updates as a public changelog page, an Atom/JSON feed and an in-app "What's new" bell with an unread badge**, on a server you own. That used to mean a monthly subscription to a changelog widget that prices by tracked users and keeps your release history behind its login.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/changelog-keeper/
+
 Two parts, both free and MIT:
 
 - **`index.html`**: the product page with a live Markdown writer that runs the same renderer as the server. Runs in the browser; nothing is uploaded.

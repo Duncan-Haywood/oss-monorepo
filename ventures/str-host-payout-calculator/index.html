@@ -139,6 +139,8 @@
           <label>Occupancy tax (%) <input id="taxRate" type="number" min="0" step="0.1" value="10"></label>
           <label>Security deposit <input id="securityDeposit" type="number" min="0" step="1" value="200"></label>
           <label>Marketplace bookings / year <input id="bookingsPerYear" type="number" min="0" step="1" value="36"></label>
+          <label class="span2">Target payout per stay (optional) <input id="targetPayout" type="number" min="0" step="1" value="">
+            <small>Fill in what you want to keep per stay and a panel below shows the nightly rate to list on each channel.</small></label>
         </div>
       </section>
 
@@ -170,6 +172,7 @@
           <tbody id="rows"></tbody>
         </table>
       </div>
+      <div id="listing" class="insight" hidden></div>
       <div id="restore" class="insight" hidden></div>
       <div id="breakEven" class="insight" hidden></div>
       <div class="actions">
@@ -218,7 +221,7 @@
     import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
     import { decodeComparison, encodeComparison } from "./share.mjs";
 
-    const BOOKING_IDS = ["nightlyRate", "nights", "cleaningFee", "extraFees", "taxRate", "securityDeposit", "bookingsPerYear"];
+    const BOOKING_IDS = ["nightlyRate", "nights", "cleaningFee", "extraFees", "taxRate", "securityDeposit", "bookingsPerYear", "targetPayout"];
     const RATE_FIELDS = [
       ["hostFeeRate", "Host fee %"],
       ["guestFeeRate", "Guest fee %"],
@@ -261,6 +264,7 @@
       }
     }
 
+    const num0 = (v) => Number(v) || 0;
     function bookingInput() {
       return Object.fromEntries(BOOKING_IDS.map((id) => [id, el(id).value]));
     }
@@ -322,6 +326,16 @@
           <td class="money">${money(result.annualPayout)}</td>
         </tr>`;
       }).join("");
+
+      const listing = el("listing");
+      const listed = comparison.channels.filter((r) => r.enabled && r.listing && !r.listing.error);
+      if (listed.length) {
+        listing.hidden = false;
+        listing.innerHTML = `<strong>To keep ${money(num0(el("targetPayout").value))} a stay, list a nightly rate of:</strong><ul>${listed.map((r) =>
+          `<li>${r.label}: ${r.listing.belowZero ? "no positive nightly rate works &mdash; cleaning and fees already cover it" : `${money(r.listing.nightlyRate)} / night (guest pays ${money(r.listing.guestPays)})`}</li>`).join("")}</ul><span class="note">Before the per-stay share of any annual or monthly site fee.</span>`;
+      } else {
+        listing.hidden = true;
+      }
 
       const restore = el("restore");
       if (comparison.restore && !comparison.restore.error) {

@@ -6,6 +6,8 @@ fee or percentage cut, travel and hours, and see the exact set that earns the mo
 reason for every event skipped, break-even sales for each one kept and the fee cut that would flip a
 skipped one. Browser page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/market-event-picker/
+
 ```
 node cli.mjs plan events.csv --cogs 35 --crew-rate 15 --max-per-week 2
 cat events.csv | node cli.mjs plan - --json

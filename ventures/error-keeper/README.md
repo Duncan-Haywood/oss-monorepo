@@ -6,6 +6,8 @@ a bug is **new**, when one you fixed **comes back**, and when one **spikes**, an
 shows the latest stack. MIT, one Node process, no dependencies, state in a JSON
 file, about 400 lines to audit.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/error-keeper/
+
 Try the grouping on your own stack traces first: open `index.html` (nothing is
 uploaded; the page makes no network requests).
 

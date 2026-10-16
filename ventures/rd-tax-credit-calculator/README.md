@@ -5,6 +5,8 @@ research and for how much of their time, add supplies and contractors, and estim
 (Section 41) under both the regular and simplified methods, what Section 280C takes back, and how much could
 offset payroll tax.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rd-tax-credit-calculator/
+
 After using this, you can now **tell whether an R&D credit study is worth commissioning, and roughly how much
 cash it could return through payroll tax even with no income tax**, which used to take a sales call with a
 credit-study firm.

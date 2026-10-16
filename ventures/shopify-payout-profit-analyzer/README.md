@@ -5,6 +5,8 @@ Transactions export (and the Orders export) and see where every payout went,
 and which products make money.** The files are read in the browser; nothing is
 uploaded. Independent of Shopify and not affiliated with it.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shopify-payout-profit-analyzer/
+
 After using this, you can now **see how much processing fees, third-party
 gateway fees, refunds, chargebacks and dispute fees actually take, the
 effective fee rate by card, what discount codes cost, and profit per product

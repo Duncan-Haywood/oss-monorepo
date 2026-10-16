@@ -4,6 +4,8 @@ Free, browser-only planting calendar for home and market gardeners. Enter your
 average last spring frost and first fall frost, tick your crops (34 built in),
 and get a dated plan:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/vegetable-garden-planting-calendar/
+
 - when to **start seeds indoors**, and when to **transplant or sow**, counted
   from the last frost (hardy crops before it, tender ones after it; an optional
   "cautious" mode adds a week for tender and half-hardy crops);

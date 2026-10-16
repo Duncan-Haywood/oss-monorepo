@@ -3,6 +3,8 @@
 After using this, you can now see which order to do a queue of rush jobs in so that the total cost of lateness is as small
 as it can be, with every possible order checked exactly, which used to take a gut call about who shouts loudest.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rush-job-sequencer/
+
 Free, runs in the browser, nothing is uploaded. Open `index.html`.
 
 - Up to 14 jobs, each with hours of work, a due time, a flat cost if late and a cost per hour late.

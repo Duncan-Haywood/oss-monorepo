@@ -6,6 +6,8 @@ every problem with its line number before the import fails or creates the wrong 
 download a cleaned copy or a set of smaller files.** The file is read in the browser; nothing is
 uploaded and no login or API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/xero-contacts-csv-check/
+
 After using this, you can now **find the two contacts whose names collide once capitals and spaces
 are ignored, the email cell holding two addresses, the phone number Excel turned into
 `4.41175E+11`, the ZIP code that lost its zero, and the payment term Xero does not know**, which used

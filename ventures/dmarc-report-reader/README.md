@@ -4,6 +4,8 @@ After using this, you can now **read the DMARC aggregate reports your `rua=`
 mailbox collects** and know which sending sources fail alignment and why,
 which used to need a paid dashboard or squinting at XML.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dmarc-report-reader/
+
 `index.html` runs in the browser and uploads nothing. Drop `.xml`, `.xml.gz` or
 single-file `.zip` reports (many at once merge). You get:
 

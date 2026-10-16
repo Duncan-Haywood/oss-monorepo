@@ -3,6 +3,8 @@
 Find the AWS Lambda memory size that minimises cost without a latency regression — from
 the `REPORT` lines already in your CloudWatch Logs. Browser page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/lambda-memory-rightsizer/
+
 ```
 aws logs tail /aws/lambda/my-fn --since 1d | node cli.mjs analyze - --invocations 5000000
 node cli.mjs analyze logs.txt --cpu-bound 0.8 --arch arm

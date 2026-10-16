@@ -1,0 +1,56 @@
+{
+  "slug": "boiler-replacement-bid-calculator",
+  "name": "Boiler replacement",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Boiler changeouts priced from the plant, input MBH, heating zones, venting and travel.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2.6,
+  "hourlyWage": 48,
+  "burdenRate": 32,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Like-for-like gas hot-water boiler swap and vent",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 8.7,
+      "materialPerUnit": 2700,
+      "source": "suggestedScopeKit like-for-like: hoursPlant 7.5 + hoursVent 1.2, plantInvoice $2,400; suggestedFuelKit gas fuelHardware $80; suggestedSystemKit hot-water systemHardware $220 (calc.mjs)"
+    },
+    {
+      "label": "Boiler size (input MBH)",
+      "unit": "MBH",
+      "qty": 80,
+      "hoursPerUnit": 0.012,
+      "materialPerUnit": 6.5,
+      "source": "inputMbh 80 (index.html); hot-water hoursPerMbh 0.012, gas fuelInvoicePerMbh $6.50 (calc.mjs kits)"
+    },
+    {
+      "label": "Heating zones (circulator / zone valve)",
+      "unit": "zone",
+      "qty": 2,
+      "hoursPerUnit": 1.4,
+      "materialPerUnit": 185,
+      "source": "zones 2 (index.html); hot-water hoursPerZone 1.4, zoneEach $185 (suggestedSystemKit)"
+    },
+    {
+      "label": "Travel",
+      "unit": "mile",
+      "qty": 10,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 2.8,
+      "source": "travelMiles 10 (index.html); suggestedExtraKit hoursPerMile 0.035, travelPerMile $2.80"
+    },
+    {
+      "label": "Travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 95,
+      "source": "travelAndEquipment $95 (index.html default)"
+    }
+  ],
+  "specialistModels": "Condensing-upgrade and steam-to-hot-water scope kits, steam vs hydronic and oil/propane fuel kits, liners, indirect tanks, oil-to-gas, repair-vs-replace, owner-supplied equipment and access comparisons."
+}

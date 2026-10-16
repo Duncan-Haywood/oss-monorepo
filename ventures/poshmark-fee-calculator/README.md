@@ -7,6 +7,8 @@ and prep cost, the sale price you need to hit a target profit, and whether a
 lower offer or bundle discount actually costs what it looks like. Nothing is
 uploaded; the arithmetic runs on the visitor's own device.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/poshmark-fee-calculator/
+
 ```
 cd ventures/poshmark-fee-calculator && node --test
 ```

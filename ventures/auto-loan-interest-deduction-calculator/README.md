@@ -4,6 +4,8 @@ A free browser calculator for the new federal "qualified passenger vehicle
 loan interest" (QPVLI) deduction, enacted by the One Big Beautiful Bill Act
 for tax years 2025 through 2028. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/auto-loan-interest-deduction-calculator/
+
 After using this, you can now **turn a new car loan's interest into an
 estimated federal deduction and rough tax savings in seconds, including the
 two assumptions people get backwards: the $10,000 cap does not double for a

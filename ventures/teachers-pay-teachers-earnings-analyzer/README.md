@@ -4,6 +4,8 @@ A free browser tool for Teachers Pay Teachers sellers: **drop in your sales CSV 
 what you actually take home.** The file is read in the browser; nothing is uploaded and
 no Teachers Pay Teachers account access is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/teachers-pay-teachers-earnings-analyzer/
+
 After using this, you can now **see the service fee Teachers Pay Teachers actually took (observed, not
 assumed), your take-home per order, net revenue per product and per buyer, repeat-buyer
 share, refunds and cancellations, withdrawal costs, funds still clearing, and the price

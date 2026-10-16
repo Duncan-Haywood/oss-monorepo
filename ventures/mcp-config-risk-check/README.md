@@ -8,6 +8,8 @@ config instead of referenced from an environment variable, a launched
 package or image with no version pin, and a tool name shadowed across two
 or more connected servers.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mcp-config-risk-check/
+
 After using this, you can now **spot a risky server entry in a pasted
 config in seconds**, which used to take reading every `command`/`args`/`env`
 block by hand and knowing the version-pin syntax for `npx`, `uvx`, `pipx`,

@@ -5,6 +5,8 @@ epoxy, flake, metallic, or 1-day polyaspartic job the way the trade actually
 bids one — grind hours, flake load, waste, cracks, and the drive — and shows
 the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/epoxy-garage-floor-bid-calculator/
+
 **After using this, you can now send a two-car flake number that includes the
 grind and the bags, which used to take a copied $4/sq ft special and a guess.**
 

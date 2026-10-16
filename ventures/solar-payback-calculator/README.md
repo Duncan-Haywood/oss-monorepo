@@ -4,6 +4,8 @@ A free browser tool for homeowners weighing a solar quote: **enter system size, 
 and your electricity price and export credit, and see the payback year, 25-year net gain, NPV and IRR, and
 how the answer moves under net billing, slower price increases or lower production.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/solar-payback-calculator/
+
 After using this, you can now **see whether a quote still pays back if your utility credits exports at a
 fraction of the retail price**, which used to take a spreadsheet you had to build and trust yourself.
 

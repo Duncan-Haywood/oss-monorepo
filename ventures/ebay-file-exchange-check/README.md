@@ -9,6 +9,8 @@ descriptions, each with its line number, plus a safe-fixes pass that converts th
 restores a UPC's zero only when the check digit confirms it. The file is read locally and never
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ebay-file-exchange-check/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

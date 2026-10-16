@@ -3,6 +3,8 @@
 A free browser calculator for the Form 8606 pro-rata rule. Entirely
 client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/backdoor-roth-pro-rata-calculator/
+
 After using this, you can now **see how much of your backdoor Roth
 conversion is actually taxable, and what a 401(k) roll-in before December 31
 would save** — which used to mean working Form 8606 Part I by hand and

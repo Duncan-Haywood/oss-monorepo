@@ -76,6 +76,8 @@ line on a rate card cannot look like a verified zero or custom quote input.
 Return handling and restocking default to $2.50 and $0.40 per returned order;
 the calculator page exposes both assumptions for rate-card-specific estimates.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/
+
 ## Run it
 
 Serve this directory with any static HTTP server, then open `index.html`:

@@ -8,6 +8,8 @@ rather than by rate, reports lockup days from WIP and receivables, prices one po
 per year, and answers a collections target as hours needed versus yield needed. Figures are used
 locally and never uploaded; no client or matter data is an input.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/law-firm-realization-rate-calculator/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

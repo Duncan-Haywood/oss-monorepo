@@ -4,6 +4,8 @@ A free browser calculator for the SALT (state and local tax) itemized
 deduction cap under the One Big Beautiful Bill Act. Entirely client-side;
 nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/salt-cap-calculator/
+
 After using this, you can now **see your effective SALT deduction cap after
 the 2025/2026 MAGI-based phase-out, the resulting deductible amount, and the
 exact MAGI at which the cap floors out completely** — which used to take

@@ -5,6 +5,8 @@ the quote, finds the money factor hiding in a quoted payment when the dealer wil
 say, prices any markup over the base rate in dollars, and compares leasing with buying
 the same car.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/car-lease-deal-checker/
+
 - money factor to APR, plus an effective APR that counts fees;
 - "I only know the payment" mode, solved with the lease formula run backwards;
 - markup over the manufacturer's base rate per month and over the term;

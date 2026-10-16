@@ -2,6 +2,8 @@
 
 A free browser tool for independent phone repair shops: **enter your screen, port and micro-soldering prices, bench minutes, supplies, technician pay, equipment and rent, and get profit per job and per bench hour, the price each job needs for your target margin, what a prepaid protection plan really earns per visit, the break-even volume, and the season at 50 to 150 percent of the volume you expect**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/phone-repair-shop-profit-calculator/
+
 After using this, you can now **tell which job to push when the bench is full and how many jobs cover the equipment and the rent**, which used to take a spreadsheet and a guess.
 
 ## Use

@@ -5,6 +5,8 @@ repaint the way the trade actually estimates one — each surface divided by the
 production rate the painter really hits — and shows the margin before the
 price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/painting-bid-calculator/
+
 **After using this, you can now see the job price, the walk-away number, and
 whether a $2/sq ft floor bid covers cost**, which used to take a spreadsheet
 that still hid trim and door hours inside a blended rate.
