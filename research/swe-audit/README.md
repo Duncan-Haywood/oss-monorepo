@@ -34,6 +34,22 @@ A second seeded sample of 60 projects (seed 20261016, 600 s limit, the scientifi
 - **Every non-reproduction is an environment gap, not a changed number.** Missing tools (Yosys, MuJoCo, a voice model) and run time over the limit account for all 11. Four of the five timeouts are `simdesign-*` finite-element studies and one is `ambient-drvalid`, whose README says about 50 minutes.
 - **README traceability, second sample:** 731 of 925 decimals (79%) appear verbatim in a committed results file over 58 READMEs, against 85% in the first sample. Same caveat: derived values and prose are counted as misses.
 
+## Serial re-run of the five timeouts (2026-10-16)
+
+The five projects that timed out in the two samples were re-run one at a time, no other load, with a 2,400 s limit (`python3 experiments/rerun_timeouts.py 2400 <slugs>`; output in `experiments/results3.txt`, and `experiments/results4.txt` for `simdesign-llm`).
+
+| project | outcome | wall time |
+|---|---|---|
+| `simdesign-fidelity` | differs in timing lines only (13 lines) | 304 s |
+| `simdesign-llm` | byte-identical | 1,333 s |
+| `simdesign-dfm` | byte-identical | 518 s |
+| `simdesign-patchsearch` | differs in one timing line only | 1,504 s |
+| `ambient-drvalid` | byte-identical | 324 s |
+
+- **All five reproduced; none gave different numbers.** They had only run out of time under four parallel jobs. Pooled over the 92 distinct projects, **86 reproduced = 93% (95% Wilson 86% to 97%)**, and none of the 86 that finished gave different numbers. The remaining 6 are still environment gaps (Yosys for `chip-ppa-script` and `chip-systolic-p32`, MuJoCo for three `robofab-*`, and the `ambient-pipeline` voice model); the MuJoCo projects were not re-run here.
+- A first attempt at `simdesign-llm` in this pass failed with `No module named 'cma'`: the package was missing from the auditing container, not from the project (its README lists `cma`). `results4.txt` is the re-run after installing it; `results3.txt` still shows that first, failed line.
+- Wall times are from one container and shift with load; `ambient-drvalid` ran in 324 s here against a README estimate of about 50 minutes.
+
 ## Method
 
 `src/swe_audit/audit.py`. Candidates are projects with both files. For each sampled project, the harness copies it to a temporary directory next to symlinks to its siblings, sets `PYTHONPATH` to its own `src` then every sibling's `src`, runs `python3 experiments/run.py` and compares the rewritten `results.txt` with the committed one. Classes: `identical`; `timing-only` (every differing line mentions time or seconds); `differs`; `timeout`; `tool-missing` (import or file error); `crashed`. Rates use Wilson (1927) intervals, as in `swe-ledger`. Nothing in the repository is written.
@@ -56,7 +72,7 @@ Wall times in `results.txt` depend on load, and the timeouts in particular may d
 - The timing heuristic can hide a real change on a line that mentions time.
 
 ## Next steps
-Re-run the five timeouts serially with no limit. Add a citation check (does the paper exist, are authors, venue and year right) on a smaller random sample, which needs web access this container lacks. Report defect rates by track and model once the sample reaches about 100 and the model per project is recoverable from `Co-Authored-By` trailers. Fix the READMEs that omit a needed package.
+Re-run the three MuJoCo projects now that `mujoco` is installable here. Add a citation check (does the paper exist, are authors, venue and year right) on a smaller random sample, which needs web access this container lacks. Report defect rates by track and model once the sample reaches about 100 and the model per project is recoverable from `Co-Authored-By` trailers. Fix the READMEs that omit a needed package.
 
 ## Builds on
 Wilson (1927), "Probable inference, the law of succession, and statistical inference", *JASA* 22(158): 209&ndash;212, for the interval. No lab's work is built on, and no lab is affiliated with or endorses this project.
