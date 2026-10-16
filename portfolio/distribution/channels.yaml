@@ -94,7 +94,21 @@ channels:
     safety: arguments go to node as an array, never a shell; 20 s timeout; 200 KB output cap; the child gets a minimal environment; CLIs importing http/https/net/child_process/vm or calling fetch/eval are excluded at build time
     terms_to_confirm_by_owner_when_enabling:
       - npm Terms of Use (same account as npm-cli-packages)
-      - MCP registry (registry.modelcontextprotocol.io) publishing: `mcp-publisher` needs a GitHub login proving the io.github.<owner> namespace; agents did not run it. server.json is generated into the package
+      - "MCP registry (registry.modelcontextprotocol.io) publishing: `mcp-publisher` needs a GitHub login proving the io.github.<owner> namespace; agents did not run it. server.json is generated into the package"
       - decide the package name before the first publish; a published name cannot be reclaimed
     owner_ask: same npm token as npm-cli-packages; set DISTRIBUTE_MCP=true; optionally run mcp-publisher once against the generated server.json
     dry_run: node platform/distribution/mcp.mjs
+  - id: pypi-python-packages
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/pypi.mjs
+    workflow: .github/workflows/distribute-pypi.yml
+    enabled_by: repository variable DISTRIBUTE_PYPI=true plus secret PYPI_TOKEN (a PyPI API token)
+    what_it_posts: one PyPI project per Python venture with a pyproject.toml, a src/ tree, a LICENSE and a README and no runtime dependencies (5 today: backup-verification-evidence, cra-evidence-desk, einvoice-preflight, public-record-watch, vendor-change-watch), at most 3 new projects per run, version taken from the pyproject; built from a clean copy (pyproject, LICENSE, README, src) so no site files ship; all five were built and passed twine check on 2026-10-16
+    dedupe: stateless; a project name that already exists on PyPI is skipped, so nothing is ever republished or overwritten
+    terms_to_confirm_by_owner_when_enabling:
+      - PyPI Terms of Use and Acceptable Use Policy (free public projects under your own account)
+      - PyPI's name-squatting policy: the run is capped and each project is a working tool, but check the cap suits you
+      - a published name cannot be reclaimed; for a first upload use an account-scoped token, then replace it with a project-scoped one
+    owner_ask: create or choose the PyPI account, store PYPI_TOKEN as a repository secret, then set DISTRIBUTE_PYPI=true
+    dry_run: node platform/distribution/pypi.mjs

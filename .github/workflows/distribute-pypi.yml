@@ -1,0 +1,30 @@
+# Publishes dependency-free Python ventures to PyPI, a few new projects per run.
+# Off by default: with vars.DISTRIBUTE_PYPI unset this only prints a dry run.
+# Free registry, no paid spend, no commits pushed. Spec: portfolio/distribution/README.md
+name: distribute-pypi
+on:
+  schedule:
+    - cron: '41 17 * * 3'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install build twine
+        if: ${{ vars.DISTRIBUTE_PYPI == 'true' }}
+      - run: node platform/distribution/pypi.mjs
+        env:
+          DISTRIBUTE_PYPI: ${{ vars.DISTRIBUTE_PYPI }}
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
