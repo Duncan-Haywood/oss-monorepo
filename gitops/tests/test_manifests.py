@@ -8,6 +8,7 @@ import re
 from pathlib import Path
 
 import yaml
+from front_door_mirror import all_kustomizations, mirror_kustomization as _mirror_kustomization
 
 ROOT = Path(__file__).resolve().parents[1]
 AGENTS = ROOT / "agents"
@@ -1159,15 +1160,13 @@ def test_portfolio_front_mounts_only_generated_configmaps() -> None:
 # `front-door-tools/` is a nested one (its file list is machine-written, one
 # line per mirrored file, so it lives in its own directory rather than
 # inflating `prod/kustomization.yaml`), and it is still a generator.
-_FRONT_DOOR_KUSTOMIZATIONS = (
-    ROOT / "prod" / "kustomization.yaml",
-    ROOT / "prod" / "front-door-tools" / "kustomization.yaml",
-)
+def _front_door_kustomizations() -> tuple:
+    return (ROOT / "prod" / "kustomization.yaml", _mirror_kustomization())
 
 
 def _front_door_generated_configmaps() -> set:
     generated = set()
-    for kustomization in _FRONT_DOOR_KUSTOMIZATIONS:
+    for kustomization in _front_door_kustomizations():
         parsed = yaml.safe_load(kustomization.read_text())
         generated |= {entry["name"] for entry in parsed.get("configMapGenerator", [])}
     return generated
@@ -1184,7 +1183,7 @@ def _front_door_mounted_configmaps(pod: dict) -> set:
 def _mirror_shard_names() -> list:
     """Shard ConfigMaps in the order `front-door-tools/kustomization.yaml` declares them."""
     parsed = yaml.safe_load(
-        (ROOT / "prod" / "front-door-tools" / "kustomization.yaml").read_text()
+        _mirror_kustomization().read_text()
     )
     return [entry["name"] for entry in parsed["configMapGenerator"]]
 
@@ -1235,7 +1234,7 @@ def _mirrored_venture_slugs() -> set:
     contains that separator itself.
     """
     parsed = yaml.safe_load(
-        (ROOT / "prod" / "front-door-tools" / "kustomization.yaml").read_text()
+        _mirror_kustomization().read_text()
     )
     slugs = set()
     for entry in parsed["configMapGenerator"]:
@@ -3223,7 +3222,7 @@ def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
     # content or a regenerated page never reaches a running pod. The usage
     # script is the deliberate exception: a CronJob names it directly.
     by_name = {}
-    for kustomization in _FRONT_DOOR_KUSTOMIZATIONS:
+    for kustomization in _front_door_kustomizations():
         parsed = yaml.safe_load(kustomization.read_text())
         # A nested kustomization can set the option globally rather than per
         # entry, so fold `generatorOptions` down onto each generator before
@@ -3286,7 +3285,7 @@ def _generated_configmaps() -> list[tuple[str, Path, bytes, dict[str, str]]]:
     under-measuring — the good direction for that bug to fail in.
     """
     found = []
-    for kustomization in sorted(ROOT.rglob("kustomization.yaml")):
+    for kustomization in all_kustomizations(ROOT):
         parsed = yaml.safe_load(kustomization.read_text()) or {}
         shared = parsed.get("generatorOptions", {})
         for entry in parsed.get("configMapGenerator", []):

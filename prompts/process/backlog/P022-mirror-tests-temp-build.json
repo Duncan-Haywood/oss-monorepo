@@ -1,11 +1,16 @@
 {
-  "status": "open",
+  "status": "in_progress",
   "owner": "agent",
   "opened": "2026-10-16",
   "source": "P021 split of P014",
   "pr": null,
   "result": null,
-  "history": [],
+  "history": [
+    {
+      "date": "2026-10-16",
+      "note": "Process run: front-door-tools.mjs --write --out <dir> (touches nothing tracked); front-door-tools.test.mjs and gitops/tests build the mirror into a temp dir. test_manifests.py + test_front_door_serving.py pass with gitops/prod/front-door-tools moved away (84 passed, 19 skipped)."
+    }
+  ],
   "touches": [
     "platform/marketing/",
     "gitops/tests/"
