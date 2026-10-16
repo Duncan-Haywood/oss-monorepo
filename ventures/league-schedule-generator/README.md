@@ -17,6 +17,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   rainout rescheduling (cancel a night or one team's match; it moves to the
   earliest later night both teams are free and a court is open, nothing else
   changes), and an independent validator that re-checks a finished schedule.
+- Standings rank by points, goal difference, goals for; tick head-to-head to split teams level on points by the matches among them first (`standings(..., { headToHead: true })`).
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-make-a-round-robin-schedule.html` - guide with a worked 5-team example
   that the test suite recomputes.

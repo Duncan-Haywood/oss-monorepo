@@ -202,3 +202,19 @@ test("flush dead-letters an event after the eighth failed try, not before", asyn
   s.outbox[0].next = 0;
   assert.equal((await E.flush(s, send, NOW)).dead, 1); // eighth failure: dead
 });
+
+test("the future-timestamp window is exactly five minutes, inclusive", () => {
+  const s = mk();
+  assert.equal(E.MAX_FUTURE_MS, 5 * 60_000);
+  assert.equal(E.ingest(s, cfg, ev("edge", { timestamp: NOW + E.MAX_FUTURE_MS }), NOW).status, "accepted");
+  assert.throws(() => E.ingest(s, cfg, ev("past", { timestamp: NOW + E.MAX_FUTURE_MS + 1 }), NOW), /in the future/);
+});
+
+test("a non-object event is a 400, not a crash", () => {
+  for (const bad of [null, undefined, 42, "x"]) assert.throws(() => E.ingest(mk(), cfg, bad, NOW), (e) => e.status === 400 && /event must be an object/.test(e.message));
+});
+
+test("each graduated tier adds its flat fee once", () => {
+  const line = { model: "graduated", tiers: [{ upTo: 100, unit: 1, flat: 10 }, { upTo: null, unit: 0.5, flat: 20 }] };
+  assert.equal(E.price(line, 150), 100 + 10 + 25 + 20);
+});

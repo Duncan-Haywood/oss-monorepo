@@ -1697,7 +1697,7 @@ const RELATIVE_SELF = relative(
 // +1: `changelog-keeper` graduated.
 // +1: `error-keeper` graduated.
 // +1: `workflow-audit` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1240;
+const SWITCHES_IN_THE_CATALOGUE = 1241;
 // +1: `equipment-lease-vs-buy-calculator` graduated.
 // +1: `patent-maintenance-fee-planner` graduated.
 // +1: `retreat-profit-pricing-calculator` graduated.
