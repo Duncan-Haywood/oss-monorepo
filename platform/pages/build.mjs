@@ -4503,6 +4503,33 @@ export async function discoverSurfaces(venturesDir) {
   return found.sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
+/**
+ * What kind of product a venture is, read from the files it ships, so the hub
+ * can file a self-hosted server or a command-line check as what it is rather
+ * than as one more calculator. `app` ships a container (it runs as a server a
+ * person deploys); `cli` offers a download or a CLI entry point; everything
+ * else is a `browser` tool. A file test, not a slug rule: a new venture is
+ * classified without anyone editing a list.
+ */
+export function surfaceKind(ventureDir, slug = path.basename(ventureDir)) {
+  const has = (name) => existsSync(path.join(ventureDir, name));
+  if (has('Dockerfile') && (has('render.yaml') || has('fly.toml') || has('docker-compose.yml') || has('compose.yaml'))) {
+    return 'app';
+  }
+  if (DOWNLOADABLE_CLI_FILES[slug] || has('cli.mjs') || has('cli.py') || has('cli.js')) return 'cli';
+  return 'browser';
+}
+
+/** Research projects the research homepage builds: `research/<slug>/` with a README. */
+export function researchProjectCount(repoRoot = REPO_ROOT) {
+  const dir = path.join(repoRoot, 'research');
+  if (!existsSync(dir)) return 0;
+  return execFileSync('ls', [dir], { encoding: 'utf8' })
+    .split('\n')
+    .filter((name) => name && !name.startsWith('_') && !name.startsWith('.') && existsSync(path.join(dir, name, 'README.md')))
+    .length;
+}
+
 // ---------------------------------------------------------------------------
 // Metadata
 // ---------------------------------------------------------------------------
@@ -6512,8 +6539,32 @@ ${categoryLinks}
 `;
 }
 
-export function renderHub(surfaces, baseUrl) {
-  const groups = groupByCategory(surfaces);
+/** A hub section listing one kind of product (apps, CLIs) by name. */
+function renderKindSection(id, title, intro, items, deployable) {
+  if (!items.length) return '';
+  const cards = items
+    .map(
+      (s) => `        <li><a href="${escapeHtml(s.slug)}/">${escapeHtml(s.title)}</a>${
+        deployable ? ` · <a href="${escapeHtml(`deploy/?app=${encodeURIComponent(s.slug)}`)}">deploy your copy</a>` : ''
+      }<p>${escapeHtml(s.description ?? '')}</p></li>`,
+    )
+    .join('\n');
+  return `    <section class="kind-section" id="${id}" aria-labelledby="${id}-h">
+      <h2 id="${id}-h">${escapeHtml(title)} <span>${items.length}</span></h2>
+      <p>${escapeHtml(intro)}</p>
+      <ul>
+${cards}
+      </ul>
+    </section>`;
+}
+
+export function renderHub(surfaces, baseUrl, { researchCount = 0 } = {}) {
+  // Apps and CLIs get sections of their own below; the trade categories are
+  // for browser tools, so each product appears on the hub exactly once.
+  const groups = groupByCategory(surfaces.filter((s) => !s.kind || s.kind === 'browser'));
+  const apps = surfaces.filter((s) => s.kind === 'app');
+  const clis = surfaces.filter((s) => s.kind === 'cli');
+  const browserCount = surfaces.length - apps.length - clis.length;
 
   // Indexes first, then the words they turn out to share, then the cards. The
   // stopword cut is a property of the whole catalogue, so it cannot be decided
@@ -6548,11 +6599,11 @@ export function renderHub(surfaces, baseUrl) {
   const itemList = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'Free calculators and checks for people who run a small business',
+    name: SITE_NAME,
     url: baseUrl,
     description:
-      'Free, private, browser-only calculators for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence.',
-    isPartOf: { '@type': 'WebSite', name: 'Free small-business calculators', url: baseUrl },
+      'Free, open-source browser tools, self-hostable business apps, command-line checks and research projects, each with its own page.',
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
     mainEntity: {
       '@type': 'ItemList',
       numberOfItems: surfaces.length,
@@ -6659,10 +6710,10 @@ ${subgroups
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="./favicon.ico" sizes="16x16">
-  <title>Free Small-Business Calculators | Marketplace Fees, Trade Bids, Freight &amp; Compliance</title>
+  <title>${escapeHtml(SITE_NAME)} | Free Tools, Self-Hostable Apps &amp; Research</title>
   <meta name="description" content="${escapeHtml(
     snippetize(
-      `${surfaces.length} free, private calculators for marketplace sellers, trade contractors, logistics buyers and small teams. Everything runs in your browser, nothing uploaded.`,
+      `${surfaces.length} free, open-source products: browser tools, self-hostable business apps and command-line checks, plus ${researchCount} research projects. Browser tools run on your device; apps deploy to your own cloud.`,
     ),
   )}">
   <link rel="canonical" href="${escapeHtml(baseUrl)}">
@@ -6672,8 +6723,8 @@ ${subgroups
        accepts a site URL rather than a feed URL, finds the feed at all. -->
   <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(FEED_FILE)}">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Free small-business calculators">
-  <meta property="og:description" content="Price a listing, bid a job, audit a freight bill, or produce a compliance record — free, and entirely in your browser.">
+  <meta property="og:title" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:description" content="Free, open-source tools, self-hostable business apps and research: use them in your browser or run your own copy.">
   <meta property="og:url" content="${escapeHtml(baseUrl)}">
   <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
@@ -6721,6 +6772,16 @@ ${subgroups
     /* Multi-column rather than grid: one section holds eight sub-groups and the
        rest hold none, and grid would size every cell in the row to that tallest
        one, leaving four columns of white space beside it. Columns just flow. */
+    .overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 22px 0 6px; }
+    .overview a { display: block; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px;
+                  background: var(--panel); color: var(--ink); text-decoration: none; }
+    .overview a:hover { border-color: var(--accent); }
+    .overview strong { display: block; font-size: 1.05rem; color: var(--accent-ink); }
+    .overview span { display: block; font-size: .82rem; margin-top: 4px; color: var(--muted); }
+    .kind-section { margin-top: 30px; }
+    .kind-section ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+    .kind-section li { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; }
+    .kind-section li p { margin: 4px 0 0; font-size: .85rem; }
     .contents { margin-top: 26px; padding: 16px 18px; background: var(--panel);
                 border: 1px solid var(--line); border-radius: 13px;
                 columns: 210px; column-gap: 22px; }
@@ -6867,18 +6928,24 @@ ${subgroups
 <body>
   <div class="wrap">
     <header>
-      <p class="eyebrow">Free &amp; private</p>
-      <h1>Calculators for the decisions that cost real money</h1>
+      <p class="eyebrow">Free &amp; open source</p>
+      <h1>Tools, apps and research you can use or run yourself</h1>
       <p class="lede">
-        ${surfaces.length} free tools for marketplace sellers, trade contractors,
-        logistics buyers, and small teams. Each one answers a specific question
-        with your own numbers — the fee, the bid, the bill, the record.
-      </p>
-      <p class="lede">
-        Everything runs in your browser. Nothing you type is uploaded, and there
-        is no signup, no trial, and no paid tier.
+        ${surfaces.length} free products and ${researchCount} research projects, all
+        MIT-licensed. Browser tools answer a specific question with your own
+        numbers — the fee, the bid, the bill, the record — without uploading
+        anything. Self-hostable apps deploy to your own cloud in one step.
       </p>
     </header>
+
+    <nav class="overview" id="overview" aria-label="What is here">
+      <a href="#contents"><strong>${browserCount}</strong> browser tools<span>Run on your device; no signup</span></a>
+      <a href="#apps"><strong>${apps.length}</strong> self-hostable apps<span>Business software you deploy and own</span></a>
+      <a href="#clis"><strong>${clis.length}</strong> command-line checks<span>For CI pipelines and terminals</span></a>
+      <a href="${RESEARCH_PATH}"><strong>${researchCount}</strong> research projects<span>Reproducible code and write-ups</span></a>
+      <a href="deploy/"><strong>Run your own copy</strong><span>One-click deploy to your own account</span></a>
+      <a href="dev/"><strong>How it is built</strong><span>Live development and CI dashboard</span></a>
+    </nav>
 
     <div class="search">
       <label for="q">Search these tools</label>
@@ -6889,6 +6956,9 @@ ${subgroups
     </div>
 
 ${contents}
+
+${renderKindSection('apps', 'Self-hostable apps', 'Business software that runs as your own server: deploy a copy to your own cloud account with your own keys, and you own the data.', apps, true)}
+${renderKindSection('clis', 'Command-line checks', 'Checks that run in a terminal or a CI pipeline; each page explains what it looks for and how to install it.', clis, false)}
 
     <!-- Filled in by script from the saved bids on this device. Above "pick up
          where you left off" deliberately: a contractor whose customer just rang
@@ -8169,7 +8239,7 @@ export const SOCIAL_CARD_FILE = 'social-card.png';
 
 /** The Atom feed's path. See `renderFeed`. */
 export const FEED_FILE = 'feed.xml';
-export const SITE_NAME = 'Free small-business calculators';
+export const SITE_NAME = 'Open Tools and Research';
 
 /**
  * Make one published page's discovery tags true.
@@ -8533,7 +8603,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
         {
           '@type': 'ListItem',
           position: 1,
-          name: 'Free small-business calculators',
+          name: SITE_NAME,
           item: canonical.slice(0, canonical.length - `${slug}/`.length),
         },
         { '@type': 'ListItem', position: 2, name: title || slug, item: canonical },
@@ -9508,6 +9578,7 @@ export async function buildSite({
         aliasesFor(surface.slug),
         ...(await collectPageTitles(surface.sourceDir, surface.entryFile)),
       ]),
+      kind: surfaceKind(path.join(REPO_ROOT, 'ventures', surface.slug), surface.slug),
       pageCount: await countPages(surface.sourceDir),
       publishedPageCount: pages.length,
       externalFetchHosts: await surfaceExternalFetchHosts(destination),
@@ -9515,7 +9586,10 @@ export async function buildSite({
     log(`  ${surface.slug}`);
   }
 
-  await fs.writeFile(path.join(outDir, 'index.html'), renderHub(surfaces, base));
+  await fs.writeFile(
+    path.join(outDir, 'index.html'),
+    renderHub(surfaces, base, { researchCount: researchProjectCount() }),
+  );
   // The saved-bids script, once for the whole site. Every page that carries the
   // band loads it from here; it used to be written into each of them.
   await fs.writeFile(path.join(outDir, SAVED_BIDS_MODULE_FILE), renderSavedBidsModule());

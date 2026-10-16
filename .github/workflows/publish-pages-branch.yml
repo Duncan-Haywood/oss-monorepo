@@ -62,6 +62,14 @@ on:
       - "research/_homepage/**"
       - "research/README.md"
       - ".github/workflows/publish-pages-branch.yml"
+      # The development dashboard reads run records and its own code.
+      - "prompts/runs/**"
+      - "platform/devstats/**"
+  # The dashboard's CI, review and branch numbers move without a merge to
+  # these paths; refresh them every three hours. Publishing is still gated on
+  # vars.PAGES_BRANCH_PUBLISH below.
+  schedule:
+    - cron: "41 */3 * * *"
   workflow_dispatch:
 
 # One publisher at a time, repository-wide rather than per-ref: every run
@@ -77,6 +85,9 @@ concurrency:
 
 permissions:
   contents: write
+  # Read-only, for the development dashboard's PR, review and CI metrics.
+  actions: read
+  pull-requests: read
 
 jobs:
   publish:
@@ -113,6 +124,7 @@ jobs:
       - name: Build and verify the snapshot (publishing off)
         if: vars.PAGES_BRANCH_PUBLISH != 'true'
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           CONFIRM: publish-pages-branch
           PUSH: "0"
         run: ./platform/pages/publish-branch.sh
@@ -120,6 +132,7 @@ jobs:
       - name: Build, verify, and publish the snapshot
         if: vars.PAGES_BRANCH_PUBLISH == 'true'
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           CONFIRM: publish-pages-branch
           PUSH: "1"
         run: ./platform/pages/publish-branch.sh

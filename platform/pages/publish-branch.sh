@@ -321,6 +321,13 @@ echo "Checking the built artifact..."
 echo "Building the self-deploy page..."
 node "$repo_root/platform/deploy/build.mjs" --out="$dist/deploy" >/dev/null
 
+# The development dashboard (platform/devstats/): merges, lead time, CI and
+# review health, branches, and what each agent run cost. Written after
+# `check.mjs` like the deploy page, and linked from the hub's overview. With
+# GITHUB_TOKEN set (the publish workflow) it adds the GitHub API metrics.
+echo "Building the development dashboard..."
+node "$repo_root/platform/devstats/build.mjs" --out="$dist/dev" >/dev/null
+
 # GitHub reads the custom domain back out of this file on every deploy, so it
 # has to be in every tree this script writes, not only the one where it was
 # first set. Written after `check.mjs` for the same reason `.nojekyll` is:

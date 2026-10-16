@@ -306,6 +306,33 @@ review track uses `runcost.py report` to judge models and prompt versions on
 quality, throughput and usefulness per dollar. It is an internal metric:
 never in a product, never a reason to skip work.
 
+### Delivery metrics and the CI platform
+
+Set by the owner on 2026-10-16: "are there any other metrics worth tracking?
+what about quality reports? ci passes or fails or iteratiions? how long
+branches take to be merged. any reviews and how long they take? I also want
+to have a thing which improves the ci setup definitely a nice shift left
+devsec platform ops sort of vibe but the platform might be overstated." And:
+"there should also be a dev process dashboard as part of the ghp to be able
+to check progress and the ghp should be updated frequently to reflect the
+work that exists."
+
+The dashboard at `dev/` on the Pages site (`platform/devstats/`) reports, on
+every publish:
+- merges per day
+- branch-to-merge and PR open-to-merge time
+- first-review latency and the share of PRs reviewed
+- CI green share on `main`, and which workflows fail most
+- PRs green on their first commit, and red commits before green
+- open PRs and branches by age
+- reverts and fix-forwards
+- the per-run outcome, cost and leverage by track, model and prompt version
+
+The CI side is a direction, not a new platform: move checks left so a
+defect is caught on the branch rather than on `main`. That means fast local
+and pre-push checks, secret and dependency scanning, pinned actions, and
+time budgets. Each change should move one of the dashboard's CI numbers.
+
 ### Track goals
 
 - **Ventures:** products on `main` with a public URL, disclaimers and usage

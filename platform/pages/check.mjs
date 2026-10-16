@@ -121,6 +121,9 @@ export const RESEARCH_DIR = 'research';
 // it after this check runs, because its ~1,200 data files would read as
 // orphans, so the hub's footer link to it cannot resolve here.
 export const DEPLOY_DIR = 'deploy';
+// The development dashboard (`platform/devstats/build.mjs`), written after this
+// check on the same terms as the deploy page.
+export const DEV_DIR = 'dev';
 
 export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR]);
 
@@ -1120,6 +1123,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       // Every tool page footer links `deploy/?app=<slug>` (the "Run your own copy" link), and the page is
       // written after this check runs.
       if (resolved === path.resolve(site, DEPLOY_DIR, 'index.html')) continue;
+      if (resolved === path.resolve(site, DEV_DIR, 'index.html')) continue;
       if (!(await exists(resolved))) problems.push(`${relative}: dead link -> ${target}`);
       else {
         inboundLinks.add(resolved);
