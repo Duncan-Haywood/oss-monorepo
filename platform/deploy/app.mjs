@@ -52,7 +52,7 @@ function renderProviders() {
 }
 
 function showCreds() {
-  for (const c of ['aws', 'gcp', 'azure']) $(c).hidden = !PROVIDERS[provider].needs.includes(c);
+  for (const c of ['aws', 'gcp', 'azure', 'cloudflare']) $(c).hidden = !PROVIDERS[provider].needs.includes(c);
 }
 
 function refresh() {
@@ -60,7 +60,8 @@ function refresh() {
   const haveCreds = $('gh').value.trim()
     && (!needs.includes('aws') || ($('ak').value.trim() && $('sk').value.trim() && $('rg').value.trim()))
     && (!needs.includes('gcp') || ($('gk').value.trim() && $('gp').value.trim()))
-    && (!needs.includes('azure') || ($('zc').value.trim() && $('zs').value.trim() && $('zt').value.trim() && $('zb').value.trim()));
+    && (!needs.includes('azure') || ($('zc').value.trim() && $('zs').value.trim() && $('zt').value.trim() && $('zb').value.trim()))
+    && (!needs.includes('cloudflare') || ($('cf').value.trim() && $('ca').value.trim()));
   $('go').disabled = PROVIDERS[provider].downloadOnly || !($('ack').checked && haveCreds && $('app').value);
   $('dl').disabled = !($('ack').checked && $('app').value);
 }
@@ -159,6 +160,13 @@ async function deploy() {
       }
       await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'AZURE_LOCATION', value: $('zl').value.trim() || 'eastus' });
       log('The OpenTofu state passphrase was generated in this tab and stored only as a secret in your repository (GitHub never shows it again).');
+    } else if (p.needs.includes('cloudflare')) {
+      log('Encrypting your Cloudflare credentials in this tab and storing them as Actions secrets…');
+      const key = await gh(token, 'GET', `/repos/${me.login}/${name}/actions/secrets/public-key`);
+      const secrets = { CLOUDFLARE_API_TOKEN: $('cf').value.trim(), CLOUDFLARE_ACCOUNT_ID: $('ca').value.trim() };
+      for (const [k, v] of Object.entries(secrets)) {
+        await gh(token, 'PUT', `/repos/${me.login}/${name}/actions/secrets/${k}`, { encrypted_value: sealSecretForGitHub(v, key.key), key_id: key.key_id });
+      }
     } else if (provider === 'render') {
       log('Render reads the blueprint from this repository; no secrets are stored in it.');
     } else if (provider === 'android') {
