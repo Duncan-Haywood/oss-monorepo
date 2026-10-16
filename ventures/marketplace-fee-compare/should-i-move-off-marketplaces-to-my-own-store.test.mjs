@@ -23,7 +23,11 @@ const BASE = {
   categoryId: "home",
 };
 
-const rowsAt = (monthlyOrders) => compareChannels(loadItem({ ...BASE, monthlyOrders }));
+// The article ranks the seven channels the page launched with; Depop and
+// Facebook Marketplace were added to the tool later and are not in its tables.
+const ARTICLE_CHANNELS = new Set(["ebay", "etsy", "amazon", "walmart", "tiktok", "mercari", "shopify"]);
+const rowsAt = (monthlyOrders) =>
+  compareChannels(loadItem({ ...BASE, monthlyOrders })).filter((row) => ARTICLE_CHANNELS.has(row.id));
 const byId = (rows, id) => rows.find((row) => row.id === id);
 const money = (value) => `$${value.toFixed(2)}`;
 

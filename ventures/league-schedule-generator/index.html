@@ -165,7 +165,7 @@
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice and does not replace your league's rules or a venue's booking system. <strong>You are responsible for reviewing and verifying the schedule</strong> (every date, court and pairing) before you send it to a league. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any league, sports body, club or scheduling software company, and none is named or ranked here. The example teams are invented.</p>
-    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so download the CSV.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — your setup is remembered only in this browser ("Clear" forgets it), so download the CSV.</p>
     <p>Everything runs in your browser. Your team names and dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_built</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>ics_downloaded</code>, <code>text_shared</code>, <code>link_shared</code>, <code>link_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tool: the <a href="../shift-cover-optimizer/">shift cover optimizer</a> for staff rotas the <a href="../volunteer-shift-scheduler/">volunteer shift scheduler</a> for the people who run your league day, and the <a href="../tournament-pairing-manager/">tournament pairing manager</a> for Swiss events and brackets.</p>
@@ -329,7 +329,18 @@
       try { await navigator.clipboard.writeText(link); status.textContent = "Link copied. It holds your setup inside the link itself, so anyone you send it to sees the same schedule; nothing is stored on a server."; record("link_shared"); }
       catch { history.replaceState(null, "", link); status.textContent = "Your browser blocked copying. Copy the address bar instead: it now holds your setup."; }
     });
+    const SAVE_KEY = "league-schedule-generator:setup";
+    function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(readFields())); } catch (e) { /* storage is optional */ } }
+    $("#build").addEventListener("click", persist);
+    $("#reshuffle").addEventListener("click", persist);
+    $("#clear-all").addEventListener("click", () => { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* optional */ } });
     const shared = decodeFields(location.hash);
+    if (!shared) {
+      try {
+        const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+        if (saved && Array.isArray(saved.weekdays) && typeof saved.teams === "string") { setFields({ ...sampleFields(), ...saved }); status.textContent = "Restored your last league from this device. Click Build the schedule to rebuild; Clear forgets it."; }
+      } catch (e) { /* optional */ }
+    }
     if (shared) later(() => { setFields(shared); if (run()) { status.textContent = "Loaded the setup from the link you opened. Check every date before you use it."; record("link_opened"); } });
     $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }

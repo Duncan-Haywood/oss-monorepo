@@ -38,6 +38,9 @@ right now. This is your call, and these are only defaults:
   checks that never fire or that miss real defects, the instruction text runs
   read and route around (deviations, friction), cost per merged PR, and what
   the review track has and has not changed.
+- **Split first.** An item that needs more than one PR is a row nobody finishes
+  (9 of 41 process runs ended partial on such items). Split it into one-PR rows
+  in the backlog, then ship the first one.
 - **Verify.** For items marked `done` without a `result`, measure the metric
   against its `baseline` and write the result: helped, no change, or worse.
   If a fix did not help, reopen the item or revert the change.

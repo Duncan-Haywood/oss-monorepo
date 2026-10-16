@@ -11,6 +11,10 @@ measurements to improve the sub-prompts and the documentation.
 
 ## 1. Route
 
+If the message that started the session names a specific task, pass its track:
+`route --track ventures|research|process|explore|redteam|review` (otherwise
+the draw can send you elsewhere).
+
 ```
 python3 prompts/promptctl.py route
 ```
@@ -27,9 +31,7 @@ clearly does not fit, do what better serves the goals and record it as a
 deviation (step 3). That is how the defaults improve
 ([`prompts/steering.md`](prompts/steering.md)).
 
-If the message that started the session asks for something specific, do that
-instead, under the track it belongs to:
-`route --track ventures|research|process|explore|redteam|review`. The router picks the review track
+The router picks the review track
 by itself once enough runs have merged since the last review, for a share of
 runs (`review_when_due`) so parallel routines do not all start one. If an open
 pull request titled `prompts: review` already exists, another run has claimed

@@ -32,3 +32,5 @@ size from 2 to 24 teams.
 uploaded. Anonymous feature counts stay in local storage and can be switched off.
 
 MIT licence, see `LICENSE`.
+
+**Returning each season.** The last setup is remembered in this browser's local storage only (Clear forgets it); share-by-link still carries a setup inside the URL.
