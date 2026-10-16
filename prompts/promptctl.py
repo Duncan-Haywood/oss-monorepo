@@ -818,4 +818,8 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except BrokenPipeError:  # `promptctl.py measure | head`: stop quietly
+        sys.stderr.close()
+        sys.exit(0)
