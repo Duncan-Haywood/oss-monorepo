@@ -52,7 +52,7 @@ more.
 Volume does not tell you whether the work was the right work. By 16 October
 the fleet had built 1,274 products, and more than half were single-page
 calculators. A companion post,
-[How a fleet of AI agents built 121 bid calculators nobody asked for](https://duncan-haywood.github.io/monorepo-projects/writing/how-our-agents-built-121-bid-calculators/),
+[How a fleet of AI agents built 121 bid calculators nobody asked for](2026-10-16-how-our-agents-built-121-bid-calculators.md),
 tells that story. The short version: nobody chose that portfolio. Five
 sensible rules combined into one cheap template, and the fleet produced it
 again and again. No product had a measured visitor, so nothing pushed back.

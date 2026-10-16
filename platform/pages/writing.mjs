@@ -14,6 +14,9 @@
  *   tags: [ai-agents, automation]
  *   ---
  *
+ * Link one post from another by its file name (`[title](2026-10-16-slug.md)`):
+ * that works on GitHub, and the site rewrites it to the post's page.
+ *
  * To publish a post, add the file. `build.mjs` calls `buildWriting` on every
  * site build, lists each post in the sitemap, and links the index from the
  * hub; `check.mjs` fails a build whose writing pages lack a disclaimer or a
@@ -155,7 +158,7 @@ ${canonical ? `<meta property="og:url" content="${esc(canonical)}">\n` : ''}${so
 </head>
 <body>
 <div class="wrap">
-<nav class="crumbs" aria-label="Breadcrumb"><a href="${toRoot}">${esc(SITE_NAME)}</a> › ${crumbs}</nav>
+<nav class="crumbs" aria-label="Breadcrumb"><a href="${toRoot}" data-pf-to="hub">${esc(SITE_NAME)}</a> › ${crumbs}</nav>
 <main>
 ${body}
 </main>
@@ -197,6 +200,13 @@ ${posts.length ? `<ul class="posts">\n${items}\n</ul>` : '<p>No posts yet.</p>'}
   });
 }
 
+/** A link to another post's source file becomes a link to that post's page on this site. */
+export function linkSiblings(html, posts) {
+  let out = html;
+  for (const p of posts) out = out.split(`href="${esc(REPO_BLOB + p.source)}"`).join(`href="../${esc(p.slug)}/"`);
+  return out;
+}
+
 export function renderPost(post, posts, { baseUrl = '', socialCard = '' } = {}) {
   const canonical = baseUrl ? `${baseUrl}${WRITING_PATH}${post.slug}/` : '';
   const others = posts.filter((p) => p.slug !== post.slug).slice(0, 5);
@@ -224,7 +234,7 @@ export function renderPost(post, posts, { baseUrl = '', socialCard = '' } = {}) 
 <p class="dek">${esc(post.description)}</p>
 <p class="meta"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes} min read ·
 <a href="${REPO_BLOB}${esc(post.source)}">Source</a>${tags ? `<br>${tags}` : ''}</p>
-${renderMarkdown(post.body, { fromPath: post.source, dropTitle: true })}
+${linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts)}
 </article>
 <section class="more" aria-label="More writing">
 <p><strong>More writing</strong></p>

@@ -70,6 +70,18 @@ test('build writes an index, one page per post and a feed, each with a disclaime
   assert.match(feed, new RegExp(`<id>${BASE}writing/hello/</id>`));
 });
 
+test('a link to a sibling post file becomes a link to its page', async () => {
+  const root = repoWith({
+    '2026-10-01-first.md': post('First', '2026-10-01'),
+    '2026-10-02-second.md': post('Second', '2026-10-02', '').replace('Body text', 'See [the first](2026-10-01-first.md). Body text'),
+  });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-sib-'));
+  await buildWriting(out, BASE, { root });
+  const page = await fs.readFile(path.join(out, WRITING_PATH, 'second/index.html'), 'utf8');
+  assert.match(page, /<a href="\.\.\/first\/">the first<\/a>/);
+  assert.match(page, /data-pf-to="hub"/);
+});
+
 test('feed is valid-shaped with no posts', () => {
   assert.match(renderFeed([], { baseUrl: BASE }), /<feed xmlns="http:\/\/www\.w3\.org\/2005\/Atom">/);
 });
