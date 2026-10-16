@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { laborPercent,
+import { laborPercent, scheduleFlags,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -454,4 +454,21 @@ test("daily hour limit: per-person cell and roster-wide setting are hard rules a
   assert.equal(r2.unfilledSlots, 0);
   assert.notEqual(r2.owner[0], r2.owner[1]);
   assert.ok(parseStaff("Ann,10,40,0,any,daily: lots").errors.length === 1);
+});
+
+test("scheduleFlags: daily hours, split shifts, notice", () => {
+  const r = { assignments: [
+    { slot: { day: 0, startMin: 480, endMin: 720 }, person: "Sam" },
+    { slot: { day: 0, startMin: 900, endMin: 1200 }, person: "Sam" },
+    { slot: { day: 1, startMin: 480, endMin: 960 }, person: "Ana" },
+    { slot: { day: 1, startMin: 960, endMin: 1020 }, person: "Ana" },
+    { slot: { day: 2, startMin: 480, endMin: 960 }, person: null },
+  ] };
+  const f = scheduleFlags(r, { weekStart: "2026-11-02", today: "2026-10-26" });
+  assert.deepEqual(f.overDaily.map((x) => [x.person, x.day, x.hours]), [["Ana", "Tue", 9], ["Sam", "Mon", 9]]);
+  assert.deepEqual(f.splits.map((x) => [x.person, x.day, x.gapHours]), [["Sam", "Mon", 3]]);
+  assert.deepEqual(f.notice, { days: 7, required: 14, short: true });
+  assert.equal(scheduleFlags(r, { dailyLimit: 10 }).overDaily.length, 0);
+  assert.equal(scheduleFlags(r).notice, null);
+  assert.equal(scheduleFlags({}).overDaily.length, 0);
 });

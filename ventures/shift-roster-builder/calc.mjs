@@ -769,6 +769,37 @@ export function laborPercent(payroll, sales, targetPct = null) {
   return { pct, target: t, maxPayroll, headroom: maxPayroll - c, over: pct > t + 1e-9 };
 }
 
+// Predictive-scheduling style flags on a built roster, for rules the search does not enforce: hours in one day over
+// `dailyLimit` (daily-overtime states), split shifts (two shifts one day with a gap over `splitGap` hours), and how many
+// days of notice the week gets when the Monday and today's date are given. Flags only; not legal advice.
+export function scheduleFlags(r, { dailyLimit = 8, splitGap = 1, weekStart = null, today = null, noticeDays = 14 } = {}) {
+  const byKey = new Map();
+  for (const a of r.assignments || []) {
+    if (!a.person) continue;
+    const k = a.person + "|" + a.slot.day;
+    if (!byKey.has(k)) byKey.set(k, { person: a.person, day: a.slot.day, spans: [] });
+    byKey.get(k).spans.push([a.slot.startMin, a.slot.endMin]);
+  }
+  const overDaily = [], splits = [];
+  for (const g of byKey.values()) {
+    g.spans.sort((x, y) => x[0] - y[0]);
+    const hours = g.spans.reduce((t, [a, b]) => t + (b - a) / 60, 0);
+    if (hours > dailyLimit + 1e-9) overDaily.push({ person: g.person, day: DAYS[g.day], hours, overBy: hours - dailyLimit });
+    for (let i = 1; i < g.spans.length; i++) {
+      const gap = (g.spans[i][0] - g.spans[i - 1][1]) / 60;
+      if (gap > splitGap + 1e-9) splits.push({ person: g.person, day: DAYS[g.day], gapHours: gap });
+    }
+  }
+  let notice = null;
+  const w = weekStart ? new Date(weekStart + "T00:00:00Z") : null, t = today ? new Date(today + "T00:00:00Z") : null;
+  if (w && t && !Number.isNaN(w + t)) {
+    const days = Math.round((w - t) / 864e5);
+    notice = { days, required: noticeDays, short: days < noticeDays };
+  }
+  const order = (a, b) => a.person.localeCompare(b.person) || DAYS.indexOf(a.day) - DAYS.indexOf(b.day);
+  return { overDaily: overDaily.sort(order), splits: splits.sort(order), notice };
+}
+
 export function hoursCsv(r) {
   const rows = ["person,shifts,hours,overtime_hours,estimated_payroll,minimum_hours,hours_under_minimum"];
   for (const p of r.people) rows.push([p.name.includes(",") ? `"${p.name}"` : p.name, p.shifts, p.hours.toFixed(2), p.otHours.toFixed(2), p.cost.toFixed(2), p.minHours, p.short.toFixed(2)].join(","));

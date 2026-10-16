@@ -1,6 +1,10 @@
 // Pure logic for status-keeper: no node: imports, so the browser page can use it too.
 export const DEFAULTS = { intervalSec: 60, failAfter: 2, timeoutMs: 10_000, graceSec: 60 };
 export const KEEP_DAYS = 90;
+// Expiry watchers: "tls" (certificate of host:port) and "domain" (registration, via RDAP).
+// They check slowly, fail on the first miss, and warn at fixed days-left thresholds.
+export const EXPIRY_TYPES = ["tls", "domain"];
+export const EXPIRY_DEFAULTS = { intervalSec: 21_600, failAfter: 1, timeoutMs: 10_000, warnDays: [30, 14, 7, 3, 1] };
 const RECENT = 60, MAX_INCIDENTS = 200;
 export const IMPACTS = ["minor", "major"];
 export const INCIDENT_STATUSES = ["investigating", "identified", "monitoring", "resolved"];
@@ -52,11 +56,32 @@ export function recordCheck(state, def, result, now) {
     m.streakFail++; m.streakOk = 0;
     if (m.streakFail >= failAfter && m.status !== "down" && !planned) {
       m.status = "down";
-      const inc = { id: `inc_${now.toString(36)}_${def.id}`, monitors: [def.id], title: `${def.name || def.id} is not responding`, impact: "major", status: "investigating", auto: true, startedAt: m.firstFailAt, resolvedAt: null, updates: [{ at: now, status: "investigating", message: `${m.streakFail} checks in a row failed: ${m.lastError}` }] };
+      const what = def.type === "tls" ? "certificate is invalid or unreachable" : def.type === "domain" ? "domain registration lookup failed or has lapsed" : "is not responding";
+      const inc = { id: `inc_${now.toString(36)}_${def.id}`, monitors: [def.id], title: `${def.name || def.id} ${what}`, impact: "major", status: "investigating", auto: true, startedAt: m.firstFailAt, resolvedAt: null, updates: [{ at: now, status: "investigating", message: `${m.streakFail} checks in a row failed: ${m.lastError}` }] };
       pushIncident(state, inc);
       events.push({ type: "down", monitor: def, incident: inc });
     }
   }
+  return events;
+}
+
+// Record the expiry date a tls/domain check found. Returns an "expiring" event the first time
+// days-left drops to or below each warnDays threshold, and one "renewed" event when it climbs
+// back above the largest one. Never touches uptime: a certificate with 5 days left still serves.
+export function recordExpiry(state, def, expiresAt, now) {
+  const m = mon(state, def.id);
+  const warn = [...(def.warnDays ?? EXPIRY_DEFAULTS.warnDays)].sort((a, b) => b - a);
+  const daysLeft = Math.floor((expiresAt - now) / 86_400_000);
+  const events = [];
+  const renewed = m.expiresAt != null && expiresAt > m.expiresAt + 86_400_000;
+  m.expiresAt = expiresAt; m.daysLeft = daysLeft;
+  if (renewed || daysLeft > warn[0]) {
+    if (m.warnedAt != null && daysLeft > warn[0]) events.push({ type: "renewed", monitor: def, daysLeft, expiresAt });
+    m.warnedAt = null;
+  }
+  const due = warn.filter((w) => daysLeft <= w);
+  const level = due.length ? Math.min(...due) : null;
+  if (level !== null && (m.warnedAt == null || level < m.warnedAt)) { m.warnedAt = level; events.push({ type: "expiring", monitor: def, threshold: level, daysLeft, expiresAt }); }
   return events;
 }
 
