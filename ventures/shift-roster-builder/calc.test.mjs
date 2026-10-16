@@ -491,6 +491,8 @@ test("scheduleFlags: daily hours, split shifts, notice", () => {
   const f = scheduleFlags(r, { weekStart: "2026-11-02", today: "2026-10-26" });
   assert.deepEqual(f.overDaily.map((x) => [x.person, x.day, x.hours]), [["Ana", "Tue", 9], ["Sam", "Mon", 9]]);
   assert.deepEqual(f.splits.map((x) => [x.person, x.day, x.gapHours]), [["Sam", "Mon", 3]]);
+  assert.deepEqual(f.longStretches.map((x) => [x.person, x.day, x.hours]), [["Ana", "Tue", 9]]);
+  assert.equal(scheduleFlags(r, { mealAfter: 10 }).longStretches.length, 0);
   assert.deepEqual(f.notice, { days: 7, required: 14, short: true });
   assert.equal(scheduleFlags(r, { dailyLimit: 10 }).overDaily.length, 0);
   assert.equal(scheduleFlags(r).notice, null);
