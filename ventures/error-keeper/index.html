@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Error Keeper — Free Self-Hosted Error Tracking (Sentry Alternative)</title>
+  <meta name="description" content="A free, open-source alternative to Sentry and Rollbar for small teams: groups the same bug together, alerts on new errors, regressions and spikes, one Node process and one JSON file. Paste stack traces and see the grouping in your browser first.">
+  <meta property="og:title" content="Error Keeper — know when your app breaks, on your own server">
+  <meta property="og:description" content="Self-hosted error tracking with smart grouping, regression and spike alerts, a 1 KB browser snippet and a Node SDK. MIT, zero dependencies.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Error Keeper", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source, self-hosted error tracking: groups the same bug together, alerts on new errors, regressions and spikes, and shows the latest stack. One Node process, your data."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not use Sentry, Rollbar, Bugsnag or Honeybadger?", "acceptedAnswer": {"@type": "Answer", "text": "They are good products and the right answer for a team that wants source maps, session replay and performance tracing. They also bill by event volume, and the self-hosted Sentry is a dozen containers with Kafka and ClickHouse. Error Keeper does the part most small teams use every day: group the same bug together, tell you when something new or a regression or a spike happens, and show the latest stack. It is one dependency-free Node process with a JSON file, and your stack traces stay on your server."}}, {"@type": "Question", "name": "How does it decide two errors are the same bug?", "acceptedAnswer": {"@type": "Answer", "text": "It builds a key from the error type and the top three in-app stack frames (function and file name, never line numbers or bundle hashes), so a deploy that shifts lines does not split a group. With no stack it uses the message with numbers, ids, quoted values and URLs removed. You can override the key with your own fingerprint. The box above runs the real grouping code on whatever you paste."}}, {"@type": "Question", "name": "What counts as a regression or a spike?", "acceptedAnswer": {"@type": "Answer", "text": "Mark an issue resolved in a release. If an event arrives from that release or a later one, it reopens and alerts as a regression. A spike is at least 10 events in the current hour and well above that issue's own 24-hour baseline (mean plus four standard deviations, and at least three times the mean), so a noisy bug does not page you every hour."}}, {"@type": "Question", "name": "What does it not do?", "acceptedAnswer": {"@type": "Answer", "text": "No source-map unminifying, no session replay, no performance tracing, no multi-user accounts or per-user permissions, and the JSON file is fine for thousands of events a day, not millions. Browser errors from minified bundles show minified frames; ship unminified stacks to your own server or use a service that unminifies if you need that."}}, {"@type": "Question", "name": "Is it safe to send real errors to it?", "acceptedAnswer": {"@type": "Answer", "text": "It masks emails, bearer tokens, common API-key shapes and sensitive query values before storing anything, and keeps user ids only as hashes. That is a safety net, not a guarantee: you run the server, so you are responsible for what your app sends, for securing the keys, for backups and for the privacy rules where you and your users live."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2433; background: #f5f7fb; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #a3173f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #7a1430; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #7a1430; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444; }
+    .card { background: #fff; border: 1px solid #dce1ee; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab3d0; border-radius: 7px; font: 13px ui-monospace, monospace; min-height: 190px; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #a3173f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.alt { background: #fff; color: #a3173f; border: 1px solid #a3173f; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e8f4; vertical-align: top; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    pre { background: #eef1fa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .err { color: #9b1c1c; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Know when your app breaks, and which bug it is.</h1>
+  <p>Error Keeper is an open-source error tracker for small teams. A one-kilobyte browser snippet and a Node client send crashes to a server you run. It groups the same bug together even when line numbers, ids and bundle hashes differ, alerts you the first time a bug appears, when a bug you fixed comes back, and when one suddenly gets much worse, and shows the latest stack. First, see the grouping on your own stack traces. It runs in your browser, so nothing you paste is uploaded.</p>
+
+  <section class="card" aria-labelledby="sim">
+    <h2 id="sim">1. Group your errors</h2>
+    <label for="traces">Paste stack traces (Chrome, Node, Firefox or Safari format). Separate errors with a line containing only ---</label>
+<textarea id="traces" spellcheck="false" placeholder="TypeError: Cannot read properties of undefined (reading 'id')&#10;    at render (https://app.example.com/main.3f9a1c.js:10:5)&#10;---&#10;..."></textarea>
+    <button id="run" type="button">Group them</button>
+    <button id="demo" type="button" class="alt">Try a sample</button>
+    <p class="note err" id="err" role="alert"></p>
+    <div id="out" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Run the server yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/error-keeper
+INGEST_KEY=$(openssl rand -hex 16) ADMIN_KEY=$(openssl rand -hex 16) \
+  ALLOWED_ORIGINS=https://app.example.com node server.mjs</pre>
+    <p>Browser: <code>&lt;script defer src="https://YOUR-HOST/sdk.js" data-key="INGEST_KEY" data-release="1.4.2"&gt;&lt;/script&gt;</code>. Node: <code>createKeeper({url, key, release}).install()</code>. Open your server's address, enter the admin key and read the issue list. Set <code>ALERT_WEBHOOK_URL</code> for a signed alert that is also a valid Slack or Discord incoming webhook. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not use Sentry, Rollbar, Bugsnag or Honeybadger?</h3>
+    <p>They are good products and the right answer for a team that wants source maps, session replay and performance tracing. They also bill by event volume, and the self-hosted Sentry is a dozen containers with Kafka and ClickHouse. Error Keeper does the part most small teams use every day: group the same bug together, tell you when something new or a regression or a spike happens, and show the latest stack. It is one dependency-free Node process with a JSON file, and your stack traces stay on your server.</p>
+    <h3>How does it decide two errors are the same bug?</h3>
+    <p>It builds a key from the error type and the top three in-app stack frames (function and file name, never line numbers or bundle hashes), so a deploy that shifts lines does not split a group. With no stack it uses the message with numbers, ids, quoted values and URLs removed. You can override the key with your own fingerprint. The box above runs the real grouping code on whatever you paste.</p>
+    <h3>What counts as a regression or a spike?</h3>
+    <p>Mark an issue resolved in a release. If an event arrives from that release or a later one, it reopens and alerts as a regression. A spike is at least 10 events in the current hour and well above that issue's own 24-hour baseline (mean plus four standard deviations, and at least three times the mean), so a noisy bug does not page you every hour.</p>
+    <h3>What does it not do?</h3>
+    <p>No source-map unminifying, no session replay, no performance tracing, no multi-user accounts or per-user permissions, and the JSON file is fine for thousands of events a day, not millions. Browser errors from minified bundles show minified frames; ship unminified stacks to your own server or use a service that unminifies if you need that.</p>
+    <h3>Is it safe to send real errors to it?</h3>
+    <p>It masks emails, bearer tokens, common API-key shapes and sensitive query values before storing anything, and keeps user ids only as hashes. That is a safety net, not a guarantee: you run the server, so you are responsible for what your app sends, for securing the keys, for backups and for the privacy rules where you and your users live.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../status-keeper/">Status Keeper</a> tells customers when you are down, <a href="../cron-heartbeat/">Cron Heartbeat</a> catches jobs that silently stop, <a href="../visit-keeper/">Visit Keeper</a> counts visitors without cookies and <a href="../support-desk/">Support Desk</a> handles the emails that follow.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. It can miss errors, group unrelated ones or drop events under load, and is not a substitute for monitoring you depend on; nothing here is legal, tax, or financial advice. You are the operator of your server: you are responsible for what your app sends it, for securing the keys, for backups, and for the privacy rules where you and your users live. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { ingest, newState, list, parseStack, fingerprint } from "./engine.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const el = (tag, text, cls) => { const e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; return e; };
+    const SAMPLE = [
+      "TypeError: Cannot read properties of undefined (reading 'id')\n    at renderCart (https://shop.example.com/assets/main.3f9a1c2b.js:10:5)\n    at Object.run (https://shop.example.com/assets/vendor.node_modules/react.js:1:1)",
+      "TypeError: Cannot read properties of undefined (reading 'name')\n    at renderCart (https://shop.example.com/assets/main.9d41e07a.js:88:12)\n    at Object.run (https://shop.example.com/assets/vendor.node_modules/react.js:1:1)",
+      "Error: Order 88123 failed: card declined\n    at charge (/srv/app/payments.js:41:11)\n    at async checkout (/srv/app/checkout.js:20:3)",
+      "Error: Order 90017 failed: card declined\n    at charge (/srv/app/payments.js:44:11)\n    at async checkout (/srv/app/checkout.js:20:3)",
+      "RangeError: Invalid array length\n    at buildReport (/srv/app/report.js:7:9)",
+    ].join("\n---\n");
+    function show(text) {
+      const out = $("out"); out.replaceChildren(); $("err").textContent = "";
+      const blocks = text.split(/^\s*---\s*$/m).map((s) => s.trim()).filter(Boolean);
+      if (!blocks.length) { $("err").textContent = "Paste at least one stack trace."; return; }
+      const st = newState(), now = Date.now();
+      for (const b of blocks) {
+        const [first, ...rest] = b.split("\n"), m = first.match(/^(\w*(?:Error|Exception)?):?\s*(.*)$/);
+        try { ingest(st, { type: m && m[1] || "Error", message: m ? m[2] : first, stack: b }, now); } catch (e) { $("err").textContent = e.message; return; }
+      }
+      const issues = list(st, { now });
+      out.append(el("p", `${blocks.length} error${blocks.length === 1 ? "" : "s"} became ${issues.length} issue${issues.length === 1 ? "" : "s"}.`));
+      const t = document.createElement("table"); t.innerHTML = "<thead><tr><th scope='col'>Issue</th><th scope='col' class='n'>Events</th></tr></thead>";
+      const tb = document.createElement("tbody");
+      for (const i of issues) { const tr = document.createElement("tr"), th = el("th", `${i.type}: ${i.title}`); th.scope = "row"; tr.append(th, el("td", String(i.count), "n")); tb.append(tr); }
+      t.append(tb); out.append(t);
+      out.append(el("p", "Grouping uses the error type and the top in-app frames, never line numbers, so the same bug on a new deploy stays in one group.", "note"));
+      record("group");
+    }
+    $("run").addEventListener("click", () => show($("traces").value));
+    $("demo").addEventListener("click", () => { $("traces").value = SAMPLE; show(SAMPLE); });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>
