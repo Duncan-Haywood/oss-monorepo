@@ -1392,6 +1392,11 @@
      "slug": "chip-systolic-p32",
      "title": "Does the MAC-engine lead survive MAC lanes up to P = 32 and arrays up to R = 4?",
      "summary": "The <em>chip-systolic-hidewide</em> comparison (F-16-4 quantised network, F = 16, 32) extended to MAC engines with P up to 32 lanes and arrays up to 4&times;8 and 2&times;16, every design simulated in Icarus Verilog against an integer NumPy reference and scored with Yosys. A negative result: the best MAC engine still wins, by 1.30&times; and 1.28&times; in cells&times;cycles per vector. P = 32 adds no cycles over P = 16 (only 16 hidden outputs) and a 0.7% cell-count difference at F = 32; 4&times;8 does not beat 2&times;8. One network family, one seed, gate counts only; no layout or power."
+    },
+    {
+     "slug": "chip-macp32cells",
+     "title": "Is P = 32 being smaller than P = 16 at equal cycles a real effect or a synthesis artefact?",
+     "summary": "<code>chip-systolic-p32</code> found the 32-lane MAC engine smaller than the 16-lane one although both take the same cycles. Re-synthesised with three model seeds and three Yosys/abc flows at F = 16 and 32, the sign depends on the flow: P = 32 is smaller in all 6 cases under two flows and larger in all 6 under a four-gate library, by 47 to 699 cells (1&ndash;10%). That swing is far above the 0.7% margin used to rank the best design earlier, so that ranking should be discarded. Three seeds, one tool version, generic-gate counts only; the mechanism is not traced."
     }
    ]
   },
