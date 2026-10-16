@@ -733,8 +733,12 @@ export function parseResults(text, teams) {
   return { results, errors };
 }
 
-/** Points, then goal difference, then goals for, then the order the teams were entered. */
-export function standings(teams, results, { win = 3, draw = 1, loss = 0 } = {}) {
+/**
+ * Points, then goal difference, then goals for, then the order the teams were entered.
+ * With `headToHead: true`, teams level on points are first split by a mini-table of only the
+ * matches among them (points, goal difference, goals for), then by the overall tiebreaks.
+ */
+export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToHead = false } = {}) {
   const rows = teams.map((name, i) => ({ index: i, name, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, points: 0 }));
   for (const r of results) {
     const A = rows[r.a];
@@ -746,7 +750,29 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0 } = {}) 
     else { A.drawn++; B.drawn++; A.points += draw; B.points += draw; }
   }
   for (const r of rows) r.gd = r.gf - r.ga;
-  rows.sort((x, y) => y.points - x.points || y.gd - x.gd || y.gf - x.gf || x.index - y.index);
+  if (headToHead) {
+    const level = new Map();
+    for (const r of rows) level.set(r.points, [...(level.get(r.points) ?? []), r.index]);
+    for (const group of level.values()) {
+      if (group.length < 2) continue;
+      const set = new Set(group);
+      const mini = new Map(group.map((i) => [i, { pts: 0, gf: 0, ga: 0 }]));
+      for (const r of results) {
+        if (!set.has(r.a) || !set.has(r.b)) continue;
+        const A = mini.get(r.a);
+        const B = mini.get(r.b);
+        A.gf += r.ga; A.ga += r.gb; B.gf += r.gb; B.ga += r.ga;
+        if (r.ga > r.gb) { A.pts += win; B.pts += loss; }
+        else if (r.ga < r.gb) { B.pts += win; A.pts += loss; }
+        else { A.pts += draw; B.pts += draw; }
+      }
+      for (const i of group) { const m = mini.get(i); rows[i].h2h = { points: m.pts, gd: m.gf - m.ga, gf: m.gf }; }
+    }
+  }
+  const h = (r) => r.h2h ?? { points: 0, gd: 0, gf: 0 };
+  rows.sort((x, y) => y.points - x.points
+    || h(y).points - h(x).points || h(y).gd - h(x).gd || h(y).gf - h(x).gf
+    || y.gd - x.gd || y.gf - x.gf || x.index - y.index);
   rows.forEach((r, i) => { r.rank = i + 1; });
   return rows;
 }
