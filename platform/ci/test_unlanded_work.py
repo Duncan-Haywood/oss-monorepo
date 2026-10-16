@@ -163,6 +163,20 @@ class TestCheckBranch(Fixture):
         self.assertIn("already had PR #7", report.problems[0])
         self.assertIn("Open a NEW pull request", report.problems[0])
 
+    def test_re_pushing_a_spent_branch_at_main_is_noted(self):
+        # The 2026-10-16 leak: reset to origin/main after the merge, push
+        # again, and the deleted branch is back with nothing on it.
+        self.branch("claude/spent")
+        first = self.commit("a.txt", "a\n", "a")
+        self.push("claude/spent")
+        self.open_pr(11, first)
+        self.squash_merge("a.txt", "a\n", "a (#11)")
+        run(self.clone, "reset", "-q", "--hard", "origin/main")
+        run(self.clone, "push", "-q", "-f", "origin", "claude/spent")
+        report = self.check()
+        self.assertEqual(report.exit_code, 0)
+        self.assertIn("holds nothing beyond main", " ".join(report.notes))
+
     def test_merging_main_into_a_landed_branch_strands_nothing(self):
         # "Merge origin/main into my branch" carries nothing of its own.
         self.branch("claude/synced")

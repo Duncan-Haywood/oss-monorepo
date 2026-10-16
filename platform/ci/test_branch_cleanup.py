@@ -17,12 +17,15 @@ from datetime import datetime, timedelta, timezone
 
 from branch_cleanup import (
     DEFAULT_PROTECTED,
+    MainContainment,
     decide,
+    decide_stray,
     expand_grace_prs,
     iter_closed_for_sweep,
     refs_in_grace,
     run,
     summarise_pr,
+    sweep_inputs,
 )
 
 NOW = datetime(2026, 8, 24, 12, 0, tzinfo=timezone.utc)
@@ -450,6 +453,210 @@ class SweepWindowTest(unittest.TestCase):
         expanded = expand_grace_prs([target], lambda ref: [peer])
         self.assertEqual({row["number"] for row in expanded}, {9, 10})
         self.assertEqual(expanded[1]["head_ref"], "claude/shared")
+
+
+MAIN_TIP = "f" * 40      # a commit on main (the reset-to-main push)
+UNIQUE_TIP = "9" * 40    # a commit that is on no other ref
+OLD = "2026-08-20T12:00:00Z"  # 96h before NOW
+YOUNG = "2026-08-24T00:00:00Z"  # 12h before NOW
+
+
+def containment(main=None, compares=None, budget=50):
+    """MainContainment over a fake main history and fake compare answers."""
+    compares = compares or {}
+    calls = []
+
+    def compare(sha):
+        calls.append(sha)
+        return compares.get(sha)
+
+    probe = MainContainment(main or {MAIN_TIP: OLD}, compare, budget)
+    probe.calls = calls
+    return probe
+
+
+class InMainRuleTest(unittest.TestCase):
+    """The 2026-10-16 leak: branches re-pushed at main's own commit, and
+    branches no PR ever used, kept forever although they hold nothing new."""
+
+    def test_moved_branch_whose_tip_is_in_main_is_deleted(self):
+        pull = pr(merged_at="2026-08-24T11:00:00Z")
+        decision = call_contained(pull, MAIN_TIP, containment())
+        self.assertTrue(decision.delete)
+        self.assertIn("already in main", decision.reason)
+
+    def test_moved_closed_unmerged_branch_in_main_is_deleted(self):
+        decision = call_contained(pr(), MAIN_TIP, containment())
+        self.assertTrue(decision.delete)
+
+    def test_moved_branch_with_commits_not_in_main_is_kept(self):
+        pull = pr(merged_at="2026-08-24T11:00:00Z")
+        probe = containment(compares={UNIQUE_TIP: (3, None)})
+        decision = call_contained(pull, UNIQUE_TIP, probe)
+        self.assertFalse(decision.delete)
+        self.assertIn("has moved", decision.reason)
+
+    def test_moved_branch_is_kept_when_containment_cannot_tell(self):
+        pull = pr(merged_at="2026-08-24T11:00:00Z")
+        decision = call_contained(pull, UNIQUE_TIP, containment(budget=0))
+        self.assertFalse(decision.delete)
+        self.assertIn("has moved", decision.reason)
+
+    def test_moved_in_main_branch_held_by_an_open_pr_is_kept(self):
+        pull = pr(merged_at="2026-08-24T11:00:00Z")
+        decision = decide(pull, {pull["head_ref"]: MAIN_TIP}, {pull["head_ref"]},
+                          NOW, contained=containment())
+        self.assertFalse(decision.delete)
+        self.assertIn("another open PR", decision.reason)
+
+    def test_compare_ahead_by_zero_counts_as_in_main(self):
+        probe = containment(compares={UNIQUE_TIP: (0, OLD)})
+        self.assertEqual(probe.check(UNIQUE_TIP), (True, NOW - timedelta(hours=96)))
+        probe.check(UNIQUE_TIP)
+        self.assertEqual(probe.calls, [UNIQUE_TIP])  # cached, one request
+
+    def test_main_history_hit_needs_no_compare(self):
+        probe = containment()
+        self.assertTrue(probe(MAIN_TIP))
+        self.assertEqual(probe.calls, [])
+
+    def test_no_pr_branch_in_main_and_old_is_deleted(self):
+        decision = decide_stray("claude/x", MAIN_TIP, set(), NOW, True,
+                                NOW - timedelta(hours=96))
+        self.assertTrue(decision.delete)
+
+    def test_no_pr_branch_in_main_but_young_is_kept(self):
+        decision = decide_stray("claude/x", MAIN_TIP, set(), NOW, True,
+                                NOW - timedelta(hours=12))
+        self.assertFalse(decision.delete)
+        self.assertIn("old", decision.reason)
+
+    def test_no_pr_branch_with_commits_not_in_main_is_kept(self):
+        decision = decide_stray("claude/x", UNIQUE_TIP, set(), NOW, False, None)
+        self.assertFalse(decision.delete)
+        self.assertIn("commits not in main", decision.reason)
+
+    def test_no_pr_branch_is_kept_when_containment_cannot_tell(self):
+        self.assertFalse(
+            decide_stray("claude/x", UNIQUE_TIP, set(), NOW, None, None).delete
+        )
+
+    def test_no_pr_branch_with_an_open_pr_is_kept(self):
+        decision = decide_stray("claude/x", MAIN_TIP, {"claude/x"}, NOW, True,
+                                NOW - timedelta(hours=96))
+        self.assertFalse(decision.delete)
+        self.assertIn("open PR", decision.reason)
+
+    def test_no_pr_protected_names_are_kept(self):
+        for ref in ("main", "gh-pages", "master", "release/2026-10", "hotfix/x"):
+            with self.subTest(ref=ref):
+                decision = decide_stray(ref, MAIN_TIP, set(), NOW, True,
+                                        NOW - timedelta(hours=999))
+                self.assertFalse(decision.delete)
+                self.assertIn("protected", decision.reason)
+
+    def test_run_deletes_contained_strays_and_keeps_the_rest(self):
+        branches = {
+            "claude/old-in-main": MAIN_TIP,
+            "claude/young-in-main": "e" * 40,
+            "claude/unique": UNIQUE_TIP,
+            "claude/open-pr": MAIN_TIP,
+            "gh-pages": MAIN_TIP,
+        }
+        probe = containment(main={MAIN_TIP: OLD, "e" * 40: YOUNG},
+                            compares={UNIQUE_TIP: (1, None)})
+        github = FakeGitHub(branches, open_refs={"claude/open-pr"})
+        out = io.StringIO()
+
+        deleted = run(github, [], DEFAULT_PROTECTED, 24.0, False, out, now=NOW,
+                      containment=probe, strays=sorted(branches))
+
+        self.assertEqual(deleted, 1)
+        self.assertEqual(github.deleted, ["claude/old-in-main"])
+
+    def test_run_rechecks_a_stray_that_gained_a_commit(self):
+        ref = "claude/x"
+
+        def push(github):
+            github._branch_shas[ref] = UNIQUE_TIP
+
+        probe = containment(compares={UNIQUE_TIP: (1, None)})
+        github = FakeGitHub({ref: MAIN_TIP}, after_snapshot=push)
+        out = io.StringIO()
+
+        deleted = run(github, [], DEFAULT_PROTECTED, 24.0, False, out, now=NOW,
+                      containment=probe, strays=[ref])
+
+        self.assertEqual(deleted, 0)
+        self.assertEqual(github.deleted, [])
+        self.assertIn("commits not in main", out.getvalue())
+
+    def test_max_deletes_stops_the_run(self):
+        prs = [
+            pr(number=n, head_ref="claude/%d" % n, merged_at="2026-08-24T11:00:00Z")
+            for n in range(5)
+        ]
+        github = FakeGitHub({p["head_ref"]: "a" * 40 for p in prs})
+        out = io.StringIO()
+        deleted = run(github, prs, DEFAULT_PROTECTED, 24.0, False, out, now=NOW,
+                      sleep=lambda _: None, max_deletes=2)
+        self.assertEqual(deleted, 2)
+        self.assertIn("max-deletes", out.getvalue())
+
+
+def call_contained(pull, tip, probe):
+    return decide(pull, {pull["head_ref"]: tip}, set(), NOW, contained=probe)
+
+
+def payload(number, ref, repo=REPO, merged=True):
+    return {
+        "number": number,
+        "state": "closed",
+        "merged_at": "2026-08-01T00:00:00Z" if merged else None,
+        "closed_at": "2026-08-01T00:00:00Z",
+        "head": {"ref": ref, "sha": "a" * 40, "repo": {"full_name": repo}},
+        "base": {"ref": "main", "repo": {"full_name": REPO}},
+    }
+
+
+class SweepInputsTest(unittest.TestCase):
+    def test_sweep_reaches_past_the_old_5000_row_cap(self):
+        # 6,800 closed PRs (the 2026-10-16 count); the oldest one still has a
+        # live head. The old DEFAULT_SWEEP_SCAN of 5,000 never got there.
+        rows = [payload(n, "claude/gone-%d" % n) for n in range(6800, 1, -1)]
+        rows.append(payload(1, "claude/oldest", merged=False))
+        prs, strays, complete = sweep_inputs(
+            iter(rows), {"claude/oldest", "claude/never-pr"}, set()
+        )
+        self.assertTrue(complete)
+        self.assertEqual([p["number"] for p in prs], [1])
+        self.assertEqual(strays, ["claude/never-pr"])
+
+    def test_live_heads_with_kept_branches_do_not_starve_older_ones(self):
+        # 875 kept "moved" branches used to fill the 500-PR window.
+        rows = [payload(n, "claude/moved-%d" % n) for n in range(2000, 1000, -1)]
+        rows.append(payload(1, "claude/oldest", merged=False))
+        live = {"claude/moved-%d" % n for n in range(2000, 1000, -1)} | {"claude/oldest"}
+        prs, _, _ = sweep_inputs(iter(rows), live, set())
+        self.assertIn(1, [p["number"] for p in prs])
+
+    def test_a_branch_named_like_a_fork_pr_head_is_still_a_stray(self):
+        rows = [payload(5, "claude/x", repo="someone/fork")]
+        prs, strays, _ = sweep_inputs(iter(rows), {"claude/x"}, set())
+        self.assertEqual(prs, [])
+        self.assertEqual(strays, ["claude/x"])
+
+    def test_open_pr_heads_are_not_strays(self):
+        _, strays, _ = sweep_inputs(iter([]), {"claude/open", "claude/none"},
+                                    {"claude/open", "main"})
+        self.assertEqual(strays, ["claude/none"])
+
+    def test_truncated_scan_skips_the_no_pr_rule(self):
+        rows = [payload(n, "claude/%d" % n) for n in range(10)]
+        _, strays, complete = sweep_inputs(iter(rows), {"claude/never-pr"}, set(),
+                                           scan_cap=10)
+        self.assertFalse(complete)
+        self.assertEqual(strays, [])
 
 
 if __name__ == "__main__":
