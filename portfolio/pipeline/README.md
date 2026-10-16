@@ -74,6 +74,12 @@ metric before this existed:
 python3 portfolio/pipeline/duplicate_check.py "one-line description of the niche"
 ```
 
+The reverse direction, which pairs of ventures already on `main` overlap most
+(merge candidates for "depth over count"), is
+`python3 portfolio/pipeline/corpus_dupes.py`. Lexical, so it is a reading list,
+not a verdict. On 2026-10-16 it found 19 pairs at >= 0.6, nearly all
+`*-payout-to-journal` / `*-statement-to-journal` siblings.
+
 It scores the proposed niche against every venture description (including
 product lines), every `screened-out.md` row, the eight `ai-first-markets`
 ideas, and every existing pipeline candidate, and exits 1 with the closest

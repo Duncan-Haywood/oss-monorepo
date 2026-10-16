@@ -2371,6 +2371,11 @@
      "summary": "Follows up <em>accel-pdkprice</em>, where idle flops made weight-stationary (WS) lose to output-stationary (OS) once weights are packed into SRAM words. Reads the idle clock energy of a flop and of an integrated clock gate (ICG) from the SKY130 HD and GF180MCU liberty files: an idle SKY130 <code>dlclkp_1</code> costs 0.86 of an idle <code>dfxtp_1</code> (39.7 against 46.4&nbsp;fJ per cycle), and GF180 gates cost 0.99 to 1.02 of its flops at 3.3 and 5&nbsp;V in both track heights. One gate shared by <em>G</em> accumulator flops therefore cuts the idle cost about <em>G</em>-fold. With one gate per 24-bit accumulator, WS needs a weight fetch of only 0.08 to 0.9&nbsp;pJ (ungated: 2.2 to 26&nbsp;pJ) and beats OS against every packed SKY130 macro in all 64 macro, layer and batch cells but one (an 80-bit macro on the 11&times;64 layer at <em>B</em>&nbsp;=&nbsp;16 needs 27 flops per gate). Library characterisation values, a gate-per-group model with the enable logic, area and the register-file read mux unpriced; no RTL built or synthesised.<br>Stylised."
     },
     {
+     "slug": "accel-gatedrtl",
+     "title": "Does the clock-gated weight-stationary engine hold up once it is written in RTL and synthesised?",
+     "summary": "Writes the register-file weight-stationary (WS) engine of <em>accel-planebatch</em> with clock gates (one per 24-bit accumulator, or one per set of eight) and synthesises it to SKY130 HD with Yosys. All 32 points are bit-exact against NumPy and write exactly as many accumulator bits as the output-stationary engine, confirming the assumption of <em>accel-gatedprice</em>. A gate per set brings the accumulator clock-pin energy to 1.00&ndash;1.07&times; output-stationary (ungated WS: <em>B</em>&times;), but area falls only 7&ndash;18&nbsp;% against ungated WS, and gated WS is still 1.2&times; to 5.3&times; the output-stationary area at batch 2 to 16 because the extra accumulator sets are flops either way. <strong>Stylised:</strong> synthesis only, no place and route, clock tree or timing; energy is a liberty-based clock-pin model."
+    },
+    {
      "slug": "accel-policy",
      "title": "Does a small control network need an accelerator to meet the control-rate deadline?",
      "summary": "Small MLP policies, cloned from a computed-torque controller for a two-link arm with DAgger and quantised to 8 and 4 bits, with inference latency modelled for microcontroller loops and <em>P</em>-lane accelerators (assumed constants) and the closed loop simulated with that latency. <strong>Preliminary and mostly negative:</strong> the int8 policies track at least 300&times; worse than the teacher, which itself barely notices a sample of delay, so policy accuracy rather than hardware speed limits control; the deadline model says hardware only matters above about 10&nbsp;kHz or for larger networks. Stylised; hardware figures are not measured."
@@ -2446,6 +2451,11 @@
      "slug": "eda-earlystop",
      "title": "When can a check cascade stop formal verification early without losing kills?",
      "summary": "Replay of the <em>eda-verify</em> mutation log with a time cap on the formal stage. Every formal kill in the log finished within 164&nbsp;s, while equivalence proofs take about 222&nbsp;s, so a 170&nbsp;s cap loses no kill (66 of 66 killable mutants still found) and saves 41% of the cascade's CPU, but gives up all 16 equivalence proofs; a 230&nbsp;s cap keeps 15 of them and saves 23%. Caps of 30&nbsp;s or less start losing kills. A cap learned from half the mutants worked on the other half when the training half contained formal kills and failed (1.6 of 29 kills lost) when it contained none. Stylised: one design, one solver, 91 mutants; nothing new was simulated."
+    },
+    {
+     "slug": "eda-equivpredict",
+     "title": "Can cheap features say which simulation survivors formal can prove equivalent?",
+     "summary": "Replay of the <em>eda-verify</em> log on the 27 mutants that 16 directed vectors do not kill (16 provably equivalent, 9 timeouts, 2 formal kills). Predicting from the mutated source line and running formal only on predicted-equivalent survivors costs 3,298&nbsp;CPU-s against 7,414&nbsp;s for always running formal (&minus;55%) and still finds 14 of 16 proofs, 93% accurate under leave-one-line-out; smoother rules (3-NN, a one-split rule) find 12 of 16 and operator kind is no better than guessing. The signal is the design region the solver finds hard, not a transferable rule. Stylised: 27 mutants, one design, one solver; nothing new was simulated."
     }
    ]
   },
@@ -2532,6 +2542,11 @@
      "summary": "A seeded sample of 40 <code>research/</code> projects with a runnable experiment was re-run on a clean copy and diffed against the committed <code>results.txt</code>. 36 of 40 (90%, 95% Wilson interval 77% to 96%) reproduced: 34 byte-identical and 2 differing only in a timing line. Three timed out at 300 s (four jobs in parallel) and one needs a voice model that is not in the repository, so those four are inconclusive, not failures. Of 713 decimal numbers in the sampled READMEs, 85% appear verbatim in committed result files (the rest are derived or in prose). A second sample of 60 (8 overlapping) brought the pooled total to 92 distinct projects: 81 reproduced (88%, Wilson 80% to 93%), none of the 81 finished runs gave different numbers, and the 11 others are missing tools (Yosys, MuJoCo, a voice model) or timeouts. Re-running the five timeouts one at a time (no parallel load) reproduced all five (two differing only in timing lines), lifting the pooled figure to 86 of 92 (93%, Wilson 86% to 97%); the 6 left are missing tools or the voice model. A mechanical reproduction check on a small sample, with no citation audit, so the correctness term is only partly estimated. Preliminary."
     },
     {
+     "slug": "swe-cleanbroken",
+     "title": "When research merges collide cleanly, is the result still right?",
+     "summary": "Replays pairs of research merges that touched the shared index files within 10, 30 and 60 minutes of each other (67 merges, 2026-10-14 to 10-16) and checks the merged tree against the homepage build&rsquo;s rules. Of 129 pairs within 60 min, 37 (28.7%) conflicted textually and the other 92 merged with no new inconsistency; none was clean but broken. The same checker found two projects with duplicate <code>README.md</code> bullets since the repository fold-in, which <code>build.py</code> missed; they are removed and the build now fails on duplicates. Preliminary: three days, an approximate replay, and consistency rules rather than the full build."
+    },
+    {
      "slug": "swe-sharedfiles",
      "title": "How often do research merges collide on the shared index files?",
      "summary": "Measured from git history (101 research merges, 2026-10-14 to 10-16): 64.4% edit both <code>README.md</code> and <code>projects.json</code>, the median gap between such merges is 30.6 min, and replaying a later merge against an earlier one within 30 min gives a textual conflict in 18.6% of 59 pairs (15.3% in a shared file). Branch times are assumed, not measured; textual conflicts only; preliminary."
@@ -2597,6 +2612,11 @@
      "slug": "mimic-twinc2st",
      "title": "Does a classifier two-sample test catch digital-twin errors that a paired trajectory error misses?",
      "summary": "A stylised pendulum with Coulomb friction and heavy-tailed (Student-t) sensor noise is the &lsquo;real&rsquo; system; twins differ in friction, noise shape or noise level. A classifier two-sample test (5-fold CV AUROC, 800 vs 800 trajectories, 3 seeds) separates real from twin trajectories with boosted trees: a friction error of 0.03 (10%) that moves the noise-free trajectory by only 0.006 rad RMSE &mdash; a quarter of the 0.02 rad noise sd &mdash; gives AUROC 0.72, and 0.91 at 20%. A twin with the right dynamics but Gaussian instead of Student-t noise of the same sd has paired error exactly 0 yet AUROC 0.92 once second-difference features are added (0.59 on raw angles). A logistic regression on raw angles stays at chance (0.51) throughout, because the start angles are symmetric. Limits: one toy system, two noise models, three seeds, a handful of classifier settings; simulated only, nothing about real hardware. Preliminary, no LLM involved: a side piece of track 11."
+    },
+    {
+     "slug": "mimic-mmd",
+     "title": "Does a kernel MMD test catch the same wrong digital twins as a classifier two-sample test?",
+     "summary": "A kernel two-sample test (unbiased RBF MMD, median-heuristic bandwidth) is compared with a gradient-boosted classifier two-sample test on the stylised pendulum of <code>mimic-twinc2st</code>. Rejection uses the 95th percentile of the exact twin&rsquo;s own statistic. Raw-trajectory MMD has essentially no power against a Coulomb-friction error at <em>n</em>&nbsp;=&nbsp;100&ndash;400 per class (0.05&ndash;0.06 at the median bandwidth, 0.37 at 0.03&times; for &minus;20% friction), where the classifier reaches 1.00 at &minus;20% from <em>n</em>&nbsp;=&nbsp;200. MMD on second differences detects a +25% noise-level error at 0.97 from <em>n</em>&nbsp;=&nbsp;100, where the raw-feature classifier is at 0.08&ndash;0.25. Stylised; 24 classifier replicates per cell, so those intervals are wide."
     },
     {
      "slug": "mimic-mujocotwin",
