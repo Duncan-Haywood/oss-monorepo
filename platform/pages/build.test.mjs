@@ -5415,7 +5415,7 @@ test('copyTree drops dot-directory tool caches but keeps .well-known', async () 
   );
 });
 
-// P017: the home page is a home for everything, not a calculator list. These
+// P019: the home page is a home for everything, not a calculator list. These
 // pin the sections, so the framing cannot drift back one venture at a time.
 test('the hub is a home for everything: apps, CLIs, research and self-deploy have their own place', () => {
   const surfaces = [

@@ -386,7 +386,7 @@ const REWRITABLE = new Set(['.html', '.xml', '.txt', '.json', '.mjs', '.js', '.w
 // Ordered: the first rule whose test matches wins.
 const CATEGORY_RULES = [
   {
-    // Added 2026-10-16 (P017): the self-hosted SaaS-operations apps had been
+    // Added 2026-10-16 (P019): the self-hosted SaaS-operations apps had been
     // filed by slug into `ci` and the catch-all, which tripped the catch-all
     // bound (14) and told a visitor a dunning engine was a CI check. First so
     // it wins over the `ci` list, which still names several of them.

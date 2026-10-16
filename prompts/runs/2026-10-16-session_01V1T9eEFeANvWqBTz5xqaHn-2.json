@@ -47,7 +47,7 @@
     },
     {
       "file": "prompts/goals.md",
-      "issue": "'Public face for everything' goal (10-14/15) had no backlog item, metric or check, so 2 days of merges never touched the calculator-framed hub (P017)."
+      "issue": "'Public face for everything' goal (10-14/15) had no backlog item, metric or check, so 2 days of merges never touched the calculator-framed hub (P019)."
     },
     {
       "file": "gitops/tests/test_ci_runner.py",
