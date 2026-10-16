@@ -102,8 +102,27 @@ function substituteCronNames(raw, names) {
  * work the same as their numeric equivalents; a name spelled outside the
  * three-letter set (a typo, a full month name) throws naming the bad token.
  */
+const CRON_MACROS = {
+  "@yearly": "0 0 1 1 *",
+  "@annually": "0 0 1 1 *",
+  "@monthly": "0 0 1 * *",
+  "@weekly": "0 0 * * 0",
+  "@daily": "0 0 * * *",
+  "@midnight": "0 0 * * *",
+  "@hourly": "0 * * * *",
+};
+
 export function parseCronExpression(expr) {
-  const fields = String(expr).trim().split(/\s+/);
+  const trimmed = String(expr).trim();
+  if (trimmed.startsWith("@")) {
+    const expanded = CRON_MACROS[trimmed.toLowerCase()];
+    if (!expanded) {
+      throw new Error(`unknown cron macro "${trimmed}" (supported: ${Object.keys(CRON_MACROS).join(", ")}; @reboot has no time to check)`);
+    }
+    expr = expanded;
+  }
+  // "?" (Quartz/Spring "no specific value") in dom or dow means the same as "*" here.
+  const fields = String(expr).trim().split(/\s+/).map((f, i) => ((i === 2 || i === 4) && f === "?" ? "*" : f));
   if (fields.length !== 5) {
     throw new Error(`expected 5 whitespace-separated fields (minute hour dom month dow), got ${fields.length}: "${expr}"`);
   }
@@ -360,6 +379,9 @@ export function utcOffsetDrift(hour, minute, timeZone, year = new Date().getUTCF
 }
 
 export function summarizeRuns({ occurrences, flagged }) {
+  if (occurrences.length === 0 && flagged.length === 0) {
+    return { status: "never-fires", text: "0 runs found in the search window -- this expression never fires (for example, day 31 of a 30-day month, or Feb 30), so there is nothing to check." };
+  }
   const skipped = flagged.filter((f) => f.kind === "skipped").length;
   const ambiguous = flagged.filter((f) => f.kind === "ambiguous").length;
   if (skipped === 0 && ambiguous === 0) {
