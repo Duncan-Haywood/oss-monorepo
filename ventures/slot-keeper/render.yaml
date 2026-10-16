@@ -1,0 +1,42 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# No third-party key is required to start. BUSY_ICS_URL (your calendar's secret iCal address), ALERT_WEBHOOK_URL (Slack/Discord) and Resend email (HOST_EMAIL, RESEND_API_KEY, MAIL_FROM, DRY_RUN=false) are optional.
+services:
+  - type: web
+    name: slot-keeper
+    runtime: docker
+    dockerContext: ventures/slot-keeper
+    dockerfilePath: ventures/slot-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: TRUST_PROXY
+        value: "true"
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: COMPANY_NAME
+        sync: false
+      - key: ALERT_WEBHOOK_URL
+        sync: false
+      - key: PUBLIC_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: DRY_RUN
+        value: "true"
+      - key: BUSY_ICS_URL
+        sync: false
+      - key: HOST_EMAIL
+        sync: false
+      - key: DEFAULT_TZ
+        value: UTC
+      - key: REMINDER_HOURS
+        value: "24"

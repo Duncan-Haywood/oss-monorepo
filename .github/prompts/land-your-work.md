@@ -151,6 +151,15 @@ Merging is every agent's job, not only the author's:
     `git checkout FETCH_HEAD -- ventures/<slug>`), regenerate and re-verify
     against today's `main`, credit the source branch in the PR body, and
     merge.
+  - You will usually meet these as **adopted drafts** first: every six hours
+    `adopt-stranded-branches.yml` runs `platform/ci/adopt_stranded.py`,
+    which opens a draft PR titled "Adopt stranded branch ..." for each
+    branch with work `main` lacks. Its body lists the commits and the files
+    only that branch changed. Treat it as an orphan draft (above): merge
+    `main` in (that push also starts its CI, which an Actions-opened PR
+    does not get), verify, and merge, or close it with the reason. Run the
+    script without `--apply` to see what it would adopt and why it skipped
+    the rest.
 
 ## End every session's reply with
 
