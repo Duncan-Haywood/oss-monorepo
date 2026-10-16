@@ -1,7 +1,7 @@
 {
   "id": "P016",
   "title": "Replace ~869 per-venture *-ci.yml workflows with one matrix workflow",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 2,
@@ -11,7 +11,7 @@
     "diff of 1099-vendor-tracker-ci.yml vs 3d-print-price-calculator-ci.yml with slugs normalised: only header comment differs",
     "2026-10-16 measurement (slug-normalised, comments stripped, md5 of each *-ci.yml; 874 files): 367 share one body, then 77, 69, 44, 40, 20, 13, 13... i.e. ~42% identical, a long tail of variants. Dependents exist: platform/ci/validate_workflows.py (line ~487 REQUIRES a per-venture <slug>-ci.yml for every venture with node tests) and platform/marketing/workflow-coverage.test.mjs."
   ],
-  "change": "Narrowed after measurement: a one-shot replacement is not safe. Step 1: change validate_workflows.py to accept a matrix workflow as satisfying the per-venture requirement. Step 2: migrate only the 367-file identical cluster (generate matrix from the slug list), keep variants. Step 3: confirm agent_review/branch protection do not require per-venture check names. Do not delete files before step 1 lands.",
+  "change": "Narrowed after measurement: a one-shot replacement is not safe. Step 1: change validate_workflows.py to accept a matrix workflow as satisfying the per-venture requirement. Step 2: migrate only the 367-file identical cluster (generate matrix from the slug list), keep variants. Step 3: confirm agent_review/branch protection do not require per-venture check names. Do not delete files before step 1 lands. DONE 2026-10-16 (narrower than written): step 1 was already true (validate_workflows invariant 7 accepts the portfolio-wide ventures-tests.yml). Deleted the 384-file identical cluster; ventures-tests.yml now also runs platform/pages/clauses.mjs for each touched venture with tests. 94 variant workflows kept.",
   "touches": [
     ".github/workflows/*-ci.yml",
     "platform/ci/"
@@ -20,7 +20,12 @@
   "baseline": "893 (869 per-venture *-ci.yml)",
   "opened": "2026-10-16",
   "source": "Repo-organization review in a Claude Code session, 2026-10-16 (unmeasured; see CAVEAT in problem)",
-  "pr": null,
+  "pr": "see PR titled \"process P016\"",
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-10-16",
+      "note": "workflow files 893 -> 509 (ls .github/workflows | wc -l: 518 after sync incl. non-ci); validate_workflows, publish_surface --check, checklist_coverage, workflow-coverage test pass"
+    }
+  ]
 }
