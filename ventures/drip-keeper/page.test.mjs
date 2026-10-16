@@ -54,5 +54,5 @@ test("footer links the sibling Flag Keeper", () => {
   assert.match(file("index.html"), /href="\.\.\/flag-keeper\/"/);
 });
 
-test("footer names help-keeper so no sibling is an orphan", () => { assert.match(page("index.html"), /href="\.\.\/help-keeper\/"/); });
-test("footer names slot-keeper so no sibling is an orphan", () => { assert.match(page("index.html"), /href="\.\.\/slot-keeper\/"/); });
+test("footer names help-keeper so no sibling is an orphan", () => { assert.match(file("index.html"), /href="\.\.\/help-keeper\/"/); });
+test("footer names slot-keeper so no sibling is an orphan", () => { assert.match(file("index.html"), /href="\.\.\/slot-keeper\/"/); });
