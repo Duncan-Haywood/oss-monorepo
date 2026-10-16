@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log plot: designed in a twin with optimistic cue accuracy, the robot errs far above its target on a less accurate real human">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Real error / target alpha vs the human's true cue accuracy</text>
+<line x1="64" x2="624" y1="309.6" y2="309.6" stroke="#ddd"/><text x="58" y="313.6" text-anchor="end" font-family="sans-serif" font-size="11">0.001</text>
+<line x1="64" x2="624" y1="263.8" y2="263.8" stroke="#ddd"/><text x="58" y="267.8" text-anchor="end" font-family="sans-serif" font-size="11">0.01</text>
+<line x1="64" x2="624" y1="217.9" y2="217.9" stroke="#ddd"/><text x="58" y="221.9" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="172.1" y2="172.1" stroke="#ddd"/><text x="58" y="176.1" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="126.2" y2="126.2" stroke="#ddd"/><text x="58" y="130.2" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="80.3" y2="80.3" stroke="#ddd"/><text x="58" y="84.3" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="224.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.7</text>
+<text x="384.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.95</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">real cue accuracy p</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">real err / alpha (floored at 1e-3)</text>
+<line x1="64" x2="624" y1="172.1" y2="172.1" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,70.4 224.0,102.6 384.0,145.0 624.0,263.8" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#c0392b"/>
+<circle cx="224.0" cy="102.6" r="3" fill="#c0392b"/>
+<circle cx="384.0" cy="145.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="263.8" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">twin p_s=0.9, h=4</text>
+<polyline points="64.0,77.3 224.0,119.1 384.0,172.5 624.0,309.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="77.3" r="3" fill="#1f6fb2"/>
+<circle cx="224.0" cy="119.1" r="3" fill="#1f6fb2"/>
+<circle cx="384.0" cy="172.5" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="309.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">twin p_s=0.8, h=5</text>
+<polyline points="64.0,107.7 224.0,186.3 384.0,309.6 624.0,309.6" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="107.7" r="3" fill="#2e8b57"/>
+<circle cx="224.0" cy="186.3" r="3" fill="#2e8b57"/>
+<circle cx="384.0" cy="309.6" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="309.6" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">twin p_s=0.7, h=9</text>
+</svg>
