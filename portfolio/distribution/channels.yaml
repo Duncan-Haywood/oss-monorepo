@@ -104,7 +104,7 @@ channels:
     code: platform/distribution/pypi.mjs
     workflow: .github/workflows/distribute-pypi.yml
     enabled_by: repository variable DISTRIBUTE_PYPI=true plus secret PYPI_TOKEN (a PyPI API token)
-    what_it_posts: one PyPI project per Python venture with a pyproject.toml, a src/ tree, a LICENSE and a README and no runtime dependencies (5 today: backup-verification-evidence, cra-evidence-desk, einvoice-preflight, public-record-watch, vendor-change-watch), at most 3 new projects per run, version taken from the pyproject; built from a clean copy (pyproject, LICENSE, README, src) so no site files ship; all five were built and passed twine check on 2026-10-16
+    what_it_posts: "one PyPI project per Python venture with a pyproject.toml, a src/ tree, a LICENSE and a README and no runtime dependencies (5 today: backup-verification-evidence, cra-evidence-desk, einvoice-preflight, public-record-watch, vendor-change-watch), at most 3 new projects per run, version taken from the pyproject; built from a clean copy (pyproject, LICENSE, README, src) so no site files ship; all five were built and passed twine check on 2026-10-16"
     dedupe: stateless; a project name that already exists on PyPI is skipped, so nothing is ever republished or overwritten
     terms_to_confirm_by_owner_when_enabling:
       - PyPI Terms of Use and Acceptable Use Policy (free public projects under your own account)
