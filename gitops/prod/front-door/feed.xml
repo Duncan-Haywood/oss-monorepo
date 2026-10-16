@@ -8,6 +8,14 @@
   <updated>2026-10-16T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
+    <title>GitHub Actions Runtime Deprecation Check — Find Steps on End-of-Life Node Runtimes</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-runtime-deprecation-check/"/>
+    <id>tag:marisstella.dev,2026:tool/actions-runtime-deprecation-check</id>
+    <updated>2026-10-16T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your GitHub Actions workflow YAML and list every actions/* step pinned to a major that runs on a deprecated Node runtime (Node 12 or 16) or that GitHub has shut down. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Changelog Keeper — Free Self-Hosted Changelog, Release Notes Page and What&#39;s New Widget</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/changelog-keeper/"/>
     <id>tag:marisstella.dev,2026:tool/changelog-keeper</id>
@@ -126,14 +134,6 @@
     <updated>2026-10-15T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your GitHub Actions workflow YAML and find every actions/checkout step without persist-credentials: false, with jobs that also upload artifacts (the artipacked pattern) listed first. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>GitHub Actions Runtime Deprecation Check — Find Steps on End-of-Life Node Runtimes</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-runtime-deprecation-check/"/>
-    <id>tag:marisstella.dev,2026:tool/actions-runtime-deprecation-check</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your GitHub Actions workflow YAML and list every actions/* step pinned to a major that runs on a deprecated Node runtime (Node 12 or 16) or that GitHub has shut down. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Cancel Flow — Free Self-Hosted Stripe Cancellation Flow</title>

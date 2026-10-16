@@ -1,10 +1,10 @@
 {
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "opened": "2026-10-16",
   "source": "P021 split of P014",
   "pr": 7440,
-  "result": "No change: marked done by PR #7440 but only scoped the work; git ls-files gitops/prod/front-door-tools still lists 5,922 files (baseline 5,839) on 2026-10-16. Reopened.",
+  "result": null,
   "history": [
     {
       "date": "2026-10-16",
@@ -13,6 +13,10 @@
     {
       "date": "2026-10-16",
       "note": "Verify run: reopened. #7440 shipped no deletion. Do the three steps in `change` in one PR."
+    },
+    {
+      "date": "2026-10-16",
+      "note": "Process run: the git rm (98c8b8ff7) landed but later venture PRs re-created the tree (5,922 files on origin/main) because regen still ran front-door-tools.mjs. regen.mjs now skips it (RETIRED_GENERATORS) and the tree is removed again; verify the file count after a few venture merges."
     }
   ],
   "touches": [
