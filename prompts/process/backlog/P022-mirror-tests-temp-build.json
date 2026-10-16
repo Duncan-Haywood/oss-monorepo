@@ -1,9 +1,9 @@
 {
-  "status": "in_progress",
+  "status": "done",
   "owner": "agent",
   "opened": "2026-10-16",
   "source": "P021 split of P014",
-  "pr": null,
+  "pr": 7424,
   "result": null,
   "history": [
     {
