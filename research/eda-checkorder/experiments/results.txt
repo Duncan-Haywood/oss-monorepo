@@ -1,0 +1,16 @@
+mutants (compilable): 91; killable 66; proved equivalent 16; other 9
+cpu_s = total CPU seconds over all 91 mutants (mean over 20 random seeds); formal is charged to every mutant that reaches it
+cascade                                       cpu_s  killed  equiv  unres cpu_min/kill
+random-64 only                                   97    65.6    0.0   25.4         0.02
+directed-16 only                                105    64.0    0.0   27.0         0.03
+formal only                                   16354    47.0   16.0   28.0         5.80
+random-16 -> formal                            8060    64.0   16.0   10.9         2.10
+random-64 -> formal                            7516    65.8   16.0    9.2         1.90
+directed-16 -> formal                          7518    66.0   16.0    9.0         1.90
+random-4 -> directed-16 -> formal              7408    66.0   16.0    9.0         1.87
+random-16 -> directed-16 -> formal             7404    66.0   16.0    9.0         1.87
+random-64 -> directed-16 -> formal             7433    66.0   16.0    9.0         1.88
+formal -> random-64                           16438    65.8   16.0    9.2         4.16
+
+formal CPU seconds spent on mutants a cheap stage had already killed, if formal ran first (the waste a cascade avoids):
+  formal on all 66 killable mutants: 9033 s; formal on equivalent/undecided: 7321 s
