@@ -1,0 +1,39 @@
+{
+  "slug": "ice-dam-removal-bid-calculator",
+  "name": "Ice dam removal",
+  "group": "Exterior & roofing",
+  "summary": "Steam ice dam removal priced from crew size, on-site hours, travel, fuel and an emergency premium.",
+  "fit": "good",
+  "crewSize": 2,
+  "hourlyWage": 34,
+  "burdenRate": 0,
+  "overheadRate": 12,
+  "targetMargin": 30,
+  "items": [
+    {
+      "label": "Steam ice dams off roof edge",
+      "unit": "linear ft",
+      "qty": 80,
+      "hoursPerUnit": 0.03125,
+      "materialPerUnit": 0,
+      "source": "2.5 on-site hours per tech over 80 lf of roof edge (DEFAULTS, index.html)"
+    },
+    {
+      "label": "Round-trip travel",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.0,
+      "materialPerUnit": 23.45,
+      "source": "1 h round trip per tech; 35 miles x $0.67 (DEFAULTS)"
+    },
+    {
+      "label": "Steamer fuel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 35.0,
+      "source": "Steamer fuel $20 + equipment $15 per job (DEFAULTS)"
+    }
+  ],
+  "specialistModels": "Checks a per-foot rate card and $375 minimum against true cost and adds a storm/night emergency premium on billed time."
+}

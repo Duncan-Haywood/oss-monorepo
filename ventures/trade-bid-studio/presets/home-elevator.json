@@ -1,0 +1,64 @@
+{
+  "slug": "home-elevator-bid-calculator",
+  "name": "Home elevator installation",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Residential elevators priced from drive, stops, travel feet, hoistway, cab and add-ons like pits and feeders.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 8.2,
+  "hourlyWage": 52,
+  "burdenRate": 32,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Pneumatic vacuum unit, set base",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 10.0,
+      "materialPerUnit": 14500.0,
+      "source": "10 h set base, $14,500 unit (suggestedDriveKit pneumatic)"
+    },
+    {
+      "label": "Stops (unit + through-floor cut)",
+      "unit": "stop",
+      "qty": 2,
+      "hoursPerUnit": 9.5,
+      "materialPerUnit": 0,
+      "source": "4 h per stop (suggestedDriveKit pneumatic) + 5.5 h cut per stop (suggestedHoistwayKit through-floor); 2 stops default"
+    },
+    {
+      "label": "Travel height (rail + through-floor hoistway)",
+      "unit": "ft",
+      "qty": 12,
+      "hoursPerUnit": 0.9,
+      "materialPerUnit": 95.0,
+      "source": "0.35 h per travel ft (pneumatic) + 0.55 h and $95 per ft (through-floor); 12 ft default"
+    },
+    {
+      "label": "Acrylic tube cab",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 2.0,
+      "materialPerUnit": 0,
+      "source": "2 h, $0 cab invoice (suggestedCabKit acrylic)"
+    },
+    {
+      "label": "Travel miles",
+      "unit": "mile",
+      "qty": 10,
+      "hoursPerUnit": 0.04,
+      "materialPerUnit": 3.4,
+      "source": "0.04 h and $3.40 per mile (suggestedExtraKit); 10 miles default"
+    },
+    {
+      "label": "Travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 420.0,
+      "source": "Travel & equipment $420 (index.html default)"
+    }
+  ],
+  "specialistModels": "Compares four drive types and five hoistways side by side and adds pit, machine room, auto doors, battery lowering, feeder and permit packages."
+}

@@ -1,0 +1,75 @@
+{
+  "slug": "drywall-bid-calculator",
+  "name": "Drywall hang and finish",
+  "group": "Interior & finishes",
+  "summary": "Drywall hang-and-finish priced per net square foot by board, finish level and ceiling height.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 0.75,
+  "minOnSiteHours": 4,
+  "hourlyWage": 34,
+  "burdenRate": 32,
+  "overheadRate": 16,
+  "targetMargin": 26,
+  "milesOneWay": 12,
+  "tripFee": 75,
+  "items": [
+    {
+      "label": "Hang and finish 1/2 in board, level 4, 9-ft great room",
+      "unit": "sq ft",
+      "qty": 921,
+      "hoursPerUnit": 0.06009,
+      "materialPerUnit": 0.8958,
+      "source": "(hang 1.15 + level-4 finish 3.6 h/100 sf) x 1.10 waste x 1.15 height multiplier for >8 ft (BOARD_PRESETS half-4x8, FINISH_LEVELS, heightMultiplier); board $48 + mud $30 per 100 billable sf x 1.10 + 0.42 tape lf/sf x $0.09 (TAPE_MATERIAL_PER_LF); 20x16x9 room with ceiling (index.html STARTING_ROOMS) less its share of 86 sf openings"
+    },
+    {
+      "label": "Hang and finish 1/2 in board, level 4, 8-ft rooms",
+      "unit": "sq ft",
+      "qty": 761,
+      "hoursPerUnit": 0.05225,
+      "materialPerUnit": 0.8958,
+      "source": "same rates at height multiplier 1.0; 12x12x8 bedroom + 8x6x8 bath with ceilings (index.html STARTING_ROOMS) less their share of 86 sf openings"
+    },
+    {
+      "label": "Openings (doors and windows)",
+      "unit": "each",
+      "qty": 7,
+      "hoursPerUnit": 0.28,
+      "materialPerUnit": 1.62,
+      "source": "HOURS_PER_OPENING 0.28; 18 tape lf per opening x $0.09 (TAPE_LF_PER_OPENING, TAPE_MATERIAL_PER_LF); 7 openings (index.html openingCount)"
+    },
+    {
+      "label": "Tear out existing drywall",
+      "unit": "sq ft",
+      "qty": 0,
+      "hoursPerUnit": 0.016,
+      "materialPerUnit": 0,
+      "source": "1.6 h per 100 sf (TEAR_OFF_HOURS_PER_100, index.html); no per-sf material in the specialist (dumpster below); tear-out unchecked by default"
+    },
+    {
+      "label": "Dumpster for tear-out",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 425,
+      "source": "dumpsterCost $425 (index.html), charged only with tear-out"
+    },
+    {
+      "label": "Stilts or scaffold",
+      "unit": "job",
+      "qty": 0,
+      "hoursPerUnit": 2.5,
+      "materialPerUnit": 120,
+      "source": "ADD_ON_PRESETS stilts 2.5 h, $120; unchecked by default"
+    },
+    {
+      "label": "Extra corner bead",
+      "unit": "job",
+      "qty": 0,
+      "hoursPerUnit": 2,
+      "materialPerUnit": 85,
+      "source": "ADD_ON_PRESETS cornerBead 2 h, $85; unchecked by default"
+    }
+  ],
+  "specialistModels": "Room-by-room wall and ceiling takeoff with sheet counts, board types, finish levels 0-5, texture, and per-room height multipliers."
+}

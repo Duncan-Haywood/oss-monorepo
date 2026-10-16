@@ -1,0 +1,51 @@
+{
+  "slug": "attic-insulation-bid-calculator",
+  "name": "Attic blown-in insulation",
+  "group": "Interior & finishes",
+  "summary": "Blown-in attic insulation priced from the R-value you add, bag yield, baffles and air-seal penetrations.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 0.75,
+  "minOnSiteHours": 4,
+  "hourlyWage": 32,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 28,
+  "milesOneWay": 14,
+  "tripFee": 85,
+  "items": [
+    {
+      "label": "Blow cellulose, main attic R-13 to R-49",
+      "unit": "sq ft",
+      "qty": 1120,
+      "hoursPerUnit": 0.00154,
+      "materialPerUnit": 0.4541,
+      "source": "STARTING_AREAS main attic 40x28 ft, R-13 to R-49 (index.html); cellulose 3.7 R/in, 25 cu ft/bag, $14/bag, 1.4 blow h/1,000 sq ft (PRODUCT_PRESETS); 9.73 in added -> depthMultiplier 1.1 (calc.mjs); bag count not rounded up per area"
+    },
+    {
+      "label": "Blow cellulose, garage attic R-19 to R-38",
+      "unit": "sq ft",
+      "qty": 440,
+      "hoursPerUnit": 0.0014,
+      "materialPerUnit": 0.2396,
+      "source": "STARTING_AREAS garage attic 22x20 ft, R-19 to R-38 (index.html); 5.14 in of cellulose at 25 cu ft/$14 bag, 1.4 h/1,000 sq ft, depthMultiplier 1.0 (calc.mjs)"
+    },
+    {
+      "label": "Eave baffles",
+      "unit": "each",
+      "qty": 36,
+      "hoursPerUnit": 0.04,
+      "materialPerUnit": 1.85,
+      "source": "baffleCount 36, bafflePrice $1.85 (index.html); HOURS_PER_BAFFLE 0.04 (calc.mjs)"
+    },
+    {
+      "label": "Air-seal penetrations",
+      "unit": "each",
+      "qty": 18,
+      "hoursPerUnit": 0.12,
+      "materialPerUnit": 2.25,
+      "source": "penetrations 18 (index.html); HOURS_PER_PENETRATION 0.12, AIR_SEAL_PARTS_PER_PENETRATION $2.25 (calc.mjs)"
+    }
+  ],
+  "specialistModels": "Bags from the R-value delta per area with whole-bag rounding, depth-based blow multipliers, vaulted areas, old-fill removal with a dumpster, and product presets for cellulose, fiberglass and mineral wool."
+}

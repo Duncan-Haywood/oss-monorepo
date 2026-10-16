@@ -1,0 +1,71 @@
+{
+  "slug": "furnace-bid-calculator",
+  "name": "Furnace replacement",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Furnace swaps priced from the unit, extra duct feet, coil, gas upsize, haul-away, thermostat and permit.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 52,
+  "burdenRate": 34,
+  "overheadRate": 18,
+  "targetMargin": 35,
+  "items": [
+    {
+      "label": "Set 60k BTU 80% AFUE furnace, basement, first 15 ft of duct",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 4,
+      "materialPerUnit": 1480,
+      "source": "hoursFurnaceBase 4 + location 0 (suggestedEquipmentKit eighty, suggestedLocationKit basement; index.html); furnace $1,480 + premium $0 (suggestedCapacityKit 60k; index.html); 12 ft duct is within the 15 ft included (index.html)"
+    },
+    {
+      "label": "Extra duct and transition beyond 15 ft",
+      "unit": "linear ft",
+      "qty": 0,
+      "hoursPerUnit": 0.12,
+      "materialPerUnit": 12,
+      "source": "hoursPerExtraDuctFoot 0.12, duct $12/ft (index.html); 12 ft default less 15 ft included = 0"
+    },
+    {
+      "label": "Matching evaporator coil",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 2.25,
+      "materialPerUnit": 920,
+      "source": "hoursCoil 2.25, matching coil $920 (index.html); unchecked by default"
+    },
+    {
+      "label": "Gas line upsize and shutoff",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 1.5,
+      "materialPerUnit": 220,
+      "source": "hoursGas 1.5, gas fittings $220 (index.html); unchecked by default"
+    },
+    {
+      "label": "Haul away old unit",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.75,
+      "materialPerUnit": 125,
+      "source": "hoursHaul 0.75, haul-away $125 (index.html); unchecked by default"
+    },
+    {
+      "label": "New thermostat",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.6,
+      "materialPerUnit": 260,
+      "source": "hoursThermostat 0.6, thermostat $260 (index.html); unchecked by default"
+    },
+    {
+      "label": "Trip, site, permit and truck",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.75,
+      "materialPerUnit": 330,
+      "source": "trip/setup 1 h + site/travel 0.75 h; permit $175 + travel, truck, recovery $155 (index.html)"
+    }
+  ],
+  "specialistModels": "Capacity tiers, 96% condensing and heat-pump premiums, closet and attic access hours, and an included-duct allowance."
+}

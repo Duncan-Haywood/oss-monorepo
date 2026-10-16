@@ -1,0 +1,79 @@
+{
+  "slug": "exterior-painting-bid-calculator",
+  "name": "Exterior house painting",
+  "group": "Exterior & roofing",
+  "summary": "Exterior repaints priced from a base setup plus extra elevation, trim, stories, scrape, prime and shutters.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 36,
+  "burdenRate": 32,
+  "overheadRate": 16,
+  "targetMargin": 28,
+  "items": [
+    {
+      "label": "Base setup and 2-coat repaint: first 1,600 sf and 80 lf trim",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 6,
+      "materialPerUnit": 466.9,
+      "source": "hoursBaseSetup 6 covering 1,600 sf / 1 story / 80 lf trim (suggestedJobHours repaint; index.html included*); paint 1,600 sf x 2 coats / 350 sf/gal x $48 = $438.86 + caulk 80 lf x $3.50/10 ft = $28 (index.html)"
+    },
+    {
+      "label": "Extra elevation beyond 1,600 sf",
+      "unit": "sq ft",
+      "qty": 200,
+      "hoursPerUnit": 0.024,
+      "materialPerUnit": 0.2743,
+      "source": "2.4 h per extra 100 sf; 2 coats / 350 sf/gal x $48 (index.html); 1,800 sf default less 1,600 included"
+    },
+    {
+      "label": "Extra trim beyond 80 lf",
+      "unit": "linear ft",
+      "qty": 10,
+      "hoursPerUnit": 0.07,
+      "materialPerUnit": 0.35,
+      "source": "0.7 h per 10 trim ft; caulk $3.50 per 10 ft (index.html); 90 lf default less 80 included"
+    },
+    {
+      "label": "Extra story",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 6,
+      "materialPerUnit": 0,
+      "source": "hoursPerExtraStory 6 (index.html); no material in the specialist; default 1 story"
+    },
+    {
+      "label": "Scrape failing paint",
+      "unit": "sq ft",
+      "qty": 0,
+      "hoursPerUnit": 0.018,
+      "materialPerUnit": 0,
+      "source": "1.8 h per 100 sf (index.html hoursScrapePer100); no material in the specialist; unchecked by default"
+    },
+    {
+      "label": "Primer coat",
+      "unit": "sq ft",
+      "qty": 0,
+      "hoursPerUnit": 0.008,
+      "materialPerUnit": 0.1086,
+      "source": "0.8 h per 100 sf; primer $38/gal at 350 sf/gal (index.html); unchecked by default"
+    },
+    {
+      "label": "Shutters",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0.2,
+      "materialPerUnit": 0,
+      "source": "hoursPerShutter 0.2 (index.html); no material in the specialist; 0 default"
+    },
+    {
+      "label": "Site, travel, lifts and drop cloths",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1,
+      "materialPerUnit": 85,
+      "source": "siteHours 1; travel, lifts, drop cloths $85 (index.html)"
+    }
+  ],
+  "specialistModels": "Job types (scrape-and-prime, bare wood, elastomeric masonry), included-allowance logic, and occupied-home and hard-access time adds."
+}

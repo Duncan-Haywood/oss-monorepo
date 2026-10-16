@@ -1,0 +1,48 @@
+{
+  "slug": "carpet-install-bid-calculator",
+  "name": "Carpet installation",
+  "group": "Interior & finishes",
+  "summary": "Carpet installs priced from floor square feet with roll waste, pad, tack strip, stairs and transitions.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 1.4,
+  "hourlyWage": 38,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Stretch-in carpet over pad, solid (10% waste)",
+      "unit": "sq ft",
+      "qty": 400,
+      "hoursPerUnit": 0.01344,
+      "materialPerUnit": 3.526,
+      "source": "floorSqft 400 (index.html); floor yards = sq ft / 9 x 1.10 (floorYardsFromSqft, suggestedPatternKit solid wastePercent 10); hoursFloorPerYard 0.11; carpetInvoice $22 + padEach $6 + tackStripEach $0.85 per yard (suggestedScopeKit stretch-in, suggestedExtraKit)"
+    },
+    {
+      "label": "Transitions",
+      "unit": "each",
+      "qty": 2,
+      "hoursPerUnit": 0.12,
+      "materialPerUnit": 18,
+      "source": "transitionCount 2 (index.html); hoursTransitionEach 0.12, transitionEach $18 (suggestedExtraKit)"
+    },
+    {
+      "label": "Travel",
+      "unit": "mile",
+      "qty": 8,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 2.8,
+      "source": "travelMiles 8 (index.html); hoursPerMile 0.035, travelPerMile $2.80 (suggestedExtraKit)"
+    },
+    {
+      "label": "Travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 55,
+      "source": "travelAndEquipment $55 (index.html default)"
+    }
+  ],
+  "specialistModels": "Stretch-in vs glue-down vs double-stick vs carpet-tile kits, pattern-match waste, stairs priced per step with wraps, tear-out, furniture moves and haul-away."
+}

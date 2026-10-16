@@ -1,0 +1,56 @@
+{
+  "slug": "irrigation-install-bid-calculator",
+  "name": "Irrigation system installation",
+  "group": "Landscaping & outdoor",
+  "summary": "Sprinkler systems priced per zone with heads, trench feet by soil, controller, backflow and add-ons.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2.25,
+  "hourlyWage": 38,
+  "burdenRate": 32,
+  "overheadRate": 15,
+  "targetMargin": 30,
+  "items": [
+    {
+      "label": "Zone: valve and 6 spray heads",
+      "unit": "zone",
+      "qty": 6,
+      "hoursPerUnit": 1.6,
+      "materialPerUnit": 99.0,
+      "source": "1.6 h per zone incl. 6 heads; $42 valve + 6 heads x $9.50 (index.html, INCLUDED_HEADS_PER_ZONE); 6 zones default"
+    },
+    {
+      "label": "Trench and lay pipe, dirt",
+      "unit": "linear ft",
+      "qty": 180,
+      "hoursPerUnit": 0.045,
+      "materialPerUnit": 1.15,
+      "source": "0.045 h per trench ft x dirt factor 1 (suggestedSoilKit dirt); $1.15/ft pipe (index.html); 180 ft default"
+    },
+    {
+      "label": "6-station controller",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 1.2,
+      "materialPerUnit": 145.0,
+      "source": "1.2 h, $145 (suggestedControllerKit six)"
+    },
+    {
+      "label": "3/4-inch PVB backflow",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 1.4,
+      "materialPerUnit": 185.0,
+      "source": "1.4 h, $185 (suggestedBackflowKit pvb)"
+    },
+    {
+      "label": "Travel, truck, recovery",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 85.0,
+      "source": "Travel, truck, recovery $85 (index.html default)"
+    }
+  ],
+  "specialistModels": "Charges heads past six per zone, multiplies trench hours by clay or rock soil, and offers controller, RPZ backflow, drip, rain-sensor and master-valve kits."
+}

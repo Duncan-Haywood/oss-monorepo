@@ -1,0 +1,55 @@
+{
+  "slug": "land-survey-bid-calculator",
+  "name": "Land survey",
+  "group": "Events & other services",
+  "summary": "Boundary surveys priced from corners to locate and set, terrain, research, drafting and crew travel.",
+  "fit": "partial",
+  "crewSize": 2,
+  "hourlyWage": 45,
+  "burdenRate": 0,
+  "overheadRate": 0,
+  "targetMargin": 35,
+  "items": [
+    {
+      "label": "Locate existing corners",
+      "unit": "corner",
+      "qty": 3,
+      "hoursPerUnit": 0.5833,
+      "materialPerUnit": 18.33,
+      "source": "25 field min per corner x moderate terrain 1.4 (calc.mjs); drafting 20 min per corner at $55/h counted as cost; 3 corners default"
+    },
+    {
+      "label": "Set new corners",
+      "unit": "corner",
+      "qty": 1,
+      "hoursPerUnit": 1.283,
+      "materialPerUnit": 18.33,
+      "source": "55 field min per corner x 1.4; drafting 20 min at $55/h as cost; specialist prices no monument material; 1 corner default"
+    },
+    {
+      "label": "Record research (office)",
+      "unit": "hour",
+      "qty": 3,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 85.0,
+      "source": "3 office hours at $85/h (DEFAULTS), entered as cost because it is not field-crew time"
+    },
+    {
+      "label": "Plat drafting base",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 110.0,
+      "source": "2 base drafting hours at $55/h (DEFAULTS), entered as cost"
+    },
+    {
+      "label": "Crew travel, round trip",
+      "unit": "mile",
+      "qty": 40,
+      "hoursPerUnit": 0.025,
+      "materialPerUnit": 0.67,
+      "source": "40 round-trip miles at 40 mph = 1 crew hour (0.5 h minimum); $0.67 per mile (DEFAULTS)"
+    }
+  ],
+  "specialistModels": "Uses separate field, office and drafting rates, a terrain multiplier, a rush surcharge, an $850 minimum fee and a per-acre quote comparison."
+}

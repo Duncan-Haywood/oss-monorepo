@@ -1,0 +1,48 @@
+{
+  "slug": "holiday-light-bid-calculator",
+  "name": "Holiday light installation",
+  "group": "Events & other services",
+  "summary": "Christmas light hangs priced from eave feet, stories, light type, travel, peaks, trees and take-down.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2,
+  "hourlyWage": 32,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "items": [
+    {
+      "label": "Hang C9 on clips (customer-owned lights)",
+      "unit": "linear ft",
+      "qty": 140,
+      "hoursPerUnit": 0.032,
+      "materialPerUnit": 0,
+      "source": "0.032 h per lf, $0 product for hang-only (suggestedScopeKit hang-only); C9 adds no hours or material (suggestedTypeKit c9); 140 lf default"
+    },
+    {
+      "label": "Ladder access, 1 story",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.4,
+      "materialPerUnit": 0,
+      "source": "0.4 h access, no lift (suggestedStoryKit one)"
+    },
+    {
+      "label": "Travel miles",
+      "unit": "mile",
+      "qty": 8,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 2.8,
+      "source": "0.035 h and $2.80 per mile (suggestedExtraKit); 8 miles default"
+    },
+    {
+      "label": "Travel and equipment",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 55.0,
+      "source": "Travel & equipment $55 (index.html default)"
+    }
+  ],
+  "specialistModels": "Adds take-down as a ratio of hang hours with a second trip, storage, lifts by story, icicle and commercial product, and peaks, trees, bushes, columns and timers."
+}

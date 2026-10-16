@@ -18,6 +18,20 @@ test('page is usable without a build step and carries its disclaimers', () => {
   assert.match(html, /FAQPage/);
 });
 
+test('page wires the trade takeoff into the bid and says where its rates come from', () => {
+  const html = page('index.html');
+  assert.match(html, /from '\.\/takeoff\.mjs'/);
+  assert.match(html, /from '\.\/presets\.mjs'/);
+  assert.match(html, /<select id="trade">/);
+  assert.match(html, /id="takeoffRows"/);
+  assert.match(html, /#trade=/);
+  assert.match(html, /Where do the trade starting rates come from\?/);
+  // The visible FAQ and the FAQPage JSON-LD must ask the same questions.
+  const visible = [...html.matchAll(/<h3>([^<]+\?)<\/h3>/g)].map(m => m[1]);
+  const ld = [...html.matchAll(/"@type":"Question","name":"([^"]+)"/g)].map(m => m[1]);
+  assert.deepEqual(visible, ld);
+});
+
 test('SEO page gives the formulas and links back', () => {
   const html = page('markup-vs-margin.html');
   assert.match(html, /cost &divide; \(1 &minus; margin\)/);

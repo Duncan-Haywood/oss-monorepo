@@ -1,0 +1,65 @@
+{
+  "slug": "sunroom-bid-calculator",
+  "name": "Sunroom",
+  "group": "Exterior & roofing",
+  "summary": "Three- and four-season rooms priced from window units, glass, floor, roof, sliders and add-ons.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 4.1,
+  "hourlyWage": 38,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "tripFee": 140,
+  "items": [
+    {
+      "label": "Window units, 48 in",
+      "unit": "each",
+      "qty": 8,
+      "hoursPerUnit": 1.4,
+      "materialPerUnit": 280,
+      "source": "windowCount 8, hoursPerWindow 1.4, windowEach $280 (index.html defaults, 12x10 attached three-season)"
+    },
+    {
+      "label": "Three-season glazing",
+      "unit": "sq ft",
+      "qty": 256,
+      "hoursPerUnit": 0.018,
+      "materialPerUnit": 14,
+      "source": "glassSf 256 (32 lf x 8 ft), hoursPer100SfGlass 1.8 / 100, glassPerSf $14 (index.html; suggestedEnclosureKit('three-season'))"
+    },
+    {
+      "label": "Insulated floor overlay on existing deck",
+      "unit": "sq ft",
+      "qty": 120,
+      "hoursPerUnit": 0.014,
+      "materialPerUnit": 6,
+      "source": "floorSf 120, hoursPer100SfFloor 1.4 / 100, floorPerSf $6 (index.html; suggestedFoundationKit('existing-deck'))"
+    },
+    {
+      "label": "Slider / patio door",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 2.2,
+      "materialPerUnit": 1450,
+      "source": "sliderCount 1, hoursPerSlider 2.2, sliderEach $1,450 (index.html defaults)"
+    },
+    {
+      "label": "Hardware / fasteners",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 275,
+      "source": "hardwareLump $275 (index.html default)"
+    },
+    {
+      "label": "Mobilization",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 325,
+      "source": "mobilizationFee $325 (index.html default; a soft cost in calculateBid, before overhead)"
+    }
+  ],
+  "specialistModels": "Derives perimeter, glass area and window count from room size, attachment, wall height and knee wall, with new-slab, insulated-roof, HVAC, electrical and permit packages; setupHours = 3 trip + 0.5 grade + 0.6 travel hours."
+}

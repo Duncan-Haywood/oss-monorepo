@@ -1,0 +1,79 @@
+{
+  "slug": "fireplace-insert-bid-calculator",
+  "name": "Fireplace inserts",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Fireplace insert installs priced from the unit, tear-out, liner feet, hearth, gas run, surround and permit.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 48,
+  "burdenRate": 34,
+  "overheadRate": 18,
+  "targetMargin": 32,
+  "items": [
+    {
+      "label": "Set small gas insert",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 3.5,
+      "materialPerUnit": 1850,
+      "source": "hoursSet 3.5 + premium 0 (suggestedSizeKit small, suggestedFuelKit gas; index.html); unit $1,850 x 1 (index.html unitCost, unitCostMultiplier)"
+    },
+    {
+      "label": "Tear out and haul old unit",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 1.5,
+      "materialPerUnit": 85,
+      "source": "hoursTearOut 1.5, dump/haul-away $85 (index.html); checked by default"
+    },
+    {
+      "label": "Stainless liner",
+      "unit": "linear ft",
+      "qty": 0,
+      "hoursPerUnit": 0.18,
+      "materialPerUnit": 28,
+      "source": "hoursPerLinerFoot 0.18, liner $28/ft (index.html); default chimney scope is no liner, 0 ft"
+    },
+    {
+      "label": "Liner kit, tee and cap",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 280,
+      "source": "linerKit $280 (index.html), billed with a new liner; no separate hours in the specialist"
+    },
+    {
+      "label": "New hearth pad",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 2.5,
+      "materialPerUnit": 380,
+      "source": "hoursHearth 2.5, hearth pad $380 (index.html); unchecked by default"
+    },
+    {
+      "label": "New gas run or LP conversion",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 2.2,
+      "materialPerUnit": 420,
+      "source": "hoursGasLine 2.2, gas line/conversion $420 (index.html); unchecked by default"
+    },
+    {
+      "label": "Surround or mantel",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 2,
+      "materialPerUnit": 520,
+      "source": "hoursSurround 2, surround/mantel $520 (index.html); unchecked by default"
+    },
+    {
+      "label": "Trip, setup, site, permit and truck",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 2,
+      "materialPerUnit": 270,
+      "source": "trip/setup 1.5 h + site/travel 0.5 h; permit $125 + travel, truck, recovery $145 (index.html)"
+    }
+  ],
+  "specialistModels": "Pellet and wood fuel premiums, insert size multipliers, masonry rebuild packages, tall-stack access, dedicated circuits and damper caps."
+}
