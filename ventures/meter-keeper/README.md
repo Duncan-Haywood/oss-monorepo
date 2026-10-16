@@ -62,6 +62,10 @@ All `/v1/*` calls take `Authorization: Bearer $API_KEY`.
 - `GET /v1/projection?customer=` straight-line guess for the full month
 - `GET /v1/check?customer=&meter=&quantity=` is this call inside the plan limit?
 
+Admin calls take `Authorization: Bearer $ADMIN_KEY`. `GET /v1/admin/overview`
+lists every customer with this month's invoice, the projection, and each line's
+percent of its hard limit, plus the total and the customers at 80% or more.
+
 ### SDK (Node 18+, server side)
 
 Your own server serves a tiny client at `/sdk.mjs`. It buffers `track()` calls,
