@@ -6,7 +6,7 @@ description: >-
   10th-90th percentile band, an out-of-time backtest that trains only on deals
   closed before a cutoff, and stale/overdue/slipped/no-next-step flags ranked
   by value at risk. Signed alert webhook, CSV day-one import, browser
-  simulator running the real engine, zero-dependency Node server, one-click
+  simulator running the real engine, live Pipedrive/HubSpot webhook sync, zero-dependency Node server, one-click
   Render/Fly/Docker deploy.
 stage: prototype
 owner: duncan
