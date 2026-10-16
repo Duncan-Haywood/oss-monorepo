@@ -81,7 +81,7 @@ test('the fee table matches what the calculator charges', () => {
     );
   }
   // Reverb's processing is billed separately and is the number that explains
-  // why "5% vs 13.25%" is the wrong comparison, so it is load-bearing prose.
+  // why "5% vs 13.6%" is the wrong comparison, so it is load-bearing prose.
   assert.ok(html.includes(money(reverb.fees.payment)));
 });
 

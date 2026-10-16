@@ -1,7 +1,7 @@
 {
   "id": "P028",
   "title": "eBay fee defaults in where-to-sell-calculator: 13.6% FVF and tiered per-order fee (split from P025)",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 2,
@@ -19,6 +19,6 @@
   "opened": "2026-10-16",
   "source": "process run 2026-10-16, split of P025",
   "pr": null,
-  "result": null,
+  "result": "grep -rn '13\\.25' ventures/where-to-sell-calculator leaves none; suite 229/229 pass. Shipped as 13.6% + $0.40 per order (the model has one flat fee, so the <=$10 tier of $0.30 is not modelled). ebay-fee-calculator (P026) still defaults to 13.25, so the channel-parity test's message says so.",
   "history": []
 }
