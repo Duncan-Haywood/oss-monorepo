@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-16T03:40:33Z",
+ "generated": "2026-10-16T03:41:58Z",
  "rows": [
   {
    "date": "2026-10-01",
@@ -8142,6 +8142,17 @@
   {
    "date": "2026-10-16",
    "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7278",
+   "prompt_version": 1,
+   "record": "2026-10-16-session_018KnqrhdbE1i23zh4jfv5hi.json",
+   "track": "review"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
     "why": "the record names no pull request"
    },
    "model": "claude-sonnet-5-5",
@@ -8276,6 +8287,17 @@
    "prompt_version": 2,
    "record": "2026-10-16-session_01AkDZDCCLbP6yBRPGWnrr59.json",
    "track": "ventures"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 1,
+   "record": "2026-10-16-session_01BgDj4wumcmAnNSMMLR15BJ.json",
+   "track": "review"
   },
   {
    "date": "2026-10-16",
@@ -8543,6 +8565,17 @@
    "prompt_version": 0,
    "record": "2026-10-16-session_01UWDGfjrEH8KTkKMohjiT9d.json",
    "track": "research"
+  },
+  {
+   "date": "2026-10-16",
+   "measured": {
+    "why": "not fetched yet: run derive.py fetch"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#7280",
+   "prompt_version": 1,
+   "record": "2026-10-16-session_01Un6HACboJ3w6ixY7DMyVzz.json",
+   "track": "review"
   },
   {
    "date": "2026-10-16",

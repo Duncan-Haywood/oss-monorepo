@@ -419,4 +419,32 @@ field will.
   over 12 runs, 0 integrity issues. E18's `merged_unknown` is falling as
   intended; survival is still empty (no closed 14-day windows yet). Audit
   skipped: remaining unknowns are mirrored or doc-only.
+- Change: none to prompts or docs; `prompts/derived/runs.json` rebuilt.
+  `derive.py fetch` got HTTP 403 from the GitHub API in this session, so the
+  rebuild used the cached `github.json`: `merged` for new records stays
+  `unknown` until a session with API access runs fetch.
+- Candidates: ventures/2 (17 runs, 94%, 0.06 errors/run) vs ventures/1 (53, 92%,
+  0.17): intervals overlap, no verdict. research/1 has 8 runs, under 10.
+  review/1 is 75% over 12 runs, 0 integrity issues. No new candidate: both
+  tracks with candidates already carry one.
+- Audit skipped (new records are mirrored upstream or doc-only). Drift: a report
+  already exists for 2026-10-16 and no new owner words arrived. `CLAUDE.md`
+  grew 457 -> 475 lines (budget 500); cut it next review if it passes 490.
+- Follow-up on E17: reviews were due again after 26 merged runs, so the
+  mirrored-record exclusion is working as intended (no early firing).
+  E18: `merged_unknown` stays high (most rows 'unknown') because fetch needs
+  API access; not a failure of derive.py itself.
+- Result: (next review)
+
+## E20: stale doc lines from the same review (2026-10-16)
+
+- Change: `CLAUDE.md` checklist no longer states a stale count of expected
+  `gitops/tests` failures (said ~26; baseline today was 2); `review/prompt-1.md`
+  step 1 says what to do when `derive.py fetch` gets a 403 (+2 lines).
+- Why: friction reports on both; 26 runs since the last review.
+- Measure: friction reports naming the CLAUDE.md pytest line, and on
+  `review/prompt-1.md` step 1, per run after this window.
+- Candidates: ventures/2 (17) vs ventures/1 (53): intervals overlap, keep
+  collecting. research/1 (8) under 10. Audit skipped: records mirrored or
+  doc-only. `derive.py fetch` 403; `merged` left unknown.
 - Result: (next review)
