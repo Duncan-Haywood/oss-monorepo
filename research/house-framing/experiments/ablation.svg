@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 326" role="img" aria-label="Bar chart of lumber saved by each advanced-framing measure applied alone to conventional 2x6 walls on a 28 by 40 ft house: 24 in spacing 210 board feet, single top plate 132 board feet, 2-stud corners 68 board feet, ladder tees 82 board feet, header hangers 126 board feet, sized headers 59 board feet, no header in non-bearing 48 board feet, insulated headers 0 board feet, openings on layout 0 board feet">
+<rect width="640" height="326" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Board feet saved by each OVE measure alone (all together: 41.2% less)</text>
+<text x="320.0" y="40" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#555">exterior walls, 28 x 40 ft one-storey house, vs conventional 2x6 @ 16 in</text>
+<text x="182" y="68" text-anchor="end" font-family="sans-serif" font-size="12">24 in spacing</text>
+<rect x="190" y="56" width="339.1" height="18" fill="#b5651d"/>
+<text x="535.1" y="68" font-family="sans-serif" font-size="11">210</text>
+<text x="182" y="94" text-anchor="end" font-family="sans-serif" font-size="12">single top plate</text>
+<rect x="190" y="82" width="213.2" height="18" fill="#b5651d"/>
+<text x="409.2" y="94" font-family="sans-serif" font-size="11">132</text>
+<text x="182" y="120" text-anchor="end" font-family="sans-serif" font-size="12">2-stud corners</text>
+<rect x="190" y="108" width="109.8" height="18" fill="#b5651d"/>
+<text x="305.8" y="120" font-family="sans-serif" font-size="11">68</text>
+<text x="182" y="146" text-anchor="end" font-family="sans-serif" font-size="12">ladder tees</text>
+<rect x="190" y="134" width="132.4" height="18" fill="#b5651d"/>
+<text x="328.4" y="146" font-family="sans-serif" font-size="11">82</text>
+<text x="182" y="172" text-anchor="end" font-family="sans-serif" font-size="12">header hangers</text>
+<rect x="190" y="160" width="203.5" height="18" fill="#b5651d"/>
+<text x="399.5" y="172" font-family="sans-serif" font-size="11">126</text>
+<text x="182" y="198" text-anchor="end" font-family="sans-serif" font-size="12">sized headers</text>
+<rect x="190" y="186" width="95.3" height="18" fill="#b5651d"/>
+<text x="291.3" y="198" font-family="sans-serif" font-size="11">59</text>
+<text x="182" y="224" text-anchor="end" font-family="sans-serif" font-size="12">no header in non-bearing</text>
+<rect x="190" y="212" width="77.5" height="18" fill="#b5651d"/>
+<text x="273.5" y="224" font-family="sans-serif" font-size="11">48</text>
+<text x="182" y="250" text-anchor="end" font-family="sans-serif" font-size="12">insulated headers</text>
+<text x="196.0" y="250" font-family="sans-serif" font-size="11">0</text>
+<text x="182" y="276" text-anchor="end" font-family="sans-serif" font-size="12">openings on layout</text>
+<text x="196.0" y="276" font-family="sans-serif" font-size="11">0</text>
+<line x1="190" x2="190" y1="52" y2="286" stroke="#333"/>
+<text x="385.0" y="314" text-anchor="middle" font-family="sans-serif" font-size="12">board feet saved (10% waste included)</text>
+</svg>

@@ -36,7 +36,7 @@ own-store row out as the yardstick, since it brings no buyers.
 
 | Channel | Rate | Fixed | Subscription |
 | --- | --- | --- | --- |
-| eBay | 13.25% final value | $0.30 | — |
+| eBay | 13.6% final value (up to $7,500) | $0.40 over $10 ($0.30 at $10 or less) | — |
 | Etsy | 6.5% transaction + 3% payment | $0.20 listing + $0.25 payment | — |
 | Amazon (seller-fulfilled) | referral by category, 8–20% | — | $39.99/mo Professional |
 | Walmart Marketplace | referral by category, 8–20% | — | — |
