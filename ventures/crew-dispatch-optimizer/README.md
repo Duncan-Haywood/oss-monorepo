@@ -4,6 +4,8 @@ A free browser tool for plumbers, HVAC, electricians, cleaners, landscapers and 
 crews to jobs: **paste today's jobs and your crews, and get which crew takes each job and the order of each crew's
 stops at the lowest cost**, respecting skills, hours in the day and what each job is worth. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/crew-dispatch-optimizer/
+
 After using this, you can now **see what sending each job to the nearest crew costs you, which crew the day depends on,
 and what happens when jobs run long**, which used to be a dispatcher's gut feel.
 

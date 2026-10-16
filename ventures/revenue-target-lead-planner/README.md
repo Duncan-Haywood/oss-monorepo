@@ -4,6 +4,8 @@ A free browser tool for freelancers, agencies and small sales teams: **paste or 
 (leads, deals won, revenue won), enter the revenue you want next period, and see your real conversion rate, the
 chance of hitting the target, and how many leads give you a 50%, 80% or 90% chance.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/revenue-target-lead-planner/
+
 After using this, you can now **set a lead-generation target that reaches your revenue goal most of the time, not
 half the time**, which used to mean dividing the target by your average deal and your conversion rate and hoping.
 

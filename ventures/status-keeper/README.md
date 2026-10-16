@@ -5,6 +5,8 @@ app goes down**, with uptime checks, 90-day bars, incident updates and alerts,
 on your own server, which used to mean paying Statuspage, Instatus or Better
 Stack per seat or per subscriber, or running a heavier self-hosted stack.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/status-keeper/
+
 Two parts, both free and MIT:
 
 - **`index.html`**: a downtime-budget calculator (what 99.9% really allows) and

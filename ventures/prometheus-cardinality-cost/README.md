@@ -3,6 +3,8 @@
 Find the labels inflating your Prometheus / Grafana Cloud / Datadog-style
 metrics bill — from one `/metrics` scrape, before the invoice.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/prometheus-cardinality-cost/
+
 ```
 curl -s localhost:9100/metrics | node cli.mjs analyze -
 node cli.mjs analyze metrics.txt --targets 40

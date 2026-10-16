@@ -6,6 +6,8 @@ home. It shows profit per chair hour for every full set and fill, the **price th
 your target**, what a schedule earns in a month, and what a client is worth over a
 lifetime of fills (with the lowest new-client promotion that is still safe).
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/lash-studio-profit-calculator/
+
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.
 

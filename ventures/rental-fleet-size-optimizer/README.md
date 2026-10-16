@@ -9,6 +9,8 @@ many units to own, with the share of customers turned away, a bad year, an
 optional turn-away cap, and how the answer moves if demand does. Nothing is
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rental-fleet-size-optimizer/
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, Erlang B, the closed-form yearly figures, a seeded

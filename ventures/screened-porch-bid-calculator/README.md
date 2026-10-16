@@ -5,6 +5,8 @@ prices a residential screened porch from the wall-screen square feet a
 floor-square-foot special cannot see, the knee wall, the roof, the ceiling,
 and the mesh — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/screened-porch-bid-calculator/
+
 **After using this, you can now send a screened-porch price that includes the
 panels, knee wall, and roof**, which used to take a spreadsheet that still
 started from the coupon’s floor square feet.

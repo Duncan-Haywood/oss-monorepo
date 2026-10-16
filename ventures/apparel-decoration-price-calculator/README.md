@@ -7,6 +7,8 @@ costs them, and what the same job costs at every standard quantity tier.
 same cost model and know why the numbers differ, which used to mean applying
 one price list to both and finding out later.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/apparel-decoration-price-calculator/
+
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. The calculation is deterministic and works with no
 account, API key, upload, or paid dependency.

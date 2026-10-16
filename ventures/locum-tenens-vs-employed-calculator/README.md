@@ -4,6 +4,8 @@ A free browser tool for physicians, NPs, PAs and CRNAs weighing a locum tenens (
 **enter both offers and see annual take-home after federal tax for each, the break-even locum hourly rate, and a sensitivity table on
 weeks worked.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/locum-tenens-vs-employed-calculator/
+
 After using this, you can now **tell what hourly rate a locum contract must pay, at the weeks you expect to work, to beat your employed offer**.
 
 ## Model (tax year 2026, federal only)

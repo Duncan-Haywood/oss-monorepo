@@ -6,6 +6,8 @@ visit earns under each plan (counting pack classes that are never taken), the cl
 breaks even, where unlimited beats packs and drop-ins for a member, what empty seats are worth,
 and the unlimited price that earns the most on a member-loss rate you set. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/boutique-fitness-studio-pricing-planner/
+
 After using this, you can **tell whether your plan prices make money per visit and what to charge
 for unlimited**, which used to be copied from the studio down the road.
 

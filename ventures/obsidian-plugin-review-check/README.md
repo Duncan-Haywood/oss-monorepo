@@ -5,6 +5,8 @@ A free tool for Obsidian plugin developers: scans your **`manifest.json`**,
 behind common Obsidian community-plugin review delays, before a reviewer
 finds them for you:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/obsidian-plugin-review-check/
+
 - **Missing `versions.json` entry** -- the current `manifest.json` `version`
   has no matching key in `versions.json`. Obsidian's release mechanism reads
   `versions.json` to decide which installed app versions can see a given

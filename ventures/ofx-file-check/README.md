@@ -8,6 +8,8 @@ ampersands and over-long names, each with its line number. It writes the file ba
 provable fix applied and shows a plain diff of what changed. The file is read locally and never
 uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ofx-file-check/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

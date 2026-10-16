@@ -2,6 +2,8 @@
 
 A free browser tool for independent upholstery shops: **enter your dining chair seat, armchair and sofa prices, bench hours, fabric and foam cost, upholsterer pay, tools and rent, and get profit per job and per bench hour, the price each piece needs for your target margin, what a designer trade block really earns per job, the break-even volume, and the season at 50 to 150 percent of the volume you expect**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/upholstery-shop-job-profit-calculator/
+
 After using this, you can now **tell which piece to push when the bench is full and how many jobs cover the tools and the rent**, which used to take a spreadsheet and a guess.
 
 ## Use

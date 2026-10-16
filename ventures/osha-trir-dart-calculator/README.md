@@ -8,6 +8,8 @@ actually asks for. It also computes how many more injury-free hours it would
 take to dilute the current rate down to a stated target. Nothing is
 uploaded; the arithmetic runs on the visitor's own device.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/osha-trir-dart-calculator/
+
 ```
 cd ventures/osha-trir-dart-calculator && node --test "*.test.mjs"
 ```

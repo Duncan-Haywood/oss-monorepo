@@ -5,6 +5,8 @@ crews. It prices a residential metal roof from the panel squares a per-square
 special cannot see, the tear-off, the stories, and the trim — and shows the
 margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/metal-roof-bid-calculator/
+
 **After using this, you can now send a metal-roof price that includes the
 panel type, the tear-off, and the trim**, which used to take a spreadsheet
 that still started from the coupon’s roof squares.

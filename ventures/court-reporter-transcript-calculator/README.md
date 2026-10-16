@@ -7,6 +7,8 @@ and exhibits into an invoice total and an effective hourly rate, and check
 whether an agency's flat per-page offer is worth the day. Entirely
 client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/court-reporter-transcript-calculator/
+
 After using this, you can now **turn a page count, turnaround tier, travel,
 and add-on fees into an invoice total, a plain-text summary you can paste
 straight into an email, and an effective hourly rate — and check an agency's

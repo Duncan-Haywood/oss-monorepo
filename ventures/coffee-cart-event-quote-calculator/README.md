@@ -6,6 +6,8 @@ break-even drinks for a booking fee, a share of sales and a prepaid drink guaran
 setup and drive time. A table shows how each deal does if the crowd is half or 1.5 times what you expected.
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/coffee-cart-event-quote-calculator/
+
 After using this, you can now **quote an event with a number instead of a guess, and pick the deal that pays**,
 which used to be a gut call on the phone with the host.
 

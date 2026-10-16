@@ -3,6 +3,8 @@
 A free browser calculator for Section 1031 like-kind exchanges of real
 property held for investment or business use. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/like-kind-exchange-1031-calculator/
+
 After using this, you can now **see your 45-day and 180-day dates, the boot
 that would be taxed, the gain you defer, your new basis and the tax deferred**
 — which used to mean a spreadsheet, a call to an intermediary and a CPA's

@@ -2,6 +2,8 @@
 
 Free, private browser tool: enter a sale, its costs, any losses and your income, and see Capital Gains Tax for 2025/26 at 18% and 24%, the annual exempt amount used, losses to carry forward and when to report.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/uk-capital-gains-tax-calculator/
+
 After using this, you know roughly what a disposal will cost in tax and what to report, which used to mean reading GOV.UK rates pages and doing the band arithmetic by hand.
 
 Open `index.html`. Tests: `node --test 'ventures/uk-capital-gains-tax-calculator/**/*.test.mjs'`.

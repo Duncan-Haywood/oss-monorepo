@@ -2,6 +2,8 @@
 
 **Price each dog class from its real minutes and audit which breed classes underpay your hourly rate.** Enter breed classes with a base price and plain-groom minutes, optional matting and de-shedding extras, drive time for mobile work, supplies and your no-show rate. Get each class's effective hourly, the price needed to hit your target hourly and a walk-away price. Paste past appointments (breed class, price, minutes) and see which classes underpay. Browser page or zero-dependency CLI, for independent salon and mobile dog groomers.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dog-grooming-price-calculator/
+
 After using this, you can now see which breed classes earn under your target per table hour and the price that fixes each one, which used to take a spreadsheet and a guess about how long doodles really take.
 
 ```

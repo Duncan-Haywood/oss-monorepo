@@ -99,6 +99,7 @@ ADMIN_KEY=$(openssl rand -hex 16) COMPANY_NAME=Acme node server.mjs</pre>
     <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator of any booking page you run, responsible for the details it collects, a privacy notice, data-protection rules where you and your visitors live, and your own email sending. Check the time and zone of every booking; a missed or double-booked appointment is your responsibility. It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
     <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout" style="width:auto"> Don't count my usage</label></p>
   </footer>
+    <p class="note">Part of the <a href="../self-hosted-saas-stack/">self-hosted SaaS stack</a>: 27 open-source tools you run yourself.</p>
   </main>
   <script type="module">
     import { parseHours, freeSlots, parseIcsBusy, groupByDay, fmtTime, fmtDay, validTz } from "./slot.mjs";

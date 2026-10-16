@@ -5,6 +5,8 @@ threshold, dollars per wRVU, sign-on, other pay) and the wRVUs you expect to pro
 yearly value, your effective cash pay per wRVU, the volume where the offers pay the same, and how each moves
 if volume runs 30% low or high.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/physician-wrvu-contract-calculator/
+
 After using this, you can now **see that a contract paying "$52 per wRVU" pays far less than $52 on the work
 you actually do**, because the incentive starts above a threshold; the tool shows the effective rate.
 

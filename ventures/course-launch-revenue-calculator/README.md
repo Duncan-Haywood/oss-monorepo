@@ -5,6 +5,8 @@ visit the sales page and buy, your price, refunds, platform and processor fees, 
 and ad spend. It shows the net profit, where the money goes, the list size where the launch breaks
 even, the return on ad spend and what a weaker or stronger launch earns. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/course-launch-revenue-calculator/
+
 After using this, you can tell whether a launch covers its costs, and how big a list or how much
 conversion you need, before you spend on ads or build the course. That used to take a spreadsheet.
 

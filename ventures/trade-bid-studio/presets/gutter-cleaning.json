@@ -1,0 +1,64 @@
+{
+  "slug": "gutter-cleaning-bid-calculator",
+  "name": "Gutter cleaning",
+  "group": "Exterior & roofing",
+  "summary": "Gutter cleaning visits priced per run from linear feet, stories, pitch, guards, debris and downspouts.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 0.3333,
+  "hourlyWage": 22,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Front and sides, 1 story, open, leaves",
+      "unit": "linear ft",
+      "qty": 80,
+      "hoursPerUnit": 0.01333,
+      "materialPerUnit": 0,
+      "source": "8 min per 10 lf baseline (index.html); 1-story/low/open/leaves factors 1.0 (STORY/PITCH/GUARD/DEBRIS_PRESETS); run from STARTING_RUNS"
+    },
+    {
+      "label": "Rear two-story, moderate pitch",
+      "unit": "linear ft",
+      "qty": 40,
+      "hoursPerUnit": 0.02453,
+      "materialPerUnit": 0,
+      "source": "8 min per 10 lf x 2-story 1.6 x moderate pitch 1.15 (STORY/PITCH_PRESETS); 40 lf run from STARTING_RUNS"
+    },
+    {
+      "label": "Garage with screens, mixed debris",
+      "unit": "linear ft",
+      "qty": 30,
+      "hoursPerUnit": 0.024,
+      "materialPerUnit": 0,
+      "source": "8 min per 10 lf x screens 1.5 x mixed debris 1.2 (GUARD/DEBRIS_PRESETS); 30 lf run from STARTING_RUNS"
+    },
+    {
+      "label": "Flush downspouts, 1 story",
+      "unit": "each",
+      "qty": 4,
+      "hoursPerUnit": 0.1333,
+      "materialPerUnit": 0,
+      "source": "8 min per downspout (index.html) x 1-story 1.0; 3 + 1 downspouts on the 1-story runs in STARTING_RUNS"
+    },
+    {
+      "label": "Flush downspout, 2 story",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 0.2133,
+      "materialPerUnit": 0,
+      "source": "8 min per downspout x 2-story factor 1.6 (calc.mjs applies story factor to downspouts); 1 downspout in STARTING_RUNS"
+    },
+    {
+      "label": "Disposal and equipment",
+      "unit": "visit",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 25.0,
+      "source": "Disposal $15 + equipment $10 per visit (index.html defaults)"
+    }
+  ],
+  "specialistModels": "Multiplies minutes per foot by story, pitch, guard and debris factors per run, applies a $125 minimum stop charge, and prices a 2-visit seasonal contract."
+}

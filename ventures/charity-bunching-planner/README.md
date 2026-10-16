@@ -5,6 +5,8 @@ give each year and your deductions, and see exactly which years to fund a donor-
 same giving saves the most tax**, next to giving directly every year and the regular every-k-years cycles.
 Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/charity-bunching-planner/
+
 After using this, you can **pick the years to bunch gifts into a DAF and know what it saves**, which used to
 mean rebuilding the itemize-or-standard comparison in a spreadsheet for every schedule you could think of.
 

@@ -1,0 +1,39 @@
+{
+  "slug": "septic-pumping-bid-calculator",
+  "name": "Septic tank pumping",
+  "group": "Mechanical, electrical & plumbing",
+  "summary": "Septic pump-outs priced from gallons, hose run, lid access, disposal, risers, baffles and inspection.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 38,
+  "burdenRate": 32,
+  "overheadRate": 16,
+  "targetMargin": 28,
+  "items": [
+    {
+      "label": "Pump 1,000-gal tank, exposed lid, incl. disposal",
+      "unit": "tank",
+      "qty": 1,
+      "hoursPerUnit": 1,
+      "materialPerUnit": 160,
+      "source": "hoursBasePump 1 (1,000 gal and 50 ft hose included; default 40 ft hose adds nothing); dump trip $80 + 1,000 gal x $0.08 disposal (index.html; suggestedDisposal in calc.mjs)"
+    },
+    {
+      "label": "Site / travel time",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.75,
+      "materialPerUnit": 0,
+      "source": "siteHours default 0.75 (index.html)"
+    },
+    {
+      "label": "Travel, gloves, wash-down",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 55,
+      "source": "travelAndEquipment default $55 (index.html)"
+    }
+  ],
+  "specialistModels": "Gallons and hose beyond what the base pump includes, buried-lid locate and dig, extra tanks, tiered disposal fees, and riser, baffle, inspection and after-hours add-ons."
+}

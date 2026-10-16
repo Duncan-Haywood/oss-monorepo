@@ -4,6 +4,8 @@ A free browser calculator for SaaS founders and finance leads: **burn multiple, 
 number, Rule of 40 and runway from one quarter of numbers.** Entirely client-side;
 nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/saas-efficiency-metrics-calculator/
+
 After using this, you can now **see the three efficiency numbers investors ask about
 side by side, with benchmark bands and the burn cut or ARR growth needed to reach a 1.5
 burn multiple**, which used to mean rebuilding the formulas in a spreadsheet each quarter.

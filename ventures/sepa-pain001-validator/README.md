@@ -6,6 +6,8 @@ fix before the bank rejects it, then repair the control totals and disallowed ch
 The file is read in the browser; nothing is uploaded and no login, bank account or API key
 is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sepa-pain001-validator/
+
 After using this, you can now **find the amount that no longer matches CtrlSum, the IBAN
 with a bad check digit, the name with an umlaut, the Saturday execution date and the
 duplicate EndToEndId, and download a repaired file**, which used to mean a bank's "XML

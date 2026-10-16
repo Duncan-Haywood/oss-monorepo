@@ -3,6 +3,8 @@
 A free browser tool: **drop in a CSV export from your bank or credit card and see every recurring
 charge.** The file is read in the browser; nothing is uploaded and no bank connection is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/subscription-audit-from-statement/
+
 After using this, you can now **see each subscription's monthly and yearly cost, which ones rose in
 price and when, which were charged twice, which yearly renewals are coming, which seem to have
 stopped, and where you pay for several services of one kind**, and tick the ones you would cancel to

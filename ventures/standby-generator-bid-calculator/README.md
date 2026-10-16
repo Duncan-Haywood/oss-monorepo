@@ -5,6 +5,8 @@ prices a residential standby (whole-house) generator install from the machine,
 the transfer switch, the pad, the fuel line, and the setback — and shows the
 margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/standby-generator-bid-calculator/
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts. Not yet deployed to a public URL —

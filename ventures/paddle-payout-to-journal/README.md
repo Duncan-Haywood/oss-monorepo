@@ -8,6 +8,8 @@ from the bank), splits a payout that straddles a month end into one journal per 
 each to a Paddle clearing account. Differences no rule explains are journalled to an uncategorised
 account rather than dropped. The export is read locally and never uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/paddle-payout-to-journal/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

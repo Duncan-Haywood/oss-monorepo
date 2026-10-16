@@ -4,6 +4,8 @@ A free, zero-dependency CLI that scans GitHub Actions workflow files for
 `actions/checkout` steps that leave the job's `GITHUB_TOKEN` in `.git/config`
 (no `persist-credentials: false`).
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/actions-checkout-credentials-check/
+
 - **`checkout-persists-credentials-with-upload`** — the same job also runs
   `actions/upload-artifact` or `actions/cache`, so the workspace is being
   exported. This is the "artipacked" pattern and the one worth fixing first.

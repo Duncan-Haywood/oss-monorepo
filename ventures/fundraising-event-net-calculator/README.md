@@ -2,6 +2,8 @@
 
 A free browser tool for galas, auctions and benefit dinners: **enter the tickets, sponsors, auction and what the night costs, and get the net the cause keeps, the cost per dollar raised, the break-even headcount, and the guests or ticket price that reach your goal**. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fundraising-event-net-calculator/
+
 After using this, you can now **see what an event nets before you sign the venue contract**, which used to take a spreadsheet that showed the gross and hid the cost of the room.
 
 ## Use

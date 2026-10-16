@@ -2,6 +2,8 @@
 
 The free CAM reconciliation calculator helps a small commercial landlord or tenant check common-area-maintenance math before discussing a year-end statement. Enter annual operating expenses, rentable area, the tenant's area, billed charges, and credits to see the area-share calculation and a transparent variance.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cam-reconciliation-check/
+
 Open `index.html` in a browser. It runs without an account, network request, API key, or paid dependency. After a check you can download a private text worksheet or a JSON review record with the same arithmetic and checklist. The JSON never includes a tenant name, address, or lease identifier. It does not interpret a lease, determine recoverability, or create a payment obligation. Verify every input against the lease, statement, and supporting records.
 
 An optional "Occupancy gross-up" section models the clause most net leases carry: the occupancy-sensitive share of CAM (utilities, janitorial) can be grossed up to what it would have cost at a stated target occupancy — usually 95% — when the building actually ran below that. It is opt-in: leave it blank and the reconciliation is exactly what it has always been. Enter the variable expense share and the actual and target occupancy percentages to see the dollar adjustment added to the expense pool before the area share is applied.

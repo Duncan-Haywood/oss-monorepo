@@ -10,6 +10,8 @@ on the other. It reports the ongoing annual cost, the year-one cost
 contractor hourly rate at which the two arrangements cost exactly the same.
 Nothing is uploaded; the arithmetic runs on the visitor's own device.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/employee-cost-calculator/
+
 ```
 cd ventures/employee-cost-calculator && node --test "*.test.mjs"
 ```

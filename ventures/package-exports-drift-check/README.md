@@ -8,6 +8,8 @@ Node's `ERR_PACKAGE_PATH_NOT_EXPORTED` and `Cannot find module` errors that
 show up only after a stranger runs `npm install`, never on the maintainer's
 own machine where the build has usually already run.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/
+
 **What it is not:** a bundler, a publish tool, or a resolver. It never runs
 your package, never resolves an import graph, and never reads a file's
 contents — only whether each literal path named in `exports` exists.

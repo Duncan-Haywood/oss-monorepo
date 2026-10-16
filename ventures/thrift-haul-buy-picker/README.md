@@ -7,6 +7,8 @@ after all of that, the walk-away price for each item, the sell chance each needs
 cash, item-count or hands-on-hours cap, the exact best set to buy. For eBay, Poshmark, Mercari, Etsy, Depop and
 Marketplace resellers. Browser page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/thrift-haul-buy-picker/
+
 ```
 node cli.mjs pick haul.csv --budget 80 --max-hours 2
 cat haul.csv | node cli.mjs pick - --fee 13 --hourly 20 --json

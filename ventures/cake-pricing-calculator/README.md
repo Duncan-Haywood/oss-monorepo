@@ -4,6 +4,8 @@ A free browser tool for home bakers and cake decorators: **enter servings, ingre
 overhead, fees and a target margin, and get the price that pays you, the price per serving, break-even / target / premium tiers and a deposit amount.** Enter a price
 you already quoted to see what an hour of your time really earned. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cake-pricing-calculator/
+
 After using this, you can now **quote a custom cake from its real cost instead of tripling the ingredients**, which used to leave a six-hour fondant cake paying less than minimum wage.
 
 ## Use

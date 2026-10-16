@@ -2,6 +2,8 @@
 
 A free browser tool for pawnbrokers: **type your monthly rate, how often loans are redeemed, how much you lend against resale value and what forfeited items actually sell for, and see what the average loan earns.** It shows profit per loan and per month, the annual return on the money you have out, the redemption rate you need to break even, the largest loan the item on your counter can carry for your target margin, and the smallest loan worth writing. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pawn-loan-profit-calculator/
+
 After using this, you can **set a loan-to-value ceiling and a minimum ticket from your own numbers**, instead of a rule of thumb like "a third of retail".
 
 ## Model

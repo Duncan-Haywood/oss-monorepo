@@ -9,6 +9,8 @@ over the hours it actually runs, and their own labor. **After using this, you
 can price a job from what it actually costs your machine, instead of a
 published survey average from someone else's.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/custom-farm-rate-calculator/
+
 Open `index.html` directly, or serve this directory with `python3 -m http.server`.
 The deterministic calculation works with no account, API key, upload, or paid
 dependency.

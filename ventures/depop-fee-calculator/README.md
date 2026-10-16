@@ -10,6 +10,8 @@ profit, and a side-by-side comparison of what the same sale would pay out in
 each of the three regions. Nothing is uploaded; the arithmetic runs on the
 visitor's own device.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/depop-fee-calculator/
+
 ```
 cd ventures/depop-fee-calculator && node --test
 ```

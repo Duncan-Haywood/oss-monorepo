@@ -4,6 +4,8 @@ Price Algolia, Meilisearch Cloud, Typesense Cloud, Elastic Cloud and a self-host
 at the records you index and the searches you serve each month, see the 12-month spend under your
 growth rate, and find the query volume where the cheapest option changes — before you build on one.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/search-api-pricing-calculator/
+
 ```
 node cli.mjs compare --records-k 500 --searches-k 2000 --growth 5
 node cli.mjs compare --records-k 500 --searches-k 2000 --provider algolia --budget 300   # CI gate: exit 1 over budget

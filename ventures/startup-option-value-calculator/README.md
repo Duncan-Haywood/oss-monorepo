@@ -5,6 +5,8 @@ company's fully diluted share count, its liquidation preferences and how likely 
 exit is, and see what the options are worth after dilution, preferences, vesting, exercise cost and
 tax, plus the exit price the company needs before they pay anything.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/startup-option-value-calculator/
+
 After using this, you can now **see that 40,000 options can be worth $0 in most outcomes, what the
 company must sell for before they pay anything, and whether the probability-weighted value covers the
 salary you give up**.

@@ -2,6 +2,8 @@
 
 **Find what a cord of firewood costs you in cash and hours, your profit per cord and per hour, the price per cord and face cord you need to pay yourself a wage, and how wood cost and delivery distance move it.** Browser page, no install.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/firewood-profit-calculator/
+
 After using this, you know whether your price per cord pays you more than a part-time job, the price you need for the wage you want, and whether the long deliveries are worth it.
 
 ## Your numbers, not advice

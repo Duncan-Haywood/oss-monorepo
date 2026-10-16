@@ -10,6 +10,8 @@ number, plus a safe-fixes pass that converts the delimiter, spells availability 
 restores a barcode's leading zeros only when the check digit confirms them. The file is read locally
 and never uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/meta-catalog-csv-check/
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API

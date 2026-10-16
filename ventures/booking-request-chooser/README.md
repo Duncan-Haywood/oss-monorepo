@@ -5,6 +5,8 @@ can book. Paste your confirmed bookings and pending requests and see the exact s
 for the most income, counting turnover cost and the dead gap nights each choice leaves, with the reason for
 every decline and counter-offers (a night earlier or later) worth sending. Browser page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/booking-request-chooser/
+
 ```
 node cli.mjs plan calendar.csv --turnover 60 --night-value 50 --min-stay 3
 cat calendar.csv | node cli.mjs plan - --json

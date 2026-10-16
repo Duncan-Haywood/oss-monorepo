@@ -1,0 +1,71 @@
+{
+  "slug": "fence-bid-calculator",
+  "name": "Fence installation",
+  "group": "Landscaping & outdoor",
+  "summary": "Fences priced from infill feet, line and terminal posts, walk and drive gates, and tear-out.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 25,
+  "burdenRate": 28,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Wood privacy fence infill, 6 ft, heavy clay",
+      "unit": "linear ft",
+      "qty": 124,
+      "hoursPerUnit": 0.182,
+      "materialPerUnit": 14,
+      "source": "0.14 h/lf x 1.3 heavy-clay multiplier (MATERIAL_PRESETS wood-privacy-6, DIG_PRESETS clay selected in index.html); $14/lf; 140 ft run less 4 ft walk + 12 ft drive gate (index.html default run, WALK/DRIVE_GATE_WIDTH_FT)"
+    },
+    {
+      "label": "Line posts set in concrete",
+      "unit": "post",
+      "qty": 13,
+      "hoursPerUnit": 0.65,
+      "materialPerUnit": 32,
+      "source": "0.5 h/post x 1.3; line post $22 + concrete $10 (wood-privacy-6); countPosts: ceil(140/8)+1+2 corners = 21 posts, 8 of them terminal or gate"
+    },
+    {
+      "label": "Corner, end and gate posts set in concrete",
+      "unit": "post",
+      "qty": 8,
+      "hoursPerUnit": 0.65,
+      "materialPerUnit": 46,
+      "source": "0.5 h/post x 1.3; terminal post $36 + concrete $10 (wood-privacy-6); 2 ends + 2 corners + 4 gate posts (countPosts, applyGatePosts)"
+    },
+    {
+      "label": "Walk gate",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 2.275,
+      "materialPerUnit": 220,
+      "source": "1.75 h x 1.3; $220 (wood-privacy-6); 1 walk gate default (index.html)"
+    },
+    {
+      "label": "Drive gate",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 4.55,
+      "materialPerUnit": 520,
+      "source": "3.5 h x 1.3; $520 (wood-privacy-6); 1 drive gate default (index.html)"
+    },
+    {
+      "label": "Tear out and haul old fence",
+      "unit": "linear ft",
+      "qty": 40,
+      "hoursPerUnit": 0.234,
+      "materialPerUnit": 4,
+      "source": "0.18 h/ft x 1.3; haul/dump $4/ft; 40 ft default (index.html tearOutFeet, hoursPerTearOutLf, tearOutPerFoot)"
+    },
+    {
+      "label": "Permits, dump, travel and extras",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 150,
+      "source": "otherCost $150 (index.html)"
+    }
+  ],
+  "specialistModels": "Post counts from spacing, corners and gates, six fence materials, rocky-dig and slope labor multipliers, and multiple runs."
+}

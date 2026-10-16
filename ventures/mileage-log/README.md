@@ -5,6 +5,8 @@ works offline in the browser. Log a trip by odometer, typed miles or GPS, and
 see the IRS standard-rate deduction, the Schedule C Part IV mileage split, and
 the gaps in your log an examiner would look at. Not tax advice.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mileage-log/
+
 After using this, you can now **hand a tax preparer a dated, purposeful mileage
 log priced at the right IRS rate for each trip**, which used to mean a $6-15 a
 month tracker, or a notebook reconstructed in April.

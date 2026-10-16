@@ -4,6 +4,8 @@ A free browser tool for small-business owners and plan committees: **enter your 
 all-in cost as a percent of assets and per participant, the gap to an editable size benchmark, and what that gap costs an average
 participant over time.** Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/401k-plan-fee-calculator/
+
 After using this, you can now **put a dollar figure on whether your 401(k) plan is expensive for its size**, which used to take a paid
 benchmarking report or a recordkeeper telling you the plan is "competitive".
 

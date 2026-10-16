@@ -6,6 +6,8 @@ profit per batch, per bird and per hour of your own labour, the dressed price pe
 pound you need to break even, and how the season moves with mortality, feed
 price, sales channel and flock size. Entirely client-side.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pastured-poultry-profit-planner/
+
 After using this, you can **see whether a batch pays you for your time, and
 which of price, feed or losses decides it**, before ordering chicks.
 

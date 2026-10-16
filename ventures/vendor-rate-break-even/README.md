@@ -2,6 +2,8 @@
 
 Choosing a supplier discount, subcontractor rate, or equipment lease? Compare the real monthly cost at your expected job volume and see when the switch pays back. Everything runs in your browser; no account or API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/vendor-rate-break-even/
+
 ## Use it
 
 Open `index.html`, enter current costs, revenue per job, and up to three alternatives, then compare cost per job, profit per job, margin, and break-even volume. Drafts are saved only in your browser and restored the next time you open the page. Use "Copy share link" to hand the same comparison to a partner, accountant, or the vendor themselves — the link carries only the numbers in the form, nothing is uploaded.

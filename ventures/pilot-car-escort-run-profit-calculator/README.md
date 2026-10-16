@@ -8,6 +8,8 @@ margin and profit per driver hour**, the **lowest quote that earns your target m
 break-even runs a year, and compares two runs side by side (a short run that bills the minimum
 against a long run).
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pilot-car-escort-run-profit-calculator/
+
 Open `index.html` over any static server (ES module page). No build step, no
 dependencies. `node --test *.test.mjs` runs the suite.
 

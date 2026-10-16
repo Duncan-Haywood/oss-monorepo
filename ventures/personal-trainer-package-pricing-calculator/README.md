@@ -5,6 +5,8 @@ discounted prepaid session package against pay-per-session pricing on net
 take-home pay per hour, after your gym or studio's percentage revenue-share
 or flat facility fee. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/personal-trainer-package-pricing-calculator/
+
 After using this, you can now **see whether your session package actually
 pays better per hour, net of your venue's cut, than charging full price per
 session — not just whether it looks safer on billings** — the gap most

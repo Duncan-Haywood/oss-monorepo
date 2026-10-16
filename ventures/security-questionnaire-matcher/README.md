@@ -2,6 +2,8 @@
 
 **Paste a customer's security questionnaire and your past answers; get the filled sheet.** Each question is matched to your closest saved answer with a confidence level. Matches that could be wrong (a different number of hours, a flipped yes/no) are flagged, and questions with no saved answer are listed by topic so you know what to write once.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/security-questionnaire-matcher/
+
 After using this, you can answer most of a 150-row vendor security questionnaire by reviewing reused answers, which used to mean retyping the same encryption, MFA and incident-response answers into every customer's spreadsheet.
 
 First visitor: a SaaS founder or security lead at a small company selling to larger buyers. Compliance-automation platforms (Vanta, Drata, Conveyor and similar) bundle questionnaire answering into per-seat or per-year contracts; this is the free, private, library-in-a-CSV version.

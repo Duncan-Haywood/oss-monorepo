@@ -1,0 +1,40 @@
+{
+  "slug": "gutter-guard-bid-calculator",
+  "name": "Gutter guard installation",
+  "group": "Exterior & roofing",
+  "summary": "Gutter guards priced from a base setup plus extra footage, stories, miters, downspouts and clean-out.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 0.5,
+  "hourlyWage": 36,
+  "burdenRate": 32,
+  "overheadRate": 16,
+  "targetMargin": 28,
+  "items": [
+    {
+      "label": "Perforated screen guard, base setup (first 120 ft)",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.5,
+      "materialPerUnit": 270.0,
+      "source": "Base setup 1.5 h covering 120 ft, 1 story, 4 miters, 3 downspouts (index.html); screen $2.25/ft x 120 ft (suggestedJobHours screen)"
+    },
+    {
+      "label": "Screen guard beyond the base 120 ft",
+      "unit": "linear ft",
+      "qty": 20,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 2.25,
+      "source": "0.35 h per extra 10 ft (index.html); $2.25/ft screen (suggestedJobHours screen); 140 ft default minus 120 included"
+    },
+    {
+      "label": "Travel, lifts, ladders",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 45.0,
+      "source": "Travel, lifts, ladders $45 (index.html default)"
+    }
+  ],
+  "specialistModels": "Bills only past an included base job (feet, stories, miters, downspouts) and adds clean-first, fascia repair, occupied-home and steep-roof hours across four guard systems."
+}

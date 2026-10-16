@@ -1,0 +1,67 @@
+{
+  "slug": "window-replacement-bid-calculator",
+  "name": "Window replacement",
+  "group": "Exterior & roofing",
+  "summary": "Replacement windows priced per opening from type, united inches, frame, install method, story and condition.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 1,
+  "minOnSiteHours": 6,
+  "hourlyWage": 38,
+  "burdenRate": 32,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "milesOneWay": 12,
+  "tripFee": 95,
+  "items": [
+    {
+      "label": "Picture window 60x48, vinyl insert",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 1.85,
+      "materialPerUnit": 334.4,
+      "source": "STARTING_OPENINGS[0] (index.html): picture 1.4 h + LARGE_HOURS_ADD 0.45 (108 UI > 90); $210 + $2.80 x 38 UI over BASE_UI 70 = $316.40 + $18 disposal per opening"
+    },
+    {
+      "label": "Double-hung 30x54, vinyl insert, 2nd story",
+      "unit": "each",
+      "qty": 4,
+      "hoursPerUnit": 2.55,
+      "materialPerUnit": 292.4,
+      "source": "STARTING_OPENINGS[1]: double-hung 1.8 h + storyHoursAdd(2) 0.75; $245 + $2.10 x 14 extra UI = $274.40 + $18 disposal"
+    },
+    {
+      "label": "Slider 60x36, vinyl insert",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 2.05,
+      "materialPerUnit": 300,
+      "source": "STARTING_OPENINGS[2]: slider 1.6 h + 0.45 large (96 UI); $230 + $2.00 x 26 extra UI = $282 + $18 disposal"
+    },
+    {
+      "label": "Casement 32x60, 2nd story, sill rot repair",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 5.1,
+      "materialPerUnit": 450.2,
+      "source": "STARTING_OPENINGS[3]: casement 2.1 + story 0.75 + rot 1.8 + large 0.45 h; $310 + $2.60 x 22 extra UI = $367.20 + rot parts $65 + $18 disposal"
+    },
+    {
+      "label": "Scaffolding / lift for 2nd-story openings",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 375,
+      "source": "scaffoldingCost $375 (index.html), charged because openings are on story 2"
+    },
+    {
+      "label": "Permit",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 85,
+      "source": "permitCost $85 (index.html default)"
+    }
+  ],
+  "specialistModels": "Per-opening pricing from united inches with large and oversize surcharges, frame material and labor multipliers, full-frame and nail-fin installs, rot, masonry and lead-safe conditions, trim and capping add-ons; travel is 12 miles each way at 28 mph."
+}

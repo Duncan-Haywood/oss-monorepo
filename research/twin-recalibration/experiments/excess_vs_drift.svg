@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of excess cost against the drift rate qd on a log axis for the closed-form optimum, the idealised integer optimum, the full model and the closed-form schedule run in the full model: excess cost falls as drift gets slower, and the formula tracks the integer optimum closely">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Twin recalibration: excess cost at the optimal schedule</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="250.8" y2="250.8" stroke="#ddd"/><text x="58" y="254.8" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="177.5" y2="177.5" stroke="#ddd"/><text x="58" y="181.5" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="104.3" y2="104.3" stroke="#ddd"/><text x="58" y="108.3" text-anchor="end" font-family="sans-serif" font-size="11">0.3</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1e-06</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1e-05</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.0001</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.001</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">drift rate qd (log scale)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">excess cost per step</text>
+<polyline points="64.0,298.7 250.7,269.5 437.3,206.6 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="298.7" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="269.5" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="206.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">formula</text>
+<polyline points="64.0,298.7 250.7,269.6 437.3,207.2 624.0,73.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="298.7" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="269.6" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="207.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="73.8" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">idealised</text>
+<polyline points="64.0,299.5 250.7,273.1 437.3,222.6 624.0,129.1" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="299.5" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="273.1" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="222.6" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="129.1" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">full model</text>
+<polyline points="64.0,299.4 250.7,272.9 437.3,220.9 624.0,120.1" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="299.4" r="3" fill="#8e44ad"/>
+<circle cx="250.7" cy="272.9" r="3" fill="#8e44ad"/>
+<circle cx="437.3" cy="220.9" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="120.1" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">closed-form sched.</text>
+</svg>

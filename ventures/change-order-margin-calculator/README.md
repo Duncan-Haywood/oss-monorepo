@@ -5,6 +5,8 @@ materials, subcontractor cost, schedule delay, overhead, and target margin. The
 result gives a target price, a walk-away cost floor, what your contract's
 markup cap actually leaves you, and a plain-text approval summary.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/change-order-margin-calculator/
+
 ## The two lines that decide a change order
 
 Change orders are lost where they are priced, not where they are worked, and

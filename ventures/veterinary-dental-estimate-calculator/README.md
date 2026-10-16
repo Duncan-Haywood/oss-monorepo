@@ -5,6 +5,8 @@ A free browser tool for veterinary clinics: enter your own fees, costs and times
 anesthesia hour, the price that reaches your target margin, a suggested estimate range, and what a
 single flat dental quote gives up over a year at your case mix. Nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/veterinary-dental-estimate-calculator/
+
 ## Model
 
 - Estimate = cleaning + anesthesia hours x hourly charge + bloodwork + IV + radiographs + blocks and extraction fees per tooth + meds.

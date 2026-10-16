@@ -8,6 +8,8 @@ has to start, the smallest extra oven or baker that makes it fit before you
 open, and, when nothing can be added, which orders to turn down. Entirely
 client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bakery-production-scheduler/
+
 After using this, you can **know when to start baking and which wholesale
 orders to take** instead of finding out at 3 a.m. that the croissants and the
 sourdough want the same oven.

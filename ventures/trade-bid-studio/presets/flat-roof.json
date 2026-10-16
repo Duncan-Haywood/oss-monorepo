@@ -1,0 +1,79 @@
+{
+  "slug": "flat-roof-bid-calculator",
+  "name": "Flat roofing",
+  "group": "Exterior & roofing",
+  "summary": "Low-slope roofs priced per membrane square plus drains, parapet, curbs, insulation, tear-off and walk pads.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 36,
+  "burdenRate": 32,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "TPO 45-mil recover membrane",
+      "unit": "square",
+      "qty": 12,
+      "hoursPerUnit": 1.512,
+      "materialPerUnit": 178.2,
+      "source": "1.4 h and $165 per membrane square x 1.08 for 8% waste (suggestedMembraneKit tpo-45; index.html hoursPerSquare, membranePerSquare, wastePct); 40x30 ft = 12 squares (index.html)"
+    },
+    {
+      "label": "Roof drains",
+      "unit": "each",
+      "qty": 2,
+      "hoursPerUnit": 0.8,
+      "materialPerUnit": 165,
+      "source": "hoursPerDrain 0.8, $165 per drain; 2 drains default (index.html)"
+    },
+    {
+      "label": "Parapet flashing",
+      "unit": "linear ft",
+      "qty": 0,
+      "hoursPerUnit": 0.12,
+      "materialPerUnit": 18,
+      "source": "hoursPerParapetLf 0.12, $18/lf (index.html); the specialist also adds up to 10% membrane waste for parapet; 0 lf default"
+    },
+    {
+      "label": "HVAC curbs",
+      "unit": "each",
+      "qty": 0,
+      "hoursPerUnit": 1.4,
+      "materialPerUnit": 240,
+      "source": "hoursPerCurb 1.4, $240 per curb (index.html); 0 default"
+    },
+    {
+      "label": "Polyiso insulation layer",
+      "unit": "square",
+      "qty": 0,
+      "hoursPerUnit": 0.55,
+      "materialPerUnit": 95,
+      "source": "hoursPerInsulationSquare 0.55, $95 per square (index.html); 0 layers default"
+    },
+    {
+      "label": "Tear-off to deck with dumpster",
+      "unit": "square",
+      "qty": 0,
+      "hoursPerUnit": 0.9,
+      "materialPerUnit": 28,
+      "source": "0.9 h and $28 dumpster per square (suggestedScopeKit tear-off; index.html dumpsterPerSquare); default scope is recover, so 0"
+    },
+    {
+      "label": "Walk pads",
+      "unit": "square",
+      "qty": 0,
+      "hoursPerUnit": 0.6,
+      "materialPerUnit": 85,
+      "source": "hoursPerWalkPadSquare 0.6, $85 per square (index.html); 0 default"
+    },
+    {
+      "label": "Trip, travel, mobilization and fasteners",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 3.8,
+      "materialPerUnit": 670,
+      "source": "trip/setup 3 h + travel 0.8 h; fasteners/plates/adhesive $160 + mobilization $350 + travel and equipment $160 (index.html)"
+    }
+  ],
+  "specialistModels": "Six membranes with welder hours and rental, tear-off with wet insulation, slope and story multipliers, parapet waste, cover board and a permit allowance."
+}

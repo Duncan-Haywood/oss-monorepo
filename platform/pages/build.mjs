@@ -20,7 +20,7 @@
 // point is published on the next push, and `EXCLUDED_SLUGS` is the deliberate
 // opt-out.
 
-import { promises as fs, existsSync } from 'node:fs';
+import { promises as fs, existsSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import path from 'node:path';
@@ -29,7 +29,7 @@ import zlib from 'node:zlib';
 
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS } from '../counter/counter.mjs';
-import { buildEngineeringPage, ENGINEERING_PATH } from './engineering.mjs';
+import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
 import {
   FEED_MAX_ENTRIES,
   feedUpdatedAt,
@@ -4555,6 +4555,29 @@ export function surfaceKind(ventureDir, slug = path.basename(ventureDir)) {
   return 'browser';
 }
 
+/**
+ * The research homepage's own featured projects and themes, read from the file
+ * that builds it (`research/_homepage/projects.json`), so the hub can show what
+ * the research is about instead of only a count. Only slugs that exist under
+ * `research/` are kept, so a stale entry never becomes a dead link.
+ */
+export function researchHighlights(repoRoot = REPO_ROOT) {
+  const file = path.join(repoRoot, 'research', '_homepage', 'projects.json');
+  if (!existsSync(file)) return { featured: [], themes: [] };
+  const data = JSON.parse(readFileSync(file, 'utf8'));
+  const exists = (slug) => existsSync(path.join(repoRoot, 'research', slug, 'README.md'));
+  const bySlug = new Map();
+  const themes = (data.themes ?? []).map((theme) => {
+    const projects = (theme.projects ?? []).filter((p) => exists(p.slug));
+    for (const p of projects) bySlug.set(p.slug, p);
+    return { id: theme.id, name: theme.name, count: projects.length };
+  }).filter((theme) => theme.count > 0);
+  const featured = (data.featured ?? [])
+    .filter((slug) => bySlug.has(slug))
+    .map((slug) => ({ slug, title: bySlug.get(slug).title }));
+  return { featured, themes };
+}
+
 /** Research projects the research homepage builds: `research/<slug>/` with a README. */
 export function researchProjectCount(repoRoot = REPO_ROOT) {
   const dir = path.join(repoRoot, 'research');
@@ -6589,14 +6612,49 @@ ${categoryLinks}
 }
 
 /** A hub section listing one kind of product (apps, CLIs) by name. */
+/**
+ * The research block on the hub: the research homepage's featured projects and
+ * its themes, each linking into `research/`. Placed beside the apps, above the
+ * browser tools, because the hub used to open on a calculator catalogue and
+ * mention 500 research projects only as a number.
+ */
+function renderResearchSection({ featured = [], themes = [] } = {}, researchCount = 0) {
+  if (!researchCount) return '';
+  const featuredHtml = featured.length
+    ? `      <ul>
+${featured
+  .map((p) => `        <li><a href="${escapeHtml(`${RESEARCH_PATH}${p.slug}/`)}">${escapeHtml(decodeEntities(p.title))}</a></li>`)
+  .join('\n')}
+      </ul>`
+    : '';
+  const themesHtml = themes.length
+    ? `      <p class="research-themes">${themes
+        .map((t) => `<a href="${escapeHtml(`${RESEARCH_PATH}#${t.id}`)}">${escapeHtml(decodeEntities(t.name))} <span>${t.count}</span></a>`)
+        .join(' ')}</p>`
+    : '';
+  return `    <section class="kind-section" id="research" aria-labelledby="research-h">
+      <h2 id="research-h">Open research <span>${researchCount}</span></h2>
+      <p>Reproducible research projects with code, tests and write-ups: verification markets, scoring rules, decentralised training, chip design and robotics. <a href="${RESEARCH_PATH}">Browse all research</a>.</p>
+${featuredHtml}
+${themesHtml}
+    </section>`;
+}
+
 function renderKindSection(id, title, intro, items, deployable) {
   if (!items.length) return '';
+  // Titles read "Name — what it does"; the card shows the name as the link and
+  // the rest as its tagline, so a grid of 31 reads as names, not sentences.
   const cards = items
-    .map(
-      (s) => `        <li><a href="${escapeHtml(s.slug)}/">${escapeHtml(s.title)}</a>${
-        deployable ? ` · <a href="${escapeHtml(`deploy/?app=${encodeURIComponent(s.slug)}`)}">deploy your copy</a>` : ''
-      }<p>${escapeHtml(s.description ?? '')}</p></li>`,
-    )
+    .map((s) => {
+      const [name, ...rest] = s.title.split(' — ');
+      const rawTagline = rest.join(' — ');
+      const tagline = rawTagline.charAt(0).toUpperCase() + rawTagline.slice(1);
+      return `        <li><a href="${escapeHtml(s.slug)}/">${escapeHtml(name)}</a>${
+        tagline ? `<span class="tagline">${escapeHtml(tagline)}</span>` : ''
+      }<p>${escapeHtml(s.description ?? '')}</p>${
+        deployable ? `<a class="deploy-link" href="${escapeHtml(`deploy/?app=${encodeURIComponent(s.slug)}`)}">Deploy your copy →</a>` : ''
+      }</li>`;
+    })
     .join('\n');
   return `    <section class="kind-section" id="${id}" aria-labelledby="${id}-h">
       <h2 id="${id}-h">${escapeHtml(title)} <span>${items.length}</span></h2>
@@ -6607,7 +6665,7 @@ ${cards}
     </section>`;
 }
 
-export function renderHub(surfaces, baseUrl, { researchCount = 0 } = {}) {
+export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { featured: [], themes: [] } } = {}) {
   // Every product stays in the searchable category groups; apps and CLIs are
   // also listed in sections of their own (renderKindSection), so a visitor
   // browsing by kind finds them without the search box.
@@ -6797,21 +6855,89 @@ ${subgroups
          failed was content, not decoration. Naming the tint makes it a value
          contrast.mjs can measure. */
       --soft: #656e78;
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      --hero-2: #3b5bdb;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
               --line: #2a343f; --accent: #7fd8c0; --accent-ink: #0d1319;
-              --soft: #8d9aab; }
+              --soft: #8d9aab; --hero-2: #8ea2ff; }
     }
     * { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--ink); }
-    .wrap { max-width: 1080px; margin: 0 auto; padding: 34px 18px 60px; }
-    header { max-width: 720px; margin-bottom: 26px; }
-    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .09em;
-               text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.3rem); line-height: 1.02; letter-spacing: -.045em; margin: 0 0 14px; }
-    .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 6px; }
+    body { margin: 0; background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; }
+    a { color: var(--accent); }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 8px 20px 64px; }
+    .skip { position: absolute; left: -999px; top: 8px; background: var(--panel); padding: 8px 12px; border-radius: 8px; z-index: 10; }
+    .skip:focus { left: 8px; }
+    /* Top bar and hero: the landing half of the page. The catalogue below keeps
+       its own styles; this half says what the project is before listing it. */
+    .topbar { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--panel) 88%, transparent);
+              backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px);
+              border-bottom: 1px solid var(--line); }
+    .topnav { max-width: 1120px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center;
+              justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 750; letter-spacing: -.01em;
+             color: var(--ink); text-decoration: none; }
+    .brand-mark { width: 22px; height: 22px; border-radius: 6px;
+                  background: linear-gradient(135deg, var(--accent), var(--hero-2)); }
+    .topnav-links { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: .92rem; }
+    .topnav-links a { color: var(--muted); text-decoration: none; font-weight: 550; }
+    .topnav-links a:hover, .topnav-links a:focus-visible { color: var(--ink); }
+    .topnav-links .topnav-gh { color: var(--ink); }
+    .hero { background:
+              radial-gradient(1000px 420px at 85% -10%, color-mix(in srgb, var(--hero-2) 22%, transparent), transparent 70%),
+              radial-gradient(800px 400px at 0% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
+              var(--bg);
+            border-bottom: 1px solid var(--line); }
+    .hero-inner { max-width: 1120px; margin: 0 auto; padding: clamp(48px, 9vw, 104px) 20px clamp(40px, 6vw, 64px); }
+    .eyebrow, .section-eyebrow { font-size: .76rem; font-weight: 700; letter-spacing: .12em;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 14px; }
+    h1 { font-size: clamp(2.2rem, 5.6vw, 3.9rem); line-height: 1.04; letter-spacing: -.04em;
+         margin: 0 0 20px; max-width: 21ch; text-wrap: balance; }
+    .lede { font-size: clamp(1.02rem, 1.6vw, 1.18rem); line-height: 1.6; color: var(--muted); margin: 0; max-width: 64ch; }
+    .cta { display: flex; flex-wrap: wrap; gap: 10px; margin: 30px 0 0; }
+    .btn { display: inline-block; padding: 11px 18px; border-radius: 10px; font-weight: 650; font-size: .95rem;
+           text-decoration: none; border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+    .btn:hover, .btn:focus-visible { border-color: var(--accent); }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .btn-primary:hover, .btn-primary:focus-visible { filter: brightness(1.08); }
+    .btn-ghost { background: transparent; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 44px 0 0; max-width: 820px;
+             border: 1px solid var(--line); border-radius: 14px; background: var(--panel); overflow: hidden; }
+    .stats div { padding: 16px 18px; border-left: 1px solid var(--line); }
+    .stats div:first-child { border-left: 0; }
+    .stats dt { font-size: .8rem; color: var(--muted); }
+    .stats dd { margin: 4px 0 0; font-size: 1.7rem; font-weight: 750; letter-spacing: -.03em;
+                font-variant-numeric: tabular-nums; }
+    .stats dd a { color: var(--ink); text-decoration: none; }
+    .stats dd a:hover, .stats dd a:focus-visible { color: var(--accent); }
+    @media (max-width: 640px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .stats div:nth-child(3) { border-left: 0; }
+      .stats div:nth-child(n+3) { border-top: 1px solid var(--line); }
+    }
+    .pillars h2, .how h2, .kind-section h2, .tools-intro h2 { font-size: clamp(1.5rem, 3vw, 2rem);
+         letter-spacing: -.03em; line-height: 1.15; margin: 0 0 10px; }
+    .pillars, .how { margin-top: 64px; }
+    .pillar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; margin-top: 26px; }
+    .pillar { display: flex; flex-direction: column; padding: 24px; border: 1px solid var(--line); border-radius: 16px;
+              background: var(--panel); color: var(--ink); text-decoration: none;
+              transition: border-color .15s, transform .15s; }
+    .pillar:hover, .pillar:focus-visible { border-color: var(--accent); transform: translateY(-2px); }
+    .pillar h3 { margin: 0 0 10px; font-size: 1.15rem; letter-spacing: -.01em; }
+    .pillar p { margin: 0 0 18px; color: var(--muted); line-height: 1.6; font-size: .95rem; flex: 1; }
+    .pillar-more { font-weight: 650; color: var(--accent); font-size: .92rem; }
+    .steps { list-style: none; counter-reset: step; padding: 0; margin: 26px 0 0; display: grid;
+             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .steps li { counter-increment: step; position: relative; padding: 22px 22px 22px 66px; border-radius: 16px;
+                background: var(--panel); border: 1px solid var(--line); line-height: 1.6; color: var(--muted); font-size: .95rem; }
+    .steps li::before { content: counter(step); position: absolute; left: 22px; top: 20px; width: 30px; height: 30px;
+                        border-radius: 50%; display: grid; place-items: center; font-weight: 750;
+                        background: var(--accent); color: var(--accent-ink); }
+    .steps strong { display: block; color: var(--ink); margin-bottom: 2px; }
+    .principles { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 8px 22px;
+                  font-size: .9rem; color: var(--muted); }
+    .principles li::before { content: "✓"; color: var(--accent); font-weight: 800; margin-right: 8px; }
     .search { margin: 26px 0 8px; }
     .search label { display: block; font-size: .87rem; font-weight: 650; margin-bottom: 6px; }
     .search input { width: 100%; max-width: 520px; padding: 12px 14px; font: inherit;
@@ -6822,16 +6948,28 @@ ${subgroups
     /* Multi-column rather than grid: one section holds eight sub-groups and the
        rest hold none, and grid would size every cell in the row to that tallest
        one, leaving four columns of white space beside it. Columns just flow. */
-    .overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 22px 0 6px; }
-    .overview a { display: block; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px;
-                  background: var(--panel); color: var(--ink); text-decoration: none; }
-    .overview a:hover { border-color: var(--accent); }
-    .overview strong { display: block; font-size: 1.05rem; color: var(--accent-ink); }
-    .overview span { display: block; font-size: .82rem; margin-top: 4px; color: var(--muted); }
-    .kind-section { margin-top: 30px; }
-    .kind-section ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
-    .kind-section li { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; }
-    .kind-section li p { margin: 4px 0 0; font-size: .85rem; }
+    .kind-section, .tools-intro { margin-top: 72px; scroll-margin-top: 70px; }
+    .kind-section > p, .tools-intro > p { color: var(--muted); line-height: 1.6; max-width: 70ch; margin: 0; }
+    .kind-section ul { list-style: none; padding: 0; margin: 24px 0 0; display: grid;
+                       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+    .kind-section li { padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px;
+                       background: var(--panel); line-height: 1.45; transition: border-color .15s; }
+    .kind-section li:hover { border-color: var(--accent); }
+    .kind-section li > a:first-child { font-weight: 650; color: var(--ink); text-decoration: none; }
+    .kind-section li > a:first-child:hover { color: var(--accent); text-decoration: underline; }
+    .kind-section li { display: flex; flex-direction: column; }
+    .kind-section .tagline { font-size: .86rem; color: var(--ink); margin-top: 2px; }
+    .kind-section li p { margin: 8px 0 0; font-size: .85rem; color: var(--muted); line-height: 1.5; flex: 1; }
+    .kind-section .deploy-link { margin-top: 12px; font-size: .84rem; font-weight: 650; text-decoration: none; }
+    .kind-section .deploy-link:hover { text-decoration: underline; }
+    #research li { font-weight: 600; }
+    #research li a { color: var(--ink); text-decoration: none; }
+    #research li a:hover { color: var(--accent); text-decoration: underline; }
+    #research .research-themes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .research-themes a { padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: .83rem;
+                         text-decoration: none; color: var(--ink); background: var(--panel); }
+    .research-themes a:hover { border-color: var(--accent); }
+    .research-themes span, .tools-intro h2 span, .kind-section h2 span { color: var(--soft); font-weight: 500; font-size: .7em; margin-left: 4px; }
     .contents { margin-top: 26px; padding: 16px 18px; background: var(--panel);
                 border: 1px solid var(--line); border-radius: 13px;
                 columns: 210px; column-gap: 22px; }
@@ -6976,29 +7114,96 @@ ${subgroups
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <p class="eyebrow">Free &amp; open source</p>
-      <h1>Tools, apps and research you can use or run yourself</h1>
-      <p class="lede">
-        ${surfaces.length} free products and ${researchCount} research projects, all
-        MIT-licensed. Browser tools answer a specific question with your own
-        numbers — the fee, the bid, the bill, the record — without uploading
-        anything. Self-hostable apps deploy to your own cloud in one step.
-      </p>
-    </header>
-
-    <nav class="overview" id="overview" aria-label="What is here">
-      <a href="#contents"><strong>${browserCount}</strong> browser tools<span>Run on your device; no signup</span></a>
-      <a href="#apps"><strong>${apps.length}</strong> self-hostable apps<span>Business software you deploy and own</span></a>
-      <a href="#clis"><strong>${clis.length}</strong> command-line checks<span>For CI pipelines and terminals</span></a>
-      <a href="${RESEARCH_PATH}"><strong>${researchCount}</strong> research projects<span>Reproducible code and write-ups</span></a>
-      <a href="deploy/"><strong>Run your own copy</strong><span>One-click deploy to your own account</span></a>
-      <a href="dev/"><strong>How it is built</strong><span>Live development and CI dashboard</span></a>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="topbar">
+    <nav class="topnav" aria-label="Site">
+      <a class="brand" href="./"><span class="brand-mark" aria-hidden="true"></span>${escapeHtml(SITE_NAME)}</a>
+      <span class="topnav-links">
+        <a href="#apps">Apps</a>
+        <a href="#research">Research</a>
+        <a href="#tools">Tools</a>
+        <a href="deploy/">Deploy</a>
+        <a href="dev/">Development</a>
+        <a class="topnav-gh" href="${REPO_URL}">GitHub</a>
+      </span>
     </nav>
+  </div>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Open source · MIT licensed · Built in public</p>
+      <h1>Software and research that anyone can use, inspect, and run themselves.</h1>
+      <p class="lede">
+        ${escapeHtml(SITE_NAME)} is an open portfolio of business software and research.
+        We build self-hostable apps that a small business can deploy into its own
+        cloud account in one step, publish reproducible research with its code and
+        tests, and give away focused tools that run entirely in your browser.
+        There are no accounts, no paywalls, and no data leaving your hands.
+      </p>
+      <p class="cta">
+        <a class="btn btn-primary" href="#apps">Explore the apps</a>
+        <a class="btn" href="#research">Read the research</a>
+        <a class="btn btn-ghost" href="${REPO_URL}">Source on GitHub</a>
+      </p>
+      <dl class="stats" id="overview">
+        <div><dt>Self-hostable apps</dt><dd><a href="#apps">${apps.length}</a></dd></div>
+        <div><dt>Research projects</dt><dd><a href="#research">${researchCount}</a></dd></div>
+        <div><dt>Browser tools</dt><dd><a href="#tools">${browserCount}</a></dd></div>
+        <div><dt>Command-line checks</dt><dd><a href="#clis">${clis.length}</a></dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <div class="wrap" id="main">
+    <section class="pillars" aria-labelledby="what-h">
+      <p class="section-eyebrow">What we do</p>
+      <h2 id="what-h">Three kinds of work, one principle: you stay in control</h2>
+      <div class="pillar-grid">
+        <a class="pillar" href="#apps">
+          <h3>Business software you own</h3>
+          <p>Failed-payment recovery, churn alerts, booking pages, e-signatures, status pages and more, packaged as servers you deploy to your own cloud with your own keys. Infrastructure is described as code, so a deploy is repeatable and nothing of ours sits in between.</p>
+          <span class="pillar-more">${apps.length} apps →</span>
+        </a>
+        <a class="pillar" href="#research">
+          <h3>Open, reproducible research</h3>
+          <p>Questions about verification markets, scoring rules, decentralised training, chip design and robotics, each answered by a project with runnable code, tests and a written result you can check and build on.</p>
+          <span class="pillar-more">${researchCount} projects →</span>
+        </a>
+        <a class="pillar" href="#tools">
+          <h3>Free tools that respect privacy</h3>
+          <p>Focused pages for sellers, contractors and back offices: fees, bids, invoices and compliance checks. They compute on your device, work offline once opened, and upload nothing you type.</p>
+          <span class="pillar-more">${browserCount + clis.length} tools →</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="how" aria-labelledby="how-h">
+      <p class="section-eyebrow">How it works</p>
+      <h2 id="how-h">From the catalogue to your own copy</h2>
+      <ol class="steps">
+        <li><strong>Pick a product.</strong> Every app and tool has its own page explaining what it does, who it is for, and its limits.</li>
+        <li><strong>Run it your way.</strong> Use a browser tool as is, or deploy an app to your own account with the <a href="deploy/">one-step deploy</a>. Features that use AI run on your own API key.</li>
+        <li><strong>Own the result.</strong> MIT licence, your infrastructure, your data. Fork it, change it, or sell it to your own customers.</li>
+      </ol>
+      <ul class="principles">
+        <li>No accounts or sign-up</li>
+        <li>No tracking cookies</li>
+        <li>MIT licence throughout</li>
+        <li>Every change in <a href="dev/">public history</a></li>
+      </ul>
+    </section>
+
+${renderKindSection('apps', 'Self-hostable apps', 'Business software that runs as your own server: deploy a copy to your own cloud account with your own keys, and you own the data.', apps, true)}
+${renderResearchSection(research, researchCount)}
+
+    <section class="tools-intro" id="tools" aria-labelledby="tools-h">
+      <p class="section-eyebrow">The catalogue</p>
+      <h2 id="tools-h">Browser tools <span>${browserCount}</span></h2>
+      <p>Single-purpose pages that answer one question with your own numbers — a fee, a bid, a bill, a record — computed on your device, with nothing uploaded.</p>
+    </section>
 
     <div class="search">
-      <label for="q">Search these tools</label>
+      <label for="q">Search the browser tools</label>
       <input id="q" type="search" placeholder="eBay fees, tile backsplash, freight, VAT…"
              autocomplete="off" spellcheck="false">
       <p class="count" id="count"></p>
@@ -7006,9 +7211,6 @@ ${subgroups
     </div>
 
 ${contents}
-
-${renderKindSection('apps', 'Self-hostable apps', 'Business software that runs as your own server: deploy a copy to your own cloud account with your own keys, and you own the data.', apps, true)}
-${renderKindSection('clis', 'Command-line checks', 'Checks that run in a terminal or a CI pipeline; each page explains what it looks for and how to install it.', clis, false)}
 
     <!-- Filled in by script from the saved bids on this device. Above "pick up
          where you left off" deliberately: a contractor whose customer just rang
@@ -7109,6 +7311,8 @@ ${sections}
     <p class="empty" id="empty">No tool matches that. Try a marketplace, a trade, or the thing you are pricing.</p>
 
 ${renderOfflineWidgetHtml(offlineBuckets(surfaces))}
+
+${renderKindSection('clis', 'Command-line checks', 'Checks that run in a terminal or a CI pipeline; each page explains what it looks for and how to install it.', clis, false)}
 
     <div class="support">
       <strong>Free, and staying free.</strong> If one of these saved you money,
@@ -9681,7 +9885,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   await fs.writeFile(
     path.join(outDir, 'index.html'),
-    renderHub(surfaces, base, { researchCount: researchProjectCount() }),
+    renderHub(surfaces, base, { researchCount: researchProjectCount(), research: researchHighlights() }),
   );
   // The saved-bids script, once for the whole site. Every page that carries the
   // band loads it from here; it used to be written into each of them.

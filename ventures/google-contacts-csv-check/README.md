@@ -5,6 +5,8 @@ spreadsheet: **paste or drop the CSV and see every problem with its line number 
 comes in blank or duplicates everyone, then download a cleaned copy or smaller files.** The file is
 read in the browser; nothing is uploaded and no login or API key is needed.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/google-contacts-csv-check/
+
 After using this, you can now **find the column Google silently skipped because its heading was
 spelled `Email 1 - Value`, the cell with two emails separated by a comma, the phone number Excel
 turned into `4.41175E+11`, and the rows that would import as the same person twice**.

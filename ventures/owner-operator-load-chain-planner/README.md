@@ -7,6 +7,8 @@ and how many hours you are free, and get the exact best chain to run, which load
 the plan is worth. For owner-operators, hotshot and box-truck drivers who choose their own loads. Browser page or
 zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/owner-operator-load-chain-planner/
+
 ```
 node cli.mjs plan loads.csv --start "Dallas TX" --horizon 120
 cat loads.csv | node cli.mjs plan - --start "Dallas TX" --per-day --return-home --json

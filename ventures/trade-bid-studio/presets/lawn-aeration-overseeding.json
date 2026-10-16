@@ -1,0 +1,47 @@
+{
+  "slug": "lawn-aeration-overseeding-bid-calculator",
+  "name": "Lawn aeration and overseeding",
+  "group": "Landscaping & outdoor",
+  "summary": "Core aeration and overseeding priced from turf area, aerator passes, seed and starter fertilizer.",
+  "fit": "partial",
+  "crewSize": 2,
+  "hourlyWage": 22,
+  "burdenRate": 12,
+  "targetMargin": 30,
+  "milesOneWay": 15,
+  "items": [
+    {
+      "label": "Core aerate turf, 2 passes",
+      "unit": "sq ft",
+      "qty": 9500,
+      "hoursPerUnit": 0.0001263,
+      "materialPerUnit": 0.002646,
+      "source": "Turf = 12,000 lot - 2,500 beds (index.html); aerator 2 ft swath x 2.5 mph x 5280 x 60% = 15,840 sq ft/h, 2 passes (index.html, formula in calc.mjs); material is machine cost: (rental $18/h + 0.8 gal/h x $3.70 fuel) per aerator hour"
+    },
+    {
+      "label": "Overseed with starter fertilizer",
+      "unit": "sq ft",
+      "qty": 9500,
+      "hoursPerUnit": 0.00004,
+      "materialPerUnit": 0.0201,
+      "source": "Seeding speed 25,000 sq ft/h; seed 6 lb/1,000 sq ft at $2.80/lb + fertilizer 3 lb/1,000 sq ft at $1.10/lb (index.html defaults)"
+    },
+    {
+      "label": "Flagging, gates, cleanup, load and unload",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1,
+      "materialPerUnit": 6,
+      "source": "Extra on-site hours 0.5 + load/unload hours 0.5 per person; other supplies $6/job (index.html defaults). Drive hours (0.5) and truck cost left to the suite's mileage on 30 round-trip miles"
+    },
+    {
+      "label": "Share of yearly overhead",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 40,
+      "source": "Yearly insurance/truck/overhead $4,800 / 120 jobs per season (index.html defaults); the specialist allocates overhead per job, not as a % of direct cost"
+    }
+  ],
+  "specialistModels": "Minimum job fee, card fees on revenue, per-job share of yearly overhead, tax set-aside, break-even jobs per season and a two-job comparison."
+}

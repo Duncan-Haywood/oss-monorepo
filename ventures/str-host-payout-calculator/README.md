@@ -7,6 +7,8 @@ shows host payout, the price the guest actually pays, the listed-price
 raise that restores the old 3% deposit, and how many stays you must keep
 going direct before the fee gap is real money.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/str-host-payout-calculator/
+
 **After using this, you can now see which channel actually pays you on
 the same stay — and how much occupancy you can lose leaving a
 marketplace — which used to take a spreadsheet that mixed percentages

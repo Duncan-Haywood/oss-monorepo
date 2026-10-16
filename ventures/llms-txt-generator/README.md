@@ -6,6 +6,8 @@ AI assistants a short, curated map of a site's key pages — from a pasted
 page list, a `sitemap.xml`, or (via the CLI) a local Markdown docs tree. It
 also validates an existing `llms.txt` against the same structural rules.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/llms-txt-generator/
+
 After using this, you can now **publish a correctly structured `llms.txt` in
 under a minute**, which used to take hand-writing the exact Markdown shape
 the convention describes (H1 title, optional blockquote summary, `##`

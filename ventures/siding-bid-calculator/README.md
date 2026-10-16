@@ -5,6 +5,8 @@ the trade actually loses money when they skip it — net wall squares plus
 waste, then stories, tear-off, openings, linear trim, and margin — and
 shows the walk-away number before a price-per-square-foot special goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/siding-bid-calculator/
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts. Not yet deployed to a public URL —

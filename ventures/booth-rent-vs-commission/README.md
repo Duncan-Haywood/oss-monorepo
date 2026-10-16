@@ -6,6 +6,8 @@ lease on the **same client book**, and it shows both take-home and take-home
 per hour — because a bigger check that costs six unpaid hours is not always
 the better job.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/booth-rent-vs-commission/
+
 **After using this, you can now see which deal pays you more on your own
 book, and the client count or rent that flips it, which used to take a
 guess until the first rent check cleared.**

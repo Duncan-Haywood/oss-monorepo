@@ -1,0 +1,47 @@
+{
+  "slug": "retaining-wall-bid-calculator",
+  "name": "Retaining walls",
+  "group": "Landscaping & outdoor",
+  "summary": "Segmental, timber, poured and boulder walls priced from face area, height, drainage, geogrid and corners.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 38,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 22,
+  "items": [
+    {
+      "label": "Build wall face (segmental block, 3 ft exposed + 0.67 ft embedded)",
+      "unit": "sq ft",
+      "qty": 146.8,
+      "hoursPerUnit": 0.1,
+      "materialPerUnit": 12,
+      "source": "40 ft x (3 + 0.67) ft face (index.html defaults); 0.1 h per face sq ft x wall-type factor 1 x height factor 1; block $12/sq ft (index.html, WALL_TYPE_PRESETS.segmental)"
+    },
+    {
+      "label": "Drain stone, perforated pipe and cap",
+      "unit": "linear ft",
+      "qty": 40,
+      "hoursPerUnit": 0.05,
+      "materialPerUnit": 19.48,
+      "source": "Drain-placement 2 h / 40 ft; cap $8/ft + pipe $4/ft + drain stone 40 x 3.67 x 1 ft / 27 = 5.437 cu yd at $55 = $299.04 / 40 ft (index.html defaults, calculateBid in calc.mjs)"
+    },
+    {
+      "label": "Excavate, compact and backfill",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 4,
+      "materialPerUnit": 0,
+      "source": "excavationHours default 4 (index.html; WALL_PRESETS '40 ft x 3 ft garden wall')"
+    },
+    {
+      "label": "Travel, machine and dump",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 150,
+      "source": "travelAndEquipment default $150 (index.html)"
+    }
+  ],
+  "specialistModels": "Wall-type and height labor multipliers, drain-stone volume that grows with height, geogrid layers suggested from exposed height, corner cuts, and engineer/permit fee presets."
+}

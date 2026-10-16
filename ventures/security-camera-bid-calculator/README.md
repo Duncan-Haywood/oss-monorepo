@@ -5,6 +5,8 @@ an IP camera install from the drops, the cable, the head end, and your own wage
 and margin — and it checks the three things a camera bid gets wrong before the
 bid goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/security-camera-bid-calculator/
+
 Open `index.html`. There is no build step, no account, and no server.
 
 Search page: [`how-much-to-charge.html`](how-much-to-charge.html).

@@ -1,0 +1,79 @@
+{
+  "slug": "countertop-bid-calculator",
+  "name": "Stone countertops",
+  "group": "Interior & finishes",
+  "summary": "Quartz, granite and marble tops priced from whole slabs, finished square feet, edges, cutouts, seams and splash.",
+  "fit": "partial",
+  "crewSize": 1,
+  "hourlyWage": 38,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 25,
+  "items": [
+    {
+      "label": "Fabricate and install quartz top",
+      "unit": "sq ft",
+      "qty": 55,
+      "hoursPerUnit": 0.055,
+      "materialPerUnit": 4,
+      "source": "finishedSqFt 55; fieldHoursPer100 2.5 + installHoursPer100 3, per sq ft; suppliesPerSqFt $4 (index.html); slab stone priced separately below"
+    },
+    {
+      "label": "4 in backsplash",
+      "unit": "linear ft",
+      "qty": 18,
+      "hoursPerUnit": 0.22,
+      "materialPerUnit": 1.333,
+      "source": "backsplashLf 18 x 4 in = 6 sq ft (calc.mjs backsplashSqFt); hoursPerBacksplashLf 0.22; supplies $4/sq ft x 6 sq ft / 18 lf (index.html)"
+    },
+    {
+      "label": "Ogee / bullnose edge",
+      "unit": "linear ft",
+      "qty": 32,
+      "hoursPerUnit": 0.22,
+      "materialPerUnit": 0,
+      "source": "perimeterLf 32, edgeHoursPerLf 0.22 (index.html, EDGE_PRESETS ogee)"
+    },
+    {
+      "label": "Cutouts: undermount sink, cooktop, 3 faucet holes",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 3.86,
+      "materialPerUnit": 0,
+      "source": "1 undermount sink x 2 h + 1 cooktop x 1.5 h + 3 faucet holes x 0.12 h (index.html, SINK_PRESETS undermount)"
+    },
+    {
+      "label": "Seams",
+      "unit": "each",
+      "qty": 2,
+      "hoursPerUnit": 1.25,
+      "materialPerUnit": 0,
+      "source": "seams 2, hoursPerSeam 1.25 (index.html)"
+    },
+    {
+      "label": "Template and tear-out",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 4.5,
+      "materialPerUnit": 0,
+      "source": "templateHours 2 + tearoutHours 2.5 (index.html)"
+    },
+    {
+      "label": "Quartz slabs",
+      "unit": "slab",
+      "qty": 2,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 850,
+      "source": "61 sq ft net stone x (1 + wastePct 20% for L-shape) = 73.2 sq ft / 46 sq ft per slab rounded up = 2 slabs x slabCost $850 (calc.mjs slabCount, MATERIAL_PRESETS quartz, LAYOUT_PRESETS l_shape)"
+    },
+    {
+      "label": "Travel, template trip, truck",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 165,
+      "source": "travelAndEquipment $165 (index.html)"
+    }
+  ],
+  "specialistModels": "Whole-slab counts from layout waste (a step that line items only hold for one job size), waterfall ends, edge profiles, sink types and material slab sizes."
+}

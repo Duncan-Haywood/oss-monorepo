@@ -3,6 +3,8 @@
 **Is your AI coding subscription actually cheaper than the API — or the
 other way round?**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ai-coding-plan-cost-calculator/
+
 A free browser tool that compares a flat-rate AI coding assistant plan
 (Claude Pro/Max, Cursor, GitHub Copilot, ChatGPT Plus, or a custom price)
 against what the same usage would cost paid per token through the vendor's

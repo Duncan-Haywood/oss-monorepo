@@ -2,6 +2,8 @@
 
 After using this, you can now **let people book time with you from a page you host yourself**, offering only the times you are really free, in each visitor's own time zone, with an invitation, a reminder and a cancel or reschedule link, instead of paying a scheduling service per seat or trading emails about times.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/slot-keeper/
+
 Two parts, both free and MIT:
 
 - **`index.html`**: set weekly hours, buffers and notice, paste a calendar, and see the slots a visitor would get in any time zone. Runs in the browser; nothing is uploaded.

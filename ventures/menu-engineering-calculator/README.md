@@ -5,6 +5,8 @@ stars, plowhorses, puzzles and dogs — the Kasavana & Smith matrix (Michigan
 State, 1982) — from three numbers per dish the operator already has: plate food
 cost, menu price, and units sold over a period.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/menu-engineering-calculator/
+
 Nothing is uploaded. There is no account, no build step, and no network request.
 
 ## Why this exists

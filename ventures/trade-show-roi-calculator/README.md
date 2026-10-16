@@ -6,6 +6,8 @@ deal, deal value, margin) and see cost per lead, cost per qualified lead, expect
 break-even leads for each show, and the exact set of shows that earns the most under your yearly budget.
 Browser page or zero-dependency CLI.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/trade-show-roi-calculator/
+
 ```
 node cli.mjs plan shows.csv --lead-qual 30 --close 20 --deal-value 12000 --margin 60 --budget 40000 --json
 cat shows.csv | node cli.mjs plan - --budget 40000 --max-per-quarter 2
