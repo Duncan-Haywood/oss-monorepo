@@ -2376,6 +2376,11 @@
      "slug": "eda-checkorder",
      "title": "In what order should an automated design loop run random, directed and formal checks?",
      "summary": "Replay of the <em>eda-verify</em> mutation log (91 mutants, 20 seeds), costing each check cascade in CPU seconds. Formal alone takes 16,354&nbsp;s for 47 kills and 16 equivalence proofs; random simulation first and formal only on the survivors takes about 7,500&nbsp;s and finds 66 of 66 killable mutants, a 54% saving. The order among the cheap stages changes the total by under 2%; the remaining cost is formal working on equivalent or timed-out mutants, which no ordering removes. Stylised: a re-analysis of one design, one solver and its timeouts; nothing new was simulated."
+    },
+    {
+     "slug": "eda-earlystop",
+     "title": "When can a check cascade stop formal verification early without losing kills?",
+     "summary": "Replay of the <em>eda-verify</em> mutation log with a time cap on the formal stage. Every formal kill in the log finished within 164&nbsp;s, while equivalence proofs take about 222&nbsp;s, so a 170&nbsp;s cap loses no kill (66 of 66 killable mutants still found) and saves 41% of the cascade's CPU, but gives up all 16 equivalence proofs; a 230&nbsp;s cap keeps 15 of them and saves 23%. Caps of 30&nbsp;s or less start losing kills. A cap learned from half the mutants worked on the other half when the training half contained formal kills and failed (1.6 of 29 kills lost) when it contained none. Stylised: one design, one solver, 91 mutants; nothing new was simulated."
     }
    ]
   },
