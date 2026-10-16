@@ -5302,7 +5302,10 @@ function disclaimerHtml(toRoot, surfaces = []) {
         is no account system, no tracking cookie, no analytics vendor, and no
         server that could receive it.${exceptionNote} We count anonymous, aggregate events —
         which tools get opened, never anything about who opened them — and that
-        count stays in your own browser's local storage. Browsers sending
+        count stays in your own browser's local storage.${counterOn() ? ` Each page load
+        also adds one to a daily per-page total on our own open-source counter
+        (which page, which day; nothing you type, no cookie, no IP address
+        stored), and those totals are published in the repository.` : ''} Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
       </p>`;
@@ -6393,7 +6396,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
-          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
+          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name)' : ''}${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
           <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call${exceptions.length === 1 ? '' : 's'} ${exceptionNames} make${exceptions.length === 1 ? 's' : ''}, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
           <li><strong>No cookies and no cross-site identifiers.</strong></li>
           <li><strong>It works offline.</strong> Once a tool has loaded, its page keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are${exceptions.length ? ` — except ${exceptionNames}, whose whole point is a live lookup, so it needs the connection back to check anything new` : ''}.</li>
@@ -6401,8 +6404,14 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
       </div>
       <p>
         The one thing that is counted is which tools get opened, as a plain
-        tally that is written to your own browser's local storage and is never
-        sent anywhere. It exists so the next tool built is one people actually
+        tally that is written to your own browser's local storage${counterOn() ? `. One
+        page-view ping per load also goes to this site's own
+        <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/platform/counter">open-source counter</a>:
+        it carries the page's name and nothing else, and the counter keeps one
+        number per page per day — no IP address, cookie, browser string or
+        referrer is stored. The daily totals are committed to the public
+        repository` : ` and is never
+        sent anywhere`}. It exists so the next tool built is one people actually
         opened. Browsers sending <em>Do&nbsp;Not&nbsp;Track</em> or
         <em>Global&nbsp;Privacy&nbsp;Control</em> are not counted at all, and
         there is an opt-out checkbox at the foot of
@@ -7759,6 +7768,26 @@ const CHROME_MARKER = 'pf-chrome';
 const CHROME_SLUG_ATTR = 'data-pf-slug';
 
 /**
+ * The first-party visitor counter (`platform/counter/`), off unless the build
+ * is given its URL (`--counter-url=` or `PAGES_COUNTER_URL`). Empty means the
+ * built site is byte-for-byte what it was before the counter existed: no
+ * beacon, and the privacy copy still says the tally never leaves the browser.
+ * Set for the length of one `buildSite` call; every renderer that states the
+ * privacy promise reads it through `counterOn()` so the copy and the beacon
+ * can never disagree.
+ */
+let SITE_COUNTER_URL = '';
+export function counterOn() {
+  return SITE_COUNTER_URL !== '';
+}
+export function normaliseCounterUrl(raw) {
+  if (!raw) return '';
+  const u = new URL(raw);
+  if (u.protocol !== 'https:') throw new Error(`counter URL must be https: ${raw}`);
+  return u.origin;
+}
+
+/**
  * How a page says it carries no availability promise, in any of the wordings
  * the ventures actually use. Deliberately loose: several write the clause in
  * their own voice ("Hosted URLs, when they exist, carry no availability SLA"),
@@ -7916,14 +7945,15 @@ export function renderChromeStyle() {
 // Sec-GPC silences it, `portfolio-hub-optout` silences it, and it never leaves
 // the device. `localStorage.setItem` is synchronous and the handler runs before
 // the browser navigates, so following the link does not lose the count.
-const CHROME_SCRIPT = () => `
+const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
 (function(){
   try{
     if(navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true)return;
     if(localStorage.getItem('portfolio-hub-optout')==='1')return;
     var tag=document.querySelector('script[${CHROME_SLUG_ATTR}]');
     var slug=tag?tag.getAttribute('${CHROME_SLUG_ATTR}')||'':'';
-    if(!slug)return;
+    if(!slug)return;${counterUrl ? `
+    try{navigator.sendBeacon(${JSON.stringify(`${counterUrl}/hit`)},new Blob([JSON.stringify({p:slug})],{type:'text/plain'}));}catch(e){}` : ''}
     var k='portfolio-hub-usage';
     var bump=function(event){
       try{
@@ -8053,8 +8083,8 @@ const SCROLL_A11Y_SCRIPT = `
 export const CHROME_MODULE_FILE = 'pf-site.js';
 
 /** The contents of that file. Written once by the build, at the site root. */
-export function renderChromeModule() {
-  return `${stripForInjection(CHROME_SCRIPT())}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n`;
+export function renderChromeModule({ counterUrl = SITE_COUNTER_URL } = {}) {
+  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n`;
 }
 
 // ---------------------------------------------------------------------------
@@ -9122,7 +9152,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
   const optional = [
     '## Optional',
     '',
-    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (it never leaves the browser${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Research](${baseUrl}${RESEARCH_PATH}): the open research portfolio built in the same repository — white papers with reproducible code on mechanism design for verifiable decentralised ML, and digital twins and sim-to-real gaps.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
     // Named individually rather than left behind the index, because the
@@ -9394,8 +9424,19 @@ export async function buildSite({
   // The rollback lever for a worker already on visitors' devices; see
   // renderKillSwitchWorker.
   disableWorker = false,
+  // platform/counter's origin; '' (the default) builds with no beacon.
+  counterUrl = '',
 } = {}) {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  SITE_COUNTER_URL = normaliseCounterUrl(counterUrl);
+  try {
+    return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker });
+  } finally {
+    SITE_COUNTER_URL = '';
+  }
+}
+
+async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker }) {
 
   await fs.rm(outDir, { recursive: true, force: true });
   await fs.mkdir(outDir, { recursive: true });
@@ -9860,6 +9901,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     baseUrl: argBase || process.env.PAGES_BASE_URL || DEFAULT_BASE_URL,
     outDir: argOut ? path.resolve(argOut) : undefined,
     disableWorker: process.env.PAGES_DISABLE_SW === '1',
+    counterUrl: process.argv.find((a) => a.startsWith('--counter-url='))?.slice('--counter-url='.length)
+      ?? process.env.PAGES_COUNTER_URL
+      ?? JSON.parse(await fs.readFile(path.join(REPO_ROOT, 'platform', 'counter', 'site.json'), 'utf8')).url,
     log: console.log,
   });
 

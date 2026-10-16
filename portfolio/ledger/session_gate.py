@@ -576,12 +576,16 @@ def verdict(
         if proceed_targets == []:
             proceed_reasons.append(
                 "The `build-now` pipeline is empty (every scored candidate has already "
-                "graduated). Per `portfolio/DIRECTION.md` 'Owner direction, 2026-09-06', "
-                "new ventures rank first, not last, when a genuine one is available -- "
-                "if you have no in-progress venture work, screening a fresh niche against "
-                "`portfolio/pipeline/screened-out.md` and the liability/ethical gates in "
-                "`portfolio/pipeline/README.md`, and graduating it the same session if it "
-                "clears them, outranks a parity feature on a product nobody has visited."
+                "graduated). Do not answer that with one more copy of a template the "
+                "portfolio already has many of: 'new ventures first' (2026-09-06) is how "
+                "121 near-identical bid calculators were built "
+                "(`docs/reports/2026-10-16-calculator-glut.md`). Distribution and "
+                "measurement rank first (`prompts/goals.md`, 2026-10-16), then the router's "
+                "'Consolidate:' task for the largest template family. A genuinely new "
+                "product -- including a non-web open-source tool -- is still welcome: screen "
+                "it against `portfolio/pipeline/screened-out.md` and the gates in "
+                "`portfolio/pipeline/README.md`, and check it is not a `*-<kind>-calculator` "
+                "the router already counts as a family."
             )
         return "PROCEED", proceed_reasons
     reasons = [
@@ -621,9 +625,11 @@ def verdict(
             reasons.append(f"Also carrying an unbuilt `build-now` verdict: {rest}.")
     else:
         reasons.append(
-            "No `build-now` candidate is unbuilt — pick a super-niche product not in "
-            "`portfolio/pipeline/screened-out.md`, score it, graduate it, and ship. "
-            "Prefer ideas that run on this VM with low variable cost."
+            "No `build-now` candidate is unbuilt — first take the router's 'Consolidate:' "
+            "task (`python3 portfolio/router/allocate.py`) if one is listed; otherwise pick "
+            "a product not in `portfolio/pipeline/screened-out.md` that is not another copy "
+            "of an existing template family, score it, graduate it, and ship. Prefer ideas "
+            "that run on this VM with low variable cost, web or not."
         )
     return "BUILD", reasons
 

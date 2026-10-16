@@ -7,6 +7,7 @@ import { timingSafeEqual, createHmac } from "node:crypto";
 import * as E from "./engine.mjs";
 import { configFromEnv } from "./byok.mjs";
 import { draftFollowUp } from "./ai.mjs";
+import { CONNECTORS, stageMapFromEnv } from "./connectors.mjs";
 
 const env = process.env;
 const RETRAIN_MS = 6 * 3_600_000;
@@ -17,7 +18,16 @@ const readBody = (req, max = 1_000_000) => new Promise((resolve, reject) => {
   req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
   req.on("error", reject);
 });
-const bearerOk = (req, key) => { const a = Buffer.from(req.headers.authorization || ""), b = Buffer.from(`Bearer ${key}`); return Boolean(key) && a.length === b.length && timingSafeEqual(a, b); };
+const safeEq = (x, y) => { const a = Buffer.from(String(x)), b = Buffer.from(String(y)); return a.length === b.length && timingSafeEqual(a, b); };
+const bearerOk = (req, key) => Boolean(key) && safeEq(req.headers.authorization || "", `Bearer ${key}`);
+/** CRMs cannot set a bearer header, so webhooks may also send the API key as the HTTP-auth password or as ?key=. */
+const webhookAuthOk = (req, q, key) => {
+  if (!key) return false;
+  if (bearerOk(req, key)) return true;
+  const basic = /^Basic (.+)$/.exec(req.headers.authorization || "");
+  if (basic) { const pw = Buffer.from(basic[1], "base64").toString("utf8").split(":").slice(1).join(":"); if (safeEq(pw, key)) return true; }
+  return q.has("key") && safeEq(q.get("key"), key);
+};
 
 /** POSTs an alert to your own URL, signed: x-keeper-signature = sha256=HMAC(secret, body). 2xx is delivered. */
 export function webhookSender({ url, secret, fetchImpl = fetch }) {
@@ -65,6 +75,17 @@ export function handler(cfg) {
         if (!bearerOk(req, cfg.adminKey)) return json(401, { error: "bad admin key" });
         if (req.method === "POST" && path === "/v1/admin/retrain") { const m = ensureModel(cfg.state, now(), true); cfg.save(); return json(200, summary(m)); }
         return json(404, { error: "not found" });
+      }
+
+      let wh;
+      if (req.method === "POST" && (wh = path.match(/^\/v1\/webhooks\/(pipedrive|hubspot)$/))) { // CRM pushes: keeps the pipeline current with no glue code
+        if (!webhookAuthOk(req, q, cfg.apiKey)) return json(401, { error: "bad API key" });
+        const c = CONNECTORS[wh[1]], r = c.map(JSON.parse((await readBody(req)) || "{}"), (cfg.stageMaps || {})[wh[1]]);
+        if (r.skip) return json(200, { ok: true, skipped: r.skip }); // 200 so the CRM does not retry or disable the hook
+        if (r.remove) { E.removeDeal(cfg.state, r.remove); cfg.save(); return json(200, { ok: true, removed: r.remove }); }
+        try { E.upsertDeal(cfg.state, r.deal, now()); } catch (e) { if (e.status === 400) return json(200, { ok: false, id: r.deal.id, rejected: e.message }); throw e; }
+        cfg.save();
+        return json(200, { ok: true, id: r.deal.id, ...(r.warning ? { warning: r.warning } : {}) });
       }
 
       if (path.startsWith("/v1/")) {
@@ -125,6 +146,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const file = env.STATE || "/tmp/state.json", state = loadState(file);
   const save = () => { fs.writeFileSync(`${file}.tmp`, JSON.stringify(state)); fs.renameSync(`${file}.tmp`, file); };
   const postAlert = env.ALERT_WEBHOOK_URL ? webhookSender({ url: env.ALERT_WEBHOOK_URL, secret: env.ALERT_WEBHOOK_SECRET }) : null;
-  http.createServer(handler({ state, save, apiKey: env.API_KEY, adminKey: env.ADMIN_KEY, llm: configFromEnv(env), sdk: fs.readFileSync(new URL("./sdk.mjs", import.meta.url), "utf8") })).listen(Number(env.PORT) || 8080, () => console.log(`deal-keeper on :${env.PORT || 8080}`));
+  http.createServer(handler({ state, save, apiKey: env.API_KEY, adminKey: env.ADMIN_KEY, llm: configFromEnv(env), stageMaps: { pipedrive: stageMapFromEnv(env, "PIPEDRIVE_STAGES"), hubspot: stageMapFromEnv(env, "HUBSPOT_STAGES") }, sdk: fs.readFileSync(new URL("./sdk.mjs", import.meta.url), "utf8") })).listen(Number(env.PORT) || 8080, () => console.log(`deal-keeper on :${env.PORT || 8080}`));
   setInterval(async () => { try { if (postAlert) await runAlerts(state, postAlert, Date.now()); save(); } catch (e) { console.error("hourly pass failed:", e.message); } }, 3_600_000).unref();
 }
