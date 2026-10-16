@@ -346,7 +346,7 @@ export function renderSocialCard(options = {}) {
 export function renderManifest(baseUrl, toolCount, hasExternalCallException = false) {
   return `${JSON.stringify(
     {
-      name: 'Free Small-Business Calculators',
+      name: 'Open Tools and Research',
       short_name: 'Calculators',
       description:
         `${toolCount} free calculators for marketplace sellers, trade contractors, and small teams. ` +

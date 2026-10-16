@@ -121,7 +121,7 @@ def check(doc: dict, slugs: list[str], documented: list[str] | None = None) -> l
 
     # A venture with no score yet is not a defect: about 25 ventures land a
     # day and a score is a judgement, so requiring one per venture kept this
-    # check red on main for days (P013/2026-10-16) and invited invented
+    # check red on main for days (P019/2026-10-16) and invited invented
     # numbers. The router orders unscored ventures without merit. `unscored`
     # reports them; only a row that exists has to be right.
     unknown = sorted(set(scored) - set(documented))

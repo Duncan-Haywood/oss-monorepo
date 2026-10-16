@@ -133,7 +133,8 @@ node cli.mjs leads.csv &gt; ranked.json  // same thing from a terminal, CSV in, 
       t.append(tb); return t;
     }
     let chosen = null;
-    function choose(p) { chosen = p; $("who").textContent = `Drafting for: ${p.name}`; $("draft").value = ""; $("issues").replaceChildren(); $("draftnote").textContent = "Press Write draft below."; $("write")?.remove(); const b = el("button", "Write draft", ""); b.id = "write"; b.type = "button"; b.addEventListener("click", write); $("draftnote").before(b); $("s2").scrollIntoView({ behavior: "smooth" }); }
+    let writeButton = null;
+    function choose(p) { chosen = p; $("who").textContent = `Drafting for: ${p.name}`; $("draft").value = ""; $("issues").replaceChildren(); $("draftnote").textContent = "Press Write draft below."; writeButton?.remove(); const b = el("button", "Write draft", ""); writeButton = b; b.type = "button"; b.addEventListener("click", write); $("draftnote").before(b); $("s2").scrollIntoView({ behavior: "smooth" }); }
     const sender = () => ({ name: $("sname").value.trim(), company: $("scompany").value.trim(), offer: $("soffer").value.trim(), address: $("saddr").value.trim() });
     function llm() {
       const provider = $("prov").value; if (!provider || !$("key").value) return {};

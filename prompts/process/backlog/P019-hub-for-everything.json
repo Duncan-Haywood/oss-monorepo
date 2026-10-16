@@ -1,0 +1,25 @@
+{
+  "id": "P019",
+  "title": "The home page was a calculator list for two days after the owner asked for a home page for everything",
+  "status": "in_progress",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "goals.md (2026-10-14/15) asks for one home page from which every venture, research project and public platform tool can be reached, and 'a public face for everything'. Two days and about 1,300 merges later the hub still said 'Calculators for the decisions that cost real money', the site was named 'Free small-business calculators', the self-hosted apps (rev-rec, dunning-engine, waitlist-keeper...) were filed under calculator trade groups by slug regex, CLIs had no section, and research was one footer link. Root cause: the goal existed only as prose. No backlog item, no check and no track owned the shared hub template, so the 79 build.mjs commits since 10-14 were all per-venture plumbing appended to a calculator framing, and copy pinned in tests (build.test.mjs, cardtext.test.mjs) made the framing costly to change.",
+  "evidence": [
+    "origin/main 206d263ee8 (2026-10-15): renderHub <h1> 'Calculators for the decisions that cost real money' (build.mjs:6871); SITE_NAME 'Free small-business calculators' (build.mjs:8172, duplicated in platform/marketing/front-door.mjs:1020)",
+    "discoverSurfaces: 1,255 of 1,259 ventures on the hub, so coverage was fine and framing was the gap; 0 of about 24 self-hosted apps and 0 CLIs in a section of their own",
+    "promptctl.py backlog before this item: 2 open, both owner-owned; no agent-owned process item pointed at the hub",
+    "grep for hub/homepage in portfolio/DIRECTION.md, prompts/ventures/*, session_gate.py, allocate.py: no matches"
+  ],
+  "change": "Hub sections by product kind (surfaceKind: app = Dockerfile + deploy manifest, cli = downloadable or cli.* entry, else browser), an overview strip linking browser tools, self-hostable apps, CLIs, research (with a count) and the self-deploy page, a site name and title that cover everything, and a test pinning those sections so the framing cannot quietly regress. Follow-ups: a dev-process dashboard linked from the overview; research themes on the hub.",
+  "touches": [
+    "platform/pages/build.mjs",
+    "platform/pages/build.test.mjs",
+    "platform/marketing/front-door.mjs"
+  ],
+  "metric": "On the built hub: research projects reachable from the page body (not only the footer); share of app and CLI ventures listed in their own section; the 'hub for everything' test in build.test.mjs passing",
+  "baseline": "research: footer link only; apps and CLIs in their own section: 0",
+  "opened": "2026-10-16",
+  "source": "owner, 2026-10-16: 'the default webpage also needs to be a home page for everything not just calculators. lets look into why that error has been outstanding so far and fix that process.'"
+}

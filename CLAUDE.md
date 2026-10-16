@@ -90,8 +90,10 @@ privacy-respecting visitor count for the Pages site rank ahead of more
 products); **a professional, navigable public site**; **IaC deploys** as a
 default, not a gate; **sales, marketing and business tools** with AI on the
 user's own key ([`portfolio/sales-tools/`](portfolio/sales-tools/README.md),
-[`platform/llm/`](platform/llm/README.md)); and **every run records what it
-cost** (`prompts/runcost.py attach`, step 3 of `prompt.md`).
+[`platform/llm/`](platform/llm/README.md)); **every run records what it
+cost** (`prompts/runcost.py attach`, step 3 of `prompt.md`); and a
+**development dashboard** at `dev/` on the Pages site (`platform/devstats/`)
+with delivery and CI metrics, plus shift-left CI improvements judged by them.
 
 ## Every session lands its own work: open the PR, then merge it
 
@@ -210,6 +212,7 @@ node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
 node --test platform/deploy/*.test.mjs
 node --test platform/distribution/*.test.mjs
 node --test platform/llm/*.test.mjs
+node --test platform/devstats/*.test.mjs
 node --test platform/counter/*.test.mjs
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
