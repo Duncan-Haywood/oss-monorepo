@@ -57,6 +57,12 @@ on:
     # from `platform/pages/`; it does not read `platform/marketing/`, whose
     # generated pages land inside `ventures/` and so are already covered here.
     paths:
+      # The development analyses (platform/devlog/) read the prompt system's
+      # logs and reports and the portfolio studies, so a new report or run
+      # record republishes them.
+      - "platform/devlog/**"
+      - "prompts/**"
+      - "portfolio/research/**"
       - "ventures/**"
       - "platform/pages/**"
       - "research/_homepage/**"
