@@ -18,7 +18,7 @@
   "baseline": "see P025 (76 files across four ventures)",
   "opened": "2026-10-16",
   "source": "process run 2026-10-16, split of P025",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7542",
   "result": "reverb-fee-calculator: 13.6% FVF, $0.40 per order (over $10; $0.30 tier and 2.35% band above $7,500 noted, not modelled). grep 13.25 returns nothing; suite 112/112; derived prose recomputed from the engine (also fixed stale README figures).",
   "history": []
 }
