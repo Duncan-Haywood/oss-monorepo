@@ -35,7 +35,7 @@ test("does not claim the by-hand method is fraudulent, only unverifiable", () =>
 });
 
 test("states the concrete, domain-specific failure modes of a by-hand check", () => {
-  assert.match(html, /ten separate operators publishing/i);
+  assert.match(html, /twelve separate operators publishing/i);
   assert.match(html, /longest-matching-path-wins algorithm/i);
   assert.match(html, /blocking the training token does nothing to the other two/i);
   assert.match(html, /leaves nothing behind afterward/i);

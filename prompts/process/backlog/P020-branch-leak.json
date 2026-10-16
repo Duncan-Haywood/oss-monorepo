@@ -1,7 +1,7 @@
 {
   "id": "P020",
   "title": "Branches leak past branch cleanup: re-pushed spent branches, an unreachable sweep tail, and no-PR branches",
-  "status": "in_progress",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 2,
@@ -25,7 +25,12 @@
   "baseline": "1,465 branches; ~1,038 deletable (682 merged-moved-contained + 71 closed-contained + 285 no-PR-contained); 322 with unique commits left for adopt-stranded",
   "opened": "2026-10-16",
   "source": "branch-hygiene investigation via the GitHub API, 2026-10-16",
-  "pr": null,
+  "pr": 7325,
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-10-16",
+      "note": "Landed in PR #7325 (branch_cleanup.py deletes moved branches whose tip is in main, sweeps all closed PRs, deletes no-PR branches contained in main). Result pending: re-count remote branches (baseline 1,465) a week after the first post-merge branch-cleanup run."
+    }
+  ]
 }

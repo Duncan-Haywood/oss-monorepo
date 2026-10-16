@@ -1,11 +1,11 @@
 # AI Crawler Access Check
 
-A free tool that checks a `robots.txt` against 16 named AI-crawler
+A free tool that checks a `robots.txt` against 20 named AI-crawler
 user-agent tokens — GPTBot, ChatGPT-User, OAI-SearchBot (OpenAI); ClaudeBot,
 Claude-User, Claude-SearchBot (Anthropic); Google-Extended (Google);
 Applebot-Extended (Apple); CCBot (Common Crawl); PerplexityBot,
 Perplexity-User (Perplexity); Bytespider (ByteDance); Amazonbot (Amazon);
-Meta-ExternalAgent and Meta-ExternalFetcher (Meta); Diffbot — and reports which are allowed, blocked,
+Meta-ExternalAgent, Meta-ExternalFetcher and FacebookBot (Meta); DuckAssistBot (DuckDuckGo); MistralAI-User (Mistral AI); Google-CloudVertexBot (Google); Diffbot — and reports which are allowed, blocked,
 or fall through to the wildcard group and end up partially blocked. It also
 does a lightweight structural check of `llms.txt`, the emerging
 [llmstxt.org](https://llmstxt.org/) convention.
