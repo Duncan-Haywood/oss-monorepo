@@ -44,6 +44,12 @@ and one platform that runs them:
   stored or sent anywhere else. How to build this:
   `PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can deploy it
   themselves".
+  **Infrastructure as code** (the owner, 2026-10-16): "the deploy should be
+  tf or similar i think as a suggestion but not a hard rule. iac sort of
+  mentality." Prefer OpenTofu/Terraform (or the platform's own declarative
+  file: a compose file, `fly.toml`, a Render blueprint) over click-through
+  steps, so a deploy is reviewable and repeatable. It is a default, not a
+  gate.
 - **Research** (`research/`): a research portfolio that supports PhD
   applications in ML/AI, robotics and autonomy, operations research or
   industrial engineering. Work a faculty member would take seriously:
@@ -82,6 +88,14 @@ venture pages, honest results and AI-assistance notes on research pages.
 Progress is measured by the share of ventures, research projects and public
 platform tools that have a reachable page linked from the home page.
 
+**Quality, not just coverage** (the owner, 2026-10-16): "i want the public
+facing website to be high qulity and professional as well. easily navigable
+among the now vast number of ventures and each stands up as a serious looking
+thing." With over a thousand ventures, navigation is the product: categories
+and search a stranger can use in seconds, and pages that look like a real
+product's, not a generated list. Improving the shared page templates lifts
+every page at once, so it beats hand-polishing one.
+
 ## Long-term goal: automated, unpaid, compliant distribution
 
 Set by the owner on 2026-10-15. Publicize the work far more, automatically
@@ -102,6 +116,19 @@ compliance rules, is
 Progress is measured by the number of products live on at least one channel
 beyond search, and the usage those channels bring.
 
+**Distribution and measurement are now the limiter** (the owner, 2026-10-16):
+"lets add as a matter to work on the limiter of distribution to a certain
+degree. not by spending on it but by working on it. lets bump up
+discoverabilty a bit and distribution." And on measuring: "make sure there is
+a way to measure users acutally ... I would also like the usage data to go
+into the repo to analyze in the loop if that doesn't violate any privacy
+matters. I don't mean in the client apps that the users stand up but in ghp
+website I have." So: discoverability work (sitemaps, robots.txt, structured
+data, channels) and a privacy-respecting visitor count for the GitHub Pages
+site, with aggregate counts committed to the repository, rank ahead of adding
+more products. Only the owner's own site is measured, never the copies other
+people deploy. Spec: `portfolio/usage/README.md`.
+
 **No terms of service are ever broken for it.** Every channel follows its
 platform's terms, API and bot rules, rate limits and self-promotion rules as
 written, and the law (CAN-SPAM, GDPR, CASL, PECR, FTC disclosure). Never:
@@ -109,6 +136,23 @@ unsolicited email or messages, fake or sock-puppet accounts, fake reviews or
 vote manipulation, automated posting where a community forbids it, paid
 placement, or evading a platform's limits. Account creation and publishing
 under the portfolio's public name stay owner-only.
+
+## Direction: sales, marketing and business tools
+
+Set by the owner on 2026-10-16: "lets add a potential direction sales tools
+and ai sales marketing etc tools for b2b b2c byok multi provider optionality.
+backend and frontend business tools. also consumer ones. these should be
+possible to spin up as an actual business incorporate into your own saas or
+stand up and sell as a standalone tool or portfolio of tools. multiple
+hosting options and potentially packagin ios android set ups etc."
+
+A direction, not a mandate for volume. Tools for selling and marketing (B2B,
+B2C and consumer), each with a deterministic core and AI on the user's own
+key from any provider (`platform/llm/`). Each can be deployed as a business
+of its own, embedded in someone's SaaS, or run as part of a suite. Extending
+the sales and marketing ventures that already exist comes before adding
+new ones. Spec, guardrails and definition of done:
+[`portfolio/sales-tools/README.md`](../portfolio/sales-tools/README.md).
 
 ## Judgment over rules
 
@@ -233,9 +277,34 @@ gain on a later one.
    within two weeks, abandoned runs, and leaked work. Leaked work is a branch
    or pull request a run pushed that was not on `main` 24 hours later.
 4. **Cost:** wall-clock minutes, tokens, and how much instruction text a run
-   has to read before it can work.
+   has to read before it can work. Measured per run, not typed: see "What a
+   run cost" below.
 5. **Doc friction:** instructions that were wrong, stale, contradictory or
    that cost the run time. Every friction report names the file.
+
+### What a run cost
+
+Set by the owner on 2026-10-16: "i also for curiosity want to measure tokens
+spent per pr both read write and cache and what model ran it some of the
+internal processing how long the agent/s took to complete the pr active time
+and what a human level equivalent amount of time it would take to complete it
+active time with a financial implication ... this isn't necessarily in the
+products, just an internal metric ... it gets stored in the repo as it goes.
+this also goes into feedback on the development process of which models are
+worth using eventually and quality per model and prompt it ran off. as data
+for a self improvement loop for quality and throughput and usefulness/$ also
+tracking what the equivalent api cost would be for running the program. note
+certainty or lack thereof."
+
+Every run record carries a `usage` block that `prompts/runcost.py attach`
+measures from the session's own transcript. It records tokens (input,
+output, thinking, cache read, cache write) per model, the models that
+actually answered, time (wall, active, model, tools, subagents, waiting on a
+person), the API-equivalent cost at list prices, the agent's estimate of a
+human's active hours and their cost, and how certain each figure is. The
+review track uses `runcost.py report` to judge models and prompt versions on
+quality, throughput and usefulness per dollar. It is an internal metric:
+never in a product, never a reason to skip work.
 
 ### Track goals
 
