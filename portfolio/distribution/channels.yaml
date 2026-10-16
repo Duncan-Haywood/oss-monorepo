@@ -154,3 +154,17 @@ channels:
       - the Dockerfile and workflow were not built here (no Docker daemon in the build session); the build context was checked by running its bin.mjs with node
     owner_ask: set DISTRIBUTE_GHCR=true, then make the first pushed packages public
     dry_run: node platform/distribution/ghcr.mjs
+  - id: zenodo-citation
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/citation.mjs
+    workflow: none (a one-time owner switch, then releases.mjs's weekly GitHub release is archived automatically)
+    enabled_by: the owner switches this repository on in Zenodo's GitHub integration; nothing in the tree is gated
+    what_it_posts: root CITATION.cff (GitHub's "Cite this repository" box, read by Zenodo for the archive's metadata) and research/CITATIONS.bib (one BibTeX entry per research project, 463 at build). Authors are the project ("oss-monorepo contributors"), never a named person.
+    dedupe: files are regenerated deterministically; `node platform/distribution/citation.mjs --check` exits 1 when stale
+    depends_on: DISTRIBUTE_RELEASES=true (github-release-digest) for a DOI per release; CITATION.cff works without it
+    terms_to_confirm_by_owner_when_enabling:
+      - Zenodo terms of use and GitHub integration docs; agents did not read them live on build day
+      - a DOI is minted under the owner's Zenodo account and is permanent: review the metadata before the first release is archived
+    owner_ask: log in to zenodo.org with GitHub and flip this repository on
+    dry_run: node platform/distribution/citation.mjs

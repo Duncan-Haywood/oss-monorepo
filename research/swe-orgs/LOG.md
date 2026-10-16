@@ -2,6 +2,15 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-16 · Batch 5: reversible migrations, a boundary checker's retrospective and a no-backlog rule
+
+- Added 2 sources and 3 practices (25 practices, 24 sources): Xu's *Online migrations at scale* (Stripe, 2017; P23), McGibbon and Salzberg's *A Packwerk Retrospective* (Shopify, 2024; P24), and a third practice from Basecamp's *Shape Up* that the catalogue had not yet taken, no backlog (P25, source S8).
+- **P23 is the highest-ranked new row and the first to top the old leaders**: migrate in stages (write both, backfill, switch reads, switch writes, delete the old data last). It targets the tooling class (4.0% of 480 runs, Wilson 2.5 to 6.1%), and it describes what went wrong when the run ledger moved from `prompts/runs.jsonl` to `prompts/runs/` and `swe-orgs/run.py` crashed (batch 4). It transfers as `yes`, with priority 4.0%, still below the 5% bar for a proposal. The tooling class is a keyword match including `bug` and `missing`, so the ceiling probably overstates it.
+- **P24 is partly adopted.** `_homepage/build.py` fails when a project is missing from `README.md` or `projects.json`, a boundary check of a kind. Shopify's point that boundaries kept by agreement alone get broken fits, but the collision point here is the shared index files, which a directory check does not touch.
+- **P25 is partly adopted** (CLAUDE.md tells runs not to maintain admin queues), but `PROJECTS.md` milestones are a standing list that sessions, which have no memory, need.
+- **Still no proposal.** The ledger has 480 rows (it had 474); every failure class moved by under 0.2 points.
+- Verification was by web search only, from excerpts and secondary write-ups. Neither new page was fetched. The Packwerk retrospective's claim that its privacy checks caused problems appeared in a single search summary, so the catalogue does not use it. Slack's 2022 incident postmortem was considered and left out because only its listing could be confirmed.
+
 ## 2026-10-16 · Batch 4: a CPU-budget postmortem, blameless review and two Amazon ideas; the ledger moved
 
 - Added 4 sources and 4 practices (22 of each): Cloudflare's 2019 outage postmortem (P19), Allspaw's *Blameless PostMortems and a Just Culture* at Etsy (P20), Bryar and Carr's *Working Backwards* (P21) and Vogels's 2006 ACM Queue interview behind "you build it, you run it" (P22). Large-company sources this time, as batch 3 left the early-stage side alone.
