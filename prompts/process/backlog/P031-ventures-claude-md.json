@@ -18,7 +18,7 @@
   "baseline": "CLAUDE.md 21,663 bytes",
   "opened": "2026-10-17",
   "source": "split of P017 by process run 2026-10-17 (P021 asked for per-step rows)",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7603",
   "result": "CLAUDE.md 21,663 -> 20,095 bytes (helped; -7%). Nested ventures/CLAUDE.md loads only for venture work.",
   "history": [
     {
