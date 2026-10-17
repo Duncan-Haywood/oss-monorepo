@@ -62,6 +62,7 @@ const HEADER_ALIASES = {
   price: ["price", "price per unit", "spot price", "unit price", "price usd", "rate"],
   fee: ["fee", "fees", "fee usd", "fees usd", "commission"],
   wallet: ["wallet", "account", "exchange", "platform", "source"],
+  toWallet: ["to wallet", "to account", "to", "destination", "destination wallet", "to exchange"],
 };
 
 export function mapHeaders(headerRow) {
@@ -133,13 +134,21 @@ export function parseTransactions(text) {
     const get = (f) => (map[f] === undefined ? "" : (r[map[f]] ?? ""));
     const kind = normalizeType(get("type"));
     if (kind === null) { out.errors.push(`Line ${line}: unrecognised type "${get("type")}" (use buy, sell, income or transfer).`); continue; }
-    if (kind === "transfer") { out.skipped.push(`Line ${line}: transfer ignored (not a taxable event).`); continue; }
+    const toWallet = map.toWallet === undefined ? "" : (r[map.toWallet] ?? "");
+    if (kind === "transfer" && !toWallet) { out.skipped.push(`Line ${line}: transfer ignored (not a taxable event; add a "to wallet" column to move its lots in per-wallet mode).`); continue; }
     const date = parseDate(get("date"));
     if (!date) { out.errors.push(`Line ${line}: unreadable date "${get("date")}" (use YYYY-MM-DD or MM/DD/YYYY).`); continue; }
     const asset = get("asset").toUpperCase();
     if (!asset) { out.errors.push(`Line ${line}: missing asset.`); continue; }
     const qty = Math.abs(parseNumber(get("quantity")));
     if (!(qty > 0)) { out.errors.push(`Line ${line}: quantity must be a positive number.`); continue; }
+    if (kind === "transfer") {
+      const from = get("wallet");
+      if (!from) { out.errors.push(`Line ${line}: a transfer needs a wallet to move the coins out of.`); continue; }
+      if (from === toWallet) { out.skipped.push(`Line ${line}: transfer from and to the same wallet ignored.`); continue; }
+      out.transactions.push({ line, date, kind, asset, qty, usd: 0, fee: 0, wallet: from, toWallet });
+      continue;
+    }
     const totalRaw = map.total === undefined ? null : parseNumber(get("total"));
     const priceRaw = map.price === undefined ? null : parseNumber(get("price"));
     let usd = totalRaw !== null && !Number.isNaN(totalRaw) ? Math.abs(totalRaw) : null;
@@ -190,7 +199,7 @@ function orderLots(lots, method, sale, unitProceeds, rates) {
   }
 }
 
-const PRIORITY = { buy: 0, income: 0, sell: 1 };
+const PRIORITY = { buy: 0, income: 0, transfer: 1, sell: 2 };
 
 // Runs one method over every transaction. Returns pieces (one per lot consumed)
 // and the lots still open at the end.
@@ -204,6 +213,26 @@ export function matchLots(transactions, { method = "FIFO", perWallet = false, sh
   const pieces = [];
   const shortfalls = [];
   for (const t of ordered) {
+    if (t.kind === "transfer") {
+      // Moving coins between your own wallets is not a sale. With one pool there is nothing to move;
+      // per wallet, the chosen lots keep their purchase date and basis in the new wallet.
+      if (!perWallet) continue;
+      const from = books.get(bookKey(t)) || [];
+      const dest = bookKey({ asset: t.asset, wallet: t.toWallet });
+      if (!books.has(dest)) books.set(dest, []);
+      let left = t.qty;
+      const order = method === "TAXMIN" ? "FIFO" : method;
+      for (const lot of orderLots(from.filter((l) => l.qty > EPS), order, t, 0, rates)) {
+        if (left <= EPS) break;
+        const take = Math.min(lot.qty, left);
+        const basis = (lot.basis / lot.qtyOriginal) * take;
+        books.get(dest).push({ ...lot, wallet: t.toWallet, qty: take, qtyOriginal: take, basis });
+        lot.qty -= take;
+        left -= take;
+      }
+      if (left > EPS) shortfalls.push({ asset: t.asset, wallet: t.wallet, line: t.line, date: t.date, qty: left, transfer: true });
+      continue;
+    }
     const key = bookKey(t);
     if (!books.has(key)) books.set(key, []);
     const lots = books.get(key);
@@ -368,6 +397,7 @@ export function analyze(text, options = {}) {
   result.bestMethod = best.method;
 
   for (const s of main.shortfalls) {
+    if (s.transfer) { result.warnings.push(`Line ${s.line} (${s.date}): transferred ${trimQty(s.qty)} ${s.asset} more than the lots on record in wallet "${s.wallet}". Only the coins on record were moved; add the missing buy, income or transfer-in history.`); continue; }
     result.warnings.push(`Line ${s.line} (${s.date}): sold ${trimQty(s.qty)} ${s.asset} more than the lots on record${perWallet && s.wallet ? ` in wallet "${s.wallet}"` : ""}. That part is shown with zero basis; add the missing buy, income or transfer-in history.`);
   }
   const holdings = new Map();
