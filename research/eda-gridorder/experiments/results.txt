@@ -1,0 +1,22 @@
+# Yosys 0.33 (git sha1 2584903a060); table from research/eda-proposers (80 designs = p 1..8 x wb 4..8 x abc {gates, fast})
+# metric: hypervolume of found front / hypervolume of true front (reference 1.1,1.1,1.1), objectives cells, cycles, 1-accuracy
+# deterministic orders: 1 run. stochastic orders: 300 seeds, mean [95% bootstrap interval]
+
+budget               lexicographic                      halton                    farthest         farthest-rand-start                       latin                      random
+     4                       0.060                       0.748                       0.889         0.663 [0.652,0.674]         0.734 [0.724,0.743]         0.690 [0.677,0.703]
+     8                       0.098                       0.926                       0.891         0.822 [0.814,0.829]         0.850 [0.846,0.854]         0.808 [0.799,0.816]
+    12                       0.151                       0.931                       0.892         0.892 [0.889,0.895]         0.883 [0.879,0.887]         0.862 [0.856,0.868]
+    16                       0.664                       0.942                       0.912         0.911 [0.908,0.914]         0.910 [0.907,0.913]         0.893 [0.887,0.898]
+    20                       0.664                       0.949                       0.924         0.930 [0.928,0.933]         0.924 [0.921,0.926]         0.914 [0.909,0.917]
+    30                       0.749                       0.955                       0.980         0.957 [0.955,0.958]         0.949 [0.947,0.951]         0.945 [0.942,0.948]
+    40                       0.926                       0.955                       0.984         0.967 [0.965,0.969]         0.965 [0.964,0.967]         0.965 [0.963,0.967]
+
+rank of each deterministic order among 300 random orders (fraction of random seeds scoring strictly below it):
+  lexicographic  b4=0.00 b8=0.00 b12=0.00 b16=0.00 b20=0.00 b30=0.00 b40=0.03
+  halton         b4=0.65 b8=0.98 b12=0.91 b16=0.89 b20=0.84 b30=0.65 b40=0.26
+  farthest       b4=0.99 b8=0.89 b12=0.69 b16=0.65 b20=0.57 b30=0.94 b40=0.88
+
+evaluations needed to reach a fraction of the true-front hypervolume (stochastic: median over seeds):
+  90%        lexicographic=35  halton=7  farthest=15  farthest-rand-start=15  latin=15  random=17
+  95%        lexicographic=73  halton=22  farthest=23  farthest-rand-start=25  latin=31  random=31
+  full front lexicographic=75  halton=75  farthest=47  farthest-rand-start=77  latin=77  random=76
