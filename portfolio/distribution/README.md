@@ -125,6 +125,15 @@ one switch per channel:
 Never put a token in the tree, a log or a PR. A pipeline that needs a paid
 API is out of scope for this goal.
 
+## Drafts for the venues that forbid automation
+
+`node platform/distribution/launch-kit.mjs [--slug <slug>] [--days 7] [--max 3]`
+prints paste-ready drafts (Show HN, Product Hunt, AlternativeTo, an
+awesome-list line, a Reddit note) for recent launches. It sends nothing; the
+owner posts by hand after reading each venue's rules that day. Links are the
+plain canonical URL, so visits from these venues are not counted by `ref`
+until a tag is added to the counter's closed list.
+
 ## The ladder, per channel
 
 `none` → `artifact` (listing prepared, dry run passes) → `queued` (owner
