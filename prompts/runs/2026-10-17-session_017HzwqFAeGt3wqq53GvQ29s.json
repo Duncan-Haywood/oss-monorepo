@@ -28,18 +28,22 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/promptctl.py",
       "issue": "measure's friction 'latest' lines mostly describe already-fixed problems (ventures preflight, research claim check); cost several calls to triage (see P033)."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "No claim step for Critique fixes: a concurrent run shipped the same pyenv.py fix; check open PRs/main for the file before building."
     }
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Backlog had only owner rows (P018,P005,P011); Critique: fixed pyenv.py pip-name map for skfem.",
+  "notes": "Backlog had only owner rows. Found the pyenv.py skfem->scikit-fem cause and fixed it, but an identical fix landed on main concurrently; took main's version. Net deliverable: none beyond this record.",
   "corrections": [],
   "redteam": null,
   "usage": {
