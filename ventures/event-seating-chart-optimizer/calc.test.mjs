@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  baselinePlan, sampleSpec, planCsv, tableSignsHtml, reseat, parsePlanCsv, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, WEIGHTS,
+  baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, reseat, parsePlanCsv, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, WEIGHTS,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -230,4 +230,15 @@ test("table signs: one page per table, every guest once, names escaped, no scrip
   assert.ok(html.includes("Lee &lt;b&gt;Ann&lt;/b&gt;") && html.includes("Lee &amp; Co"));
   assert.ok(html.includes("<title>Gala &lt;x&gt;</title>"));
   assert.ok(!/<script|<b>/i.test(html));
+});
+
+test("escort board: every guest once, sorted by last name, right table, names escaped", () => {
+  const spec = specFrom("Zed Adams\nAnn Zhu\nBob <i> Lee\nCy Baker", "", { seatsPerTable: 2 });
+  const res = optimize(spec);
+  const html = escortBoardHtml(spec, res, "Find <us>");
+  assert.equal((html.match(/<li>/g) || []).length, spec.guests.length);
+  const order = [...html.matchAll(/<li><span>([^<]*)<\/span>/g)].map((m) => m[1]);
+  assert.deepEqual(order, ["Zed Adams", "Cy Baker", "Bob &lt;i&gt; Lee", "Ann Zhu"]);
+  for (const t of res.tables) for (const g of t.guests) assert.ok(html.includes(`<span>${g.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span><b>${t.number}</b>`), g);
+  assert.ok(html.includes("<title>Find &lt;us&gt;</title>") && !/<script|<i>/i.test(html));
 });
