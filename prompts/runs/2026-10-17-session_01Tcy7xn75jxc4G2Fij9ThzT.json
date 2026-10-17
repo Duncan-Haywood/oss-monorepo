@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01Tcy7xn75jxc4G2Fij9ThzT",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T21:39:15Z",
+  "ended": "2026-10-17T21:43:58Z",
+  "wall_minutes": 4.57,
+  "tokens_in": 2355250,
+  "tokens_out": 8269,
+  "cost_usd": 0.8148,
+  "tool_calls": 32,
+  "task": null,
+  "projects": [],
+  "pr": 7847,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Figure-gap list has no claim mechanism: my simdesign-gaugebudget figure collided with the same one merged a minute earlier (#7846); had to restart on another project."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Added stress_vs_mesh.svg for simdesign-patchstress after a duplicate-figure collision.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f31eea81-fdf4-5994-a723-d530a3bbf19e",
+    "transcripts": 1,
+    "first": "2026-10-17T21:39:15Z",
+    "last": "2026-10-17T21:43:49Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 28,
+        "input": 56,
+        "output": 8269,
+        "thinking": 1584,
+        "cache_read": 2286529,
+        "cache_write_5m": 0,
+        "cache_write_1h": 68665,
+        "api_equivalent_usd": 0.8148,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 56,
+      "output": 8269,
+      "thinking": 1584,
+      "cache_read": 2286529,
+      "cache_write_5m": 0,
+      "cache_write_1h": 68665,
+      "api_equivalent_usd": 0.8148,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 21,
+      "mcp__github__pull_request_read": 3,
+      "mcp__github__list_pull_requests": 2,
+      "mcp__github__get_check_run": 2,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.57,
+      "active_minutes": 4.57,
+      "model_minutes": 1.17,
+      "tool_minutes": 3.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "small figure script",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 61.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
