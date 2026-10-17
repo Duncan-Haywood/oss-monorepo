@@ -6,8 +6,11 @@
 //   2. the run records in prompts/runs/ (outcomes, CI failures before green,
 //      models, measured cost from prompts/runcost.py),
 //   3. the GitHub API, when a token is present (publish workflow): PR cycle
-//      time, first-review latency, CI pass rates on main and on PRs, CI
-//      attempts before green, open PRs and branches by age.
+//      time, first-review latency and verdicts, CI pass rates on main and on
+//      PRs, CI attempts before green, open PRs and branches by age, and
+//      (fromCI) every completed workflow run of the last two weeks: passed,
+//      failed and cancelled per day, by workflow and trigger, durations,
+//      re-runs, what is red on main now and how long main took to recover.
 // A metric whose source was unavailable is reported as `null` with the reason,
 // never as zero.
 
@@ -175,6 +178,208 @@ async function ghPages(fetchImpl, token, url, pages) {
   return out;
 }
 
+// ---------------------------------------------------------------------------
+// CI activity: every completed workflow run, whatever triggered it.
+//
+// Two reads, because this repository runs thousands of workflow runs a day
+// (measured 2026-10-16: the newest 100 covered 15 minutes) and the runs API
+// returns at most 1,000 of them for a filtered query:
+//   - exact counts per day and outcome, from the API's `total_count` with
+//     `per_page=1`. `total_count` itself stops at 2,500, so a slice that
+//     reaches it is halved until it does not (down to an hour; a slice still
+//     at the cap then is reported as a floor). Days a previous build already
+//     counted are reused, so a refresh costs a few dozen tiny requests;
+//   - a sample of the newest runs, and of the newest push runs on main, for
+//     what a count cannot say: which workflows fail, how long runs take,
+//     re-runs, what is red on main now and how long main took to recover.
+
+export const CI_DAYS = 14;
+export const COUNT_CAP = 2500;
+const HOUR = 3_600_000;
+const SAMPLE_PAGES = 10;
+const MAIN_PAGES = 5;
+
+// Conclusions folded into what a reader asks: did it pass, fail, or never
+// decide? `timed_out` and `startup_failure` are failures a person has to look
+// at; `cancelled` is mostly a newer push superseding an older run.
+const OUTCOME = {
+  success: 'passed',
+  failure: 'failed', timed_out: 'failed', startup_failure: 'failed',
+  cancelled: 'cancelled',
+  skipped: 'skipped', neutral: 'skipped', stale: 'skipped', action_required: 'skipped',
+};
+export const outcomeOf = (conclusion) => OUTCOME[conclusion] ?? 'skipped';
+const OUTCOMES = ['passed', 'failed', 'cancelled', 'skipped'];
+// The conclusions counted exactly, as `status=` filters. The rare ones
+// (neutral, stale, action_required) are left to the sample.
+const COUNTED = [['success', 'passed'], ['failure', 'failed'], ['timed_out', 'failed'], ['startup_failure', 'failed'], ['cancelled', 'cancelled'], ['skipped', 'skipped']];
+const tally = () => Object.fromEntries(OUTCOMES.map((o) => [o, 0]));
+const passShare = (t) => (t.passed + t.failed ? round(t.passed / (t.passed + t.failed), 3) : null);
+const isoSec = (ms) => new Date(ms).toISOString().replace(/\.\d{3}Z$/, 'Z');
+
+async function ghJson(fetchImpl, token, url) {
+  const res = await fetchImpl(url, { headers: { authorization: `Bearer ${token}`, accept: 'application/vnd.github+json', 'x-github-api-version': '2022-11-28' } });
+  if (!res.ok) throw new Error(`GitHub ${res.status} for ${url.replace(/\?.*/, '')}`);
+  return res.json();
+}
+
+/** Exact runs with one conclusion created in [start, end), halving at the cap. */
+async function countSlice(fetchImpl, token, api, status, start, end) {
+  const url = `${api}/actions/runs?per_page=1&exclude_pull_requests=true&status=${status}&created=${isoSec(start)}..${isoSec(end - 1000)}`;
+  const n = (await ghJson(fetchImpl, token, url)).total_count ?? 0;
+  if (n < COUNT_CAP) return { n, capped: false };
+  if (end - start <= HOUR) return { n, capped: true };
+  // Split on an hour boundary where there is one, so slices stay readable.
+  const half = Math.floor((end - start) / 2 / HOUR) * HOUR;
+  const mid = start + (half || (end - start) / 2);
+  const [x, y] = [await countSlice(fetchImpl, token, api, status, start, mid), await countSlice(fetchImpl, token, api, status, mid, end)];
+  return { n: x.n + y.n, capped: x.capped || y.capped };
+}
+
+/**
+ * Runs per day and outcome for the last `days` days. A day from `previous`
+ * (an earlier stats.json's `github.ci`) is reused when that build ran a full
+ * day after the day ended: its runs had all finished by then.
+ */
+export async function countRunsByDay(fetchImpl, token, api, { now = Date.now(), days = CI_DAYS, previous = null } = {}) {
+  const prevAt = Date.parse(previous?.counted_at ?? '');
+  const per_day = {};
+  const capped_days = [];
+  let reused = 0;
+  for (const day of dayRange(now, days)) {
+    const start = Date.parse(`${day}T00:00:00Z`);
+    const end = Math.min(start + DAY, now);
+    const old = previous?.per_day?.[day];
+    if (old && Number.isFinite(prevAt) && prevAt >= start + 2 * DAY && !previous.coverage?.capped_days?.includes(day)) {
+      per_day[day] = { ...tally(), ...old };
+      reused += 1;
+      continue;
+    }
+    const t = tally();
+    let capped = false;
+    for (const [status, outcome] of COUNTED) {
+      const c = await countSlice(fetchImpl, token, api, status, start, end);
+      t[outcome] += c.n;
+      capped ||= c.capped;
+    }
+    per_day[day] = t;
+    if (capped) capped_days.push(day);
+  }
+  return { per_day, capped_days, reused_days: reused };
+}
+
+export async function sampleRuns(fetchImpl, token, api) {
+  return {
+    sample: await ghPages(fetchImpl, token, `${api}/actions/runs?status=completed&exclude_pull_requests=true`, SAMPLE_PAGES),
+    main: await ghPages(fetchImpl, token, `${api}/actions/runs?branch=main&event=push&status=completed&exclude_pull_requests=true`, MAIN_PAGES),
+  };
+}
+
+const minutes = (r) => {
+  const a = Date.parse(r.run_started_at ?? r.created_at);
+  const b = Date.parse(r.updated_at);
+  return Number.isFinite(a) && Number.isFinite(b) && b >= a ? (b - a) / 60_000 : null;
+};
+const span = (runs) => {
+  const ts = runs.map((r) => r.created_at).filter(Boolean).sort();
+  return ts.length ? { from: ts[0], to: ts[ts.length - 1], hours: round((Date.parse(ts[ts.length - 1]) - Date.parse(ts[0])) / HOUR) } : null;
+};
+
+/** Pure: exact counts (countRunsByDay) plus the newest runs (sampleRuns). */
+export function ciActivity({ counts = { per_day: {}, capped_days: [] }, sample = [], main = [] } = {}, { now = Date.now() } = {}) {
+  const totals = tally();
+  for (const t of Object.values(counts.per_day)) for (const o of OUTCOMES) totals[o] += t[o] ?? 0;
+
+  const byEvent = {};
+  const byWorkflow = {};
+  const durations = [];
+  let reruns = 0;
+  let wallMinutes = 0;
+  for (const r of sample) {
+    const o = outcomeOf(r.conclusion);
+    const isMain = r.event === 'push' && r.head_branch === 'main';
+    const ev = isMain ? 'push to main' : r.event === 'push' ? 'push to a branch' : (r.event ?? 'unknown');
+    (byEvent[ev] ??= tally())[o] += 1;
+    const w = (byWorkflow[r.name ?? 'unknown'] ??= { ...tally(), minutes: [] });
+    w[o] += 1;
+    const m = minutes(r);
+    if (m != null && o !== 'skipped') {
+      w.minutes.push(m);
+      durations.push(m);
+      wallMinutes += m;
+    }
+    if ((r.run_attempt ?? 1) > 1) reruns += 1;
+  }
+  const workflows = Object.entries(byWorkflow)
+    .map(([name, w]) => ({
+      name,
+      runs: OUTCOMES.reduce((a, o) => a + w[o], 0),
+      passed: w.passed, failed: w.failed, cancelled: w.cancelled, skipped: w.skipped,
+      pass_share: passShare(w),
+      minutes_p50: round(quantile(w.minutes, 0.5)),
+      minutes_p90: round(quantile(w.minutes, 0.9)),
+    }))
+    .sort((a, b) => b.failed - a.failed || b.runs - a.runs);
+
+  // Main's red spells, per workflow: from a failing push run on main to the
+  // next passing one. A workflow whose newest decided run failed is red now.
+  const mainRuns = main
+    .filter((r) => ['passed', 'failed'].includes(outcomeOf(r.conclusion)))
+    .sort((a, b) => (a.created_at ?? '').localeCompare(b.created_at ?? ''));
+  const spells = [];
+  const redSince = {};
+  for (const r of mainRuns) {
+    const name = r.name ?? 'unknown';
+    if (outcomeOf(r.conclusion) === 'failed') redSince[name] ??= r.created_at;
+    else if (redSince[name]) {
+      spells.push((Date.parse(r.created_at) - Date.parse(redSince[name])) / HOUR);
+      delete redSince[name];
+    }
+  }
+  const redNow = Object.entries(redSince)
+    .map(([name, since]) => ({ workflow: name, since, hours: round((now - Date.parse(since)) / HOUR) }))
+    .sort((a, b) => b.hours - a.hours);
+
+  const decided = totals.passed + totals.failed;
+  const sampleSpan = span(sample);
+  return {
+    counted_at: new Date(now).toISOString(),
+    window_days: Object.keys(counts.per_day).length,
+    runs: OUTCOMES.reduce((a, o) => a + totals[o], 0),
+    totals,
+    pass_share: passShare(totals),
+    failed_share_of_decided: decided ? round(totals.failed / decided, 3) : null,
+    per_day: counts.per_day,
+    coverage: {
+      capped_days: counts.capped_days ?? [],
+      reused_days: counts.reused_days ?? 0,
+      note: counts.capped_days?.length ? `More than ${COUNT_CAP.toLocaleString('en-US')} runs of one outcome in a single hour on the days listed; their counts are a floor` : 'Exact counts from the runs API for every day in the window',
+    },
+    sample: { runs: sample.length, span: sampleSpan, workflows_seen: workflows.length },
+    by_event: Object.fromEntries(Object.entries(byEvent).sort((a, b) => b[1].passed + b[1].failed - (a[1].passed + a[1].failed)).map(([k, t]) => [k, { ...t, pass_share: passShare(t) }])),
+    workflows: workflows.slice(0, 20),
+    duration_minutes: { n: durations.length, p50: round(quantile(durations, 0.5)), p90: round(quantile(durations, 0.9)), note: 'run start to last update: wall-clock, including time jobs waited for a runner' },
+    ci_hours_per_hour: sampleSpan?.hours ? round(wallMinutes / 60 / sampleSpan.hours) : null,
+    rerun_share: sample.length ? round(reruns / sample.length, 3) : null,
+    main: { runs: main.length, span: span(main) },
+    main_recovery_hours: { n: spells.length, p50: round(quantile(spells, 0.5)), p90: round(quantile(spells, 0.9)) },
+    red_on_main_now: redNow,
+  };
+}
+
+/** The CI section on its own: a failure here leaves the PR metrics standing. */
+export async function fromCI({ token, repo, now = Date.now(), fetch: fetchImpl = globalThis.fetch, previous = null, days = CI_DAYS } = {}) {
+  if (!token || !repo) return { available: false, reason: 'no GITHUB_TOKEN in this build (the publish workflow supplies one)' };
+  const api = `https://api.github.com/repos/${repo}`;
+  try {
+    const counts = await countRunsByDay(fetchImpl, token, api, { now, days, previous });
+    const { sample, main } = await sampleRuns(fetchImpl, token, api);
+    return { available: true, ...ciActivity({ counts, sample, main }, { now }) };
+  } catch (err) {
+    return { available: false, reason: err.message };
+  }
+}
+
 export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchImpl = globalThis.fetch } = {}) {
   if (!token || !repo) return { available: false, reason: 'no GITHUB_TOKEN in this build (the publish workflow supplies one)' };
   const api = `https://api.github.com/repos/${repo}`;
@@ -189,8 +394,10 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
     const sample = merged.slice(0, 40);
     let reviewed = 0;
     const firstReview = [];
+    const reviewStates = {};
     for (const p of sample) {
       const reviews = await ghPages(fetchImpl, token, `${api}/pulls/${p.number}/reviews`, 1);
+      for (const r of reviews) if (r.state) reviewStates[r.state] = (reviewStates[r.state] ?? 0) + 1;
       const times = reviews.map((r) => r.submitted_at).filter(Boolean).sort();
       if (times.length) {
         reviewed += 1;
@@ -233,8 +440,10 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
       available: true,
       prs_merged_7d: merged.length,
       pr_cycle_hours: { n: cycle.length, p50: round(quantile(cycle, 0.5)), p90: round(quantile(cycle, 0.9)) },
+      prs_closed_unmerged_7d: closed.filter((p) => !p.merged_at && p.closed_at && Date.parse(p.closed_at) > now - 7 * DAY).length,
       first_review_hours: { sampled: sample.length, reviewed, p50: round(quantile(firstReview, 0.5)), p90: round(quantile(firstReview, 0.9)) },
-      open_prs: { count: open.length, older_than_7d: openAges.filter((d) => d > 7).length, oldest_days: round(Math.max(0, ...openAges)) },
+      review_states: reviewStates,
+      open_prs: { count: open.length, drafts: open.filter((p) => p.draft).length, older_than_7d: openAges.filter((d) => d > 7).length, oldest_days: round(Math.max(0, ...openAges)) },
       ci_main: { runs: mainRuns.length, green_share: share(mainRuns.filter(decided), (r) => r.conclusion === 'success'), failing_workflows: Object.entries(failingWorkflows).sort((a, b) => b[1] - a[1]).slice(0, 8) },
       ci_pr: {
         runs: prRuns.length,
@@ -250,7 +459,7 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
   }
 }
 
-export async function collect(repo, { now = Date.now(), token, ghRepo, fetch } = {}) {
+export async function collect(repo, { now = Date.now(), token, ghRepo, fetch, previous = null } = {}) {
   return {
     generated_at: new Date(now).toISOString(),
     source_commit: (() => { try { return git(repo, ['rev-parse', 'HEAD']).trim(); } catch { return null; } })(),
@@ -258,5 +467,6 @@ export async function collect(repo, { now = Date.now(), token, ghRepo, fetch } =
     git: fromGit(repo, { now }),
     runs: fromRuns(repo, { now }),
     github: await fromGitHub({ token, repo: ghRepo, now, fetch }),
+    ci: await fromCI({ token, repo: ghRepo, now, fetch, previous: previous?.ci?.available ? previous.ci : null }),
   };
 }

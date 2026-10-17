@@ -332,8 +332,15 @@ node "$repo_root/platform/deploy/build.mjs" --out="$dist/deploy" >/dev/null
 # review health, branches, and what each agent run cost. Written after
 # `check.mjs` like the deploy page, and linked from the hub's overview. With
 # GITHUB_TOKEN set (the publish workflow) it adds the GitHub API metrics.
+# The published stats.json lets it reuse the CI counts of days it already
+# counted, so a refresh spends a few dozen API requests rather than ~170.
 echo "Building the development dashboard..."
-node "$repo_root/platform/devstats/build.mjs" --out="$dist/dev" >/dev/null
+prev_stats="$scratch/prev-stats.json"
+for ref in "refs/remotes/origin/$BRANCH" "refs/heads/$BRANCH"; do
+  git -C "$repo_root" show "$ref:dev/stats.json" > "$prev_stats" 2>/dev/null && break
+  rm -f "$prev_stats"
+done
+node "$repo_root/platform/devstats/build.mjs" --out="$dist/dev" --previous="$prev_stats" >/dev/null
 
 # GitHub reads the custom domain back out of this file on every deploy, so it
 # has to be in every tree this script writes, not only the one where it was
