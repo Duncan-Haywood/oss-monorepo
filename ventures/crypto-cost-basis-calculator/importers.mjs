@@ -38,6 +38,7 @@ function findHeader(grid, needles) {
 
 export function detectFormat(text) {
   const grid = parseCsv(text);
+  if (findHeader(grid, ["timestamp utc", "transaction kind", "native amount in usd"]) >= 0) return "cryptocom";
   if (findHeader(grid, ["timestamp", "transaction type", "asset"]) >= 0) return "coinbase";
   if (findHeader(grid, ["txid", "refid", "time", "type", "asset", "amount", "fee"]) >= 0) return "kraken";
   if (findHeader(grid, ["time", "operation", "primary asset"]) >= 0) return "binanceus";
@@ -202,16 +203,64 @@ function importBinanceUs(grid) {
   return { format: "binanceus", rows: out, notes };
 }
 
+// ---- Crypto.com App (transaction history) ----------------------------------
+
+const CDC_BUY = /purchase|buy/;
+const CDC_SELL = /viban_exchange|sell|crypto_to_fiat/;
+const CDC_SWAP = /crypto_exchange|dust_conversion|swap|convert/;
+const CDC_INCOME = /reward|interest|cashback|referral|airdrop|rebate|bonus/;
+const CDC_MOVE = /deposit|withdraw|transfer|lockup|stake|lock|card_top_up|admin/;
+
+function importCryptoCom(grid) {
+  const h = findHeader(grid, ["timestamp utc", "transaction kind", "native amount in usd"]);
+  const names = grid[h].map(norm);
+  const ix = (n) => names.indexOf(n);
+  const c = {
+    ts: ix("timestamp utc"), cur: ix("currency"), amt: ix("amount"), toCur: ix("to currency"), toAmt: ix("to amount"),
+    usd: ix("native amount in usd"), kind: ix("transaction kind"),
+  };
+  const out = [], notes = [];
+  let moves = 0, unpriced = 0;
+  for (let i = h + 1; i < grid.length; i++) {
+    const r = grid[i];
+    const g = (k) => (c[k] < 0 ? "" : r[c[k]] ?? "");
+    const kind = String(g("kind")).toLowerCase().trim();
+    if (!kind || !g("ts")) continue;
+    const date = g("ts").slice(0, 10);
+    const cur = g("cur").toUpperCase();
+    const qty = Math.abs(num(g("amt")) ?? 0);
+    const usd = num(g("usd"));
+    const total = usd === null ? null : Math.abs(usd);
+    const row = (type, asset, q) => {
+      if (total === null) unpriced++;
+      out.push([date, type, asset, fmt(q), fmt(total), "0", "Crypto.com"]);
+    };
+    if (CDC_SELL.test(kind)) row("sell", cur, qty);
+    else if (CDC_BUY.test(kind)) row("buy", cur, qty);
+    else if (CDC_SWAP.test(kind) && g("toCur")) {
+      row("sell", cur, qty);
+      row("buy", g("toCur").toUpperCase(), Math.abs(num(g("toAmt")) ?? 0));
+    } else if (CDC_INCOME.test(kind) && (num(g("amt")) ?? 0) > 0) row("income", cur, qty);
+    else if (CDC_MOVE.test(kind)) moves++;
+    else notes.push(`Line ${i + 1}: Crypto.com transaction kind "${g("kind")}" was skipped.`);
+  }
+  if (unpriced) notes.push(`${unpriced} Crypto.com row${unpriced > 1 ? "s" : ""} had no USD value in the export and were left with an empty total. Fill each in from that day's price.`);
+  if (moves) notes.push(`${moves} deposit, withdrawal, transfer and staking-lock rows ignored as non-taxable movements. A withdrawal that paid someone is a sale; enter it by hand.`);
+  notes.push("The export has no fee column, so fees are 0; the Native Amount (in USD) on App trades already includes the spread.");
+  out.sort((x, y) => (x[0] < y[0] ? -1 : x[0] > y[0] ? 1 : 0));
+  return { format: "cryptocom", rows: out, notes };
+}
+
 // ---- entry points ---------------------------------------------------------
 
-export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", generic: "plain CSV" };
+export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", cryptocom: "Crypto.com App transaction history", generic: "plain CSV" };
 
 // Returns { format, csv, notes }. A generic file comes back unchanged.
 export function convertExchangeCsv(text) {
   const format = detectFormat(text);
   if (format === "generic") return { format, csv: String(text ?? ""), notes: [] };
   const grid = parseCsv(text);
-  const r = format === "coinbase" ? importCoinbase(grid) : format === "binanceus" ? importBinanceUs(grid) : importKraken(grid);
+  const r = format === "coinbase" ? importCoinbase(grid) : format === "binanceus" ? importBinanceUs(grid) : format === "cryptocom" ? importCryptoCom(grid) : importKraken(grid);
   return { format, csv: toCsv(r.rows), notes: r.notes, count: r.rows.length };
 }
 
