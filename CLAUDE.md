@@ -115,7 +115,8 @@ The finish line, every session:
 4. confirm `python3 platform/ci/unlanded_work.py` exits 0;
 5. end your reply with the merged PR's link.
 
-The full protocol is
+In cloud sessions there is no `gh`: open and merge with the GitHub MCP tools
+(`create_pull_request`, `merge_pull_request`). The full protocol is
 [`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md). It
 covers what is and is not a reason to stop short of merging, follow-up work
 after a merge (that needs a new PR), and other sessions' stalled PRs and

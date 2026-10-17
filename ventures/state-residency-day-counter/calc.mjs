@@ -442,6 +442,36 @@ export function sampleSpec() {
   return { year, stays, homeState: "FL", abode: { NY: true, FL: true }, asOf: toDay(year, 9, 30), convention: "inclusive", wages: 140000, overrides: {}, homeWorks: true };
 }
 
+// What-if: add one planned trip to the stays and report what it changes. The
+// trip is a stay like any other, so days it overlaps with listed stays count
+// twice (as they would if you typed both); days that were only assumed home-state
+// days are replaced.
+export function tripImpact(spec, trip) {
+  if (!/^[A-Z]{2}$/.test(trip.state || "")) throw new Error("Enter a two-letter state code for the trip.");
+  if (!Number.isInteger(trip.start) || !Number.isInteger(trip.days) || trip.days < 1) throw new Error("Enter a start date and a trip length of at least one day.");
+  const withTrip = (days) => analyze({ ...spec, stays: [...spec.stays, { state: trip.state, start: trip.start, end: trip.start + days - 1, work: trip.work !== false }] });
+  const before = analyze(spec);
+  const after = withTrip(trip.days);
+  const was = Object.fromEntries(before.states.map((s) => [s.code, s]));
+  const changes = after.states.map((s) => {
+    const b = was[s.code];
+    const crossed = s.status === "over" && !(b && b.status === "over");
+    return { code: s.code, name: s.name, before: b ? b.days : 0, after: s.days, delta: s.days - (b ? b.days : 0), limit: s.rule ? s.rule.limit : null, statusBefore: b ? b.status : "none", statusAfter: s.status, crossed };
+  }).filter((c) => c.delta !== 0 || c.crossed).sort((a, b) => b.delta - a.delta || a.code.localeCompare(b.code));
+  // Longest trip from the same start that does not push the trip state over its limit.
+  const tripRule = after.states.find((s) => s.code === trip.state)?.rule || null;
+  let maxSafeDays = null;
+  if (tripRule) {
+    maxSafeDays = 0;
+    for (let n = 1; n <= after.totalDays; n++) {
+      const st = withTrip(n).states.find((s) => s.code === trip.state);
+      if (st.days > tripRule.limit) break;
+      maxSafeDays = n;
+    }
+  }
+  return { trip: { ...trip }, changes, newlyOver: changes.filter((c) => c.crossed).map((c) => c.code), maxSafeDays, tripLimit: tripRule ? tripRule.limit : null };
+}
+
 // ---- output ------------------------------------------------------------------
 
 export function fmtNum(n, digits = 0) {
