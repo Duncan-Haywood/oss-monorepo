@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { launchedProblems } from './venture-preflight.mjs';
+import { buildProblem, checkProblems, launchedProblems, mirrorProblem } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -25,4 +25,34 @@ test('flags a slug with no date', async () => {
 test('flags out-of-order keys', async () => {
   const p = await launchedProblems('a', await fixture({ b: '2026-10-02', a: '2026-10-01' }));
   assert.match(p.join('\n'), /out of order/);
+});
+
+test('mirror status: 0 clean, 1 stale, anything else could not answer', () => {
+  assert.equal(mirrorProblem(0), null);
+  assert.match(mirrorProblem(1), /mirror is stale/);
+  assert.match(mirrorProblem(2), /could not answer \(exit 2\)/);
+  assert.match(mirrorProblem(null), /could not answer/);
+});
+
+test('build problem only on a non-zero exit, tail of stderr first', () => {
+  assert.equal(buildProblem({ status: 0, stdout: '', stderr: '' }), null);
+  assert.match(buildProblem({ status: 1, stdout: 'out', stderr: 'boom' }), /build\.mjs failed:\nboom/);
+  assert.match(buildProblem({ status: 1, stdout: 'out', stderr: '' }), /failed:\nout/);
+});
+
+test('check output is split by slug, joining stdout and stderr', () => {
+  const r = checkProblems({ stdout: 'header\n  tax/index.html: no disclaimer\n', stderr: '  other/x.html: bad link\n' }, 'tax');
+  assert.deepEqual(r.failures, ['tax/index.html: no disclaimer']);
+  assert.deepEqual(r.other, ['  other/x.html: bad link']);
+});
+
+test('a slug does not claim a longer slug it prefixes', () => {
+  const r = checkProblems({ stdout: '  tax-calc/index.html: bad\n  ventures/tax/a.html: bad\n', stderr: '' }, 'tax');
+  assert.deepEqual(r.failures, ['ventures/tax/a.html: bad']);
+  assert.equal(r.other.length, 1);
+});
+
+test('unparseable check output is reported whole', () => {
+  const r = checkProblems({ stdout: 'crash', stderr: '' }, 'tax');
+  assert.match(r.failures[0], /check\.mjs failed:\ncrash/);
 });

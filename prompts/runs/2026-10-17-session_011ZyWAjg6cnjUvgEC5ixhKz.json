@@ -1,0 +1,249 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_011ZyWAjg6cnjUvgEC5ixhKz",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T22:06:27Z",
+  "ended": "2026-10-17T22:06:57Z",
+  "wall_minutes": 1.42,
+  "tokens_in": 991827,
+  "tokens_out": 6199,
+  "cost_usd": 0.4244,
+  "tool_calls": 15,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "rerun needs the mutated line unchanged, but the natural gap fix (extracting helpers from untestable main) moves the lines, so rerun cannot confirm; I re-applied the 3 gap mutants by hand on the extracted helpers (all caught). Prompt should say to rerun-proof before refactoring, or rerun should match by line_text."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Gap mutants verified by hand after refactor (rerun could not find moved lines); caught_after_fix left null. Real defect: slug substring match in preflight check filter.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/venture-preflight.mjs",
+        "test": "node --test platform/pages/venture-preflight.test.mjs  (in .)",
+        "seed": 107382491,
+        "commit": "2350446bda",
+        "sites": 28,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "platform/pages/venture-preflight.mjs",
+            "line": 36,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(existing[slug] ?? '')) {",
+            "after": "if (!/^\\d{4}-\\d{3}-\\d{2}$/.test(existing[slug] ?? '')) {",
+            "line_text": "  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(existing[slug] ?? '')) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/venture-preflight.mjs",
+            "line": 41,
+            "col": 22,
+            "operator": "neq-flip",
+            "before": "if (keys.join('\\n') !== sorted.join('\\n')) {",
+            "after": "if (keys.join('\\n') === sorted.join('\\n')) {",
+            "line_text": "  if (keys.join('\\n') !== sorted.join('\\n')) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/venture-preflight.mjs",
+            "line": 67,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "if (verify.status === 1) failures.push('front-door mirror is stale: run `node platform/marketing/regen.mjs` and commit what it rewrites');",
+            "after": "if (verify.status === 2) failures.push('front-door mirror is stale: run `node platform/marketing/regen.mjs` and commit what it rewrites');",
+            "line_text": "  if (verify.status === 1) failures.push('front-door mirror is stale: run `node platform/marketing/regen.mjs` and commit what it rewrites');",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": null,
+            "note": "main() logic was untestable; extracted mirrorProblem/buildProblem/checkProblems and unit-tested them. [rerun: line changed; triage by hand] [rerun: line changed; triage by hand] [rerun: line changed; triage by hand]"
+          },
+          {
+            "file": "platform/pages/venture-preflight.mjs",
+            "line": 80,
+            "col": 23,
+            "operator": "neq-flip",
+            "before": "if (built.status !== 0) {",
+            "after": "if (built.status === 0) {",
+            "line_text": "      if (built.status !== 0) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": null,
+            "note": "main() logic was untestable; extracted mirrorProblem/buildProblem/checkProblems and unit-tested them. [rerun: line changed; triage by hand] [rerun: line changed; triage by hand] [rerun: line changed; triage by hand]"
+          },
+          {
+            "file": "platform/pages/venture-preflight.mjs",
+            "line": 85,
+            "col": 40,
+            "operator": "plus-to-minus",
+            "before": "const lines = (checked.stdout + checked.stderr).split('\\n').filter((l) => /^\\s+\\S/.test(l));",
+            "after": "const lines = (checked.stdout - checked.stderr).split('\\n').filter((l) => /^\\s+\\S/.test(l));",
+            "line_text": "          const lines = (checked.stdout + checked.stderr).split('\\n').filter((l) => /^\\s+\\S/.test(l));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": null,
+            "note": "main() logic was untestable; extracted mirrorProblem/buildProblem/checkProblems and unit-tested them. [rerun: line changed; triage by hand] [rerun: line changed; triage by hand] [rerun: line changed; triage by hand]"
+          },
+          {
+            "file": "platform/pages/venture-preflight.mjs",
+            "line": 94,
+            "col": 47,
+            "operator": "true-to-false",
+            "before": "fs.rmSync(out, { recursive: true, force: true });",
+            "after": "fs.rmSync(out, { recursive: true, force: false });",
+            "line_text": "      fs.rmSync(out, { recursive: true, force: true });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "rmSync force:true only matters if the mkdtemp dir vanished; cleanup of a temp dir, no visible behaviour."
+          },
+          {
+            "file": "platform/pages/venture-preflight.mjs",
+            "line": 109,
+            "col": 20,
+            "operator": "and-to-or",
+            "before": "if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {",
+            "after": "if (process.argv[1] || path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {",
+            "line_text": "if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/venture-preflight.mjs",
+            "line": 109,
+            "col": 53,
+            "operator": "eq-flip",
+            "before": "if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {",
+            "after": "if (process.argv[1] && path.resolve(process.argv[1]) !== fileURLToPath(import.meta.url)) {",
+            "line_text": "if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/pages/venture-preflight.mjs",
+        "issue": "slug filter used l.includes(slug), so slug 'tax' claimed problems of 'tax-calc/' as its own and failed the preflight",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "97b9c7de-fa39-5566-8105-faa074524277",
+    "transcripts": 1,
+    "first": "2026-10-17T22:06:27Z",
+    "last": "2026-10-17T22:07:52Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 15,
+        "input": 30,
+        "output": 6199,
+        "thinking": 986,
+        "cache_read": 948653,
+        "cache_write_5m": 0,
+        "cache_write_1h": 43144,
+        "api_equivalent_usd": 0.4244,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 15,
+      "input": 30,
+      "output": 6199,
+      "thinking": 986,
+      "cache_read": 948653,
+      "cache_write_5m": 0,
+      "cache_write_1h": 43144,
+      "api_equivalent_usd": 0.4244,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.956,
+    "tool_calls": 15,
+    "tools": {
+      "Bash": 15
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.42,
+      "active_minutes": 1.42,
+      "model_minutes": 0.78,
+      "tool_minutes": 0.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "read, mutate, refactor and test one script",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 235.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
