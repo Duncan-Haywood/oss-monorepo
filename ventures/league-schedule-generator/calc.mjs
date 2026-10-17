@@ -596,17 +596,24 @@ export function validateSchedule(schedule) {
       }
     }
   }
+  const withdrawn = new Set((schedule.withdrawals || []).map((w) => w.team));
   for (let a = 0; a < n; a++) {
     for (let b = a + 1; b < n; b++) {
       const rec = pair.get(`${a}-${b}`);
       const c = rec ? rec.count : 0;
+      if (withdrawn.has(a) || withdrawn.has(b)) {
+        if (c > want) errors.push(`${schedule.teams[a]} and ${schedule.teams[b]} meet ${c} time(s), expected at most ${want}.`);
+        continue;
+      }
       if (c !== want) errors.push(`${schedule.teams[a]} and ${schedule.teams[b]} meet ${c} time(s), expected ${want}.`);
       if (want === 2 && rec && (rec.hostedByLow !== 1 || rec.hostedByHigh !== 1)) errors.push(`${schedule.teams[a]} and ${schedule.teams[b]} do not each host once.`);
     }
   }
   const tolerance = want === 2 ? 0 : 1;
+  const lost = Array(n).fill(0);
+  for (const w of schedule.withdrawals || []) for (const x of w.removed) { lost[x.home]++; lost[x.away]++; }
   for (let t = 0; t < n; t++) {
-    if (Math.abs(homeOf[t] - awayOf[t]) > tolerance) errors.push(`${schedule.teams[t]} has ${homeOf[t]} home and ${awayOf[t]} away games.`);
+    if (Math.abs(homeOf[t] - awayOf[t]) > tolerance + lost[t]) errors.push(`${schedule.teams[t]} has ${homeOf[t]} home and ${awayOf[t]} away games.`);
   }
   return { ok: errors.length === 0, errors };
 }
@@ -678,6 +685,55 @@ export function applyRainouts(schedule, text) {
   if (moves.length) s.notices = [...s.notices, `${moves.length} match(es) moved after a rainout. Everything else is unchanged.`];
   s.stats = scheduleStats(s);
   return { schedule: s, moves, errors };
+}
+
+// ---------------------------------------------------------------- withdrawals
+
+/**
+ * A team drops out mid-season. Each line of `text` is a team name, optionally led by the first date
+ * it no longer plays: `Lob Squad` removes all of its matches, `2026-11-03 Lob Squad` removes only
+ * those on or after that night and keeps the ones already played. Nothing else moves. The result
+ * says, for every opponent, how many fixtures disappeared, because a league that must decide
+ * whether earlier results with the team still count needs to see who is left short. Returns a new
+ * schedule (the input is not mutated) plus `withdrawals` ({ team, from, removed[], opponentsShort[] })
+ * and `errors`.
+ */
+export function applyWithdrawals(schedule, text) {
+  const s = JSON.parse(JSON.stringify(schedule));
+  const errors = [];
+  const before = (s.withdrawals || []).length;
+  const withdrawals = [...(s.withdrawals || [])];
+  for (const raw of String(text ?? "").split(/\n+/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^(\d{4}-\d{1,2}-\d{1,2})\s*[:,-]?\s*(.*)$/);
+    const from = m ? parseDate(m[1]) : null;
+    if (m && from === null) { errors.push(`"${line}": that is not a real date.`); continue; }
+    const name = (m ? m[2] : line).trim();
+    const team = s.teams.findIndex((t) => t.toLowerCase() === name.toLowerCase());
+    if (team < 0) { errors.push(`"${name}" is not one of the teams.`); continue; }
+    if (withdrawals.some((w) => w.team === team)) { errors.push(`${s.teams[team]} has already withdrawn.`); continue; }
+    const gone = (r, x) => (x.home === team || x.away === team) && (from === null || r.day >= from);
+    const removed = [];
+    for (const r of s.rounds) {
+      for (const x of r.matches) if (gone(r, x)) removed.push({ home: x.home, away: x.away, day: r.day });
+      r.matches = r.matches.filter((x) => !gone(r, x));
+    }
+    withdrawals.push({ team, from, removed });
+  }
+  s.withdrawals = withdrawals;
+  s.rounds = s.rounds.filter((r) => r.matches.length || (r.bye !== null && r.bye !== undefined));
+  let mk = 0;
+  for (const r of s.rounds) if (r.makeup) r.label = `Makeup ${++mk}`;
+  const fresh = withdrawals.slice(before);
+  for (const w of fresh) {
+    const left = {};
+    for (const x of w.removed) { const o = x.home === w.team ? x.away : x.home; left[o] = (left[o] || 0) + 1; }
+    w.opponentsShort = Object.entries(left).map(([o, count]) => ({ team: s.teams[o], fixtures: count }));
+    s.notices = [...s.notices, `${s.teams[w.team]} withdrew${w.from === null ? "" : " from " + dayIso(w.from)}: ${w.removed.length} fixture(s) removed, ${w.opponentsShort.length} opponent(s) now play fewer games. Decide in your league rules whether results already played against ${s.teams[w.team]} still count.`];
+  }
+  s.stats = scheduleStats(s);
+  return { schedule: s, withdrawals: fresh, errors };
 }
 
 // ---------------------------------------------------------------- views and exports
@@ -1308,7 +1364,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "rainouts", "officials"];
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "rainouts", "withdrawals", "officials"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -1336,7 +1392,7 @@ export function decodeFields(text) {
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
-      rainouts: str(o.rainouts), officials: str(o.officials),
+      rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials),
     };
   } catch { return null; }
 }

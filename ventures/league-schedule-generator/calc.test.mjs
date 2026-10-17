@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  applyRainouts, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
+  applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs,
   scheduleText, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   splitPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport,
@@ -355,7 +355,7 @@ test("the example league validates and uses a makeup round for the blackout", ()
 });
 
 test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
-  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", timeLimits: "A: 18:00", officials: "Pat (A): Tue max 4" };
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", officials: "Pat (A): Tue max 4" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
   assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60 });
@@ -810,6 +810,40 @@ test("double elimination: byes, text and refusals", () => {
   assert.match(txt, /Grand final/);
   assert.doesNotMatch(txt, /NaN|undefined/);
   assert.throws(() => doubleEliminationBracket(["A", "B"]), /at least three/);
+});
+
+test("a withdrawal removes the team's remaining matches, names who is short, and stays valid", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00" });
+  const s = buildSchedule(spec);
+  const total = s.rounds.reduce((a, r) => a + r.matches.length, 0);
+  const r = applyWithdrawals(s, "D");
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.withdrawals[0].removed.length, 3);
+  assert.deepEqual(r.withdrawals[0].opponentsShort.map((o) => o.fixtures), [1, 1, 1]);
+  assert.equal(r.schedule.rounds.reduce((a, x) => a + x.matches.length, 0), total - 3);
+  assert.ok(r.schedule.rounds.every((x) => x.matches.every((m) => m.home !== 3 && m.away !== 3)));
+  assert.equal(validateSchedule(r.schedule).ok, true, validateSchedule(r.schedule).errors.join(" "));
+  assert.equal(s.rounds.reduce((a, x) => a + x.matches.length, 0), total, "input is not mutated");
+});
+
+test("a dated withdrawal keeps matches already played and rejects bad lines", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-10-06", weekdays: "Tue", courts: "Court 1, Court 2", times: "18:00" });
+  const s = buildSchedule(spec);
+  const second = s.rounds[1].day;
+  const r = applyWithdrawals(s, `${dayIso(second)} D\nNobody\n2026-13-45 C\nD`);
+  assert.equal(r.withdrawals.length, 1);
+  assert.equal(r.withdrawals[0].removed.length, 2);
+  assert.ok(r.schedule.rounds[0].matches.some((m) => m.home === 3 || m.away === 3), "the first night's match with D stays");
+  assert.equal(r.errors.length, 3);
+  assert.equal(validateSchedule(r.schedule).ok, true, validateSchedule(r.schedule).errors.join(" "));
+});
+
+test("withdrawals leave a double round robin valid for the teams still playing", () => {
+  const { spec } = readSpec({ teams: "A\nB\nC\nD\nE", start: "2026-10-06", weekdays: "Tue", double: true, courts: "Court 1, Court 2", times: "18:00" });
+  const s = buildSchedule(spec);
+  const r = applyWithdrawals(s, "C");
+  const v = validateSchedule(r.schedule);
+  assert.equal(v.ok, true, v.errors.join(" "));
 });
 
 test("restReport: weekly league has 7-day gaps; adjacent weekdays show back-to-back games", () => {
