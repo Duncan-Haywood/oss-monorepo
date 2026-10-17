@@ -303,6 +303,8 @@ test("Idaho: more than 270 days with a year-round abode", () => {
   assert.equal(RULES.ID.limit, 270);
   assert.equal(RULES.ID.requiresAbode, true);
   assert.equal(RULES.ID.kind, "statutory");
+});
+
 test("tripImpact adds the trip's days, flags a newly crossed limit and finds the longest safe trip", () => {
   const sp = spec(["NY 2025-01-01 to 2025-06-30"], { abode: { NY: true }, homeState: "FL" });
   const base = by(analyze(sp), "NY").days; // 181
