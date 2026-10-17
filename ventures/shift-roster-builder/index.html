@@ -131,6 +131,7 @@
     <p class="note">Re-builds the week without each person. If shifts then go uncovered, that person is a single point of failure.</p>
     <div id="critical"></div>
     <div id="daily-box"></div>
+    <div id="cover-box"></div>
     <div id="fair-box"></div>
     <div id="hours-box"></div>
     <div id="tip-box"></div>
@@ -202,7 +203,7 @@
   </footer>
 
   <script type="module">
-    import { scheduleChanges, carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { scheduleChanges, carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -286,6 +287,8 @@
       }
       const dl = dailyLabor(r, st.staff, $("#dailysales").value);
       $("#daily-box").innerHTML = `<h3>Each day against sales</h3><p class="note">Scheduled hours and payroll at base wage (plus extras) per day${dl.hasSales ? ", with each day's labor share of the sales you gave" : "; add sales by day above to see each day's labor share"}. Overtime premiums are priced across the week, so they are not spread over days here.</p><div class="scroll"><table><thead><tr><th>Day</th><th class="n">Hours</th><th class="n">Payroll</th>${dl.hasSales ? '<th class="n">Sales</th><th class="n">Labor share</th>' : ""}</tr></thead><tbody>${dl.days.map((d) => `<tr><td>${d.day}</td><td class="n">${num(d.hours)}</td><td class="n">${money(d.cost)}</td>${dl.hasSales ? `<td class="n">${d.sales ? money(d.sales) : "—"}</td><td class="n">${d.pct === null ? "—" : num(d.pct) + "%" + (d === dl.worst ? " (highest)" : "")}</td>` : ""}</tr>`).join("")}</tbody></table></div>`;
+      const cg = coverageGrid(r);
+      $("#cover-box").innerHTML = cg.rows.length ? `<h3>People on, hour by hour</h3><p class="note">Headcount for each clock hour (an hour counts when any part of it is covered). Darker is busier; a <strong>1</strong> is one person alone, which is where a no-show hurts.</p><div class="scroll"><table><thead><tr><th>Day</th>${cg.rows[0].counts.map((_, i) => `<th class="n">${fmtClock(((cg.from + i) % 24) * 60)}</th>`).join("")}</tr></thead><tbody>${cg.rows.map((row) => `<tr><td>${row.day}</td>${row.counts.map((c) => `<td class="n" style="background:rgba(106,61,181,${(0.5 * c / Math.max(cg.peak, 1)).toFixed(2)})">${c || ""}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : "";
       const fr = fairnessReport(r);
       $("#fair-box").innerHTML = fr.rows.length ? `<h3>Who gets the tough shifts</h3><p class="note">Weekend, closing (10pm or later, or past midnight) and opening (6am or earlier) shifts per person.${fr.flag ? ` <strong>${esc(fr.most.name)} has ${fr.most.tough} and ${esc(fr.least.name)} has ${fr.least.tough}.</strong> Check this is what people agreed to; raise \u201cSpread weekend, closing and opening shifts\u201d to have the search even it out; it cannot know who asked for what.` : " The spread is small."}</p><div class="scroll"><table><thead><tr><th>Person</th><th class="n">Shifts</th><th class="n">Weekend</th><th class="n">Closing</th><th class="n">Opening</th></tr></thead><tbody>${fr.rows.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${x.shifts}</td><td class="n">${x.weekend}</td><td class="n">${x.closing}</td><td class="n">${x.opening}</td></tr>`).join("")}</tbody></table></div>` : "";
       const ht = val("hoursline", 0) > 0 ? hoursThresholds(r, { threshold: val("hoursline", 0) }) : null;
