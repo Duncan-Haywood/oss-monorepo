@@ -228,6 +228,31 @@ test("the Americano guide's worked example matches americano() and is linked and
   assert.match(page("index.html"), /href="\.\/how-to-run-an-americano-tournament\.html"/);
 });
 
+test("the Mexicano guide's worked example matches mexicanoNextRound() and is linked and in the sitemap", async () => {
+  const { mexicanoNextRound, mexicanoStandings, parseMexicanoScores } = await import("./calc.mjs");
+  const html = page("how-to-run-a-mexicano-tournament.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-run-a-mexicano-tournament\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const P = ["Ana", "Ben", "Cy", "Dee", "Eli", "Fay", "Gus", "Hal"];
+  const row = (r, m) => `<tr><td>${r}</td><td>${m.court}</td><td>${m.a.map((x) => P[x]).join(" & ")}</td><td>${m.b.map((x) => P[x]).join(" & ")}</td></tr>`;
+  const r1 = mexicanoNextRound(P, [], { courts: 2, seed: 1 });
+  r1.matches.forEach((m) => assert.ok(html.includes(row(1, m)), row(1, m)));
+  const { games, errors } = parseMexicanoScores("Ben & Gus 21-14 Cy & Fay\nAna & Dee 17-21 Eli & Hal", P);
+  assert.deepEqual(errors, []);
+  for (const r of mexicanoStandings(P, games)) {
+    const cells = `<tr><td>${r.rank}</td><td>${r.name}</td><td>${r.pf}</td><td>${r.diff >= 0 ? "+" : "-"}${Math.abs(r.diff)}</td></tr>`;
+    assert.ok(html.includes(cells), cells);
+  }
+  const r2 = mexicanoNextRound(P, games, { courts: 2, seed: 1 });
+  assert.equal(r2.repeatPartners, 0);
+  r2.matches.forEach((m) => assert.ok(html.includes(row(2, m)), row(2, m)));
+  assert.match(page("sitemap.xml"), /how-to-run-a-mexicano-tournament\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-run-a-mexicano-tournament\.html"/);
+});
+
 test("the double-elimination guide's worked example matches doubleEliminationBracket() and is linked and in the sitemap", async () => {
   const { doubleEliminationBracket } = await import("./calc.mjs");
   const html = page("how-to-run-a-double-elimination-tournament.html");
