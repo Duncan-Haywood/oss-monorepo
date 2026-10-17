@@ -69,15 +69,15 @@
 #   portfolio-front-tools-33: 122 files, 556253 bytes
 #   portfolio-front-tools-34: 137 files, 549625 bytes
 #   portfolio-front-tools-35: 131 files, 550223 bytes
-#   portfolio-front-tools-36: 106 files, 556776 bytes
+#   portfolio-front-tools-36: 106 files, 556972 bytes
 #   portfolio-front-tools-37: 106 files, 553820 bytes
 #   portfolio-front-tools-38: 128 files, 550701 bytes
-#   portfolio-front-tools-39: 119 files, 556496 bytes
-#   portfolio-front-tools-40: 130 files, 555214 bytes
-#   portfolio-front-tools-41: 125 files, 550897 bytes
-#   portfolio-front-tools-42: 136 files, 556675 bytes
-#   portfolio-front-tools-43: 140 files, 555441 bytes
-#   portfolio-front-tools-44: 127 files, 544921 bytes
+#   portfolio-front-tools-39: 119 files, 556548 bytes
+#   portfolio-front-tools-40: 130 files, 551054 bytes
+#   portfolio-front-tools-41: 125 files, 556298 bytes
+#   portfolio-front-tools-42: 137 files, 554503 bytes
+#   portfolio-front-tools-43: 138 files, 551126 bytes
+#   portfolio-front-tools-44: 130 files, 556507 bytes
 #   portfolio-front-tools-45: 124 files, 555757 bytes
 #   portfolio-front-tools-46: 107 files, 551044 bytes
 #
@@ -5385,8 +5385,10 @@ configMapGenerator:
       - str-turnover-scheduler__index.html.gz=str-turnover-scheduler__index.html.gz
       - str-turnover-scheduler__usage.mjs.gz=str-turnover-scheduler__usage.mjs.gz
       - stripe-churn-cohort-analyzer__calc.mjs.gz=stripe-churn-cohort-analyzer__calc.mjs.gz
+      - stripe-churn-cohort-analyzer__cli.mjs.gz=stripe-churn-cohort-analyzer__cli.mjs.gz
       - stripe-churn-cohort-analyzer__index.html.gz=stripe-churn-cohort-analyzer__index.html.gz
       - stripe-churn-cohort-analyzer__usage.mjs.gz=stripe-churn-cohort-analyzer__usage.mjs.gz
+      - stripe-churn-cohort-analyzer__vs-chartmogul-baremetrics.html.gz=stripe-churn-cohort-analyzer__vs-chartmogul-baremetrics.html.gz
       - stripe-failed-payment-recovery-analyzer__calc.mjs.gz=stripe-failed-payment-recovery-analyzer__calc.mjs.gz
       - stripe-failed-payment-recovery-analyzer__index.html.gz=stripe-failed-payment-recovery-analyzer__index.html.gz
       - stripe-failed-payment-recovery-analyzer__usage.mjs.gz=stripe-failed-payment-recovery-analyzer__usage.mjs.gz
@@ -5396,13 +5398,13 @@ configMapGenerator:
       - structured-data-drift-check__cli.mjs.gz=structured-data-drift-check__cli.mjs.gz
       - structured-data-drift-check__engine.mjs.gz=structured-data-drift-check__engine.mjs.gz
       - structured-data-drift-check__index.html.gz=structured-data-drift-check__index.html.gz
-      - structured-data-drift-check__usage.mjs.gz=structured-data-drift-check__usage.mjs.gz
-      - structured-data-drift-check__vs-checking-it-by-eye.html.gz=structured-data-drift-check__vs-checking-it-by-eye.html.gz
   - name: portfolio-front-tools-40
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - structured-data-drift-check__usage.mjs.gz=structured-data-drift-check__usage.mjs.gz
+      - structured-data-drift-check__vs-checking-it-by-eye.html.gz=structured-data-drift-check__vs-checking-it-by-eye.html.gz
       - structured-data-drift-check__vs-google-rich-results-test.html.gz=structured-data-drift-check__vs-google-rich-results-test.html.gz
       - structured-data-drift-check__why-google-requires-structured-data-to-match-visible-text.html.gz=structured-data-drift-check__why-google-requires-structured-data-to-match-visible-text.html.gz
       - structured-settlement-buyout-calculator__calc.mjs.gz=structured-settlement-buyout-calculator__calc.mjs.gz
@@ -5531,13 +5533,13 @@ configMapGenerator:
       - teachable-payout-to-journal__index.html.gz=teachable-payout-to-journal__index.html.gz
       - teachable-payout-to-journal__usage.mjs.gz=teachable-payout-to-journal__usage.mjs.gz
       - teachers-pay-teachers-earnings-analyzer__calc.mjs.gz=teachers-pay-teachers-earnings-analyzer__calc.mjs.gz
-      - teachers-pay-teachers-earnings-analyzer__index.html.gz=teachers-pay-teachers-earnings-analyzer__index.html.gz
-      - teachers-pay-teachers-earnings-analyzer__usage.mjs.gz=teachers-pay-teachers-earnings-analyzer__usage.mjs.gz
   - name: portfolio-front-tools-41
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - teachers-pay-teachers-earnings-analyzer__index.html.gz=teachers-pay-teachers-earnings-analyzer__index.html.gz
+      - teachers-pay-teachers-earnings-analyzer__usage.mjs.gz=teachers-pay-teachers-earnings-analyzer__usage.mjs.gz
       - tenant-security-deposit-deadline-checker__calc.mjs.gz=tenant-security-deposit-deadline-checker__calc.mjs.gz
       - tenant-security-deposit-deadline-checker__index.html.gz=tenant-security-deposit-deadline-checker__index.html.gz
       - tenant-security-deposit-deadline-checker__usage.mjs.gz=tenant-security-deposit-deadline-checker__usage.mjs.gz
@@ -5661,13 +5663,13 @@ configMapGenerator:
       - trade-show-roi-calculator__index.html.gz=trade-show-roi-calculator__index.html.gz
       - trade-show-roi-calculator__is-a-trade-show-booth-worth-it.html.gz=trade-show-roi-calculator__is-a-trade-show-booth-worth-it.html.gz
       - trade-show-roi-calculator__usage.mjs.gz=trade-show-roi-calculator__usage.mjs.gz
-      - training-gpu-pricing-calculator__cli.mjs.gz=training-gpu-pricing-calculator__cli.mjs.gz
-      - training-gpu-pricing-calculator__engine.mjs.gz=training-gpu-pricing-calculator__engine.mjs.gz
   - name: portfolio-front-tools-42
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - training-gpu-pricing-calculator__cli.mjs.gz=training-gpu-pricing-calculator__cli.mjs.gz
+      - training-gpu-pricing-calculator__engine.mjs.gz=training-gpu-pricing-calculator__engine.mjs.gz
       - training-gpu-pricing-calculator__index.html.gz=training-gpu-pricing-calculator__index.html.gz
       - training-gpu-pricing-calculator__should-i-rent-or-buy-a-gpu.html.gz=training-gpu-pricing-calculator__should-i-rent-or-buy-a-gpu.html.gz
       - training-gpu-pricing-calculator__usage.mjs.gz=training-gpu-pricing-calculator__usage.mjs.gz
@@ -5803,12 +5805,12 @@ configMapGenerator:
       - uk-late-payment-interest-calculator__index.html.gz=uk-late-payment-interest-calculator__index.html.gz
       - uk-late-payment-interest-calculator__usage.mjs.gz=uk-late-payment-interest-calculator__usage.mjs.gz
       - uk-lifetime-isa-vs-pension-calculator__calc.mjs.gz=uk-lifetime-isa-vs-pension-calculator__calc.mjs.gz
-      - uk-lifetime-isa-vs-pension-calculator__index.html.gz=uk-lifetime-isa-vs-pension-calculator__index.html.gz
   - name: portfolio-front-tools-43
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - uk-lifetime-isa-vs-pension-calculator__index.html.gz=uk-lifetime-isa-vs-pension-calculator__index.html.gz
       - uk-lifetime-isa-vs-pension-calculator__usage.mjs.gz=uk-lifetime-isa-vs-pension-calculator__usage.mjs.gz
       - uk-marriage-allowance-calculator__calc.mjs.gz=uk-marriage-allowance-calculator__calc.mjs.gz
       - uk-marriage-allowance-calculator__index.html.gz=uk-marriage-allowance-calculator__index.html.gz
@@ -5946,14 +5948,14 @@ configMapGenerator:
       - usage-based-pricing-simulator__usage.mjs.gz=usage-based-pricing-simulator__usage.mjs.gz
       - used-car-lot-aging-planner__cli.mjs.gz=used-car-lot-aging-planner__cli.mjs.gz
       - used-car-lot-aging-planner__engine.mjs.gz=used-car-lot-aging-planner__engine.mjs.gz
-      - used-car-lot-aging-planner__index.html.gz=used-car-lot-aging-planner__index.html.gz
-      - used-car-lot-aging-planner__usage.mjs.gz=used-car-lot-aging-planner__usage.mjs.gz
-      - used-car-lot-aging-planner__when-should-a-used-car-dealer-wholesale-an-aged-unit.html.gz=used-car-lot-aging-planner__when-should-a-used-car-dealer-wholesale-an-aged-unit.html.gz
   - name: portfolio-front-tools-44
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - used-car-lot-aging-planner__index.html.gz=used-car-lot-aging-planner__index.html.gz
+      - used-car-lot-aging-planner__usage.mjs.gz=used-car-lot-aging-planner__usage.mjs.gz
+      - used-car-lot-aging-planner__when-should-a-used-car-dealer-wholesale-an-aged-unit.html.gz=used-car-lot-aging-planner__when-should-a-used-car-dealer-wholesale-an-aged-unit.html.gz
       - van-westendorp-pricing-analyzer__calc.mjs.gz=van-westendorp-pricing-analyzer__calc.mjs.gz
       - van-westendorp-pricing-analyzer__index.html.gz=van-westendorp-pricing-analyzer__index.html.gz
       - van-westendorp-pricing-analyzer__usage.mjs.gz=van-westendorp-pricing-analyzer__usage.mjs.gz
