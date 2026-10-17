@@ -74,3 +74,14 @@ test("summary names the source and carries the disclaimer", () => {
   assert.ok(t.includes("Not tax advice"));
   assert.ok(t.includes("Total across years: GBP 1,260"));
 });
+
+test("Scottish higher-rate threshold is inclusive at 43,662 and exclusive above", () => {
+  assert.equal(run({ b: 43662, region: "scot" }).eligible, true);
+  assert.equal(run({ b: 43663, region: "scot" }).eligible, false);
+});
+
+test("a missing income is reported and parsed as zero, never a made-up amount", () => {
+  const p = parse({ ...SAMPLE, a: "" });
+  assert.equal(p.errors.length, 1);
+  assert.equal(p.a, 0);
+});
