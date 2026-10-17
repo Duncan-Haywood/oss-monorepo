@@ -410,6 +410,12 @@ if __name__ == "__main__":
 
 
 class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
+    def test_flag_stale_marks_reports_older_than_the_file_change(self):
+        self.assertEqual(promptctl._flag_stale("2026-10-15: x", "2026-10-16"), "[file changed since] 2026-10-15: x")
+        self.assertEqual(promptctl._flag_stale("2026-10-16: x", "2026-10-16"), "2026-10-16: x")
+        self.assertEqual(promptctl._flag_stale("no date: x", "2026-10-16"), "no date: x")
+        self.assertEqual(promptctl._flag_stale("2026-10-15: x", ""), "2026-10-15: x")
+
     def test_string_friction_and_deviation_entries_do_not_crash(self):
         import tempfile, json
         from pathlib import Path

@@ -36,3 +36,14 @@ test("price-rise simulator is labelled and documented as assumptions", () => {
   for (const id of ["sim-plan", "sim-pct", "sim-loss", "sim-lift"]) assert.match(html, new RegExp(`<label for="${id}">`));
   assert.match(html, /not a forecast/);
 });
+
+test("comparison page is indexable, disclaims affiliation, and is linked from the index and sitemap", () => {
+  const html = page("vs-chartmogul-baremetrics.html");
+  assert.match(html, /<link rel="canonical" href="\.\/vs-chartmogul-baremetrics\.html">/);
+  assert.match(html, /FAQPage/);
+  assert.match(html, /Not affiliated with|not affiliated with/);
+  assert.match(html, /not legal, tax, or financial advice/);
+  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
+  assert.match(page("index.html"), /vs-chartmogul-baremetrics\.html/);
+  assert.match(page("sitemap.xml"), /vs-chartmogul-baremetrics\.html/);
+});

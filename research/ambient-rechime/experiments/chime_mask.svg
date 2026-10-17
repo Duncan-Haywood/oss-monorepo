@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of mean utility for high-urgency messages against the chance a tone is missed in noise; the line allowing up to four tones matches the one-tone line at no masking and sits above it otherwise, widest at moderate masking">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Repeated tones: high-urgency utility vs tone masking (stylised)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.6" y2="273.6" stroke="#ddd"/><text x="58" y="277.6" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="223.3" y2="223.3" stroke="#ddd"/><text x="58" y="227.3" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="172.9" y2="172.9" stroke="#ddd"/><text x="58" y="176.9" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="122.6" y2="122.6" stroke="#ddd"/><text x="58" y="126.6" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="72.2" y2="72.2" stroke="#ddd"/><text x="58" y="76.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.75</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">chime_mask (P tone missed = chime_mask x noise)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean utility per message</text>
+<polyline points="64.0,71.2 204.0,96.7 344.0,122.2 484.0,147.7 624.0,168.1" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="96.7" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="122.2" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="147.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="168.1" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">one tone or plain glance</text>
+<polyline points="64.0,71.2 204.0,86.9 344.0,106.6 484.0,133.7 624.0,159.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="86.9" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="106.6" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="133.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="159.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">best of 0 to 4 tones</text>
+</svg>

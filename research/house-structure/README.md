@@ -18,7 +18,7 @@ Eighth project of track 12, open-source residential construction (`PROJECTS.md`,
 ```bash
 pip install pytest
 cd research/house-structure
-python -m pytest -q tests                                             # 12 tests
+python -m pytest -q tests                                             # 14 tests
 PYTHONPATH=src:../house-framing/src python experiments/run.py         # under a second; writes experiments/results.txt
 python experiments/figure.py                                          # experiments/wind.svg from results.txt
 ```
@@ -30,17 +30,18 @@ python experiments/figure.py                                          # experime
 - **D. Limits.** 6 in: wind to 264 / 223 mph (B / C-like), SDS 7.3; 2 in: 408 / 345 mph, SDS 17.5.
 - **E. Scheme.** Conventional 2x4, conventional 2x6 and advanced 2x6 differ by under 2% in capacity (wall length only).
 - **F. Glazing.** 1 to 6 windows per gable wall: solid 24.1, 21.1, 18.1, 11.3, 9.7, 0 ft.
+- **G. Garage-door front.** A door in the gable wall (27.1 ft): 9 ft leaves 18.1 ft solid and a D/C of 0.25 at 6 in nailing at 115 mph; 16 ft leaves 11.1 ft (0.41); 20 ft leaves 7.1 ft (0.64 at a corner, 0.67 centred); 22 ft leaves 5.1 ft and a centred door fails at 6 in (1.05) but passes at 2 in (0.44, to about 174 mph). Seismic D/C stays under 0.16 at 2 in. Even a 22 ft opening only needs tighter nailing in this model; the half-and-half split between the two gable lines probably flatters it (a stiff partner wall would attract more load).
 
 ![Wind load share of capacity by speed](experiments/wind.svg)
 
 ## Limitations
 - **Unverified numbers.** The nailing table, the Kz, Cp and gust factors, the R factor and the aspect-ratio rule are from memory of SDPWS and ASCE 7 and were not checked in this run. They are inputs; the conclusion that lateral load does not govern is robust to errors of a factor of two, but not to a factor of five.
 - **What is missing.** No diaphragm check, no roof or sheathing uplift, no overturning with dead load, no collector or drag design (a single top plate in advanced framing needs a splice there), no hold-down product capacities, no torsion, no anchor bolts or sill plate, no wind-borne debris, no high-wind or seismic-category prescriptive limits, and no perforated-wall method. Interior walls and gypsum add capacity and are ignored. Real codes limit nailing, wall bracing percentage and building configuration in ways not modelled here.
-- **The result is for this plan.** A small one-storey box with a mostly solid gable wall. A two-storey house, a garage front or a large glazed wall changes the answer, as experiment F starts to show.
+- **The result is for this plan.** A small one-storey box with a mostly solid gable wall. A two-storey house, a garage front or a large glazed wall changes the answer, as experiments F and G show for openings: a garage door takes the wall from 19% to 41% of capacity at 6 in (16 ft door) before any stiffness-based load redistribution, which is not modelled.
 - **Not a design and not a code check.** A licensed engineer, or the local code's prescriptive path, and a permit, are needed first.
 
 ## Next steps
-Check the nailing table and coefficients against SDPWS and ASCE 7 and replace this sourcing. Add a second storey and a garage-front wall (the case where lateral does govern). Add the perforated-wall method and dead-load overturning. Then the alternatives in `PROJECTS.md` milestone 6: steel stud, ICF, SIPs, CLT and printed concrete on cost, carbon, speed and strength.
+Check the nailing table and coefficients against SDPWS and ASCE 7 and replace this sourcing. Add a second storey, and a rigid-diaphragm load split so the garage-front line (experiment G) carries its stiffness-based share. Add the perforated-wall method and dead-load overturning. Then the alternatives in `PROJECTS.md` milestone 6: steel stud, ICF, SIPs, CLT and printed concrete on cost, carbon, speed and strength.
 
 ## Owner steps
 None required.

@@ -50,3 +50,20 @@ F. Glazing: more windows in each gable wall (all 36 x 48 in), 115 mph
 4 windows: solid  11.3 ft of 27.1, capacity at 6 in   5,682 lb for need 2,328, loosest ok 6
 5 windows: solid   9.7 ft of 27.1, capacity at 6 in   4,122 lb for need 2,328, loosest ok 6
 6 windows: solid   0.0 ft of 27.1, capacity at 6 in       0 lb for need 2,328, loosest ok None
+
+G. Garage-door front: the gable wall with a garage door in it, 115 mph / SDS 0.50 (demand per line as in A: 2,328 lb wind, 600 lb seismic)
+wall 27.1 ft long; a door at one corner leaves one pier, a centred door leaves two; capacities at 6 in and 2 in nailing
+  door placement solid ft wind cap@6 lb  D/C@6 wind cap@2 lb  D/C@2 max mph @2 in seismic D/C@2
+   9ft    corner     18.1         9,222   0.25        22,016   0.11           354          0.04
+   9ft   centred     18.1         9,222   0.25        22,016   0.11           354          0.04
+  12ft    corner     15.1         7,692   0.30        18,364   0.13           323          0.05
+  12ft   centred     15.1         7,692   0.30        18,364   0.13           323          0.05
+  16ft    corner     11.1         5,652   0.41        13,494   0.17           277          0.06
+  16ft   centred     11.1         5,652   0.41        13,494   0.17           277          0.06
+  18ft    corner      9.1         4,632   0.50        11,059   0.21           251          0.08
+  18ft   centred      9.1         4,632   0.50        11,059   0.21           251          0.08
+  20ft    corner      7.1         3,612   0.64         8,624   0.27           221          0.10
+  20ft   centred      7.1         3,496   0.67         8,345   0.28           218          0.10
+  22ft    corner      5.1         2,592   0.90         6,189   0.38           188          0.14
+  22ft   centred      5.1         2,221   1.05         5,301   0.44           174          0.16
+(max mph scales the line demand with V squared at fixed exposure; the two gable lines share the load half and half as in A, so a weak garage line is not relieved by its stiff partner, and a rigid-diaphragm split would load the stiffer line more)

@@ -501,6 +501,14 @@ test("scheduleFlags: daily hours, split shifts, notice", () => {
   assert.equal(scheduleFlags({}).overDaily.length, 0);
 });
 
+test("scheduleFlags: flags a person scheduled on all seven days", () => {
+  const week = [0, 1, 2, 3, 4, 5, 6].map((day) => ({ slot: { day, startMin: 540, endMin: 780 }, person: "Sam" }));
+  const other = [0, 1, 2, 3, 4, 5].map((day) => ({ slot: { day, startMin: 840, endMin: 1020 }, person: "Ana" }));
+  assert.deepEqual(scheduleFlags({ assignments: week.concat(other) }).sevenDays, [{ person: "Sam" }]);
+  assert.equal(scheduleFlags({ assignments: other }).sevenDays.length, 0);
+  assert.equal(scheduleFlags({}).sevenDays.length, 0);
+});
+
 test("fixed: pins a shift to one person and the rest is planned around it", async () => {
   const { parseStaff, parseShifts, buildRoster } = await import("./calc.mjs");
   const staff = parseStaff("Ana, 10, 40, 0, any\nBen, 30, 40, 0, any").staff;
