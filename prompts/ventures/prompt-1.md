@@ -12,7 +12,8 @@ pushed branch is not done. Steps:
 [`.github/prompts/land-your-work.md`](../../.github/prompts/land-your-work.md).
 
 A new or changed venture also runs `node platform/pages/venture-preflight.mjs <slug>`
-before the merge (about 5 min): the site-wide checks its own tests cannot see.
+before the merge: the site-wide checks its own tests cannot see. It takes over 5 min,
+longer than the 120s foreground timeout, so start it with `run_in_background`.
 
 ---
 
