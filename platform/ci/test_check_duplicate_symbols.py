@@ -173,6 +173,37 @@ class Reporting(unittest.TestCase):
             broken.unlink()
 
 
+class MainExitCode(unittest.TestCase):
+    """CI reads the exit code, so a wrong one silently disarms the check."""
+
+    def run_main(self, source):
+        import contextlib
+        import io
+        import tempfile
+        from unittest import mock
+
+        out, err = io.StringIO(), io.StringIO()
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "sample.py"
+            path.write_text(source)
+            with mock.patch.object(cds, "tracked_python_files", return_value=[path]), \
+                    contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                code = cds.main()
+        return code, out.getvalue(), err.getvalue()
+
+    def test_clean_files_exit_zero(self):
+        code, out, err = self.run_main("def f():\n    pass\n")
+        self.assertEqual(code, 0)
+        self.assertIn("No duplicate", out)
+        self.assertEqual(err, "")
+
+    def test_a_duplicate_exits_one_and_names_it(self):
+        code, out, err = self.run_main("def f():\n    pass\n\ndef f():\n    pass\n")
+        self.assertEqual(code, 1)
+        self.assertIn("`f`", err)
+        self.assertEqual(out, "")
+
+
 class LiveRepository(unittest.TestCase):
     def test_no_tracked_python_file_defines_a_name_twice(self):
         # The cases above prove the logic; this proves the repository. If it
