@@ -22,7 +22,7 @@ visitors you need before launching a test**.
   control rate); valid at every look.
 - Peeking: false-positive rate of "stop at the first significant look" over evenly spaced looks, by seeded
   simulation (matches Armitage: about 14% at 5 looks, 19% at 10).
-- Sample size: standard two-proportion formula, per group, with days to run from daily traffic.
+- Sample size: standard two-proportion formula, per group, with days to run from daily traffic. A reverse mode gives the smallest lift your available traffic can detect.
 - Price test: compares revenue per visitor (conversion times price) for two price points with a delta-method z-test and a Bayesian chance that the new price earns more, and states the break-even conversion drop. Fixed prices only; first-purchase revenue, not retention.
 
 - A/B/n: up to nine variants against one control, each with a pooled z-test and Holm step-down adjusted p-values, plus the Bayesian chance each arm is best (20,000 seeded draws). Variant-versus-variant differences are not tested.
@@ -43,7 +43,7 @@ liability for any loss or damage arising from its use.
 
 Independent of experimentation platforms and analytics vendors; none is named or ranked.
 
-**Privacy.** Nothing is uploaded. Anonymous feature counts (`analysis_run`, `example_loaded`, `plan_run`, `multi_test_run`,
+**Privacy.** Nothing is uploaded. Anonymous feature counts (`analysis_run`, `example_loaded`, `plan_run`, `detect_run`, `multi_test_run`,
 `report_downloaded`) are kept only in local storage, can be switched off on the page, and honour Do Not
 Track.
 
