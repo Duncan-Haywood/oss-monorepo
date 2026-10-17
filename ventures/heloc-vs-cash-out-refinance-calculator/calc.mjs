@@ -127,9 +127,11 @@ export function analyze(raw) {
   if (!(o.balance >= 0)) warnings.push("The mortgage balance cannot be negative. Use 0 if the home is paid off.");
   if (!(o.oldYears > 0) && o.balance > 0) warnings.push("Enter the years left on your current mortgage.");
   if (!(o.helocYears > 0) || !(o.refiYears > 0)) warnings.push("Enter a term for the HELOC and for the new mortgage.");
+  const tooLong = o.oldYears > 100 || o.helocYears > 100 || o.refiYears > 100;
+  if (tooLong) warnings.push("Enter terms of 100 years or less.");
   if (!(o.oldRate >= 0) || !(o.helocRate >= 0) || !(o.refiRate >= 0)) warnings.push("Rates cannot be negative.");
   if (o.interestOnlyYears >= o.helocYears) warnings.push("The interest-only period must be shorter than the HELOC term; it was shortened.");
-  if (warnings.length && (!(o.cash > 0) || !(o.helocYears > 0) || !(o.refiYears > 0) || !(o.balance >= 0) || (o.balance > 0 && !(o.oldYears > 0)))) return { warnings, rows: [] };
+  if (warnings.length && (tooLong || !(o.cash > 0) || !(o.helocYears > 0) || !(o.refiYears > 0) || !(o.balance >= 0) || (o.balance > 0 && !(o.oldYears > 0)))) return { warnings, rows: [] };
 
   const { rows, L, maxM } = costByMonth(o);
   const horizon = Math.min(nz(o.horizon) || 7, maxM / 12);

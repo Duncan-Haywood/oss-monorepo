@@ -101,3 +101,9 @@ test("csv has a header, one row per year, and numeric cells", () => {
   assert.match(lines[1], /^0,/);
   for (const c of lines[5].split(",")) assert.ok(Number.isFinite(Number(c)));
 });
+
+test("an absurd years-left figure is refused instead of exhausting memory", () => {
+  const r = analyze({ ...DEFAULTS, yearsLeft: 1e12 });
+  assert.equal(r.rows.length, 0);
+  assert.ok(r.warnings.some((w) => /100 years or less/.test(w)));
+});

@@ -117,11 +117,12 @@ export function analyze(raw) {
   const warnings = [];
   if (!(o.loan > 0)) warnings.push("Enter the loan amount.");
   if (!(o.term > 0)) warnings.push("Enter the loan term in years.");
+  if (o.term > 100) warnings.push("Enter a loan term of 100 years or less.");
   if (!(o.baseRate >= 0) || !(o.pointsRate >= 0)) warnings.push("Rates cannot be negative.");
   if (!(o.pointsPct >= 0)) warnings.push("Points cost cannot be negative. For a lender credit, see the FAQ.");
   if (o.pointsRate >= o.baseRate) warnings.push("The rate with points should be lower than the rate without. Otherwise the points buy nothing.");
   if (o.horizon > o.term) warnings.push("You plan to keep the loan longer than its term; the horizon was capped at the term.");
-  if (warnings.length && (!(o.loan > 0) || !(o.term > 0) || o.pointsRate >= o.baseRate)) return { warnings, rows: [] };
+  if (warnings.length && (!(o.loan > 0) || !(o.term > 0) || o.term > 100 || o.pointsRate >= o.baseRate)) return { warnings, rows: [] };
 
   const horizon = Math.min(nz(o.horizon) || o.term, o.term);
   const hm = Math.round(horizon * 12);
