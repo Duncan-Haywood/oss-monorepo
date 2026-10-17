@@ -26,3 +26,10 @@ household, MAGI computation, state subsidies, Form 8962 mechanics.
 
 ## Run
 Static ES modules, no build. `node --test` here; open `index.html` in a browser.
+
+## What you use today, and what this does differently
+
+- **HealthCare.gov and your state exchange's estimator:** the way to get a real quote for your county, but you must go through the application flow, and it does not show how one extra dollar of income or a deduction moves you across the 400% line.
+- **IRS Form 8962 and its instructions:** authoritative, and hard to turn into a what-if by hand.
+- **A spreadsheet:** you must keep the applicable-percentage table and poverty guideline current yourself.
+- **What this adds:** the cliff in dollars, the credit lost per dollar over it, and how much deduction (HSA, solo 401(k), SEP) would bring you back under. No account, no upload. It cannot look up your county's benchmark premium, so you enter it.
