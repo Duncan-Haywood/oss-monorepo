@@ -43,6 +43,7 @@ on:
     branches: [main]
     paths:
       - "CLAUDE.md"
+      - ".github/prompts/verify-and-merge.md"
       - "**/*.test.mjs"
       - "**/test_*.py"
       - "**/*_test.py"
@@ -52,6 +53,7 @@ on:
   pull_request:
     paths:
       - "CLAUDE.md"
+      - ".github/prompts/verify-and-merge.md"
       - "**/*.test.mjs"
       - "**/test_*.py"
       - "**/*_test.py"
@@ -81,5 +83,5 @@ jobs:
 
       # No dependencies: the script is stdlib only, deliberately, so that this
       # check cannot be the thing that breaks when an install step does.
-      - name: Check CLAUDE.md's merge checklist names every test directory
+      - name: Check the merge checklist (verify-and-merge.md) names every test directory
         run: python3 platform/ci/checklist_coverage.py
