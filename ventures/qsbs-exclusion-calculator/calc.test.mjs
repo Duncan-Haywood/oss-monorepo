@@ -96,3 +96,28 @@ test("money() formats negative values with a leading minus and no double sign", 
   assert.equal(money(-1234), "-$1,234");
   assert.equal(money(0), "$0");
 });
+
+test("next tier advances exactly at the 3 and 4 year milestones", () => {
+  const tier = (yearsHeld) => qsbsExclusionOutcome({ era: "new", yearsHeld, gain: 100000, basis: 1000 }).nextTier;
+  assert.deepEqual(tier(2.9), { years: 3, percent: 0.5 });
+  assert.deepEqual(tier(3), { years: 4, percent: 0.75 });
+  assert.deepEqual(tier(4), { years: 5, percent: 1 });
+  assert.equal(tier(5), null);
+});
+
+test("no per-issuer cap finding when the gain is exactly within the cap", () => {
+  const r = qsbsExclusionOutcome({ era: "new", yearsHeld: 5, gain: 100000, basis: 1000 });
+  assert.equal(r.disallowedByCap, 0);
+  assert.ok(!r.findings.some((f) => /per-issuer cap/.test(f.title)));
+});
+
+test("non-numeric gain counts as zero, not one dollar", () => {
+  const r = qsbsExclusionOutcome({ era: "new", yearsHeld: 5, gain: "abc", basis: 0 });
+  assert.equal(r.taxableGain, 0);
+  assert.equal(r.excludedGain, 0);
+});
+
+test("money keeps the minus sign on small negatives and drops it on rounded-to-zero", () => {
+  assert.equal(money(-1), "-$1");
+  assert.equal(money(-0.2), "$0");
+});
