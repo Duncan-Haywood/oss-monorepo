@@ -88,3 +88,15 @@ test("parity: findings equal `python3 check.py --format json` on the same input"
   const js = scanText(SAMPLE, "x");
   assert.deepEqual(js, py);
 });
+
+test("a job that runs git push is noted, not dropped", () => {
+  const t = "jobs:\n  a:\n    runs-on: x\n    steps:\n      - uses: actions/checkout@v4\n      - run: |\n          git commit -m x\n          git push origin HEAD\n";
+  const f = scanText(t);
+  assert.deepEqual(f.map((x) => x.type), [PERSISTS]);
+  assert.match(f[0].detail, /runs `git push`/);
+});
+
+test("a job without git push has no push note", () => {
+  const t = "jobs:\n  a:\n    runs-on: x\n    steps:\n      - uses: actions/checkout@v4\n      - run: echo pushing the button\n";
+  assert.doesNotMatch(scanText(t)[0].detail, /git push/);
+});
