@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01XqhwqCGDXbuqFvcw7LNBgv",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T00:39:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Every run ships something useful' excludes ledger-only edits, but the process track's Verify mode is exactly that; a verify-only run has no way to meet both."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Verify mode: P020 interim (1,000 heads vs 1,465), P021 no change (15/56 partial vs 9/41), P014 parent closed (done via P022/P024). No product code shipped.",
+  "corrections": [],
+  "redteam": null
+}

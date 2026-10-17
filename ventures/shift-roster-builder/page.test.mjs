@@ -143,3 +143,30 @@ test("hire-test guide: every figure in the worked example is what the engine ret
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("wall-copy print view exists, prints the grid only, and never carries pay", () => {
+  const html = page("index.html");
+  assert.match(html, /id="print-wall"/);
+  assert.match(html, /body\.print-wall > :not\(#wall\)/);
+  const handler = html.slice(html.indexOf('$("#print-wall")'), html.indexOf('$("#download")'));
+  assert.match(handler, /#grid thead/);
+  assert.doesNotMatch(handler, /payroll|wage|money/i);
+});
+
+test("clopening page's rest-gap table is what the engine returns for the sample cafe", async () => {
+  const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts } = await import("./calc.mjs");
+  const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
+  const html = page("how-to-avoid-clopening.html");
+  for (const [h, open, covered, pay] of [[0, 3, 211, 3525], [8, 3, 216, 3620], [10, 3, 216, 3622], [12, 3, 216, 3630], [14, 6, 212, 3578]]) {
+    const r = buildRoster(staff, slots, { minRestHours: h });
+    assert.equal(r.unfilled.length, open, `${h}h open`);
+    assert.equal(r.hours, covered, `${h}h covered`);
+    assert.equal(r.cost, pay, `${h}h payroll`);
+    assert.ok(html.includes("$" + pay.toLocaleString("en-US")), `${h}h row on page`);
+  }
+  assert.match(page("sitemap.xml"), /how-to-avoid-clopening\.html/);
+  assert.match(page("index.html"), /how-to-avoid-clopening\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});

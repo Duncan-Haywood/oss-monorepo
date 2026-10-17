@@ -1,0 +1,13 @@
+[project]
+name = "house-cost"
+version = "0.1.0"
+description = "Where a new home's price goes: a driver-based cost model anchored on NAHB's 2024 cost shares, and a sensitivity sweep of the levers"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

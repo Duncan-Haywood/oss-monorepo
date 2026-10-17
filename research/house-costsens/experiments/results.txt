@@ -1,0 +1,56 @@
+A. Baseline (house-cost's assumed splits): swing in price-index points, ranked
+   1 size 1,600 to 2,400 sq ft                     24.1
+   2 storeys 1 to 3 (same area)                    14.0
+   3 finish level x0.8 to x1.3                     10.1
+   4 lot price x0.7 to x1.3                         9.9
+   5 foundation x0.7 (slab) to x1.6 (basement)      7.9
+   6 shape: aspect 1.0 to 3.0                       2.7
+   7 overhead and fees x0.8 to x1.2                 2.7
+   8 framing labour x0.9 to x1.2                    2.3
+   9 framing materials x0.85 to x1.15               1.9
+  10 build time x0.7 to x1.3 (financing)            1.1
+
+B. Splits redrawn from a Dirichlet, concentration k=5, 2000 draws: swing median (5th to 95th pct)
+  size 1,600 to 2,400 sq ft                     24.3 ( 20.6 to  26.9)  rank median  1.0, top-3 in 100%
+  storeys 1 to 3 (same area)                    13.5 (  5.1 to  24.1)  rank median  2.0, top-3 in  74%
+  finish level x0.8 to x1.3                     10.1 ( 10.1 to  10.1)  rank median  3.0, top-3 in 100%
+  lot price x0.7 to x1.3                         9.9 (  9.9 to   9.9)  rank median  4.0, top-3 in  26%
+  foundation x0.7 (slab) to x1.6 (basement)      7.9 (  7.9 to   7.9)  rank median  5.0, top-3 in   0%
+  shape: aspect 1.0 to 3.0                       2.7 (  1.8 to   3.6)  rank median  6.0, top-3 in   0%
+  overhead and fees x0.8 to x1.2                 2.7 (  2.7 to   2.7)  rank median  7.0, top-3 in   0%
+  framing labour x0.9 to x1.2                    2.3 (  2.3 to   2.3)  rank median  8.0, top-3 in   0%
+  framing materials x0.85 to x1.15               1.9 (  1.9 to   1.9)  rank median  9.0, top-3 in   0%
+  build time x0.7 to x1.3 (financing)            1.1 (  1.1 to   1.1)  rank median 10.0, top-3 in   0%
+  'size 1,600 to 2,400 sq ft' is the largest swing in 96% of draws
+  14% framing-lumber cut, % of price: median -0.85 (-0.85 to -0.85)
+  ... plus 20% less framing labour:   median -2.37 (-2.37 to -2.37)
+
+B. Splits redrawn from a Dirichlet, concentration k=20, 2000 draws: swing median (5th to 95th pct)
+  size 1,600 to 2,400 sq ft                     24.2 ( 22.3 to  25.7)  rank median  1.0, top-3 in 100%
+  storeys 1 to 3 (same area)                    13.9 (  9.0 to  19.9)  rank median  2.0, top-3 in  91%
+  finish level x0.8 to x1.3                     10.1 ( 10.1 to  10.1)  rank median  3.0, top-3 in 100%
+  lot price x0.7 to x1.3                         9.9 (  9.9 to   9.9)  rank median  4.0, top-3 in   9%
+  foundation x0.7 (slab) to x1.6 (basement)      7.9 (  7.9 to   7.9)  rank median  5.0, top-3 in   0%
+  shape: aspect 1.0 to 3.0                       2.7 (  2.2 to   3.2)  rank median  6.0, top-3 in   0%
+  overhead and fees x0.8 to x1.2                 2.7 (  2.7 to   2.7)  rank median  7.0, top-3 in   0%
+  framing labour x0.9 to x1.2                    2.3 (  2.3 to   2.3)  rank median  8.0, top-3 in   0%
+  framing materials x0.85 to x1.15               1.9 (  1.9 to   1.9)  rank median  9.0, top-3 in   0%
+  build time x0.7 to x1.3 (financing)            1.1 (  1.1 to   1.1)  rank median 10.0, top-3 in   0%
+  'size 1,600 to 2,400 sq ft' is the largest swing in 100% of draws
+  14% framing-lumber cut, % of price: median -0.85 (-0.85 to -0.85)
+  ... plus 20% less framing labour:   median -2.37 (-2.37 to -2.37)
+
+B. Splits redrawn from a Dirichlet, concentration k=80, 2000 draws: swing median (5th to 95th pct)
+  size 1,600 to 2,400 sq ft                     24.1 ( 23.3 to  25.0)  rank median  1.0, top-3 in 100%
+  storeys 1 to 3 (same area)                    14.0 ( 11.4 to  16.6)  rank median  2.0, top-3 in 100%
+  finish level x0.8 to x1.3                     10.1 ( 10.1 to  10.1)  rank median  3.0, top-3 in 100%
+  lot price x0.7 to x1.3                         9.9 (  9.9 to   9.9)  rank median  4.0, top-3 in   0%
+  foundation x0.7 (slab) to x1.6 (basement)      7.9 (  7.9 to   7.9)  rank median  5.0, top-3 in   0%
+  shape: aspect 1.0 to 3.0                       2.7 (  2.4 to   3.0)  rank median  6.0, top-3 in   0%
+  overhead and fees x0.8 to x1.2                 2.7 (  2.7 to   2.7)  rank median  7.0, top-3 in   0%
+  framing labour x0.9 to x1.2                    2.3 (  2.3 to   2.3)  rank median  8.0, top-3 in   0%
+  framing materials x0.85 to x1.15               1.9 (  1.9 to   1.9)  rank median  9.0, top-3 in   0%
+  build time x0.7 to x1.3 (financing)            1.1 (  1.1 to   1.1)  rank median 10.0, top-3 in   0%
+  'size 1,600 to 2,400 sq ft' is the largest swing in 100% of draws
+  14% framing-lumber cut, % of price: median -0.85 (-0.85 to -0.85)
+  ... plus 20% less framing labour:   median -2.37 (-2.37 to -2.37)

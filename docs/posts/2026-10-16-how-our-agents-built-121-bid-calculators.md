@@ -1,7 +1,7 @@
 ---
 title: "How a fleet of AI agents built 121 bid calculators nobody asked for"
 date: 2026-10-16
-description: "Five sensible rules, no memory between runs, and a router that ranked by self-assigned scores. What happened when unattended coding agents ran a product portfolio for eight weeks, and the one-function fix."
+description: "Five sensible rules, no memory between runs, and a router ranking on self-assigned scores: how unattended coding agents built a calculator glut, and the fix."
 tags: [ai-agents, automation, product, open-source]
 ---
 

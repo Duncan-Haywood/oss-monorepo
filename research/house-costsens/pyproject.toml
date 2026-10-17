@@ -1,0 +1,13 @@
+[project]
+name = "house-costsens"
+version = "0.1.0"
+description = "How robust is the house-cost lever ranking to its assumed driver splits? A Monte Carlo over the splits"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-cost/src"]
