@@ -4,9 +4,10 @@
 """
 from pathlib import Path
 
-from house_framing.model import ADVANCED_2X6, CONVENTIONAL_2X4, CONVENTIONAL_2X6, House
+from house_framing.model import ADVANCED_2X6, CONVENTIONAL_2X4, CONVENTIONAL_2X6, House, Opening, Wall, walls_of
 from house_structure import Site, demands, design, max_sds, max_wind_speed, required_solid_ft, wind_pressure
 from house_structure.model import NAILING
+from house_structure import line_capacity, segments
 
 out = []
 P = out.append
@@ -52,6 +53,24 @@ for n in (1, 2, 3, 4, 5, 6):
     hh = House(windows_gable=n)
     r = design(hh, CONVENTIONAL_2X6, 115, 0.5)[("across ridge", "wind")]
     P(f"{n} windows: solid {r['solid_ft']:5.1f} ft of {r['wall_ft']:.1f}, capacity at 6 in {r['cap6_lb']:7,.0f} lb for need {r['need_lb']:,.0f}, loosest ok {r['edge_in']}")
+
+P("\nG. Garage-door front: the gable wall with a garage door in it, 115 mph / SDS 0.50 (demand per line as in A: 2,328 lb wind, 600 lb seismic)")
+W = walls_of(h, CONVENTIONAL_2X6)[2].length_in
+need_w, need_s = d["across ridge"][0], d["across ridge"][1]
+P(f"wall {W / 12:.1f} ft long; a door at one corner leaves one pier, a centred door leaves two; capacities at 6 in and 2 in nailing")
+P(f"{'door':>6} {'placement':>9} {'solid ft':>8} {'wind cap@6 lb':>13} {'D/C@6':>6} {'wind cap@2 lb':>13} {'D/C@2':>6} {'max mph @2 in':>13} {'seismic D/C@2':>13}")
+for door_ft in (9, 12, 16, 18, 20, 22):
+    for place, pos in (("corner", 0.0), ("centred", (W - door_ft * 12) / 2)):
+        wall = Wall(W, False, (Opening(pos, door_ft * 12, 0.0),))
+        solid = sum(segments(wall, 96.0)) / 12
+        c6, c2 = line_capacity(wall, 6, "wind"), line_capacity(wall, 2, "wind")
+        s2 = line_capacity(wall, 2, "seismic")
+        vmax = 115 * (c2 / need_w) ** 0.5 if c2 else 0.0
+        dc6 = f"{need_w / c6:6.2f}" if c6 else "   inf"
+        dc2 = f"{need_w / c2:6.2f}" if c2 else "   inf"
+        sdc = f"{need_s / s2:13.2f}" if s2 else "          inf"
+        P(f"{door_ft:4d}ft {place:>9} {solid:8.1f} {c6:13,.0f} {dc6} {c2:13,.0f} {dc2} {vmax:13.0f} {sdc}")
+P("(max mph scales the line demand with V squared at fixed exposure; the two gable lines share the load half and half as in A, so a weak garage line is not relieved by its stiff partner, and a rigid-diaphragm split would load the stiffer line more)")
 
 Path(__file__).with_name("results.txt").write_text("\n".join(out) + "\n")
 print("\n".join(out))
