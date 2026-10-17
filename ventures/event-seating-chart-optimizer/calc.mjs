@@ -333,6 +333,27 @@ export function verifyPlan(spec, result) {
   return problems;
 }
 
+const escHtml = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+/**
+ * A standalone, print-ready page with one sheet per table: a big table number
+ * and the guest names, to stand at the table or check people in at the door.
+ * Guest text is escaped; the page carries no script and loads nothing.
+ */
+export function tableSignsHtml(spec, result, title = "Seating plan") {
+  const sheets = result.tables.map((t) => {
+    const names = t.guests.map((name) => {
+      const g = spec.guests.find((x) => x.name === name);
+      return `<li>${escHtml(name)}${g && g.party ? ` <small>${escHtml(g.party)}</small>` : ""}</li>`;
+    }).join("");
+    return `<section><p class="n">Table ${t.number}</p><ul>${names || "<li><small>empty</small></li>"}</ul></section>`;
+  }).join("\n");
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${escHtml(title)}</title>`
+    + `<style>body{font-family:Georgia,serif;margin:0}section{page-break-after:always;break-after:page;padding:48px;text-align:center}`
+    + `.n{font-size:64px;margin:0 0 24px;font-weight:700}ul{list-style:none;padding:0;margin:0;font-size:28px;line-height:1.6}small{font-size:16px;color:#555}`
+    + `section:last-child{page-break-after:auto;break-after:auto}</style></head><body>\n${sheets}\n</body></html>`;
+}
+
 export function planCsv(spec, result) {
   const rows = [["Table", "Guest", "Party"]];
   result.tables.forEach((t) => t.guests.forEach((name) => {
