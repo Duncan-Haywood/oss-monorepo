@@ -153,3 +153,36 @@ test("Binance.US rows flow through the matcher", () => {
   const a = analyze(csv, { method: "FIFO", year: 2023 });
   assert.ok(a);
 });
+
+const CRYPTOCOM = `Timestamp (UTC),Transaction Description,Currency,Amount,To Currency,To Amount,Native Currency,Native Amount,Native Amount (in USD),Transaction Kind
+2023-03-01 10:00:00,Buy BTC,BTC,0.1,,,USD,2000,2000,crypto_purchase
+2023-04-01 10:00:00,BTC -> ETH,BTC,-0.05,ETH,0.8,USD,1500,1500,crypto_exchange
+2023-05-01 10:00:00,Earn,CRO,100,,,USD,12,12,crypto_earn_interest_paid
+2023-06-01 10:00:00,Sell ETH,ETH,-0.8,USD,1800,USD,1800,1800,crypto_viban_exchange
+2023-06-02 10:00:00,Withdraw,BTC,-0.01,,,USD,300,300,crypto_withdrawal
+2023-06-03 10:00:00,Reward,CRO,5,,,USD,,,referral_card_cashback
+2023-06-04 10:00:00,Odd,CRO,5,,,USD,1,1,mystery_kind
+`;
+
+test("Crypto.com: detected, buys, swaps, income, sells mapped; moves ignored", () => {
+  assert.equal(detectFormat(CRYPTOCOM), "cryptocom");
+  const r = convertExchangeCsv(CRYPTOCOM);
+  const lines = r.csv.trim().split("\n");
+  assert.equal(lines[0], OUT_HEADER);
+  assert.ok(lines.includes("2023-03-01,buy,BTC,0.1,2000,0,Crypto.com"));
+  assert.ok(lines.includes("2023-04-01,sell,BTC,0.05,1500,0,Crypto.com"));
+  assert.ok(lines.includes("2023-04-01,buy,ETH,0.8,1500,0,Crypto.com"));
+  assert.ok(lines.includes("2023-05-01,income,CRO,100,12,0,Crypto.com"));
+  assert.ok(lines.includes("2023-06-01,sell,ETH,0.8,1800,0,Crypto.com"));
+  assert.ok(lines.includes("2023-06-03,income,CRO,5,,0,Crypto.com")); // unpriced stays empty, never zero
+  assert.equal(lines.length, 1 + 6); // buy, swap (2), income, sell, unpriced income
+  assert.ok(r.notes.some((n) => /1 Crypto\.com row had no USD value/.test(n)));
+  assert.ok(r.notes.some((n) => /mystery_kind/.test(n)));
+  assert.ok(r.notes.some((n) => /1 deposit, withdrawal/.test(n)));
+});
+
+test("Crypto.com export feeds the lot matcher end to end", () => {
+  const r = convertExchangeCsv(CRYPTOCOM.split("\n").filter((l) => !/referral|mystery/.test(l)).join("\n"));
+  const a = analyze(r.csv, { method: "FIFO", year: 2023 });
+  assert.ok(a.rows.length > 0);
+});
