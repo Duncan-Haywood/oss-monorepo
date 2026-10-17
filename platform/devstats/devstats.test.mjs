@@ -4,8 +4,8 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { quantile, dayRange, fromGit, fromRuns, fromGitHub, inventory, collect } from './devstats.mjs';
-import { renderDashboard, barChart } from './render.mjs';
+import { quantile, dayRange, fromGit, fromRuns, fromGitHub, inventory, collect, ciActivity, outcomeOf, countRunsByDay, fromCI, COUNT_CAP } from './devstats.mjs';
+import { renderDashboard, barChart, stackedChart } from './render.mjs';
 
 const NOW = Date.parse('2026-10-16T12:00:00Z');
 
@@ -103,7 +103,94 @@ test('github: cycle time, reviews, CI pass rates and iterations before green', a
   assert.equal(gh.ci_pr.first_try_green_share, 0.5);
   assert.equal(gh.ci_pr.iterations_before_green_mean, 0.5);
   assert.equal(gh.branches.count, 2);
+  assert.equal(gh.prs_closed_unmerged_7d, 0);
 });
+
+test('ciActivity: exact daily counts, plus workflows, triggers, red spells and re-runs from the sample', () => {
+  const at = (h) => new Date(NOW - h * 3_600_000).toISOString();
+  const run = (name, conclusion, h, extra = {}) => ({ name, conclusion, event: 'push', head_branch: 'main', created_at: at(h), run_started_at: at(h), updated_at: at(h - 0.1), ...extra });
+  const main = [
+    run('Tests', 'failure', 30),
+    run('Tests', 'success', 26), // red for 4 h
+    run('Tests', 'timed_out', 5), // red since
+    run('Lint', 'success', 4),
+    run('Lint', 'cancelled', 3),
+  ];
+  const sample = [...main, run('Tests', 'success', 2, { event: 'pull_request', head_branch: 'feature', run_attempt: 2 }), run('Docs', 'skipped', 1)];
+  const counts = { per_day: { '2026-10-15': { passed: 90, failed: 10, cancelled: 5, skipped: 1 }, '2026-10-16': { passed: 0, failed: 0, cancelled: 0, skipped: 0 } }, capped_days: ['2026-10-15'], reused_days: 1 };
+  const ci = ciActivity({ counts, sample, main }, { now: NOW });
+  assert.deepEqual(ci.totals, { passed: 90, failed: 10, cancelled: 5, skipped: 1 });
+  assert.equal(ci.runs, 106);
+  assert.equal(ci.pass_share, 0.9);
+  assert.equal(ci.window_days, 2);
+  assert.match(ci.coverage.note, /floor/);
+  assert.equal(ci.workflows[0].name, 'Tests');
+  assert.deepEqual([ci.workflows[0].failed, ci.workflows[0].passed, ci.workflows[0].minutes_p50], [2, 2, 6]);
+  assert.equal(ci.by_event['push to main'].failed, 2);
+  assert.equal(ci.by_event.pull_request.pass_share, 1);
+  assert.deepEqual([ci.main_recovery_hours.n, ci.main_recovery_hours.p50], [1, 4]);
+  assert.deepEqual(ci.red_on_main_now.map((r) => [r.workflow, r.hours]), [['Tests', 5]]);
+  assert.equal(ci.rerun_share, round3(1 / 7));
+  assert.equal(ci.sample.span.hours, 29);
+  assert.equal(outcomeOf('startup_failure'), 'failed');
+  assert.equal(outcomeOf('something new'), 'skipped');
+  const svg = stackedChart(ci.per_day);
+  assert.match(svg, /<title>2026-10-15: 10 failed<\/title>/);
+  assert.match(svg, /Passed 90, Failed 10, Cancelled 5, Skipped 1/);
+  assert.match(stackedChart({ d: { passed: 22712, failed: 0, cancelled: 0, skipped: 0 } }), /Passed 22,712/);
+});
+
+// A fake runs API that knows each run's creation time, so `total_count` can
+// be computed for any slice and capped the way GitHub caps it.
+function countingApi(perHour) {
+  const calls = [];
+  const fetch = async (url) => {
+    calls.push(url);
+    const q = new URL(url).searchParams;
+    const [from, to] = q.get('created').split('..').map(Date.parse);
+    const hours = Math.round((to + 1000 - from) / 3_600_000);
+    const n = (perHour[q.get('status')] ?? 0) * hours;
+    return { ok: true, json: async () => ({ total_count: Math.min(n, COUNT_CAP), workflow_runs: [] }) };
+  };
+  return { fetch, calls };
+}
+
+test('countRunsByDay: halves a slice that hits the 2,500 cap until it does not', async () => {
+  const { fetch, calls } = countingApi({ success: 250, failure: 10, cancelled: 3 }); // 6,000 passes a day
+  const end = Date.parse('2026-10-16T00:00:00Z');
+  const c = await countRunsByDay(fetch, 't', 'https://api.github.com/repos/o/r', { now: end, days: 2 });
+  assert.deepEqual(c.per_day['2026-10-15'], { passed: 6000, failed: 240, cancelled: 72, skipped: 0 });
+  assert.deepEqual(c.capped_days, []);
+  assert.ok(calls.length < 40, `${calls.length} requests`);
+  assert.ok(calls.every((u) => u.includes('per_page=1')));
+});
+
+test('countRunsByDay: a slice still at the cap within an hour is a floor, and says so', async () => {
+  const { fetch } = countingApi({ success: 3000 });
+  const c = await countRunsByDay(fetch, 't', 'https://api.github.com/repos/o/r', { now: Date.parse('2026-10-16T02:00:00Z'), days: 1 });
+  assert.equal(c.per_day['2026-10-16'].passed, 2 * COUNT_CAP);
+  assert.deepEqual(c.capped_days, ['2026-10-16']);
+});
+
+test('countRunsByDay: reuses days an earlier build counted after they ended, recounts the rest', async () => {
+  const { fetch, calls } = countingApi({ failure: 1 });
+  const previous = { counted_at: '2026-10-16T06:00:00Z', per_day: { '2026-10-13': { passed: 7, failed: 1 }, '2026-10-14': { passed: 9 }, '2026-10-15': { passed: 3 } }, coverage: { capped_days: ['2026-10-13'] } };
+  const c = await countRunsByDay(fetch, 't', 'https://api.github.com/repos/o/r', { now: NOW, days: 4, previous });
+  assert.equal(c.reused_days, 1); // 14th only: the 13th was capped, the 15th ended too recently
+  assert.deepEqual(c.per_day['2026-10-14'], { passed: 9, failed: 0, cancelled: 0, skipped: 0 });
+  assert.equal(c.per_day['2026-10-15'].failed, 24);
+  assert.equal(c.per_day['2026-10-16'].failed, 12);
+  assert.ok(calls.every((u) => !u.includes('2026-10-14T')));
+});
+
+test('fromCI: no token, or an API error, is reported rather than shown as zero', async () => {
+  assert.match((await fromCI({})).reason, /GITHUB_TOKEN/);
+  const ci = await fromCI({ token: 't', repo: 'o/r', now: NOW, fetch: async () => ({ ok: false, status: 403 }) });
+  assert.equal(ci.available, false);
+  assert.match(ci.reason, /403/);
+});
+
+const round3 = (v) => Math.round(v * 1000) / 1000;
 
 test('github: an API error is reported, not shown as zero', async () => {
   const gh = await fromGitHub({ token: 't', repo: 'o/r', fetch: async () => ({ ok: false, status: 403 }) });
@@ -120,4 +207,5 @@ test('the page renders every section, marks missing data, and escapes', async ()
   assert.ok(!html.includes('<script>'));
   assert.ok(!/https?:\/\/(?!www\.w3)/.test(html.replace(/<a [^>]*>/g, '')), 'no off-origin requests');
   assert.match(barChart({ '2026-10-16': 3 }), /<title>2026-10-16: 3 merges<\/title>/);
+  assert.ok(html.includes('CI runs: passed, failed, cancelled'));
 });

@@ -212,7 +212,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, parseOfficials, assignOfficials, validateOfficials, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, playoffRace, remainingFixtures, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, playoffRace, remainingFixtures, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -283,8 +283,14 @@
       sel.innerHTML = s.teams.map((t, i) => `<option value="${i}">${esc(t)}</option>`).join("");
       if (keep && Number(keep) < s.teams.length) sel.value = keep;
       showTeam();
+      const restNote = (sch) => {
+        const r = restReport(sch);
+        if (r.shortest === null) return "";
+        const worst = r.rows.filter((x) => x.shortest === r.shortest).map((x) => x.team).slice(0, 3).join(", ");
+        return ` Rest between a team's games: from ${r.shortest} to ${r.longest} day(s)${r.back_to_back ? `; ${r.back_to_back} game(s) follow the previous one within a day (${worst})` : ""}.`;
+      };
       const sp = (o) => `${s.stats.courtSpread} court and ${s.stats.timeSpread} time-slot game(s)`;
-      $("#fairness").textContent = `Biggest gap between one team's most and least used court or time: ${sp()}. Home/away breaks per team: ${s.stats.breaks.join(", ")} (in team order).`;
+      $("#fairness").textContent = `Biggest gap between one team's most and least used court or time: ${sp()}. Home/away breaks per team: ${s.stats.breaks.join(", ")} (in team order).${restNote(s)}`;
       $("#race-wrap").hidden = !extra.race;
       if (extra.race) {
         $("#race-note").textContent = `Top ${extra.race.spots} qualify. ${extra.race.rows.exact ? "Every way the remaining games could finish was checked." : "Many games remain, so only the safe bounds are used: a team marked alive may already be settled."} Ranked on points only; a tie on points counts against the team, so "clinched" and "out" are never wrong, and goal difference can help a team marked alive.`;

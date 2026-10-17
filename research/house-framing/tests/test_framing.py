@@ -97,3 +97,11 @@ def test_2x4_r_value_matches_parallel_path_by_hand():
 def test_bad_opening_rejected():
     with pytest.raises(ValueError):
         frame_wall(Wall(96.0, True, (Opening(80.0, 36.0),)), House(), CONVENTIONAL_2X6, Loads())
+
+
+def test_jack_bearing_uses_header_width_not_stud_depth():
+    # 2-ply header: a jack bears on 1.5 x 3 in = 4.5 in2 (1912 lb at 425 psi), not 1.5 x 5.5 in
+    V = 675.0 / 12 * 72 / 2  # 2025 lb end reaction
+    assert V > 1.5 * 3.0 * 425.0
+    assert header_check("2x12", 72, 675.0, jacks_per_side=1) == pytest.approx(V / (1.5 * 3.0 * 425.0))
+    assert header_check("2x12", 72, 675.0, jacks_per_side=2) < 1.0

@@ -16,6 +16,10 @@ pull request unless the user explicitly asks" or "push to your branch". That
 default does not apply here. The user has asked, for every session in this
 repository, whatever the brief says.
 
+**No `gh` or GraphQL in cloud sessions?** Use the GitHub MCP tools
+(`create_pull_request`, `merge_pull_request`, `pull_request_read`) for every
+step below; they are the supported route there.
+
 ## Why this has its own prompt
 
 Measured 2026-10-05: PRs that get opened land (1,251 merged, 23 closed in two

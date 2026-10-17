@@ -3,17 +3,17 @@ loads: roof dead 15 psf, roof snow 30 psf, 1 ft overhang, trusses span the width
 
 A. three framing schemes
 scheme                   pieces     bf     ff  R_eff     UA hangers  stud  headers
-conventional 2x4 @16        208   1247  0.235  11.28   82.6       0  0.40  2x12
-conventional 2x6 @16        208   1789  0.236  16.21   57.2       0  0.26  2x12
+conventional 2x4 @16        210   1258  0.237  11.26   82.8       0  0.40  2x12
+conventional 2x6 @16        210   1805  0.238  16.17   57.3       0  0.26  2x12
 advanced 2x6 @24            154   1052  0.134  18.58   49.9      16  0.39  2x10,2x6
-advanced vs conventional 2x6: board feet -41.2%, pieces -26.0%, wall UA -12.8%
-advanced 2x6 vs conventional 2x4: board feet -15.6%, wall UA -39.6%
+advanced vs conventional 2x6: board feet -41.7%, pieces -26.7%, wall UA -13.0%
+advanced 2x6 vs conventional 2x4: board feet -16.4%, wall UA -39.8%
 lumber cost of the exterior walls at assumed prices ($/bf):
-  $0.60: conventional 2x4 @16 $748  conventional 2x6 @16 $1,074  advanced 2x6 @24 $631
-  $0.90: conventional 2x4 @16 $1,122  conventional 2x6 @16 $1,611  advanced 2x6 @24 $947
-  $1.20: conventional 2x4 @16 $1,496  conventional 2x6 @16 $2,147  advanced 2x6 @24 $1,263
+  $0.60: conventional 2x4 @16 $755  conventional 2x6 @16 $1,083  advanced 2x6 @24 $631
+  $0.90: conventional 2x4 @16 $1,132  conventional 2x6 @16 $1,625  advanced 2x6 @24 $947
+  $1.20: conventional 2x4 @16 $1,510  conventional 2x6 @16 $2,166  advanced 2x6 @24 $1,263
 heating through the opaque walls (MMBtu/yr = UA x 24 x HDD / 1e6), assumed climates:
-  HDD 2000: conventional 2x4 @16 4.0  conventional 2x6 @16 2.7  advanced 2x6 @24 2.4
+  HDD 2000: conventional 2x4 @16 4.0  conventional 2x6 @16 2.8  advanced 2x6 @24 2.4
   HDD 5000: conventional 2x4 @16 9.9  conventional 2x6 @16 6.9  advanced 2x6 @24 6.0
   HDD 8000: conventional 2x4 @16 15.9  conventional 2x6 @16 11.0  advanced 2x6 @24 9.6
 
@@ -23,11 +23,11 @@ measure                    added to conv bf     ff    UA removed from adv bf    
 single top plate                       -132 -0.016  -1.0                +136 +0.017  +1.0
 2-stud corners                          -68 -0.008  -0.5                 +69 +0.008  +0.5
 ladder tees                             -82 -0.012  -0.8                 +84 +0.013  +0.8
-header hangers                         -126 -0.017  -1.0                +141 +0.018  +1.1
+header hangers                         -141 -0.019  -1.2                +157 +0.020  +1.2
 sized headers                           -59 -0.015  -1.0                 +45 +0.011  +0.1
 no header in non-bearing                -48 -0.009  -0.6                  +6 +0.002  -0.0
 insulated headers                        +0 +0.000  -2.0                  +0 +0.000  +0.8
-openings on layout                       +0 +0.000  +0.0                 +22 +0.003  +0.2
+openings on layout                       -8 -0.001  -0.1                 +22 +0.003  +0.2
 
 C. stud capacity: worst NDS ratio (1.00 = at capacity; 'fails' = axial stress above Euler buckling), 8 ft wall, 28 ft span
 stud         wind psf S=0    S=30   S=50   S=70   S=90  
@@ -46,11 +46,11 @@ opening in S=0     S=30    S=50    S=70    S=90
         48 2x6     2x6     2x8     2x10    2x12   
         74 2x6     2x10    2x12    none    none   
         98 2x8     none    none    none    none   
-conventional 2-ply 2x12 over a 36 in window at S=30: worst ratio 0.31
+conventional 2-ply 2x12 over a 36 in window at S=30: worst ratio 0.56
 
 E. footprint sweep (advanced vs conventional 2x6)
 footprint ft  conv bf  adv bf  saving  conv ff  adv ff  UA cut
      24 x 32     1526     869   43.1%    0.246   0.135   13.6%
-     28 x 40     1789    1052   41.2%    0.236   0.134   12.8%
-     32 x 48     2115    1236   41.6%    0.236   0.133   12.8%
-     36 x 56     2466    1422   42.3%    0.238   0.133   13.1%
+     28 x 40     1805    1052   41.7%    0.238   0.134   13.0%
+     32 x 48     2131    1236   42.0%    0.238   0.133   13.0%
+     36 x 56     2473    1422   42.5%    0.239   0.133   13.2%

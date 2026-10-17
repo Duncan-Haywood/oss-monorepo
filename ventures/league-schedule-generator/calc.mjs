@@ -516,6 +516,33 @@ export function scheduleStats(schedule) {
   };
 }
 
+/**
+ * Rest between games, per team: days between consecutive matches (byes and idle nights
+ * count as rest). Returns { rows: [{ team, games, shortest, longest }], shortest, longest,
+ * back_to_back } where back_to_back counts gaps of 1 day or less, so a league playing on
+ * two adjacent weekdays can see who gets no night off. Teams with under two games have
+ * null gaps.
+ */
+export function restReport(schedule) {
+  const days = schedule.teams.map(() => []);
+  for (const r of schedule.rounds) for (const m of r.matches) { days[m.home].push(r.day); days[m.away].push(r.day); }
+  let shortest = null, longest = null, backToBack = 0;
+  const rows = schedule.teams.map((team, i) => {
+    const d = days[i].slice().sort((a, b) => a - b);
+    let lo = null, hi = null;
+    for (let k = 1; k < d.length; k++) {
+      const gap = d[k] - d[k - 1];
+      if (lo === null || gap < lo) lo = gap;
+      if (hi === null || gap > hi) hi = gap;
+      if (gap <= 1) backToBack++;
+    }
+    if (lo !== null && (shortest === null || lo < shortest)) shortest = lo;
+    if (hi !== null && (longest === null || hi > longest)) longest = hi;
+    return { team, games: d.length, shortest: lo, longest: hi };
+  });
+  return { rows, shortest, longest, back_to_back: backToBack };
+}
+
 // ---------------------------------------------------------------- independent validator
 
 /**

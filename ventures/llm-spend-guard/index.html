@@ -131,7 +131,11 @@ const text = await guard.guarded(
 
     const $ = (s) => document.querySelector(s);
     const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-    const usd = (x) => `$${Number(x).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const usd = (x) => {
+      const format = (x) => `$${Number(x).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(x));
+      return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     $("#policy-input").value = JSON.stringify(EXAMPLE_POLICY, null, 2);
 
     function replay() {
