@@ -66,7 +66,9 @@ class TestPlan(PlanFixture):
     def test_work_landed_through_another_pr_is_skipped(self):
         self.stranded("claude/dup", "ventures/x/index.html", "same\n")
         self.squash_merge("ventures/x/index.html", "same\n", "x: new venture (#9)")
-        self.assertIn("already match main", self.plan()["claude/dup"].skip)
+        # unlanded_work.sweep drops a branch whose content is on main before
+        # adopt_stranded sees it, so there is nothing to plan or skip.
+        self.assertNotIn("claude/dup", self.plan())
 
     def test_file_main_rewrote_since_is_contested_not_adopted(self):
         # The stale-housekeeping shape: a shared file main has moved on from.
