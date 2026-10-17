@@ -934,3 +934,60 @@ test("a percent differential steers a night shift to the lower-paid person", () 
   assert.equal(r.owner[0], 1);
   assert.equal(r.cost, 15 * 8 * 1.5);
 });
+
+import { availabilityFromGrid, parseAvailabilityReply, mergeAvailabilityReplies } from "./calc.mjs";
+
+test("availability grid becomes the text the staff list reads, ranges collapsed", () => {
+  const w = { mode: "range", from: 540, to: 1020 };
+  const grid = [w, w, w, w, w, { mode: "range", from: 600, to: 840 }, { mode: "off" }];
+  const text = availabilityFromGrid(grid);
+  assert.equal(text, "Mon-Fri 9-17; Sat 10-14; Sun off");
+  const a = parseAvailability(text);
+  assert.deepEqual(a.errors, []);
+  assert.deepEqual(a.days[0], [[540, 1020]]);
+  assert.deepEqual(a.days[5], [[600, 840]]);
+  assert.deepEqual(a.days[6], []);
+  assert.equal(availabilityFromGrid(Array(7).fill({ mode: "any" })), "Mon-Sun 0-24");
+  const allOff = availabilityFromGrid(Array(7).fill({ mode: "off" }));
+  assert.equal(allOff, "Mon-Sun off");
+  assert.equal(parseAvailability(allOff).any, false);
+  assert.deepEqual(parseAvailability(allOff).days.flat(), []);
+  assert.equal(availabilityFromGrid([{ mode: "range", from: 570, to: 1050 }, ...Array(6).fill({ mode: "off" })]), "Mon 9:30-17:30; Tue-Sun off");
+});
+
+test("reply lines: valid, bad availability, bad extras", () => {
+  const ok = parseAvailabilityReply("Ana | Mon-Fri 9-17; Sat off | max: 30 | off: Wed");
+  assert.equal(ok.name, "Ana");
+  assert.equal(ok.max, 30);
+  assert.deepEqual(ok.extras, ["off: Wed"]);
+  assert.match(parseAvailabilityReply("Ana").error, /not a reply line/);
+  assert.match(parseAvailabilityReply("Ana | Funday 9-5").error, /^Ana:/);
+  assert.match(parseAvailabilityReply("Ana | Mon 9-17 | wage: 99").error, /could not read/);
+});
+
+test("merging replies replaces availability, keeps wage and roles, never raises max hours", () => {
+  const staff = "name, wage, max, min, availability\nAna, 18, 40, 30, Mon-Sat 6-22, roles: cook, prev: Sun 10pm\nBen, 16, 32, 20, any, off: Fri";
+  const m = mergeAvailabilityReplies(staff, "Ana | Mon-Fri 9-17; Sat off | max: 25 | off: Wed\nBen | Mon-Sun 0-24 | max: 50\nZed | Sat 8-16");
+  assert.deepEqual(m.errors, []);
+  assert.deepEqual(m.updated, ["Ana", "Ben"]);
+  assert.deepEqual(m.added, ["Zed"]);
+  const lines = m.text.split("\n");
+  assert.equal(lines[0], "name, wage, max, min, availability");
+  assert.equal(lines[1], "Ana, 18, 25, 25, Mon-Fri 9-17; Sat off, off: Wed, roles: cook, prev: Sun 10pm");
+  assert.equal(lines[2], "Ben, 16, 32, 20, Mon-Sun 0-24, off: Fri");
+  const p = parseStaff(lines.slice(0, 3).join("\n"));
+  assert.deepEqual(p.errors, []);
+  assert.equal(p.staff[0].maxHours, 25);
+  assert.deepEqual(p.staff[0].roles, ["cook"]);
+  assert.ok(p.staff[0].prevEnd !== null);
+  assert.ok(m.text.includes("Zed, , 40, 0, Sat 8-16"));
+  assert.ok(parseStaff(m.text).errors.some((e) => /Zed/.test(e) && /wage/.test(e)));
+});
+
+test("merging reports bad lines without touching the rest", () => {
+  const staff = "Ana, 18, 40, 0, any";
+  const m = mergeAvailabilityReplies(staff, "# comment\nAna | Moonday 9-5\n\nnonsense");
+  assert.equal(m.text, staff);
+  assert.equal(m.errors.length, 2);
+  assert.deepEqual(m.updated, []);
+});

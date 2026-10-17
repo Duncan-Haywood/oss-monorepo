@@ -120,6 +120,22 @@
     <p id="form-status" role="status" class="note">Enter your people and shifts, then click the button.</p>
   </section>
 
+  <section class="card" id="collect">
+    <h2>Collect your team's availability</h2>
+    <p class="note">Stop chasing availability in group chats. Make a link, send it to your team, and each person fills a week grid and sends you one line back. Paste the lines below and they replace each person's availability in your staff list; wages, roles and the hours cap you set stay (a person can only lower their own max hours). The link carries only the business name, week and, if you add it, one person's name; nothing is stored or uploaded.</p>
+    <div class="row3">
+      <div><label for="collect-biz">Business name (shown to staff)</label><input id="collect-biz" placeholder="e.g. Corner Café"></div>
+      <div><label for="collect-name">Person's name (optional, for a personal link)</label><input id="collect-name" placeholder="e.g. Ana"></div>
+    </div>
+    <label for="collect-link">Link to send (uses the week start above, if set)</label>
+    <input id="collect-link" readonly>
+    <button type="button" class="secondary" id="collect-copy">Copy link</button>
+    <label for="replies">Paste the replies here, one per line</label>
+    <textarea id="replies" spellcheck="false" style="min-height:90px" placeholder="Ana | Mon-Fri 9-17; Sat off | max: 30 | off: Wed&#10;Ben | Mon-Sun 0-24"></textarea>
+    <button type="button" id="merge-replies">Merge into staff list</button>
+    <p id="merge-status" role="status" class="note"></p>
+  </section>
+
   <section id="report" class="card" hidden>
     <h2>Result</h2>
     <div id="notices"></div>
@@ -211,7 +227,7 @@
   </footer>
 
   <script type="module">
-    import { parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, mergeAvailabilityReplies, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -435,6 +451,29 @@
       const rd = new FileReader();
       rd.onload = () => { try { apply(JSON.parse(String(rd.result))); persist(); status.textContent = `Loaded ${f.name}. Click the button to build the roster.`; } catch (err) { status.textContent = "That file is not a setup file saved by this tool."; } };
       rd.readAsText(f);
+    });
+    function collectLink() {
+      const u = new URL("availability.html", location.href), q = new URLSearchParams();
+      const b = $("#collect-biz").value.trim(), n = $("#collect-name").value.trim(), w = $("#weekstart").value;
+      if (b) q.set("b", b); if (n) q.set("n", n); if (w) q.set("w", w);
+      u.hash = q.toString();
+      $("#collect-link").value = u.href;
+    }
+    for (const id of ["collect-biz", "collect-name", "weekstart"]) $("#" + id).addEventListener("input", collectLink);
+    collectLink();
+    $("#collect-copy").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText($("#collect-link").value); $("#merge-status").textContent = "Link copied."; }
+      catch { $("#collect-link").select(); $("#merge-status").textContent = "Select the link and copy it."; }
+    });
+    $("#merge-replies").addEventListener("click", () => {
+      const r = mergeAvailabilityReplies($("#staff").value, $("#replies").value);
+      if (r.updated.length || r.added.length) { $("#staff").value = r.text; persist(); }
+      const bits = [];
+      if (r.updated.length) bits.push(`Updated ${r.updated.join(", ")}.`);
+      if (r.added.length) bits.push(`Added ${r.added.join(", ")} with no wage: fill it in before building.`);
+      if (r.errors.length) bits.push(`Skipped: ${r.errors.join(" ")}`);
+      $("#merge-status").textContent = bits.join(" ") || "Paste at least one reply line.";
+      if (r.updated.length || r.added.length) $("#replies").value = "";
     });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }

@@ -209,3 +209,28 @@ test("labor-cost page's figures are what the engine returns for the sample cafe"
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("availability form: local only, labelled, imports only calc.mjs, noindex, disclaimer", async () => {
+  const html = page("availability.html");
+  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|<form[^>]+action=/i);
+  assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]), ["./calc.mjs"]);
+  assert.match(html, /<meta name="robots" content="noindex">/);
+  assert.match(html, /No warranty/);
+  assert.match(html, /never sent anywhere/);
+  const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+  assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));
+  const names = html.match(/import \{([^}]+)\} from "\.\/calc\.mjs"/)[1].split(",").map((s) => s.trim());
+  const calc = await import("./calc.mjs");
+  for (const n of names) assert.ok(n in calc, n);
+  for (const tag of [...html.matchAll(/<(input|select|textarea)\b[^>]*>/g)].map((m) => m[0]).filter((t) => /id="(who|maxh|offs|out)"/.test(t))) {
+    const id = tag.match(/\sid="([^"]+)"/)[1];
+    assert.ok(html.includes(`<label for="${id}">`), id);
+  }
+});
+
+test("index links the collect-availability flow to existing elements", () => {
+  const html = page("index.html");
+  for (const id of ["collect-biz", "collect-name", "collect-link", "replies", "merge-replies", "merge-status", "collect-copy"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /availability\.html/);
+});
