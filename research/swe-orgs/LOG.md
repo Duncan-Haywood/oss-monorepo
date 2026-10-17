@@ -2,6 +2,13 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-17 · Batch 13: lightweight review, the deployment pipeline and Extreme Programming
+
+- Added 3 sources and 3 practices (47 practices, 46 sources): Rigby and Bird's *Convergent contemporary software peer review practices* (ESEC/FSE 2013; P45, the catalogue's fourth `measured` row), Humble and Farley's *Continuous Delivery* (2010; P46) and Beck's *Extreme Programming Explained* (1999; P47, the first late-1990s small-team source).
+- **P46 ties the top of the ranking and is `partly` adopted**: CI runs on every pull request, but when runners are starved a session runs a hand-picked checklist instead, so not every change takes one path. It targets tooling (2.5% of 758 runs), the same bar as P23, P36 and P43. **P45 and P47 transfer `partial`** and rank 0.7%: a model reviewer shares the author's blind spots, which a study of people reading each other's code cannot speak to, and a session has no memory for a flat cost of change to rely on.
+- **Still no proposal.** The ledger has 758 rows (it had 751). No unadopted `yes` row reaches the 5% bar; the highest, P23, is 2.5%.
+- Verification was by web search only. Rigby and Bird's DOI was not found and the paper was not read, so the row states only its scope. The Humble and Farley row uses the pipeline definition and no page count (catalogues disagree). Search returned nothing on Beck's specific practices (small releases, test-first), so P47 states only the cost-of-change claim.
+
 ## 2026-10-17 · Batch 12: Segment's return to one codebase
 
 - Added 1 source and 1 practice (44 practices, 43 sources): Segment's 2018 move from microservices back to one codebase (P44), from the engineering blog post, Noonan's QCon London talk and Changelog #312. Written in parallel with batch 11 above, which landed first; this adds only what it lacked.
