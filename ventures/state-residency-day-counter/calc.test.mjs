@@ -222,6 +222,15 @@ test("Utah: 183 or more days with a place of abode, so the limit is 182", () => 
   assert.equal(by(analyze(sp), "UT").status, "over");
 });
 
+test("Michigan: more than 183 days with a permanent place of abode", () => {
+  assert.equal(RULES.MI.limit, 183);
+  assert.equal(RULES.MI.requiresAbode, true);
+  assert.equal(RULES.MI.kind, "statutory");
+  const sp = spec(["MI 2025-01-01 to 2025-07-03"], { abode: { MI: true }, homeState: "FL" }); // 184 days
+  assert.equal(by(analyze(sp), "MI").days, 184);
+  assert.equal(by(analyze(sp), "MI").status, "over");
+});
+
 test("convenience-of-the-employer view pulls remote workdays back to the employer's state", () => {
   // 5 workdays in NY, 5 in NJ, 5 in FL (no wage tax); employer in NY.
   const lines = ["2025-06-02 to 2025-06-06 NY", "2025-06-09 to 2025-06-13 NJ", "2025-06-16 to 2025-06-20 FL"];
