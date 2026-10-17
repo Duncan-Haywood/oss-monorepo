@@ -1,0 +1,13 @@
+[project]
+name = "house-season"
+version = "0.1.0"
+description = "Does the month a house build starts change how long it takes and the interest paid? A seasonal-weather extension of the house-schedule Monte Carlo model"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-schedule/src"]
