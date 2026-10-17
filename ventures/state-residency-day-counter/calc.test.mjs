@@ -342,3 +342,18 @@ test("tripImpact adds the trip's days, flags a newly crossed limit and finds the
   assert.throws(() => tripImpact(sp, { state: "N", start: 1, days: 3 }));
   assert.throws(() => tripImpact(sp, { state: "NY", start: toDay(Y, 7, 1), days: 0 }));
 });
+
+test("a line with three dates is rejected, not silently truncated", () => {
+  const r = parseStays("2025-01-03 to 2025-01-09 to 2025-01-12 FL", Y);
+  assert.equal(r.stays.length, 0);
+  assert.equal(r.errors.length, 1);
+  assert.match(r.errors[0].message, /More than two dates/);
+});
+
+test("an employer state that is not a two-letter code is ignored, even if it names an inherited property", () => {
+  const base = spec(["2025-01-06 to 2025-01-31 NY"]);
+  for (const bad of ["constructor", "toString", "ny"]) {
+    const r = analyze({ ...base, employerState: bad });
+    assert.equal(r.employer ?? null, null, bad);
+  }
+});

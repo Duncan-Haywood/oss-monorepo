@@ -795,3 +795,20 @@ test("tipPool splits by hours in whole cents and always adds back to the pot", (
   assert.equal(tipPool(r, 0).rows.length, 0);
   assert.equal(tipPool({}, 50).rows.length, 0);
 });
+
+test("messages: dates roll over month ends using the real year (leap Feb 29)", () => {
+  const r = buildRoster(staffOf("Ana, 15, 40, 0, any"), slotsOf("Thu, 9, 17, 1, open"));
+  const ana = rosterMessages(r, "2024-02-26").find((x) => x.person === "Ana");
+  assert.match(ana.text, /Thu 29 Feb: /);
+});
+
+test("carry over: a row with an unreadable start or end time is skipped, not read as NaN", async () => {
+  const { lastShiftEnds } = await import("./calc.mjs");
+  const e = lastShiftEnds([
+    "day,start,end,hours,label,assigned_to,role",
+    "Fri,5pm,??,6.00,,Sam,",
+    "Sat,??,5pm,8.00,,Alex,",
+    "Sat,9am,5pm,8.00,,Pat,",
+  ].join("\n"));
+  assert.deepEqual([...e.keys()], ["pat"]);
+});
