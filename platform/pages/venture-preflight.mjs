@@ -8,10 +8,11 @@
 //   2. Build the Pages site and run `check.mjs` over it: page integrity,
 //      inline-script parse, [hidden] CSS, links, disclaimers, feed dates.
 //   3. `platform/marketing/regen.mjs --verify`: is the committed mirror stale?
+//      (run right after step 1, so a stale mirror fails in seconds, not minutes)
 //
 //   node platform/pages/venture-preflight.mjs <slug> [--skip-build]
 //
-// Takes about five minutes (the build is most of it). Exit 0: clean for this
+// Takes about five minutes (the build is most of it); a stale mirror fails first, in seconds. Exit 0: clean for this
 // slug. Exit 1: a problem names the slug, or the launch date / mirror is
 // wrong. Problems from other slugs are printed as notes and do not fail you.
 // `--skip-build` runs steps 1 and 3 only (about 15 s).
@@ -58,6 +59,19 @@ async function main(argv) {
   console.log('1/3 launched.json');
   failures.push(...(await launchedProblems(slug)));
 
+  // The mirror check takes seconds and the build takes minutes, and a stale
+  // mirror is the commonest failure, so answer it first and stop early: fix
+  // it with regen.mjs, then rerun for the build.
+  console.log('1b/3 marketing mirror (regen.mjs --verify)');
+  const verify = run(['platform/marketing/regen.mjs', '--verify']);
+  if (verify.status === 1) failures.push('front-door mirror is stale: run `node platform/marketing/regen.mjs` and commit what it rewrites');
+  else if (verify.status !== 0) failures.push(`regen.mjs --verify could not answer (exit ${verify.status})`);
+  if (failures.length) {
+    console.log(`\nPREFLIGHT FAILED for ${slug} (stopped before the build; fix, then rerun):`);
+    for (const f of failures) console.log(`  - ${f}`);
+    return 1;
+  }
+
   if (!argv.includes('--skip-build')) {
     console.log('2/3 build + check.mjs (about 5 minutes)');
     const out = fs.mkdtempSync(path.join(os.tmpdir(), 'preflight-'));
@@ -82,11 +96,6 @@ async function main(argv) {
   } else {
     console.log('2/3 build + check.mjs skipped');
   }
-
-  console.log('3/3 marketing mirror (regen.mjs --verify)');
-  const verify = run(['platform/marketing/regen.mjs', '--verify']);
-  if (verify.status === 1) failures.push('front-door mirror is stale: run `node platform/marketing/regen.mjs` and commit what it rewrites');
-  else if (verify.status !== 0) failures.push(`regen.mjs --verify could not answer (exit ${verify.status})`);
 
   if (failures.length) {
     console.log(`\nPREFLIGHT FAILED for ${slug}:`);
