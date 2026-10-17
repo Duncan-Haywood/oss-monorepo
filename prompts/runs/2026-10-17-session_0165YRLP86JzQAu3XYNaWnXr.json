@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_0165YRLP86JzQAu3XYNaWnXr",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T04:08:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "league-schedule-generator shared grounds; refreshed gh-pages snapshot",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "unlanded_work --sweep lists branches whose history cannot be compared in a shallow clone; supersede_check cannot resolve remote-only refs without a prior fetch."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Explore: shared-ground constraint for league scheduling (clubmates not both at home same night; venue flips only, validator-gated). Also republished the stale gh-pages snapshot (built from e0d5a5b1). Stranded branches reviewed: not landed (shallow clone, no merge base; charming-bohr is a large site-header rework left for its owner).",
+  "corrections": [],
+  "redteam": null
+}
