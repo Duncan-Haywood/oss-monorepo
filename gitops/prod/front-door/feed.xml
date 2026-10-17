@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1279 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1280 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -38,6 +38,14 @@
     <updated>2026-10-17T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free review response generator. Paste your Google, Yelp or Facebook reviews and get a ready-to-post reply to each one: rating-aware, specific, safe around legal, health-privacy and refund traps, and checked before you post. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Sales Call Notes Desk — turn call notes into CRM fields and a follow-up email, free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sales-call-notes-desk/"/>
+    <id>tag:marisstella.dev,2026:tool/sales-call-notes-desk</id>
+    <updated>2026-10-17T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free sales call notes to CRM tool. Paste your notes or transcript and get the CRM fields, what BANT and MEDDIC still miss, dated next steps and a checked follow-up email. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Survey Keeper — Self-Hosted NPS and Surveys, a Typeform and Delighted Alternative</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free private tool for resellers: drop your eBay, Etsy, Poshmark and Whatnot reports and get one monthly profit and loss, what each channel really keeps, and a Schedule C style worksheet. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Self-Hosted SaaS Stack: Open-Source Alternatives to Calendly, Sentry, LaunchDarkly and Help Scout</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/self-hosted-saas-stack/"/>
-    <id>tag:marisstella.dev,2026:tool/self-hosted-saas-stack</id>
-    <updated>2026-10-16T00:00:00Z</updated>
-    <category term="Self-hosted business apps"/>
-    <summary type="text">28 open-source, self-hosted tools that replace the small-SaaS subscriptions a founder pays for: booking, help center, error tracking, feature flags, analytics, email, referrals, billing metrics and e-signature. MIT licensed, zero dependencies, one-click deploy.</summary>
   </entry>
 </feed>
