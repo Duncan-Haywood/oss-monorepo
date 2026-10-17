@@ -1075,6 +1075,10 @@ export function scheduleFlags(r, { dailyLimit = 8, splitGap = 1, mealAfter = 5, 
     }
     closeRun();
   }
+  // Seven different days in the week: California and a few other states owe a premium for the 7th consecutive day.
+  const daysWorked = new Map();
+  for (const g of byKey.values()) { if (!daysWorked.has(g.person)) daysWorked.set(g.person, new Set()); daysWorked.get(g.person).add(g.day); }
+  const sevenDays = [...daysWorked].filter(([, d]) => d.size === 7).map(([person]) => ({ person })).sort((a, b) => a.person.localeCompare(b.person));
   let notice = null;
   const w = weekStart ? new Date(weekStart + "T00:00:00Z") : null, t = today ? new Date(today + "T00:00:00Z") : null;
   if (w && t && !Number.isNaN(w + t)) {
@@ -1082,7 +1086,7 @@ export function scheduleFlags(r, { dailyLimit = 8, splitGap = 1, mealAfter = 5, 
     notice = { days, required: noticeDays, short: days < noticeDays };
   }
   const order = (a, b) => a.person.localeCompare(b.person) || DAYS.indexOf(a.day) - DAYS.indexOf(b.day);
-  return { overDaily: overDaily.sort(order), splits: splits.sort(order), longStretches: longStretches.sort(order), notice };
+  return { overDaily: overDaily.sort(order), splits: splits.sort(order), longStretches: longStretches.sort(order), sevenDays, notice };
 }
 
 // Who gets the shifts people trade favours to avoid: per person, weekend shifts (start Sat or Sun), closing shifts (end
