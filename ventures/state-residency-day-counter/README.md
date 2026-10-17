@@ -20,6 +20,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Day-by-day log: one CSV row per calendar day (state, whether it came from a stay or the home-state assumption, weekday, a blank column for the evidence you keep), the log residency audits ask for (`dailyLog`, `dailyLogCsv`).
 - Printable audit packet: one self-contained HTML file (days by state against the test, the date ranges behind each total, notices, the day-by-day log with an evidence column, disclaimer) to print to PDF and keep with receipts (`auditReportHtml`).
 - Trip what-if: enter a planned trip and see the days it adds per state, whether it crosses a published limit, and the longest trip from that date that stays inside it (`tripImpact`).
+- Remember and save: an opt-in "Remember my entries on this device" box (local storage only) and a save-to-file / load-from-file pair for the form fields, so a year of stays survives between visits (`setupToJson`, `setupFromJson`).
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `183-day-rule-by-state.html` - guide with a worked example that the test
   suite recomputes.

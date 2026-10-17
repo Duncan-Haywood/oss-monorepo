@@ -1,0 +1,14 @@
+per design / grade (facets = 384): peak at hmin = 1.5, 0.1, 0.05, 0.025; spread of the last three = (max-min)/mean;
+plateau/h1.5 = mean of last three / value at hmin = 1.5; distance from the peak element to the tangent point (w, w+r), mm, at hmin = 0.025
+w=14.0 r=10.0 b=2.0 grade=0.3: 126.2 139.3 139.6 139.2 | spread 0.3% | plateau/h1.5 1.104 | peak 0.87 mm from tangent point
+w=14.0 r=10.0 b=2.0 grade=0.15: 126.2 141.1 142.8 142.8 | spread 1.2% | plateau/h1.5 1.127 | peak 1.46 mm from tangent point
+w=14.0 r=14.0 b=2.0 grade=0.3: 121.4 132.9 133.2 133.0 | spread 0.3% | plateau/h1.5 1.096 | peak 0.50 mm from tangent point
+w=14.0 r=14.0 b=2.0 grade=0.15: 121.4 134.6 135.7 135.5 | spread 0.8% | plateau/h1.5 1.114 | peak 0.91 mm from tangent point
+w=16.0 r=15.0 b=2.0 grade=0.3: 93.8 101.8 101.9 101.9 | spread 0.0% | plateau/h1.5 1.086 | peak 1.50 mm from tangent point
+w=16.0 r=15.0 b=2.0 grade=0.15: 93.8 103.3 103.8 103.6 | spread 0.5% | plateau/h1.5 1.104 | peak 0.92 mm from tangent point
+w=12.0 r=6.0 b=15.0 grade=0.3: 24.4 27.2 27.5 27.3 | spread 1.1% | plateau/h1.5 1.119 | peak 0.49 mm from tangent point
+w=12.0 r=6.0 b=15.0 grade=0.15: 24.4 27.4 27.9 28.0 | spread 2.2% | plateau/h1.5 1.139 | peak 1.23 mm from tangent point
+facets=24: largest |peak(hmin=0.025)/peak(384 facets) - 1| over designs and grades: 2.1%
+facets=96: largest |peak(hmin=0.025)/peak(384 facets) - 1| over designs and grades: 0.9%
+facets=384: largest |peak(hmin=0.025)/peak(384 facets) - 1| over designs and grades: 0.0%
+grade 0.15 vs 0.3 at hmin = 0.025, 384 facets: +2.6%, +1.9%, +1.7%, +2.7%
