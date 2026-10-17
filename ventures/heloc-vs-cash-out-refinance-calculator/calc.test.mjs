@@ -68,3 +68,11 @@ test("num and money handle typed input", () => {
   assert.ok(Number.isNaN(num("")));
   assert.equal(money(-1234.4), "-$1,234");
 });
+
+test("absurd loan terms are refused instead of exhausting memory", () => {
+  for (const k of ["oldYears", "helocYears", "refiYears"]) {
+    const r = analyze({ ...DEFAULTS, [k]: 1e12 });
+    assert.equal(r.rows.length, 0, k);
+    assert.ok(r.warnings.some((w) => /100 years or less/.test(w)), k);
+  }
+});

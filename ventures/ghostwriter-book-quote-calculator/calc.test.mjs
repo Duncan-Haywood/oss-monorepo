@@ -99,3 +99,7 @@ test("defaults produce a plausible book fee", () => {
   assert.ok(a.invoice > 15000 && a.invoice < 60000, String(a.invoice));
   assert.ok(a.perWord > 0.2 && a.perWord < 1.5);
 });
+
+test("an absurd milestone count is capped", () => {
+  assert.equal(schedule({ ...DEFAULTS, milestones: 1e12 }, 10000).length, 61);
+});

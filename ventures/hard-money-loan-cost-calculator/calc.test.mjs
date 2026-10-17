@@ -93,3 +93,8 @@ test("num and money parse and format", () => {
   assert.ok(Number.isNaN(num("")));
   assert.equal(money(-1234.4), "-$1,234");
 });
+
+test("an absurd draw count is capped so the calculation still finishes", () => {
+  const r = analyze({ ...DEFAULTS, aDraws: 1e12 });
+  assert.ok(Number.isFinite(r.a?.total ?? 0));
+});
