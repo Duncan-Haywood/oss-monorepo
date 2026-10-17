@@ -57,7 +57,7 @@
     <h2>1. Guests and wishes</h2>
     <div class="two">
       <div>
-        <label for="guests">Guests, one per line <span class="ghost" style="font-weight:400">(optional party after a bar: Name | Family)</span></label>
+        <label for="guests">Guests, one per line <span class="ghost" style="font-weight:400">(optional party, then optional group: Name | Family | Bride side)</span></label>
         <textarea id="guests" spellcheck="false" placeholder="Maya Okafor | Okafor family&#10;Daniel Okafor | Okafor family&#10;Priya Nair"></textarea>
       </div>
       <div>
@@ -72,6 +72,7 @@
       <div><label for="tcount">Number of tables (blank = fewest that fit)</label><input id="tcount" inputmode="numeric"></div>
     </div>
     <label for="balance" class="check"><input type="checkbox" id="balance" checked aria-label="Fill tables evenly"> Fill tables evenly (untick to fill each table to its full capacity)</label>
+    <label for="mix">Groups (the third column): <select id="mix"><option value="off">Ignore groups</option><option value="spread">Spread each group across tables (mingle)</option><option value="cluster">Seat each group together</option></select></label>
     <button type="button" id="analyze">Seat my guests</button>
     <button type="button" class="secondary" id="another">Try another arrangement</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
@@ -87,6 +88,7 @@
     <div class="tables" id="tables"></div>
     <h3>Wishes it could not meet</h3>
     <ul id="broken"></ul>
+    <div id="groupmix" hidden><h3>Groups by table</h3><ul id="groupmix-list"></ul></div>
     <button type="button" id="download">Download the plan (CSV)</button>
     <button type="button" class="secondary" id="signs">Print table signs</button>
     <button type="button" class="secondary" id="board">Print find-your-table list</button>
@@ -157,7 +159,7 @@
       const g = parseGuests($("#guests").value);
       const r = parseRules($("#rules").value, g.guests);
       const tc = $("#tcount").value.trim();
-      const spec = { guests: g.guests, rules: r.rules, seatsPerTable: Number($("#seats").value), tableCount: tc === "" ? "" : Number(tc), balance: $("#balance").checked, seed };
+      const spec = { guests: g.guests, rules: r.rules, seatsPerTable: Number($("#seats").value), tableCount: tc === "" ? "" : Number(tc), balance: $("#balance").checked, mix: $("#mix").value, seed };
       return { spec, errors: [...g.errors, ...r.errors] };
     }
 
@@ -191,6 +193,8 @@
       $("#tables").innerHTML = res.tables.map((t) => `<div class="tbl"><h4>Table ${t.number} · ${t.size} guest${t.size === 1 ? "" : "s"}</h4><ul>${t.guests.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></div>`).join("");
       const lines = res.broken.map((b) => `${esc(b.aName)} ${{ want: "+", must: "++", avoid: "!", never: "!!" }[b.kind]} ${esc(b.bName)} (${b.kind === "want" || b.kind === "must" ? "not together" : "at the same table"})`);
       for (const p of res.partySplits) lines.push(`Party "${esc(p.party)}" (${p.size}) is split across tables ${p.tables.join(", ")}`);
+      $("#groupmix").hidden = res.groupMix.length === 0;
+      $("#groupmix-list").innerHTML = res.groupMix.map((m) => `<li>${esc(m.group)} (${m.perTable.reduce((a, b) => a + b, 0)}): ${m.perTable.map((c, i) => `table ${i + 1}: ${c}`).join(", ")}</li>`).join("");
       $("#broken").innerHTML = lines.length ? lines.map((l) => `<li>${l}</li>`).join("") : "<li>None.</li>";
       status.textContent = "Done. Review the tables, then download the plan.";
       return true;
