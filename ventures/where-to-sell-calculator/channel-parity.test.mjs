@@ -64,6 +64,10 @@ import {
   MIN_FEE as FACEBOOK_MIN_FEE,
   calculateSale as calculateFacebookSale,
 } from '../facebook-marketplace-fee-calculator/calc.mjs';
+import {
+  CATEGORY_PRESETS as WALMART_CATEGORIES,
+  calculateListing as calculateWalmartListing,
+} from '../walmart-marketplace-calculator/calc.mjs';
 
 const reverb = CHANNEL_PRESETS.find((preset) => preset.id === 'reverb');
 const tiktok = CHANNEL_PRESETS.find((preset) => preset.id === 'tiktok');
@@ -73,6 +77,7 @@ const stockx = CHANNEL_PRESETS.find((preset) => preset.id === 'stockx');
 const mercari = CHANNEL_PRESETS.find((preset) => preset.id === 'mercari');
 const depop = CHANNEL_PRESETS.find((preset) => preset.id === 'depop');
 const facebook = CHANNEL_PRESETS.find((preset) => preset.id === 'facebook-marketplace');
+const walmart = CHANNEL_PRESETS.find((preset) => preset.id === 'walmart');
 
 test('this page still has a Reverb channel to compare', () => {
   // Guard the guard: if the preset is renamed or removed, every assertion
@@ -632,12 +637,41 @@ test('the Facebook Marketplace row matches the dedicated calculator above its mi
   assert.ok(Math.abs(here.profit - there.profit) < 1e-9, `Facebook profit: this page ${here.profit}, dedicated ${there.profit}`);
 });
 
+test('the Walmart row matches the dedicated calculator\'s seller-fulfilled profit', () => {
+  assert.ok(walmart, 'no channel with id "walmart" in CHANNEL_PRESETS');
+  assert.equal(
+    walmart.commissionRate,
+    WALMART_CATEGORIES.everything_else.referralRate,
+    'Walmart referral rate disagrees with walmart-marketplace-calculator\'s default category',
+  );
+  assert.equal(walmart.commissionBase, 'item', 'Walmart referral applies to the item price only');
+  assert.equal(walmart.paymentRate, 0);
+  assert.equal(walmart.paymentFixed, 0);
+  assert.equal(walmart.monthlyFee, 0);
+  assert.equal(walmart.enabled, false);
+  const shared = { price: 40, shippingCharged: 0, shippingCost: 5, itemCost: 15, packagingCost: 1, otherCost: 2, monthlyOrders: 1 };
+  const here = calculateChannel({ ...walmart, enabled: true }, shared);
+  const there = calculateWalmartListing({
+    salePrice: shared.price,
+    referralRate: WALMART_CATEGORIES.everything_else.referralRate,
+    costOfGoods: shared.itemCost,
+    sellerShippingCost: shared.shippingCost,
+    packagingCost: shared.packagingCost,
+    otherCost: shared.otherCost,
+    fulfillmentMethod: 'seller',
+  });
+  assert.ok(
+    Math.abs(here.profit - there.selected.profit) < 1e-9,
+    `Walmart profit: this page ${here.profit}, walmart-marketplace-calculator ${there.selected.profit}`,
+  );
+});
+
 test('every channel with a handoff has a parity assertion in this file', () => {
   // The check that stops this file going stale the way it just did. A new
   // channel that can hand an item to a dedicated calculator is a new chance
   // for the two to disagree, so it must be named here -- and if it is not,
   // this fails naming it, instead of waiting for a seller to find the gap.
-  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx', 'mercari', 'depop', 'facebook-marketplace']);
+  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx', 'mercari', 'depop', 'facebook-marketplace', 'walmart']);
   const missing = HANDOFFS.map((entry) => entry.channel).filter((channel) => !asserted.has(channel));
   assert.deepEqual(
     missing,

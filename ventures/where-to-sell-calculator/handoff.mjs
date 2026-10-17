@@ -289,6 +289,29 @@ export const HANDOFFS = [
     },
     combine: { otherCost: ['otherCost', 'packagingCost'] },
   },
+  {
+    channel: 'walmart',
+    slug: 'walmart-marketplace-calculator',
+    label: 'Walmart Marketplace calculator',
+    // What it adds: WFS versus shipping it yourself (fulfilment by size tier,
+    // storage, aged-inventory removal), Walmart Connect ads, returns, the
+    // Buy Box price match, and two-day shipping.
+    //
+    // `shippingCharged` is deliberately not mapped: Walmart shows one price
+    // with shipping included, and the dedicated calculator has no input for
+    // buyer-paid postage. This page's Walmart preset starts it at zero for
+    // the same reason, so nothing is lost on the trip. Our `shippingCost`
+    // is what the seller pays to ship it themselves, which is exactly its
+    // `sellerShippingCost`. The page opens on WFS by default; the
+    // seller-fulfilled number it compares against is the one priced here.
+    fields: {
+      price: 'salePrice',
+      shippingCost: 'sellerShippingCost',
+      itemCost: 'costOfGoods',
+      packagingCost: 'packagingCost',
+      otherCost: 'otherCost',
+    },
+  },
 ];
 
 const bySlugSafe = (value) => /^[a-z0-9-]+$/.test(value);
