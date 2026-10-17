@@ -208,4 +208,8 @@ test('the page renders every section, marks missing data, and escapes', async ()
   assert.ok(!/https?:\/\/(?!www\.w3)/.test(html.replace(/<a [^>]*>/g, '')), 'no off-origin requests');
   assert.match(barChart({ '2026-10-16': 3 }), /<title>2026-10-16: 3 merges<\/title>/);
   assert.ok(html.includes('CI runs: passed, failed, cancelled'));
+  // The site's shared header, so this page is not a dead end.
+  assert.match(html, /<nav class="pfs-head" aria-label="Site" data-pfs-head>/);
+  assert.match(html, /class="pfs-brand" href="\.\.\/" data-pf-to="hub"/);
+  assert.match(html, /<link rel="stylesheet" href="\.\.\/pf-site\.css">/);
 });

@@ -104,6 +104,9 @@ test('an empty repository yields empty sections, not errors', () => {
   assert.equal(a.runs.records, 0);
   const html = renderIndex(a);
   assert.ok(html.includes('<h1>Development analyses</h1>'));
+  // The site's shared header, linking home from two levels down.
+  assert.match(html, /<nav class="pfs-head" aria-label="Site" data-pfs-head>/);
+  assert.match(html, /class="pfs-brand" href="\.\.\/\.\.\/" data-pf-to="hub"/);
   assert.deepEqual(headlines(a), []);
 });
 

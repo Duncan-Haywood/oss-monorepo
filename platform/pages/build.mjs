@@ -23,6 +23,7 @@
 import { promises as fs, existsSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import crypto from 'node:crypto';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
@@ -106,6 +107,18 @@ import {
 } from './invalid.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 import { REFLOW_CSS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
+import {
+  SITE_NAME,
+  SITE_NAV,
+  SITE_HEADER_CSS,
+  SITE_STYLE_FILE,
+  SEARCH_ANCHOR,
+  renderSiteHeader,
+  renderSiteFooterNav,
+  renderSiteStyle,
+  siteStyleLink,
+  writeResearchChrome,
+} from './site-nav.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -1682,6 +1695,17 @@ const CATEGORY_RULES = [
       || slug === 'youtube-chapters-check'
       // `google-contacts-csv-check` joined 2026-10-05: the CSV half of the contacts-file pre-flights above, same line-numbered findings and explicit not-checked list.
       || slug === 'google-contacts-csv-check',
+  },
+  {
+    // UK tax, pay and benefits, split out of `backoffice` 2026-10-17: 52 `uk-`
+    // calculators had taken that category's offline bundle past its 4 MiB
+    // gzipped bound (build.test.mjs), and a UK visitor looking for take-home
+    // pay or Self Assessment should not have to find it among US cash-flow tools.
+    id: 'uk-tax',
+    title: 'UK tax, pay & benefits',
+    accent: '#3b3f8f',
+    blurb: 'Take-home pay, Self Assessment, dividends, IR35, VAT, pensions, statutory pay and the 100k trap — worked with HMRC rates for the current tax year, in your browser.',
+    test: (slug) => /^uk-/.test(slug),
   },
   {
     id: 'backoffice',
@@ -4094,8 +4118,19 @@ export const GUIDES_PATH = 'guides/';
 export const RESEARCH_PATH = 'research/';
 export const RESEARCH_BUILDER = path.join('research', '_homepage', 'build.py');
 
-function buildResearchPage(outDir, baseUrl) {
-  const args = [path.join(REPO_ROOT, RESEARCH_BUILDER), '--out', path.join(outDir, RESEARCH_PATH), '--base-url', baseUrl];
+async function buildResearchPage(outDir, baseUrl) {
+  // The site header and footer, handed to the Python builder as data so the
+  // research pages carry exactly the markup every other page does. Written
+  // outside the published tree.
+  const chrome = await writeResearchChrome(
+    path.join(await fs.mkdtemp(path.join(os.tmpdir(), 'pf-research-chrome-')), 'site-chrome.json'),
+  );
+  const args = [
+    path.join(REPO_ROOT, RESEARCH_BUILDER),
+    '--out', path.join(outDir, RESEARCH_PATH),
+    '--base-url', baseUrl,
+    '--site-chrome', chrome,
+  ];
   execFileSync('python3', args, {
     stdio: ['ignore', 'ignore', 'inherit'],
   });
@@ -4242,6 +4277,14 @@ export function groupGuidesByCategory(groups) {
  * that carries it twice is what search engines truncate.
  */
 const CATEGORY_PAGE_COPY = {
+  'uk-tax': {
+    title: 'Free UK tax, pay and benefits calculators',
+    description:
+      'Free UK calculators: take-home pay, Self Assessment, dividend tax, IR35, VAT schemes, pension relief, statutory pay and the £100k personal-allowance trap.',
+    intro:
+      'Each tool works one UK tax or pay question with HMRC rates and thresholds, shows the arithmetic, and says which tax year it assumes. Nothing you type leaves your browser.',
+    audience: 'UK employees, sole traders, company directors and landlords',
+  },
   marketplace: {
     title: 'Free marketplace seller fee calculators',
     description:
@@ -4564,7 +4607,7 @@ export function surfaceKind(ventureDir, slug = path.basename(ventureDir)) {
  */
 export function researchHighlights(repoRoot = REPO_ROOT) {
   const file = path.join(repoRoot, 'research', '_homepage', 'projects.json');
-  if (!existsSync(file)) return { featured: [], themes: [] };
+  if (!existsSync(file)) return { featured: [], themes: [], projects: [] };
   const data = JSON.parse(readFileSync(file, 'utf8'));
   const exists = (slug) => existsSync(path.join(repoRoot, 'research', slug, 'README.md'));
   const bySlug = new Map();
@@ -4576,7 +4619,13 @@ export function researchHighlights(repoRoot = REPO_ROOT) {
   const featured = (data.featured ?? [])
     .filter((slug) => bySlug.has(slug))
     .map((slug) => ({ slug, title: bySlug.get(slug).title }));
-  return { featured, themes };
+  // Every project, for the hub's search index.
+  const projects = (data.themes ?? []).flatMap((theme) =>
+    (theme.projects ?? [])
+      .filter((p) => exists(p.slug))
+      .map((p) => ({ slug: p.slug, title: p.title, summary: p.summary ?? '', themeId: theme.id, themeName: theme.name })),
+  );
+  return { featured, themes, projects };
 }
 
 /** Research projects the research homepage builds: `research/<slug>/` with a README. */
@@ -5490,6 +5539,22 @@ const CATEGORY_STYLE = `
     .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
     .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
     .siblings span { color: var(--soft); font-weight: 500; }
+    .jumps { margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .jumps a { font-size: .85rem; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+               background: var(--panel); color: var(--ink); text-decoration: none; }
+    .jumps a:hover, .jumps a:focus-visible { border-color: var(--accent); }
+    .jumps span { color: var(--soft); }
+    .filter { margin: 20px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+    .filter label { font-size: .87rem; font-weight: 650; }
+    .filter input { flex: 1 1 260px; max-width: 420px; font: inherit; padding: 9px 12px; border-radius: 9px;
+                    border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+    .filter span { font-size: .85rem; color: var(--muted); }
+    .filter[hidden] { display: none; }
+    .card .deploy-link { display: inline-block; margin-top: 10px; font-size: .85rem; font-weight: 650;
+                         color: var(--accent); text-decoration: none; }
+    .card .deploy-link:hover { text-decoration: underline; }
+    .empty { color: var(--muted); font-style: italic; }
+    [hidden] { display: none !important; }
     footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
              color: var(--muted); font-size: .9rem; line-height: 1.55; max-width: 760px; }
     footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
@@ -5519,12 +5584,14 @@ const CATEGORY_STYLE = `
  * `data-search` payload, which is a meaningful weight saving on the 112-tool
  * trades page.
  */
-export function renderCategoryPage({ category, items, groups, baseUrl }) {
+export function renderCategoryPage({ category, items, groups, baseUrl, deployable = false, subgroups: subgroupsOverride }) {
   const copy = categoryPageCopy(category);
   const url = `${baseUrl}${categoryPagePath(category.id)}`;
   // Every asset lives at the site root and this page is served two levels down.
   const toRoot = '../../';
-  const subgroups = groupBySubcategory(category.id, items);
+  // A browse-by-type page (KIND_PAGES) passes its own sections: the apps and
+  // command-line tools are filed by the category each one serves.
+  const subgroups = subgroupsOverride ?? groupBySubcategory(category.id, items);
   // Computed the same way the About page proves its own privacy claim, so a
   // category that happens to hold a tool with a documented external call
   // (Sponsor Ready under "more", DNS Change Evidence under "evidence") does
@@ -5545,8 +5612,36 @@ export function renderCategoryPage({ category, items, groups, baseUrl }) {
               surface.pageCount > 1
                 ? `<p class="meta">${surface.pageCount} question${surface.pageCount === 1 ? '' : 's'} answered</p>`
                 : ''
+            }${
+              deployable
+                ? `<a class="deploy-link" href="${escapeHtml(`${toRoot}deploy/?app=${encodeURIComponent(surface.slug)}`)}">Deploy your own copy →</a>`
+                : ''
             }
           </li>`;
+
+  // Jump links to each section, so a 190-tool page is a table of contents
+  // first and a wall of cards second. Plain anchors: they work with no script.
+  const jumps = flat
+    ? ''
+    : `    <nav class="jumps" aria-label="Sections on this page">
+${subgroups
+  .map(
+    ({ subcategory, items: subItems }) =>
+      `      <a href="#${escapeHtml(subcategory.id)}">${escapeHtml(subcategory.title)} <span>${subItems.length}</span></a>`,
+  )
+  .join('\n')}
+    </nav>`;
+
+  // An in-page filter over this page's own cards. Drawn hidden and revealed by
+  // the script, so a visitor without JavaScript never sees a box that does
+  // nothing; the full list is the markup either way.
+  const filter = items.length > 12
+    ? `    <p class="filter" id="cat-filter-row" hidden>
+      <label for="cat-filter">Filter these ${items.length} tools</label>
+      <input id="cat-filter" type="search" placeholder="Type a word from the tool's name or job" autocomplete="off">
+      <span id="cat-filter-count" aria-live="polite"></span>
+    </p>`
+    : '';
 
   const body = flat
     ? `      <ul class="cards">
@@ -5626,19 +5721,23 @@ ${subItems.map(renderCard).join('\n')}
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(itemList)}</script>
   <style>${CATEGORY_STYLE}  </style>
+  ${siteStyleLink(toRoot)}
 </head>
 <body>
+  ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: category.title }] })}
   <div class="wrap">
-    <p class="crumbs"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} free tools</a> › ${escapeHtml(category.title)}</p>
     <header>
       <p class="eyebrow">${escapeHtml(category.title)}</p>
       <h1>${escapeHtml(copy.title)}</h1>
       <p class="lede">${escapeHtml(copy.intro)}</p>
       <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>
     </header>
+${jumps}
+${filter}
 
     <main>
 ${body}
+      <p class="empty" id="cat-filter-empty" hidden>No tool on this page matches that. <a href="${escapeHtml(`${toRoot}#${SEARCH_ANCHOR}`)}">Search every tool</a>.</p>
     </main>
 
     <section class="siblings">
@@ -5649,7 +5748,7 @@ ${siblings}
     </section>
 
     <footer>${disclaimerHtml(toRoot, groups.flatMap((g) => g.items))}
-      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}${GUIDES_PATH}`)}">Guides</a> · <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      ${renderSiteFooterNav({ toRoot })}
       <p>${sponsorsNote()}</p>
     </footer>
   </div>
@@ -5660,11 +5759,213 @@ ${siblings}
        justify keeping these pages or writing more of them. The cross_tool_click
        count on each card is the second half of that: arrivals without opens
        means the copy is wrong, not that the page is unwanted. -->
-  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${escapeHtml(`${CATEGORY_PATH_PREFIX}/${category.id}`)}" defer></script>
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${escapeHtml(`${CATEGORY_PATH_PREFIX}/${category.id}`)}" defer></script>${
+    filter
+      ? `
+  <script>
+    (function () {
+      var row = document.getElementById('cat-filter-row');
+      var box = document.getElementById('cat-filter');
+      var out = document.getElementById('cat-filter-count');
+      var none = document.getElementById('cat-filter-empty');
+      var cards = Array.prototype.slice.call(document.querySelectorAll('main .card'));
+      var sections = Array.prototype.slice.call(document.querySelectorAll('main .subgroup'));
+      var text = cards.map(function (c) { return c.textContent.toLowerCase(); });
+      row.hidden = false;
+      box.addEventListener('input', function () {
+        var words = box.value.toLowerCase().split(/\\s+/).filter(Boolean);
+        var shown = 0;
+        cards.forEach(function (card, i) {
+          var hit = words.every(function (w) { return text[i].indexOf(w) !== -1; });
+          card.hidden = !hit;
+          if (hit) shown += 1;
+        });
+        sections.forEach(function (s) { s.hidden = !s.querySelector('.card:not([hidden])'); });
+        out.textContent = words.length ? shown + ' of ' + cards.length : '';
+        none.hidden = shown !== 0;
+      });
+    })();
+  </script>`
+      : ''
+  }
 </body>
 </html>
 `;
 }
+
+/**
+ * Browse-by-type pages: every self-hostable app, and every command-line tool,
+ * on a page of its own under the reserved `c/` prefix. They used to be two
+ * extra lists on the hub, duplicating cards the category sections already
+ * carried; as pages they are linkable, searchable, and out of the front door's
+ * way. `check.mjs` treats them exactly like a category page.
+ */
+export const KIND_PAGES = [
+  {
+    id: 'apps',
+    kind: 'app',
+    title: 'Self-hostable apps',
+    blurb:
+      'Business software that runs as your own server: deploy a copy to your own cloud account with your own keys, and you own the data.',
+    accent: '#1f4f8a',
+    deployable: true,
+  },
+  {
+    id: 'cli',
+    kind: 'cli',
+    title: 'Command-line tools',
+    blurb:
+      'Checks that run in a terminal or a CI pipeline; each page explains what it looks for and how to install it.',
+    accent: '#2f3b52',
+    deployable: false,
+  },
+];
+
+/** The surfaces a browse-by-type page lists, sectioned by the category each serves. */
+export function kindPageGroups(kindPage, surfaces) {
+  const items = surfaces.filter((s) => s.kind === kindPage.kind);
+  const subgroups = groupByCategory(items).map(({ category, items: subItems }) => ({
+    subcategory: { id: `${kindPage.id}-${category.id}`, title: category.title },
+    items: subItems,
+  }));
+  return { items, subgroups };
+}
+
+/**
+ * Up to `limit` tools to show for a category on the front door: the ones with
+ * the most pages behind them first (a tool with twenty answered questions is a
+ * fuller product than a single calculator), then by name.
+ */
+export function exampleTools(items, limit = 4) {
+  return [...items]
+    .sort((a, b) => (b.pageCount ?? 0) - (a.pageCount ?? 0) || a.title.localeCompare(b.title))
+    .slice(0, limit);
+}
+
+/**
+ * The "Tools" section's own front page (`c/`): every category and type page,
+ * each with its sub-sections, so the whole catalogue is two clicks from
+ * anywhere without one page carrying all of it.
+ */
+export function renderToolsIndexPage({ groups, kindPages = [], surfaces, baseUrl }) {
+  const toRoot = '../';
+  const url = `${baseUrl}${CATEGORY_PATH_PREFIX}/`;
+  const total = surfaces.length;
+  const title = `All ${total} free tools, by category`;
+  const description = `Every free tool on ${SITE_NAME}, filed by the job it does: ${groups
+    .map(({ category }) => category.title.toLowerCase())
+    .join(', ')}. Runs in your browser; no account.`;
+  const section = (id, heading, blurb, count, subs) => `      <section class="cat" id="${escapeHtml(id)}">
+        <h2><a href="${escapeHtml(`${id}/`)}" data-category="${escapeHtml(id)}">${escapeHtml(heading)}</a> <span>${count}</span></h2>
+        <p>${escapeHtml(snippetize(blurb, 170))}</p>${
+          subs.length
+            ? `
+        <p class="subs">${subs
+          .map((sub) => `<a href="${escapeHtml(`${id}/#${sub.subcategory.id}`)}">${escapeHtml(sub.subcategory.title)} <span>${sub.items.length}</span></a>`)
+          .join(' ')}</p>`
+            : ''
+        }
+      </section>`;
+  const cats = groups
+    .map(({ category, items }) =>
+      section(
+        category.id,
+        category.title,
+        category.blurb,
+        items.length,
+        groupBySubcategory(category.id, items).filter((g) => g.subcategory),
+      ),
+    )
+    .join('\n');
+  const kinds = kindPages
+    .map(({ page, items, subgroups }) => section(page.id, page.title, page.blurb, items.length, subgroups))
+    .join('\n');
+  const itemList = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    url,
+    description,
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: groups.length + kindPages.length,
+      itemListElement: [...groups.map(({ category }) => category), ...kindPages.map(({ page }) => page)].map((c, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: c.title,
+        url: `${baseUrl}${categoryPagePath(c.id)}`,
+      })),
+    },
+  };
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <meta name="description" content="${escapeHtml(snippetize(description))}">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(snippetize(description))}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">${jsonLd(itemList)}</script>
+  <style>${CATEGORY_STYLE}${TOOLS_INDEX_STYLE}  </style>
+  ${siteStyleLink(toRoot)}
+</head>
+<body>
+  ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools' }] })}
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">Tools</p>
+      <h1>${escapeHtml(title)}</h1>
+      <p class="lede">Each section has its own page with every tool in it. Know what you need? <a href="${escapeHtml(`${toRoot}#${SEARCH_ANCHOR}`)}">Search all ${total} tools</a> instead.</p>
+    </header>
+    <main>
+      <h2 class="band">By job</h2>
+      <div class="cats">
+${cats}
+      </div>
+      <h2 class="band">By type</h2>
+      <div class="cats">
+${kinds}
+      </div>
+      <h2 class="band">Reading</h2>
+      <p class="more"><a href="${escapeHtml(`${toRoot}${GUIDES_PATH}`)}">Guides</a>: the explainers written beside each tool. <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a>: products compared side by side. <a href="${escapeHtml(`${toRoot}${RESEARCH_PATH}`)}">Research</a>: the open research portfolio.</p>
+    </main>
+    <footer>${disclaimerHtml(toRoot, surfaces)}
+      ${renderSiteFooterNav({ toRoot })}
+      <p>${sponsorsNote()}</p>
+    </footer>
+  </div>
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${CATEGORY_PATH_PREFIX}" defer></script>
+</body>
+</html>
+`;
+}
+
+const TOOLS_INDEX_STYLE = `
+    .band { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
+            margin: 34px 0 12px; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .cats { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .cat { background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px; }
+    .cat h2 { font-size: 1.1rem; margin: 0 0 6px; letter-spacing: -.01em; }
+    .cat h2 a { color: inherit; text-decoration: none; }
+    .cat h2 a:hover, .cat h2 a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .cat h2 span, .subs span { color: var(--soft); font-weight: 500; font-size: .85em; }
+    .cat > p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .cat .subs { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .subs a { font-size: .82rem; padding: 3px 10px; border: 1px solid var(--line); border-radius: 999px;
+              color: var(--ink); text-decoration: none; background: var(--bg); }
+    .subs a:hover, .subs a:focus-visible { border-color: var(--accent); }
+    .more { color: var(--muted); line-height: 1.6; }
+`;
 
 /**
  * Prose rules the card-and-grid sheet has no need for. Appended to
@@ -5836,10 +6137,11 @@ ${group.items.map(renderCard).join('\n')}
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(itemList)}</script>
   <style>${CATEGORY_STYLE}${COMPARE_STYLE}  </style>
+  ${siteStyleLink(toRoot)}
 </head>
 <body>
+  ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Comparisons' }] })}
   <div class="wrap">
-    <p class="crumbs"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(surfaces.length))} free tools</a> › Comparisons</p>
     <header>
       <p class="eyebrow">Comparisons</p>
       <h1>What each free tool here does that the paid product does not — and what it does not do</h1>
@@ -5884,7 +6186,7 @@ ${categoryLinks}
         site is a statement about a product's quality — only about what each
         tool does and does not do.
       </p>
-      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(surfaces.length))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}${GUIDES_PATH}`)}">Guides</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      ${renderSiteFooterNav({ toRoot })}
       <p>${sponsorsNote()}</p>
     </footer>
   </div>
@@ -6049,10 +6351,11 @@ export function renderCompareProductPage({
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(structured)}</script>
   <style>${CATEGORY_STYLE}${COMPARE_STYLE}  </style>
+  ${siteStyleLink(toRoot)}
 </head>
 <body>
+  ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Comparisons', href: `${toRoot}${COMPARE_PATH}` }, { label: subject }] })}
   <div class="wrap">
-    <p class="crumbs"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(surfaces.length))} free tools</a> › <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a> › ${escapeHtml(subject)}</p>
     <header>
       <p class="eyebrow">Compared with ${escapeHtml(subject)}</p>
       <h1>${escapeHtml(`${n} free tools here have a page comparing themselves with ${subject}`)}</h1>
@@ -6098,7 +6401,8 @@ ${categoryLinks}
         ${escapeHtml(subject)} does, read ${escapeHtml(subject)}'s own
         documentation.
       </p>
-      <p style="margin-top:18px"><a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">All comparisons</a> · <a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(surfaces.length))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}${GUIDES_PATH}`)}">Guides</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      <p style="margin-top:18px"><a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">All comparisons</a></p>
+      ${renderSiteFooterNav({ toRoot })}
       <p>${sponsorsNote()}</p>
     </footer>
   </div>
@@ -6265,10 +6569,11 @@ ${tools.map(renderTool).join('\n')}
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(itemList)}</script>
   <style>${CATEGORY_STYLE}${COMPARE_STYLE}${GUIDES_STYLE}  </style>
+  ${siteStyleLink(toRoot)}
 </head>
 <body>
+  ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Guides' }] })}
   <div class="wrap">
-    <p class="crumbs"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(surfaces.length))} free tools</a> › Guides</p>
     <header>
       <p class="eyebrow">Guides</p>
       <h1>The question people ask before they know a calculator exists</h1>
@@ -6303,7 +6608,7 @@ ${categoryLinks}
         index is taken from each page's own heading and description; it adds no
         figure, no ranking and no claim of its own.
       </p>
-      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(surfaces.length))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      ${renderSiteFooterNav({ toRoot })}
       <p>${sponsorsNote()}</p>
     </footer>
   </div>
@@ -6445,10 +6750,11 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(aboutLd)}</script>
   <style>${CATEGORY_STYLE}${ABOUT_STYLE}  </style>
+  ${siteStyleLink(toRoot)}
 </head>
 <body>
+  ${renderSiteHeader({ toRoot, current: 'about', crumbs: [{ label: 'About' }] })}
   <div class="wrap">
-    <p class="crumbs"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${total} free tools</a> › About</p>
     <header>
       <p class="eyebrow">About</p>
       <h1>${escapeHtml(title)}</h1>
@@ -6599,7 +6905,7 @@ ${categoryLinks}
     </section>
 
     <footer>${disclaimerHtml(toRoot, surfaces)}
-      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${total} tools</a> · <a href="${escapeHtml(`${toRoot}${GUIDES_PATH}`)}">Guides</a> · <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      ${renderSiteFooterNav({ toRoot })}
     </footer>
   </div>
   <!-- The same local-only counter every other page loads. An About page that
@@ -6612,18 +6918,105 @@ ${categoryLinks}
 `;
 }
 
-/** A hub section listing one kind of product (apps, CLIs) by name. */
+/** The slim search index the hub (and nothing else) loads. See `renderSearchIndex`. */
+export const SEARCH_INDEX_FILE = 'search-index.json';
+
+/**
+ * The search index, as the JSON the hub fetches when a visitor starts typing.
+ *
+ * The hub used to *be* the index: 1,270 cards, each carrying three token
+ * attributes, rendered into one 1.7 MB page that a phone had to parse before a
+ * visitor could see the front door. The same tokens now live in this file —
+ * the same `searchTokens` output, the same catalogue-wide stopword cut — and
+ * the page that loads it is small. The ranking (`searchScore`) and stemmer
+ * (`searchVariants`) the browser runs are still injected from this file's own
+ * tested exports, so the search a visitor gets is the one the tests check.
+ *
+ * Each item: `s` slug, `u` URL relative to the site root (tools omit it: it
+ * is `<slug>/`), `t` title, `d` the
+ * card description, `c` a key into `cats`, `k` kind (tool, app, cli or
+ * research), `n` the name tokens, `g` the name-plus-alias tokens when they
+ * differ from `n`, `x` the full index. Research projects ride in the same list
+ * so one box finds a calculator and a paper alike.
+ */
+export function renderSearchIndex(surfaces, research = []) {
+  const raw = surfaces.map((surface) => ({
+    surface,
+    name: searchTokens([surface.title, surface.slug]),
+    // The words a person chose for this tool: its name, plus the aliases
+    // someone wrote down because a query was reaching nothing. Kept apart from
+    // `name` so an alias never earns the name weight in the ranking itself.
+    strong: searchTokens([surface.title, surface.slug, aliasesFor(surface.slug)]),
+    index:
+      surface.searchIndex ??
+      searchTokens([surface.title, surface.fullDescription ?? surface.description, surface.slug, aliasesFor(surface.slug)]),
+  }));
+  // The stopword cut is a property of the whole tool catalogue, so it cannot
+  // be decided one item at a time.
+  const catalogueStops = catalogueStopwords(raw.map(({ name, index }) => ({ name, index })));
+  const stopwords = [...new Set([...SEARCH_STOPWORDS, ...catalogueStops])].sort();
+  const cats = {};
+  for (const category of [...ALL_CATEGORIES]) cats[category.id] = category.title;
+  const items = raw.map(({ surface, name, strong, index }) => {
+    const category = categoryFor(surface.slug);
+    const g = withoutStopwords(strong, catalogueStops);
+    return {
+      s: surface.slug,
+      t: surface.title,
+      d: surface.description ?? '',
+      c: category.id,
+      k: surface.kind === 'app' || surface.kind === 'cli' ? surface.kind : 'tool',
+      n: name,
+      ...(g !== name ? { g } : {}),
+      x: withoutStopwords(index, catalogueStops),
+    };
+  });
+  for (const project of research) {
+    const title = decodeEntities(project.title);
+    const summary = decodeEntities(String(project.summary ?? '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+    const key = `research:${project.themeId}`;
+    cats[key] = `Research · ${decodeEntities(project.themeName)}`;
+    const name = searchTokens([title, project.slug]);
+    items.push({
+      s: project.slug,
+      u: `${RESEARCH_PATH}${project.slug}/`,
+      t: title,
+      d: snippetize(summary),
+      c: key,
+      k: 'research',
+      n: name,
+      // The abstract's opening, not all of it: 500 abstracts in full were most
+      // of this file, and the words that say what a project is about come first.
+      x: withoutStopwords(searchTokens([title, project.slug, decodeEntities(project.themeName), summary.slice(0, 320)]), catalogueStops),
+    });
+  }
+  return JSON.stringify({ v: 1, stopwords, cats, items });
+}
+
+/** One category's card on the front door: what it is for, how big, and a taste. */
+function renderCategoryTile({ id, title, blurb, count, examples, note = '' }) {
+  return `        <li class="cat">
+          <h3><a href="${escapeHtml(categoryPagePath(id))}" data-category="${escapeHtml(id)}">${escapeHtml(title)}</a></h3>
+          <p class="cat-blurb">${escapeHtml(snippetize(blurb, 140))}</p>
+          <ul class="cat-examples">
+${examples
+  .map((s) => `            <li><a href="${escapeHtml(s.slug)}/" data-tool="${escapeHtml(s.slug)}">${escapeHtml(s.title.split(' — ')[0])}</a></li>`)
+  .join('\n')}
+          </ul>
+          <a class="cat-all" href="${escapeHtml(categoryPagePath(id))}">${note || `All ${count} tools`} →</a>
+        </li>`;
+}
+
 /**
  * The research block on the hub: the research homepage's featured projects and
- * its themes, each linking into `research/`. Placed beside the apps, above the
- * browser tools, because the hub used to open on a calculator catalogue and
- * mention 500 research projects only as a number.
+ * its themes, each linking into `research/`.
  */
 function renderResearchSection({ featured = [], themes = [] } = {}, researchCount = 0) {
   if (!researchCount) return '';
   const featuredHtml = featured.length
-    ? `      <ul>
+    ? `      <ul class="research-featured">
 ${featured
+  .slice(0, 6)
   .map((p) => `        <li><a href="${escapeHtml(`${RESEARCH_PATH}${p.slug}/`)}">${escapeHtml(decodeEntities(p.title))}</a></li>`)
   .join('\n')}
       </ul>`
@@ -6633,78 +7026,25 @@ ${featured
         .map((t) => `<a href="${escapeHtml(`${RESEARCH_PATH}#${t.id}`)}">${escapeHtml(decodeEntities(t.name))} <span>${t.count}</span></a>`)
         .join(' ')}</p>`
     : '';
-  return `    <section class="kind-section" id="research" aria-labelledby="research-h">
-      <h2 id="research-h">Open research <span>${researchCount}</span></h2>
-      <p>Reproducible research projects with code, tests and write-ups: verification markets, scoring rules, decentralised training, chip design and robotics. <a href="${RESEARCH_PATH}">Browse all research</a>.</p>
+  return `    <section class="band" id="research" aria-labelledby="research-h">
+      <p class="section-eyebrow">Open research</p>
+      <h2 id="research-h">${researchCount} reproducible research projects</h2>
+      <p class="band-lede">Verification markets, scoring rules, decentralised training, chip design and robotics, each with runnable code, tests and a written result. <a href="${RESEARCH_PATH}">Browse all research →</a></p>
 ${featuredHtml}
 ${themesHtml}
     </section>`;
 }
 
-function renderKindSection(id, title, intro, items, deployable) {
-  if (!items.length) return '';
-  // Titles read "Name — what it does"; the card shows the name as the link and
-  // the rest as its tagline, so a grid of 31 reads as names, not sentences.
-  const cards = items
-    .map((s) => {
-      const [name, ...rest] = s.title.split(' — ');
-      const rawTagline = rest.join(' — ');
-      const tagline = rawTagline.charAt(0).toUpperCase() + rawTagline.slice(1);
-      return `        <li><a href="${escapeHtml(s.slug)}/">${escapeHtml(name)}</a>${
-        tagline ? `<span class="tagline">${escapeHtml(tagline)}</span>` : ''
-      }<p>${escapeHtml(s.description ?? '')}</p>${
-        deployable ? `<a class="deploy-link" href="${escapeHtml(`deploy/?app=${encodeURIComponent(s.slug)}`)}">Deploy your copy →</a>` : ''
-      }</li>`;
-    })
-    .join('\n');
-  return `    <section class="kind-section" id="${id}" aria-labelledby="${id}-h">
-      <h2 id="${id}-h">${escapeHtml(title)} <span>${items.length}</span></h2>
-      <p>${escapeHtml(intro)}</p>
-      <ul>
-${cards}
-      </ul>
-    </section>`;
-}
-
 export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { featured: [], themes: [] } } = {}) {
-  // Every product stays in the searchable category groups; apps and CLIs are
-  // also listed in sections of their own (renderKindSection), so a visitor
-  // browsing by kind finds them without the search box.
   const groups = groupByCategory(surfaces);
   const apps = surfaces.filter((s) => s.kind === 'app');
   const clis = surfaces.filter((s) => s.kind === 'cli');
   const browserCount = surfaces.length - apps.length - clis.length;
+  const kindPages = KIND_PAGES.map((page) => ({ page, ...kindPageGroups(page, surfaces) })).filter((k) => k.items.length);
 
-  // Indexes first, then the words they turn out to share, then the cards. The
-  // stopword cut is a property of the whole catalogue, so it cannot be decided
-  // one card at a time.
-  const rawIndex = new Map(
-    surfaces.map((surface) => [
-      surface.slug,
-      {
-        name: searchTokens([surface.title, surface.slug]),
-        // The words a person chose for this tool: its name, plus the aliases
-        // someone wrote down because a query was reaching nothing. Both are
-        // deliberate, which is the property the closest-match trigger needs.
-        // Kept apart from `name` so an alias never earns the name weight in
-        // the ranking itself — reach and relevance are different claims.
-        strong: searchTokens([surface.title, surface.slug, aliasesFor(surface.slug)]),
-        index:
-          surface.searchIndex ??
-          searchTokens([
-            surface.title,
-            surface.fullDescription ?? surface.description,
-            surface.slug,
-            aliasesFor(surface.slug),
-          ]),
-      },
-    ]),
-  );
-  const catalogueStops = catalogueStopwords([...rawIndex.values()]);
-  // One set for the page: the browser normalises a query with exactly the list
-  // the index was built from, generic and derived words alike.
-  const stopwords = [...new Set([...SEARCH_STOPWORDS, ...catalogueStops])].sort();
-
+  // The front door describes its sections, not every tool: each category page
+  // carries its own ItemList, and listing 1,270 tools here twice over was most
+  // of what made this page 1.7 MB.
   const itemList = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -6715,103 +7055,50 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
     isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
     mainEntity: {
       '@type': 'ItemList',
-      numberOfItems: surfaces.length,
-      itemListElement: surfaces.map((surface, index) => ({
-        '@type': 'ListItem',
-        position: index + 1,
-        name: surface.title,
-        description: surface.description,
-        url: `${baseUrl}${surface.slug}/`,
-      })),
+      numberOfItems: groups.length + kindPages.length,
+      itemListElement: [...groups.map(({ category, items }) => ({ category, count: items.length })),
+        ...kindPages.map(({ page, items }) => ({ category: page, count: items.length }))]
+        .map(({ category, count }, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: `${category.title} (${count})`,
+          url: `${baseUrl}${categoryPagePath(category.id)}`,
+        })),
     },
   };
 
-  // A tool card. `headingLevel` follows the section it lands in so the document
-  // outline stays legal: a card is an h3 in a flat category and an h4 under a
-  // sub-group's h3. Screen-reader heading navigation is the browse path for
-  // anyone not using the search box, so it has to describe the real nesting.
-  const renderCard = (surface, headingLevel) => `          <li class="card" data-name="${escapeHtml(
-    rawIndex.get(surface.slug).name,
-  )}" data-strong="${escapeHtml(
-    withoutStopwords(rawIndex.get(surface.slug).strong, catalogueStops),
-  )}" data-search="${escapeHtml(
-    withoutStopwords(rawIndex.get(surface.slug).index, catalogueStops),
-  )}">
-            <a href="${escapeHtml(surface.slug)}/" data-tool="${escapeHtml(surface.slug)}">
-              <h${headingLevel}>${escapeHtml(surface.title)}</h${headingLevel}>
-            </a>
-            <p>${escapeHtml(surface.description)}</p>
-            ${
-              surface.pageCount > 1
-                ? `<p class="meta">${surface.pageCount} question${surface.pageCount === 1 ? '' : 's'} answered</p>`
-                : ''
-            }
-          </li>`;
-
-  const sections = groups
-    .map(({ category, items }) => {
-      const subgroups = groupBySubcategory(category.id, items);
-      // One unnamed sub-group means the category is small enough to read as a
-      // flat list; rendering a lone sub-heading over it would be noise.
-      const flat = subgroups.length === 1 && subgroups[0].subcategory === null;
-      const body = flat
-        ? `        <ul class="cards">
-${items.map((surface) => renderCard(surface, 3)).join('\n')}
-        </ul>`
-        : subgroups
-            .map(
-              ({ subcategory, items: subItems }) => `        <section class="subgroup" id="${subcategory.id}" data-subgroup="${subcategory.id}">
-          <h3>${escapeHtml(subcategory.title)} <span class="subgroup-count">${subItems.length}</span></h3>
-          <ul class="cards">
-${subItems.map((surface) => renderCard(surface, 4)).join('\n')}
-          </ul>
-        </section>`,
-            )
-            .join('\n');
-
-      // The heading links its own category page. This is the only path a
-      // crawler has to those pages from the hub, and it is also the honest
-      // affordance for a visitor who wants one trade rather than all six —
-      // without it the section heading is the one thing on this page that
-      // names a subject and cannot be opened.
-      return `
-      <section class="group" id="${category.id}" data-group="${category.id}">
-        <h2><a class="group-link" href="${escapeHtml(categoryPagePath(category.id))}" data-category="${escapeHtml(category.id)}">${escapeHtml(category.title)}</a></h2>
-        <p class="group-blurb">${escapeHtml(category.blurb)}</p>
-${body}
-      </section>`;
-    })
+  const categoryTiles = groups
+    .map(({ category, items }) =>
+      renderCategoryTile({
+        id: category.id,
+        title: category.title,
+        blurb: category.blurb,
+        count: items.length,
+        examples: exampleTools(items, 4),
+      }),
+    )
+    .join('\n');
+  const kindTiles = kindPages
+    .map(({ page, items }) =>
+      renderCategoryTile({
+        id: page.id,
+        title: page.title,
+        blurb: page.blurb,
+        count: items.length,
+        examples: exampleTools(items, 4),
+        note: `All ${items.length} ${page.kind === 'app' ? 'apps' : 'command-line tools'}`,
+      }),
+    )
     .join('\n');
 
-  // A contents index, because the hub is 43 screens tall on a phone and a
-  // contractor reading it is often standing on a job site. Without this, the
-  // only route to "Compliance checks" is scrolling past 28 screens of trade
-  // cards, and the only alternative is a search box that needs the visitor to
-  // already know what the tool is called.
-  //
-  // Plain in-page anchors, so it works before — and without — the script.
-  const contents = `
-    <nav class="contents" id="contents" aria-label="Jump to a section">
-${groups
-  .map(({ category, items }) => {
-    const subgroups = groupBySubcategory(category.id, items).filter((g) => g.subcategory);
-    const children = subgroups.length
-      ? `
-        <ul>
-${subgroups
-  .map(
-    ({ subcategory, items: subItems }) =>
-      `          <li><a href="#${subcategory.id}">${escapeHtml(subcategory.title)} <span>${subItems.length}</span></a></li>`,
-  )
-  .join('\n')}
-        </ul>`
-      : '';
-    return `      <div class="contents-group">
-        <a class="contents-top" href="#${category.id}">${escapeHtml(category.title)} <span>${items.length}</span></a>${children}
-      </div>`;
-  })
-  .join('\n')}
-    </nav>`;
+  // A short featured row: the fullest tool in each of the six largest
+  // categories, so the front door shows range rather than six calculators
+  // from one trade.
+  const featured = [...groups]
+    .sort((a, b) => b.items.length - a.items.length)
+    .slice(0, 6)
+    .map(({ items }) => exampleTools(items, 1)[0])
+    .filter(Boolean);
 
   return `<!doctype html>
 <html lang="en">
@@ -6842,6 +7129,7 @@ ${subgroups
   <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(itemList)}</script>
+  ${siteStyleLink('')}
   <style>
     :root {
       color-scheme: light dark;
@@ -6851,10 +7139,8 @@ ${subgroups
          It exists because the de-emphasis it provides used to be spelled as an
          opacity, which is not a colour and therefore cannot be checked:
          --muted at .65 renders #89919c on the white panel, 3.18:1, under the
-         4.5:1 WCAG AA needs for body-size text. The group counts are the only
-         thing that told a visitor how big a category is, so the number that
-         failed was content, not decoration. Naming the tint makes it a value
-         contrast.mjs can measure. */
+         4.5:1 WCAG AA needs for body-size text. Naming the tint makes it a
+         value contrast.mjs can measure. */
       --soft: #656e78;
       --hero-2: #3b5bdb;
       font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -6867,48 +7153,50 @@ ${subgroups
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; }
     a { color: var(--accent); }
-    .wrap { max-width: 1120px; margin: 0 auto; padding: 8px 20px 64px; }
+    [hidden] { display: none !important; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 8px 16px 64px; }
     .skip { position: absolute; left: -999px; top: 8px; background: var(--panel); padding: 8px 12px; border-radius: 8px; z-index: 10; }
     .skip:focus { left: 8px; }
-    /* Top bar and hero: the landing half of the page. The catalogue below keeps
-       its own styles; this half says what the project is before listing it. */
-    .topbar { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--panel) 88%, transparent);
-              backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px);
-              border-bottom: 1px solid var(--line); }
-    .topnav { max-width: 1120px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center;
-              justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-    .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 750; letter-spacing: -.01em;
-             color: var(--ink); text-decoration: none; }
-    .brand-mark { width: 22px; height: 22px; border-radius: 6px;
-                  background: linear-gradient(135deg, var(--accent), var(--hero-2)); }
-    .topnav-links { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: .92rem; }
-    .topnav-links a { color: var(--muted); text-decoration: none; font-weight: 550; }
-    .topnav-links a:hover, .topnav-links a:focus-visible { color: var(--ink); }
-    .topnav-links .topnav-gh { color: var(--ink); }
     .hero { background:
               radial-gradient(1000px 420px at 85% -10%, color-mix(in srgb, var(--hero-2) 22%, transparent), transparent 70%),
               radial-gradient(800px 400px at 0% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
               var(--bg);
             border-bottom: 1px solid var(--line); }
-    .hero-inner { max-width: 1120px; margin: 0 auto; padding: clamp(48px, 9vw, 104px) 20px clamp(40px, 6vw, 64px); }
+    .hero-inner { max-width: 1120px; margin: 0 auto; padding: clamp(36px, 7vw, 80px) 16px clamp(32px, 5vw, 52px); }
     .eyebrow, .section-eyebrow { font-size: .76rem; font-weight: 700; letter-spacing: .12em;
-               text-transform: uppercase; color: var(--accent); margin: 0 0 14px; }
-    h1 { font-size: clamp(2.2rem, 5.6vw, 3.9rem); line-height: 1.04; letter-spacing: -.04em;
-         margin: 0 0 20px; max-width: 21ch; text-wrap: balance; }
-    .lede { font-size: clamp(1.02rem, 1.6vw, 1.18rem); line-height: 1.6; color: var(--muted); margin: 0; max-width: 64ch; }
-    .cta { display: flex; flex-wrap: wrap; gap: 10px; margin: 30px 0 0; }
-    .btn { display: inline-block; padding: 11px 18px; border-radius: 10px; font-weight: 650; font-size: .95rem;
-           text-decoration: none; border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
-    .btn:hover, .btn:focus-visible { border-color: var(--accent); }
-    .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-    .btn-primary:hover, .btn-primary:focus-visible { filter: brightness(1.08); }
-    .btn-ghost { background: transparent; }
-    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 44px 0 0; max-width: 820px;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
+    h1 { font-size: clamp(2rem, 5.2vw, 3.5rem); line-height: 1.05; letter-spacing: -.04em;
+         margin: 0 0 16px; max-width: 22ch; text-wrap: balance; }
+    .lede { font-size: clamp(1rem, 1.6vw, 1.15rem); line-height: 1.6; color: var(--muted); margin: 0; max-width: 64ch; }
+    /* The search is the front door's main control, so it sits in the hero. */
+    .search { margin: 28px 0 0; max-width: 720px; scroll-margin-top: 16px; }
+    .search label { display: block; font-size: .9rem; font-weight: 650; margin-bottom: 8px; }
+    .search-row { display: flex; gap: 8px; }
+    .search input { flex: 1 1 auto; min-width: 0; padding: 14px 16px; font: inherit; font-size: 1.05rem;
+                    border: 1px solid var(--line); border-radius: 12px;
+                    background: var(--panel); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+    .search button { font: inherit; font-weight: 650; padding: 0 18px; border-radius: 12px; cursor: pointer;
+                     border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); }
+    .search-hint { font-size: .85rem; color: var(--muted); margin: 8px 0 0; }
+    .count { font-size: .88rem; color: var(--muted); margin: 14px 0 0; }
+    .closest { font-size: .88rem; color: var(--ink); margin: 14px 0 0; }
+    .results { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+    .results[hidden] { display: none; }
+    .results li { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+    .results li:hover { border-color: var(--accent); }
+    .results a { font-weight: 650; color: var(--ink); text-decoration: none; }
+    .results a:hover, .results a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .results .r-cat { display: block; font-size: .78rem; color: var(--soft); margin-top: 2px; }
+    .results p { margin: 4px 0 0; font-size: .88rem; color: var(--muted); line-height: 1.45; }
+    .results-more button { font: inherit; font-size: .9rem; font-weight: 650; color: var(--accent);
+                           background: none; border: 0; padding: 8px 0; cursor: pointer; text-decoration: underline; }
+    .empty { color: var(--muted); font-style: italic; margin: 14px 0 0; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 32px 0 0; max-width: 820px;
              border: 1px solid var(--line); border-radius: 14px; background: var(--panel); overflow: hidden; }
-    .stats div { padding: 16px 18px; border-left: 1px solid var(--line); }
+    .stats div { padding: 14px 16px; border-left: 1px solid var(--line); }
     .stats div:first-child { border-left: 0; }
     .stats dt { font-size: .8rem; color: var(--muted); }
-    .stats dd { margin: 4px 0 0; font-size: 1.7rem; font-weight: 750; letter-spacing: -.03em;
+    .stats dd { margin: 4px 0 0; font-size: 1.55rem; font-weight: 750; letter-spacing: -.03em;
                 font-variant-numeric: tabular-nums; }
     .stats dd a { color: var(--ink); text-decoration: none; }
     .stats dd a:hover, .stats dd a:focus-visible { color: var(--accent); }
@@ -6917,98 +7205,54 @@ ${subgroups
       .stats div:nth-child(3) { border-left: 0; }
       .stats div:nth-child(n+3) { border-top: 1px solid var(--line); }
     }
-    .pillars h2, .how h2, .kind-section h2, .tools-intro h2 { font-size: clamp(1.5rem, 3vw, 2rem);
-         letter-spacing: -.03em; line-height: 1.15; margin: 0 0 10px; }
-    .pillars, .how { margin-top: 64px; }
-    .pillar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; margin-top: 26px; }
-    .pillar { display: flex; flex-direction: column; padding: 24px; border: 1px solid var(--line); border-radius: 16px;
+    .band { margin-top: 56px; scroll-margin-top: 16px; }
+    .band h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); letter-spacing: -.03em; line-height: 1.15; margin: 0 0 8px; }
+    .band-lede { color: var(--muted); line-height: 1.6; max-width: 70ch; margin: 0; }
+    /* The category grid: the browse path for a visitor who cannot name the tool. */
+    .cats { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 14px;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+    .cat { display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line);
+           border-radius: 14px; padding: 18px 18px 16px; }
+    .cat:hover { border-color: var(--accent); }
+    .cat h3 { margin: 0 0 6px; font-size: 1.1rem; letter-spacing: -.01em; }
+    .cat h3 a { color: var(--ink); text-decoration: none; }
+    .cat h3 a:hover, .cat h3 a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .cat-blurb { margin: 0 0 10px; font-size: .9rem; color: var(--muted); line-height: 1.5; }
+    .cat-examples { list-style: none; margin: 0 0 12px; padding: 0; flex: 1; }
+    .cat-examples li { margin: 0; padding: 5px 0; border-top: 1px solid var(--line); font-size: .9rem; line-height: 1.35; }
+    .cat-examples a { color: var(--ink); text-decoration: none; }
+    .cat-examples a:hover, .cat-examples a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .cat-all { font-weight: 650; font-size: .9rem; text-decoration: none; }
+    .cat-all:hover { text-decoration: underline; }
+    .featured { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 12px;
+                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+    .featured li { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+    .featured a { font-weight: 650; color: var(--ink); text-decoration: none; }
+    .featured a:hover, .featured a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .featured .f-cat { display: block; font-size: .78rem; color: var(--soft); margin-top: 3px; }
+    .featured p { margin: 6px 0 0; font-size: .87rem; color: var(--muted); line-height: 1.5; }
+    .pillar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 22px; }
+    .pillar { display: flex; flex-direction: column; padding: 22px; border: 1px solid var(--line); border-radius: 16px;
               background: var(--panel); color: var(--ink); text-decoration: none;
               transition: border-color .15s, transform .15s; }
     .pillar:hover, .pillar:focus-visible { border-color: var(--accent); transform: translateY(-2px); }
-    .pillar h3 { margin: 0 0 10px; font-size: 1.15rem; letter-spacing: -.01em; }
-    .pillar p { margin: 0 0 18px; color: var(--muted); line-height: 1.6; font-size: .95rem; flex: 1; }
+    .pillar h3 { margin: 0 0 8px; font-size: 1.1rem; letter-spacing: -.01em; }
+    .pillar p { margin: 0 0 16px; color: var(--muted); line-height: 1.6; font-size: .93rem; flex: 1; }
     .pillar-more { font-weight: 650; color: var(--accent); font-size: .92rem; }
-    .steps { list-style: none; counter-reset: step; padding: 0; margin: 26px 0 0; display: grid;
-             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-    .steps li { counter-increment: step; position: relative; padding: 22px 22px 22px 66px; border-radius: 16px;
-                background: var(--panel); border: 1px solid var(--line); line-height: 1.6; color: var(--muted); font-size: .95rem; }
-    .steps li::before { content: counter(step); position: absolute; left: 22px; top: 20px; width: 30px; height: 30px;
-                        border-radius: 50%; display: grid; place-items: center; font-weight: 750;
-                        background: var(--accent); color: var(--accent-ink); }
-    .steps strong { display: block; color: var(--ink); margin-bottom: 2px; }
     .principles { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 8px 22px;
                   font-size: .9rem; color: var(--muted); }
     .principles li::before { content: "✓"; color: var(--accent); font-weight: 800; margin-right: 8px; }
-    .search { margin: 26px 0 8px; }
-    .search label { display: block; font-size: .87rem; font-weight: 650; margin-bottom: 6px; }
-    .search input { width: 100%; max-width: 520px; padding: 12px 14px; font: inherit;
-                    border: 1px solid var(--line); border-radius: 9px;
-                    background: var(--panel); color: var(--ink); }
-    .count { font-size: .85rem; color: var(--muted); margin: 8px 0 0; }
-    .closest { font-size: .85rem; color: var(--ink); margin: 6px 0 0; max-width: 520px; }
-    /* Multi-column rather than grid: one section holds eight sub-groups and the
-       rest hold none, and grid would size every cell in the row to that tallest
-       one, leaving four columns of white space beside it. Columns just flow. */
-    .kind-section, .tools-intro { margin-top: 72px; scroll-margin-top: 70px; }
-    .kind-section > p, .tools-intro > p { color: var(--muted); line-height: 1.6; max-width: 70ch; margin: 0; }
-    .kind-section ul { list-style: none; padding: 0; margin: 24px 0 0; display: grid;
-                       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
-    .kind-section li { padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px;
-                       background: var(--panel); line-height: 1.45; transition: border-color .15s; }
-    .kind-section li:hover { border-color: var(--accent); }
-    .kind-section li > a:first-child { font-weight: 650; color: var(--ink); text-decoration: none; }
-    .kind-section li > a:first-child:hover { color: var(--accent); text-decoration: underline; }
-    .kind-section li { display: flex; flex-direction: column; }
-    .kind-section .tagline { font-size: .86rem; color: var(--ink); margin-top: 2px; }
-    .kind-section li p { margin: 8px 0 0; font-size: .85rem; color: var(--muted); line-height: 1.5; flex: 1; }
-    .kind-section .deploy-link { margin-top: 12px; font-size: .84rem; font-weight: 650; text-decoration: none; }
-    .kind-section .deploy-link:hover { text-decoration: underline; }
-    #research li { font-weight: 600; }
-    #research li a { color: var(--ink); text-decoration: none; }
-    #research li a:hover { color: var(--accent); text-decoration: underline; }
-    #research .research-themes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .research-featured { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 10px;
+                         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .research-featured li { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+                            padding: 12px 14px; font-weight: 600; line-height: 1.4; }
+    .research-featured a { color: var(--ink); text-decoration: none; }
+    .research-featured a:hover { color: var(--accent); text-decoration: underline; }
+    .research-themes { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
     .research-themes a { padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: .83rem;
                          text-decoration: none; color: var(--ink); background: var(--panel); }
     .research-themes a:hover { border-color: var(--accent); }
-    .research-themes span, .tools-intro h2 span, .kind-section h2 span { color: var(--soft); font-weight: 500; font-size: .7em; margin-left: 4px; }
-    .contents { margin-top: 26px; padding: 16px 18px; background: var(--panel);
-                border: 1px solid var(--line); border-radius: 13px;
-                columns: 210px; column-gap: 22px; }
-    .contents[hidden] { display: none; }
-    .contents-group { break-inside: avoid; margin: 0 0 14px; }
-    .contents ul { list-style: none; margin: 6px 0 0; padding: 0; }
-    .contents li { margin-top: 2px; }
-    .contents a { color: inherit; text-decoration: none; display: block;
-                  padding: 3px 0; font-size: .88rem; line-height: 1.35; }
-    .contents a:hover, .contents a:focus-visible { color: var(--accent); text-decoration: underline; }
-    .contents .contents-top { font-weight: 700; font-size: .93rem; }
-    .contents li a { color: var(--muted); padding-left: 10px;
-                     border-left: 1px solid var(--line); }
-    .contents span { font-weight: 600; color: var(--soft); }
-    /* Anchor targets clear the section heading of the viewport edge, so a jump
-       lands on the heading rather than on its first row of cards. */
-    .group, .subgroup { scroll-margin-top: 14px; }
-    .group { margin-top: 38px; }
-    .group h2 { font-size: 1.3rem; margin: 0 0 4px; letter-spacing: -.02em; }
-    .group h2 a { color: inherit; text-decoration: none; }
-    .group h2 a:hover, .group h2 a:focus-visible { color: var(--accent); text-decoration: underline; }
-    .group-blurb { color: var(--muted); margin: 0 0 16px; font-size: .95rem; line-height: 1.5; }
-    .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
-             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
-    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
-            padding: 17px 18px; }
-    .subgroup { margin-top: 26px; }
-    .subgroup[hidden] { display: none; }
-    .subgroup h3 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
-                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
-                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
-    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
-    .card h3, .card h4 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
-    .card a { color: inherit; text-decoration: none; }
-    .card a:hover h3, .card a:focus-visible h3,
-    .card a:hover h4, .card a:focus-visible h4 { color: var(--accent); text-decoration: underline; }
-    .card p { margin: 0; font-size: .89rem; line-height: 1.5; color: var(--muted); }
-    .card .meta { margin-top: 9px; font-size: .78rem; font-weight: 650; color: var(--accent); }
+    .research-themes span { color: var(--soft); font-weight: 500; font-size: .9em; margin-left: 2px; }
     .yours { margin-top: 30px; padding: 16px 18px 18px; background: var(--panel);
              border: 1px solid var(--line); border-radius: 13px; }
     .yours h2 { font-size: 1.05rem; margin: 0 0 4px; letter-spacing: -.01em; }
@@ -7044,11 +7288,9 @@ ${subgroups
                        padding: 1px 8px; color: var(--muted); }
     /* The one row state that is asking for something. */
     .bids .bid-state[data-state="waiting"] { color: var(--accent); border-color: var(--accent); }
-    /* A quiet quote keeps the waiting colour — it is the same state, further
-       along — and the row carries the word "Chase" beside it rather than a
-       second hue. Weight and a word do the work, so the distinction survives a
-       monochrome print and reads for a visitor who cannot separate the two
-       colours. */
+    /* A quiet quote keeps the waiting colour and carries the word "Chase"
+       beside it rather than a second hue, so the distinction survives a
+       monochrome print and reads for a visitor who cannot separate colours. */
     .bids .bid-state[data-state="quiet"] { color: var(--accent); border-color: var(--accent);
                                            font-weight: 700; }
     .bids .bid-chase-tag { font-size: .74rem; font-weight: 700; letter-spacing: .03em;
@@ -7059,8 +7301,7 @@ ${subgroups
                        border-radius: 0 8px 8px 0; font-size: .85rem; }
     /* All four standing readings share one rule, in the muted border rather
        than the accent one: the chase line is asking the contractor to do
-       something today, and these are standing readings about their pricing.
-       Stacked accent bars would make none of them the thing to act on. */
+       something today, and these are standing readings about their pricing. */
     .bids .bid-pricing,
     .bids .bid-win-rate,
     .bids .bid-trend,
@@ -7078,7 +7319,6 @@ ${subgroups
        visitor's own data on their own device, but it has no place on a sheet
        they hand to somebody else. */
     @media print { .bids { display: none; } }
-    .empty { display: none; color: var(--muted); font-style: italic; margin-top: 30px; }
     footer { margin-top: 52px; border-top: 1px solid var(--line); padding-top: 24px;
              font-size: .87rem; line-height: 1.6; color: var(--muted); }
     footer h2 { font-size: .95rem; color: var(--ink); margin: 20px 0 6px; }
@@ -7116,107 +7356,51 @@ ${subgroups
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-  <div class="topbar">
-    <nav class="topnav" aria-label="Site">
-      <a class="brand" href="./"><span class="brand-mark" aria-hidden="true"></span>${escapeHtml(SITE_NAME)}</a>
-      <span class="topnav-links">
-        <a href="#apps">Apps</a>
-        <a href="#research">Research</a>
-        <a href="#tools">Tools</a>
-        <a href="${WRITING_PATH}">Blog</a>
-        <a href="deploy/">Deploy</a>
-        <a href="dev/">Development</a>
-        <a class="topnav-gh" href="${REPO_URL}">GitHub</a>
-      </span>
-    </nav>
-  </div>
+  ${renderSiteHeader({ toRoot: '', current: 'home' })}
 
   <header class="hero">
     <div class="hero-inner">
       <p class="eyebrow">Open source · MIT licensed · Built in public</p>
       <h1>Software and research that anyone can use, inspect, and run themselves.</h1>
       <p class="lede">
-        ${escapeHtml(SITE_NAME)} is an open portfolio of business software and research.
-        We build self-hostable apps that a small business can deploy into its own
-        cloud account in one step, publish reproducible research with its code and
-        tests, and give away focused tools that run entirely in your browser.
-        There are no accounts, no paywalls, and no data leaving your hands.
+        ${escapeHtml(SITE_NAME)} is an open portfolio of business software and research:
+        focused tools that run entirely in your browser, self-hostable apps a small
+        business can deploy into its own cloud account, and reproducible research
+        with its code and tests. No accounts, no paywalls, and no data leaving your hands.
       </p>
-      <p class="cta">
-        <a class="btn btn-primary" href="#apps">Explore the apps</a>
-        <a class="btn" href="#research">Read the research</a>
-        <a class="btn btn-ghost" href="${REPO_URL}">Source on GitHub</a>
-      </p>
+
+      <!-- The search runs over a JSON index of every tool and research project
+           (search-index.json), fetched when a visitor first types. Without
+           JavaScript the category grid below is the way in: every tool is on
+           its category's page. -->
+      <form class="search" id="${SEARCH_ANCHOR}" role="search" action="./" method="get">
+        <label for="q">Search ${surfaces.length} tools${researchCount ? ` and ${researchCount} research projects` : ''}</label>
+        <div class="search-row">
+          <input id="q" name="q" type="search" placeholder="eBay fees, roofing bid, freight, VAT, scoring rules…"
+                 autocomplete="off" spellcheck="false">
+          <button type="submit">Search</button>
+        </div>
+        <noscript><p class="search-hint">Search needs JavaScript. Every tool is listed on its category page below.</p></noscript>
+        <p class="count" id="count" aria-live="polite"></p>
+        <p class="closest" id="closest" hidden></p>
+        <ol class="results" id="results" hidden></ol>
+        <p class="results-more" id="results-more" hidden></p>
+        <p class="empty" id="empty" hidden>No tool matches that. Try a marketplace, a trade, or the thing you are pricing — or <a href="${CATEGORY_PATH_PREFIX}/">browse by category</a>.</p>
+      </form>
+
       <dl class="stats" id="overview">
-        <div><dt>Self-hostable apps</dt><dd><a href="#apps">${apps.length}</a></dd></div>
-        <div><dt>Research projects</dt><dd><a href="#research">${researchCount}</a></dd></div>
-        <div><dt>Browser tools</dt><dd><a href="#tools">${browserCount}</a></dd></div>
-        <div><dt>Command-line checks</dt><dd><a href="#clis">${clis.length}</a></dd></div>
+        <div><dt>Browser tools</dt><dd><a href="${CATEGORY_PATH_PREFIX}/">${browserCount}</a></dd></div>
+        <div><dt>Self-hostable apps</dt><dd><a href="${escapeHtml(categoryPagePath('apps'))}">${apps.length}</a></dd></div>
+        <div><dt>Command-line tools</dt><dd><a href="${escapeHtml(categoryPagePath('cli'))}">${clis.length}</a></dd></div>
+        <div><dt>Research projects</dt><dd><a href="${RESEARCH_PATH}">${researchCount}</a></dd></div>
       </dl>
     </div>
   </header>
 
-  <div class="wrap" id="main">
-    <section class="pillars" aria-labelledby="what-h">
-      <p class="section-eyebrow">What we do</p>
-      <h2 id="what-h">Three kinds of work, one principle: you stay in control</h2>
-      <div class="pillar-grid">
-        <a class="pillar" href="#apps">
-          <h3>Business software you own</h3>
-          <p>Failed-payment recovery, churn alerts, booking pages, e-signatures, status pages and more, packaged as servers you deploy to your own cloud with your own keys. Infrastructure is described as code, so a deploy is repeatable and nothing of ours sits in between.</p>
-          <span class="pillar-more">${apps.length} apps →</span>
-        </a>
-        <a class="pillar" href="#research">
-          <h3>Open, reproducible research</h3>
-          <p>Questions about verification markets, scoring rules, decentralised training, chip design and robotics, each answered by a project with runnable code, tests and a written result you can check and build on.</p>
-          <span class="pillar-more">${researchCount} projects →</span>
-        </a>
-        <a class="pillar" href="#tools">
-          <h3>Free tools that respect privacy</h3>
-          <p>Focused pages for sellers, contractors and back offices: fees, bids, invoices and compliance checks. They compute on your device, work offline once opened, and upload nothing you type.</p>
-          <span class="pillar-more">${browserCount + clis.length} tools →</span>
-        </a>
-      </div>
-    </section>
-
-    <section class="how" aria-labelledby="how-h">
-      <p class="section-eyebrow">How it works</p>
-      <h2 id="how-h">From the catalogue to your own copy</h2>
-      <ol class="steps">
-        <li><strong>Pick a product.</strong> Every app and tool has its own page explaining what it does, who it is for, and its limits.</li>
-        <li><strong>Run it your way.</strong> Use a browser tool as is, or deploy an app to your own account with the <a href="deploy/">one-step deploy</a>. Features that use AI run on your own API key.</li>
-        <li><strong>Own the result.</strong> MIT licence, your infrastructure, your data. Fork it, change it, or sell it to your own customers.</li>
-      </ol>
-      <ul class="principles">
-        <li>No accounts or sign-up</li>
-        <li>No tracking cookies</li>
-        <li>MIT licence throughout</li>
-        <li>Every change in <a href="dev/">public history</a></li>
-      </ul>
-    </section>
-
-${renderKindSection('apps', 'Self-hostable apps', 'Business software that runs as your own server: deploy a copy to your own cloud account with your own keys, and you own the data.', apps, true)}
-${renderResearchSection(research, researchCount)}
-
-    <section class="tools-intro" id="tools" aria-labelledby="tools-h">
-      <p class="section-eyebrow">The catalogue</p>
-      <h2 id="tools-h">Browser tools <span>${browserCount}</span></h2>
-      <p>Single-purpose pages that answer one question with your own numbers — a fee, a bid, a bill, a record — computed on your device, with nothing uploaded.</p>
-    </section>
-
-    <div class="search">
-      <label for="q">Search the browser tools</label>
-      <input id="q" type="search" placeholder="eBay fees, tile backsplash, freight, VAT…"
-             autocomplete="off" spellcheck="false">
-      <p class="count" id="count"></p>
-      <p class="closest" id="closest" hidden></p>
-    </div>
-
-${contents}
-
-    <!-- Filled in by script from the saved bids on this device. Above "pick up
-         where you left off" deliberately: a contractor whose customer just rang
-         back wants the job, not the tool that priced it. -->
+  <main class="wrap" id="main">
+    <!-- Filled in by script from the saved bids on this device. Above everything
+         else deliberately: a contractor whose customer just rang back wants the
+         job, not the tool that priced it. -->
     <section class="bids" id="bids" hidden>
       <h2>Your saved bids</h2>
       <p>
@@ -7234,56 +7418,22 @@ ${contents}
         and whether that is the same trade your quotes actually land on, which
         is the one thing no single tool here can tell you.
       </p>
-      <!-- The reason to open the hub rather than the tool: how many quotes are
-           still out, and how long the oldest has been. Drawn only when there is
-           something to say — see followUpSentence. -->
+      <!-- How many quotes are still out, and how long the oldest has been.
+           See followUpSentence. -->
       <p class="bid-summary" id="bidsSummary" hidden></p>
-      <!-- How long this contractor's customers actually take to answer, and how
-           many quotes have outlived that. Read across every tool, which is the
-           only place it can usually be read at all: the window needs three
-           answered bids, and a contractor working six calculators reaches three
-           in none of them while having twelve in total. A reply time is a fact
-           about their customers rather than about a trade, so a gutter bid and
-           a deck bid belong in the same sample. -->
+      <!-- How long this contractor's customers take to answer, read across
+           every tool, which is the only place it can usually be read at all. -->
       <p class="bid-chase" id="bidsChase" hidden></p>
-      <!-- How their pricing is landing, pooled the same way and for the same
-           reason. The money readings stay on the tool pages, where one tool
-           means one trade and one currency; what comes here is percentages
-           only, because a percentage over the winning price is unit-free and so
-           pools across trades and currencies alike without a conversion this
-           site does not have. See pricingSentence. -->
+      <!-- How their pricing is landing, pooled the same way, in percentages
+           only. See pricingSentence. -->
       <p class="bid-pricing" id="bidsPricing" hidden></p>
-      <!-- How often the quotes land at all, counted the same way. This is the
-           one reading here that needs no figure and no currency — only that a
-           bid was marked won or lost — so it draws for a book where every money
-           reading in the portfolio draws nothing, and it is the only place a
-           contractor working six calculators can see that five of them are fine
-           and the sixth is not. See winRateSentence. -->
+      <!-- How often the quotes land at all. See winRateSentence. -->
       <p class="bid-win-rate" id="bidsWinRate" hidden></p>
-      <!-- Whether what they changed is working. Directly under the rate it is
-           the second derivative of, and the only reading here that asks when a
-           bid was priced rather than only what became of it: every line above
-           pools the whole book, so a shop that re-costed a trade in June reads
-           a rate that averages before and after and cannot see its own change.
-           Inside one tool, never pooled across trades. See trendSentence. -->
+      <!-- Whether what they changed is working. See trendSentence. -->
       <p class="bid-trend" id="bidsTrend" hidden></p>
-      <!-- Which of their trades the finished work is actually worth doing, and
-           the only reading here about money already earned rather than money
-           still being chased. The tool pages each say what one trade kept; this
-           is the only place the three a crew works can be put beside each
-           other, which is the comparison that decides what they go and sell.
-           Percentages only, for the reason the pricing line above is: a share
-           of a bid's own price is unit-free, so trades and currencies compare
-           without a conversion. See keepSentence. -->
+      <!-- Which of their trades the finished work is worth doing. See keepSentence. -->
       <p class="bid-keep" id="bidsKeep" hidden></p>
-      <!-- The two lines above, crossed. Last because it is the only reading
-           here that is a decision rather than a measurement: the rate says
-           which quotes land, the kept share says which finished jobs paid, and
-           a shop whose best-landing trade is its worst-keeping one is being
-           told by both of the lines above to do the wrong thing. Drawn only
-           when the two rankings clearly oppose or clearly agree — a hedge
-           would be a line on the busiest page in the site that changes
-           nothing. See mixSentence. -->
+      <!-- The two lines above, crossed. See mixSentence. -->
       <p class="bid-mix" id="bidsMix" hidden></p>
       <ul id="bidsList"></ul>
       <p class="bid-more" id="bidsMore" hidden></p>
@@ -7291,9 +7441,7 @@ ${contents}
 
     <!-- Directly under the list it backs up, and deliberately still drawn when
          that list is empty: the browser with no saved bids is exactly the one
-         where "restore from a backup" is the only thing that helps, and a
-         control tucked inside the hidden section above would be unreachable
-         there. The script re-words it for the two cases. -->
+         where "restore from a backup" is the only thing that helps. -->
 ${BACKUP_WIDGET_HTML}
 
     <!-- Filled in by script from counts held on this device; a visitor with no
@@ -7308,13 +7456,66 @@ ${BACKUP_WIDGET_HTML}
       <ul id="yoursList"></ul>
     </section>
 
-${sections}
+    <section class="band" id="browse" aria-labelledby="browse-h">
+      <p class="section-eyebrow">Browse</p>
+      <h2 id="browse-h">Tools by the job they do</h2>
+      <p class="band-lede">${surfaces.length} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
+      <ul class="cats">
+${categoryTiles}
+      </ul>
+    </section>
 
-    <p class="empty" id="empty">No tool matches that. Try a marketplace, a trade, or the thing you are pricing.</p>
+    <section class="band" id="types" aria-labelledby="types-h">
+      <p class="section-eyebrow">By type</p>
+      <h2 id="types-h">Apps you run yourself, and checks for your terminal</h2>
+      <ul class="cats">
+${kindTiles}
+      </ul>
+    </section>
+
+    <section class="band" id="featured" aria-labelledby="featured-h">
+      <p class="section-eyebrow">Featured</p>
+      <h2 id="featured-h">The fullest tool in each of the largest sections</h2>
+      <ul class="featured">
+${featured
+  .map(
+    (s) => `        <li><a href="${escapeHtml(s.slug)}/" data-tool="${escapeHtml(s.slug)}">${escapeHtml(s.title)}</a><span class="f-cat">${escapeHtml(categoryFor(s.slug).title)}</span><p>${escapeHtml(s.description ?? '')}</p></li>`,
+  )
+  .join('\n')}
+      </ul>
+    </section>
+
+${renderResearchSection(research, researchCount)}
+
+    <section class="band" id="more" aria-labelledby="more-h">
+      <p class="section-eyebrow">Also here</p>
+      <h2 id="more-h">Run your own copy, read the guides, follow the work</h2>
+      <div class="pillar-grid">
+        <a class="pillar" href="deploy/">
+          <h3>Deploy your own copy</h3>
+          <p>Every app and tool is MIT licensed. Pick one, paste your own cloud credentials, and get a running copy in your own account. Nothing of ours sits in between.</p>
+          <span class="pillar-more">Deploy your own →</span>
+        </a>
+        <a class="pillar" href="${GUIDES_PATH}">
+          <h3>Guides and comparisons</h3>
+          <p>The explainers written beside each tool, and products compared side by side, filed by trade.</p>
+          <span class="pillar-more">Read the guides →</span>
+        </a>
+        <a class="pillar" href="${ENGINEERING_PATH}">
+          <h3>Built in public</h3>
+          <p>What shipped this week, what CI caught, and what each automated run cost, from the repository's own records.</p>
+          <span class="pillar-more">Engineering status →</span>
+        </a>
+      </div>
+      <ul class="principles">
+        <li>No accounts or sign-up</li>
+        <li>No tracking cookies</li>
+        <li>MIT licence throughout</li>
+        <li>Every change in <a href="dev/">public history</a></li>
+      </ul>
+    </section>
 
 ${renderOfflineWidgetHtml(offlineBuckets(surfaces))}
-
-${renderKindSection('clis', 'Command-line checks', 'Checks that run in a terminal or a CI pipeline; each page explains what it looks for and how to install it.', clis, false)}
 
     <div class="support">
       <strong>Free, and staying free.</strong> If one of these saved you money,
@@ -7331,250 +7532,12 @@ ${disclaimerHtml('', surfaces)}
       <p>
         Open source — every tool is a static page, and one you have opened keeps
         working with no connection.
-        <a href="${ABOUT_PATH}">About &amp; press kit</a> ·
-        <a href="${GUIDES_PATH}">Guides</a> ·
-        <a href="${COMPARE_PATH}">Comparisons</a> ·
-        <a href="${RESEARCH_PATH}">Research</a> ·
-        <a href="${WRITING_PATH}">Writing</a> ·
-        <a href="${ENGINEERING_PATH}">Engineering status</a> ·
-        <a href="deploy/">Deploy your own copy</a> ·
-        <a href="catalog.json">Machine-readable catalog</a> ·
-        <a href="llms.txt">llms.txt</a> ·
-        <a href="sitemap.xml">Sitemap</a> ·
-        <a href="${FEED_FILE}" type="application/atom+xml">New tools feed</a>
       </p>
+      ${renderSiteFooterNav({ toRoot: '' })}
     </footer>
-  </div>
+  </main>
 
   <script type="module">
-    // Search filters the already-rendered list, so the page is fully usable
-    // with JavaScript off: without it every tool is simply visible.
-    const q = document.getElementById('q');
-    const count = document.getElementById('count');
-    const empty = document.getElementById('empty');
-    const closest = document.getElementById('closest');
-    const contents = document.getElementById('contents');
-    // How many near-misses to offer when nothing matches every word. Enough to
-    // be a real second chance on a phone, short enough that the list is still
-    // a suggestion rather than the catalogue back again.
-    const CLOSEST_LIMIT = 8;
-    const cards = [...document.querySelectorAll('.card')];
-    // Sub-groups and their parent sections both empty out on a query. Each is
-    // decided from its own descendant cards, so one flat list covers both and
-    // the order within it does not matter.
-    const groups = [...document.querySelectorAll('.subgroup, .group')];
-    const total = cards.length;
-
-    // The catalogue order, kept so clearing the box puts the directory back
-    // exactly as it was rendered. Ranking reorders siblings in place — cards
-    // inside their list, sub-groups inside their section, sections inside the
-    // page — so a card never leaves the heading that describes it and the
-    // document outline a screen reader walks stays the one the markup built.
-    const sections = [...document.querySelectorAll('.group')];
-    const subgroups = [...document.querySelectorAll('.subgroup')];
-    // Sections are not the last children of their parent (the empty-state
-    // paragraph, the offline widget and the footer follow them), so they are
-    // re-inserted before a fixed anchor rather than appended.
-    const sectionAnchor = sections.length ? sections[sections.length - 1].nextSibling : null;
-    const sectionHome = sections.length ? sections[0].parentNode : null;
-    let ranked = false;
-
-    // Injected from build.mjs rather than written twice: a stemmer that
-    // disagreed with its tests would be a search bug nothing could catch.
-    ${searchVariants.toString()}
-
-    // Likewise injected rather than reimplemented: the weights below decide
-    // what a visitor sees first, and a copy that drifted from the tested one
-    // would be a ranking bug with a green suite.
-    ${searchScore.toString()}
-
-    // Every query word must hit, so "ebay return" narrows to the eBay tool
-    // instead of finding nothing because those two words are never adjacent.
-    // A word matches at a token boundary, which is what makes a half-typed
-    // "backspl" still find the backsplash calculator.
-    //
-    // "forms" is one entry per query word, each the output of searchVariants,
-    // so a word hits when any of its forms does. Built once per keystroke in
-    // normalise() instead of per card -- 163 cards would recompute it 163
-    // times for an answer that cannot differ between them.
-    const matches = (index, forms, boundary) =>
-      forms.every((variants) =>
-        variants.some((word) =>
-          boundary ? (' ' + index).includes(' ' + word) : index.includes(word)));
-
-    // The query is normalised exactly as the index was. It has to be: a word
-    // the index never stores can never match, so keeping it would force every
-    // query containing it down to zero hits — typing "2/10 net 30" would find
-    // nothing because "2" was dropped at build time but not from the query.
-    // Generic English plus the words this catalogue's own copy repeats so often
-    // they cannot narrow anything — derived at build time from the indexes
-    // above, never from a hand-written list that would describe last month's
-    // catalogue. A word in any tool's *name* is never in here.
-    const STOPWORDS = new Set(${JSON.stringify(stopwords)});
-    const normalise = (text) =>
-      text
-        .toLowerCase()
-        .split(/[^a-z0-9]+/)
-        .filter((word) => word.length >= 2 && !STOPWORDS.has(word))
-        .map(searchVariants);
-
-    // Highest-scoring visible card inside a container, or -1 when it has none.
-    // Hidden cards are excluded on purpose: a sub-group whose only match is
-    // filtered out has nothing to offer this query and should not lead on the
-    // strength of a card the visitor cannot see.
-    const best = (node, score) => {
-      let top = -1;
-      for (const card of node.querySelectorAll('.card')) {
-        if (!card.hidden) top = Math.max(top, score(card));
-      }
-      return top;
-    };
-
-    // Re-insert each node among its own siblings, highest score first. Sort is
-    // stable, so equal scores keep catalogue order — which is what makes a
-    // one-word query that matches nothing in particular leave the page looking
-    // exactly as it did.
-    const reorder = (nodes, valueOf, anchor) => {
-      const byParent = new Map();
-      for (const node of nodes) {
-        if (!byParent.has(node.parentNode)) byParent.set(node.parentNode, []);
-        byParent.get(node.parentNode).push(node);
-      }
-      for (const [parent, siblings] of byParent) {
-        const ordered = siblings
-          .map((node, index) => ({ node, index, value: valueOf(node) }))
-          .sort((a, b) => b.value - a.value || a.index - b.index);
-        for (const { node } of ordered) parent.insertBefore(node, anchor ?? null);
-      }
-    };
-
-    // Put the catalogue back in the order the build wrote it.
-    const restore = () => {
-      for (const card of cards) card.parentNode.appendChild(card);
-      for (const subgroup of subgroups) subgroup.parentNode.appendChild(subgroup);
-      for (const section of sections) sectionHome.insertBefore(section, sectionAnchor);
-    };
-
-    function filter() {
-      const forms = normalise(q.value.trim());
-      // Token-prefix first; fall back to a loose substring pass so a query that
-      // would have matched before this became token-aware still matches.
-      let boundary = true;
-      if (forms.length && !cards.some((c) => matches(c.dataset.search, forms, true))) {
-        boundary = false;
-      }
-      let shown = 0;
-      const score = new Map();
-      for (const card of cards) {
-        const hit = !forms.length || matches(card.dataset.search, forms, boundary);
-        card.hidden = !hit;
-        if (hit) shown += 1;
-        score.set(
-          card,
-          hit && forms.length
-            ? searchScore(card.dataset.name || '', card.dataset.search, forms, boundary)
-            : 0,
-        );
-      }
-      // Every word has to hit, which is what keeps a two-word query precise —
-      // and what turns a typed sentence into nothing at all. "new roof
-      // estimate", "tree removal quote" and "freight class calculator" each
-      // returned zero against the built site while the tool sat there, because
-      // one word of the sentence ("estimate", "quote", "class") is not in any
-      // index. People type sentences; requiring the visitor to guess the
-      // keyword is the hub's job, not theirs.
-      //
-      // So when nothing matches every word, keep the strict pass as the answer
-      // it is — none — and offer the best partial matches instead of a dead
-      // end. Ranked by the same function, capped, and labelled as approximate:
-      // showing sixty loosely-related tools under the visitor's exact words
-      // would be its own kind of wrong answer.
-      //
-      // The other half of the same failure is a sentence that matches exactly
-      // one tool by accident. "install water heater" returns the *boiler*
-      // calculator alone: it happens to use all three words somewhere in its
-      // copy, and the water-heater calculator does not say "install". One
-      // confident wrong answer is worse than none. So the shortlist also runs
-      // when nothing that matched carries a query word in data-strong — the
-      // tool's name plus its aliases, the words a person deliberately gave it.
-      // A tool nobody named and nobody aliased is a coincidence, not an answer.
-      //
-      // Aliases have to count. An earlier version tested the name alone, and
-      // since an alias exists precisely because the word is *not* in the name,
-      // it demoted "air conditioning" and "asphalt shingles" — both answered
-      // exactly, both by alias — behind loose matches.
-      //
-      // Scored at a token boundary even where the loose pass is in force. That
-      // pass exists so a half-typed word still matches; reused for ranking it
-      // scores "air" inside "stair", "chair" and "repair", which is how a
-      // suggestion list fills up with the wrong trade.
-      const strongly = (card) =>
-        forms.some((variants) =>
-          variants.some((word) => (' ' + (card.dataset.strong || '')).includes(' ' + word)));
-      let closestFor = 0;
-      if (forms.length && (shown === 0 || !cards.some((c) => !c.hidden && strongly(c)))) {
-        const partial = cards
-          .map((card) => ({
-            card,
-            value: searchScore(card.dataset.name || '', card.dataset.search, forms, true),
-          }))
-          // A whole word has to land somewhere. Below that the score is only
-          // the name-length tie-break, which every card has and which means
-          // nothing on its own.
-          .filter(({ value }) => value >= 1)
-          .sort((a, b) => b.value - a.value)
-          .slice(0, CLOSEST_LIMIT);
-        // Only when it actually offers something the strict pass did not. For a
-        // one-word query the two sets are the same by construction, and
-        // labelling an exact answer as approximate would be the page lying
-        // about its own result.
-        if (partial.some(({ card }) => card.hidden)) {
-          for (const card of cards) card.hidden = true;
-          for (const { card, value } of partial) {
-            card.hidden = false;
-            score.set(card, value);
-          }
-          closestFor = partial.length;
-        }
-      }
-      for (const group of groups) {
-        group.hidden = ![...group.querySelectorAll('.card')].some((c) => !c.hidden);
-      }
-      // Best answer first, and only while there is a query to be best for. A
-      // container's score is its best card's, so the section holding the top
-      // tool leads the page and the visitor never scrolls past a heading of
-      // near-misses to reach the tool they named.
-      if (forms.length) {
-        const valueOf = (card) => score.get(card) ?? 0;
-        reorder(cards, valueOf);
-        reorder(subgroups, (node) => best(node, valueOf));
-        reorder(sections, (node) => best(node, valueOf), sectionAnchor);
-        ranked = true;
-      } else if (ranked) {
-        restore();
-        ranked = false;
-      }
-      // The dead end stays a dead end only when even the partial pass found
-      // nothing — "wifi" and "locksmith" match no tool here, and saying so is
-      // the honest answer.
-      empty.style.display = shown === 0 && closestFor === 0 ? 'block' : 'none';
-      closest.hidden = closestFor === 0;
-      closest.textContent = closestFor === 0
-        ? ''
-        : (shown === 0
-          ? 'No tool matches every word. Closest ' + closestFor + ':'
-          : 'No tool is named for that. Closest ' + closestFor + ':');
-      count.textContent = !forms.length
-        ? total + ' tools'
-        : (closestFor || shown) + ' of ' + total + ' tools';
-      // The contents index answers "where is my section"; a query has already
-      // answered it. Leaving it up would also lie, since its counts are of the
-      // whole catalogue and the page below is filtered.
-      if (contents) contents.hidden = forms.length > 0;
-    }
-    q.addEventListener('input', filter);
-    filter();
-
     // Anonymous, aggregate, local-only counting — same convention every tool
     // in this portfolio uses. It records that a hub visit happened and which
     // tool slugs were opened. It never records who, and it never leaves the
@@ -7609,6 +7572,220 @@ ${disclaimerHtml('', surfaces)}
     record('hub_visited');
     for (const link of document.querySelectorAll('[data-tool]')) {
       link.addEventListener('click', () => record('tool_opened:' + link.dataset.tool));
+    }
+
+    // ---- The search index -------------------------------------------------
+    //
+    // Fetched from this site's own origin the first time something needs it
+    // (a query, or a saved bid to label), never on a bare visit: a visitor who
+    // only browses the categories pays nothing for it. It is the same kind of
+    // request as opening any page here, and carries nothing about the visitor.
+    const SEARCH_INDEX = '${SEARCH_INDEX_FILE}';
+    // Slug -> index record for every tool, filled when the index arrives. The
+    // saved-bid list and "pick up where you left off" name a tool from here.
+    let TOOLS = new Map();
+    let indexReady = false;
+    let indexLoad = null;
+    function loadIndex() {
+      if (!indexLoad) {
+        indexLoad = fetch(SEARCH_INDEX)
+          .then((response) => {
+            if (!response.ok) throw new Error('index ' + response.status);
+            return response.json();
+          })
+          .then((data) => {
+            data.items.forEach((item, i) => {
+              item.i = i;
+              if (!item.g) item.g = item.n;
+              if (!item.u) item.u = item.s + '/';
+            });
+            data.stop = new Set(data.stopwords);
+            TOOLS = new Map(data.items.filter((item) => item.k !== 'research').map((item) => [item.s, item]));
+            indexReady = true;
+            return data;
+          });
+        // A failed load (offline, say) is retried on the next keystroke rather
+        // than remembered as the answer.
+        indexLoad.catch(() => { indexLoad = null; });
+      }
+      return indexLoad;
+    }
+
+    // ---- Search -----------------------------------------------------------
+    const q = document.getElementById('q');
+    const form = document.getElementById('${SEARCH_ANCHOR}');
+    const count = document.getElementById('count');
+    const empty = document.getElementById('empty');
+    const closest = document.getElementById('closest');
+    const resultsList = document.getElementById('results');
+    const resultsMore = document.getElementById('results-more');
+    // How many near-misses to offer when nothing matches every word. Enough to
+    // be a real second chance on a phone, short enough that the list is still
+    // a suggestion rather than the catalogue back again.
+    const CLOSEST_LIMIT = 8;
+    // How many results to draw before a "Show all" button.
+    const RESULTS_SHOWN = 20;
+    let searchCounted = false;
+
+    // Injected from build.mjs rather than written twice: a stemmer that
+    // disagreed with its tests would be a search bug nothing could catch.
+    ${searchVariants.toString()}
+
+    // Likewise injected rather than reimplemented: the weights below decide
+    // what a visitor sees first, and a copy that drifted from the tested one
+    // would be a ranking bug with a green suite.
+    ${searchScore.toString()}
+
+    // Every query word must hit, so "ebay return" narrows to the eBay tool
+    // instead of finding nothing because those two words are never adjacent.
+    // A word matches at a token boundary, which is what makes a half-typed
+    // "backspl" still find the backsplash calculator.
+    const matches = (index, forms, boundary) =>
+      forms.every((variants) =>
+        variants.some((word) =>
+          boundary ? (' ' + index).includes(' ' + word) : index.includes(word)));
+
+    // The query is normalised exactly as the index was: a word the index never
+    // stores can never match, so keeping it would force every query containing
+    // it down to zero hits. The stopword list ships with the index it was cut
+    // from, so the two cannot disagree.
+    const normalise = (text, stop) =>
+      text
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter((word) => word.length >= 2 && !stop.has(word))
+        .map(searchVariants);
+
+    // The ranked answer for one query: every item that matches every word,
+    // best first — or, when nothing matches every word, or nothing that
+    // matched was named or aliased for it, the closest few by the same score,
+    // labelled as approximate. People type sentences ("new roof estimate");
+    // requiring the visitor to guess the keyword is the page's job, not theirs.
+    // One confident wrong answer ("install water heater" finding only the
+    // boiler calculator, which happens to say "install") is worse than none,
+    // which is what the data-strong test guards. Scored at a token boundary
+    // even where the loose pass is in force, so "air" does not score inside
+    // "stair", "chair" and "repair".
+    function rank(data, forms) {
+      const items = data.items;
+      const boundary = items.some((item) => matches(item.x, forms, true));
+      const hits = items.filter((item) => matches(item.x, forms, boundary));
+      let list = hits.map((item) => ({ item, value: searchScore(item.n, item.x, forms, boundary) }));
+      const strongly = (item) =>
+        forms.some((variants) => variants.some((word) => (' ' + item.g).includes(' ' + word)));
+      let closestFor = 0;
+      if (hits.length === 0 || !hits.some(strongly)) {
+        const hitSet = new Set(hits);
+        const partial = items
+          .map((item) => ({ item, value: searchScore(item.n, item.x, forms, true) }))
+          // A whole word has to land somewhere. Below that the score is only
+          // the name-length tie-break, which every item has.
+          .filter(({ value }) => value >= 1)
+          .sort((a, b) => b.value - a.value || a.item.i - b.item.i)
+          .slice(0, CLOSEST_LIMIT);
+        // Only when it offers something the strict pass did not: for a
+        // one-word query the two sets are the same by construction, and
+        // labelling an exact answer approximate would be the page lying.
+        if (partial.some(({ item }) => !hitSet.has(item))) {
+          list = partial;
+          closestFor = partial.length;
+        }
+      }
+      list.sort((a, b) => b.value - a.value || a.item.i - b.item.i);
+      return { list, closestFor, exact: hits.length };
+    }
+
+    function drawResults(data, ranked, all) {
+      resultsList.replaceChildren();
+      const shown = all ? ranked.list : ranked.list.slice(0, RESULTS_SHOWN);
+      for (const { item } of shown) {
+        const li = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = item.u;
+        link.textContent = item.t;
+        if (item.k !== 'research') {
+          link.dataset.tool = item.s;
+          link.addEventListener('click', () => record('tool_opened:' + item.s));
+        } else {
+          link.addEventListener('click', () => record('research_opened_from_search'));
+        }
+        const where = document.createElement('span');
+        where.className = 'r-cat';
+        where.textContent = (data.cats[item.c] || '') +
+          (item.k === 'app' ? ' · self-hostable app' : item.k === 'cli' ? ' · command-line tool' : '');
+        const blurb = document.createElement('p');
+        blurb.textContent = item.d;
+        li.append(link, where, blurb);
+        resultsList.append(li);
+      }
+      resultsList.hidden = shown.length === 0;
+      resultsMore.replaceChildren();
+      resultsMore.hidden = shown.length >= ranked.list.length;
+      if (!resultsMore.hidden) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = 'Show all ' + ranked.list.length + ' results';
+        button.addEventListener('click', () => drawResults(data, ranked, true));
+        resultsMore.append(button);
+      }
+    }
+
+    function clearResults() {
+      resultsList.replaceChildren();
+      resultsList.hidden = true;
+      resultsMore.hidden = true;
+      closest.hidden = true;
+      empty.hidden = true;
+      count.textContent = '';
+    }
+
+    async function runSearch() {
+      const text = q.value.trim();
+      // Keep the address in step, so a result list can be shared or reloaded,
+      // and the header's search box on every other page lands here with it.
+      try {
+        const url = new URL(location.href);
+        if (text) url.searchParams.set('q', text); else url.searchParams.delete('q');
+        history.replaceState(null, '', url);
+      } catch { /* a sandboxed frame may refuse; the search still works */ }
+      if (!text) { clearResults(); return; }
+      let data;
+      try {
+        data = await loadIndex();
+      } catch {
+        count.textContent = 'Search could not load. Every tool is listed on its category page below.';
+        return;
+      }
+      if (q.value.trim() !== text) return; // a newer keystroke owns the page
+      const forms = normalise(text, data.stop);
+      if (!forms.length) { clearResults(); return; }
+      if (!searchCounted) { searchCounted = true; record('hub_search_used'); }
+      const ranked = rank(data, forms);
+      drawResults(data, ranked, false);
+      empty.hidden = ranked.list.length !== 0;
+      closest.hidden = ranked.closestFor === 0;
+      closest.textContent = ranked.closestFor === 0
+        ? ''
+        : (ranked.exact === 0
+          ? 'No tool matches every word. Closest ' + ranked.closestFor + ':'
+          : 'No tool is named for that. Closest ' + ranked.closestFor + ':');
+      count.textContent = ranked.closestFor
+        ? ''
+        : ranked.list.length + ' result' + (ranked.list.length === 1 ? '' : 's') + ' of ' + data.items.length;
+    }
+
+    q.addEventListener('input', runSearch);
+    // Warm the index the moment the box is focused, so the first keystroke
+    // usually finds it already here.
+    q.addEventListener('focus', () => { loadIndex().catch(() => {}); }, { once: true });
+    form.addEventListener('submit', (event) => { event.preventDefault(); runSearch(); });
+    {
+      const initial = new URLSearchParams(location.search).get('q');
+      if (initial) {
+        q.value = initial;
+        runSearch();
+        form.scrollIntoView({ block: 'start' });
+      }
     }
 
     // Thirty-seven tools is a lot to search through when you came back for the
@@ -7652,15 +7829,16 @@ ${disclaimerHtml('', surfaces)}
       list.replaceChildren();
 
       for (const [slug, times] of mine) {
-        // Only offer a tool the hub is actually showing: a slug left behind by
-        // a tool that has since been renamed or withdrawn would 404.
-        const card = document.querySelector('[data-tool="' + slug + '"]');
-        if (!card) continue;
+        // Only offer a tool the site actually publishes: a slug left behind by
+        // a tool that has since been renamed or withdrawn would 404. The
+        // search index is the list of what ships, and names each tool.
+        const tool = TOOLS.get(slug);
+        if (!tool) continue;
 
         const item = document.createElement('li');
         const link = document.createElement('a');
         link.href = slug + '/';
-        link.textContent = card.querySelector('h3')?.textContent.trim() || slug;
+        link.textContent = tool.t || slug;
         link.addEventListener('click', () => record('tool_opened:' + slug));
 
         const meta = document.createElement('span');
@@ -7674,7 +7852,6 @@ ${disclaimerHtml('', surfaces)}
       section.hidden = list.childElementCount === 0;
     }
 
-    showYourTools();
     // Turning counting off should take the shortcut away with it, in the same
     // click rather than on the next visit.
     optout.addEventListener('change', showYourTools);
@@ -7779,6 +7956,13 @@ ${BID_PRICING_HELPERS}
 
     function showSavedBids() {
       const section = document.getElementById('bids');
+      // Rows are named from the search index; until it is here there is
+      // nothing to name them with. A restore from backup lands here first on a
+      // page that never needed the index, so fetch it and come back.
+      if (!indexReady) {
+        if (savedBids().length) loadIndex().then(showSavedBids, () => {});
+        return;
+      }
       const list = document.getElementById('bidsList');
       const more = document.getElementById('bidsMore');
       list.replaceChildren();
@@ -7793,17 +7977,16 @@ ${BID_PRICING_HELPERS}
       // rows the visitor could actually open.
       const rows = [];
       for (const row of savedBids()) {
-        const card = document.querySelector('[data-tool="' + row.slug + '"]');
-        // The tool's own heading, taken off the card the row was matched to
-        // rather than off the bid: the slug is what storage carries, and
-        // "deck-bid-calculator" is not what a contractor calls the thing. Read
-        // here, once per row, so winRateSentence stays a pure function of its
-        // rows and can be tested without a document.
-        if (card) {
+        const tool = TOOLS.get(row.slug);
+        // The tool's own name, taken from the search index entry the row was
+        // matched to rather than off the bid: the slug is what storage
+        // carries, and "deck-bid-calculator" is not what a contractor calls
+        // the thing. Read here, once per row, so winRateSentence stays a pure
+        // function of its rows and can be tested without a document.
+        if (tool) {
           rows.push({
             ...row,
-            card,
-            label: card.querySelector('h3, h4')?.textContent.trim() || row.slug,
+            label: tool.t || row.slug,
           });
         }
       }
@@ -7941,7 +8124,7 @@ ${BID_PRICING_HELPERS}
         : rows.filter((row, i) => i < BIDS_SHOWN || isQuietBid(row, seen, now));
 
       for (const row of drawn) {
-        const { slug, name, at, amount, outcome, card } = row;
+        const { slug, name, at, amount, outcome, label: toolName } = row;
         const item = document.createElement('li');
         const link = document.createElement('a');
         // The anchor jobs.mjs answers: the band opens and scrolls into view, so
@@ -7971,7 +8154,7 @@ ${BID_PRICING_HELPERS}
 
         const where = document.createElement('span');
         where.className = 'bid-where';
-        where.textContent = card.querySelector('h3, h4')?.textContent.trim() || slug;
+        where.textContent = toolName || slug;
 
         const when = document.createElement('span');
         when.className = 'bid-when';
@@ -8051,7 +8234,16 @@ ${BID_PRICING_HELPERS}
       if (!section.hidden && !bidsExpanded) record('saved_bid_index_shown');
     }
 
-    showSavedBids();
+    // Both lists name their tools from the search index, which this page does
+    // not otherwise load until someone searches. Fetch it now only when this
+    // browser has something to show: a saved bid, or a tool it has opened.
+    try {
+      const hasBids = Object.keys((JSON.parse(localStorage.getItem(BIDS_KEY) || '{}') || {}).bids || {}).length > 0;
+      const hasViews = /"tool_viewed:/.test(localStorage.getItem(KEY) || '');
+      if (hasBids || hasViews) {
+        loadIndex().then(() => { showYourTools(); showSavedBids(); }, () => {});
+      }
+    } catch { /* storage unavailable: nothing saved to show */ }
 ${BACKUP_WIDGET_SCRIPT}
 ${OFFLINE_WIDGET_SCRIPT}
   </script>
@@ -8174,9 +8366,6 @@ const CHROME_CSS = `
 .pf-chrome{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:.9rem;line-height:1.5;
   color:inherit;--pf-line:rgba(128,128,128,.34);--pf-fill:rgba(128,128,128,.07)}
 .pf-chrome a{color:inherit;text-decoration:underline;text-underline-offset:2px}
-.pf-chrome-top{border-bottom:1px solid var(--pf-line);background:var(--pf-fill);padding:9px 16px}
-.pf-chrome-top a{font-weight:650;text-decoration:none}
-.pf-chrome-top a:hover,.pf-chrome-top a:focus-visible{text-decoration:underline}
 .pf-chrome-foot{border-top:1px solid var(--pf-line);background:var(--pf-fill);margin-top:40px;padding:22px 16px 26px}
 .pf-chrome-foot .pf-inner{max-width:1080px;margin:0 auto}
 .pf-chrome-foot h2{font-size:1rem;margin:0 0 4px;color:inherit}
@@ -8236,7 +8425,10 @@ export const CHROME_STYLE_FILE = 'pf-chrome.css';
  * one bar — the visitor those rules exist for. See `reflow.mjs`.
  */
 export function renderChromeStyle() {
-  return `${CHROME_CSS.trimStart()}${REFLOW_CSS}`;
+  // The site header's layout rules ride along (see site-nav.mjs). They carry
+  // no colour of their own, so on a venture page the header takes the host's
+  // palette exactly as the footer does.
+  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${REFLOW_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
@@ -8528,7 +8720,7 @@ export const SOCIAL_CARD_FILE = 'social-card.png';
 
 /** The Atom feed's path. See `renderFeed`. */
 export const FEED_FILE = 'feed.xml';
-export const SITE_NAME = 'Open Tools and Research';
+export { SITE_NAME };
 
 /**
  * Make one published page's discovery tags true.
@@ -8862,7 +9054,7 @@ function spliceAt(html, index, text) {
   return html.slice(0, index) + text + html.slice(index);
 }
 
-export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, externalCallHosts = [] }) {
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, pageTitle, externalCallHosts = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
   const initialBody = locateBody(html);
   if (!initialBody) return html;
@@ -8927,9 +9119,22 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   }
 
   const hub = `${toRoot}`;
-  const topBar = `<nav class="pf-chrome pf-chrome-top" aria-label="Site">
-  <a href="${escapeHtml(hub)}" data-pf-to="hub">← All ${total} free tools</a>
-</nav>`;
+  // The same header every page on the site carries (site-nav.mjs), plus a
+  // breadcrumb to the tool's category: the next tool a visitor needs is
+  // usually one shelf over, not back through the whole catalogue. The search
+  // entry is a link here, never a form, so a venture script that reads the
+  // first form or every input on its page still finds its own.
+  const category = categoryFor(slug);
+  const crumbs = [{ label: category.title, href: `${toRoot}${categoryPagePath(category.id)}` }];
+  if (isEntry) crumbs.push({ label: title || slug });
+  else crumbs.push({ label: title || slug, href: `${toRoot}${slug}/` }, { label: pageTitle || 'This page' });
+  const topBar = renderSiteHeader({
+    toRoot,
+    current: 'tools',
+    search: 'link',
+    crumbs,
+    extraClass: 'pf-chrome pf-chrome-top',
+  });
 
   const links = related
     .map(
@@ -9076,12 +9281,14 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       const canonical = `${baseUrl}${url.replace(/(^|\/)index\.html$/, '$1')}`;
       // The attribute pass runs on the venture's own markup, before the chrome
       // adds any input of its own, and is a no-op on a page with no numbers.
+      const pageMeta = readMeta(html, surface.slug);
       const chromed = injectFavicon(annotateNumberInputs(injectChrome(html, {
         slug: surface.slug,
         toRoot,
         total: surfaces.length,
         related,
         title: surface.title,
+        pageTitle: pageMeta.title,
         canonical,
         isEntry: url === `${surface.slug}/index.html`,
         externalCallHosts: surface.externalFetchHosts,
@@ -9089,7 +9296,6 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       // After the chrome, which guarantees the canonical this repairs, and read
       // from the venture's *own* markup: a deep SEO page inside a tool has its
       // own title and description, and `surface` carries the tool's.
-      const pageMeta = readMeta(html, surface.slug);
       const withCard = injectDiscoveryTags(chromed, {
         canonical,
         baseUrl,
@@ -9284,6 +9490,8 @@ ${entries.join('\n')}
  */
 export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys = [], researchSlugs = [], writingSlugs = []) {
   const urls = [`  <url><loc>${baseUrl}</loc></url>`]
+    // The Tools section's index of every category page.
+    .concat([`  <url><loc>${baseUrl}${CATEGORY_PATH_PREFIX}/</loc></url>`])
     .concat(categoryIds.map((id) => `  <url><loc>${baseUrl}${categoryPagePath(id)}</loc></url>`))
     // The About page is a hub-level surface, not a venture's, so it is listed
     // here or in no sitemap at all — and an unlisted page is one a crawler
@@ -9545,9 +9753,10 @@ export function renderNotFound(baseUrl) {
        under the site's own name. offline.html already carries the same tag. -->
   <meta name="robots" content="noindex">
   <title>Not found</title>
+  ${siteStyleLink(baseUrl)}
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 12vh auto;
-           padding: 0 1.2rem; line-height: 1.6; color: #1d2530; background: #eef2f7; }
+    body { font-family: system-ui, sans-serif; margin: 0; line-height: 1.6; color: #1d2530; background: #eef2f7; }
+    .nf { max-width: 40rem; margin: 10vh auto; padding: 0 1.2rem; }
     a { color: #12594a; }
     @media (prefers-color-scheme: dark) {
       body { color: #e8eef5; background: #10151c; } a { color: #7fd8c0; }
@@ -9555,9 +9764,14 @@ export function renderNotFound(baseUrl) {
   </style>
 </head>
 <body>
+  <!-- Absolute links throughout: GitHub Pages serves this file under whatever
+       path was mistyped, so a relative link would resolve against that. -->
+  ${renderSiteHeader({ toRoot: baseUrl, search: 'link' })}
+  <main class="nf">
   <h1>That page isn't here</h1>
   <p>The tool may have moved, or the link may be mistyped.</p>
-  <p><a href="${escapeHtml(baseUrl)}">See every free calculator →</a></p>
+  <p><a href="${escapeHtml(`${baseUrl}#${SEARCH_ANCHOR}`)}">Search every tool</a> or <a href="${escapeHtml(`${baseUrl}${CATEGORY_PATH_PREFIX}/`)}">browse them by category →</a></p>
+  </main>
 </body>
 </html>
 `;
@@ -9682,7 +9896,7 @@ export async function addOfflineSupport({
         cacheName,
         // Enough for the front door to open with no signal on a device that has
         // been here once. Everything else is cached as it is visited.
-        shell: ['./', 'index.html', 'offline.html', 'manifest.webmanifest', 'icon-192.png'],
+        shell: ['./', 'index.html', 'offline.html', 'manifest.webmanifest', 'icon-192.png', SITE_STYLE_FILE],
         shared,
         bundles: Object.fromEntries(categories.map((c) => [c.id, c.assets])),
       }),
@@ -9889,10 +10103,15 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     log(`  ${surface.slug}`);
   }
 
+  const research = researchHighlights();
   await fs.writeFile(
     path.join(outDir, 'index.html'),
-    renderHub(surfaces, base, { researchCount: researchProjectCount(), research: researchHighlights() }),
+    renderHub(surfaces, base, { researchCount: researchProjectCount(), research }),
   );
+  // The index the hub's search fetches, and the stylesheet every site-owned
+  // page links for the shared header (site-nav.mjs).
+  await fs.writeFile(path.join(outDir, SEARCH_INDEX_FILE), renderSearchIndex(surfaces, research.projects));
+  await fs.writeFile(path.join(outDir, SITE_STYLE_FILE), renderSiteStyle());
   // The saved-bids script, once for the whole site. Every page that carries the
   // band loads it from here; it used to be written into each of them.
   await fs.writeFile(path.join(outDir, SAVED_BIDS_MODULE_FILE), renderSavedBidsModule());
@@ -9936,6 +10155,28 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       renderCategoryPage({ category, items, groups: categoryGroups, baseUrl: base }),
     );
   }
+  // The browse-by-type pages (apps, command-line tools), on the same footing.
+  const kindPages = KIND_PAGES.map((page) => ({ page, ...kindPageGroups(page, surfaces) })).filter((k) => k.items.length);
+  for (const { page, items, subgroups } of kindPages) {
+    const dir = path.join(outDir, CATEGORY_PATH_PREFIX, page.id);
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(
+      path.join(dir, 'index.html'),
+      renderCategoryPage({
+        category: page,
+        items,
+        groups: categoryGroups,
+        baseUrl: base,
+        deployable: page.deployable,
+        subgroups: subgroups.length > 1 ? subgroups : undefined,
+      }),
+    );
+  }
+  // And the Tools section's own front page, which lists all of them.
+  await fs.writeFile(
+    path.join(outDir, CATEGORY_PATH_PREFIX, 'index.html'),
+    renderToolsIndexPage({ groups: categoryGroups, kindPages, surfaces, baseUrl: base }),
+  );
 
   // After the categories because the About page links every one of them, and
   // before the sitemaps for the same reason they are.
@@ -9946,7 +10187,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     renderAboutPage({ surfaces, groups: categoryGroups, baseUrl: base }),
   );
 
-  buildResearchPage(outDir, base);
+  await buildResearchPage(outDir, base);
   const researchSlugs = [];
   for (const entry of await fs.readdir(path.join(outDir, RESEARCH_PATH), { withFileTypes: true })) {
     if (entry.isDirectory() && (await fs.stat(path.join(outDir, RESEARCH_PATH, entry.name, 'index.html')).catch(() => null))) {
@@ -10010,7 +10251,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     path.join(outDir, 'sitemap-hub.xml'),
     renderHubSitemap(
       base,
-      categoryGroups.map(({ category }) => category.id),
+      [...categoryGroups.map(({ category }) => category.id), ...kindPages.map(({ page }) => page.id)],
       compareProducts.map((group) => group.key),
       researchSlugs,
       posts.map((post) => post.slug),
@@ -10041,7 +10282,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       .map(({ category }) => category.id),
   );
   await Promise.all(
-    ALL_CATEGORIES.map((category) =>
+    [...ALL_CATEGORIES, ...KIND_PAGES].map((category) =>
       fs.writeFile(
         path.join(outDir, socialCardFileFor(category.id)),
         renderSocialCard({

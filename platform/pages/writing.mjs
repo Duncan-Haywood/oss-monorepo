@@ -27,6 +27,7 @@ import { promises as fs, existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { esc, renderMarkdown } from '../devlog/markdown.mjs';
+import { SITE_NAME, withSiteHeader } from './site-nav.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
@@ -34,7 +35,6 @@ const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
 export const WRITING_PATH = 'writing/';
 export const POSTS_DIR = 'docs/posts';
 const REPO_BLOB = 'https://github.com/Duncan-Haywood/oss-monorepo/blob/main/';
-const SITE_NAME = 'Open Tools and Research';
 const FILE_RE = /^(\d{4}-\d{2}-\d{2})-([a-z0-9][a-z0-9-]*)\.md$/;
 
 /** Parse the `---` front-matter block. Returns { meta, body }. Only the subset posts use. */
@@ -141,7 +141,8 @@ const STYLE = `
 `;
 
 function shell({ title, description, canonical, toRoot, crumbs, body, jsonLd, feedHref, socialCard }) {
-  return `<!doctype html>
+  // The site's shared header (site-nav.mjs) above this section's own breadcrumb.
+  return withSiteHeader(`<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -158,7 +159,7 @@ ${canonical ? `<meta property="og:url" content="${esc(canonical)}">\n` : ''}${so
 </head>
 <body>
 <div class="wrap">
-<nav class="crumbs" aria-label="Breadcrumb"><a href="${toRoot}" data-pf-to="hub">${esc(SITE_NAME)}</a> › ${crumbs}</nav>
+<nav class="crumbs" aria-label="Breadcrumb"><a href="${toRoot}" data-pf-to="hub">Home</a> › ${crumbs}</nav>
 <main>
 ${body}
 </main>
@@ -170,7 +171,7 @@ ${body}
 </div>
 </body>
 </html>
-`;
+`, { toRoot, current: 'writing' });
 }
 
 export function renderIndex(posts, { baseUrl = '', socialCard = '' } = {}) {

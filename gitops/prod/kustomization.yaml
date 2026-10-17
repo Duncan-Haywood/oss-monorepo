@@ -145,6 +145,7 @@ configMapGenerator:
       - c__evidence.html.gz=front-door/c__evidence.html.gz
       - c__marketplace.html.gz=front-door/c__marketplace.html.gz
       - c__backoffice.html.gz=front-door/c__backoffice.html.gz
+      - c__uk-tax.html.gz=front-door/c__uk-tax.html.gz
       - c__food-service.html.gz=front-door/c__food-service.html.gz
       - c__services.html.gz=front-door/c__services.html.gz
       - c__logistics.html.gz=front-door/c__logistics.html.gz
