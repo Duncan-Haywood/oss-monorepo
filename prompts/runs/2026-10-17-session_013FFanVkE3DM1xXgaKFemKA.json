@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_013FFanVkE3DM1xXgaKFemKA",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T06:19:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "swe-orgs",
+  "projects": [
+    "swe-orgs"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "WebFetch could not resolve hosts, so sources were verified by search summaries only"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/swe-orgs/README.md",
+      "issue": "counts (sources, practices, ledger rows, shares) are hand-edited in README, projects.json and research/README.md each batch; easy to miss one"
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "swe-orgs is a standing milestone with no claim mechanism; two runs built batch 11 at the same time"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Batch 12 of swe-orgs: 1 source (Segment), 1 practice. Built a batch 11 in parallel that a sibling run (#7674) landed first; resolved by taking main's and re-adding only the Segment row.",
+  "corrections": [],
+  "redteam": null
+}

@@ -2,6 +2,12 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-17 · Batch 12: Segment's return to one codebase
+
+- Added 1 source and 1 practice (44 practices, 43 sources): Segment's 2018 move from microservices back to one codebase (P44), from the engineering blog post, Noonan's QCon London talk and Changelog #312. Written in parallel with batch 11 above, which landed first; this adds only what it lacked.
+- **P44 is `adopted`** (`partial` transfer): the portfolio is one repository and research was merged in on 2026-10-16. Segment's cost was people running many services; agents are not on call, so the remaining cost of one repository is the shared files (`README.md`, `projects.json`). Ledger shares are unchanged from batch 11; no proposal clears the 5% bar.
+- Verification was by web search only. The post itself was not found, so its author is unconfirmed, no figure from it is used, and the url is the Changelog episode page.
+
 ## 2026-10-17 · Batch 11: Flickr's ten deploys a day, Parnas on modules and Nygard's circuit breaker
 
 - Added 3 sources and 3 practices (43 practices, 42 sources): Allspaw and Hammond's Velocity 2009 talk on Flickr (P41), Parnas's *On the Criteria To Be Used in Decomposing Systems into Modules* (1972; P42) and Nygard's *Release It!* (2007; P43).
