@@ -544,3 +544,32 @@ export function reseat(spec, prev, stickiness = "medium") {
   const dropped = [...prev.keys()].filter((k) => !spec.guests.some((g) => g.name.toLowerCase() === k));
   return { ...res, moved, kept, retained, added, dropped, stickiness: stay };
 }
+
+// Saving the working setup (guests, wishes, table settings, last plan CSV) so
+// a planner can come back over the weeks RSVPs trickle in. The page keeps it
+// in this browser's local storage and in a downloadable file; nothing leaves
+// the device.
+export const SETUP_FIELDS = ["guests", "rules", "seats", "tcount", "balance", "mix", "prevplan"];
+const MIX_VALUES = ["off", "spread", "cluster"];
+
+export function setupJson(state) {
+  const out = { app: "event-seating-chart-optimizer", version: 1 };
+  for (const k of SETUP_FIELDS) out[k] = state[k];
+  return JSON.stringify(out, null, 2);
+}
+
+// Parse a saved setup, keeping only known fields of the right type. Returns
+// { state, error }; unknown or mistyped fields are dropped, never trusted.
+export function parseSetup(text) {
+  let raw;
+  try { raw = JSON.parse(text); } catch { return { state: null, error: "That file is not valid JSON." }; }
+  if (!raw || typeof raw !== "object" || Array.isArray(raw) || raw.app !== "event-seating-chart-optimizer") {
+    return { state: null, error: "That is not a seating setup saved by this tool." };
+  }
+  const state = {};
+  for (const k of ["guests", "rules", "prevplan"]) if (typeof raw[k] === "string") state[k] = raw[k].slice(0, 200000);
+  for (const k of ["seats", "tcount"]) if (typeof raw[k] === "string" || typeof raw[k] === "number") state[k] = String(raw[k]).slice(0, 8);
+  if (typeof raw.balance === "boolean") state.balance = raw.balance;
+  if (MIX_VALUES.includes(raw.mix)) state.mix = raw.mix;
+  return { state, error: null };
+}
