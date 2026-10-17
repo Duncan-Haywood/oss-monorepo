@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1277 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1278 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -22,6 +22,14 @@
     <updated>2026-10-17T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Free financial aid award letter comparator. Type in each college&#39;s cost, grants, loans and work-study and see the true four-year cost, loans repaid with interest, the year-2 price jump and the grant that would match the cheapest offer. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Review Reply Desk — free Google review reply generator for local businesses</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/review-reply-desk/"/>
+    <id>tag:marisstella.dev,2026:tool/review-reply-desk</id>
+    <updated>2026-10-17T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free review response generator. Paste your Google, Yelp or Facebook reviews and get a ready-to-post reply to each one: rating-aware, specific, safe around legal, health-privacy and refund traps, and checked before you post. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Survey Keeper — Self-Hosted NPS and Surveys, a Typeform and Delighted Alternative</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">Send a signing link, collect a typed signature with consent, and keep a certificate anyone can re-verify. A free, open-source, self-hosted alternative to per-envelope e-signature pricing.</summary>
-  </entry>
-  <entry>
-    <title>Slot Keeper — Self-Hosted Booking Pages, a Calendly Alternative</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/slot-keeper/"/>
-    <id>tag:marisstella.dev,2026:tool/slot-keeper</id>
-    <updated>2026-10-16T00:00:00Z</updated>
-    <category term="Self-hosted business apps"/>
-    <summary type="text">A booking page you host yourself: weekly hours, buffers, notice, your calendar&#39;s busy time respected, time zones, calendar invites, reminders and cancel or reschedule links. Open source, MIT, no per-seat fee. Try the slot finder in your browser.</summary>
   </entry>
 </feed>
