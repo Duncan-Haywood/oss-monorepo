@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, reseat, parsePlanCsv, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, WEIGHTS,
+  baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, WEIGHTS,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -14,7 +14,7 @@ function specFrom(guestText, ruleText, extra = {}) {
 
 test("parseGuests reads names and parties, skips blanks and comments, flags duplicates", () => {
   const r = parseGuests("Ann Lee | Lee family\n\n# note\nBob  Ray\nann lee\n");
-  assert.deepEqual(r.guests, [{ name: "Ann Lee", party: "Lee family", group: "" }, { name: "Bob Ray", party: "", group: "" }]);
+  assert.deepEqual(r.guests, [{ name: "Ann Lee", party: "Lee family", group: "", meal: "" }, { name: "Bob Ray", party: "", group: "", meal: "" }]);
   assert.equal(r.errors.length, 1);
   assert.match(r.errors[0], /listed twice/);
 });
@@ -261,4 +261,30 @@ test("group is parsed from the third column and exported", () => {
   assert.deepEqual(guests.map((g) => g.group), ["Bride side", "Groom side", ""]);
   const spec = { ...sampleSpec(), guests, rules: [], seatsPerTable: 3, tableCount: 1 };
   assert.match(planCsv(spec, optimize(spec)), /Table,Guest,Party,Group\n.*Ann,Lee family,Bride side/s);
+});
+
+test("meal column is tallied per table, exported, and kept off the room-facing sheets", () => {
+  const { guests } = parseGuests("Ann | Lee | Bride | vegetarian\nBob | Lee | Bride | Vegetarian\nCy | | | gluten <free>\nDee");
+  assert.deepEqual(guests.map((g) => g.meal), ["vegetarian", "Vegetarian", "gluten <free>", ""]);
+  const spec = { ...sampleSpec(), guests, rules: [], seatsPerTable: 2, tableCount: 2 };
+  const res = optimize(spec);
+  assert.deepEqual(verifyPlan(spec, res), []);
+  const meals = res.meals;
+  assert.equal(meals.reduce((a, m) => a + m.total, 0), 4);
+  assert.equal(meals[0].total, 2); // vegetarian, case-insensitive
+  for (const m of meals) assert.equal(m.perTable.reduce((a, b) => a + b, 0), m.total);
+  assert.ok(meals.some((m) => m.meal === "No choice given" && m.total === 1));
+  assert.match(planCsv(spec, res), /Table,Guest,Party,Group,Meal\n/);
+  const sheet = catererSheetHtml(spec, res);
+  assert.match(sheet, /gluten &lt;free&gt;/);
+  assert.ok(!sheet.includes("<free>"));
+  assert.ok(!tableSignsHtml(spec, res).includes("vegetarian"));
+  assert.ok(!escortBoardHtml(spec, res).includes("vegetarian"));
+});
+
+test("a list with no meals has no tally and an unchanged CSV header", () => {
+  const spec = sampleSpec();
+  assert.deepEqual(mealTally(spec, optimize(spec).table), []);
+  assert.match(planCsv(spec, optimize(spec)), /^Table,Guest,Party,Group\n/);
+  assert.match(catererSheetHtml(spec, optimize(spec)), /No meal choices were typed/);
 });

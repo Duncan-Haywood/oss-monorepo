@@ -8,7 +8,7 @@ const SOFT_NEVER = -30;
 
 export const DEFAULTS = { seatsPerTable: 8, tableCount: "", balance: true, seed: 1 };
 
-/** Parse the guest box: one guest per line, "Name", "Name | party" or "Name | party | group". */
+/** Parse the guest box: one guest per line, "Name", "Name | party", "Name | party | group" or "Name | party | group | meal". */
 export function parseGuests(text) {
   const guests = [];
   const errors = [];
@@ -16,7 +16,7 @@ export function parseGuests(text) {
   String(text || "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const [namePart, partyPart, groupPart] = line.split("|");
+    const [namePart, partyPart, groupPart, mealPart] = line.split("|");
     const name = namePart.trim().replace(/\s+/g, " ");
     const party = (partyPart || "").trim().replace(/\s+/g, " ");
     if (!name) { errors.push(`Guest line ${i + 1} has no name.`); return; }
@@ -24,7 +24,8 @@ export function parseGuests(text) {
     if (seen.has(key)) { errors.push(`"${name}" is listed twice (line ${seen.get(key)} and ${i + 1}); add a surname or initial to tell them apart.`); return; }
     seen.set(key, i + 1);
     const group = (groupPart || "").trim().replace(/\s+/g, " ");
-    guests.push({ name, party, group });
+    const meal = (mealPart || "").trim().replace(/\s+/g, " ");
+    guests.push({ name, party, group, meal });
   });
   return { guests, errors };
 }
@@ -318,6 +319,7 @@ export function describe(spec, W, table, baseline) {
     neverBroken: broken.filter((r) => r.kind === "never"),
     partySplits,
     groupMix,
+    meals: mealTally(spec, table, T),
     capacity: capacityPerTable(spec, T),
   };
 }
@@ -364,6 +366,40 @@ const escHtml = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<"
  * and the guest names, to stand at the table or check people in at the door.
  * Guest text is escaped; the page carries no script and loads nothing.
  */
+/**
+ * Meal choices per table for the caterer: [{ meal, total, perTable: [..] }],
+ * most common first, guests with no meal typed counted as "No choice given".
+ * Empty when no guest has a meal, so a list without a fourth column is unchanged.
+ */
+export function mealTally(spec, table, T = resolveTableCount(spec)) {
+  if (!spec.guests.some((g) => g.meal)) return [];
+  const by = new Map();
+  spec.guests.forEach((g, i) => {
+    const label = g.meal || "No choice given";
+    const k = label.toLowerCase();
+    if (!by.has(k)) by.set(k, { meal: label, total: 0, perTable: new Array(T).fill(0) });
+    const m = by.get(k);
+    m.total++; m.perTable[table[i]]++;
+  });
+  return [...by.values()].sort((a, b) => b.total - a.total || a.meal.localeCompare(b.meal));
+}
+
+/**
+ * A print-ready sheet for the caterer: total count per meal, then for each table
+ * the number of each meal. Meals stay off the table signs and escort board, so
+ * a guest's dietary need is never shown to the room. Text is escaped.
+ */
+export function catererSheetHtml(spec, result, title = "Meal counts by table") {
+  const meals = result.meals || mealTally(spec, result.table);
+  const head = `<tr><th>Meal</th><th>Total</th>${result.tables.map((t) => `<th>T${t.number}</th>`).join("")}</tr>`;
+  const rows = meals.map((m) => `<tr><td>${escHtml(m.meal)}</td><td><b>${m.total}</b></td>${m.perTable.map((c) => `<td>${c || ""}</td>`).join("")}</tr>`).join("");
+  const body = meals.length ? `<table>${head}${rows}</table>` : "<p>No meal choices were typed. Add a fourth column to each guest line, for example: Ann Lee | | | vegetarian.</p>";
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${escHtml(title)}</title>`
+    + `<style>body{font-family:Georgia,serif;margin:0;padding:40px}h1{font-size:34px;margin:0 0 20px}table{border-collapse:collapse;font-size:20px}`
+    + `th,td{border:1px solid #999;padding:6px 14px;text-align:center}td:first-child,th:first-child{text-align:left}</style></head>`
+    + `<body><h1>${escHtml(title)}</h1>${body}</body></html>`;
+}
+
 export function tableSignsHtml(spec, result, title = "Seating plan") {
   const sheets = result.tables.map((t) => {
     const names = t.guests.map((name) => {
@@ -397,10 +433,11 @@ export function escortBoardHtml(spec, result, title = "Find your table") {
 }
 
 export function planCsv(spec, result) {
-  const rows = [["Table", "Guest", "Party", "Group"]];
+  const withMeal = spec.guests.some((g) => g.meal);
+  const rows = [["Table", "Guest", "Party", "Group", ...(withMeal ? ["Meal"] : [])]];
   result.tables.forEach((t) => t.guests.forEach((name) => {
     const g = spec.guests.find((x) => x.name === name);
-    rows.push([String(t.number), name, g.party, g.group || ""]);
+    rows.push([String(t.number), name, g.party, g.group || "", ...(withMeal ? [g.meal || ""] : [])]);
   }));
   const esc = (v) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
   return rows.map((r) => r.map(esc).join(",")).join("\n");
