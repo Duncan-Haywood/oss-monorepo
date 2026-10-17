@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot on log axes of the steady fleet size of a self-replicating shop that repairs its machines against the assumed life of a printed bushing relative to the bought bearing it replaces, for the simulation and the closed-form formula: the fleet shrinks sharply as the printed bushing wears faster, and the formula overstates the simulation throughout">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Spares: fleet size against printed-bushing life</text>
+<line x1="64" x2="624" y1="283.0" y2="283.0" stroke="#ddd"/><text x="58" y="287.0" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="286.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="455.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">printed-bushing life / LM8UU life (log scale)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">machines in steady state (log scale)</text>
+<polyline points="624.0,83.3 455.4,125.6 286.8,188.9 64.0,309.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="624.0" cy="83.3" r="3" fill="#c0392b"/>
+<circle cx="455.4" cy="125.6" r="3" fill="#c0392b"/>
+<circle cx="286.8" cy="188.9" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">simulation (DES)</text>
+<polyline points="624.0,70.4 455.4,105.3 286.8,152.8 64.0,231.1" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#1f6fb2"/>
+<circle cx="455.4" cy="105.3" r="3" fill="#1f6fb2"/>
+<circle cx="286.8" cy="152.8" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="231.1" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">formula</text>
+</svg>

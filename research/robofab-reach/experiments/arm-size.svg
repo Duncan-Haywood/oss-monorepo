@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the smallest first-link length in millimetres that can place all six free parts of the toy gripper, against the gap between the fixture edge and the part tray, one line per shoulder height: the required link grows with both the gap and the shoulder height">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Robofab-reach: smallest feasible link l1</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="260.8" y2="260.8" stroke="#ddd"/><text x="58" y="264.8" text-anchor="end" font-family="sans-serif" font-size="11">50</text>
+<line x1="64" x2="624" y1="197.6" y2="197.6" stroke="#ddd"/><text x="58" y="201.6" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="134.4" y2="134.4" stroke="#ddd"/><text x="58" y="138.4" text-anchor="end" font-family="sans-serif" font-size="11">150</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">40</text>
+<text x="188.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">120</text>
+<text x="375.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">240</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">400</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">tray gap, mm</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">smallest l1, mm</text>
+<polyline points="64.0,260.8 188.4,248.2 375.1,210.2 624.0,159.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="260.8" r="3" fill="#c0392b"/>
+<circle cx="188.4" cy="248.2" r="3" fill="#c0392b"/>
+<circle cx="375.1" cy="210.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="159.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">shoulder H=50 mm</text>
+<polyline points="64.0,248.2 188.4,222.9 375.1,197.6 624.0,147.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="248.2" r="3" fill="#1f6fb2"/>
+<circle cx="188.4" cy="222.9" r="3" fill="#1f6fb2"/>
+<circle cx="375.1" cy="197.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="147.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">shoulder H=100 mm</text>
+<polyline points="64.0,184.9 188.4,184.9 375.1,159.7 624.0,121.7" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="184.9" r="3" fill="#2e8b57"/>
+<circle cx="188.4" cy="184.9" r="3" fill="#2e8b57"/>
+<circle cx="375.1" cy="159.7" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="121.7" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">shoulder H=200 mm</text>
+<polyline points="64.0,134.4 188.4,121.7 375.1,109.1 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="134.4" r="3" fill="#8e44ad"/>
+<circle cx="188.4" cy="121.7" r="3" fill="#8e44ad"/>
+<circle cx="375.1" cy="109.1" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">shoulder H=300 mm</text>
+</svg>
