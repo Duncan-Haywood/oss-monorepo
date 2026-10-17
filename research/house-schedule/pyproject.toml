@@ -1,0 +1,13 @@
+[project]
+name = "house-schedule"
+version = "0.1.0"
+description = "How much do sequencing, early ordering, prefabrication and fewer handoffs cut a house build's duration and construction-loan interest? A Monte Carlo schedule model of trades, weather, inspections and lead times"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

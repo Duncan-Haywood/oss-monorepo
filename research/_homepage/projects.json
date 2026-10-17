@@ -2719,6 +2719,11 @@
      "slug": "house-sobol",
      "title": "Which uncertain input of the house-cost model drives the uncertainty in a house's price?",
      "summary": "A variance-based (Sobol) global sensitivity analysis of <code>house-cost</code>, treating the ten lever ranges, the framing materials share and the assumed driver splits as random at once (4,096 base samples, bootstrap intervals). Floor area explains 53% of the price-index variance and storeys 19%; finish level, lot price and foundation type 6&ndash;9% each. The three framing inputs together explain under 1%, so the lumber saving optimised in <code>house-plan</code> barely moves the price of a whole house, and the assumed splits explain none alone and 1.7% through interactions. Per square foot, storeys matters more (25&ndash;27%). Stylised: the answer is relative to the assumed uniform ranges and ignores correlations."
+    },
+    {
+     "slug": "house-schedule",
+     "title": "How much do early ordering, prefabricated panels and fewer handoffs shorten a house build?",
+     "summary": "A Monte Carlo schedule of a stylised 13-task house build with one crew per trade, weather loss, inspections that can fail and long-lead trusses and windows (4,000 builds per scenario). Ordering the long-lead items on day 0 cuts the mean from 205 to 181 calendar days (&minus;11%); prefabricated panels alone cut 1.5%; merging the roofing and siding crews changed nothing. All three: 171 days (&minus;17%), but construction-loan interest is only 1.7&ndash;1.9% of cost. The assumed handoff gap moves the baseline by 35%, more than any lever. Stylised: every input is an assumption and the prefab saving ignores the factory."
     }
    ]
   }
