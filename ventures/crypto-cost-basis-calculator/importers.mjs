@@ -43,6 +43,7 @@ export function detectFormat(text) {
   if (findHeader(grid, ["timestamp", "transaction type", "asset"]) >= 0) return "coinbase";
   if (findHeader(grid, ["txid", "refid", "time", "type", "asset", "amount", "fee"]) >= 0) return "kraken";
   if (findHeader(grid, ["time", "operation", "primary asset"]) >= 0) return "binanceus";
+  if (findHeader(grid, ["type", "datetime", "account", "amount", "value", "rate", "fee", "sub type"]) >= 0) return "bitstamp";
   return "generic";
 }
 
@@ -299,16 +300,71 @@ function importGemini(grid) {
   return { format: "gemini", rows: out, notes };
 }
 
+// ---- Bitstamp ------------------------------------------------------------
+//
+// Bitstamp's transaction export is one row per trade with the amounts spelled
+// as "0.5 BTC" / "10000 USD" and a date such as "Jan. 10, 2023, 10:00 AM".
+// Only USD-valued Market buys and sells are read; a trade valued in another
+// currency is skipped with a note rather than converted at a rate nobody typed.
+
+const MONTHS = { jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06", jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12" };
+function bitstampDate(raw) {
+  const s = String(raw ?? "").trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+  const m = s.match(/^([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2}),\s*(\d{4})/);
+  return m && MONTHS[m[1].toLowerCase()] ? `${m[3]}-${MONTHS[m[1].toLowerCase()]}-${m[2].padStart(2, "0")}` : "";
+}
+// "0.5 BTC" -> { n: 0.5, cur: "BTC" }
+const bitstampAmount = (raw) => {
+  const m = String(raw ?? "").trim().match(/^(.*?)\s*([A-Za-z]{2,10})$/);
+  return m ? { n: num(m[1]), cur: m[2].toUpperCase() } : { n: num(raw), cur: "" };
+};
+
+function importBitstamp(grid) {
+  const h = findHeader(grid, ["type", "datetime", "account", "amount", "value", "rate", "fee", "sub type"]);
+  const names = grid[h].map(norm);
+  const c = { type: names.indexOf("type"), date: names.indexOf("datetime"), amount: names.indexOf("amount"), value: names.indexOf("value"), fee: names.indexOf("fee"), sub: names.indexOf("sub type") };
+  const out = [], notes = [];
+  let moves = 0;
+  for (let i = h + 1; i < grid.length; i++) {
+    const r = grid[i];
+    const type = norm(r[c.type] ?? "");
+    if (!type) continue;
+    if (type !== "market") {
+      if (/deposit|withdrawal|sub account transfer/.test(type)) moves++;
+      else notes.push(`Line ${i + 1}: Bitstamp row type "${r[c.type]}" was skipped.`);
+      continue;
+    }
+    const side = norm(r[c.sub] ?? "");
+    const date = bitstampDate(r[c.date]);
+    const amt = bitstampAmount(r[c.amount]);
+    const val = bitstampAmount(r[c.value]);
+    const fee = bitstampAmount(r[c.fee]);
+    if ((side !== "buy" && side !== "sell") || !date || amt.n === null || !amt.cur) {
+      notes.push(`Line ${i + 1}: Bitstamp ${side || "trade"} could not be read and was skipped.`);
+      continue;
+    }
+    if (val.cur !== "USD") {
+      notes.push(`Line ${i + 1}: Bitstamp ${side} of ${amt.cur} is valued in ${val.cur || "an unknown currency"}, not USD, and was skipped. Enter it by hand at that day's USD value.`);
+      continue;
+    }
+    out.push([date, side, amt.cur, fmt(Math.abs(amt.n)), fmt(val.n === null ? null : Math.abs(val.n)), fmt(fee.cur === "USD" && fee.n !== null ? Math.abs(fee.n) : 0), "Bitstamp"]);
+    if (fee.n && fee.cur !== "USD") notes.push(`Line ${i + 1}: Bitstamp fee in ${fee.cur || "another currency"} was not counted; add it to the fee by hand.`);
+  }
+  if (moves) notes.push(`${moves} deposit and withdrawal rows ignored as non-taxable movements. A withdrawal that paid someone is a sale; enter it by hand.`);
+  return { format: "bitstamp", rows: out, notes };
+}
+
 // ---- entry points ---------------------------------------------------------
 
-export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", cryptocom: "Crypto.com App transaction history", gemini: "Gemini transaction history", generic: "plain CSV" };
+export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", cryptocom: "Crypto.com App transaction history", gemini: "Gemini transaction history", bitstamp: "Bitstamp transaction export", generic: "plain CSV" };
 
 // Returns { format, csv, notes }. A generic file comes back unchanged.
 export function convertExchangeCsv(text) {
   const format = detectFormat(text);
   if (format === "generic") return { format, csv: String(text ?? ""), notes: [] };
   const grid = parseCsv(text);
-  const r = format === "coinbase" ? importCoinbase(grid) : format === "binanceus" ? importBinanceUs(grid) : format === "cryptocom" ? importCryptoCom(grid) : format === "gemini" ? importGemini(grid) : importKraken(grid);
+  const r = format === "coinbase" ? importCoinbase(grid) : format === "binanceus" ? importBinanceUs(grid) : format === "cryptocom" ? importCryptoCom(grid) : format === "gemini" ? importGemini(grid) : format === "bitstamp" ? importBitstamp(grid) : importKraken(grid);
   return { format, csv: toCsv(r.rows), notes: r.notes, count: r.rows.length };
 }
 
