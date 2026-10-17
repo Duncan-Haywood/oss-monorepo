@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Seed And Run A Single-Elimination Bracket: Byes Explained</title>
+  <meta name="description" content="How to seed a single-elimination bracket: why 1 plays the lowest seed, how byes work for 6 or 12 teams, how many games and rounds you need, and a worked six-team example. Then build yours free.">
+  <meta property="og:title" content="How To Seed And Run A Single-Elimination Bracket: Byes Explained">
+  <meta property="og:description" content="Seeding, byes, rounds and game counts, with a six-team example. Free, private, in your browser.">
+  <link rel="canonical" href="./how-to-run-a-single-elimination-bracket.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many games are in a single-elimination tournament?", "acceptedAnswer": {"@type": "Answer", "text": "Always one fewer than the number of teams, whatever the size, because every team except the champion loses exactly once. Six teams play 5 games; sixteen teams play 15."}}, {"@type": "Question", "name": "How does seeding work in a single-elimination bracket?", "acceptedAnswer": {"@type": "Answer", "text": "The bracket is filled so that seed 1 meets the lowest seed, seed 2 the second lowest, and so on, and so that the top seeds can only meet each other late: seeds 1 and 2 are on opposite halves and cannot meet before the final. In an 8-slot bracket the first-round pairings are 1 v 8, 4 v 5, 2 v 7 and 3 v 6."}}, {"@type": "Question", "name": "How do byes work when the number of teams is not a power of two?", "acceptedAnswer": {"@type": "Answer", "text": "The bracket is sized up to the next power of two (8 for 6 teams, 16 for 12) and the empty slots go to the lowest seeds, so the top seeds skip round one. With 6 teams the #1 and #2 seeds have a bye; with 12 teams the top four do."}}, {"@type": "Question", "name": "How many rounds does a single-elimination bracket have?", "acceptedAnswer": {"@type": "Answer", "text": "The base-2 logarithm of the bracket size, rounded up: 3 rounds for 5 to 8 teams, 4 rounds for 9 to 16 teams. A bye does not remove a round; the team just plays its first game in round two."}}, {"@type": "Question", "name": "When is single elimination the wrong choice?", "acceptedAnswer": {"@type": "Answer", "text": "When every team has travelled and expects more than one game, or when seeding is a guess. A round robin or a double-elimination bracket gives each team more games, at the cost of more courts and time."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to seed and run a single-elimination bracket, with a worked example</h1>
+  <p>Single elimination is the quickest way to find one winner: lose once and you are out. It suits play-offs at the end of a league, one-day pickleball, darts or esports events, and any tournament where courts or daylight are short. The two decisions that go wrong by hand are the seeding order and the byes when the number of teams is not 4, 8 or 16.</p>
+  <p><a class="cta" href="./">Open the free bracket tool</a> (type the teams best seed first; dates continue from your league on the weekdays you choose)</p>
+  <h2>A worked example: 6 teams, 5 games</h2>
+  <p>Six invented teams are seeded 1 to 6. The bracket is sized up to 8 slots, and the two empty slots become byes for the top two seeds, so the #1 and #2 seeds skip the first round. Seeds 1 and 2 are on opposite halves, so they can only meet in the final. "Winner of R1M2" is whoever wins that game.</p>
+  <table>
+    <thead><tr><th>Round</th><th>Match</th><th>Teams</th></tr></thead>
+    <tbody>
+      <tr><td>Quarterfinals</td><td>R1M2</td><td>#4 Bears vs #5 Lynx</td></tr>
+      <tr><td>Quarterfinals</td><td>R1M4</td><td>#3 Foxes vs #6 Wolves</td></tr>
+      <tr><td>Semifinals</td><td>R2M1</td><td>#1 Hawks vs winner of R1M2</td></tr>
+      <tr><td>Semifinals</td><td>R2M2</td><td>#2 Owls vs winner of R1M4</td></tr>
+      <tr><td>Final</td><td>R3M1</td><td>winner of R2M1 vs winner of R2M2</td></tr>
+    </tbody>
+  </table>
+  <p>The #1 and #2 seeds play only two games to win the title; the other four teams play three. That is the reward for a good league finish, and why seeding should come from standings rather than from who signed up first.</p>
+  <p>The bracket comes from the same code the page runs and a test recomputes this table from it, so it cannot drift from the tool.</p>
+  <p><a class="cta" href="./">Build your own bracket</a></p>
+  <h2>Questions</h2>
+  <h3>How many games are in a single-elimination tournament?</h3>
+  <p>Always one fewer than the number of teams, whatever the size, because every team except the champion loses exactly once. Six teams play 5 games; sixteen teams play 15.</p>
+  <h3>How does seeding work in a single-elimination bracket?</h3>
+  <p>The bracket is filled so that seed 1 meets the lowest seed, seed 2 the second lowest, and so on, and so that the top seeds can only meet each other late: seeds 1 and 2 are on opposite halves and cannot meet before the final. In an 8-slot bracket the first-round pairings are 1 v 8, 4 v 5, 2 v 7 and 3 v 6.</p>
+  <h3>How do byes work when the number of teams is not a power of two?</h3>
+  <p>The bracket is sized up to the next power of two (8 for 6 teams, 16 for 12) and the empty slots go to the lowest seeds, so the top seeds skip round one. With 6 teams the #1 and #2 seeds have a bye; with 12 teams the top four do.</p>
+  <h3>How many rounds does a single-elimination bracket have?</h3>
+  <p>The base-2 logarithm of the bracket size, rounded up: 3 rounds for 5 to 8 teams, 4 rounds for 9 to 16 teams. A bye does not remove a round; the team just plays its first game in round two.</p>
+  <h3>When is single elimination the wrong choice?</h3>
+  <p>When every team has travelled and expects more than one game, or when seeding is a guess. A round robin or a double-elimination bracket gives each team more games, at the cost of more courts and time.</p>
+  <p>Related: <a href="./how-to-run-a-double-elimination-tournament.html">how double elimination and the grand final reset work</a>, <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a>, and <a href="./how-to-run-a-swiss-tournament.html">how a Swiss tournament works</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing and date before you announce it; your event's own rules and tie-breaks apply. The example teams are invented.</p>
+    <p>Everything the tool does runs in your browser; team names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
