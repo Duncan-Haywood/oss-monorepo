@@ -24,7 +24,9 @@ import subprocess
 import sys
 
 # import name -> package name, where they differ
-PIP_NAMES = {"sklearn": "scikit-learn", "yaml": "pyyaml", "PIL": "pillow"}
+PIP_NAMES = {"sklearn": "scikit-learn", "yaml": "pyyaml", "PIL": "pillow",
+             "skfem": "scikit-fem", "skimage": "scikit-image", "cv2": "opencv-python",
+             "bs4": "beautifulsoup4", "dateutil": "python-dateutil"}
 APT_NAMES = {"sklearn": "python3-sklearn", "yaml": "python3-yaml", "PIL": "python3-pil"}
 
 

@@ -80,6 +80,13 @@ class T(unittest.TestCase):
         pip = [c for c in run.calls if c[1:3] == ["-m", "pip"]][0]
         self.assertEqual(pip[-2:], ["scikit-learn", "pyyaml"])
 
+    def test_import_name_differs_from_pip_name(self):
+        # skfem is imported by ~86 research files; pip's name is scikit-fem
+        run = FakeRun(pip_ok={"/p/python3"})
+        pyenv.find(["skfem"], ["/p/python3"], run, quiet)
+        pip = [c for c in run.calls if c[1:3] == ["-m", "pip"]][0]
+        self.assertEqual(pip[-1], "scikit-fem")
+
     def test_candidates_dedupes_and_skips_config(self):
         with tempfile.TemporaryDirectory() as d:
             for name in ("python3", "python3.11", "python3.11-config", "python3-foo"):
