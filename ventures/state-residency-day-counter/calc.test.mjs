@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, timelineToStays, EMPLOYER_RULES, fmtNum, fmtMoney, dailyLog, dailyLogCsv, auditReportHtml } from "./calc.mjs";
+import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, timelineToStays, EMPLOYER_RULES, fmtNum, fmtMoney, dailyLog, dailyLogCsv, auditReportHtml, tripImpact } from "./calc.mjs";
 
 const Y = 2025;
 const spec = (lines, extra = {}) => ({ year: Y, stays: parseStays(lines.join("\n"), Y).stays, abode: {}, overrides: {}, ...extra });
@@ -297,4 +297,24 @@ test("audit packet carries every state total and one log row per day, and escape
   assert.ok(html.includes("&lt;b&gt;A &amp; B&lt;/b&gt;"));
   assert.ok(html.includes("not tax or legal advice"));
   assert.ok(!/https?:\/\//.test(html));
+});
+
+test("tripImpact adds the trip's days, flags a newly crossed limit and finds the longest safe trip", () => {
+  const sp = spec(["NY 2025-01-01 to 2025-06-30"], { abode: { NY: true }, homeState: "FL" });
+  const base = by(analyze(sp), "NY").days; // 181
+  const r = tripImpact(sp, { state: "NY", start: toDay(Y, 7, 1), days: 2 });
+  const ny = r.changes.find((c) => c.code === "NY");
+  assert.equal(ny.before, base);
+  assert.equal(ny.after, base + 2);
+  assert.equal(ny.delta, 2);
+  assert.deepEqual(r.newlyOver, []);
+  // limit is 183 (over means more than 183): 2 more days are safe, 3 cross it
+  assert.equal(r.maxSafeDays, 183 - base);
+  const over = tripImpact(sp, { state: "NY", start: toDay(Y, 7, 1), days: 184 - base });
+  assert.deepEqual(over.newlyOver, ["NY"]);
+  // a trip to a state replaces assumed home days
+  assert.deepEqual(tripImpact(sp, { state: "FL", start: toDay(Y, 7, 1), days: 5 }).changes, []);
+  assert.equal(tripImpact(sp, { state: "TX", start: toDay(Y, 7, 1), days: 5 }).maxSafeDays, null);
+  assert.throws(() => tripImpact(sp, { state: "N", start: 1, days: 3 }));
+  assert.throws(() => tripImpact(sp, { state: "NY", start: toDay(Y, 7, 1), days: 0 }));
 });
