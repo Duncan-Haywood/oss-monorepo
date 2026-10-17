@@ -4,7 +4,7 @@ import {
   applyRainouts, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs,
   scheduleText, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText,
+  splitPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -810,4 +810,32 @@ test("double elimination: byes, text and refusals", () => {
   assert.match(txt, /Grand final/);
   assert.doesNotMatch(txt, /NaN|undefined/);
   assert.throws(() => doubleEliminationBracket(["A", "B"]), /at least three/);
+});
+
+test("restReport: weekly league has 7-day gaps; adjacent weekdays show back-to-back games", () => {
+  const weekly = buildSchedule(baseSpec(4));
+  const r = restReport(weekly);
+  assert.equal(r.shortest, 7);
+  assert.equal(r.longest, 7);
+  assert.equal(r.back_to_back, 0);
+  assert.equal(r.rows.length, 4);
+  assert.ok(r.rows.every((x) => x.games === 3));
+
+  const daily = buildSchedule(baseSpec(4, { weekdays: [2, 3] }));
+  const d = restReport(daily);
+  assert.equal(d.shortest, 1);
+  assert.ok(d.back_to_back > 0);
+  // independent recount from the rounds
+  let count = 0;
+  for (let t = 0; t < 4; t++) {
+    const ds = daily.rounds.filter((x) => x.matches.some((m) => m.home === t || m.away === t)).map((x) => x.day).sort((a, b) => a - b);
+    for (let k = 1; k < ds.length; k++) if (ds[k] - ds[k - 1] <= 1) count++;
+  }
+  assert.equal(d.back_to_back, count);
+});
+
+test("restReport: a single round gives null gaps", () => {
+  const r = restReport(buildSchedule(baseSpec(2)));
+  assert.equal(r.shortest, null);
+  assert.equal(r.longest, null);
 });

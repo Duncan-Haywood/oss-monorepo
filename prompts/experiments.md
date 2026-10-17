@@ -586,7 +586,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Report: `prompts/drift/2026-10-16k.md`.
 - Result: (next review)
 
-## E30: review, 2026-10-17
+## E30b: review, 2026-10-17 (second review that day)
 
 - Change: `promptctl.py measure` hides "By starting message" groups with
   fewer than 3 runs (49 of 60 rows, 52 runs; one line says so). Cause: the
@@ -604,5 +604,18 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   after the previous one, against ten reviews on 2026-10-16: helped.
 - Audit: not run (mirrored or doc-only records); `derive.py fetch` ran and
   built 713 rows.
-- Drift: `prompts/drift/2026-10-17.md`.
+- Drift: `prompts/drift/2026-10-17b.md`.
+
+## E30: review 2026-10-17
+
+- Change: `land-your-work.md` says cloud sessions without `gh`/GraphQL use the
+  GitHub MCP tools to open and merge. Cause: a 2026-10-17 `CLAUDE.md`
+  friction report ("merge via PR, but gh GraphQL is blocked").
+- Metric: friction reports per run naming gh/GraphQL/MCP. Compare the next 40
+  runs.
+- Candidates: ventures/2 vs 1, research/1 vs 0 overlap; review/2 has 5 runs.
+  Keep collecting.
+- Data: `derive.py fetch` got 25 of 46 PRs before the time limit; the rest
+  stay null. Audit not run (mirrored or doc-only recent outputs).
+- Drift: see `prompts/drift/2026-10-17b.md`.
 - Result: (next review)

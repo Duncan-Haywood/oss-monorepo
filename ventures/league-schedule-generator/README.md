@@ -21,6 +21,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   changes), and an independent validator that re-checks a finished schedule.
 - Per-team time limits (`Team: 17:00`): a youth team that can only play early is only given those slots, rainout moves respect them, and the validator flags any breach; an unsatisfiable limit is reported, never hidden.
 - Standings rank by points, goal difference, goals for; tick head-to-head to split teams level on points by the matches among them first (`standings(..., { headToHead: true })`).
+- Rest report: the fairness note shows the shortest and longest days between each team's games and counts games that follow within a day (`restReport` in `calc.mjs`).
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-make-a-round-robin-schedule.html` - guide with a worked 5-team example
   that the test suite recomputes.
