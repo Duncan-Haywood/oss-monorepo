@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { laborPercent, scheduleFlags,
-  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
+  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
@@ -548,4 +548,29 @@ test("avoid: is still worked when nobody else is available, and says so", () => 
 test("avoid: bad days are reported", () => {
   const r = parseStaff("Ana, 15, 40, 0, any, avoid: Funday");
   assert.ok(r.errors.some((e) => /avoid/.test(e)));
+});
+
+test("swapOptions: offers one-for-one trades that keep both weeks valid, even when nobody can simply take the shift", () => {
+  const staff = staffOf("Ana, 10, 8, 0, Mon 8-16; Tue 8-16\nBen, 12, 8, 0, Mon 8-16; Tue 8-16\nCy, 11, 8, 0, Wed 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open\nTue, 8, 16, 1, close");
+  const r = buildRoster(staff, slots);
+  const [first, second] = r.assignments.map((a) => a.person);
+  assert.deepEqual([first, second].sort(), ["Ana", "Ben"]); // one 8-hour shift each, both at their weekly limit
+  assert.deepEqual(coverOptions(staff, slots, r, 0).fits, []);
+  const s = swapOptions(staff, slots, r, 0);
+  assert.equal(s.from, first);
+  assert.equal(s.trades.length, 1);
+  assert.equal(s.trades[0].with, second);
+  assert.equal(s.trades[0].direct, false);
+  assert.equal(s.trades[0].gives.day, 1);
+  assert.ok(Math.abs(s.trades[0].extraCost) < 1e-6); // each still works 8 hours at their own wage
+});
+
+test("swapOptions: open shifts and a missing roster are reported, not guessed", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon 8-16");
+  const slots = slotsOf("Mon, 8, 16, 2, open");
+  const r = buildRoster(staff, slots);
+  const open = r.assignments.findIndex((a) => a.person === null);
+  assert.ok(swapOptions(staff, slots, r, open).error);
+  assert.ok(swapOptions(staff, slots, null, 0).error);
 });
