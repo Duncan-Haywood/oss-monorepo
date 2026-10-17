@@ -1786,6 +1786,106 @@ export function americanoText(players, plan) {
   return lines.join("\n");
 }
 
+/**
+ * Mexicano scores: one finished doubles game per line, `Ana & Ben 21-17 Cy & Dee`. Players are matched
+ * to the list case-insensitively. Returns { games: [{ a: [i, j], b: [k, l], sa, sb }], errors }.
+ */
+export function parseMexicanoScores(text, players) {
+  const index = new Map(players.map((p, i) => [p.trim().toLowerCase(), i]));
+  const games = [];
+  const errors = [];
+  const re = /^(.+?)\s*&\s*(.+?)\s+(\d+)\s*[-\u2013:]\s*(\d+)\s+(.+?)\s*&\s*(.+)$/;
+  String(text || "").split(/\r?\n/).forEach((raw, ln) => {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) return;
+    const m = re.exec(line);
+    if (!m) { errors.push(`Line ${ln + 1}: write it as "Ana & Ben 21-17 Cy & Dee".`); return; }
+    const ids = [m[1], m[2], m[5], m[6]].map((nm) => index.get(nm.trim().toLowerCase()));
+    const bad = [m[1], m[2], m[5], m[6]].filter((_, k) => ids[k] === undefined);
+    if (bad.length) { errors.push(`Line ${ln + 1}: ${bad.map((b) => `"${b.trim()}"`).join(", ")} not in the player list.`); return; }
+    if (new Set(ids).size !== 4) { errors.push(`Line ${ln + 1}: a player appears twice in one game.`); return; }
+    games.push({ a: [ids[0], ids[1]], b: [ids[2], ids[3]], sa: Number(m[3]), sb: Number(m[4]) });
+  });
+  return { games, errors };
+}
+
+/**
+ * Mexicano table: each player is credited with their side's points, so a good partner never costs you.
+ * Ranked by points for, then points difference, then wins. Returns rows with rank, name, played, wins,
+ * draws, losses, pf, pa, diff.
+ */
+export function mexicanoStandings(players, games) {
+  const rows = players.map((name, i) => ({ i, name, played: 0, wins: 0, draws: 0, losses: 0, pf: 0, pa: 0, diff: 0 }));
+  for (const g of games) {
+    for (const [side, mine, theirs] of [[g.a, g.sa, g.sb], [g.b, g.sb, g.sa]]) {
+      for (const i of side) {
+        const r = rows[i];
+        r.played++; r.pf += mine; r.pa += theirs; r.diff += mine - theirs;
+        if (mine > theirs) r.wins++; else if (mine === theirs) r.draws++; else r.losses++;
+      }
+    }
+  }
+  rows.sort((x, y) => y.pf - x.pf || y.diff - x.diff || y.wins - x.wins || x.i - y.i);
+  rows.forEach((r, k) => { r.rank = k + 1; });
+  return rows;
+}
+
+/**
+ * Next Mexicano round: players are ranked on points so far, sitting out goes to whoever has played the
+ * most (random tie-break), the rest are cut into fours in rank order, and each four plays 1&4 against 2&3,
+ * or a split that repeats fewer partnerships when it would otherwise repeat one. Round one, with no
+ * scores yet, is a seeded random draw. Returns { matches: [{ court, a, b }], byes, repeatPartners }.
+ */
+export function mexicanoNextRound(players, games, { courts = 1, seed = 1 } = {}) {
+  const n = players.length;
+  if (n < 4) throw new Error("Mexicano needs at least 4 players.");
+  if (!(courts >= 1)) throw new Error("Mexicano needs at least 1 court.");
+  const rng = mulberry32(seed + games.length * 7919);
+  const table = mexicanoStandings(players, games);
+  const partner = Array.from({ length: n }, () => new Array(n).fill(0));
+  for (const g of games) { partner[g.a[0]][g.a[1]]++; partner[g.a[1]][g.a[0]]++; partner[g.b[0]][g.b[1]]++; partner[g.b[1]][g.b[0]]++; }
+  const seats = Math.min(Math.floor(n / 4), courts) * 4;
+  const played = new Array(n).fill(0);
+  for (const r of table) played[r.i] = r.played;
+  const jitter = players.map(() => rng());
+  const byeOrder = [...Array(n).keys()].sort((x, y) => played[y] - played[x] || jitter[x] - jitter[y]);
+  const byes = byeOrder.slice(0, n - seats).sort((x, y) => x - y);
+  const byeSet = new Set(byes);
+  let active;
+  if (games.length === 0) {
+    active = [...Array(n).keys()].filter((i) => !byeSet.has(i)).sort((x, y) => jitter[x] - jitter[y]);
+  } else {
+    active = table.map((r) => r.i).filter((i) => !byeSet.has(i));
+  }
+  const matches = [];
+  let repeatPartners = 0;
+  for (let m = 0; m < active.length; m += 4) {
+    const [p1, p2, p3, p4] = active.slice(m, m + 4);
+    const options = [[[p1, p4], [p2, p3]], [[p1, p3], [p2, p4]], [[p1, p2], [p3, p4]]];
+    let best = options[0];
+    let bestRep = Infinity;
+    for (const o of options) {
+      const rep = partner[o[0][0]][o[0][1]] + partner[o[1][0]][o[1][1]];
+      if (rep < bestRep) { bestRep = rep; best = o; }
+    }
+    repeatPartners += bestRep;
+    matches.push({ court: m / 4 + 1, a: best[0].slice().sort((x, y) => x - y), b: best[1].slice().sort((x, y) => x - y) });
+  }
+  return { matches, byes, repeatPartners };
+}
+
+/** Plain-text next-round sheet plus the table, for a group chat. */
+export function mexicanoText(players, round, table, roundNumber) {
+  const lines = [`Round ${roundNumber}`];
+  for (const m of round.matches) lines.push(`  Court ${m.court}: ${players[m.a[0]]} & ${players[m.a[1]]} vs ${players[m.b[0]]} & ${players[m.b[1]]}`);
+  if (round.byes.length) lines.push(`  Sitting out: ${round.byes.map((i) => players[i]).join(", ")}`);
+  if (table.some((r) => r.played)) {
+    lines.push("", "Standings");
+    for (const r of table) lines.push(`  ${r.rank}. ${r.name}  ${r.pf} pts  (${r.diff >= 0 ? "+" : ""}${r.diff})  ${r.played} played`);
+  }
+  return lines.join("\n");
+}
+
 // ---------------------------------------------------------------- example
 
 export function sampleFields() {

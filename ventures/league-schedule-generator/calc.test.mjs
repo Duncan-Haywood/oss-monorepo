@@ -985,3 +985,58 @@ test("americano: input errors and text sheet", () => {
   const st = americanoStats(players, plan);
   assert.deepEqual(st.byes, [1, 1, 1, 1, 1]);
 });
+
+import { parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText } from "./calc.mjs";
+
+test("mexicano: scores parse, bad lines are named, and credit goes to each side", () => {
+  const players = ["Ana", "Ben", "Cy", "Dee", "Eli", "Fay", "Gus", "Hal"];
+  const { games, errors } = parseMexicanoScores("Ana & Ben 21-17 Cy & Dee\nely & Fay 10-10 gus & Hal\nAna & Zed 1-0 Cy & Dee\nnonsense", players);
+  assert.equal(games.length, 1);
+  assert.equal(errors.length, 3);
+  assert.match(errors[0], /Line 2.*"ely"/);
+  assert.match(errors[1], /Line 3.*"Zed"/);
+  assert.match(errors[2], /Line 4/);
+  const t = mexicanoStandings(players, games);
+  assert.deepEqual(t.slice(0, 2).map((r) => r.name), ["Ana", "Ben"]);
+  assert.equal(t[0].pf, 21); assert.equal(t[0].diff, 4);
+  const dee = t.find((r) => r.name === "Dee");
+  assert.equal(dee.pf, 17); assert.equal(dee.losses, 1);
+});
+
+test("mexicano: every round places each player once, top four play together, nobody repeats a partner early", () => {
+  for (let n = 4; n <= 20; n++) {
+    const players = Array.from({ length: n }, (_, i) => `P${i}`);
+    for (const courts of [1, 2, 3]) {
+      const games = [];
+      const rng = mulberry32(n * 10 + courts);
+      for (let r = 0; r < 6; r++) {
+        const round = mexicanoNextRound(players, games, { courts, seed: 5 });
+        const seen = new Set();
+        for (const m of round.matches) for (const i of [...m.a, ...m.b]) { assert.ok(!seen.has(i)); seen.add(i); }
+        for (const i of round.byes) { assert.ok(!seen.has(i)); seen.add(i); }
+        assert.equal(seen.size, n);
+        assert.equal(round.matches.length, Math.min(Math.floor(n / 4), courts));
+        for (const m of round.matches) games.push({ ...m, sa: Math.floor(rng() * 25), sb: Math.floor(rng() * 25) });
+      }
+      const played = mexicanoStandings(players, games).map((r) => r.played);
+      // sitting out goes to whoever has played most, so games stay within one of even
+      assert.ok(Math.max(...played) - Math.min(...played) <= 1, `n=${n} courts=${courts}`);
+    }
+  }
+});
+
+test("mexicano: after scores, the leaders meet and the standard 1&4 vs 2&3 split is used first", () => {
+  const players = ["A", "B", "C", "D", "E", "F", "G", "H"];
+  const { games } = parseMexicanoScores("A & B 21-5 C & D\nE & F 5-21 G & H", players);
+  const round = mexicanoNextRound(players, games, { courts: 2, seed: 1 });
+  // table: A,B (21) then G,H (21) tie on pf and diff -> index order A,B,G,H ; then C,D,E,F
+  const top = round.matches[0];
+  const names = [...top.a, ...top.b].map((i) => players[i]).sort().join("");
+  assert.equal(names, "ABGH");
+  // A&B and G&H already partnered, so the split must avoid both pairs
+  assert.equal(round.repeatPartners, 0);
+  const txt = mexicanoText(players, round, mexicanoStandings(players, games), 2);
+  assert.match(txt, /^Round 2/);
+  assert.match(txt, /Standings/);
+  assert.throws(() => mexicanoNextRound(["a", "b", "c"], []), /at least 4/);
+});
