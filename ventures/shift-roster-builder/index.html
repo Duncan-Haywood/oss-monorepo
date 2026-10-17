@@ -127,6 +127,7 @@
     <div id="critical"></div>
     <div id="daily-box"></div>
     <div id="fair-box"></div>
+    <div id="trim-box"></div>
     <h3>Someone called in sick? Who can take the shift</h3>
     <p class="note">Pick a shift. It lists everyone who could take it without touching anyone else's week, cheapest first, and why the rest cannot.</p>
     <label for="cover-shift">Shift to cover</label> <select id="cover-shift"></select>
@@ -184,7 +185,7 @@
   </footer>
 
   <script type="module">
-    import { carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, fairnessReport, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, fairnessReport, trimOptions, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -255,6 +256,16 @@
       $("#critical").innerHTML = r.critical.length
         ? `<div class="scroll"><table><thead><tr><th>Person</th><th class="n">Hours left uncovered without them</th></tr></thead><tbody>${r.critical.map((c) => `<tr><td>${esc(c.name)}</td><td class="n">${num(c.extraUnfilledHours)}</td></tr>`).join("")}</tbody></table></div>`
         : '<p class="ok">Nobody on this roster is a single point of failure: every shift can still be covered if any one person drops out.</p>';
+      const tbox = $("#trim-box");
+      tbox.innerHTML = "";
+      if (lp && lp.over) {
+        const need = -lp.headroom, t = trimOptions(st.staff, sh.slots, r);
+        if (!t.error && t.rows.length) {
+          let run = 0;
+          const rows = t.rows.slice(0, 8);
+          tbox.innerHTML = `<h3>Getting under your ${num(lp.target)}% target</h3><p class="note">You are ${money(need)} over. These are the biggest single savings, safe cuts first (another person still works that shift). Each saving is for that cut alone; cuts to the same person's week do not add up exactly because overtime is priced across the week. This is a list of options, not a re-run of the roster.</p><div class="scroll"><table><thead><tr><th>Drop</th><th>From</th><th class="n">Saves</th><th class="n">Running total</th></tr></thead><tbody>${rows.map((x) => { run += x.saves; return `<tr><td>${DAYS[x.slot.day]} ${fmtClock(x.slot.startMin)}–${fmtClock(x.slot.endMin)}${x.slot.label ? " " + esc(x.slot.label) : ""}${x.leavesEmpty ? ' <span class="pill medium">leaves it empty</span>' : ""}${x.breaksMinimum ? ' <span class="pill medium">under their minimum</span>' : ""}</td><td>${esc(x.person)}</td><td class="n">${money2(x.saves)}</td><td class="n">${money2(run)}</td></tr>`; }).join("")}</tbody></table></div>`;
+        }
+      }
       const dl = dailyLabor(r, st.staff, $("#dailysales").value);
       $("#daily-box").innerHTML = `<h3>Each day against sales</h3><p class="note">Scheduled hours and payroll at base wage (plus extras) per day${dl.hasSales ? ", with each day's labor share of the sales you gave" : "; add sales by day above to see each day's labor share"}. Overtime premiums are priced across the week, so they are not spread over days here.</p><div class="scroll"><table><thead><tr><th>Day</th><th class="n">Hours</th><th class="n">Payroll</th>${dl.hasSales ? '<th class="n">Sales</th><th class="n">Labor share</th>' : ""}</tr></thead><tbody>${dl.days.map((d) => `<tr><td>${d.day}</td><td class="n">${num(d.hours)}</td><td class="n">${money(d.cost)}</td>${dl.hasSales ? `<td class="n">${d.sales ? money(d.sales) : "—"}</td><td class="n">${d.pct === null ? "—" : num(d.pct) + "%" + (d === dl.worst ? " (highest)" : "")}</td>` : ""}</tr>`).join("")}</tbody></table></div>`;
       const fr = fairnessReport(r);
