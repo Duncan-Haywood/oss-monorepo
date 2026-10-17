@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Is This Delivery Order Worth It? Offer Calculator for Gig Drivers</title>
+  <meta name="description" content="Free calculator for DoorDash, Uber Eats, Instacart and rideshare drivers: type an offer's payout, miles and minutes and see net pay per hour and per mile after gas and upkeep, and the lowest payout worth accepting.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="offer.html">
+  <meta property="og:title" content="Is this delivery order worth it?">
+  <meta property="og:description" content="Net pay per hour and per mile for one offer, after gas and upkeep, plus the minimum payout that meets your floor. Nothing leaves your browser.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this delivery order worth taking?", "acceptedAnswer": {"@type": "Answer", "text": "Divide what it pays after the car by the time it really takes, from the moment you accept to the moment you are free for the next offer. Count the drive to the pickup, the wait at the restaurant, the drive to the customer, and any empty drive back to a busy area. Example: a $7.50 offer that is 3 miles to the customer, 2.5 miles to the restaurant and 2.5 miles back, 33 minutes in all, costs about $1.56 in fuel and wear at 28 MPG, $3.49 gas and 7 cents a mile for upkeep. That is $10.81 an hour after the car, not the $13.64 the app's pay-per-hour suggests. For an $18 an hour floor, the offer would have to pay at least $11.46."}}, {"@type": "Question", "name": "What is the minimum payout I should accept per mile?", "acceptedAnswer": {"@type": "Answer", "text": "There is no right figure, only your own. The page solves it: type the net-per-hour and net-per-mile floors you want and it reports the lowest payout that clears both for the distance and time of that offer. Whichever floor is stricter sets the number."}}, {"@type": "Question", "name": "Why doesn't this count my insurance and phone plan?", "acceptedAnswer": {"@type": "Answer", "text": "Those are owed whether you accept the offer or not, so they do not change the choice between accepting and declining. Only fuel and wear, which grow with every mile, are charged to an offer. The session calculator on the main page spreads fixed costs across a whole shift to answer a different question: what the shift netted."}}, {"@type": "Question", "name": "Should I count the drive back?", "acceptedAnswer": {"@type": "Answer", "text": "If the drop-off is in a zone where offers come quickly, enter 0 miles and minutes back. If you will have to drive somewhere else before the next offer, that drive is part of this order, and leaving it out is the usual way an offer looks better than it was."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 960px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.5; }
+    a { color: #1a5a8a; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1; letter-spacing: -.04em; margin: 0 0 12px; }
+    section { background: #fff; border: 1px solid #c4cedb; border-radius: 14px; padding: 20px; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr); gap: 18px; align-items: start; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8e9bab; border-radius: 7px; padding: 10px; font: inherit; }
+    .result { position: sticky; top: 15px; background: #12233a; color: #f2f6fa; border-color: #12233a; }
+    .hero { font-size: 2.6rem; font-weight: 750; letter-spacing: -.04em; margin: 6px 0; }
+    .verdict { padding: 12px; border-radius: 9px; font-weight: 650; background: #1d5a3a; }
+    .verdict.bad { background: #7d2317; }
+    .verdict.neutral { background: #ffffff1a; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 16px 0 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4f5967; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Gig driver net pay calculator</a></p>
+  <h1>Is this order worth taking?</h1>
+  <p>The offer screen shows a payout and a distance. It does not show what the miles cost, how long you will wait at the restaurant, or the empty drive afterwards. Type what the offer says and what you expect, and see what it pays per hour and per mile <strong>after the car</strong>, and the lowest payout that meets your own floor.</p>
+  <main class="layout">
+    <section>
+      <h2>This offer</h2>
+      <div class="fields">
+          <label>Offered payout ($, incl. guaranteed tip) <input id="payout" type="number" min="0" step="0.25" value="7.5"></label>
+          <label>Miles to pickup <input id="milesToPickup" type="number" min="0" step="0.1" value="2.5"></label>
+          <label>Miles pickup to drop-off <input id="milesToDropoff" type="number" min="0" step="0.1" value="3"></label>
+          <label>Miles back to a busy area <input id="milesBack" type="number" min="0" step="0.1" value="2.5"></label>
+          <label>Minutes to pickup <input id="minutesToPickup" type="number" min="0" step="1" value="8"></label>
+          <label>Minutes waiting at pickup <input id="minutesWaiting" type="number" min="0" step="1" value="5"></label>
+          <label>Minutes to drop-off + handoff <input id="minutesToDropoff" type="number" min="0" step="1" value="12"></label>
+          <label>Minutes back to a busy area <input id="minutesBack" type="number" min="0" step="1" value="8"></label>
+          <label>Miles per gallon <input id="mpg" type="number" min="0" step="0.1" value="28"></label>
+          <label>Gas price ($/gal) <input id="gasPrice" type="number" min="0" step="0.01" value="3.49"></label>
+          <label>Upkeep per mile ($) <input id="maintenancePerMile" type="number" min="0" step="0.01" value="0.07"></label>
+          <label>Lowest net $/hour you accept <input id="minNetPerHour" type="number" min="0" step="0.5" value="18"></label>
+          <label>Lowest net $/mile you accept (optional) <input id="minNetPerMile" type="number" min="0" step="0.05" value=""></label>
+      </div>
+    </section>
+    <section class="result" aria-live="polite">
+      <h2>Net after the car</h2>
+      <div id="hero" class="hero">&mdash;</div>
+      <div id="heroLabel">per hour</div>
+      <div id="verdict" class="verdict neutral">Enter an offer.</div>
+      <dl>
+        <dt>Gross per hour</dt><dd id="grossPerHour"></dd>
+        <dt>Net per mile</dt><dd id="netPerMile"></dd>
+        <dt>Total miles / minutes</dt><dd id="totals"></dd>
+        <dt>Fuel + upkeep for this offer</dt><dd id="vehicleCost"></dd>
+        <dt>Net pay for this offer</dt><dd id="net"></dd>
+        <dt>Lowest payout that meets your floor</dt><dd id="minPayout"></dd>
+      </dl>
+    </section>
+  </main>
+  <p>Only fuel and upkeep, the costs that grow with each mile, are charged to an offer. Insurance and phone plan are owed either way; the <a href="./">session calculator</a> spreads them across a whole shift. Want a tax reserve too? <a href="how-much-should-i-set-aside-for-gig-driving-taxes.html">How much to set aside</a>. Have a full trip export? The <a href="../gig-driver-earnings-report-analyzer/">earnings report analyzer</a> shows which app, weekday and hour pay best.</p>
+  <h2>Common questions</h2>
+  <h3>Is this delivery order worth taking?</h3>
+  <p>Divide what it pays after the car by the time it really takes, from the moment you accept to the moment you are free for the next offer. Count the drive to the pickup, the wait at the restaurant, the drive to the customer, and any empty drive back to a busy area. Example: a $7.50 offer that is 3 miles to the customer, 2.5 miles to the restaurant and 2.5 miles back, 33 minutes in all, costs about $1.56 in fuel and wear at 28 MPG, $3.49 gas and 7 cents a mile for upkeep. That is $10.81 an hour after the car, not the $13.64 the app&rsquo;s pay-per-hour suggests. For an $18 an hour floor, the offer would have to pay at least $11.46.</p>
+  <h3>What is the minimum payout I should accept per mile?</h3>
+  <p>There is no right figure, only your own. The page solves it: type the net-per-hour and net-per-mile floors you want and it reports the lowest payout that clears both for the distance and time of that offer. Whichever floor is stricter sets the number.</p>
+  <h3>Why doesn't this count my insurance and phone plan?</h3>
+  <p>Those are owed whether you accept the offer or not, so they do not change the choice between accepting and declining. Only fuel and wear, which grow with every mile, are charged to an offer. The session calculator on the main page spreads fixed costs across a whole shift to answer a different question: what the shift netted.</p>
+  <h3>Should I count the drive back?</h3>
+  <p>If the drop-off is in a zone where offers come quickly, enter 0 miles and minutes back. If you will have to drive somewhere else before the next offer, that drive is part of this order, and leaving it out is the usual way an offer looks better than it was.</p>
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or legal advice, and it does not replace a qualified professional. It is arithmetic on the figures you type, not a claim about what any platform pays or what you should accept. <strong>You are responsible for checking its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Offers, miles and every other figure stay on this device. Usage counts are anonymous local tallies of which feature was used, never include your numbers, and are off with Do Not Track / Global Privacy Control or the box above.</p>
+    <p>Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { evaluateOffer } from './offer.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    const IDS = ["payout", "milesToPickup", "milesToDropoff", "milesBack", "minutesToPickup", "minutesWaiting", "minutesToDropoff", "minutesBack", "mpg", "gasPrice", "maintenancePerMile", "minNetPerHour", "minNetPerMile"];
+    const el = id => document.getElementById(id);
+    const money = v => (v < 0 ? '-' : '') + '$' + Math.abs(v).toFixed(2);
+    const rate = (v, unit) => v === null ? 'n/a' : `${money(v)}/${unit}`;
+    let counted = false;
+    function update() {
+      let r;
+      try { r = evaluateOffer(Object.fromEntries(IDS.map(id => [id, el(id).value]))); }
+      catch (e) { el('hero').textContent = '\u2014'; el('verdict').className = 'verdict bad'; el('verdict').textContent = e.message; return; }
+      el('hero').textContent = r.netPerHour === null ? money(r.net) : money(r.netPerHour);
+      el('heroLabel').textContent = r.netPerHour === null ? 'net pay (add minutes for a rate)' : 'per hour';
+      el('grossPerHour').textContent = rate(r.grossPerHour, 'hr');
+      el('netPerMile').textContent = rate(r.netPerMile, 'mi');
+      el('totals').textContent = `${r.miles.toFixed(1)} mi / ${Math.round(r.minutes)} min`;
+      el('vehicleCost').textContent = money(r.vehicleCost);
+      el('net').textContent = money(r.net);
+      el('minPayout').textContent = r.minPayout === null ? 'set a floor' : money(r.minPayout);
+      const v = el('verdict');
+      const msg = {
+        'accept': 'Meets your floor.',
+        'decline': `Falls short of your floor by ${money(r.shortfall)}.`,
+        'no-floor-profit': 'Set a floor to get a verdict. This offer is above its fuel and upkeep cost.',
+        'no-floor-loss': 'This offer pays less than its own fuel and upkeep.',
+      }[r.verdict];
+      v.textContent = msg;
+      v.className = 'verdict ' + (r.verdict === 'accept' ? '' : r.verdict === 'no-floor-profit' ? 'neutral' : 'bad');
+      if (!counted) { counted = true; try { recordUsage(localStorage, el('usageOptOut').checked, 'offer_evaluated'); } catch {} }
+    }
+    IDS.forEach(id => el(id).addEventListener('input', update));
+    try { el('usageOptOut').checked = readOptOut(localStorage); } catch {}
+    el('usageOptOut').addEventListener('change', () => { try { writeOptOut(localStorage, el('usageOptOut').checked); } catch {} });
+    update();
+  </script>
+</body>
+</html>
