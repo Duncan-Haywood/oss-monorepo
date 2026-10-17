@@ -30,6 +30,20 @@ listed with a line number and reason, never dropped silently.
   concentration over 20% of MRR, large gaps in cancellation rate between plans.
 - Download of the monthly table as CSV.
 
+## Command line
+
+The same analysis in a terminal, zero dependencies, nothing sent anywhere:
+
+```
+node cli.mjs subscriptions.csv --cohorts
+node cli.mjs subscriptions.csv --max-churn 5   # exit 1 if monthly logo churn > 5%
+node cli.mjs --example                          # try it on synthetic data
+```
+
+`--max-churn` suits a monthly cron or CI job. Comparison with connected
+subscription-analytics products, and when a CSV is not enough:
+[vs-chartmogul-baremetrics.html](vs-chartmogul-baremetrics.html).
+
 ## Model (stated so you can disagree with it)
 
 MRR per subscription is amount ÷ interval in months × quantity, held constant.
