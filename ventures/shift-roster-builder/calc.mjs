@@ -139,28 +139,31 @@ const OFF_CELL = /^(off|time[ -]?off|pto)\s*:/i;
 // "avoid: Sat; Fri 5pm-close" = a soft preference. Those hours stay allowed (unlike off:), but the search treats
 // each hour worked inside them as a cost, so they are used only when it saves money or covers a shift nobody else can.
 const AVOID_CELL = /^(avoid|rather[ -]?not)\s*:/i;
-function parseAvoid(text) {
+// "prefer: Sat; Fri 5pm-close" = the mirror image: hours the person would like. Each hour worked inside them earns a small
+// bonus in the search, so they are used first among otherwise equal choices, and never at the cost of a shift left open.
+const PREFER_CELL = /^(prefer|would[ -]?like|extra[ -]?hours)\s*:/i;
+function parseAvoid(text, label = "avoid") {
   const errors = [], avoid = Array.from({ length: 7 }, () => []);
   for (const tok of String(text).split(/;|\|/)) {
     const part = tok.trim();
     if (!part) continue;
     const sp = part.search(/\s/);
     const ds = parseDaySpec(sp < 0 ? part : part.slice(0, sp));
-    if (!ds.length) { errors.push(`could not read the days in "avoid: ${part}"`); continue; }
+    if (!ds.length) { errors.push(`could not read the days in "${label}: ${part}"`); continue; }
     const rest = sp < 0 ? "" : part.slice(sp).trim();
     let r = [0, 1440];
     if (rest !== "" && !/^(all day|any)$/i.test(rest)) {
       r = parseRange(rest.replace(/\bclose\b/i, "24").replace(/\bopen\b/i, "0"));
-      if (!r || r[1] <= r[0]) { errors.push(`could not read the hours in "avoid: ${part}"`); continue; }
+      if (!r || r[1] <= r[0]) { errors.push(`could not read the hours in "${label}: ${part}"`); continue; }
     }
     for (const d of ds) avoid[d].push(r);
   }
   return { avoid, errors };
 }
 // Minutes of slot `s` that fall inside the person's avoid windows (an overnight tail counts on the next day).
-function avoidMinutes(person, s) {
-  if (!person.avoid) return 0;
-  const hit = (d, a, b) => person.avoid[d % 7].reduce((t, [x, y]) => t + Math.max(0, Math.min(b, y) - Math.max(a, x)), 0);
+function avoidMinutes(person, s, key = "avoid") {
+  if (!person[key]) return 0;
+  const hit = (d, a, b) => person[key][d % 7].reduce((t, [x, y]) => t + Math.max(0, Math.min(b, y) - Math.max(a, x)), 0);
   let m = hit(s.day, s.startMin, Math.min(s.endMin, 1440));
   if (s.endMin > 1440) m += hit(s.day + 1, 0, s.endMin - 1440);
   return m;
@@ -226,16 +229,19 @@ export function parseStaff(text) {
       maxDaily = Number(dailyCell.replace(DAILY_CELL, "").replace(/h(ours?)?$/i, "").trim());
       if (!Number.isFinite(maxDaily) || maxDaily <= 0) { errors.push(`${where} (${c[0]}): could not read "${dailyCell}"; write it like "daily: 8" (most hours in one day)`); maxDaily = 0; }
     }
-    const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x);
+    const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x);
     const avoidCells = tail.filter((x) => AVOID_CELL.test(x));
     const av2 = parseAvoid(avoidCells.map((x) => x.replace(AVOID_CELL, "")).join(";"));
     av2.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
+    const preferCells = tail.filter((x) => PREFER_CELL.test(x));
+    const pf2 = parseAvoid(preferCells.map((x) => x.replace(PREFER_CELL, "")).join(";"), "prefer");
+    pf2.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
     const av = parseAvailability(tail.filter((x) => !isExtra(x)).join(","));
     av.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
     for (const cell of tail.filter((x) => OFF_CELL.test(x))) {
       applyTimeOff(av.days, cell.replace(OFF_CELL, "")).forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
     }
-    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any && !tail.some((x) => OFF_CELL.test(x)), prevEnd, maxDaily, avoid: avoidCells.length ? av2.avoid : null });
+    staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any && !tail.some((x) => OFF_CELL.test(x)), prevEnd, maxDaily, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null });
   });
   if (!staff.length && !errors.length) errors.push("Add at least one person.");
   if (staff.length > MAX_STAFF) errors.push(`That is ${staff.length} people; this tool handles up to ${MAX_STAFF}.`);
@@ -292,7 +298,7 @@ function mulberry32(seed) {
 
 const DEFAULTS = {
   burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
-  balance: 25, shortfallValue: 8, avoidValue: 0.5, seed: 1, restarts: 4, iterations: 0,
+  balance: 25, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0,
 };
 
 function qualified(person, slot) {
@@ -397,7 +403,7 @@ function softPenalty(ctx, p, h, list) {
   const { o, staff, target, avgWage } = ctx;
   const short = Math.max(0, staff[p].minHours - h) * o.shortfallValue;
   const fair = (o.balance / 100) * avgWage * 0.1 * (h - target[p]) ** 2;
-  return short + fair + avoidPenalty(ctx, p, list);
+  return short + fair + avoidPenalty(ctx, p, list) - preferBonus(ctx, p, list);
 }
 // Each hour inside a person's avoid: window costs avoidValue x their wage, so a real saving or an otherwise-open shift outweighs it.
 function avoidPenalty(ctx, p, list) {
@@ -405,6 +411,13 @@ function avoidPenalty(ctx, p, list) {
   let m = 0;
   for (const i of list) m += avoidMinutes(ctx.staff[p], ctx.slots[i]);
   return (m / 60) * ctx.o.avoidValue * Math.max(ctx.staff[p].wage, 1);
+}
+// Each hour inside a person's prefer: window earns preferValue x their wage. Smaller than the avoid cost and far below BIG.
+function preferBonus(ctx, p, list) {
+  if (!ctx.staff[p].prefer || !list) return 0;
+  let m = 0;
+  for (const i of list) m += avoidMinutes(ctx.staff[p], ctx.slots[i], "prefer");
+  return (m / 60) * ctx.o.preferValue * Math.max(ctx.staff[p].wage, 1);
 }
 function personScore(ctx, p, list) {
   const h = hoursOf(ctx, list);
