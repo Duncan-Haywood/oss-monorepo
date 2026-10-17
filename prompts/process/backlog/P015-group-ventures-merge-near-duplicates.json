@@ -22,7 +22,7 @@
   "opened": "2026-10-16",
   "source": "Repo-organization review in a Claude Code session, 2026-10-16 (unmeasured; see CAVEAT in problem)",
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7625",
-  "result": null,
+  "result": "Helped, narrowly: duplicate clusters now counted (19 pairs, 10 clusters); 0 merged. The one plausible duplicate was checked in P032 and kept because it serves different searches. Flat ventures/ layout stays. Metric 'clusters merged' = 0 by judgment, not failure.",
   "history": [
     {
       "date": "2026-10-17",
