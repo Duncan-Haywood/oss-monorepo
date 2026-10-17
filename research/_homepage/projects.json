@@ -2121,12 +2121,12 @@
      "title": "Do the reversed-load buckling widths of the L-bracket change with more element layers through the thickness?",
      "summary": "A small finite-element check (stylised, preliminary; ideal elastic sheet, sharp inner corner, coarse in-plane mesh). Raising the number of hexahedral layers through the sheet from one to four moves the whole-L reversed-load buckling factor at the <em>simdesign-revgauge</em> root widths by at most 1.2% (3.0&nbsp;mm gauge; under 0.7% at 1.5 to 2.5&nbsp;mm) and the width needed for a factor of 3 by 0.07&nbsp;mm or less (2.0&nbsp;mm: 11.84 to 11.77&nbsp;mm, 27.4&nbsp;g). The thicker-sheet mass ranking of that project is not an artefact of a single through-thickness layer; its other doubt, a web barely wider than the sheet is thick, stands."
     },
-   {
+    {
      "slug": "simdesign-fwdcheck",
      "title": "Do the reversed-load buckling-limited L-bracket designs also pass the forward-load buckling, stress and deflection checks?",
      "summary": "A small finite-element check (stylised, preliminary; ideal elastic steel, sharp inner corner, assumed limits). Under the forward 100&nbsp;N load the four lightest designs that clear the reversed-load buckling floor (1.5 to 3.0&nbsp;mm sheet) all have forward buckling factors of 4.7 to 5.6, so buckling does not bind. But only the 1.5&nbsp;mm, 22.5&nbsp;mm design meets the 100&nbsp;MPa stress and 4&nbsp;mm deflection limits; the 2.5 and 3.0&nbsp;mm designs exceed them by 2 to 8 times, and the 2.0&nbsp;mm design passes only on the coarse mesh (95.7&nbsp;MPa against 144.9&nbsp;MPa on a finer one). The thicker sheet's mass saving is therefore not feasible under these limits."
     },
-   {
+    {
      "slug": "simdesign-revgauge",
      "title": "Is a thicker sheet lighter than a wider 1.5&nbsp;mm web for clearing the reversed-load buckling floor?",
      "summary": "A small finite-element sweep (stylised, preliminary; ideal elastic sheet, sharp inner corner, buckling only, one element layer through the thickness). Reusing the whole-L 3D eigenbuckling model of <em>simdesign-lbuckle</em>, the smallest web width that lifts the reversed-load factor to 3 falls from 22.6&nbsp;mm at 1.5&nbsp;mm sheet to 11.8&nbsp;mm at 2&nbsp;mm and 6.8&nbsp;mm at 2.5&nbsp;mm, so the plate mass at the floor falls from 36.6&nbsp;g to 27.5&nbsp;g (&minus;25%) and 20.5&nbsp;g (&minus;44%). Thick, narrow webs are where the model is weakest, and forward load, stress and minimum-wall rules were not rechecked, so this is an indication, not a design."
@@ -2337,6 +2337,11 @@
      "slug": "garment-wearpair",
      "title": "Is a second garment better than a dearer single one?",
      "summary": "Lets the wearer own two garments (a shell and a layer) and wear whichever is most comfortable in each of three scenarios, searching all lever pairs under one total added-retail budget on the replica trench. With thin cloth allowed the pair beats the best single garment in 58 of 66 wearing mixes at $50, but the apparent $20 gain is an artefact: thin cloth has a negative assumed cost that funds the second garment. With thin cloth removed the gain is 0 at $20, +0.49&nbsp;&deg;C (54 of 66 mixes) at $50 and +1.02&nbsp;&deg;C at $100, usually a warm-weather infrared-transparent shell plus a cold-weather thick low-emissivity coat. Stylised: premiums, wearing shares and fabric properties are assumed, garments are not stacked, and no real garment was measured."
+    },
+    {
+     "slug": "garment-wearwrong",
+     "title": "How often can a wearer pick the wrong garment before a second garment stops paying?",
+     "summary": "Re-runs the two-garment wardrobe search of <code>garment-wearpair</code> with a wearer who picks a wrong option in a share <em>e</em> of scenarios, re-optimising each purchase at each <em>e</em> (replica trench, 66 wearing mixes, thin cloth removed). If a wrong pick is a random wrong option the pair&rsquo;s edge holds (+0.55&nbsp;C at <em>e</em>&nbsp;=&nbsp;0, +0.57&nbsp;C at 0.3, $100 budget), because errors hurt a single garment&rsquo;s all-or-nothing choice more than an overlapping pair. If every mistake is the worst owned option the $100 edge falls to +0.09&nbsp;C at <em>e</em>&nbsp;=&nbsp;0.3, with a break-even <em>e</em> of median 0.72 and as low as 0.04. At $50 the edge is negligible either way. Stylised: error rates and premiums are assumed, no wearer behaviour was observed, and the conclusion flips between the two error models."
     },
     {
      "slug": "garment-optics",
@@ -2764,6 +2769,11 @@
      "slug": "house-spans",
      "title": "How far can a 2x joist, rafter, header or beam span, and which check limits it?",
      "summary": "An open sizing tool for simple-span sawn-lumber members, derived from beam formulas and NDS base design values with no span table copied: bending, shear, deflection and bearing checks, a command line, and the governing check named for every result. For SPF No. 2 floor joists at 16 in the longest clear spans are 9 ft 2 in (2x6), 12 ft 1 in (2x8), 15 ft 3 in (2x10) and 17 ft 8 in (2x12). Bending governs 22 of 32 floor cells and live-load deflection the other 10; total-load deflection governs 31 of 32 ceiling cells; bending governs snow-loaded rafters in 29 of 32. The lightest passing floor joist is the deepest at 24 in, which uses 20&ndash;50% less lumber than 2x10 at 16 in, but floor vibration is not checked. A cross-check with <code>house-framing</code> found its header bearing area too generous for a single jack under a 2-ply header. <em>Not validated against published span tables</em>, no engineered lumber, no continuous spans, and not a design anyone should build from without a licensed review."
+    },
+    {
+     "slug": "house-vibration",
+     "title": "Does a floor-vibration frequency limit erase the lumber saved by deep, widely spaced joists?",
+     "summary": "A first-mode natural-frequency check (<em>f</em><sub>1</sub> = (&pi;/2<em>L</em><sup>2</sup>)&radic;(<em>EIg</em>/<em>w</em>), derived and tested against the static-deflection form) added to the NDS strength and deflection checks of <code>house-spans</code>, for SPF No. 2 floor joists under 10 + 40 psf. The joist alone is modelled, with no subfloor composite action. Any limit up to 10 Hz changes nothing: the longest strength-passing 2x10 at 16 in (15 ft 3 in) already vibrates at 10.1 Hz. At 12 Hz it shortens to 13 ft 11 in, and at 15 Hz the least-lumber joist at a 12 ft span moves from 2x10 at 24 in (0.83 board feet per sq ft) to 2x12 at 24 in (1.00), while at 14 ft the 2x12 at 24 in no longer passes and 2x12 at 16 in (1.50) is needed. The limit in Hz is a policy choice swept here, not a code-book criterion, and the model is conservative by ignoring the subfloor and optimistic by ignoring live-load mass. Stylised."
     },
     {
      "slug": "house-continuous",
