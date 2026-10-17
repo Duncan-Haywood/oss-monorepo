@@ -1,0 +1,238 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01Rqz1fprTrHooNgStpQ7d1Q",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T16:37:51Z",
+  "ended": "2026-10-17T16:38:00Z",
+  "wall_minutes": 0.9,
+  "tokens_in": 862041,
+  "tokens_out": 4003,
+  "cost_usd": 0.3802,
+  "tool_calls": 13,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/sump-pump-bid-calculator/calc.mjs",
+        "test": "node --test ventures/sump-pump-bid-calculator/**/*.test.mjs  (in .)",
+        "seed": 189238992,
+        "commit": "21d4d05fe6",
+        "sites": 202,
+        "baseline_seconds": 0.8,
+        "mutants": [
+          {
+            "file": "ventures/sump-pump-bid-calculator/calc.mjs",
+            "line": 101,
+            "col": 43,
+            "operator": "or-to-and",
+            "before": "if (value === false || value === 'false' || value === '0' || value === 0 || value === '' || value == null) {",
+            "after": "if (value === false || value === 'false' && value === '0' || value === 0 || value === '' || value == null) {",
+            "line_text": "  if (value === false || value === 'false' || value === '0' || value === 0 || value === '' || value == null) {",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added test in calc.test.mjs"
+          },
+          {
+            "file": "ventures/sump-pump-bid-calculator/calc.mjs",
+            "line": 136,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "return { hoursNewPit: 2.8, hoursSlabCut: 0, basinCost: 95, slabCutCost: 0 };",
+            "after": "return { hoursNewPit: 2.8, hoursSlabCut: 1, basinCost: 95, slabCutCost: 0 };",
+            "line_text": "    return { hoursNewPit: 2.8, hoursSlabCut: 0, basinCost: 95, slabCutCost: 0 };",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sump-pump-bid-calculator/calc.mjs",
+            "line": 218,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "const burdenRate = number(input.burdenRate ?? 0, 'Payroll burden');",
+            "after": "const burdenRate = number(input.burdenRate ?? 1, 'Payroll burden');",
+            "line_text": "  const burdenRate = number(input.burdenRate ?? 0, 'Payroll burden');",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added test in calc.test.mjs"
+          },
+          {
+            "file": "ventures/sump-pump-bid-calculator/calc.mjs",
+            "line": 246,
+            "col": 50,
+            "operator": "plus-to-minus",
+            "before": "const materialCost = pumpMaterial + pitMaterial + dischargeMaterial + valveMaterial",
+            "after": "const materialCost = pumpMaterial + pitMaterial - dischargeMaterial + valveMaterial",
+            "line_text": "  const materialCost = pumpMaterial + pitMaterial + dischargeMaterial + valveMaterial",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sump-pump-bid-calculator/calc.mjs",
+            "line": 247,
+            "col": 21,
+            "operator": "plus-to-minus",
+            "before": "+ backupMaterial + alarmMaterial + freezeMaterial + permitMaterial;",
+            "after": "+ backupMaterial - alarmMaterial + freezeMaterial + permitMaterial;",
+            "line_text": "    + backupMaterial + alarmMaterial + freezeMaterial + permitMaterial;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sump-pump-bid-calculator/calc.mjs",
+            "line": 260,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "const hourShare = (amount) => (totalHours === 0 ? 0 : amount / totalHours * 100);",
+            "after": "const hourShare = (amount) => (totalHours === 1 ? 0 : amount / totalHours * 100);",
+            "line_text": "  const hourShare = (amount) => (totalHours === 0 ? 0 : amount / totalHours * 100);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added test in calc.test.mjs"
+          },
+          {
+            "file": "ventures/sump-pump-bid-calculator/calc.mjs",
+            "line": 319,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "margin: proposedPrice === 0 ? 0 : (proposedPrice - totalCost) / proposedPrice * 100,",
+            "after": "margin: proposedPrice === 0 ? 1 : (proposedPrice - totalCost) / proposedPrice * 100,",
+            "line_text": "      margin: proposedPrice === 0 ? 0 : (proposedPrice - totalCost) / proposedPrice * 100,",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added test in calc.test.mjs"
+          },
+          {
+            "file": "ventures/sump-pump-bid-calculator/calc.mjs",
+            "line": 335,
+            "col": 17,
+            "operator": "lt-to-le",
+            "before": "return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;",
+            "after": "return value <= 0 && /[1-9]/.test(text) ? `-${text}` : text;",
+            "line_text": "    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "value 0 formats as \"0.00\", which has no digit 1-9, so the regex already blocks a \"-0.00\"; <= and < behave the same"
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0c76cfe7-a19d-5624-8722-65a402eb6478",
+    "transcripts": 1,
+    "first": "2026-10-17T16:37:51Z",
+    "last": "2026-10-17T16:38:45Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 13,
+        "input": 26,
+        "output": 4003,
+        "thinking": 492,
+        "cache_read": 817873,
+        "cache_write_5m": 0,
+        "cache_write_1h": 44142,
+        "api_equivalent_usd": 0.3802,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 13,
+      "input": 26,
+      "output": 4003,
+      "thinking": 492,
+      "cache_read": 817873,
+      "cache_write_5m": 0,
+      "cache_write_1h": 44142,
+      "api_equivalent_usd": 0.3802,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.949,
+    "tool_calls": 13,
+    "tools": {
+      "Bash": 13
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 0.9,
+      "active_minutes": 0.9,
+      "model_minutes": 0.56,
+      "tool_minutes": 0.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "mutation campaign plus four small tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 263.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
