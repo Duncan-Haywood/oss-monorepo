@@ -298,3 +298,9 @@ test("audit packet carries every state total and one log row per day, and escape
   assert.ok(html.includes("not tax or legal advice"));
   assert.ok(!/https?:\/\//.test(html));
 });
+
+test("Idaho: more than 270 days with a year-round abode", () => {
+  assert.equal(RULES.ID.limit, 270);
+  assert.equal(RULES.ID.requiresAbode, true);
+  assert.equal(RULES.ID.kind, "statutory");
+});
