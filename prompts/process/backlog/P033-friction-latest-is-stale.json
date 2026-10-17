@@ -1,0 +1,24 @@
+{
+  "id": "P033",
+  "title": "Doc-friction section of `measure` repeats complaints that are already fixed",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "'Doc friction by file' quotes each file's latest reports with no sign of whether the file changed since. Process runs told to fix the named files spend the run rediscovering that the issue is gone.",
+  "evidence": [
+    "2026-10-17 process run sampled three 'latest' entries: promptctl.py BrokenPipeError on `measure | head` (main() wrapper already catches it, rc=0), validate requiring a done item's pr before the PR exists (prompts/promptctl.py:415 accepts \"this\"), land-your-work.md branch-recreation warning (line 81 already says it). All three were already fixed on main.",
+    "Source: python3 prompts/promptctl.py measure, 'Doc friction by file'"
+  ],
+  "change": "In measure, mark a report as possibly stale when its file has a commit newer than the report's date (git log -1 --format=%cs -- <file>), or drop it from 'latest'. One PR in promptctl.py with a unit test.",
+  "touches": [
+    "prompts/promptctl.py"
+  ],
+  "metric": "share of 'latest' friction entries that still reproduce when a process run samples five",
+  "baseline": "0 of 3 reproduced (2026-10-17 sample)",
+  "opened": "2026-10-17",
+  "source": "process run 2026-10-17, Critique mode",
+  "pr": "this",
+  "result": null,
+  "history": [{"date":"2026-10-17","note":"measure now prints \"(file last changed D)\" next to each friction file; simplest form of the change."}]
+}

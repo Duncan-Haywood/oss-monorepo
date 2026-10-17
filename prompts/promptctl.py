@@ -726,7 +726,7 @@ def print_measure(m: dict[str, Any]) -> None:
     if not m["doc_friction"]:
         print("None reported.\n")
     for path, f in m["doc_friction"].items():
-        print(f"- `{path}`: {f['reports']} report(s); latest: " + " | ".join(f["recent"]))
+        print(f"- `{path}`{_changed_note(path)}: {f['reports']} report(s); latest: " + " | ".join(f["recent"]))
     print("\n## Deviations by file (judgment calls; prompts/steering.md)\n")
     if not m["deviations"]:
         print("None recorded.\n")
@@ -766,6 +766,16 @@ def print_measure(m: dict[str, Any]) -> None:
 
 
 # --------------------------------------------------------------------------
+
+
+def _changed_note(path: str) -> str:
+    """' (file last changed D)' so a reader can tell a stale complaint from a live one."""
+    try:
+        out = subprocess.run(["git", "log", "-1", "--format=%cs", "--", path], cwd=ROOT.parent,
+                             capture_output=True, text=True, timeout=20).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    return f" (file last changed {out})" if out else ""
 
 
 def main(argv: list[str] | None = None) -> int:
