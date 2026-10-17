@@ -77,3 +77,10 @@ that the footer only ever names events the page actually records).
 MIT (`LICENSE`). Free, with the full feature set — there is no paid tier.
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the tool does.
+
+## What you use today, and what this does differently
+
+- **Vendors' pricing pages:** a flat plan price on one page and per-token rates on another, with no arithmetic for how you actually use the tool.
+- **A generic LLM token-cost calculator:** multiplies input and output tokens by one rate, which overstates cost for agentic coding because it ignores cached input billed at a fraction of the fresh rate.
+- **A spreadsheet:** works if you already know your token mix and keep the rates current.
+- **What this adds:** a flat plan against the vendor's own API using your fresh, output, cache-write and cache-read tokens, editable rates, and the break-even usage level. No account, no upload.
