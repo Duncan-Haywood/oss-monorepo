@@ -9,7 +9,7 @@ HERE = Path(__file__).resolve().parent
 for sub in ("house-unequal", "house-continuous", "house-spans"):
     sys.path.insert(0, str(HERE.parent.parent / sub / "src"))
 from house_spans.model import CASES, Member  # noqa: E402
-from house_unequal.model import max_total  # noqa: E402
+from house_unequal.model import check, max_total, worst  # noqa: E402
 
 RATIOS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5)
 out = []
@@ -58,6 +58,20 @@ for width in (24, 26, 28, 30):
     l1 = width / (1 + best)
     p(f"  {width} ft wide: beam may sit {abs(width / 2 - l1 * best):.1f} ft from the middle "
       f"(spans {fi(l1)} + {fi(width - l1)}, ratio {best:.2f}); at the middle the limit is {fi(max_total(m, CASES['floor'], 1.0)[0])}")
+p()
+p("C. Smallest end reaction over the live-load patterns (lb per joist; negative = the short end lifts off), longest long span beside each short span")
+from house_unequal.model import end_reaction_min_lb  # noqa: E402
+for case, size in (("floor", "2x10"), ("ceiling", "2x8")):
+    m = Member(size, spacing_in=16)
+    for s in (2, 4, 6, 8, 10):
+        lo, hi = float(s), 40.0
+        for _ in range(14):
+            mid = (lo + hi) / 2
+            if worst(check(m, (s, mid), CASES[case]))[1] <= 1.0:
+                lo = mid
+            else:
+                hi = mid
+        p(f"  {case} {size} at 16 in, short {s:>2} ft, long {fi(lo)}: end reaction {end_reaction_min_lb(m, (s, lo), CASES[case]):+.0f} lb")
 p()
 (HERE / "results.txt").write_text("\n".join(out) + "\n")
 print("\n".join(out))

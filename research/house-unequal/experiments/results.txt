@@ -55,3 +55,15 @@ B. Beam offset from the middle that still clears a given floor width (2x10 SPF a
   28 ft wide: beam may sit 3.5 ft from the middle (spans 17' 6" + 10' 5", ratio 0.60); at the middle the limit is 30' 6"
   30 ft wide: beam may sit 1.6 ft from the middle (spans 16' 7" + 13' 4", ratio 0.80); at the middle the limit is 30' 6"
 
+C. Smallest end reaction over the live-load patterns (lb per joist; negative = the short end lifts off), longest long span beside each short span
+  floor 2x10 at 16 in, short  2 ft, long 16' 2": end reaction -913 lb
+  floor 2x10 at 16 in, short  4 ft, long 16'10": end reaction -445 lb
+  floor 2x10 at 16 in, short  6 ft, long 17' 4": end reaction -271 lb
+  floor 2x10 at 16 in, short  8 ft, long 17' 7": end reaction -172 lb
+  floor 2x10 at 16 in, short 10 ft, long 17' 6": end reaction -103 lb
+  ceiling 2x8 at 16 in, short  2 ft, long 23'10": end reaction -615 lb
+  ceiling 2x8 at 16 in, short  4 ft, long 24' 6": end reaction -302 lb
+  ceiling 2x8 at 16 in, short  6 ft, long 24' 0": end reaction -170 lb
+  ceiling 2x8 at 16 in, short  8 ft, long 23' 7": end reaction -104 lb
+  ceiling 2x8 at 16 in, short 10 ft, long 23' 3": end reaction -64 lb
+

@@ -80,3 +80,20 @@ def max_total(m, case, ratio, interior_bearing_in=3.5, hi_ft=40.0):
         lo, hi = (mid, hi) if ok(mid) else (lo, mid)
     tot = math.floor(lo * (1 + ratio) * 100) / 100
     return tot, worst(check(m, [lo + 0.01, ratio * (lo + 0.01)], case, interior_bearing_in))[0]
+
+
+def end_reaction_min_lb(m, clear_ft, case):
+    """Smallest end reaction (lb per joist; negative = the end lifts off its support) over the live-load patterns.
+
+    Dead load acts on both spans, live load on neither, either or both. Dead load is at its full value (no 0.6 factor),
+    so real uplift is worse. The connection of the end is not modelled.
+    """
+    sp = SPECIES[m.species]
+    spans = [c * 12.0 + m.bearing_in for c in clear_ft]
+    wD, wL = _loads(m, case)
+    EI = sp["E"] * m.b * m.d ** 3 / 12.0
+    low = float("inf")
+    for live_on in itertools.product((False, True), repeat=2):
+        bm = Beam(spans, EI, [wD + (wL if on else 0.0) for on in live_on])
+        low = min(low, bm.R[0], bm.R[2])
+    return low
