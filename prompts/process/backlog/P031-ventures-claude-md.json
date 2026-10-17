@@ -1,0 +1,24 @@
+{
+  "id": "P031",
+  "title": "Move venture-only rules from CLAUDE.md to ventures/CLAUDE.md",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "P017 step 3: 'Product-first default', 'Deploy-first' and self-deploy text are read by research and review runs that never build a venture.",
+  "evidence": [
+    "P017 history, 2026-10-16 entries"
+  ],
+  "change": "Create ventures/CLAUDE.md with those sections, keep a one-line pointer in root CLAUDE.md, check nothing greps the moved headings. One PR.",
+  "touches": [
+    "CLAUDE.md",
+    "ventures/CLAUDE.md"
+  ],
+  "metric": "CLAUDE.md bytes a research run loads",
+  "baseline": "CLAUDE.md 21,663 bytes",
+  "opened": "2026-10-17",
+  "source": "split of P017 by process run 2026-10-17 (P021 asked for per-step rows)",
+  "pr": null,
+  "result": null,
+  "history": []
+}

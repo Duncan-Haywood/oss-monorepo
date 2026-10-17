@@ -35,6 +35,10 @@
     {
       "date": "2026-10-16",
       "note": "Verify run: too early (metric is a week after the first post-merge cleanup run); left pending."
+    },
+    {
+      "date": "2026-10-17",
+      "note": "Interim verify: `git ls-remote --heads origin` lists 999 branches vs baseline 1,465 (-32%) one day after PR #7325. Direction is helped; the metric is defined a week out, so result stays pending until ~2026-10-23."
     }
   ]
 }
