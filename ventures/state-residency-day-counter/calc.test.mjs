@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, timelineToStays, EMPLOYER_RULES, fmtNum, fmtMoney, dailyLog, dailyLogCsv } from "./calc.mjs";
+import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, timelineToStays, EMPLOYER_RULES, fmtNum, fmtMoney, dailyLog, dailyLogCsv, auditReportHtml } from "./calc.mjs";
 
 const Y = 2025;
 const spec = (lines, extra = {}) => ({ year: Y, stays: parseStays(lines.join("\n"), Y).stays, abode: {}, overrides: {}, ...extra });
@@ -285,4 +285,16 @@ test("daily log marks assumed and unrecorded days and writes one CSV row per day
   assert.equal(dailyLogCsv(sp).trim().split("\n").length, 366);
   const travel = dailyLog(spec(["NY 2025-01-01 to 2025-01-10", "FL 2025-01-10 to 2025-01-20"]));
   assert.deepEqual(travel[9].states, ["FL", "NY"]);
+});
+
+test("audit packet carries every state total and one log row per day, and escapes names", () => {
+  const sp = spec(["NY 2025-01-01 to 2025-03-10", "FL 2025-03-10 to 2025-06-30"], { homeState: "FL" });
+  const html = auditReportHtml(sp, { name: "<b>A & B</b>" });
+  const r = analyze(sp);
+  for (const s of r.states) assert.ok(html.includes(`<td class="n">${s.days}</td>`), s.code);
+  assert.equal((html.match(/<td class="ev">/g) || []).length, 365);
+  assert.ok(!html.includes("<b>A & B</b>"));
+  assert.ok(html.includes("&lt;b&gt;A &amp; B&lt;/b&gt;"));
+  assert.ok(html.includes("not tax or legal advice"));
+  assert.ok(!/https?:\/\//.test(html));
 });
