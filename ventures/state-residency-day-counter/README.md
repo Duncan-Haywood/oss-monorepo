@@ -33,6 +33,13 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `remote-work-convenience-of-the-employer-rule.html` - guide on the
   employer-state rule, its dollar figures recomputed by the test suite.
 
+## What you use today, and what this does differently
+
+- **A spreadsheet or a calendar tally:** free and private, but the per-state totals, travel-day handling, overlaps and each state's threshold are yours to get right, and nothing tells you the date you would cross a limit.
+- **Travel-day and residency trackers** (apps that log location from your phone, and tax-software add-ons): automatic capture, but they usually want an account and your location history on someone else's server. This tool takes your dates typed, pasted, or imported from a calendar or Google Timeline export, and keeps them in your browser.
+- **A tax professional:** the only route to a residency determination. This tool does not make one. It gives you counted days, an audit-style daily log and a printable packet to bring to that conversation.
+- **What this adds:** days per state against the commonly published tests, room left, the crossing date, a trip what-if, a workday wage split and a daily log with an evidence column, with no signup and no upload.
+
 **No warranty.** Free and as-is; an organising aid, not tax or legal advice. It
 does not decide anyone's residency: domicile, ties, what counts as an abode,
 part-year rules, reciprocity and local taxes are not modelled, and the state
