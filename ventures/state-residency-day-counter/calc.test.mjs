@@ -222,6 +222,17 @@ test("Utah: 183 or more days with a place of abode, so the limit is 182", () => 
   assert.equal(by(analyze(sp), "UT").status, "over");
 });
 
+test("Georgia: 183 or more days, no abode needed, so the limit is 182", () => {
+  assert.equal(RULES.GA.limit, 182);
+  assert.equal(RULES.GA.requiresAbode, false);
+  assert.equal(RULES.GA.kind, "statutory");
+  const sp = spec(["GA 2025-01-01 to 2025-07-02"], { homeState: "FL" }); // 183 days, no abode entered
+  assert.equal(by(analyze(sp), "GA").days, 183);
+  assert.equal(by(analyze(sp), "GA").status, "over");
+  const ok = spec(["GA 2025-01-01 to 2025-07-01"], { homeState: "FL" }); // 182 days
+  assert.equal(by(analyze(ok), "GA").status, "close"); // 0 days of room left, not over
+});
+
 test("Michigan: more than 183 days with a permanent place of abode", () => {
   assert.equal(RULES.MI.limit, 183);
   assert.equal(RULES.MI.requiresAbode, true);
