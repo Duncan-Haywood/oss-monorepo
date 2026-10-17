@@ -11,6 +11,10 @@ you count that.
 
 **Live tool:** https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/
 
+**Walmart Marketplace** (seller-fulfilled, added 2026-10-17, off by default;
+it hands the item to [`../walmart-marketplace-calculator`](../walmart-marketplace-calculator/)
+for the WFS-versus-ship-it-yourself question, and `channel-parity.test.mjs`
+checks its profit against that calculator's seller-fulfilled path) joins
 **Depop and Facebook Marketplace** (added 2026-10-16, both off by default; each
 opens its dedicated calculator with the item already filled in) join
 **Reverb, TikTok Shop, Whatnot, Poshmark and StockX** as more channels,
@@ -393,7 +397,7 @@ The optional usage counter records only an event name (`comparison_calculated`,
 `channel_volume_edited`, `returns_compared`, `shelf_time_compared`,
 `share_link_copied`, `comparison_csv_downloaded`, `handoff_ebay`, `handoff_etsy`,
 `handoff_amazon`, `handoff_reverb`, `handoff_own-store`, `handoff_tiktok`,
-`handoff_whatnot`, `handoff_poshmark`) and the
+`handoff_whatnot`, `handoff_poshmark`, `handoff_walmart`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global
 Privacy Control, and the footer checkbox turns it off and discards what was

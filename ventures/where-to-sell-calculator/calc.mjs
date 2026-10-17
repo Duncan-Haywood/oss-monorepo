@@ -422,9 +422,40 @@ export const CHANNEL_PRESETS = [
     enabled: false,
   },
   {
+    id: "walmart",
+    label: "Walmart Marketplace (seller-fulfilled)",
+    note: "Off by default because Walmart Marketplace is invitation-based and only applies to sellers approved there. Prices a seller-fulfilled order: the referral fee is a percentage of the item price (the 'Everything else' 15% starting point from `ventures/walmart-marketplace-calculator`; electronics and grocery are 8%, jewelry 20%, so edit the rate for your category), with no separate payment processing and no monthly plan. Walmart prices shipping into the item price, so buyer-paid shipping starts at zero here. The $0.30 minimum referral fee is not modelled (it only matters under $2), and neither is Walmart Fulfillment Services -- `ventures/walmart-marketplace-calculator` compares WFS against shipping it yourself, which is the follow-up question once Walmart wins here. Sell-through and days to sell are illustrative starting points, not a claim about Walmart velocity.",
+    // Matches ventures/walmart-marketplace-calculator's 'Everything else'
+    // referral rate, which is also its default; parity-tested by import.
+    commissionRate: 15,
+    commissionBase: "item",
+    paymentRate: 0,
+    paymentFixed: 0,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Walmart shows one price with shipping included, so nothing is charged
+    // to the buyer on top. The shipping cost the seller pays stays shared.
+    shippingCharged: 0,
+    // Illustrative return assumptions: a general-merchandise mix, between
+    // eBay's and Amazon's.
+    returnRate: 10,
+    returnShippingCost: 7,
+    resellableRate: 85,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: listings do not expire, and a new
+    // seller starts without the review history that drives Walmart.com sales.
+    sellThroughPct: 40,
+    daysToSell: 30,
+    listingRenewalDays: 0,
+    // Off by default: approval is required, and it would otherwise add a row
+    // most sellers cannot act on to every comparison.
+    enabled: false,
+  },
+  {
     id: "other",
     label: "Other channel",
-    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — GOAT, a craft fair, a wholesale account. Mercari, Poshmark, StockX, Depop and Facebook Marketplace have their own rows above.",
+    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — GOAT, a craft fair, a wholesale account. Mercari, Poshmark, StockX, Depop, Facebook Marketplace and Walmart have their own rows above.",
     commissionRate: 0,
     paymentRate: 0,
     paymentFixed: 0,
