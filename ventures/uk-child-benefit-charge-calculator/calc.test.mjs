@@ -68,3 +68,19 @@ test("summary names the source and the disclaimer", () => {
   assert.ok(t.includes(VERIFY));
   assert.match(t, /Not tax advice/);
 });
+
+test("income just under the line warns how close it is; far under does not", () => {
+  const near = run({ income: 59500 });
+  assert.ok(near.findings.some((f) => f.severity === "medium" && /within GBP 500 of the GBP 60,000 line/.test(f.title)));
+  const far = run({ income: 50000 });
+  assert.ok(!far.findings.some((f) => f.severity === "medium"));
+});
+
+test("ANI between 60,000 and the first 1% step is not described as 'at or under' 60,000", () => {
+  const r = run({ income: 60100 });
+  assert.equal(r.pct, 0);
+  assert.equal(r.charge, 0);
+  assert.doesNotMatch(r.findings[0].title, /at or under/);
+  assert.match(r.findings[0].title, /first 1% step/);
+  assert.match(run({ income: 60000 }).findings[0].title, /at or under/);
+});
