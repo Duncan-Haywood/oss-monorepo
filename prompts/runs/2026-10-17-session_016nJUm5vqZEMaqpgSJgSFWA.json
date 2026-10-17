@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_016nJUm5vqZEMaqpgSJgSFWA",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled: continue work on the repo (revenue products brief)",
+  "input_sha256": "bb7afb240d89015509cac22de111ac7a1e1a091ef79bc19d99591d260e396b82",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T14:59:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "customer-lifetime-value-predictor: CLI + alternatives section",
+  "projects": [
+    "customer-lifetime-value-predictor"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/ledger/session_gate.py",
+      "why": "gate said refresh gh-pages first; skipped as it means pushing a branch other than the designated one"
+    }
+  ],
+  "goal": null,
+  "notes": "Added cli.mjs (csv/json/segment/horizon/margin) with 7 tests; 40 tests pass. Did not publish gh-pages snapshot (gate suggested it) because the session is restricted to its designated branch; owner/other session can run publish-branch.sh.",
+  "corrections": [],
+  "redteam": null
+}
