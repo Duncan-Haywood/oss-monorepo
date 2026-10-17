@@ -105,6 +105,7 @@
     <canvas id="view" role="img" aria-label="Calendar of the year coloured by state"></canvas>
     <div class="legend" id="legend"></div>
     <button type="button" id="download">Download the day record (CSV)</button>
+    <button type="button" id="download-log">Download the day-by-day log (CSV, one row per date)</button>
   </section>
 
   <section class="card">
@@ -139,14 +140,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or construction advice, does not state anyone's tax residency, and does not replace a tax professional or the state's own guidance. The rules are summarised from commonly published tests and may be out of date or incomplete. Counts are a record of the dates you typed.</p>
     <p><strong>Independent.</strong> Not affiliated with any state, tax authority, payroll or tax software company, and none is named or ranked here. The example year is invented.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so download the CSV.</p>
-    <p>Everything runs in your browser. Your dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>count_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>count_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>daily_log_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../economic-nexus-threshold-tracker/">economic nexus threshold tracker</a> for sellers, the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>, the <a href="../self-employment-tax-calculator/">self-employment tax calculator</a> and, for US expats, the <a href="../feie-physical-presence-calculator/">FEIE physical presence calculator</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { CONVENTIONS, icsToStays, timelineToStays, parseStays, analyze, sampleSpec, reportCsv, statusText, dayIso, parseDate, toDay, fmtNum, fmtMoney, yearBounds, STATE_NAMES } from "./calc.mjs";
+    import { CONVENTIONS, icsToStays, timelineToStays, parseStays, analyze, sampleSpec, reportCsv, dailyLogCsv, statusText, dayIso, parseDate, toDay, fmtNum, fmtMoney, yearBounds, STATE_NAMES } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -304,6 +305,17 @@
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       record("report_downloaded");
+    });
+    $("#download-log").addEventListener("click", () => {
+      if (!last) return;
+      const r = readSpec();
+      if (r.error) { status.textContent = r.error; return; }
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([dailyLogCsv(r.spec)], { type: "text/csv" }));
+      a.download = `state-daily-log-${last.year}.csv`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("daily_log_downloaded");
     });
     $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }

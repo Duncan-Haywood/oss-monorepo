@@ -477,3 +477,39 @@ export function reportCsv(result) {
   }
   return rows.map((r) => r.map(csvCell).join(",")).join("\n") + "\n";
 }
+
+// One row per calendar day: where the stays say you were, whether the day came
+// from a stay or from the home-state gap assumption, and whether it was a
+// weekday. This is the contemporaneous-log shape residency audits ask for;
+// totals per state equal `analyze(spec).states[i].days` (checked in the tests).
+export function dailyLog(spec) {
+  const errs = validateSpec(spec);
+  if (errs.length) throw new Error(errs.join(" "));
+  const { start: y0, end: y1 } = yearBounds(spec.year);
+  const convention = spec.convention === "nights" ? "nights" : "inclusive";
+  const home = spec.homeState && /^[A-Z]{2}$/.test(spec.homeState) ? spec.homeState : null;
+  const byDay = new Map();
+  for (const s of spec.stays) {
+    const b = convention === "nights" && s.end > s.start ? s.end - 1 : s.end;
+    for (let d = Math.max(s.start, y0); d <= Math.min(b, y1); d++) {
+      if (!byDay.has(d)) byDay.set(d, new Set());
+      byDay.get(d).add(s.state);
+    }
+  }
+  const names = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const rows = [];
+  for (let d = y0; d <= y1; d++) {
+    const set = byDay.get(d);
+    const states = set ? [...set].sort() : home ? [home] : [];
+    const basis = set ? (set.size > 1 ? "travel or overlap day" : "stay") : home ? "assumed (no stay listed)" : "not recorded";
+    const dow = dayOfWeek(d);
+    rows.push({ date: dayIso(d), weekday: names[dow], states, basis, weekdayWork: dow !== 0 && dow !== 6 });
+  }
+  return rows;
+}
+
+export function dailyLogCsv(spec) {
+  const rows = [["Date", "Weekday", "State(s)", "Basis", "Weekday", "Evidence kept (fill in)"]];
+  for (const r of dailyLog(spec)) rows.push([r.date, r.weekday, r.states.join("+"), r.basis, r.weekdayWork ? "Y" : "N", ""]);
+  return rows.map((r) => r.map(csvCell).join(",")).join("\n") + "\n";
+}

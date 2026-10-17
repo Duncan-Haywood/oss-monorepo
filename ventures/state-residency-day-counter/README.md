@@ -17,6 +17,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   or names), day-grid analysis with travel-day and overlap handling, gap
   assumption, nights-vs-inclusive counting, crossing-date search, workday wage
   split, Google Timeline import (`timelineToStays`), CSV export, and an independent brute-force recount.
+- Day-by-day log: one CSV row per calendar day (state, whether it came from a stay or the home-state assumption, weekday, a blank column for the evidence you keep), the log residency audits ask for (`dailyLog`, `dailyLogCsv`).
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `183-day-rule-by-state.html` - guide with a worked example that the test
   suite recomputes.
