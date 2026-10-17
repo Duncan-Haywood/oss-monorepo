@@ -320,3 +320,48 @@ test("Form 8949 totals: rows with no basis on record are counted", () => {
   assert.equal(t.total.noBasis, 1);
   assert.equal(t.total.gain, 130);
 });
+
+test("per-wallet transfer moves lots with their date and basis, so the sale in the new wallet is long-term on the old purchase", () => {
+  const csv = [
+    "date,type,asset,quantity,total,fee,wallet,to wallet",
+    "2023-01-10,buy,BTC,1,10000,0,Exchange,",
+    "2023-06-01,buy,BTC,1,20000,0,Exchange,",
+    "2024-03-01,transfer,BTC,1,0,0,Exchange,Ledger",
+    "2024-03-02,sell,BTC,1,30000,0,Ledger,",
+  ].join("\n");
+  const r = analyze(csv, { method: "FIFO", year: 2024, perWallet: true });
+  assert.equal(r.rows.length, 1);
+  assert.equal(r.rows[0].acquired, "2023-01-10");
+  assert.equal(r.rows[0].term, "Long");
+  close(r.rows[0].basis, 10000);
+  assert.deepEqual(r.warnings, []);
+  assert.deepEqual(r.openLots.map((l) => [l.wallet, l.acquired, l.basis]), [["Exchange", "2023-06-01", 20000]]);
+  // HIFO chooses which lot travels: the dearer one goes, so the sale there has the bigger basis.
+  const h = analyze(csv, { method: "HIFO", year: 2024, perWallet: true });
+  close(h.rows[0].basis, 20000);
+});
+
+test("a transfer moves part of a lot and keeps the unit basis; a pooled run ignores it", () => {
+  const csv = "date,type,asset,quantity,total,wallet,to wallet\n2024-01-01,buy,ETH,4,8000,A,\n2024-02-01,transfer,ETH,1,0,A,B\n2024-03-01,sell,ETH,1,3000,B,\n";
+  const w = analyze(csv, { perWallet: true });
+  close(w.rows[0].basis, 2000);
+  assert.deepEqual(w.openLots.map((l) => [l.wallet, l.qty, l.basis]), [["A", 3, 6000]]);
+  const pooled = analyze(csv, { perWallet: false });
+  close(pooled.rows[0].basis, 2000);
+  assert.equal(pooled.warnings.length, 0);
+});
+
+test("transferring more than the wallet holds warns and moves only what is on record; selling there then has no basis", () => {
+  const csv = "date,type,asset,quantity,total,wallet,to wallet\n2024-01-01,buy,BTC,1,10000,A,\n2024-02-01,transfer,BTC,2,0,A,B\n2024-03-01,sell,BTC,2,50000,B,\n";
+  const r = analyze(csv, { perWallet: true });
+  assert.ok(r.warnings.some((w) => /transferred 1 BTC more than the lots on record/.test(w)));
+  assert.ok(r.warnings.some((w) => /sold 1 BTC more/.test(w)));
+  close(r.summary.totalGain, 50000 - 10000);
+});
+
+test("transfers without a destination stay skipped; a transfer with no source wallet is an error", () => {
+  const r = parseTransactions("date,type,asset,quantity,total,wallet,to wallet\n2024-01-01,transfer,BTC,1,0,A,\n2024-01-02,transfer,BTC,1,0,,B\n2024-01-03,transfer,BTC,1,0,A,A\n");
+  assert.equal(r.transactions.length, 0);
+  assert.equal(r.skipped.length, 2);
+  assert.equal(r.errors.length, 1);
+});
