@@ -1070,6 +1070,20 @@ export function fairnessReport(r, { closeAt = 22 * 60, openAt = 6 * 60 } = {}) {
   return { rows, spread, flag: spread >= 3, most: rows.length ? rows[0] : null, least: rows.length ? rows[rows.length - 1] : null };
 }
 
+// Weekly-hours cliffs: employers often have a line where hours change what a person is owed (the 30-hour full-time
+// line for health coverage in the US, a benefits or paid-leave eligibility line). Lists who is over `threshold` hours
+// and who is within `within` hours under it, so a few hours can be moved on purpose. A report only, using scheduled
+// (paid) hours; it states no legal requirement and the search does not enforce it.
+export function hoursThresholds(r, { threshold = 30, within = 2 } = {}) {
+  if (!(threshold > 0)) return { threshold, within, over: [], near: [] };
+  const people = (r.people || []).filter((p) => p.hours > 0);
+  const over = people.filter((p) => p.hours >= threshold - 1e-9).map((p) => ({ name: p.name, hours: p.hours, by: p.hours - threshold }));
+  const near = people.filter((p) => p.hours < threshold - 1e-9 && p.hours >= threshold - within - 1e-9).map((p) => ({ name: p.name, hours: p.hours, short: threshold - p.hours }));
+  over.sort((a, b) => b.hours - a.hours || a.name.localeCompare(b.name));
+  near.sort((a, b) => a.short - b.short || a.name.localeCompare(b.name));
+  return { threshold, within, over, near };
+}
+
 export function hoursCsv(r) {
   const rows = ["person,shifts,hours,overtime_hours,estimated_payroll,minimum_hours,hours_under_minimum"];
   for (const p of r.people) rows.push([p.name.includes(",") ? `"${p.name}"` : p.name, p.shifts, p.hours.toFixed(2), p.otHours.toFixed(2), p.cost.toFixed(2), p.minHours, p.short.toFixed(2)].join(","));
