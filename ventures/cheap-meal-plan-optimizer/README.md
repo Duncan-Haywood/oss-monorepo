@@ -20,6 +20,13 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `how-to-eat-high-protein-on-a-budget.html` - guide whose worked example is
   recomputed by the test suite.
 
+## What you use today, and what this does differently
+
+- **A spreadsheet and a calculator:** free and private, but finding the cheapest mix that hits protein and calorie targets by hand is guesswork, and you cannot see what one more gram of protein costs.
+- **Meal-planning and macro-tracking apps** (nutrition loggers and recipe planners): large food databases and barcode scanning, usually behind an account, and most plan from recipes you pick rather than minimising your grocery cost. This tool has no food database, so you enter your own foods and local prices.
+- **Published diet-problem examples and solver add-ins:** the same linear-programming idea, but you build and read the model yourself.
+- **What this adds:** the lowest-cost servings per day for your own foods and bounds, what each extra target costs, how cost rises with the protein minimum, a variety limit, and a pack-level shopping list, all in the browser with nothing uploaded. It is not nutrition advice; see the notice below.
+
 **No warranty.** Free and as-is; not medical, dietary or nutrition advice and no
 substitute for a doctor or registered dietitian. It will not plan under 1,200
 calories a day and is not suitable for children, pregnancy, eating disorders or

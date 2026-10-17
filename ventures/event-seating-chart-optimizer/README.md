@@ -28,6 +28,12 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `how-to-seat-divorced-parents-at-a-wedding.html` - second guide (divorced
   parents, new partners, a never-together pair), also recomputed by the tests.
 
+## What you use today, and what this does differently
+
+- **Paper, sticky notes or a spreadsheet:** free and private, but every "keep these two apart" and "seat these together" is checked by eye, and a late RSVP means redoing it.
+- **Wedding-planning suites and seating-chart apps** (the seating tools bundled with planning sites, and standalone drag-and-drop chart makers): visual room layouts, guest-list sync and RSVP collection. They typically want an account and hold your guest list on their servers, and the table assignment is mostly drag-and-drop by you.
+- **What this adds:** it searches for the assignment that meets the most of your wishes within table capacity, lists every wish it could not meet, re-seats after changes while moving as few guests as it can, and prints table signs, a find-your-table list and a caterer sheet. Your guest list never leaves the browser. It does not draw a floor plan or seat people within a table; if you need a room layout or RSVP collection, a planning app is the better fit.
+
 **No warranty.** Free and as-is; a planning aid, not event-planning advice or a
 guarantee that any guest will be content. It assigns tables, not seats within a
 table, and does not model room layout or access needs, and the meal column only counts choices; it does not place guests by diet. It is a
