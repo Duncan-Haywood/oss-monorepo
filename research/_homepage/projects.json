@@ -1556,6 +1556,11 @@
      "summary": "Follow-up to <code>robofab-torquebound</code> (stylised, preliminary). The nine torque- and jaw-bound rows are re-solved with a trapezoid check of 10,000 whole-move samples, 1,000 per ramp and both sides of the acceleration corners, against 201 plus 160 per ramp before. The six-part trapezoid totals change by between &minus;0.15% and +0.15%, the time-optimal edge stays 9.5% to 23.0% (9.4% to 23.0% before), and the dense answers hold at ten times the density with an estimated missed peak of at most 0.25% of a limit. The large edge does not rest on unseen trapezoid peaks. One row goes the other way (dense trapezoid 0.15% faster) and its cause is not investigated. Stylised toy arm; no hardware."
     },
     {
+     "slug": "robofab-mujocotorque",
+     "title": "Do the robofab carry results survive an independent physics engine?",
+     "summary": "Follow-up to <code>robofab-torquebound</code> (stylised, preliminary). The two-link arm behind every robofab carry result is rebuilt in MuJoCo and the 108 actual profiles (best trapezoid and time-optimal, nine rows, six parts each) are checked with MuJoCo inverse dynamics. The hand-written joint torques agree to at most 1.8e-5&nbsp;N&nbsp;m against a 5&nbsp;N&nbsp;m limit, so the 9 to 23% edge is not an artefact of a dynamics bug. Where only torque binds, MuJoCo puts the trapezoid's peak at up to 5.037&nbsp;N&nbsp;m (0.73% over) and the time-optimal profile's at up to 5.011&nbsp;N&nbsp;m (0.21% over). An open-loop replay drifts up to 0.023&nbsp;rad and 1.4&nbsp;mm. Joint torques only: the jaw-force bound and motor model are not checked. Planar toy arm, assumed parameters; simulated only."
+    },
+    {
      "slug": "robofab-torquebound",
      "title": "Does the time-optimal carry's edge over a tuned trapezoid survive when torque or the jaw cap binds?",
      "summary": "Follow-up to <code>robofab-toppconv</code> (stylised, preliminary). The nine no-speed-limit rows of <code>robofab-scurve</code> (three arm sizes, jaw cap 2&times;, 5&times; or none, six printed parts each) are recomputed with the time-optimal solver at 400 to 25600 nodes and the trapezoid on a fine ramp grid with 40 and 160 extra samples per ramp. The time-optimal carry is 9.4% to 23.0% faster than the trapezoid in every row; the solver is converged to within 0.004% by 6400 nodes, and denser ramp sampling slows the trapezoid by 0.05% to 0.5%, raising the edge by at most 0.4 points. So, unlike the sub-1% edge under a speed limit, the torque- and jaw-bound gap is not a resolution artefact in this toy. A trapezoid-only comparison on assumed parameters; not a claim about real arms."
@@ -2689,6 +2694,11 @@
      "slug": "house-cost",
      "title": "Where does a new home's price go, and which levers move it most?",
      "summary": "A driver-based price model anchored on NAHB's 2024 cost shares (construction 64.4% of the price, framing 16.6% of construction, lot 13.7%, profit 11.0%). Each construction stage scales with floor area, footprint or wall area, and the model reproduces every NAHB share at its 2,000 sq ft reference house. In a sweep, size moves the price most (index 87.8 to 112.0 for 1,600 to 2,400 sq ft), then one against three storeys (111.6 to 97.6), finish level, lot price and foundation type. A 14% cut in framing lumber, the gap between <code>house-plan</code>'s default and best plans, is worth only 0.85% of the price, or 2.4% if it also cuts framing labour by 20%. <em>Stylised</em>: a price index, not dollars; the stage-driver splits and lever ranges are my assumptions; the Census reconciliation and a priced takeoff are not done."
+    },
+    {
+     "slug": "house-costsens",
+     "title": "Does the house-cost lever ranking survive its assumed driver splits?",
+     "summary": "A Monte Carlo over <code>house-cost</code>'s assumed splits of each construction stage over floor area, footprint and wall area (Dirichlet, concentration 5, 20 and 80; 2,000 draws each). Floor area stays the largest lever in 96&ndash;100% of draws. Storeys is the soft claim: one versus three storeys swings the price index 9.0&ndash;19.9 points at concentration 20 (baseline 14.0), 5.1&ndash;24.1 at 5. The framing-lumber result does not move. Seven of ten levers cannot move under this test by construction. Stylised: tests only the splits, not the lever ranges or the NAHB shares."
     }
    ]
   }
