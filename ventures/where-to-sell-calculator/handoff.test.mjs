@@ -31,6 +31,7 @@ import { FIELD_IDS as STOCKX_FIELDS } from '../stockx-seller-payout-calculator/s
 import { INPUT_IDS as MERCARI_FIELDS } from '../mercari-fee-calculator/calc.mjs';
 import { INPUT_IDS as DEPOP_FIELDS } from '../depop-fee-calculator/calc.mjs';
 import { INPUT_IDS as FB_FIELDS } from '../facebook-marketplace-fee-calculator/calc.mjs';
+import { INPUT_FIELDS as WALMART_FIELDS } from '../walmart-marketplace-calculator/calc.mjs';
 
 const TARGET_FIELDS = {
   'ebay-fee-calculator': EBAY_FIELDS,
@@ -45,6 +46,7 @@ const TARGET_FIELDS = {
   'mercari-fee-calculator': MERCARI_FIELDS,
   'depop-fee-calculator': DEPOP_FIELDS,
   'facebook-marketplace-fee-calculator': FB_FIELDS,
+  'walmart-marketplace-calculator': WALMART_FIELDS,
 };
 
 const SHARED = {
@@ -330,4 +332,19 @@ test('a link handed to Depop and Facebook Marketplace is read back by their own 
     assert.equal(got.itemCost, 12, channel);
     assert.equal(got.otherCost, SHARED.otherCost + SHARED.packagingCost, channel);
   }
+});
+
+test('Walmart receives the item with seller shipping and packaging as their own fields, and no buyer shipping', async () => {
+  const params = paramsOf(handoffUrl('walmart', SHARED));
+  assert.equal(params.get('salePrice'), '40');
+  assert.equal(params.get('sellerShippingCost'), '5.2');
+  assert.equal(params.get('costOfGoods'), '12');
+  assert.equal(params.get('packagingCost'), '1.1');
+  assert.equal(params.get('otherCost'), '0.9');
+  assert.equal(params.get('shippingCharged'), null, 'Walmart prices shipping into the item price');
+  const { decodeInputs } = await import('../walmart-marketplace-calculator/share.mjs');
+  const got = decodeInputs(handoffUrl('walmart', SHARED).split('#')[1]);
+  assert.equal(got.salePrice, 40);
+  assert.equal(got.sellerShippingCost, 5.2);
+  assert.equal(got.costOfGoods, 12);
 });
