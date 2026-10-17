@@ -735,3 +735,22 @@ test("scheduleChanges: a blank or negative wage is unpriced, never $0 or a negat
     assert.equal(r.changes[0].premiumUnpriced, true);
   }
 });
+
+test("split-shift premium: priced per split day, off by default, and the search avoids it when another person can cover", () => {
+  const ana = staffOf("Ana, 20, 60, 0, any");
+  const split = slotsOf("Mon, 8, 11, 1, am\nMon, 15, 18, 1, pm");
+  const off = buildRoster(ana, split, { minRestHours: 0 });
+  assert.equal(off.cost, 20 * 6);
+  const on = buildRoster(ana, split, { minRestHours: 0, splitPremium: 15 });
+  assert.equal(on.cost, 20 * 6 + 15);
+  assert.equal(on.people[0].splitDays, 1);
+  // a gap of exactly the limit is not a split; burden applies to the premium too
+  const tight = buildRoster(ana, slotsOf("Mon, 8, 11, 1, am\nMon, 12, 15, 1, pm"), { minRestHours: 0, splitPremium: 15 });
+  assert.equal(tight.cost, 20 * 6);
+  assert.equal(buildRoster(ana, split, { minRestHours: 0, splitPremium: 10, burdenPct: 10 }).cost, (20 * 6 + 10) * 1.1);
+  // with a second person free, the search splits the day across people to skip the premium
+  const two = staffOf("Ana, 20, 60, 0, any\nBen, 20, 60, 0, any");
+  const r = buildRoster(two, split, { minRestHours: 0, splitPremium: 15 });
+  assert.equal(r.cost, 20 * 6);
+  assert.ok(r.people.every((p) => p.splitDays === 0));
+});
