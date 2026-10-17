@@ -1049,6 +1049,23 @@ export function scheduleIcs(schedule, teamIdx = null, stamp = null) {
   return out.map(icsFold).join("\r\n") + "\r\n";
 }
 
+/**
+ * One ready-to-paste message per team ("Hi Hawks, your fixtures: ..."), so a coordinator can
+ * message each team its own dates instead of forwarding the whole league. Uses teamSchedule.
+ */
+export function teamMessages(schedule) {
+  return schedule.teams.map((name, idx) => {
+    const rows = teamSchedule(schedule, idx);
+    const lines = [`Hi ${name}, your fixtures:`];
+    for (const r of rows) {
+      if (r.bye) lines.push(`${r.round} - ${dayLabel(r.day)}: bye (no game)`);
+      else lines.push(`${r.round} - ${dayLabel(r.day)}${r.time ? " " + r.time : ""}${r.court ? ", " + r.court : ""}: ${r.venue} vs ${r.opponent}`);
+    }
+    lines.push("Check the dates before you plan around them.");
+    return { team: name, text: lines.join("\n") };
+  });
+}
+
 export function scheduleText(schedule, bracket = null) {
   const n = schedule.teams.length;
   const lines = [`${n}-team ${schedule.config.double ? "double" : "single"} round robin`, ""];
