@@ -52,7 +52,7 @@ shuffling on Sunday night.
 
 ## Limits
 
-Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), rest-break placement (unpaid meal breaks are deducted from paid time and flagged, not placed on the clock), minor-labor limits beyond the per-person daily cap, union rules, seniority, time-off across weeks. A
+Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), paid rest breaks (unpaid meal breaks are deducted from paid time; a suggested meal-break time is shown but not enforced by the search), minor-labor limits beyond the per-person daily cap, union rules, seniority, time-off across weeks. A
 heuristic search, not a proof of optimality on large problems. Verified only against exhaustive search and invented data.
 Not legal, tax, or financial advice.
 
@@ -83,3 +83,5 @@ Provided free and as-is, without warranty of any kind. Not legal, tax, or financ
 **Changes since you posted it.** Choose the roster CSV you posted, give the Monday and when you made the change, and the report lists every shift that was added, cancelled or moved, the notice each got, and the premium pay under a rule you enter yourself (notice window in hours, premium in hours of pay, names of employee-requested changes left out). Fair-workweek laws differ by city and change, so the tool ships no jurisdiction presets and states no legal requirement; it does the arithmetic on your numbers (`parseRosterCsv`, `scheduleChanges` in `calc.mjs`).
 
 **Weekly-hours line.** Optionally give an hours line to watch (for example 30, where some employers owe health coverage or benefits) and the report lists who is at or over it and who is within 2 hours under, so a few hours can be moved on purpose. A list only: it does not enforce the line and states no legal requirement (`hoursThresholds` in `calc.mjs`).
+
+**Meal-break times.** For every straight stretch over 5 hours the page suggests a 30-minute break that begins before the 5th hour and is staggered so the most other people stay on the clock, and says when nobody else would be on (`placeBreaks` in `calc.mjs`). A greedy planning aid, not enforced by the search.

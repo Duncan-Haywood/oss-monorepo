@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { laborPercent, dailyLabor, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags,
+import { placeBreaks, laborPercent, dailyLabor, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -847,4 +847,34 @@ test("coverageGrid on a built sample roster never exceeds the staff and totals t
   const hours = r.assignments.filter((a) => a.person).reduce((t, a) => t + Math.ceil(a.slot.endMin / 60) - Math.floor(a.slot.startMin / 60), 0);
   assert.equal(total, hours);
   assert.ok(g.peak <= st.staff.length);
+});
+
+test("placeBreaks: staggers meal breaks so someone stays on the floor", () => {
+  const A = (person, startMin, endMin) => ({ slot: { day: 0, startMin, endMin }, person });
+  const r = { assignments: [A("Ana", 480, 1020), A("Ben", 480, 1020), A("Cy", 480, 600), A("Short", 600, 780)] };
+  const b = placeBreaks(r);
+  assert.deepEqual(b.map((x) => x.person), ["Ana", "Ben"]);
+  for (const x of b) {
+    assert.equal(x.endMin - x.startMin, 30);
+    assert.ok(x.startMin >= 480 + 120 && x.startMin <= 480 + 300, "begins before the 5th hour is over");
+    assert.ok(x.startMin % 15 === 0);
+    assert.ok(x.others >= 1 && !x.alone);
+  }
+  assert.ok(b[0].endMin <= b[1].startMin || b[1].endMin <= b[0].startMin);
+  assert.equal(b[0].dayName, "Mon");
+});
+
+test("placeBreaks: joins back-to-back shifts, skips short days, flags a lone worker", () => {
+  const r = { assignments: [
+    { slot: { day: 1, startMin: 480, endMin: 660 }, person: "Sam" },
+    { slot: { day: 1, startMin: 660, endMin: 960 }, person: "Sam" },
+    { slot: { day: 2, startMin: 480, endMin: 720 }, person: "Sam" },
+    { slot: { day: 3, startMin: 480, endMin: 960 }, person: null },
+  ] };
+  const b = placeBreaks(r);
+  assert.equal(b.length, 1);
+  assert.equal(b[0].dayName, "Tue");
+  assert.ok(b[0].alone && b[0].others === 0);
+  assert.equal(placeBreaks(r, { mealAfter: 10 }).length, 0);
+  assert.deepEqual(placeBreaks({ assignments: [] }), []);
 });
