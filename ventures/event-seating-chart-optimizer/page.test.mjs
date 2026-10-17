@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { sampleSpec, optimize, verifyPlan, validateSpec, baselinePlan, weightMatrix, describe } from "./calc.mjs";
+import { parseGuests, parseRules, sampleSpec, optimize, verifyPlan, validateSpec, baselinePlan, weightMatrix, describe } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-make-a-wedding-seating-chart.html";
@@ -136,5 +136,36 @@ test("the guide carries the clauses, links both ways, and its worked example mat
   assert.ok(guide.includes(row("In the order typed", baseRes.rulesMet, baseRes.rulesTotal, baseRes.partySplits.length, baseRes.score)), "list-order row");
   assert.ok(guide.includes(row("Optimized", res.rulesMet, res.rulesTotal, res.partySplits.length, res.score)), "optimized row");
   assert.equal(res.rulesTotal, 8);
+  assert.deepEqual(res.tables.map((t) => t.size), [8, 8, 8]);
+});
+
+test("the divorced-parents guide is linked, carries the clauses, and its worked example matches the optimizer", () => {
+  const name = "how-to-seat-divorced-parents-at-a-wedding.html";
+  const guide = page(name);
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /not a guarantee that any guest will be content/i);
+  assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(".", "\\.")}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(".", "\\.")}"`));
+  assert.match(page("sitemap.xml"), new RegExp(name.replace(".", "\\.")));
+  const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
+  for (const l of [...guide.matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)].map((m) => m[1])) assert.ok(existsSync(new URL(`../${l}/index.html`, import.meta.url)), l);
+
+  const guests = ["Nina Castillo", "Paul Castillo", "Rosa Castillo", "Gil Castillo", "Marta Reyes", "Dev Reyes", "Karen Moss", "Alan Moss", "Beth Lowe", "Sam Lowe", "Dana Price", "Eli Price", "Joanne Park", "Ty Park", "Ora Finch", "Len Finch", "Cass Wynn", "Ruth Wynn", "Omar Haddad", "Lucy Haddad", "Pat Quill", "Jo Quill", "Ivy Stone", "Bo Stone"];
+  const party = { "Nina Castillo": "Castillo party", "Paul Castillo": "Castillo party", "Marta Reyes": "Reyes party", "Dev Reyes": "Reyes party", "Karen Moss": "Moss party", "Alan Moss": "Moss party" };
+  const parsed = parseGuests(guests.map((g) => (party[g] ? `${g} | ${party[g]}` : g)).join("\n"));
+  const rulesText = ["Marta Reyes !! Karen Moss", "Marta Reyes !! Alan Moss", "Dev Reyes ! Karen Moss", "Beth Lowe ! Dana Price", "Nina Castillo + Rosa Castillo", "Dev Reyes + Pat Quill", "Rosa Castillo + Gil Castillo", "Karen Moss + Beth Lowe", "Omar Haddad + Lucy Haddad", "Ora Finch + Len Finch", "Nina Castillo @ 1", "Paul Castillo @ 1", "Marta Reyes @ 2", "Dev Reyes @ 2", "Karen Moss @ 3", "Alan Moss @ 3"].join("\n");
+  const { rules, errors } = parseRules(rulesText, parsed.guests);
+  assert.deepEqual([...parsed.errors, ...errors], []);
+  const spec = { guests: parsed.guests, rules, seatsPerTable: 8, tableCount: 3, balance: true, mix: "off", seed: 1 };
+  const res = optimize(spec);
+  assert.deepEqual(verifyPlan(spec, res), []);
+  const base = baselinePlan(spec);
+  const baseRes = describe(spec, weightMatrix(spec), base, base);
+  const row = (label, met, total, splits, score) => `<tr><td>${label}</td><td class="n">${met} of ${total}</td><td class="n">${splits}</td><td class="n">${score}</td></tr>`;
+  assert.ok(guide.includes(row("In the order typed", baseRes.rulesMet, baseRes.rulesTotal, baseRes.partySplits.length, baseRes.score)), "list-order row");
+  assert.ok(guide.includes(row("Optimized", res.rulesMet, res.rulesTotal, res.partySplits.length, res.score)), "optimized row");
+  assert.equal(res.rulesTotal, 10);
   assert.deepEqual(res.tables.map((t) => t.size), [8, 8, 8]);
 });
