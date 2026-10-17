@@ -331,3 +331,16 @@ test("boundaries: a one-cent milestone, a one-cent change rate, a one-month reta
   assert.ok(validate(oneMonth).every((m) => !/number of months/.test(m)));
   assert.ok(validate({ ...base(), depositType: "percent", depositValue: "101" }).some((m) => /between 0 and 100/.test(m)));
 });
+
+test("boundaries: valid-until day is still open, a one-cent hourly rate is accepted, no change rate means a quoted price", () => {
+  const p = base();
+  assert.equal(status(p, "2026-10-31"), "sent");
+  assert.equal(status(p, "2026-11-01"), "expired");
+  const hourly = (rate) => validate({ ...base({ model: "hourly" }), hourly: { rate, hours: "10", capHours: "12" } });
+  assert.ok(!hourly("0.01").some((m) => /hourly rate/.test(m)));
+  assert.ok(hourly("0").some((m) => /hourly rate/.test(m)));
+  const change = (changeRate) => clauseTexts(base({ terms: { changeRate } })).find((c) => c.key === "changeOrders").text;
+  assert.match(change(""), /billed at a price quoted in advance/);
+  assert.match(change("0"), /billed at a price quoted in advance/);
+  assert.match(change("125"), /per hour/);
+});
