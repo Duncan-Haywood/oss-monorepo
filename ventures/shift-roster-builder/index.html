@@ -94,6 +94,8 @@
       <div><label for="otrule">Overtime rule (state presets)</label><select id="otrule"><option value="">Weekly only</option><option value="ca">California: over 8 a day, double over 12</option><option value="ak">Alaska (and Nevada for lower-paid staff): over 8 a day</option><option value="co">Colorado: over 12 a day</option></select></div>
       <div><label for="dotafter">Daily overtime after (hours, 0 = off)</label><input id="dotafter" inputmode="decimal" value="0"></div>
       <div><label for="mealafter">Unpaid meal break on shifts over (hours, 0 = off)</label><input id="mealafter" inputmode="decimal" value="0"></div>
+      <div><label for="splitprem">Split-shift premium per split day ($, 0 = off)</label><input id="splitprem" inputmode="decimal" value="0"></div>
+      <div><label for="splitgap">A split shift has a gap over (hours)</label><input id="splitgap" inputmode="decimal" value="1"></div>
       <div><label for="mealmin">Unpaid break length (minutes)</label><input id="mealmin" inputmode="decimal" value="30"></div>
       <div><label for="ddtafter">Double time after (hours a day, 0 = off)</label><input id="ddtafter" inputmode="decimal" value="0"></div>
       <div><label for="burden">Payroll taxes and extras (%)</label><input id="burden" inputmode="decimal" value="0"></div>
@@ -229,7 +231,7 @@
       status.textContent = "Building…";
       const r = buildRoster(st.staff, sh.slots, {
         minRestHours: val("rest", 10), maxConsecDays: val("consec", 6), maxDailyHours: val("daily", 0), otAfter: val("otafter", 40), otMult: val("otmult", 1.5),
-        mealAfter: val("mealafter", 0), mealMin: val("mealmin", 30), dailyOtAfter: val("dotafter", 0), dailyDtAfter: val("ddtafter", 0),
+        mealAfter: val("mealafter", 0), mealMin: val("mealmin", 30), splitPremium: val("splitprem", 0), splitGap: val("splitgap", 1), dailyOtAfter: val("dotafter", 0), dailyDtAfter: val("ddtafter", 0),
         burdenPct: val("burden", 0), balance: Math.min(100, Math.max(0, val("balance", 25))),
       });
       if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
@@ -259,7 +261,7 @@
         ? `<h3>Shifts nobody could take</h3><div class="scroll"><table><thead><tr><th>Shift</th><th>Why</th></tr></thead><tbody>${r.unfilled.map((u) => `<tr><td>${DAYS[u.slot.day]} ${fmtClock(u.slot.startMin)}–${fmtClock(u.slot.endMin)}${u.slot.label ? " " + esc(u.slot.label) : ""}</td><td>${esc(u.text)}</td></tr>`).join("")}</tbody></table></div>`
         : "";
       $("#people tbody").innerHTML = r.people.map((p) => {
-        const note = p.short > 0.01 ? `<span class="pill medium">${num(p.short)} h under minimum</span>` : (p.hours === 0 ? '<span class="pill info">no shifts</span>' : `<span class="pill good">within ${num(p.maxHours, 0)} h limit</span>`);
+        const note = p.splitDays > 0 ? `<span class="pill medium">${p.splitDays} split day${p.splitDays > 1 ? "s" : ""} (premium in pay)</span>` : p.short > 0.01 ? `<span class="pill medium">${num(p.short)} h under minimum</span>` : (p.hours === 0 ? '<span class="pill info">no shifts</span>' : `<span class="pill good">within ${num(p.maxHours, 0)} h limit</span>`);
         return `<tr><td>${esc(p.name)}</td><td class="n">${p.shifts}</td><td class="n">${num(p.hours)}</td><td class="n">${num(p.otHours)}</td><td class="n">${money(p.cost)}</td><td>${note}</td></tr>`;
       }).join("");
       $("#hire-box").innerHTML = r.hireTest
@@ -352,7 +354,7 @@
     });
 
     // Remember the team on this device only; nothing is sent anywhere.
-    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "burden", "balance", "sales", "dailysales", "labortarget", "hoursline"];
+    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "splitprem", "splitgap", "burden", "balance", "sales", "dailysales", "labortarget", "hoursline"];
     const KEY = "shift-roster-builder:setup:v1";
     const snapshot = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]));
     const apply = (o) => { for (const f of FIELDS) if (o && typeof o[f] === "string") $("#" + f).value = o[f]; };

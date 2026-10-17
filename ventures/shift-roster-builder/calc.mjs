@@ -298,6 +298,7 @@ function mulberry32(seed) {
 
 const DEFAULTS = {
   mealAfter: 0, mealMin: 30, // unpaid meal break: shifts longer than mealAfter hours lose mealMin minutes of pay (0 = off)
+  splitPremium: 0, splitGap: 1, // split-shift premium: dollars owed on each day a person's shifts have a gap over splitGap hours (0 = off)
   burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
   balance: 25, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0,
 };
@@ -401,10 +402,24 @@ function payParts(ctx, list) {
   const weekly = Math.max(0, straight - o.otAfter);
   return { straight: straight - weekly, ot: ot + weekly, dt };
 }
+// Days on which this person's shifts leave a gap longer than splitGap hours (a split shift). `list` is sorted by start.
+function splitDays(ctx, list) {
+  const { o, slots } = ctx;
+  if (!(o.splitPremium > 0) || list.length < 2) return 0;
+  const lastEnd = new Map();
+  const split = new Set();
+  for (const i of list) {
+    const s = slots[i];
+    if (lastEnd.has(s.day) && (s.start - lastEnd.get(s.day)) / 60 > o.splitGap + 1e-9) split.add(s.day);
+    lastEnd.set(s.day, Math.max(lastEnd.get(s.day) ?? -Infinity, s.end));
+  }
+  return split.size;
+}
 function payroll(ctx, p, list) {
   const { o, staff } = ctx;
   const q = payParts(ctx, list);
-  return staff[p].wage * (1 + o.burdenPct / 100) * (q.straight + q.ot * o.otMult + q.dt * o.dtMult);
+  const extra = o.splitPremium > 0 ? splitDays(ctx, list) * o.splitPremium : 0;
+  return (1 + o.burdenPct / 100) * (staff[p].wage * (q.straight + q.ot * o.otMult + q.dt * o.dtMult) + extra);
 }
 function softPenalty(ctx, p, h, list) {
   const { o, staff, target, avgWage } = ctx;
@@ -569,7 +584,7 @@ function summarise(ctx, owner) {
       name: p.name, shifts: lists[k].length, hours: h, otHours: ot, cost: c, wage: p.wage,
       minHours: p.minHours, maxHours: p.maxHours, short: Math.max(0, p.minHours - h),
       avoidHours: p.avoid ? lists[k].reduce((t, i) => t + avoidMinutes(p, slots[i]), 0) / 60 : 0,
-      daysWorked: new Set(lists[k].map((i) => slots[i].day)).size, slotIds: lists[k],
+      daysWorked: new Set(lists[k].map((i) => slots[i].day)).size, slotIds: lists[k], splitDays: splitDays(ctx, lists[k]),
     };
   });
   const unfilledHours = unfilled.reduce((t, i) => t + (slots[i].end - slots[i].start) / 60, 0);

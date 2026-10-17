@@ -21,6 +21,7 @@ shuffling on Sunday night.
 - Shifts: `day(s), start, end, people needed, label, role: cook` (the role is optional; a shift with a role goes only to people who list it). An end at or before the start runs overnight.
 - Pinned shifts: add `fixed: Ana` to a shift row to lock it to Ana (`fixed: Ana + Ben` pins copy 1 and copy 2; copies beyond the names stay open). Everyone else is planned around it; if Ana is not free for the whole shift it comes back unfilled with that reason, and a name not in the staff list raises a warning.
 - Unpaid meal break: set "Unpaid meal break on shifts over (hours)" and the break length (default 30 min) and any shift longer than that loses the break from paid time in payroll, daily and weekly overtime (`paidMinutes` in `calc.mjs`). The shift still blocks the whole person-time, so availability, rest and hour caps are unchanged; breaks are not placed on the clock.
+- Split-shift premium: enter a dollar amount per split day (California: one hour at minimum wage) and the gap that counts as a split (default over 1 hour). Each day a person's shifts have a longer gap adds the premium (with burden) to their pay, so the search splits the day across people or closes the gap when that is cheaper; people on split days are marked in the table (`splitDays` in `calc.mjs`). The state's exemptions (pay already well above minimum wage) are not modelled: enter the amount you actually owe.
 - Hard rules, never broken: availability covers the whole shift, no double-booking, minimum rest between shifts, max
   hours per week, max days in a row, and (optional) most hours in one day: a roster-wide setting, or `daily: 8` in a person's row for a minor or a short-day contract.
 - Objective, in order: cover as many shift-hours as possible; then minimise real payroll (wage x (1 + extras), overtime
@@ -41,8 +42,7 @@ shuffling on Sunday night.
 
 ## Limits
 
-Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), meal and rest breaks, minor-labor limits, split-shift
-premiums, tips, union rules, seniority, time-off across weeks. A
+Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), meal and rest breaks, minor-labor limits, tips, union rules, seniority, time-off across weeks. A
 heuristic search, not a proof of optimality on large problems. Verified only against exhaustive search and invented data.
 Not legal, tax, or financial advice.
 
