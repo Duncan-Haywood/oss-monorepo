@@ -1,0 +1,8 @@
+# Yosys 0.33 (git sha1 2584903a060); Icarus Verilog version 12.0 (stable) ()
+# F-16-4 MLP, WB=4; cells = Yosys generic-gate cells incl. flip-flops; metric = cells*cycles/vec
+# every design simulated on 32 vectors against the NumPy reference and the cycle formula before scoring
+F  script         design        cycles/batch  cells  depth  cells*cycles/vec  rtl==numpy
+16 yosys_default systolic 1x4       102     2403    43         245106  True
+16 yosys_default systolic 1x8        74     3713    40         274762  True
+16 yosys_default systolic 1x16       66     6183    39         408078  True
+16 yosys_default systolic 2x8        77     6962    40         268037  True
