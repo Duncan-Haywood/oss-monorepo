@@ -854,7 +854,7 @@ Census Survey of Construction for where a house's price goes.
 5. `house-energy`: cost-optimal envelopes by climate zone. EnergyPlus or OpenStudio, run from
    scripts, sweeping insulation, windows, air tightness and HVAC. Report the net present cost of
    building plus 30 years of energy, BEopt-style, with the assumptions shown.
-6. `house-structure`: lateral design and alternative systems. Shear walls and bracing under
+6. `house-structure` (first version done 2026-10-17: wood-frame wind and seismic shear walls; the alternative systems are next steps): lateral design and alternative systems. Shear walls and bracing under
    wind and seismic load in OpenSees or a frame model, then wood frame against steel stud,
    insulated concrete forms, structural insulated panels, cross-laminated timber and 3D-printed
    concrete, on cost, carbon, speed and strength.
