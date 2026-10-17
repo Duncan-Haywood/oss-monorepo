@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Run A Swiss-System Tournament: Pairings Explained</title>
+  <meta name="description" content="How Swiss pairings work: rounds needed, pairing by score, byes for an odd number of players, Buchholz tie-breaks, and a worked six-player example. Then pair your next round for free.">
+  <meta property="og:title" content="How To Run A Swiss-System Tournament: Pairings Explained">
+  <meta property="og:description" content="Rounds, pairings, byes and tie-breaks, with a six-player example. Free, private, in your browser.">
+  <link rel="canonical" href="./how-to-run-a-swiss-tournament.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many rounds does a Swiss tournament need?", "acceptedAnswer": {"@type": "Answer", "text": "Enough that one player can be clearly ahead: the next whole number above log base 2 of the player count. Six or eight players need 3 rounds, sixteen need 4. More rounds sort the middle of the table more finely, but the top places are usually settled by this number."}}, {"@type": "Question", "name": "How are players paired in a Swiss round?", "acceptedAnswer": {"@type": "Answer", "text": "Everyone is sorted by score, then players with the same score are paired top half against bottom half, so the strongest of a group meets the weakest of that group. Nobody plays the same opponent twice. In round 1 nobody has a score yet, so the seed order decides."}}, {"@type": "Question", "name": "What happens with an odd number of players?", "acceptedAnswer": {"@type": "Answer", "text": "One player gets a bye each round and is scored as a win. The bye goes to the lowest-ranked player who has not had one yet, so nobody gets two byes before everyone has had one."}}, {"@type": "Question", "name": "How are ties in the standings broken?", "acceptedAnswer": {"@type": "Answer", "text": "By Buchholz: the sum of your opponents' scores. Beating players who went on to do well is worth more than beating players who lost everything. Players still level after that keep their seed order."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to run a Swiss-system tournament, with a worked example</h1>
+  <p>A Swiss tournament is for a club night or a weekend event with more players than there is time for a round robin. Nobody is knocked out, everyone plays every round, and each round pairs people who are doing about equally well. Chess clubs, darts leagues, board-game and card-game events use it.</p>
+  <p><a class="cta" href="./">Open the free pairing tool</a> (it is the Swiss card on the page; pair each round by pasting in the results so far)</p>
+  <h2>A worked example</h2>
+  <p>Six invented players, seeded in the order they signed up. Six players need 3 rounds. Round 1 has no scores yet, so the seed order decides: the top half plays the bottom half.</p>
+  <table>
+    <thead><tr><th>Round 1</th><th>White</th><th>Black</th></tr></thead>
+    <tbody>
+      <tr><td>Board 1</td><td>Ana</td><td>Dee</td></tr>
+      <tr><td>Board 2</td><td>Ben</td><td>Eli</td></tr>
+      <tr><td>Board 3</td><td>Cy</td><td>Fay</td></tr>
+    </tbody>
+  </table>
+  <p>Suppose Ana, Ben and Fay win. The three winners now have 1 point and the three losers 0, so round 2 pairs winners with winners and losers with losers, with nobody meeting a previous opponent:</p>
+  <table>
+    <thead><tr><th>Round 2</th><th>White</th><th>Black</th></tr></thead>
+    <tbody>
+      <tr><td>Board 1</td><td>Ana</td><td>Ben</td></tr>
+      <tr><td>Board 2</td><td>Fay</td><td>Dee</td></tr>
+      <tr><td>Board 3</td><td>Eli</td><td>Cy</td></tr>
+    </tbody>
+  </table>
+  <p>Fay, on 1 point, plays Dee, on 0, because the other two 1-point players already meet each other: the tool shows that as a "floater" and says so rather than hiding it. Colours alternate, so nobody is white three times running. The pairing is checked by a separate validator before it is shown.</p>
+  <p><a class="cta" href="./">Pair your own round</a></p>
+  <h2>Questions</h2>
+  <h3>How many rounds does a Swiss tournament need?</h3>
+  <p>Enough that one player can be clearly ahead: the next whole number above log base 2 of the player count. Six or eight players need 3 rounds, sixteen need 4. More rounds sort the middle of the table more finely, but the top places are usually settled by this number.</p>
+  <h3>How are players paired in a Swiss round?</h3>
+  <p>Everyone is sorted by score, then players with the same score are paired top half against bottom half, so the strongest of a group meets the weakest of that group. Nobody plays the same opponent twice. In round 1 nobody has a score yet, so the seed order decides.</p>
+  <h3>What happens with an odd number of players?</h3>
+  <p>One player gets a bye each round and is scored as a win. The bye goes to the lowest-ranked player who has not had one yet, so nobody gets two byes before everyone has had one.</p>
+  <h3>How are ties in the standings broken?</h3>
+  <p>By Buchholz: the sum of your opponents' scores. Beating players who went on to do well is worth more than beating players who lost everything. Players still level after that keep their seed order.</p>
+  <p>Related: <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a> for small leagues where everyone can play everyone.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing before you announce it; your event's own rules and tie-breaks apply. The example players are invented.</p>
+    <p>Everything the tool does runs in your browser; player names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

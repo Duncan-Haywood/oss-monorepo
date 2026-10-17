@@ -161,3 +161,24 @@ test("the team-count page's table matches roundRobin", () => {
   }
   for (const m of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)) JSON.parse(m[1]);
 });
+
+test("the Swiss guide's worked example matches swissPairings and is linked and in the sitemap", async () => {
+  const { swissPairings, swissRounds, parseSwissResults } = await import("./calc.mjs");
+  const name = "how-to-run-a-swiss-tournament.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-run-a-swiss-tournament\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const P = ["Ana", "Ben", "Cy", "Dee", "Eli", "Fay"];
+  assert.equal(swissRounds(6), 3);
+  const rows = (round) => round.pairs.map((p, i) => `<tr><td>Board ${i + 1}</td><td>${P[p.white]}</td><td>${P[p.black]}</td></tr>`);
+  for (const row of rows(swissPairings(P, [], []))) assert.ok(html.includes(row), row);
+  const done = parseSwissResults("Ana 1 - 0 Dee\nBen 1 - 0 Eli\nCy 0 - 1 Fay", P);
+  const r2 = swissPairings(P, done.games, done.byes);
+  for (const row of rows(r2)) assert.ok(html.includes(row), row);
+  assert.equal(r2.floaters, 1);
+  assert.match(page("sitemap.xml"), /how-to-run-a-swiss-tournament\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-run-a-swiss-tournament\.html"/);
+});
