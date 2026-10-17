@@ -102,7 +102,7 @@ export function simplex(c, rows) {
 
 // ------------------------------------------------------------ parsing
 
-/** Foods, one per line: Name | price per serving | kcal | protein g | carbs g | fat g | fibre g | max servings per day (optional). */
+/** Foods, one per line: Name | price per serving | kcal | protein g | carbs g | fat g | fibre g | max servings per day (optional) | servings per pack (optional, for the shopping list). */
 export function parseFoods(text) {
   const rows = [];
   const errors = [];
@@ -120,7 +120,9 @@ export function parseFoods(text) {
     if (seen.has(name.toLowerCase())) { errors.push(`"${name}" is listed twice (line ${i + 1}).`); return; }
     seen.add(name.toLowerCase());
     const max = c.length >= 8 && c[7] !== "" ? Number(c[7]) : NaN;
-    rows.push({ name, price: nums[0], n: nums.slice(1, 6), max: Number.isFinite(max) && max >= 0 ? max : null });
+    const pack = c.length >= 9 && c[8] !== "" ? Number(c[8]) : NaN;
+    if (c.length >= 9 && c[8] !== "" && !(pack > 0)) { errors.push(`Food line ${i + 1} ("${name}"): servings per pack must be a number above 0 (or leave it blank).`); return; }
+    rows.push({ name, price: nums[0], n: nums.slice(1, 6), max: Number.isFinite(max) && max >= 0 ? max : null, pack: Number.isFinite(pack) ? pack : null });
   });
   return { foods: rows, errors };
 }
@@ -346,6 +348,24 @@ export function verifyPlan(spec, res) {
 export const money2 = (x) => (Number.isFinite(x) ? (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2) : "—");
 export const fmt = (x, d = 0) => (Number.isFinite(x) ? x.toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d }) : "—");
 
+/**
+ * Weekly shopping list: the plan's servings times the days per week, rounded up to whole packs for foods that
+ * list "servings per pack". Pack price is price per serving times servings per pack, so the optimum is unchanged;
+ * this shows what the till charges and what is left over. Foods without a pack size are bought exactly.
+ */
+export function groceryList(spec, res) {
+  const days = Number(spec.daysPerWeek) > 0 ? Number(spec.daysPerWeek) : 7;
+  const lines = res.items.map((it) => {
+    const f = spec.foods[it.index];
+    const need = it.servings * days;
+    if (!f.pack) return { name: it.name, servings: need, packs: null, pack: null, spend: it.cost * days, leftover: 0 };
+    const packs = Math.ceil(need / f.pack - 1e-9);
+    return { name: it.name, servings: need, packs, pack: f.pack, spend: packs * f.pack * f.price, leftover: packs * f.pack - need };
+  });
+  const spend = lines.reduce((t, l) => t + l.spend, 0);
+  return { lines, spend, extra: spend - res.cost * days };
+}
+
 export function planCsv(spec, res) {
   const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
   const rows = [["Food", "Servings per day", "Cost per day", "kcal", "Protein g", "Carbs g", "Fat g", "Fibre g"].join(",")];
@@ -356,24 +376,24 @@ export function planCsv(spec, res) {
 
 // Approximate generic nutrition per the serving named; EXAMPLE prices, edit to your store.
 export const SAMPLE_FOODS = [
-  "Rice, white, dry (50 g) | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7",
-  "Lentils, dry (50 g) | 0.20 | 170 | 12.5 | 30 | 0.5 | 8",
-  "Black beans, dry (50 g) | 0.20 | 170 | 10.8 | 31 | 0.7 | 7.8",
-  "Rolled oats (40 g) | 0.12 | 156 | 6.8 | 26.4 | 2.8 | 4.2",
-  "Egg, large (1) | 0.30 | 72 | 6.3 | 0.4 | 4.8 | 0 | 6",
+  "Rice, white, dry (50 g) | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7 | | 36",
+  "Lentils, dry (50 g) | 0.20 | 170 | 12.5 | 30 | 0.5 | 8 | | 18",
+  "Black beans, dry (50 g) | 0.20 | 170 | 10.8 | 31 | 0.7 | 7.8 | | 18",
+  "Rolled oats (40 g) | 0.12 | 156 | 6.8 | 26.4 | 2.8 | 4.2 | | 30",
+  "Egg, large (1) | 0.30 | 72 | 6.3 | 0.4 | 4.8 | 0 | 6 | 12",
   "Chicken thigh, raw (100 g) | 0.80 | 121 | 19.7 | 0 | 4.1 | 0 | 4",
   "Peanut butter (2 tbsp) | 0.18 | 190 | 7 | 7 | 16 | 2 | 2",
   "Whole milk (1 cup) | 0.35 | 149 | 7.7 | 11.7 | 7.9 | 0 | 3",
   "Banana (1) | 0.25 | 105 | 1.3 | 27 | 0.4 | 3.1 | 3",
   "Carrots (100 g) | 0.15 | 41 | 0.9 | 9.6 | 0.2 | 2.8",
   "Broccoli, frozen (100 g) | 0.30 | 34 | 2.8 | 6.6 | 0.4 | 2.6",
-  "Whole wheat bread (1 slice) | 0.15 | 70 | 3 | 12 | 1 | 2 | 6",
+  "Whole wheat bread (1 slice) | 0.15 | 70 | 3 | 12 | 1 | 2 | 6 | 20",
   "Cooking oil (1 tbsp) | 0.08 | 120 | 0 | 0 | 14 | 0 | 3",
   "Tuna in water, canned (85 g) | 1.00 | 100 | 22 | 0 | 1 | 0 | 2",
   "Greek yogurt, nonfat (170 g) | 0.80 | 100 | 17 | 6 | 0.7 | 0 | 2",
   "Cabbage (100 g) | 0.10 | 25 | 1.3 | 5.8 | 0.1 | 2.5",
   "Potato (150 g) | 0.25 | 116 | 3 | 26 | 0.2 | 3.3",
-  "Whey protein (1 scoop, 30 g) | 0.75 | 120 | 24 | 3 | 1.5 | 0 | 2",
+  "Whey protein (1 scoop, 30 g) | 0.75 | 120 | 24 | 3 | 1.5 | 0 | 2 | 30",
   "Cheddar cheese (28 g) | 0.45 | 113 | 7 | 0.4 | 9.3 | 0 | 2",
   "Apple (1) | 0.50 | 95 | 0.5 | 25 | 0.3 | 4.4 | 2",
 ].join("\n");

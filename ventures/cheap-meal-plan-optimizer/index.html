@@ -59,7 +59,7 @@
   <main>
   <section class="card">
     <h2>1. Foods</h2>
-    <label for="foods">One per line: name | price per serving | kcal | protein g | carbs g | fat g | fibre g | max servings (optional)</label>
+    <label for="foods">One per line: name | price per serving | kcal | protein g | carbs g | fat g | fibre g | max servings (optional) | servings per pack (optional)</label>
     <textarea id="foods" spellcheck="false" style="min-height:260px" placeholder="Rice, white, dry (50 g) | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7"></textarea>
     <h2 style="margin-top:18px">2. Daily targets</h2>
     <div class="row3"><div><label for="kmin">Calories, minimum</label><input id="kmin" inputmode="decimal" value="2000"></div><div><label for="kmax">Calories, maximum</label><input id="kmax" inputmode="decimal" value="2300"></div><div><label for="pmin">Protein minimum (g)</label><input id="pmin" inputmode="decimal" value="100"></div><div><label for="fmin">Fat minimum (g)</label><input id="fmin" inputmode="decimal" value="45"></div><div><label for="fmax">Fat maximum (g)</label><input id="fmax" inputmode="decimal" value="80"></div><div><label for="cmin">Carbs minimum (g)</label><input id="cmin" inputmode="decimal" value=""></div><div><label for="cmax">Carbs maximum (g)</label><input id="cmax" inputmode="decimal" value=""></div><div><label for="fibmin">Fibre minimum (g)</label><input id="fibmin" inputmode="decimal" value="28"></div><div><label for="dmax">Default max servings per food</label><input id="dmax" inputmode="decimal" value="4"></div><div><label for="share">Most calories from one food (%)</label><input id="share" inputmode="decimal" value="" placeholder="no limit"></div></div>
@@ -84,6 +84,9 @@
     <ul id="marginal"></ul>
     <h3>Cost as the protein minimum rises</h3>
     <div style="overflow-x:auto"><table class="t" id="frontier"><thead><tr><th class="n">Protein minimum</th><th class="n">Cheapest cost / day</th></tr></thead><tbody></tbody></table></div>
+    <h3>Shopping list for the week</h3>
+    <p class="note" id="grocery-note"></p>
+    <div style="overflow-x:auto"><table class="t" id="grocery"><thead><tr><th>Food</th><th class="n">Servings / week</th><th class="n">Packs to buy</th><th class="n">Left over</th><th class="n">At the till</th></tr></thead><tbody></tbody></table></div>
     <button type="button" id="download">Download the plan (CSV)</button>
   </section>
 
@@ -125,7 +128,7 @@
   </footer>
 
   <script type="module">
-    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, planCsv, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
+    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, planCsv, groceryList, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -187,6 +190,10 @@
       const pm = spec.proteinMin === "" ? 100 : Number(spec.proteinMin);
       const fr = proteinFrontier(spec, [0.6, 0.8, 1, 1.25, 1.5].map((m) => Math.round(pm * m)));
       $("#frontier tbody").innerHTML = fr.map((r) => `<tr><td class="n">${r.protein} g</td><td class="n">${r.cost === null ? "not possible" : money2(r.cost)}</td></tr>`).join("");
+      const gl = groceryList(spec, res);
+      const anyPack = gl.lines.some((l) => l.packs !== null);
+      $("#grocery tbody").innerHTML = gl.lines.map((l) => `<tr><td>${esc(l.name)}</td><td class="n">${fmt(l.servings, 1)}</td><td class="n">${l.packs === null ? "—" : l.packs + " × " + fmt(l.pack, 1)}</td><td class="n">${l.packs === null ? "—" : fmt(l.leftover, 1)}</td><td class="n">${money2(l.spend)}</td></tr>`).join("") + `<tr><td><strong>Total</strong></td><td></td><td></td><td></td><td class="n"><strong>${money2(gl.spend)}</strong></td></tr>`;
+      $("#grocery-note").textContent = anyPack ? (gl.extra > 0.005 ? `Buying whole packs costs ${money2(gl.extra)} more than the plan's ${money2(res.weekly)} a week; the leftover keeps for next week.` : `Your pack sizes divide the week evenly: no waste.`) : "Add a ninth column, servings per pack, to a food line (for example 10 for a 500 g bag at 50 g a serving) to see whole packs and leftovers.";
       status.textContent = "Done. Check the nutrition against labels, then download the plan.";
       return true;
     }

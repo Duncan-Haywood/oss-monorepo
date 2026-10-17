@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, planCsv, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
+import { parseFoods, validateSpec, solve, verifyPlan, simplex, planFeasible, planCost, greedyPlan, proteinFrontier, planCsv, groceryList, sampleSpec, DEFAULTS, MIN_SAFE_KCAL } from "./calc.mjs";
 
 const foods = (rows) => rows.map(([name, price, n, max]) => ({ name, price, n, max: max ?? null }));
 
@@ -166,4 +166,28 @@ test("share link drops unknown or non-numeric fields", async () => {
   assert.equal(back.foods, "Rice | 0.1");
   assert.deepEqual(back.fields, { pmin: "90" });
   assert.deepEqual(decodeShare("").fields, {});
+});
+
+test("parseFoods reads servings per pack and rejects a bad one", () => {
+  const r = parseFoods("Rice | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7 | | 20\nEgg | 0.3 | 72 | 6 | 0 | 5 | 0 | 6\nOats | 0.2 | 150 | 5 | 27 | 3 | 4 | | 0");
+  assert.equal(r.foods[0].pack, 20);
+  assert.equal(r.foods[0].max, null);
+  assert.equal(r.foods[1].pack, null);
+  assert.equal(r.foods.length, 2);
+  assert.match(r.errors[0], /servings per pack/);
+});
+
+test("groceryList rounds up to whole packs and prices the leftover", () => {
+  const spec = { daysPerWeek: 7, foods: foods([["Rice", 0.2, [180, 3, 40, 0, 1]], ["Egg", 0.3, [72, 6, 0, 5, 0]]]) };
+  spec.foods[0].pack = 20;
+  const res = { cost: 0.2 * 3 + 0.3 * 2, items: [{ index: 0, name: "Rice", servings: 3, cost: 0.6 }, { index: 1, name: "Egg", servings: 2, cost: 0.6 }] };
+  const g = groceryList(spec, res);
+  assert.equal(g.lines[0].packs, 2); // 21 servings -> 2 packs of 20
+  assert.equal(g.lines[0].leftover, 19);
+  assert.ok(Math.abs(g.lines[0].spend - 8) < 1e-9); // 40 servings x 0.20
+  assert.equal(g.lines[1].packs, null);
+  assert.ok(Math.abs(g.lines[1].spend - 4.2) < 1e-9); // bought exactly: 14 x 0.30
+  assert.ok(Math.abs(g.extra - (8 + 4.2 - 1.2 * 7)) < 1e-9);
+  spec.foods[0].pack = 21; // exact multiple: no float round-up
+  assert.equal(groceryList(spec, res).lines[0].packs, 1);
 });
