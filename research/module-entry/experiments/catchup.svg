@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot against pool size n on a log axis of the rounds a better entrant needs to reach half the mass and of its break-even lifetime: both grow about linearly in the log of n, from about 140 and 160 rounds at n equals 4 to 693 rounds at n equals 1024">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Module-entry: catch-up against pool size</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="251.0" y2="251.0" stroke="#ddd"/><text x="58" y="255.0" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
+<line x1="64" x2="624" y1="178.1" y2="178.1" stroke="#ddd"/><text x="58" y="182.1" text-anchor="end" font-family="sans-serif" font-size="11">400</text>
+<line x1="64" x2="624" y1="105.1" y2="105.1" stroke="#ddd"/><text x="58" y="109.1" text-anchor="end" font-family="sans-serif" font-size="11">600</text>
+<text x="156.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="389.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="621.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1000</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">pool size n</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">rounds</text>
+<polyline points="64.0,273.3 204.0,222.9 344.0,172.2 484.0,121.5 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="273.3" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="222.9" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="172.2" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="121.5" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">catch-up to half mass</text>
+<polyline points="64.0,265.3 204.0,220.8 344.0,171.9 484.0,121.5 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="265.3" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="220.8" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="171.9" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="121.5" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">break-even lifetime</text>
+</svg>
