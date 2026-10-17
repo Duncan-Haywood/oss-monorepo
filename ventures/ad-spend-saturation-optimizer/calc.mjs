@@ -145,6 +145,35 @@ export function fitBest(points) {
   return h.aicc < e.aicc - 2 ? h : e;
 }
 
+// Carry-over (adstock): this week's effect on revenue also comes from earlier
+// spend. e_t = (1 - lam) s_t + lam e_(t-1), so a constant spend has e = s and
+// the fitted curve stays in steady-state weekly spend. Weeks absent from the
+// file count as zero spend.
+export const LAMBDAS = [0, 0.2, 0.4, 0.6, 0.8];
+export function adstock(pts, lam) {
+  if (!lam) return pts.map((p) => ({ ...p }));
+  let prev = 0, week = null;
+  return pts.map((p) => {
+    if (week !== null) for (let w = week + 7; w < p.week; w += 7) prev = lam * prev;
+    prev = (1 - lam) * p.s + lam * prev;
+    week = p.week;
+    return { ...p, s: prev };
+  });
+}
+
+// Pick the carry-over rate by small-sample AIC on the saturating curve. A
+// non-zero rate has to beat the best so far by more than 2 points.
+export function fitAdstock(pts, { enabled = true } = {}) {
+  if (!enabled || pts.length < 12) return { fit: fitBest(pts), lambda: 0, eff: pts };
+  let bestL = 0, bestA = fitCurve(pts, "exp").aicc;
+  for (const lam of LAMBDAS.slice(1)) {
+    const a = fitCurve(adstock(pts, lam), "exp").aicc;
+    if (a < bestA - 2) { bestA = a; bestL = lam; }
+  }
+  const eff = bestL ? adstock(pts, bestL) : pts;
+  return { fit: fitBest(eff), lambda: bestL, eff };
+}
+
 // ---------- exact budget allocation (dynamic programme) ----------
 
 // curves: [{ f: (spend) => revenue, lo, hi }] in money per week.
@@ -297,17 +326,20 @@ function bootstrapChannel(pts, fit, B, u) {
 
 // Refit on weeks before the cutoff, predict revenue in the final weeks from the
 // spend that really happened, and compare with a constant-ROAS line.
-export function backtestChannel(pts, holdout) {
+export function backtestChannel(pts, holdout, { adstock: useAds = true } = {}) {
+  const rawTrain = pts.slice(0, pts.length - holdout);
+  if (rawTrain.length < MIN_WEEKS + 2 || holdout < 3) return null;
+  const { fit, lambda } = fitAdstock(rawTrain, { enabled: useAds });
+  const eff = adstock(pts, lambda);
   const train = pts.slice(0, pts.length - holdout), test = pts.slice(-holdout);
-  if (train.length < MIN_WEEKS + 2 || test.length < 3) return null;
-  const fit = fitBest(train);
+  const effTest = eff.slice(-holdout);
   const roas = train.reduce((a, p) => a + p.r, 0) / (train.reduce((a, p) => a + p.s, 0) || 1);
   let actual = 0, pc = 0, pl = 0, ec = 0, el = 0;
-  for (const p of test) {
-    const c = curveValue(fit, p.s), l = roas * p.s;
+  for (let i = 0; i < test.length; i++) {
+    const p = test[i], c = curveValue(fit, effTest[i].s), l = roas * p.s;
     actual += p.r; pc += c; pl += l; ec += Math.abs(c - p.r); el += Math.abs(l - p.r);
   }
-  return { weeks: test.length, actual, curve: pc, linear: pl, wapeCurve: ec / (actual || 1), wapeLinear: el / (actual || 1), model: fit.type };
+  return { weeks: test.length, actual, curve: pc, linear: pl, wapeCurve: ec / (actual || 1), wapeLinear: el / (actual || 1), model: fit.type, lambda };
 }
 
 export function analyze(rows, opts = {}) {
@@ -336,11 +368,13 @@ export function analyze(rows, opts = {}) {
     else if (new Set(spends.map((x) => Math.round(x * 100))).size < 4) ch.reason = "spend barely changed, so no curve can be fitted";
     else {
       ch.modelled = true;
-      ch.fit = fitBest(pts);
+      const ad = fitAdstock(pts, { enabled: opts.adstock !== false });
+      ch.fit = ad.fit; ch.lambda = ad.lambda; ch.fitPts = ad.eff;
+      ch.maxSpend = Math.max(...ad.eff.map((p) => p.s), cur);
       ch.mroas = marginal(ch.fit, cur);
       ch.fitted = curveValue(ch.fit, cur);
       ch.saturation = ch.fit.type === "exp" ? 1 - Math.exp(-cur / ch.fit.p[1]) : Math.pow(cur, ch.fit.p[2]) / (Math.pow(ch.fit.p[1], ch.fit.p[2]) + Math.pow(cur, ch.fit.p[2]));
-      ch.boot = bootstrapChannel(pts, ch.fit, B, u);
+      ch.boot = bootstrapChannel(ch.fitPts, ch.fit, B, u);
       const ms2 = ch.boot.filter(Boolean).map((f) => marginal(f, cur)).filter(Number.isFinite).sort((a, b) => a - b);
       ch.mroasLo = percentile(ms2, 0.1); ch.mroasHi = percentile(ms2, 0.9);
       ch.lowSpread = ch.spendCv < 0.15;
@@ -386,7 +420,7 @@ export function analyze(rows, opts = {}) {
   // Back-test on the last weeks of the file.
   const holdout = opts.holdoutWeeks ?? Math.max(4, Math.min(12, Math.floor(spanWeeks / 5)));
   const bt = [];
-  for (const c of modelled) { const r = backtestChannel(c.pts, holdout); if (r) bt.push({ name: c.name, ...r }); }
+  for (const c of modelled) { const r = backtestChannel(c.pts, holdout, { adstock: opts.adstock !== false }); if (r) bt.push({ name: c.name, ...r }); }
   const btTotal = bt.length ? {
     actual: bt.reduce((a, r) => a + r.actual, 0), curve: bt.reduce((a, r) => a + r.curve, 0), linear: bt.reduce((a, r) => a + r.linear, 0),
     wapeCurve: bt.reduce((a, r) => a + r.wapeCurve * r.actual, 0) / (bt.reduce((a, r) => a + r.actual, 0) || 1),
@@ -418,6 +452,7 @@ function findings(res) {
     const be = s.breakevenRoas;
     if (c.mroasHi < be) f.push({ severity: "medium", title: `${c.name}: the next dollar loses money`, detail: `Marginal return at ${money(c.current)} a week is ${c.mroas.toFixed(2)} per dollar (range ${c.mroasLo.toFixed(2)} to ${c.mroasHi.toFixed(2)}), below the ${be.toFixed(2)} needed to break even at ${pct(s.margin, 0)} margin. The average ROAS of ${c.roas.toFixed(2)} hides this.` });
     else if (c.mroasLo > be * 1.3 && c.saturation < 0.6) f.push({ severity: "info", title: `${c.name}: room to grow`, detail: `Marginal return at ${money(c.current)} a week is ${c.mroas.toFixed(2)} per dollar (range ${c.mroasLo.toFixed(2)} to ${c.mroasHi.toFixed(2)}) and the fitted curve is only ${pct(c.saturation, 0)} of the way to its ceiling. It is fitted on spend up to ${money(c.maxSpend)} a week; beyond that it is extrapolation.` });
+    if (c.lambda > 0) f.push({ severity: "info", title: `${c.name}: spend keeps working into later weeks`, detail: `Fitting carry-over improved the fit: about ${pct(c.lambda, 0)} of each week's effect carries into the next (a half-life of ${(Math.log(0.5) / Math.log(c.lambda)).toFixed(1)} weeks). The curve is fitted on that smoothed spend and read at steady spend, so cutting a channel pays back slowly and a short test will understate its effect.` });
     if (c.lowSpread) f.push({ severity: "info", title: `${c.name}: spend barely varied`, detail: `Weekly spend varied by only ${pct(c.spendCv, 0)}, so the data shows one point on the curve and the rest is the model's shape. The marginal-return range above is wide for that reason; vary spend on purpose to learn more.` });
     if (c.atLimit) f.push({ severity: "info", title: `${c.name} hits its ${c.atLimit} limit`, detail: `The best split wants ${c.atLimit === "upper" ? "more" : "less"} here than the limit of ${money(c.atLimit === "upper" ? c.limits[1] : c.limits[0])} a week (the limits keep the advice near spend you have actually tried).` });
   }
@@ -463,15 +498,19 @@ export function reportCsv(res) {
 // ---------- simulation (sample data, and the tests' ground truth) ----------
 
 // channels: [{ name, type, p, mean, cv, noise }]; weekly rows, revenue = R(spend) * (1 + noise * z).
+// An optional lambda gives the channel carry-over: revenue follows the adstocked spend.
 export function simulateSpend({ channels = SAMPLE_CHANNELS, weeks = 78, seed = 5 } = {}) {
   const u = rng(seed);
   const start = weekStart(Math.floor(Date.UTC(2025, 0, 6) / DAY_MS));
   const rows = [];
   for (const c of channels) {
+    let eff = null;
     for (let w = 0; w < weeks; w++) {
       const wave = 1 + 0.35 * Math.sin((2 * Math.PI * (w + c.mean % 7)) / 17);
       const spend = Math.max(0, c.mean * wave * Math.exp(c.cv * normal(u) - (c.cv * c.cv) / 2));
-      const rev = Math.max(0, CURVES[c.type].f(c.p, spend) * (1 + c.noise * normal(u)));
+      const lam = c.lambda || 0;
+      eff = eff === null || !lam ? spend : (1 - lam) * spend + lam * eff;
+      const rev = Math.max(0, CURVES[c.type].f(c.p, eff) * (1 + c.noise * normal(u)));
       rows.push({ channel: c.name, day: start + 7 * w, spend: Math.round(spend * 100) / 100, revenue: Math.round(rev * 100) / 100 });
     }
   }
