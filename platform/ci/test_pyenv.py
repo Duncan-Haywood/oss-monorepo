@@ -65,6 +65,28 @@ class T(unittest.TestCase):
         self.assertEqual(py, "/usr/bin/python3")
         self.assertIn(["apt-get", "install", "-y", "-qq", "--no-install-recommends", "python3-numpy"], run.calls)
 
+    def test_venv_fallback_when_system_pip_fails(self):
+        with tempfile.TemporaryDirectory() as d:
+            venv = os.path.join(d, "v")
+            vpy = os.path.join(venv, "bin", "python")
+            run = FakeRun()
+            inner = run.__call__
+
+            def wrapped(cmd, **kw):
+                if cmd[1:3] == ["-m", "venv"]:
+                    os.makedirs(os.path.dirname(vpy))
+                    Path(vpy).write_text("")
+                    run.pip_ok.add(vpy)
+                    return Result(0)
+                return inner(cmd, **kw)
+
+            orig = pyenv.shutil.which
+            pyenv.shutil.which = lambda name, path=None: None if name == "apt-get" else orig(name, path=path)
+            try:
+                self.assertEqual(pyenv.find(["skfem"], ["/a/python3"], wrapped, quiet, venv_dir=venv), vpy)
+            finally:
+                pyenv.shutil.which = orig
+
     def test_none_when_nothing_works(self):
         run = FakeRun()
         orig = pyenv.shutil.which
