@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "free-rdseeds"
+version = "0.1.0"
+description = "Is the R_d lattice's erratic error at d=5 a seed fluke, a dimension effect or a property of its generator vector? A follow-up to free-qmcdr"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

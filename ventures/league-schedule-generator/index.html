@@ -90,6 +90,7 @@
     <h2 style="margin-top:18px">4. Play-offs (optional)</h2>
     <div class="row4">
       <div><label for="playoff">Teams in the play-off (0 = none)</label><input id="playoff" inputmode="numeric" value="0"></div>
+      <div><label for="playoffDouble">Double elimination (out after two losses)</label><input id="playoffDouble" type="checkbox"></div>
     </div>
     <label for="results">Results so far, one per line, to rank the teams (blank = seeded in the order you listed them): <code>Hawks 3 - 2 Owls</code></label>
     <textarea id="results" rows="3" placeholder="Hawks 3 - 2 Owls"></textarea>
@@ -208,7 +209,7 @@
   </footer>
 
   <script type="module">
-    import { parseTeams, readSpec, buildSchedule, applyRainouts, parseOfficials, assignOfficials, validateOfficials, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, playoffRace, remainingFixtures, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, parseOfficials, assignOfficials, validateOfficials, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, playoffRace, remainingFixtures, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -230,6 +231,7 @@
       $("#courts").value = f.courts.replace(/\n/g, ", ");
       $("#times").value = f.times;
       $("#playoff").value = f.playoff;
+      $("#playoffDouble").checked = !!f.playoffDouble;
       $("#results").value = f.results;
       $("#rainouts").value = f.rainouts || "";
       $("#officials").value = f.officials || "";
@@ -242,7 +244,7 @@
         teams: $("#teams").value, double: $("#double").checked, start: $("#start").value, weekdays,
         skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courts: $("#courts").value, times: $("#times").value,
         seed: $("#seed").value, minutes: $("#minutes").value,
-        results: $("#results").value, playoff: $("#playoff").value, rainouts: $("#rainouts").value, officials: $("#officials").value,
+        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, rainouts: $("#rainouts").value, officials: $("#officials").value,
       };
     }
 
@@ -340,7 +342,8 @@
       if (want >= 2) {
         if (want > s.teams.length) warnings.push(`The play-off needs ${want} teams but there are only ${s.teams.length}.`);
         else {
-          bracket = playoffBracket(seeds.slice(0, want), { afterDay: s.stats.lastDay, weekdays: s.config.weekdays, skipDays: s.config.skipDays });
+          const buildBracket = $("#playoffDouble").checked && want >= 3 ? doubleEliminationBracket : playoffBracket;
+          bracket = buildBracket(seeds.slice(0, want), { afterDay: s.stats.lastDay, weekdays: s.config.weekdays, skipDays: s.config.skipDays });
           bracketTxt = bracketText(bracket);
         }
       }
@@ -366,7 +369,7 @@
     });
     $("#clear-all").addEventListener("click", () => {
       for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courts", "times", "results", "rainouts", "officials"]) $("#" + id).value = "";
-      $("#playoff").value = "0"; $("#double").checked = false;
+      $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#double").checked = false;
       $("#report").hidden = true; last = null; status.textContent = "Cleared.";
     });
     $("#team").addEventListener("change", showTeam);

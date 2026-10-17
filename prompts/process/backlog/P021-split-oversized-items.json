@@ -20,7 +20,7 @@
   "opened": "2026-10-16",
   "source": "process run, outcome tally over prompts/runs",
   "pr": 7402,
-  "result": null,
+  "result": "No change / too noisy: 15 partial of 56 process runs (27%) vs baseline 9/41 (22%) from prompts/runs/*.json. Newer partials are mostly sibling-PR collisions or sub-row rescoping, not oversized items. Re-check at 20 runs after 2026-10-16.",
   "history": [
     {
       "date": "2026-10-16",
@@ -29,6 +29,14 @@
     {
       "date": "2026-10-16",
       "note": "Verify run: process runs in prompts/runs now 45, 11 partial (24%) vs baseline 9/41 (22%). Only ~4 runs since the change; too few to tell. Check again at 20."
+    },
+    {
+      "date": "2026-10-17",
+      "note": "Interim verify: prompts/runs track=process now 56 runs, 15 partial (27%) vs baseline 9/41 (22%); the 15 runs since the change hold 6 partial (40%). Not yet better; recent partials mix a shipped slice with other skipped work (P024/P023, P025 split, P017 trims). P017 was not split as the change promised; split below into P030-P031. Check at 20 runs after the change."
+    },
+    {
+      "date": "2026-10-17",
+      "note": "Verify: result written."
     }
   ]
 }
