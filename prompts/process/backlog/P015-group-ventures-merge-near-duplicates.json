@@ -1,7 +1,7 @@
 {
   "id": "P015",
   "title": "Find near-duplicate ventures and consider grouping ventures/ by niche",
-  "status": "in_progress",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 3,
@@ -21,7 +21,7 @@
   "baseline": "1,261 directories; duplicate clusters not yet counted",
   "opened": "2026-10-16",
   "source": "Repo-organization review in a Claude Code session, 2026-10-16 (unmeasured; see CAVEAT in problem)",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7625",
   "result": null,
   "history": [
     {
