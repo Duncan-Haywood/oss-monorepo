@@ -240,3 +240,34 @@ test('DEFAULTS produce a sensible schedule of the configured horizon length', ()
   assert.equal(schedule[0].year, 1);
   assert.equal(schedule.at(-1).year, DEFAULTS.horizonYears);
 });
+
+// --- Guards added by the red-team run (escaped mutants) ---
+
+test('the default search cap is 10x the baseline: a need of ~10.5x baseline is reported unsolvable', () => {
+  // Baseline is cost / 10.5, but year 1 needs the whole cost banked, i.e.
+  // ~10.5x baseline. Beyond a 10x cap, within an 11x cap.
+  const inputs = {
+    currentBalance: 0,
+    annualContribution: 1,
+    unitCount: 10,
+    inflationRate: 0,
+    interestRate: 0,
+    horizonYears: 1,
+    targetPercentFunded: 0,
+    components: [{ name: 'Roof', remainingUsefulLifeYears: 1, replacementCost: 10500, fullLifeYears: 10.5 }],
+  };
+  assert.equal(minimumContributionToAvoidShortfall(inputs), null);
+  assert.ok(minimumContributionToAvoidShortfall(inputs, { capMultiple: 11 }) > 0);
+});
+
+test('the documented default planning horizon is 30 years', () => {
+  assert.equal(DEFAULTS.horizonYears, 30);
+  assert.equal(runSchedule({ ...DEFAULTS, horizonYears: undefined }).length, 30);
+});
+
+test('an unnamed component is labelled by position in validation errors, not as an object', () => {
+  assert.throws(
+    () => runSchedule({ ...DEFAULTS, components: [{ remainingUsefulLifeYears: 1, replacementCost: 100, fullLifeYears: 0 }] }),
+    /Component 1 full life/,
+  );
+});
