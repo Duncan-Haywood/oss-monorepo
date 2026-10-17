@@ -1,0 +1,144 @@
+house: 28 x 40 ft slab, 1120 ft2, windows+slider 137 ft2; 640 packages searched exhaustively
+baseline: conv 2x4, attic R-30, window U 0.35, 5 ACH50, slab bare; NPC = first cost + 19.60 x annual energy cost (30 y, 3% real discount)
+wall options (UA of opaque wall in Btu/h F, first cost in USD at assumed prices):
+  conv 2x4             UA  82.8  cost $2,532
+  conv 2x6             UA  57.3  cost $3,392
+  adv 2x6              UA  49.9  cost $2,490
+  adv 2x6 + R5 foam    UA  39.3  cost $3,324
+
+A. cost-optimal package by climate and heating system (default prices)
+climate            system              HDD   CDD    saving vs baseline   energy MMBtu/yr  optimum
+Miami (1A)         gas furnace + AC    100  4400  $ 2,173 (14.1%)    21.8 vs  23.2  adv 2x6, attic R-30, window U 0.50, 5 ACH50, slab bare
+Miami (1A)         heat pump           100  4400  $ 2,175 (14.1%)    21.8 vs  23.2  adv 2x6, attic R-30, window U 0.50, 5 ACH50, slab bare
+Houston (2A)       gas furnace + AC   1400  2900  $ 2,133 (13.9%)    21.6 vs  22.8  adv 2x6, attic R-30, window U 0.50, 5 ACH50, slab bare
+Houston (2A)       heat pump          1400  2900  $ 2,164 (13.4%)    21.6 vs  22.8  adv 2x6, attic R-30, window U 0.50, 5 ACH50, slab bare
+Atlanta (3A)       gas furnace + AC   2900  1800  $ 2,137 (13.2%)    24.4 vs  25.6  adv 2x6, attic R-30, window U 0.50, 5 ACH50, slab bare
+Atlanta (3A)       heat pump          2900  1800  $ 2,289 (12.9%)    23.1 vs  25.6  adv 2x6, attic R-30, window U 0.50, 5 ACH50, slab R-10 edge
+Albuquerque (4B)   gas furnace + AC   4300  1300  $ 2,310 (13.1%)    27.6 vs  30.9  adv 2x6, attic R-30, window U 0.50, 5 ACH50, slab R-10 edge
+Albuquerque (4B)   heat pump          4300  1300  $ 2,695 (13.5%)    25.8 vs  30.9  adv 2x6, attic R-30, window U 0.50, 3 ACH50, slab R-10 edge
+Baltimore (4A)     gas furnace + AC   4700  1200  $ 2,376 (13.2%)    29.1 vs  32.7  adv 2x6, attic R-30, window U 0.50, 5 ACH50, slab R-10 edge
+Baltimore (4A)     heat pump          4700  1200  $ 2,821 (13.6%)    27.3 vs  32.7  adv 2x6, attic R-30, window U 0.50, 3 ACH50, slab R-10 edge
+Chicago (5A)       gas furnace + AC   6200   900  $ 2,704 (13.6%)    32.9 vs  39.6  adv 2x6, attic R-30, window U 0.50, 3 ACH50, slab R-10 edge
+Chicago (5A)       heat pump          6200   900  $ 3,329 (14.2%)    32.0 vs  39.6  adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+Minneapolis (6A)   gas furnace + AC   7600   800  $ 3,053 (13.9%)    39.0 vs  47.0  adv 2x6, attic R-30, window U 0.50, 3 ACH50, slab R-10 edge
+Minneapolis (6A)   heat pump          7600   800  $ 3,877 (14.8%)    37.9 vs  47.0  adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+Duluth (7)         gas furnace + AC   9500   400  $ 3,514 (14.5%)    44.8 vs  55.6  adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+Duluth (7)         heat pump          9500   400  $ 4,561 (15.4%)    44.8 vs  55.6  adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+
+B. how much of the saving is the wall? NPC of optimum with the wall forced to each option, Chicago, gas
+  conv 2x4             NPC $18,421  first cost $8,443  energy $509/yr
+  conv 2x6             NPC $18,374  first cost $9,304  energy $463/yr
+  adv 2x6              NPC $17,207  first cost $8,402  energy $449/yr
+  adv 2x6 + R5 foam    NPC $17,665  first cost $9,236  energy $430/yr
+
+C. sensitivity of the optimum (gas furnace + AC, then heat pump) to energy price and first-cost multipliers
+  Atlanta (3A)   gas furnace + AC  energy x0.5 cost x0.5 -> adv 2x6, attic R-30, window U 0.50, 5 ACH50, slab bare
+  Atlanta (3A)   gas furnace + AC  energy x0.5 cost x1   -> adv 2x6, attic R-19, window U 0.50, 7 ACH50, slab bare
+  Atlanta (3A)   gas furnace + AC  energy x0.5 cost x2   -> adv 2x6, attic R-19, window U 0.50, 7 ACH50, slab bare
+  Atlanta (3A)   gas furnace + AC  energy x1   cost x0.5 -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Atlanta (3A)   gas furnace + AC  energy x1   cost x1   -> adv 2x6, attic R-30, window U 0.50, 5 ACH50, slab bare
+  Atlanta (3A)   gas furnace + AC  energy x1   cost x2   -> adv 2x6, attic R-19, window U 0.50, 7 ACH50, slab bare
+  Atlanta (3A)   gas furnace + AC  energy x2   cost x0.5 -> adv 2x6 + R5 foam, attic R-49, window U 0.35, 3 ACH50, slab R-10 edge
+  Atlanta (3A)   gas furnace + AC  energy x2   cost x1   -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Atlanta (3A)   gas furnace + AC  energy x2   cost x2   -> adv 2x6, attic R-30, window U 0.50, 5 ACH50, slab bare
+  Atlanta (3A)   gas furnace + AC  energy x4   cost x0.5 -> adv 2x6 + R5 foam, attic R-60, window U 0.27, 1.5 ACH50, slab R-10 edge
+  Atlanta (3A)   gas furnace + AC  energy x4   cost x1   -> adv 2x6 + R5 foam, attic R-49, window U 0.35, 3 ACH50, slab R-10 edge
+  Atlanta (3A)   gas furnace + AC  energy x4   cost x2   -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Atlanta (3A)   heat pump         energy x0.5 cost x0.5 -> adv 2x6, attic R-30, window U 0.50, 5 ACH50, slab R-10 edge
+  Atlanta (3A)   heat pump         energy x0.5 cost x1   -> adv 2x6, attic R-19, window U 0.50, 7 ACH50, slab bare
+  Atlanta (3A)   heat pump         energy x0.5 cost x2   -> adv 2x6, attic R-19, window U 0.50, 7 ACH50, slab bare
+  Atlanta (3A)   heat pump         energy x1   cost x0.5 -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Atlanta (3A)   heat pump         energy x1   cost x1   -> adv 2x6, attic R-30, window U 0.50, 5 ACH50, slab R-10 edge
+  Atlanta (3A)   heat pump         energy x1   cost x2   -> adv 2x6, attic R-19, window U 0.50, 7 ACH50, slab bare
+  Atlanta (3A)   heat pump         energy x2   cost x0.5 -> adv 2x6 + R5 foam, attic R-60, window U 0.35, 1.5 ACH50, slab R-10 edge
+  Atlanta (3A)   heat pump         energy x2   cost x1   -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Atlanta (3A)   heat pump         energy x2   cost x2   -> adv 2x6, attic R-30, window U 0.50, 5 ACH50, slab R-10 edge
+  Atlanta (3A)   heat pump         energy x4   cost x0.5 -> adv 2x6 + R5 foam, attic R-60, window U 0.27, 1.5 ACH50, slab R-10 edge
+  Atlanta (3A)   heat pump         energy x4   cost x1   -> adv 2x6 + R5 foam, attic R-60, window U 0.35, 1.5 ACH50, slab R-10 edge
+  Atlanta (3A)   heat pump         energy x4   cost x2   -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Chicago (5A)   gas furnace + AC  energy x0.5 cost x0.5 -> adv 2x6, attic R-30, window U 0.50, 3 ACH50, slab R-10 edge
+  Chicago (5A)   gas furnace + AC  energy x0.5 cost x1   -> adv 2x6, attic R-19, window U 0.50, 7 ACH50, slab bare
+  Chicago (5A)   gas furnace + AC  energy x0.5 cost x2   -> adv 2x6, attic R-19, window U 0.50, 7 ACH50, slab bare
+  Chicago (5A)   gas furnace + AC  energy x1   cost x0.5 -> adv 2x6, attic R-49, window U 0.50, 3 ACH50, slab R-10 edge
+  Chicago (5A)   gas furnace + AC  energy x1   cost x1   -> adv 2x6, attic R-30, window U 0.50, 3 ACH50, slab R-10 edge
+  Chicago (5A)   gas furnace + AC  energy x1   cost x2   -> adv 2x6, attic R-19, window U 0.50, 7 ACH50, slab bare
+  Chicago (5A)   gas furnace + AC  energy x2   cost x0.5 -> adv 2x6 + R5 foam, attic R-60, window U 0.35, 1.5 ACH50, slab R-10 edge
+  Chicago (5A)   gas furnace + AC  energy x2   cost x1   -> adv 2x6, attic R-49, window U 0.50, 3 ACH50, slab R-10 edge
+  Chicago (5A)   gas furnace + AC  energy x2   cost x2   -> adv 2x6, attic R-30, window U 0.50, 3 ACH50, slab R-10 edge
+  Chicago (5A)   gas furnace + AC  energy x4   cost x0.5 -> adv 2x6 + R5 foam, attic R-60, window U 0.27, 1.5 ACH50, slab R-10 edge
+  Chicago (5A)   gas furnace + AC  energy x4   cost x1   -> adv 2x6 + R5 foam, attic R-60, window U 0.35, 1.5 ACH50, slab R-10 edge
+  Chicago (5A)   gas furnace + AC  energy x4   cost x2   -> adv 2x6, attic R-49, window U 0.50, 3 ACH50, slab R-10 edge
+  Chicago (5A)   heat pump         energy x0.5 cost x0.5 -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Chicago (5A)   heat pump         energy x0.5 cost x1   -> adv 2x6, attic R-30, window U 0.50, 7 ACH50, slab R-10 edge
+  Chicago (5A)   heat pump         energy x0.5 cost x2   -> adv 2x6, attic R-19, window U 0.50, 7 ACH50, slab bare
+  Chicago (5A)   heat pump         energy x1   cost x0.5 -> adv 2x6 + R5 foam, attic R-49, window U 0.35, 3 ACH50, slab R-10 edge
+  Chicago (5A)   heat pump         energy x1   cost x1   -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Chicago (5A)   heat pump         energy x1   cost x2   -> adv 2x6, attic R-30, window U 0.50, 7 ACH50, slab R-10 edge
+  Chicago (5A)   heat pump         energy x2   cost x0.5 -> adv 2x6 + R5 foam, attic R-60, window U 0.27, 1.5 ACH50, slab R-10 edge
+  Chicago (5A)   heat pump         energy x2   cost x1   -> adv 2x6 + R5 foam, attic R-49, window U 0.35, 3 ACH50, slab R-10 edge
+  Chicago (5A)   heat pump         energy x2   cost x2   -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Chicago (5A)   heat pump         energy x4   cost x0.5 -> adv 2x6 + R5 foam, attic R-60, window U 0.20, 1.5 ACH50, slab R-10 edge
+  Chicago (5A)   heat pump         energy x4   cost x1   -> adv 2x6 + R5 foam, attic R-60, window U 0.27, 1.5 ACH50, slab R-10 edge
+  Chicago (5A)   heat pump         energy x4   cost x2   -> adv 2x6 + R5 foam, attic R-49, window U 0.35, 3 ACH50, slab R-10 edge
+  Duluth (7)     gas furnace + AC  energy x0.5 cost x0.5 -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Duluth (7)     gas furnace + AC  energy x0.5 cost x1   -> adv 2x6, attic R-30, window U 0.50, 7 ACH50, slab R-10 edge
+  Duluth (7)     gas furnace + AC  energy x0.5 cost x2   -> adv 2x6, attic R-19, window U 0.50, 7 ACH50, slab bare
+  Duluth (7)     gas furnace + AC  energy x1   cost x0.5 -> adv 2x6 + R5 foam, attic R-49, window U 0.35, 3 ACH50, slab R-10 edge
+  Duluth (7)     gas furnace + AC  energy x1   cost x1   -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Duluth (7)     gas furnace + AC  energy x1   cost x2   -> adv 2x6, attic R-30, window U 0.50, 7 ACH50, slab R-10 edge
+  Duluth (7)     gas furnace + AC  energy x2   cost x0.5 -> adv 2x6 + R5 foam, attic R-60, window U 0.27, 1.5 ACH50, slab R-10 edge
+  Duluth (7)     gas furnace + AC  energy x2   cost x1   -> adv 2x6 + R5 foam, attic R-49, window U 0.35, 3 ACH50, slab R-10 edge
+  Duluth (7)     gas furnace + AC  energy x2   cost x2   -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Duluth (7)     gas furnace + AC  energy x4   cost x0.5 -> adv 2x6 + R5 foam, attic R-60, window U 0.20, 1.5 ACH50, slab R-10 edge
+  Duluth (7)     gas furnace + AC  energy x4   cost x1   -> adv 2x6 + R5 foam, attic R-60, window U 0.27, 1.5 ACH50, slab R-10 edge
+  Duluth (7)     gas furnace + AC  energy x4   cost x2   -> adv 2x6 + R5 foam, attic R-49, window U 0.35, 3 ACH50, slab R-10 edge
+  Duluth (7)     heat pump         energy x0.5 cost x0.5 -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Duluth (7)     heat pump         energy x0.5 cost x1   -> adv 2x6, attic R-30, window U 0.50, 3 ACH50, slab R-10 edge
+  Duluth (7)     heat pump         energy x0.5 cost x2   -> adv 2x6, attic R-19, window U 0.50, 7 ACH50, slab bare
+  Duluth (7)     heat pump         energy x1   cost x0.5 -> adv 2x6 + R5 foam, attic R-60, window U 0.35, 1.5 ACH50, slab R-10 edge
+  Duluth (7)     heat pump         energy x1   cost x1   -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Duluth (7)     heat pump         energy x1   cost x2   -> adv 2x6, attic R-30, window U 0.50, 3 ACH50, slab R-10 edge
+  Duluth (7)     heat pump         energy x2   cost x0.5 -> adv 2x6 + R5 foam, attic R-60, window U 0.27, 1.5 ACH50, slab R-10 edge
+  Duluth (7)     heat pump         energy x2   cost x1   -> adv 2x6 + R5 foam, attic R-60, window U 0.35, 1.5 ACH50, slab R-10 edge
+  Duluth (7)     heat pump         energy x2   cost x2   -> adv 2x6, attic R-38, window U 0.50, 3 ACH50, slab R-10 edge
+  Duluth (7)     heat pump         energy x4   cost x0.5 -> adv 2x6 + R5 foam, attic R-60, window U 0.20, 1.5 ACH50, slab R-10 edge
+  Duluth (7)     heat pump         energy x4   cost x1   -> adv 2x6 + R5 foam, attic R-60, window U 0.27, 1.5 ACH50, slab R-10 edge
+  Duluth (7)     heat pump         energy x4   cost x2   -> adv 2x6 + R5 foam, attic R-60, window U 0.35, 1.5 ACH50, slab R-10 edge
+
+D. one upgrade at a time from the baseline: simple payback and NPC change (gas furnace + AC)
+upgrade                           Atlanta        Chicago         Duluth   (extra cost; saving USD/yr; payback years)
+attic R-30 -> R-49           $745/$17/43y   $745/$24/31y   $745/$33/23y
+windows U 0.35 -> 0.27     $1,645/$14/116y $1,645/$20/83y $1,645/$27/61y
+windows U 0.35 -> 0.20     $5,073/$27/191y $5,073/$37/136y $5,073/$51/100y
+air 5 -> 3 ACH50             $500/$21/24y   $500/$29/17y   $500/$40/13y
+air 5 -> 1.5 ACH50         $1,800/$36/49y $1,800/$51/35y $1,800/$70/26y
+slab edge R-10               $408/$18/22y   $408/$39/10y    $408/$60/7y
+wall 2x4 -> advanced 2x6     $-42/$43/neg   $-42/$60/neg   $-42/$81/neg
+wall 2x4 -> conv 2x6         $860/$33/26y   $860/$46/19y   $860/$63/14y
+
+E. where the 640-package optimum puts the heat loss, Chicago, gas (Btu/h F)
+  walls          49.9   baseline  82.8
+  ceiling        35.6   baseline  35.6
+  windows        68.6   baseline  48.0
+  door            7.4   baseline   7.4
+  slab edge      73.4   baseline  99.3
+  infiltration   24.2   baseline  40.3
+
+F. cost of a code-like floor: windows no worse than U 0.35 and air no leakier than 5 ACH50 (a stand-in for a prescriptive code, not a code check)
+climate            system             free optimum NPC  constrained NPC  premium  constrained optimum
+Miami (1A)         gas furnace + AC  $         13,232 $        14,435 $  1,202  adv 2x6, attic R-30, window U 0.35, 5 ACH50, slab bare
+Miami (1A)         heat pump         $         13,286 $        14,485 $  1,198  adv 2x6, attic R-30, window U 0.35, 5 ACH50, slab bare
+Houston (2A)       gas furnace + AC  $         13,215 $        14,482 $  1,268  adv 2x6, attic R-30, window U 0.35, 5 ACH50, slab bare
+Houston (2A)       heat pump         $         13,969 $        15,185 $  1,216  adv 2x6, attic R-30, window U 0.35, 5 ACH50, slab bare
+Atlanta (3A)       gas furnace + AC  $         13,996 $        15,257 $  1,261  adv 2x6, attic R-30, window U 0.35, 5 ACH50, slab bare
+Atlanta (3A)       heat pump         $         15,470 $        16,625 $  1,154  adv 2x6, attic R-30, window U 0.35, 5 ACH50, slab R-10 edge
+Albuquerque (4B)   gas furnace + AC  $         15,266 $        16,453 $  1,187  adv 2x6, attic R-30, window U 0.35, 5 ACH50, slab R-10 edge
+Albuquerque (4B)   heat pump         $         17,293 $        18,321 $  1,029  adv 2x6, attic R-30, window U 0.35, 3 ACH50, slab R-10 edge
+Baltimore (4A)     gas furnace + AC  $         15,670 $        16,831 $  1,160  adv 2x6, attic R-30, window U 0.35, 5 ACH50, slab R-10 edge
+Baltimore (4A)     heat pump         $         17,861 $        18,848 $    987  adv 2x6, attic R-30, window U 0.35, 3 ACH50, slab R-10 edge
+Chicago (5A)       gas furnace + AC  $         17,207 $        18,257 $  1,050  adv 2x6, attic R-30, window U 0.35, 3 ACH50, slab R-10 edge
+Chicago (5A)       heat pump         $         20,059 $        20,881 $    822  adv 2x6, attic R-38, window U 0.35, 3 ACH50, slab R-10 edge
+Minneapolis (6A)   gas furnace + AC  $         18,841 $        19,765 $    924  adv 2x6, attic R-30, window U 0.35, 3 ACH50, slab R-10 edge
+Minneapolis (6A)   heat pump         $         22,279 $        22,924 $    644  adv 2x6, attic R-38, window U 0.35, 3 ACH50, slab R-10 edge
+Duluth (7)         gas furnace + AC  $         20,714 $        21,501 $    787  adv 2x6, attic R-38, window U 0.35, 3 ACH50, slab R-10 edge
+Duluth (7)         heat pump         $         24,996 $        25,433 $    438  adv 2x6, attic R-38, window U 0.35, 3 ACH50, slab R-10 edge
