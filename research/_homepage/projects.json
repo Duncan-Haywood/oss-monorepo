@@ -2220,6 +2220,11 @@
      "slug": "simdesign-gaugefine",
      "title": "Is the least-mass laser-cut bracket the same on coarse and fine meshes under a patch-averaged stress rule?",
      "summary": "Preliminary, stylised 2D plane stress. On a 20&times;20 grid over arm width and fillet radius, the least mass of a feasible laser-cut bracket under a 3&nbsp;mm patch-averaged stress rule is the same on a 2.5&nbsp;mm and a 1.0&nbsp;mm mesh (2&nbsp;mm sheet: 32.31 vs 32.33&nbsp;g; 3&nbsp;mm: 40.81 vs 40.81&nbsp;g). Under the element-centroid peak rule the 2&nbsp;mm sheet has no feasible design on the fine mesh and the 3&nbsp;mm sheet needs 10.8% more mass. The catch: the patch value hardly depends on the fillet radius (94&ndash;102&nbsp;MPa for r from 0 to 15&nbsp;mm against a peak of 126&ndash;264&nbsp;MPa), so the rule cannot tell a sharp corner from a generous fillet. Two meshes only; one load case; nothing built or tested."
+    },
+    {
+     "slug": "simdesign-rank",
+     "title": "Do cheap beam and 2D models rank candidate cantilever designs like 3D finite elements?",
+     "summary": "Stylised. 80 random cantilever designs per seed (3 seeds) are ranked by stiffness per mass with Euler&ndash;Bernoulli and Timoshenko beam theory and 2D plane-stress FE, and compared with a 3D finite-element reference (scikit-fem). Single-design merit is off by up to 14% (Euler&ndash;Bernoulli, stubby sections), yet every cheap model ranks the designs almost identically: Kendall &tau; 0.987&ndash;0.996 with 3D, 3D&rsquo;s best design always ranked first, top-8 overlap 7 or 8 of 8. Stubby designs agree least (&tau; 0.96&ndash;0.99). Limits: one load case, assumed material, a coarse 3D reference, no stress or constraints in the ranking."
     }
    ]
   },

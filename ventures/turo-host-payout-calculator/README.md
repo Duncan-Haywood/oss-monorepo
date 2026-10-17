@@ -94,3 +94,11 @@ node --test calc.test.mjs usage.test.mjs page.test.mjs
 `stage: prototype` in [`VENTURE.yaml`](VENTURE.yaml). The payout, plan, and
 booking-window logic and its test suite are done; no external user contact
 has happened yet — see `kill_criteria` in `VENTURE.yaml`.
+
+## Save and share
+
+Trip details are saved in your own browser (`localStorage`) after each
+calculation, and **Copy shareable link** carries them in the URL fragment
+(`#...`, never sent to a server) so a co-host can open the same trip. A shared
+link replaces the recipient's saved draft rather than patching it
+(`share.mjs`, `share.test.mjs`). **Clear** removes the draft.
