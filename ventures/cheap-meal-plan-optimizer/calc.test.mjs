@@ -150,3 +150,20 @@ test("variety limit agrees with brute force on a tiny menu", () => {
   assert.equal(r.status, "optimal");
   assert.ok(Math.abs(r.cost - best) < 1e-6, `${r.cost} vs ${best}`);
 });
+
+test("share link round-trips foods and targets", async () => {
+  const { encodeShare, decodeShare, SAMPLE_FOODS } = await import("./calc.mjs");
+  const fields = { kmin: "2000", pmin: "120", share: "30", step: "0.5", cmin: "" };
+  const frag = encodeShare(SAMPLE_FOODS, fields);
+  const back = decodeShare("#" + frag);
+  assert.equal(back.foods, SAMPLE_FOODS);
+  assert.deepEqual(back.fields, { kmin: "2000", pmin: "120", share: "30", step: "0.5" });
+});
+
+test("share link drops unknown or non-numeric fields", async () => {
+  const { decodeShare } = await import("./calc.mjs");
+  const back = decodeShare("#foods=Rice%20%7C%200.1&kmin=%3Cscript%3E&evil=1&pmin=90");
+  assert.equal(back.foods, "Rice | 0.1");
+  assert.deepEqual(back.fields, { pmin: "90" });
+  assert.deepEqual(decodeShare("").fields, {});
+});
