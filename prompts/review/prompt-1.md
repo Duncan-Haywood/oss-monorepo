@@ -25,8 +25,9 @@ Read the tables. Then make the numbers true before you trust them:
   measures `merged`, PR size, red-CI commits and 14-day rework for every
   record that names a PR, upstream ones included, into `prompts/derived/`.
   `measure` reads that, so do not hand-edit records for these facts. Commit
-  the regenerated `prompts/derived/` with the review. If `fetch` gets a 403
-  (no GitHub API in this session), skip both and say so in the log.
+  the regenerated `prompts/derived/` with the review. `fetch` is incremental and
+  stops at ~100s (30 PRs per call): run it with `run_in_background` once, not
+  in a loop. On a 403 (no GitHub API), skip both and say so in the log.
 - **Count leaked work.** Branches or pull requests a recorded run pushed that
   were not on `main` 24 hours later. Set `merged: false` on their records.
   Then land or close each one, per `land-your-work.md`.
@@ -37,8 +38,8 @@ Pick about five recent outputs at random, across tracks. Re-run their tests
 and code, and check that the README's numbers match what the code produces.
 For research, check citations; for a venture, its disclaimer and usage
 tracking. Skip mirrored upstream records and doc-only runs (most of them
-today): audit what is auditable, say in one line what was not, and do not
-count it as friction. Log each problem as a correction (integrity issue or
+today): audit what is auditable, say in one line what was not (this is expected,
+not friction; do not report it). Log each problem as a correction (integrity issue or
 error) on the producing run's record.
 
 ## 3. Decide the active candidates
