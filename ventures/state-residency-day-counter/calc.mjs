@@ -513,3 +513,31 @@ export function dailyLogCsv(spec) {
   for (const r of dailyLog(spec)) rows.push([r.date, r.weekday, r.states.join("+"), r.basis, r.weekdayWork ? "Y" : "N", ""]);
   return rows.map((r) => r.map(csvCell).join(",")).join("\n") + "\n";
 }
+
+function esc(v) {
+  return String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+// A self-contained, printable audit packet: totals per state against the test,
+// the date ranges behind each total, the notices, and the day-by-day log with a
+// blank evidence column. Print it to PDF and keep it with the receipts. Every
+// figure comes from `analyze` and `dailyLog`, so it equals the on-screen report.
+export function auditReportHtml(spec, { name = "" } = {}) {
+  const r = analyze(spec);
+  const log = dailyLog(spec);
+  const conv = r.convention === "nights" ? "nights (departure day not counted)" : "inclusive (arrival and departure days both count)";
+  const stateRows = r.states.map((s) => `<tr><td>${esc(s.name)} (${esc(s.code)})</td><td class="n">${s.days}</td><td class="n">${s.assumedDays}</td><td class="n">${s.rule ? s.rule.limit : ""}</td><td>${esc(statusText(s))}</td><td>${s.ranges.map((g) => `${dayIso(g.start)} to ${dayIso(g.end)} (${g.days})`).join("<br>")}</td></tr>`).join("");
+  const notices = r.notices.length ? `<h2>Notices</h2><ul>${r.notices.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : "";
+  const logRows = log.map((d) => `<tr><td>${d.date}</td><td>${d.weekday}</td><td>${esc(d.states.join("+"))}</td><td>${esc(d.basis)}</td><td class="ev"></td></tr>`).join("");
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Residency day record ${r.year}${name ? " - " + esc(name) : ""}</title>
+<style>body{font:14px/1.4 system-ui,sans-serif;margin:24px;color:#111}h1{font-size:20px}h2{font-size:16px;margin-top:22px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:3px 6px;text-align:left;vertical-align:top}.n{text-align:right}.ev{width:30%}.small{font-size:12px;color:#444}@media print{.log tr{page-break-inside:avoid}}</style></head><body>
+<h1>Residency day record, ${r.year}${name ? ` - ${esc(name)}` : ""}</h1>
+<p class="small">Counting convention: ${esc(conv)}. ${r.totalDays} days in the year; ${r.daysCounted} state-days counted.</p>
+<h2>Days by state</h2>
+<table><thead><tr><th>State</th><th class="n">Days</th><th class="n">Assumed</th><th class="n">Limit</th><th>Against the commonly published test</th><th>Date ranges (days)</th></tr></thead><tbody>${stateRows}</tbody></table>
+${notices}
+<h2>Day-by-day log</h2>
+<table class="log"><thead><tr><th>Date</th><th>Day</th><th>State(s)</th><th>Basis</th><th>Evidence kept (card statement, boarding pass, receipt)</th></tr></thead><tbody>${logRows}</tbody></table>
+<p class="small">Prepared with the State Residency Day Counter from dates the user typed or imported. An organising aid, not tax or legal advice; it does not decide residency (domicile, ties, abode, part-year rules and reciprocity are not modelled) and the state tests are summaries that may be out of date. Check the state's own guidance.</p>
+</body></html>`;
+}
