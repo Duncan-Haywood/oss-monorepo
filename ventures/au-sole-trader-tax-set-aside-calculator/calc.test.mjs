@@ -94,3 +94,14 @@ test("an unknown or inherited year key falls back instead of throwing", () => {
     assert.equal(r.total, 17308);
   }
 });
+
+test("low income tax offset never goes negative just above its $66,667 end", () => {
+  assert.equal(lito(66667.5), 0);
+  assert.equal(lito(70000), 0);
+});
+
+test("only 2026-27 carries the legislated 15% rate note", () => {
+  const has = (r) => r.findings.some((f) => /15% rate/.test(f.title));
+  assert.ok(has(run({ year: "2026-27" })));
+  assert.ok(!has(run({ year: "2025-26" })));
+});
