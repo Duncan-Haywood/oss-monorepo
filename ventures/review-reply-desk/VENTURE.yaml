@@ -1,0 +1,63 @@
+name: review-reply-desk
+description: >-
+  Free browser tool for restaurants, contractors, salons, auto shops, hotels,
+  shops and dental and medical practices: paste Google, Yelp or Facebook reviews
+  and get a ready-to-post, rating-aware reply to each, risky reviews (legal
+  threats, injury claims, health privacy, possible fakes) flagged first, every
+  reply checked before you post, CSV export, and optional AI polish on the
+  owner's own key. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-17 in a scheduled new-venture session.
+# duplicate_check.py: closest row was app-review-insights 0.21 (mobile app store
+# reviews for developers, a different reader); nothing near the 0.45 line.
+#
+# Why this niche: reputation tools (Birdeye, Podium, ReviewTrackers, Grade.us) sell
+# review replies to local businesses at roughly $100+/month, and AI reply bots
+# (ReviewResponder and similar) charge per reply. The owner who answers reviews
+# by hand either skips them or posts the first angry sentence. A free, private
+# reply desk that knows the traps (public refund offers, legal threats, patient
+# privacy, accusing a real customer) covers the part of those tools a one-site
+# owner actually uses, and the checker is useful on replies written by hand.
+#
+# First visitor: people searching "how to respond to a negative google review",
+# "google review reply generator", "review response examples for dentists";
+# owners asking in r/smallbusiness and r/restaurateur how to answer one-star
+# reviews. Volume not measured with an external tool.
+#
+# Liability boundary: drafting aid only. No platform login, no posting, no scraping,
+# nothing stored or uploaded. The owner reads and posts every reply. Health-privacy
+# handling is a safeguard, not legal advice, and the page says so.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for a paid multi-location tool (review inbox, alerts, posting through
+# the platform APIs on the deployer's own keys) and a referral to reputation tools.
+
+hypotheses:
+  - claim: >-
+      Owners of local businesses will paste a batch of reviews into a private,
+      no-signup reply desk and post the replies it writes (edited or not) instead
+      of skipping the review or answering it from irritation, and will come back
+      when new reviews arrive.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a reply the checker passed that confirmed a patient relationship, offered compensation for a changed review, or accused the reviewer.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/review-reply-desk/
+  analytics: null
