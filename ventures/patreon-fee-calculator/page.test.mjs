@@ -176,3 +176,7 @@ test('every visible FAQ question and answer on the comparison page also appears 
     assert.ok(schema.includes(JSON.stringify(question).slice(1, -1)), `visible question is missing from the FAQPage block: ${question}`);
   }
 });
+
+test('index links one hop to the kickstarter-fee-calculator sibling', () => {
+  assert.match(html, /href="\.\.\/kickstarter-fee-calculator\/"/);
+});

@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01Uh6ZainR8x7tqqGv8HutsT",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T18:37:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7814",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/ledger/session_gate.py",
+      "issue": "Said the Pages snapshot was stale and to refresh first; publish-branch.sh refused because another session had already published newer."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Consolidate task for fee-calculator family found already wired (marketplace-fee-compare hub, to-where-to-sell handoffs). Shipped small internal-link fix only.",
+  "corrections": [],
+  "redteam": null
+}
