@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the mean comfort gain of the best two-garment wardrobe over the best single garment at a 100 dollar budget against the wearer's error rate, for uniform errors (the edge holds) and worst-option errors (the edge nearly vanishes)">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Pair's edge over one garment as the wearer errs ($100)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="254.6" y2="254.6" stroke="#ddd"/><text x="58" y="258.6" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="185.3" y2="185.3" stroke="#ddd"/><text x="58" y="189.3" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="115.9" y2="115.9" stroke="#ddd"/><text x="58" y="119.9" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="400.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">error rate e (share of scenarios with a wrong pick)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean gain of pair over single (C)</text>
+<polyline points="64.0,134.3 176.0,147.1 288.0,143.0 400.0,126.7 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="134.3" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="147.1" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="143.0" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="126.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">errors uniform over wrong options</text>
+<polyline points="64.0,134.3 176.0,210.2 288.0,259.8 400.0,291.4 624.0,315.3" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="134.3" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="210.2" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="259.8" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="291.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="315.3" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">every error is the worst option</text>
+</svg>
