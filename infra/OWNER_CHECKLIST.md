@@ -613,8 +613,8 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   `portfolio-site-repo` is sealed, so the redirect was live but led
   nowhere. It now serves `gitops/prod/portfolio-front.yaml` instead: a
   generated front-door page (positioning, one card per category, the
-  §5b clauses) plus a static mirror of 1276 tools at `/tools/<slug>/`, both
-  §5b clauses) plus a static mirror of 1276 tools at `/tools/<slug>/`, both
+  §5b clauses) plus a static mirror of 1277 tools at `/tools/<slug>/`, both
+  §5b clauses) plus a static mirror of 1277 tools at `/tools/<slug>/`, both
   held in kustomize ConfigMaps. Neither clones the repo at pod start, so
   neither needs the token, a runner, or a Pages flip — a merge to `main`
   is the deploy, same as everything else in this tree. No owner action;
