@@ -9,6 +9,8 @@ pinned in both directions rather than only on its happy path.
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import socket
 import unittest
@@ -790,6 +792,51 @@ class Rendering(unittest.TestCase):
         text = render(build(LIVE_OUTAGE, actions_note="skipped — no HETZNERREADAPIKEY"))
         self.assertIn("### Recent server actions", text)
         self.assertIn("skipped", text)
+
+
+class TimestampsAndOutput(unittest.TestCase):
+    """Guards for the small helpers the verdict text and JSON output lean on."""
+
+    def test_when_falls_back_from_finished_to_started_to_a_placeholder(self):
+        self.assertEqual(triage_mod._when({"finished": "F", "started": "S"}), "F")
+        self.assertEqual(triage_mod._when({"started": "S"}), "S")
+        self.assertEqual(triage_mod._when({}), "(no timestamp)")
+
+    def test_ts_falls_back_to_started_when_unfinished(self):
+        started_only = triage_mod._ts({"started": "2026-01-02T03:04:05Z"})
+        self.assertIsNotNone(started_only)
+        self.assertEqual(started_only.year, 2026)
+        both = triage_mod._ts({"finished": "2026-02-02T03:04:05Z", "started": "2026-01-02T03:04:05Z"})
+        self.assertEqual(both.month, 2)
+        self.assertIsNone(triage_mod._ts({}))
+
+    def test_resolve_uses_the_system_resolver_by_default(self):
+        fake = [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("203.0.113.9", 443))]
+        original = socket.getaddrinfo
+        socket.getaddrinfo = lambda *a, **k: fake
+        try:
+            result = resolve("example.test")
+        finally:
+            socket.getaddrinfo = original
+        self.assertEqual(result.addresses, ("203.0.113.9",))
+
+    def test_json_out_is_indented_by_two_spaces(self):
+        import sys
+        import tempfile
+
+        original_collect, original_argv = triage_mod.collect, sys.argv
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "reading.json"
+            triage_mod.collect = lambda token=None: build(LIVE_OUTAGE)
+            sys.argv = ["outage_triage.py", "--json-out", str(out)]
+            try:
+                with contextlib.redirect_stdout(io.StringIO()):
+                    triage_mod.main()
+            finally:
+                triage_mod.collect, sys.argv = original_collect, original_argv
+            text = out.read_text()
+        self.assertIn('\n  "nodes"', text)
+        self.assertNotIn('\n   "nodes"', text)
 
 
 if __name__ == "__main__":
