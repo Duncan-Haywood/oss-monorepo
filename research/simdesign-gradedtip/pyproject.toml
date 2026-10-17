@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-gradedtip"
+version = "0.1.0"
+description = "Does the peak stress at the fillet tangent point of the L-bracket converge under graded mesh refinement?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "scikit-fem", "matplotlib", "shapely"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
