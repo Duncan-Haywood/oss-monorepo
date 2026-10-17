@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the "vary l/w to see when the gap to the closed form closes" next step of `simdesign-shellorder`. Produced with AI assistance (Claude). A stylised, preliminary scan of one idealised bar; nothing was made or tested. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-shellaspect/
+
 **Builds on.** `simdesign-shellorder` (model code copied unchanged: linear eigenbuckling of a 3D quadratic-hexahedron bar in scikit-fem, clamped at x = 0, steel E = 200 GPa, ν = 0.30, tip shear load in the width direction). Closed form: the cantilever lateral-torsional result of S. P. Timoshenko and J. M. Gere, *Theory of Elastic Stability*, 2nd ed., McGraw-Hill, 1961, as used in `simdesign-webbuckle`. scikit-fem: T. Gustafsson and G. D. McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52), 2369, 2020.
 
 ## Method
