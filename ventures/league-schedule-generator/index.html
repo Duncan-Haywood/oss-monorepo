@@ -103,6 +103,10 @@
     <label for="withdrawals">One per line: a team name removes all of its matches, a date plus a team name removes only the matches on or after that night. Nothing else moves, and the warnings list how many fixtures each opponent loses. <code>Lob Squad</code> or <code>2026-11-03 Lob Squad</code></label>
     <textarea id="withdrawals" rows="2" placeholder="2026-11-03 Lob Squad"></textarea>
 
+    <h2 style="margin-top:18px">5c. Teams that share a ground (optional)</h2>
+    <label for="grounds">One line per ground, teams separated by commas. Teams on a line are not both at home on the same night where that can be avoided; only venues are flipped, so dates, courts, times and opponents stay put. <code>Net Ninjas, Dink Dynasty</code></label>
+    <textarea id="grounds" rows="2" placeholder="Net Ninjas, Dink Dynasty"></textarea>
+
     <h2 style="margin-top:18px">6. Referees and officials (optional)</h2>
     <label for="officials">One per line. Every match gets one official, shared out evenly. Put a team in brackets if they belong to it (they never work its matches), weekdays after a colon, and <code>max 4</code> to cap their matches. <code>Pat (Hawks): Tue, Thu max 4</code></label>
     <textarea id="officials" rows="3" placeholder="Pat (Hawks): Tue, Thu max 4&#10;Sam"></textarea>
@@ -212,7 +216,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, rematchReport, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, playoffRace, remainingFixtures, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, rematchReport, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, playoffRace, remainingFixtures, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -239,6 +243,7 @@
       $("#rainouts").value = f.rainouts || "";
       $("#withdrawals").value = f.withdrawals || "";
       $("#officials").value = f.officials || "";
+      $("#grounds").value = f.grounds || "";
     }
 
     function readFields() {
@@ -248,7 +253,7 @@
         teams: $("#teams").value, double: $("#double").checked, start: $("#start").value, weekdays,
         skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courts: $("#courts").value, times: $("#times").value,
         seed: $("#seed").value, minutes: $("#minutes").value,
-        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, officials: $("#officials").value,
+        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, officials: $("#officials").value, grounds: $("#grounds").value,
       };
     }
 
@@ -333,6 +338,17 @@
         s = wr.schedule;
         warnings.push(...wr.errors, ...wr.withdrawals.map((w) => s.teams[w.team] + " withdrew" + (w.from === null ? "" : " as of " + dayLabel(w.from)) + ": " + w.removed.length + " fixture(s) removed; short: " + (w.opponentsShort.map((o) => o.team + " " + o.fixtures).join(", ") || "none") + "."));
       }
+      if ($("#grounds").value.trim()) {
+        const pg = parseGrounds($("#grounds").value, s.teams);
+        warnings.push(...pg.errors);
+        if (pg.groups.length) {
+          const gr = applyGroundSharing(s, pg.groups);
+          s = gr.schedule;
+          if (gr.flips.length) warnings.push(`Shared grounds: moved ${gr.flips.length} home game(s) so clubmates are not both at home (dates, courts and opponents unchanged).`);
+          warnings.push(...gr.remaining.slice(0, 5).map((c) => `Shared ground clash: ${c.teams.join(" and ")} are both at home in ${c.round} (${dayLabel(c.day)}).`));
+          if (gr.remaining.length > 5) warnings.push(`${gr.remaining.length - 5} more shared-ground clashes.`);
+        }
+      }
       if ($("#officials").value.trim()) {
         const po = parseOfficials($("#officials").value, s.teams);
         warnings.push(...po.errors);
@@ -389,7 +405,7 @@
       later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample league: invented teams, not a real league."; } });
     });
     $("#clear-all").addEventListener("click", () => {
-      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courts", "times", "results", "rainouts", "withdrawals", "officials"]) $("#" + id).value = "";
+      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courts", "times", "results", "rainouts", "withdrawals", "officials", "grounds"]) $("#" + id).value = "";
       $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#double").checked = false;
       $("#report").hidden = true; last = null; status.textContent = "Cleared.";
     });
