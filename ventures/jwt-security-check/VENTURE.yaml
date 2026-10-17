@@ -1,0 +1,193 @@
+name: jwt-security-check
+description: Free browser tool that decodes a pasted JSON Web Token (the base64url header.payload.signature format used across nearly all modern web/mobile authentication) and checks the decoded header and payload for documented misconfiguration patterns -- alg:none, a missing alg, embedded or referenced key material (jwk/jku/x5u/x5c), a symmetric algorithm alongside an asymmetric-key header hint (algorithm confusion), a kid header shaped like path traversal or SQL injection, missing/expired/excessively long exp, a missing or future-dated iat, a still-future nbf, missing aud/iss, and sensitive-looking field names in the unencrypted payload. Runs entirely client-side; nothing uploaded, no account, no network call, no AI/LLM call, and it never asks for or verifies against a signing key.
+stage: prototype
+
+owner: duncan
+
+# Shape and gates (run 2026-09-24)
+#
+# Screened this session per portfolio/pipeline/README.md's "screening is
+# done" instruction and the "archetype itself" section: not a <trade>-bid-
+# calculator (141+ existing tries, none with a confirmed visitor) and not
+# just another generic "-check" venture picked for shape alone (84+ existing
+# `-check`/`-checker` ventures as of this session, per the same section's
+# 2026-09-11 caveat that "not another checker" stopped being sufficient
+# novelty on its own). The niche itself is what is new: no venture or
+# pipeline candidate in this portfolio touches JWTs, OAuth tokens, or any
+# authentication-token format at all (checked below), and JWT security
+# missteps are a well-documented, high-stakes, extremely widely searched
+# problem (RFC 8725 "JWT Best Current Practices" exists specifically because
+# the failure modes recur across languages and libraries; the "algorithm
+# confusion" and "alg: none" attack classes are canonical, frequently cited
+# JWT security material going back to 2015 and earlier).
+#
+# duplicate_check.py (run this session, both against an early one-line
+# description and again against the final feature list, per this file's own
+# instruction to re-run after reading the portfolio):
+#
+# First pass, against "JWT security checker: paste a JSON Web Token and
+# detect alg:none, missing/excessive exp, missing aud/iss, PII or secrets
+# embedded in the unencrypted payload, and other common JWT
+# misconfigurations":
+#
+#   score  source                    label
+#    0.11  pipeline candidate        dotenv-exposure-check
+#    0.09  venture                   cookie-security-check
+#    0.09  venture                   terraform-plan-secret-exposure-check
+#    0.09  venture                   chrome-extension-permission-check
+#    0.08  pipeline candidate        cors-misconfig-check
+#    0.08  venture                   obsidian-plugin-review-check
+#    0.07  venture                   git-exposure-check
+#    0.07  venture                   einvoice-preflight
+#    0.07  venture                   security-txt-check
+#    0.07  venture                   security-headers-check
+#
+# Second pass, against the final feature list (this file's own description
+# field, above):
+#
+#   score  source                    label
+#    0.09  venture                   cookie-security-check
+#    0.08  venture                   terraform-plan-secret-exposure-check
+#    0.07  venture                   cache-control-check
+#    0.07  pipeline candidate        cors-misconfig-check
+#    0.07  venture                   supabase-rls-check
+#    0.07  venture                   wordpress-plugin-review-check
+#    0.06  venture                   security-headers-check
+#    0.06  pipeline candidate        dotenv-exposure-check
+#    0.06  venture                   obsidian-plugin-review-check
+#    0.06  venture                   dotenv-exposure-check
+#
+# Nothing scored >= 0.45 in either pass (the review bar). Read the top few
+# anyway per the tool's own instruction, since this is word overlap rather
+# than a semantic check:
+#  - cookie-security-check, security-headers-check, cache-control-check,
+#    cors-misconfig-check: all check HTTP response headers a *server* sends
+#    on a live request. This tool checks a token's own encoded contents,
+#    pasted directly -- no live request, no server headers, no shared code
+#    path.
+#  - terraform-plan-secret-exposure-check, dotenv-exposure-check,
+#    git-exposure-check: all check whether a *secret* is present/exposed in
+#    a different artifact class (a Terraform plan, a .env file, a git
+#    working tree). Overlap is only the word "secret"/"exposure" -- none
+#    reads a JWT, and this tool's sensitive-field-name check is one of eight
+#    checks, not the whole product.
+#  - supabase-rls-check, wordpress-plugin-review-check,
+#    obsidian-plugin-review-check, chrome-extension-permission-check: each
+#    checks a different platform's own config/manifest format (Postgres RLS
+#    policies, a WordPress plugin readme/header, an Obsidian plugin
+#    manifest, a Chrome extension manifest). None reads a JWT.
+#  - einvoice-preflight, security-txt-check: no meaningful overlap beyond
+#    generic "-check" vocabulary.
+#
+# Also checked `git log --oneline -40 origin/main` and the three open PRs
+# named in this session's brief (#5679 depop-fee-calculator, #5689
+# siding-bid-calculator comparison page, #5692 k8s-resource-limits-check):
+# none touch JWTs, tokens, or authentication. `ls ventures/ | grep -iE
+# "jwt|oauth|csp|token|auth"` found only email-auth-check (SPF/DKIM/DMARC
+# email authentication -- a completely different protocol and artifact
+# class). No open PR or recent merge builds this niche.
+#
+# LIABILITY CONTAINMENT: every check is a deterministic pattern match
+# against the decoded JSON of text the user pastes -- no network call of any
+# kind, no call to an LLM, and critically, no signature verification and no
+# key of any kind requested, stored, or used. The tool never claims to know
+# whether a token is "secure": the UI, README, and footer all say plainly
+# that a finding is "worth a look, not a verdict" and that a clean result is
+# "not a guarantee your token or server is secure." Every finding whose
+# real-world impact depends on server-side verification code (embedded-key
+# trust, algorithm-confusion, kid-injection) says explicitly that this tool
+# cannot see that code and is naming a documented pattern, not asserting a
+# live vulnerability. This mirrors mcp-config-risk-check's and
+# hidden-unicode-check's own liability framing (both graduated 2026-09-24 on
+# the same reasoning, plus skill-manifest-check the same day): the tool
+# never claims to know the one thing it cannot see (server-side verification
+# behavior), only that a specific pattern was or was not observed in the
+# pasted text.
+#
+# Bring-your-own-data compliance: the tool asserts nothing about a live,
+# time-varying vendor fact -- there is no vendor or third-party service in
+# scope at all. It classifies patterns in exactly the text the user pastes,
+# the same discipline every structural-checker venture in this portfolio
+# uses, and it explicitly cites the specs/documented attack literature
+# (RFC 7518, RFC 7519, RFC 8725, the 2015 "algorithm confusion" research)
+# behind each check rather than asserting an un-sourced rule.
+#
+# ETHICAL ROBUSTNESS: strictly beneficial as it scales -- it exists only to
+# help a developer catch a documented JWT misconfiguration before it ships,
+# with no adverse incentive on our side (no affiliate link, no referral fee,
+# donations-only same as the rest of the portfolio). It does not scan,
+# fingerprint, or contact any third-party system, registry, service, or
+# server -- it only reads text pasted directly into the page, and it never
+# transmits a token anywhere (a real security property for a tool whose
+# whole subject is credential-shaped data).
+#
+# JUDGMENT CALLS flagged for review:
+#  - The "excessive lifetime" thresholds (24h caution, 30 days stronger
+#    caution) are a documented reference point (RFC 8725 3.7's general
+#    short-lifetime guidance; OWASP's JWT Cheat Sheet says the same) rather
+#    than a number any spec enforces as a hard limit -- stated as such in
+#    calc.mjs's comments, the README, and never raised above medium
+#    severity, since a long-lived refresh or service token can be entirely
+#    intentional.
+#  - The sensitive-field-name heuristic is a fixed key-name regex (password,
+#    ssn, api_key, credit_card, ...), not a content classifier -- it can
+#    miss a differently-named sensitive field and can flag a field that is,
+#    for this specific token, genuinely fine to expose. Stated in the
+#    finding text and the README.
+#  - The kid-injection-risk and algorithm-confusion-risk checks name
+#    documented attack *shapes*, not live vulnerabilities: this tool cannot
+#    see whether a server's verifier actually resolves kid unsafely or
+#    actually confuses algorithms. Every such finding says explicitly that
+#    it depends on verification code this tool cannot see.
+#  - No signature verification of any kind is implemented, by design -- the
+#    tool never requests, stores, or needs a key. This is a scope choice
+#    (decode-and-pattern-match, not verify), stated plainly in the UI,
+#    README, and FAQ, not an oversight.
+hypotheses:
+  - claim: A developer or security reviewer who has a JWT in hand (from a debugging session, a bug bounty, a code review, or their own service) wants the documented misconfiguration checklist (alg:none, embedded keys, algorithm confusion, kid injection, timing-claim problems, payload data exposure) run against it automatically, rather than checking each item by hand or memory.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Presenting the decoded header/payload alongside the findings (rather than findings alone) increases the tool's usefulness enough that visitors use it as a general-purpose JWT decoder too, not only when they suspect a specific problem -- widening the plausible visitor base beyond "someone already worried about JWT security."
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: all checks are client-side, nothing is
+  # uploaded, and there is no server of ours in the loop. Serving one more
+  # visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors paste a token and get at least one finding within 90 days.
+  - A finding's stated category (alg-none / missing-alg / embedded-key-header / algorithm-confusion-risk / kid-injection-risk / missing-exp / expired / excessive-lifetime / missing-iat / iat-in-future / not-yet-valid / missing-aud / missing-iss / sensitive-field-name) is wrong for a real, well-formed JWT a user pastes, and cannot be fixed by tightening a pattern or threshold.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/jwt-security-check/
+  analytics: null
+
+channel_notes: >-
+  Named first-visitor channels: JWTs are used by nearly every modern web and
+  mobile authentication system (OAuth2/OIDC access tokens, session tokens,
+  API tokens), so the developer audience that searches "jwt decoder", "jwt
+  debugger", "jwt security checklist", "alg none vulnerability", "jwt
+  algorithm confusion", and "is my jwt secure" is orders of magnitude larger
+  than a niche AI-agent-tooling audience -- this is a mainstream web/mobile
+  security topic, not a narrow one. Organic search for those terms, plus
+  r/netsec, r/webdev, and general AppSec/OWASp-adjacent communities where the
+  JWT Cheat Sheet and RFC 8725 are already commonly cited reference material.
+  Stack Overflow's own "jwt" tag is one of the most active auth-related tags
+  on the site, a channel with demonstrable, sustained search volume rather
+  than an inferred one. The mcp-config-risk-check and hidden-unicode-check
+  footer cross-links are themselves a secondary channel: a visitor arriving
+  at either for a paste-and-check structural security tool is a plausible
+  visitor for this one too, and vice versa (reciprocal links added the same
+  commit).

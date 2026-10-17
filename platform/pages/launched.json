@@ -587,6 +587,7 @@
     "json-to-types-generator": "2026-10-12",
     "junk-car-buyer-offer-calculator": "2026-10-09",
     "junk-removal-bid-calculator": "2026-08-26",
+    "jwt-security-check": "2026-10-17",
     "jwt-verification-misuse-check": "2026-10-03",
     "k8s-deprecated-api-check": "2026-09-17",
     "k8s-pod-security-check": "2026-10-03",
