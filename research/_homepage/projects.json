@@ -1486,6 +1486,11 @@
      "summary": "A follow-up to the variability-sweep project: mean value analysis with the printer demand increased by the arm&rsquo;s load and unload time, compared with plain MVA and two utilisation bounds against the simulated cell (cv 0.3 and 1.0, 4&ndash;16 printers, four loads, 20 seeds, 32 settings; illustrative times). The repair helps only at saturation (mean absolute error 2.9% against 8.2% for plain MVA) and hurts elsewhere (7.3% against 3.6%), so over all settings plain MVA is better (4.7% against 6.2%). A mixed result: no single demand setting is right across loads. Stylised and simulation-only."
     },
     {
+     "slug": "robofab-cell-blocking",
+     "title": "Can a blocking-aware correction to queueing analysis predict a robot-printer cell across loads?",
+     "summary": "A follow-up to the held-printer project: held demand plus a fitted stall (printers waiting for the arm to unload them) helps only at saturation (1.4% mean error) and double-counts load and unload time elsewhere (8.5%). A predictor that keeps latency (plain demand plus stall) apart from capacity (held demand plus stall) scores 3.6% against 4.7% for plain MVA on 32 design settings, but ties plain MVA on a held-out job mix (3.4% against 3.5%) and still underestimates by up to 8% at moderate load. Stylised; illustrative times; 20 seeds."
+    },
+    {
      "slug": "robofab-selfparts",
      "title": "Can a parallel-jaw arm assemble its own gripper?",
      "summary": "Exhaustive search over assembly orders of a seven-part toy gripper (axis-aligned boxes) by a modelled arm with a parallel-jaw grasp check, three approach-direction models and a swept jaw opening. No complete order exists below a 30&nbsp;mm opening, the width of the widest part; above it, 384 of 720 orderings are valid when parts may be slid sideways and 120 when strictly top-down. Jaw-pad thickness from 2 to 10&nbsp;mm changes nothing (a negative result for this geometry). <em>Stylised single design, no reach, force or fasteners; simulation only.</em>"
@@ -2105,6 +2110,11 @@
      "slug": "simdesign-gaugelayers",
      "title": "Do the reversed-load buckling widths of the L-bracket change with more element layers through the thickness?",
      "summary": "A small finite-element check (stylised, preliminary; ideal elastic sheet, sharp inner corner, coarse in-plane mesh). Raising the number of hexahedral layers through the sheet from one to four moves the whole-L reversed-load buckling factor at the <em>simdesign-revgauge</em> root widths by at most 1.2% (3.0&nbsp;mm gauge; under 0.7% at 1.5 to 2.5&nbsp;mm) and the width needed for a factor of 3 by 0.07&nbsp;mm or less (2.0&nbsp;mm: 11.84 to 11.77&nbsp;mm, 27.4&nbsp;g). The thicker-sheet mass ranking of that project is not an artefact of a single through-thickness layer; its other doubt, a web barely wider than the sheet is thick, stands."
+    },
+   {
+     "slug": "simdesign-fwdcheck",
+     "title": "Do the reversed-load buckling-limited L-bracket designs also pass the forward-load buckling, stress and deflection checks?",
+     "summary": "A small finite-element check (stylised, preliminary; ideal elastic steel, sharp inner corner, assumed limits). Under the forward 100&nbsp;N load the four lightest designs that clear the reversed-load buckling floor (1.5 to 3.0&nbsp;mm sheet) all have forward buckling factors of 4.7 to 5.6, so buckling does not bind. But only the 1.5&nbsp;mm, 22.5&nbsp;mm design meets the 100&nbsp;MPa stress and 4&nbsp;mm deflection limits; the 2.5 and 3.0&nbsp;mm designs exceed them by 2 to 8 times, and the 2.0&nbsp;mm design passes only on the coarse mesh (95.7&nbsp;MPa against 144.9&nbsp;MPa on a finer one). The thicker sheet's mass saving is therefore not feasible under these limits."
     },
    {
      "slug": "simdesign-revgauge",
